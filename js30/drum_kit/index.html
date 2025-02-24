@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="icon" type="image/png" href="pxhlogo.png" />
+        <title>drum kit</title>
+        <link rel="stylesheet" href="style.css" />
+
+        <script src="data.js"></script>
+    </head>
+    <body>
+        <div class="wrapper">
+            <script>
+                for (let i = 0; i < DATA_BOX_SOUNDS.length; i++) {
+                    const { textBig, textSmall, dataKey } = DATA_BOX_SOUNDS[i];
+                    document.querySelector(".wrapper").innerHTML += `<div class="box-sound">
+                        <div class="text-big" data-key="${dataKey}">${textBig}</div>
+                        <div class="text-small">${textSmall}</div>
+                    </div>`;
+                }
+            </script>
+        </div>
+
+        <div class="assets">
+            <div class="sound">
+                <script>
+                    for (let i = 0; i < DATA_BOX_SOUNDS.length; i++) {
+                        const { mp3, dataKey } = DATA_BOX_SOUNDS[i];
+                        document.querySelector(".sound").innerHTML += `<audio src="sounds/${mp3}" type="audio/wav" data-key="${dataKey}"></audio>`;
+                    }
+                </script>
+            </div>
+        </div>
+
+        <script src="script.js"></script>
+    </body>
+</html>
