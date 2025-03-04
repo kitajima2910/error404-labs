@@ -14,7 +14,7 @@ class App {
         this.bindEvents(); // Gán sự kiện cho các phần tử trên trang
 
         // Kiểm tra localStorage để tải lại trang trước đó khi F5
-        const savedPage = localStorage.getItem("currentPage") || "home";
+        const savedPage = localStorage.getItem("currentPage") || "games";
         this.loadPage(savedPage);
         $(`.nav-link[data-page='${savedPage}']`).addClass("active");
     }
