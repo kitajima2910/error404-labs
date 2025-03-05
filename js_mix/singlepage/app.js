@@ -46,6 +46,8 @@ class App {
             success: (data) => {
                 this.root.html(data); // Đổ nội dung trang vào phần tử gốc
                 this.loadAssets(page); // Load các tài nguyên (CSS, JS) của trang
+
+                window.title = ` -:- ${page.charAt(0).toUpperCase() + page.slice(1)} . PXH2910 -:- `;
             },
             error: () => {
                 this.root.html("<p>Lỗi tải trang!</p>"); // Hiển thị thông báo lỗi nếu không tải được trang
@@ -79,6 +81,16 @@ class App {
 
 // Khi tài liệu HTML đã sẵn sàng, khởi tạo ứng dụng
 $(document).ready(() => {
-    const app = new App("#app"); // Khởi tạo app với phần tử gốc #app
-    app.init(); // Gọi phương thức khởi tạo
+    app = new App("#app"); // Khởi tạo app với phần tử gốc #app
+    app?.init(); // Gọi phương thức khởi tạo
+
+    let position = window.title.length;
+
+    function scrollTitle() {
+        document.title = window.title.slice(position) + window.title.slice(0, position);
+        position = position > 0 ? position - 1 : window.title.length;
+        setTimeout(scrollTitle, 200);
+    }
+
+    scrollTitle();
 });
