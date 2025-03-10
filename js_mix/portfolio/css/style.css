@@ -294,3 +294,99 @@ header.sticky {
     line-height: 28px;
     margin-bottom: 45px;
 }
+
+.heading {
+    text-align: center;
+}
+
+.heading h2 {
+    font-size: var(--h2-font);
+    font-weight: 500;
+    margin: 7px 0 20px;
+    line-height: 1.1;
+}
+
+.heading h3 {
+    color: var(--main-color);
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.heading p {
+    font-size: var(--p-font);
+    color: var(--second-color);
+    line-height: 28px;
+}
+
+.portfolio-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, auto));
+    grid-gap: 2rem;
+    align-items: center;
+    text-align: center;
+    margin-top: 5rem;
+    cursor: pointer;
+}
+
+.col {
+    position: relative;
+}
+
+.col img {
+    max-width: 100%;
+    width: 550px;
+    height: auto;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: transparent;
+    border-radius: 12px;
+    transition: all .40s;
+}
+
+.layer:hover {
+    background: linear-gradient(rgba(0, 0, 0, 0.5) 0%, #191919);
+}
+
+.layer h3 {
+    position: absolute;
+    width: 100%;
+    font-size: 25px;
+    font-weight: 500;
+    color: var(--bg-color);
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: all .40s;
+}
+
+.layer:hover h3 {
+    bottom: 52%;
+    opacity: 1;
+}
+
+.layer h5 {
+    position: absolute;
+    width: 100%;
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--bg-color);
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: all .40s;
+}
+
+.layer:hover h5 {
+    bottom: 48%;
+    opacity: 1;
+}
