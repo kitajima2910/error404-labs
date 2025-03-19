@@ -27,7 +27,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <div>SiteName</div>
+        <div>NavBar</div>
+        {children} {/* Page.tsx */}
+        <div>Make By PXH2910</div>
       </body>
     </html>
   );
