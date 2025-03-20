@@ -1,0 +1,171 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+
+    text-transform: uppercase;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.box-container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    padding-bottom: 70px;
+    background-color: #333;
+}
+
+.box-container .box {
+    height: 500px;
+    width: 300px;
+    margin: 20px 40px;
+    border-radius: 10px;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+    background-color: #222;
+}
+
+.box-container .box::before,
+.box-container .box::after {
+    content: "";
+    position: absolute;
+    height: 200px;
+    width: 200px;
+    border-radius: 50%;
+    opacity: 0.5;
+}
+
+.box-container .box::before {
+    background-color: #f0f0f0;
+    top: -10%;
+    left: 80%;
+}
+
+.box-container .box::after {
+    background-color: #74b9ff;
+    bottom: -10%;
+    right: 80%;
+}
+
+.box-container .box .title {
+    margin: 30px 0;
+    font-size: 26px;
+    color: #74b9ff;
+}
+
+.box-container .box .price {
+    height: 160px;
+    width: 160px;
+    border-radius: 50%;
+    color: #fff;
+    background-color: #74b9ff;
+    padding: 57px 0 0;
+    margin: 0 auto 25px;
+}
+
+.box-container .box .price .currency {
+    font-size: 35px;
+    line-height: 35px;
+    font-weight: 300;
+}
+
+.box-container .box .price .amount {
+    font-size: 58px;
+    line-height: 45px;
+    font-weight: 700;
+}
+
+.box-container .box .price .duration {
+    font-size: 18px;
+    font-weight: 400;
+    margin-left: -5px;
+    letter-spacing: 1px;
+}
+
+.box-container .box ul li {
+    text-align: left;
+    padding-left: 45px;
+    margin: 20px auto;
+    color: #666;
+    color: #fff;
+    list-style: none;
+}
+
+.box-container .box ul li i {
+    padding: 0 10px;
+    color: #74b9ff;
+}
+
+.box-container .box button {
+    height: 40px;
+    width: 140px;
+    outline: none;
+    border-radius: 50px;
+    background-color: transparent;
+    color: #74b9ff;
+    border: 2px solid #74b9ff;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: .2s linear;
+}
+
+.box-container .box button:hover {
+    background-color: #74b9ff;
+    color: #fff;
+}
+
+.box-container .yellow .title {
+    color: #ffd32a;
+}
+
+.box-container .yellow .price {
+    background-color: #ffd32a;
+}
+
+.box-container .yellow ul li i {
+    color: #ffd32a;
+}
+
+.box-container .yellow button {
+    color: #ffd32a;
+    border-color: #ffd32a;
+}
+
+.box-container .yellow button:hover {
+    background-color: #ffd32a;
+}
+
+.box-container .yellow::after {
+    background-color: #ffd32a;
+}
+
+.box-container .red .title {
+    color: #f53b57;
+}
+
+.box-container .red .price {
+    background-color: #f53b57;
+}
+
+.box-container .red ul li i {
+    color: #f53b57;
+}
+
+.box-container .red button {
+    color: #f53b57;
+    border-color: #f53b57;
+}
+
+.box-container .red button:hover {
+    background-color: #f53b57;
+}
+
+.box-container .red::after {
+    background-color: #f53b57;
+}
