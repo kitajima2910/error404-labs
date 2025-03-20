@@ -1,3 +1,13 @@
-export default function Home() {
-    return <>code with pxh2910</>;
-}
+import React from "react";
+import SellerAbout from "./(seller)/sellerabout/page";
+
+const MainPage = () => {
+    return (
+        <>
+            <SellerAbout />
+            <div>MainPage</div>
+        </>
+    );
+};
+
+export default MainPage;
