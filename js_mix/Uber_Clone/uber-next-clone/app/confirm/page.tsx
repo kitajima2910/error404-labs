@@ -29,7 +29,7 @@ const Confirm = () => {
     };
 
     useEffect(() => {
-        getCoordinates("quy nhon").then((coords) => {
+        getCoordinates("10 Đ. Phổ Quang, Phường 2, Tân Bình, Hồ Chí Minh").then((coords) => {
             if (coords) setPositionTager(coords);
         });
     }, []);
