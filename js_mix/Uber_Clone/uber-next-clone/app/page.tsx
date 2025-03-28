@@ -13,13 +13,13 @@ const MapComponent = dynamic(() => import("@/components/MapComponent"), {
 
 export default function Home() {
     useEffect(() => {
-        console.log("hello");
+        // console.log("hello");
     }, []);
 
     return (
         <Wrapper>
             <Map>
-                <MapComponent />
+                <MapComponent positionTager={null} />
             </Map>
             <ActionItems>
                 {/* header */}

@@ -7,7 +7,7 @@ const Search = () => {
         <Wrapper>
             {/* button container */}
             <ButtonContainer>
-                <Link href="/">
+                <Link href="/" className="table-cell">
                     <BackButton src="https://img.icons8.com/?size=100&id=7811&format=png&color=000000" />
                 </Link>
             </ButtonContainer>
@@ -87,7 +87,7 @@ const StarIcon = tw.img`
 `;
 
 const ConfirmLocation = tw.div`
-    bg-gray-200 px-4 py-2
+    bg-gray-200 px-4 py-2 cursor-pointer
 `;
 
 const Button = tw.button`
