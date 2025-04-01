@@ -1,16 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { useEffect, useState } from "react";
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { LatLngExpression } from "leaflet";
 import L from "leaflet";
 
-// let position1: LatLngExpression = [10.7769, 106.7009]; // TP.HCM
-// let position2: LatLngExpression | null = null; // Có thể là null
-// position2 = [10.8099244, 106.5709155]; // Bình Chánh (có thể null)
-
-// Tạo icon màu xanh (cho position1)
+// Tạo icon màu xanh (cho Pickup)
 const greenIcon = L.icon({
     iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png",
     shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
@@ -20,7 +16,7 @@ const greenIcon = L.icon({
     shadowSize: [41, 41],
 });
 
-// Tạo icon màu đỏ (cho position2)
+// Tạo icon màu đỏ (cho Tager)
 const redIcon = L.icon({
     iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
     shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
@@ -46,34 +42,60 @@ function AdjustBounds({ positions }: { positions: LatLngExpression[] }) {
     return null;
 }
 
-export default function MapComponent({ positionTager }: { positionTager: LatLngExpression | null }) {
-    let position1: LatLngExpression = [10.7769, 106.7009]; // TP.HCM
-    // let position2: LatLngExpression | null = null; // Có thể là null
-    // position2 = [10.8099244, 106.5709155]; // Bình Chánh (có thể null)
-    let position2 = positionTager; // Bình Chánh (có thể null)
+interface MapComponentProps {
+    positionPickup: LatLngExpression | null;
+    positionTager: LatLngExpression | null;
+}
 
-    // Tạo danh sách vị trí (nếu position2 có giá trị thì thêm vào)
-    const positions = [position1, ...(position2 ? [position2] : [])];
+export default function MapComponent({ positionPickup, positionTager }: MapComponentProps) {
+    const [route, setRoute] = useState<LatLngExpression[]>([]);
+
+    useEffect(() => {
+        if (positionPickup && positionTager) {
+            const fetchRoute = async () => {
+                const url: string = `https://router.project-osrm.org/route/v1/driving/${(positionPickup as [number, number])[1]},${(positionPickup as [number, number])[0]};${(positionTager as [number, number])[1]},${(positionTager as [number, number])[0]}?overview=full&geometries=geojson`;
+
+                try {
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    if (data.routes && data.routes.length > 0) {
+                        const coordinates = data.routes[0].geometry.coordinates.map((coord: [number, number]) => [coord[1], coord[0]]);
+                        setRoute(coordinates);
+                    }
+                } catch (error) {
+                    console.error("Lỗi khi lấy dữ liệu tuyến đường:", error);
+                }
+            };
+            fetchRoute();
+        }
+    }, [positionPickup, positionTager]);
+
+    // Vị trí mặc định nếu không có positionPickup
+    const defaultPosition: LatLngExpression = [10.7769, 106.7009]; // TP.HCM
+
+    // Tạo danh sách vị trí
+    const positions = [positionPickup || defaultPosition, ...(positionTager ? [positionTager] : [])];
 
     return (
-        <MapContainer
-            style={{ height: "100%", width: "100%" }}
-            zoom={13}
-            center={position1} // Mặc định center vào position1
-        >
+        <MapContainer style={{ height: "100%", width: "100%" }} zoom={13} center={positionPickup || defaultPosition}>
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
             <AdjustBounds positions={positions} />
 
-            {/* Marker position1 (xanh) */}
-            <Marker position={position1} icon={greenIcon}>
-                <Popup>Xin chào từ Sài Gòn!</Popup>
+            {/* Marker Pickup (Xanh) */}
+            <Marker position={positionPickup || defaultPosition} icon={greenIcon}>
+                <Popup>Điểm đón</Popup>
             </Marker>
 
-            {/* Marker position2 (đỏ) - chỉ hiển thị nếu tồn tại */}
-            {position2 && (
-                <Marker position={position2} icon={redIcon}>
-                    <Popup>Xin chào từ Bình Chánh!</Popup>
+            {/* Marker Tager (Đỏ) - chỉ hiển thị nếu tồn tại */}
+            {positionTager && (
+                <Marker position={positionTager} icon={redIcon}>
+                    <Popup>Điểm đến</Popup>
                 </Marker>
+            )}
+
+            {/* Vẽ tuyến đường thực tế */}
+            {route.length > 0 && (
+                <Polyline positions={route} color="red" weight={2} />
             )}
         </MapContainer>
     );

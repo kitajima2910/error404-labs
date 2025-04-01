@@ -11,6 +11,7 @@ const MapComponent = dynamic(() => import("@/components/MapComponent"), {
 });
 
 const Confirm = () => {
+    const [positionPickup, setPositionPickup] = useState<LatLngExpression | null>(null);
     const [positionTager, setPositionTager] = useState<LatLngExpression | null>(null);
 
     // Hàm chuyển địa chỉ thành tọa độ (dùng OpenStreetMap Nominatim API)
@@ -29,14 +30,17 @@ const Confirm = () => {
     };
 
     useEffect(() => {
-        getCoordinates("10 Đ. Phổ Quang, Phường 2, Tân Bình, Hồ Chí Minh").then((coords) => {
+        getCoordinates("phan huy ích, tp hcm").then((coords) => {
+            if (coords) setPositionPickup(coords);
+        });
+        getCoordinates("phổ quang, tp hcm").then((coords) => {
             if (coords) setPositionTager(coords);
         });
     }, []);
 
     return (
         <Wrapper>
-            <Map><MapComponent positionTager={positionTager} /></Map>
+            <Map><MapComponent {...{ positionPickup, positionTager }} /></Map>
             <RideContainer>Ride Selector Confirm Button</RideContainer>
         </Wrapper>
     );
