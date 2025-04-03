@@ -4,6 +4,8 @@ import React, { useEffect, useState } from "react";
 import tw from "tailwind-styled-components";
 import dynamic from "next/dynamic";
 import { LatLngExpression } from "leaflet";
+import { useSearchParams } from "next/navigation";
+import RideSelector from "@/components/RideSelector";
 
 // Load component ở chế độ client để tránh lỗi SSR
 const MapComponent = dynamic(() => import("@/components/MapComponent"), {
@@ -13,12 +15,18 @@ const MapComponent = dynamic(() => import("@/components/MapComponent"), {
 const Confirm = () => {
     const [positionPickup, setPositionPickup] = useState<LatLngExpression | null>(null);
     const [positionTager, setPositionTager] = useState<LatLngExpression | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const searchParams = useSearchParams();
+    const pickup = searchParams.get("pickup");
+    const target = searchParams.get("target");
+
+    console.log(pickup, target);
 
     // Hàm chuyển địa chỉ thành tọa độ (dùng OpenStreetMap Nominatim API)
     const getCoordinates = async (address: string) => {
         const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`, { headers: { "User-Agent": "Mozilla/5.0" } });
         const data = await response.json();
-        console.log("Nominatim API response:", data); // Debug API response
 
         if (data.length > 0) {
             const { lat, lon } = data[0];
@@ -30,18 +38,18 @@ const Confirm = () => {
     };
 
     useEffect(() => {
-        getCoordinates("phan huy ích, tp hcm").then((coords) => {
-            if (coords) setPositionPickup(coords);
-        });
-        getCoordinates("phổ quang, tp hcm").then((coords) => {
-            if (coords) setPositionTager(coords);
-        });
+        Promise.all([getCoordinates(pickup as string).then(setPositionPickup), getCoordinates(target as string).then(setPositionTager)]).then(() => setIsLoading(false));
     }, []);
 
     return (
         <Wrapper>
-            <Map><MapComponent {...{ positionPickup, positionTager }} /></Map>
-            <RideContainer>Ride Selector Confirm Button</RideContainer>
+            <Map className={`${isLoading ? "opacity-0" : "opacity-100 transition-opacity duration-500"}`}>{!isLoading && <MapComponent {...{ positionPickup, positionTager }} />}</Map>
+            <RideContainer>
+                <RideSelector />
+                <ConfirmButtonContainer>
+                    <ConfirmButton>Confirm UberX</ConfirmButton>
+                </ConfirmButtonContainer>
+            </RideContainer>
         </Wrapper>
     );
 };
@@ -53,9 +61,18 @@ const Wrapper = tw.div`
 `;
 
 const RideContainer = tw.div`
-    flex-1
+    flex-1 flex flex-col h-1/2
 `;
 
 const Map = tw.div`
     flex-1
+    transition-opacity duration-500 h-1/2
 `;
+
+const ConfirmButtonContainer = tw.div`
+    border-t-1 border-gray-200
+`;
+
+const ConfirmButton = tw.div`
+    bg-black text-white my-4 mx-4 py-4 text-center text-sm font-bold
+`

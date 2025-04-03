@@ -1,8 +1,14 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import tw from "tailwind-styled-components";
 import Link from "next/link";
 
 const Search = () => {
+
+    const [ pickup, setPickup ] = useState("");
+    const [ target, setTarget ] = useState("");
+
     return (
         <Wrapper>
             {/* button container */}
@@ -19,8 +25,8 @@ const Search = () => {
                     <Circle src="https://img.icons8.com/?size=100&id=JYRTmcgc4aTi&format=png&color=000000" />
                 </FromToIcons>
                 <InputBoxes>
-                    <Input placeholder="Enter pickup location" />
-                    <Input placeholder="Where to?" />
+                    <Input placeholder="Enter pickup location" value={pickup} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPickup(e.target.value)} />
+                    <Input placeholder="Where to?" value={target} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTarget(e.target.value)} />
                 </InputBoxes>
                 <PlusIcon src="https://img.icons8.com/?size=100&id=SpuYztywr0Vl&format=png&color=000000" />
             </InputContainer>
@@ -30,7 +36,15 @@ const Search = () => {
                 Saved Places
             </SavedPlaces>
             <ConfirmLocation>
-                <Button>Confirm Locations</Button>
+                <Link href={{
+                    pathname: "/confirm",
+                    query: {
+                        pickup: pickup,
+                        target: target,
+                    }
+                }}>
+                    <Button>Confirm Locations</Button>
+                </Link>
             </ConfirmLocation>
 
             {/* confirm localtion */}

@@ -95,7 +95,7 @@ export default function MapComponent({ positionPickup, positionTager }: MapCompo
 
             {/* Vẽ tuyến đường thực tế */}
             {route.length > 0 && (
-                <Polyline positions={route} color="red" weight={2} />
+                <Polyline positions={route} color="black" weight={2} />
             )}
         </MapContainer>
     );
