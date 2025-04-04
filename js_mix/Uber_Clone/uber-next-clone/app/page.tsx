@@ -5,6 +5,10 @@ import { useEffect } from "react";
 import tw from "tailwind-styled-components";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { auth } from "@/firebase";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 // Load component ở chế độ client để tránh lỗi SSR
 const MapComponent = dynamic(() => import("@/components/MapComponent"), {
@@ -12,8 +16,24 @@ const MapComponent = dynamic(() => import("@/components/MapComponent"), {
 });
 
 export default function Home() {
+    const [user, setUser] = useState<{ displayName: string | null, photoURL: string | null }>({
+        displayName: "",
+        photoURL: "https://i.pravatar.cc/150?img=3"
+    });
+    const router = useRouter();
+
     useEffect(() => {
-        // console.log("hello");
+        return onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setUser({
+                    displayName: user.displayName ?? "",
+                    photoURL: user.photoURL ?? "https://i.pravatar.cc/150?img=3",
+                });
+            } else {
+                setUser({ displayName: "", photoURL: "https://i.pravatar.cc/150?img=3" });
+                router.push("/login");
+            }
+        });
     }, []);
 
     return (
@@ -26,8 +46,8 @@ export default function Home() {
                 <Header>
                     <UberLogo src="https://cdn.worldvectorlogo.com/logos/uber-2.svg" />
                     <Profile>
-                        <Name>PXH 2910</Name>
-                        <UserLogo src="https://i.pravatar.cc/150?img=3" />
+                        <Name>{user && user.displayName}</Name>
+                        <UserLogo alt="avatar" onClick={() => signOut(auth)} src={ user && user.photoURL } />
                     </Profile>
                 </Header>
                 {/* actionbutons */}
@@ -79,7 +99,7 @@ const Profile = tw.div`
 `;
 
 const Name = tw.div`
-	mr-4 w-20 text-sm font-semibold
+	w-15 text-sm font-semibold
 `;
 
 const UserLogo = tw.img`

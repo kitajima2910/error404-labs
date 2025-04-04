@@ -60,6 +60,10 @@ export default function MapComponent({ positionPickup, positionTager }: MapCompo
                     const data = await response.json();
                     if (data.routes && data.routes.length > 0) {
                         const coordinates = data.routes[0].geometry.coordinates.map((coord: [number, number]) => [coord[1], coord[0]]);
+                        // console.log("pxh2910: duration = ", data.routes[0].duration);
+                        // console.log("pxh2910: distance = ", data.routes[0].distance);
+                        localStorage.removeItem("distance_duration");
+                        localStorage.setItem("distance_duration", JSON.stringify({ distance: data.routes[0].distance, duration: data.routes[0].duration }));
                         setRoute(coordinates);
                     }
                 } catch (error) {

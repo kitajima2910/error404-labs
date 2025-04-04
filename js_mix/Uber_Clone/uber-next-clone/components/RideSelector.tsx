@@ -1,9 +1,15 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import tw from "tailwind-styled-components";
 import { carList } from "../data/carList";
 
 const RideSelector = () => {
-    console.log(carList);
+    
+    const [ rideDuration, setRideDuration ] = useState(0);
+
+    useEffect(() => {
+        const duration = localStorage.getItem("distance_duration") ? JSON.parse(localStorage.getItem("distance_duration") as string).duration : 0;
+        setRideDuration(duration);
+    }, [rideDuration]);
 
     return (
         <Wrapper>
@@ -16,7 +22,7 @@ const RideSelector = () => {
                             <Service>{car.service}</Service>
                             <Time>5 min way</Time>
                         </CarDetails>
-                        <Price>$24.00</Price>
+                        <Price>${((rideDuration * car.multiplier) / 100).toFixed(2)}</Price>
                     </Car>
                 ))}
             </CarList>

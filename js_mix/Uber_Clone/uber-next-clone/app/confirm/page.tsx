@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import { LatLngExpression } from "leaflet";
 import { useSearchParams } from "next/navigation";
 import RideSelector from "@/components/RideSelector";
+import Link from "next/link";
 
 // Load component ở chế độ client để tránh lỗi SSR
 const MapComponent = dynamic(() => import("@/components/MapComponent"), {
@@ -21,7 +22,7 @@ const Confirm = () => {
     const pickup = searchParams.get("pickup");
     const target = searchParams.get("target");
 
-    console.log(pickup, target);
+    // console.log(pickup, target);
 
     // Hàm chuyển địa chỉ thành tọa độ (dùng OpenStreetMap Nominatim API)
     const getCoordinates = async (address: string) => {
@@ -43,6 +44,11 @@ const Confirm = () => {
 
     return (
         <Wrapper>
+            <ButtonContainer>
+                <Link href="/search">
+                    <BackButton src="https://img.icons8.com/?size=100&id=7811&format=png&color=000000" />
+                </Link>
+            </ButtonContainer>
             <Map className={`${isLoading ? "opacity-0" : "opacity-100 transition-opacity duration-500"}`}>{!isLoading && <MapComponent {...{ positionPickup, positionTager }} />}</Map>
             <RideContainer>
                 <RideSelector />
@@ -75,4 +81,12 @@ const ConfirmButtonContainer = tw.div`
 
 const ConfirmButton = tw.div`
     bg-black text-white my-4 mx-4 py-4 text-center text-sm font-bold
-`
+`;
+
+const ButtonContainer = tw.div`
+    rounded-full absolute top-4 right-4 z-1000 bg-white shadow-md cursor-pointer
+`;
+
+const BackButton = tw.img`
+    h-12 object-contain
+`;
