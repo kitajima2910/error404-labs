@@ -37,7 +37,7 @@ const Search = () => {
             {/* saved places */}
             <SavedPlaces>
                 <StarIcon src="https://img.icons8.com/?size=100&id=104&format=png&color=000000" />
-                Lưa Lại Địa Điểm
+                Lưu Lại Địa Điểm
             </SavedPlaces>
             <ConfirmLocation>
                 <Link href={{
