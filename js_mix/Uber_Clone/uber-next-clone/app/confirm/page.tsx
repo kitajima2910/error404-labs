@@ -17,12 +17,12 @@ const Confirm = () => {
     const [positionPickup, setPositionPickup] = useState<LatLngExpression | null>(null);
     const [positionTager, setPositionTager] = useState<LatLngExpression | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [rideDuration, setRideDuration] = useState<number>(0); // state cho rideDuration
+    const [isClient, setIsClient] = useState(false); // Kiểm tra xem mã có đang chạy trên client
 
     const searchParams = useSearchParams();
     const pickup = searchParams.get("pickup");
     const target = searchParams.get("target");
-
-    // console.log(pickup, target);
 
     // Hàm chuyển địa chỉ thành tọa độ (dùng OpenStreetMap Nominatim API)
     const getCoordinates = async (address: string) => {
@@ -39,8 +39,42 @@ const Confirm = () => {
     };
 
     useEffect(() => {
-        Promise.all([getCoordinates(pickup as string).then(setPositionPickup), getCoordinates(target as string).then(setPositionTager)]).then(() => setIsLoading(false));
+        // Chỉ thực hiện sau khi xác định môi trường đang chạy trên client
+        if (typeof window !== "undefined") {
+            setIsClient(true); // Đánh dấu rằng đang chạy trên client
+        }
     }, []);
+
+    useEffect(() => {
+        if (pickup && target) {
+            Promise.all([
+                getCoordinates(pickup).then(setPositionPickup),
+                getCoordinates(target).then(setPositionTager)
+            ]).then(() => setIsLoading(false));
+        }
+    }, [pickup, target]);
+
+    useEffect(() => {
+        // Lắng nghe sự thay đổi trong localStorage
+        const handleStorageChange = () => {
+            const storedDuration = localStorage.getItem("distance_duration");
+            if (storedDuration) {
+                const parsedDuration = JSON.parse(storedDuration).duration;
+                setRideDuration(parsedDuration); // Cập nhật giá trị rideDuration
+            }
+        };
+
+        // Kiểm tra initial value khi component được mount
+        handleStorageChange();
+
+        // Thêm event listener khi localStorage thay đổi
+        window.addEventListener("storage", handleStorageChange);
+
+        // Cleanup listener khi component unmount
+        return () => {
+            window.removeEventListener("storage", handleStorageChange);
+        };
+    }, []); // Chỉ chạy một lần khi component mount
 
     return (
         <Wrapper>
@@ -49,11 +83,18 @@ const Confirm = () => {
                     <BackButton src="https://img.icons8.com/?size=100&id=7811&format=png&color=000000" />
                 </Link>
             </ButtonContainer>
-            <Map className={`${isLoading ? "opacity-0" : "opacity-100 transition-opacity duration-500"}`}>{!isLoading && <MapComponent {...{ positionPickup, positionTager }} />}</Map>
+            <Map className={`${isLoading ? "opacity-0" : "opacity-100 transition-opacity duration-500"}`}>
+                {!isLoading && <MapComponent {...{ positionPickup, positionTager }} />}
+            </Map>
             <RideContainer>
-                <RideSelector />
+                {isClient && localStorage.getItem("distance_duration") ? (
+                    <RideSelector />
+                ) : (
+                    <div></div>
+                )}
+
                 <ConfirmButtonContainer>
-                    <ConfirmButton>Confirm UberX</ConfirmButton>
+                    <ConfirmButton>Xác Nhận</ConfirmButton>
                 </ConfirmButtonContainer>
             </RideContainer>
         </Wrapper>

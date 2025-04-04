@@ -22,9 +22,9 @@ const Login = () => {
     return (
         <Wrapper>
             <UberLogo src="https://cdn.worldvectorlogo.com/logos/uber-2.svg" />
-            <Title>Log in to access your account</Title>
+            <Title>Đăng nhập vào tài khoản của bạn</Title>
             <HeadImage src="https://static.vecteezy.com/system/resources/thumbnails/021/666/130/small_2x/login-and-password-concept-3d-illustration-computer-and-account-login-and-password-form-page-on-screen-sign-in-to-account-user-authorization-login-authentication-page-concept-png.png" />
-            <SignInButton onClick={() => signInWithPopup(auth, provider)}>Sign in with Google</SignInButton>
+            <SignInButton onClick={() => signInWithPopup(auth, provider)}>Đăng nhập với Google</SignInButton>
         </Wrapper>
     );
 };

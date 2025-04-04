@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import tw from "tailwind-styled-components";
 import Link from "next/link";
 
@@ -8,6 +8,10 @@ const Search = () => {
 
     const [ pickup, setPickup ] = useState("");
     const [ target, setTarget ] = useState("");
+
+    useEffect(() => {
+        localStorage.removeItem("distance_duration");
+    }, []);
 
     return (
         <Wrapper>
@@ -25,15 +29,15 @@ const Search = () => {
                     <Circle src="https://img.icons8.com/?size=100&id=JYRTmcgc4aTi&format=png&color=000000" />
                 </FromToIcons>
                 <InputBoxes>
-                    <Input placeholder="Enter pickup location" value={pickup} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPickup(e.target.value)} />
-                    <Input placeholder="Where to?" value={target} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTarget(e.target.value)} />
+                    <Input placeholder="Nhập địa điểm đón" value={pickup} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPickup(e.target.value)} />
+                    <Input placeholder="Nhập địa điểm đến" value={target} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTarget(e.target.value)} />
                 </InputBoxes>
                 <PlusIcon src="https://img.icons8.com/?size=100&id=SpuYztywr0Vl&format=png&color=000000" />
             </InputContainer>
             {/* saved places */}
             <SavedPlaces>
                 <StarIcon src="https://img.icons8.com/?size=100&id=104&format=png&color=000000" />
-                Saved Places
+                Lưa Lại Địa Điểm
             </SavedPlaces>
             <ConfirmLocation>
                 <Link href={{
@@ -43,7 +47,7 @@ const Search = () => {
                         target: target,
                     }
                 }}>
-                    <Button>Confirm Locations</Button>
+                    <Button>Xác Nhận Địa Điểm</Button>
                 </Link>
             </ConfirmLocation>
 

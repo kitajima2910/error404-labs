@@ -3,26 +3,35 @@ import tw from "tailwind-styled-components";
 import { carList } from "../data/carList";
 
 const RideSelector = () => {
-    
-    const [ rideDuration, setRideDuration ] = useState(0);
+    const [rideDuration, setRideDuration] = useState(0);
 
     useEffect(() => {
-        const duration = localStorage.getItem("distance_duration") ? JSON.parse(localStorage.getItem("distance_duration") as string).duration : 0;
-        setRideDuration(duration);
-    }, [rideDuration]);
+        const storedDuration = localStorage.getItem("distance_duration");
+        if (storedDuration) {
+            const parsedDuration = JSON.parse(storedDuration).duration;
+            setRideDuration(parsedDuration);
+        }
+    }, []); // Chạy 1 lần khi component mount
 
     return (
         <Wrapper>
-            <Title>Choose a ride, or swipe up form</Title>
+            <Title>Chọn chuyến đi hoặc vuốt lên biểu mẫu</Title>
             <CarList>
                 {carList.map((car, index) => (
                     <Car key={`car-${index}`}>
                         <CarImage src={car.imgUrl} />
                         <CarDetails>
                             <Service>{car.service}</Service>
-                            <Time>5 min way</Time>
+                            <Time>{((rideDuration * car.multiplier) / 60).toFixed(2)} phút đến</Time>
                         </CarDetails>
-                        <Price>${((rideDuration * car.multiplier) / 100).toFixed(2)}</Price>
+                        <Price>
+                            {new Intl.NumberFormat("vi-VN", {
+                                style: "currency",
+                                currency: "VND",
+                                minimumFractionDigits: 0,
+                                maximumFractionDigits: 0,
+                            }).format((rideDuration * car.multiplier * 25970 * 0.7) / 100)}
+                        </Price>
                     </Car>
                 ))}
             </CarList>

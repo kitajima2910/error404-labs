@@ -16,25 +16,26 @@ const MapComponent = dynamic(() => import("@/components/MapComponent"), {
 });
 
 export default function Home() {
-    const [user, setUser] = useState<{ displayName: string | null, photoURL: string | null }>({
-        displayName: "",
-        photoURL: "https://i.pravatar.cc/150?img=3"
-    });
+    const [user, setUser] = useState<{ displayName?: string; photoURL?: string }>({});
+
     const router = useRouter();
 
     useEffect(() => {
-        return onAuthStateChanged(auth, (user) => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
             if (user) {
+                // console.log("pxh2910 user = ", user);
                 setUser({
-                    displayName: user.displayName ?? "",
-                    photoURL: user.photoURL ?? "https://i.pravatar.cc/150?img=3",
+                    displayName: user?.displayName || "Guest",
+                    photoURL: user?.photoURL || "https://i.pravatar.cc/150?img=3",
                 });
             } else {
                 setUser({ displayName: "", photoURL: "https://i.pravatar.cc/150?img=3" });
-                router.push("/login");
+                router.replace("/login"); // Thay `push` thành `replace` để tránh lưu lịch sử
             }
         });
-    }, []);
+
+        return () => unsubscribe(); // Cleanup tránh memory leak
+    }, [router]); // Thêm router vào dependency array
 
     return (
         <Wrapper>
@@ -46,8 +47,8 @@ export default function Home() {
                 <Header>
                     <UberLogo src="https://cdn.worldvectorlogo.com/logos/uber-2.svg" />
                     <Profile>
-                        <Name>{user && user.displayName}</Name>
-                        <UserLogo alt="avatar" onClick={() => signOut(auth)} src={ user && user.photoURL } />
+                        <Name>{user?.displayName}</Name>
+                        <UserLogo alt="avatar" onClick={() => signOut(auth)} src={user?.photoURL ?? "https://i.pravatar.cc/150?img=3"} />
                     </Profile>
                 </Header>
                 {/* actionbutons */}
@@ -55,20 +56,20 @@ export default function Home() {
                     <Link href="/search" className="contents">
                         <ActionButton>
                             <ActionButtonImage src="https://img.icons8.com/?size=100&id=111278&format=png&color=000000" />
-                            Ride
+                            Xe Hơi
                         </ActionButton>
                     </Link>
                     <ActionButton>
                         <ActionButtonImage src="https://img.icons8.com/?size=100&id=NyzA-kHQgM7k&format=png&color=000000" />
-                        Wheels
+                        Xe Đạp
                     </ActionButton>
                     <ActionButton>
                         <ActionButtonImage src="https://img.icons8.com/?size=100&id=111279&format=png&color=000000" />
-                        Reserve
+                        Lịch Trình
                     </ActionButton>
                 </ActionButtons>
                 {/* inputbuttons */}
-                <InputButton>Where to?</InputButton>
+                <InputButton>Bạn muốn đi đâu?</InputButton>
             </ActionItems>
         </Wrapper>
     );
