@@ -2,5 +2,119 @@
 <c2eventsheet>
     <!--All the 'name' attributes are ignored by Construct 2 - they are there for readability only.-->
     <name>Main_ES</name>
-    <events />
+    <events>
+        <include>esVariables</include>
+        <include>esProcess</include>
+        <event-block sid="919695045234355">
+            <conditions>
+                <condition id="2" name="Is in touch" sid="494939810207833" type="Touch" />
+            </conditions>
+            <actions />
+            <sub-events>
+                <event-block sid="515781484616207">
+                    <conditions />
+                    <actions>
+                        <action id="-1" name="Set X" sid="362019137167362" type="Player">
+                            <param id="0" name="X">Touch.X</param>
+                        </action>
+                    </actions>
+                </event-block>
+                <event-block sid="823812540024148">
+                    <conditions>
+                        <condition id="-8" name="Compare two values" sid="654597721426739" type="System">
+                            <param id="0" name="First value">Touch.X</param>
+                            <param id="1" name="Comparison">2</param>
+                            <param id="2" name="Second value">Player.Width / 2</param>
+                        </condition>
+                    </conditions>
+                    <actions />
+                    <sub-events>
+                        <event-block sid="144727029501476">
+                            <conditions />
+                            <actions>
+                                <action id="-1" name="Set X" sid="744077807048901" type="Player">
+                                    <param id="0" name="X">Player.Width / 2</param>
+                                </action>
+                            </actions>
+                        </event-block>
+                    </sub-events>
+                </event-block>
+                <event-block sid="299478571003874">
+                    <conditions>
+                        <condition id="-8" name="Compare two values" sid="141498220703718" type="System">
+                            <param id="0" name="First value">Touch.X</param>
+                            <param id="1" name="Comparison">4</param>
+                            <param id="2" name="Second value">LayoutWidth - Player.Width / 2</param>
+                        </condition>
+                    </conditions>
+                    <actions />
+                    <sub-events>
+                        <event-block sid="306637602938895">
+                            <conditions />
+                            <actions>
+                                <action id="-1" name="Set X" sid="849517605582226" type="Player">
+                                    <param id="0" name="X">LayoutWidth - Player.Width / 2</param>
+                                </action>
+                                <action id="14" name="Log" sid="537450026754800" type="Browser">
+                                    <param id="0" name="Type">0</param>
+                                    <param id="1" name="Message">&quot;pxh2910: player x = &quot; &amp;Player.X</param>
+                                </action>
+                            </actions>
+                        </event-block>
+                    </sub-events>
+                </event-block>
+            </sub-events>
+        </event-block>
+        <event-block sid="618463944299605">
+            <conditions>
+                <condition id="-6" name="Every X seconds" sid="488791418217531" type="System">
+                    <param id="0" name="Interval (seconds)">delayFalling</param>
+                </condition>
+            </conditions>
+            <actions />
+            <sub-events>
+                <event-block sid="249269797685033">
+                    <conditions />
+                    <actions>
+                        <action id="-3" name="Create object" sid="947094235564680" type="System">
+                            <param id="0" name="Object to create">Star</param>
+                            <param id="1" name="Layer">&quot;Player&quot;</param>
+                            <param id="2" name="X">random(5, LayoutWidth - 5)</param>
+                            <param id="3" name="Y">-15</param>
+                        </action>
+                        <action id="-16" name="Wait" sid="250839749883842" type="System">
+                            <param id="0" name="Seconds">0.05</param>
+                        </action>
+                        <action id="-3" name="Create object" sid="531944331039145" type="System">
+                            <param id="0" name="Object to create">Star</param>
+                            <param id="1" name="Layer">&quot;Player&quot;</param>
+                            <param id="2" name="X">random(5, LayoutWidth - 5)</param>
+                            <param id="3" name="Y">-15</param>
+                        </action>
+                    </actions>
+                </event-block>
+            </sub-events>
+        </event-block>
+        <event-block sid="555093258666990">
+            <conditions>
+                <condition id="-18" name="On created" sid="347494184844197" type="Star" />
+            </conditions>
+            <actions />
+            <sub-events>
+                <event-block sid="857094046585340">
+                    <conditions />
+                    <actions>
+                        <action id="-7" name="Set size" sid="293216993444977" type="Star">
+                            <param id="0" name="Width">random(1, 5)</param>
+                            <param id="1" name="Height">random(1, 5)</param>
+                        </action>
+                        <action disabled="1" id="14" name="Log" sid="476537588045884" type="Browser">
+                            <param id="0" name="Type">0</param>
+                            <param id="1" name="Message">&quot;pxh2910: star w = &quot; &amp;Star.Width &amp; &quot;, star h = &quot; &amp;Star.Height</param>
+                        </action>
+                    </actions>
+                </event-block>
+            </sub-events>
+        </event-block>
+    </events>
 </c2eventsheet>

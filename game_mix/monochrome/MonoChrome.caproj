@@ -10,7 +10,9 @@
     <unique-id>2m2oqhlgof90t</unique-id>
     <saved-with-version>28000</saved-with-version>
     <used-plugins>
+        <plugin author="Scirra" id="Browser" version="1">Browser</plugin>
         <plugin author="Scirra" id="Sprite" version="1">Sprite</plugin>
+        <plugin author="Scirra" id="Touch" version="1">Touch</plugin>
     </used-plugins>
     <used-behaviors>
         <behavior author="Scirra" id="Bullet" version="1">Bullet</behavior>
@@ -82,7 +84,7 @@
                 </animation>
             </animation-folder>
         </object-type>
-        <object-type name="Snow" sid="663721267617647">
+        <object-type name="Star" sid="663721267617647">
             <plugin id="Sprite" />
             <behaviors>
                 <behavior-type name="Bullet" sid="277791133507284">
@@ -95,6 +97,12 @@
                 </animation>
             </animation-folder>
         </object-type>
+        <object-type name="Touch" sid="748546127448813">
+            <plugin id="Touch" />
+        </object-type>
+        <object-type name="Browser" sid="641796659958871">
+            <plugin id="Browser" />
+        </object-type>
     </object-folder>
     <families />
     <layout-folder>
@@ -102,8 +110,17 @@
     </layout-folder>
     <event-folder>
         <event-sheet>Main_ES.xml</event-sheet>
+        <event-sheet>esVariables.xml</event-sheet>
+        <event-sheet>esProcess.xml</event-sheet>
     </event-folder>
-    <global-instances />
+    <global-instances>
+        <global-instance type="Touch" uid="5">
+            <properties>
+                <use-mouse-input>Yes</use-mouse-input>
+            </properties>
+        </global-instance>
+        <global-instance type="Browser" uid="6" />
+    </global-instances>
     <sounds-folder />
     <music-folder />
     <files-folder>
