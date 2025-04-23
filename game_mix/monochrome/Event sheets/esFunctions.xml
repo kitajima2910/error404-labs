@@ -1,0 +1,130 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<c2eventsheet>
+    <!--All the 'name' attributes are ignored by Construct 2 - they are there for readability only.-->
+    <name>esFunctions</name>
+    <events>
+        <comment>Tạo ngôi sao rơi xuống</comment>
+        <event-block sid="726803789424398">
+            <conditions>
+                <condition id="0" name="On function" sid="127776565550601" type="Function">
+                    <param id="0" name="Name">&quot;createStarFalling&quot;</param>
+                </condition>
+            </conditions>
+            <actions />
+            <sub-events>
+                <event-block sid="548897687605855">
+                    <conditions>
+                        <condition id="-6" name="Every X seconds" sid="320295671157655" type="System">
+                            <param id="0" name="Interval (seconds)">Function.Param(0)</param>
+                        </condition>
+                    </conditions>
+                    <actions />
+                    <sub-events>
+                        <event-block sid="786317395247971">
+                            <conditions />
+                            <actions>
+                                <action id="-3" name="Create object" sid="852927975972314" type="System">
+                                    <param id="0" name="Object to create">Star</param>
+                                    <param id="1" name="Layer">Function.Param(1)</param>
+                                    <param id="2" name="X">random(Star.Width, LayoutWidth - Star.Width)</param>
+                                    <param id="3" name="Y">Function.Param(2)</param>
+                                </action>
+                                <action id="-16" name="Wait" sid="787330589188713" type="System">
+                                    <param id="0" name="Seconds">0.05</param>
+                                </action>
+                                <action id="-3" name="Create object" sid="689679557737293" type="System">
+                                    <param id="0" name="Object to create">Star</param>
+                                    <param id="1" name="Layer">Function.Param(1)</param>
+                                    <param id="2" name="X">random(Star.Width, LayoutWidth - Star.Width)</param>
+                                    <param id="3" name="Y">Function.Param(2)</param>
+                                </action>
+                            </actions>
+                        </event-block>
+                    </sub-events>
+                </event-block>
+            </sub-events>
+        </event-block>
+        <comment>Tạo cục hấp thụ rơi xuống</comment>
+        <event-block sid="413311962379747">
+            <conditions>
+                <condition id="0" name="On function" sid="554122740521339" type="Function">
+                    <param id="0" name="Name">&quot;createColletableFalling&quot;</param>
+                </condition>
+            </conditions>
+            <actions />
+            <sub-events>
+                <event-block sid="675739953204328">
+                    <conditions>
+                        <condition id="-6" name="Every X seconds" sid="908194847896302" type="System">
+                            <param id="0" name="Interval (seconds)">random(Function.Param(0), Function.Param(1))</param>
+                        </condition>
+                    </conditions>
+                    <actions />
+                    <sub-events>
+                        <event-block sid="190657792331660">
+                            <conditions />
+                            <actions>
+                                <action id="-3" name="Create object" sid="498064360559592" type="System">
+                                    <param id="0" name="Object to create">Colletable</param>
+                                    <param id="1" name="Layer">Function.Param(2)</param>
+                                    <param id="2" name="X">random(Enemy.Width / 2, LayoutWidth - Enemy.Width / 2)</param>
+                                    <param id="3" name="Y">Function.Param(3)</param>
+                                </action>
+                            </actions>
+                        </event-block>
+                    </sub-events>
+                </event-block>
+            </sub-events>
+        </event-block>
+        <comment>Tạo kẻ thù rơi xuống</comment>
+        <event-block sid="396370872467097">
+            <conditions>
+                <condition id="0" name="On function" sid="275007370739115" type="Function">
+                    <param id="0" name="Name">&quot;createEnemyFalling&quot;</param>
+                </condition>
+            </conditions>
+            <actions />
+            <sub-events>
+                <event-block sid="533325588909933">
+                    <conditions>
+                        <condition id="-6" name="Every X seconds" sid="115494290318230" type="System">
+                            <param id="0" name="Interval (seconds)">random(Function.Param(0), Function.Param(1))</param>
+                        </condition>
+                    </conditions>
+                    <actions />
+                    <sub-events>
+                        <event-block sid="337154886631007">
+                            <conditions />
+                            <actions>
+                                <action id="-3" name="Create object" sid="174429606946230" type="System">
+                                    <param id="0" name="Object to create">Enemy</param>
+                                    <param id="1" name="Layer">Function.Param(2)</param>
+                                    <param id="2" name="X">random(Enemy.Width / 2, LayoutWidth - Enemy.Width / 2)</param>
+                                    <param id="3" name="Y">Function.Param(3)</param>
+                                </action>
+                                <action id="-16" name="Wait" sid="782615845996288" type="System">
+                                    <param id="0" name="Seconds">0.1</param>
+                                </action>
+                                <action id="-3" name="Create object" sid="728942257892411" type="System">
+                                    <param id="0" name="Object to create">Enemy</param>
+                                    <param id="1" name="Layer">Function.Param(2)</param>
+                                    <param id="2" name="X">random(Enemy.Width / 2, LayoutWidth - Enemy.Width / 2)</param>
+                                    <param id="3" name="Y">Function.Param(3)</param>
+                                </action>
+                                <action id="-16" name="Wait" sid="366398230830356" type="System">
+                                    <param id="0" name="Seconds">0.1</param>
+                                </action>
+                                <action id="-3" name="Create object" sid="713100021601421" type="System">
+                                    <param id="0" name="Object to create">Enemy</param>
+                                    <param id="1" name="Layer">Function.Param(2)</param>
+                                    <param id="2" name="X">random(Enemy.Width / 2, LayoutWidth - Enemy.Width / 2)</param>
+                                    <param id="3" name="Y">Function.Param(3)</param>
+                                </action>
+                            </actions>
+                        </event-block>
+                    </sub-events>
+                </event-block>
+            </sub-events>
+        </event-block>
+    </events>
+</c2eventsheet>

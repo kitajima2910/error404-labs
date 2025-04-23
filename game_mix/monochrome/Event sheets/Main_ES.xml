@@ -4,7 +4,8 @@
     <name>Main_ES</name>
     <events>
         <include>esVariables</include>
-        <include>esProcess</include>
+        <include>esFunctions</include>
+        <comment>Điều khiển nhân vật</comment>
         <event-block sid="919695045234355">
             <conditions>
                 <condition id="2" name="Is in touch" sid="494939810207833" type="Touch" />
@@ -55,7 +56,7 @@
                                 <action id="-1" name="Set X" sid="849517605582226" type="Player">
                                     <param id="0" name="X">LayoutWidth - Player.Width / 2</param>
                                 </action>
-                                <action id="14" name="Log" sid="537450026754800" type="Browser">
+                                <action disabled="1" id="14" name="Log" sid="537450026754800" type="Browser">
                                     <param id="0" name="Type">0</param>
                                     <param id="1" name="Message">&quot;pxh2910: player x = &quot; &amp;Player.X</param>
                                 </action>
@@ -65,96 +66,31 @@
                 </event-block>
             </sub-events>
         </event-block>
+        <comment>Gọi các hàm đã xử lý</comment>
         <event-block sid="618463944299605">
-            <conditions>
-                <condition id="-6" name="Every X seconds" sid="488791418217531" type="System">
-                    <param id="0" name="Interval (seconds)">delayFallingStar</param>
-                </condition>
-            </conditions>
+            <conditions />
             <actions />
             <sub-events>
                 <event-block sid="249269797685033">
                     <conditions />
                     <actions>
-                        <action id="-3" name="Create object" sid="947094235564680" type="System">
-                            <param id="0" name="Object to create">Star</param>
-                            <param id="1" name="Layer">&quot;Player&quot;</param>
-                            <param id="2" name="X">random(Star.Width, LayoutWidth - Star.Width)</param>
-                            <param id="3" name="Y">-15</param>
+                        <action id="0" name="Call function" sid="729457352797153" type="Function">
+                            <param id="0" name="Name">&quot;createStarFalling&quot;</param>
+                            <param id="1" name="Parameter {n}">delayFallingStar{###}&quot;Player&quot;{###}-15</param>
                         </action>
-                        <action id="-16" name="Wait" sid="250839749883842" type="System">
-                            <param id="0" name="Seconds">0.05</param>
+                        <action id="0" name="Call function" sid="632516330681721" type="Function">
+                            <param id="0" name="Name">&quot;createColletableFalling&quot;</param>
+                            <param id="1" name="Parameter {n}">0.8{###}1.2{###}&quot;Player&quot;{###}-15</param>
                         </action>
-                        <action id="-3" name="Create object" sid="883066377367324" type="System">
-                            <param id="0" name="Object to create">Star</param>
-                            <param id="1" name="Layer">&quot;Player&quot;</param>
-                            <param id="2" name="X">random(Star.Width, LayoutWidth - Star.Width)</param>
-                            <param id="3" name="Y">-15</param>
+                        <action id="0" name="Call function" sid="964227976175822" type="Function">
+                            <param id="0" name="Name">&quot;createEnemyFalling&quot;</param>
+                            <param id="1" name="Parameter {n}">0.8{###}1.2{###}&quot;Player&quot;{###}-15</param>
                         </action>
                     </actions>
                 </event-block>
             </sub-events>
         </event-block>
-        <event-block sid="218040680655610">
-            <conditions>
-                <condition id="-6" name="Every X seconds" sid="727203358107989" type="System">
-                    <param id="0" name="Interval (seconds)">random(0.8, 1.2)</param>
-                </condition>
-            </conditions>
-            <actions />
-            <sub-events>
-                <event-block sid="384783285141603">
-                    <conditions />
-                    <actions>
-                        <action id="-3" name="Create object" sid="759200770918395" type="System">
-                            <param id="0" name="Object to create">Colletable</param>
-                            <param id="1" name="Layer">&quot;Player&quot;</param>
-                            <param id="2" name="X">random(Enemy.Width / 2, LayoutWidth - Enemy.Width / 2)</param>
-                            <param id="3" name="Y">-15</param>
-                        </action>
-                    </actions>
-                </event-block>
-            </sub-events>
-        </event-block>
-        <event-block sid="348199969604850">
-            <conditions>
-                <condition id="-6" name="Every X seconds" sid="747476589822960" type="System">
-                    <param id="0" name="Interval (seconds)">random(0.8, 1.2)</param>
-                </condition>
-            </conditions>
-            <actions />
-            <sub-events>
-                <event-block sid="266117531884210">
-                    <conditions />
-                    <actions>
-                        <action id="-3" name="Create object" sid="878397729756231" type="System">
-                            <param id="0" name="Object to create">Enemy</param>
-                            <param id="1" name="Layer">&quot;Player&quot;</param>
-                            <param id="2" name="X">random(Enemy.Width / 2, LayoutWidth - Enemy.Width / 2)</param>
-                            <param id="3" name="Y">-15</param>
-                        </action>
-                        <action id="-16" name="Wait" sid="377035308927712" type="System">
-                            <param id="0" name="Seconds">0.1</param>
-                        </action>
-                        <action id="-3" name="Create object" sid="401527537842389" type="System">
-                            <param id="0" name="Object to create">Enemy</param>
-                            <param id="1" name="Layer">&quot;Player&quot;</param>
-                            <param id="2" name="X">random(Enemy.Width / 2, LayoutWidth - Enemy.Width / 2)</param>
-                            <param id="3" name="Y">-15</param>
-                        </action>
-                        <action id="-16" name="Wait" sid="961554747495683" type="System">
-                            <param id="0" name="Seconds">0.1</param>
-                        </action>
-                        <action id="-3" name="Create object" sid="469874612202604" type="System">
-                            <param id="0" name="Object to create">Enemy</param>
-                            <param id="1" name="Layer">&quot;Player&quot;</param>
-                            <param id="2" name="X">random(Enemy.Width / 2, LayoutWidth - Enemy.Width / 2)</param>
-                            <param id="3" name="Y">-15</param>
-                        </action>
-                    </actions>
-                </event-block>
-            </sub-events>
-        </event-block>
+        <comment>Tạo ngôi sao lớn nhỏ (random), tốc độ rơi (random)</comment>
         <event-block sid="555093258666990">
             <conditions>
                 <condition id="-18" name="On created" sid="347494184844197" type="Star" />
@@ -175,6 +111,7 @@
                 </event-block>
             </sub-events>
         </event-block>
+        <comment>Destroy các items rơi ra màn hình</comment>
         <event-block sid="124912755084097">
             <conditions>
                 <condition id="1" name="Is overlapping another object" sid="979072774534468" type="gameObjects">
