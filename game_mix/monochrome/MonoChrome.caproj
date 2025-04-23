@@ -16,6 +16,7 @@
     </used-plugins>
     <used-behaviors>
         <behavior author="Scirra" id="Bullet" version="1">Bullet</behavior>
+        <behavior author="Scirra" id="Sin" version="1">Sine</behavior>
     </used-behaviors>
     <used-effects />
     <configurations>
@@ -64,6 +65,9 @@
                 <behavior-type name="Bullet" sid="285485035278682">
                     <behavior id="Bullet" />
                 </behavior-type>
+                <behavior-type name="Sine" sid="433943094986207">
+                    <behavior id="Sin" />
+                </behavior-type>
             </behaviors>
             <animation-folder>
                 <animation framecount="1" loop="0" name="Default" pingpong="0" repeatcount="1" repeatto="0" sid="996379236676919" speed="5">
@@ -103,8 +107,24 @@
         <object-type name="Browser" sid="641796659958871">
             <plugin id="Browser" />
         </object-type>
+        <object-type name="detroyItems" sid="395891576333304">
+            <plugin id="Sprite" />
+            <animation-folder>
+                <animation framecount="1" loop="0" name="Default" pingpong="0" repeatcount="1" repeatto="0" sid="811927755111168" speed="5">
+                    <frame duration="1" hotspotX="0.5" hotspotY="0.5" />
+                </animation>
+            </animation-folder>
+        </object-type>
     </object-folder>
-    <families />
+    <families>
+        <family name="gameObjects" plugin-id="Sprite" sid="593108086781219">
+            <members>
+                <member>Colletable</member>
+                <member>Enemy</member>
+                <member>Star</member>
+            </members>
+        </family>
+    </families>
     <layout-folder>
         <layout>Main_LO.xml</layout>
     </layout-folder>

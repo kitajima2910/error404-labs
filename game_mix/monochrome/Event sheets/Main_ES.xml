@@ -68,7 +68,7 @@
         <event-block sid="618463944299605">
             <conditions>
                 <condition id="-6" name="Every X seconds" sid="488791418217531" type="System">
-                    <param id="0" name="Interval (seconds)">delayFalling</param>
+                    <param id="0" name="Interval (seconds)">delayFallingStar</param>
                 </condition>
             </conditions>
             <actions />
@@ -79,16 +79,76 @@
                         <action id="-3" name="Create object" sid="947094235564680" type="System">
                             <param id="0" name="Object to create">Star</param>
                             <param id="1" name="Layer">&quot;Player&quot;</param>
-                            <param id="2" name="X">random(5, LayoutWidth - 5)</param>
+                            <param id="2" name="X">random(Star.Width, LayoutWidth - Star.Width)</param>
                             <param id="3" name="Y">-15</param>
                         </action>
                         <action id="-16" name="Wait" sid="250839749883842" type="System">
                             <param id="0" name="Seconds">0.05</param>
                         </action>
-                        <action id="-3" name="Create object" sid="531944331039145" type="System">
+                        <action id="-3" name="Create object" sid="883066377367324" type="System">
                             <param id="0" name="Object to create">Star</param>
                             <param id="1" name="Layer">&quot;Player&quot;</param>
-                            <param id="2" name="X">random(5, LayoutWidth - 5)</param>
+                            <param id="2" name="X">random(Star.Width, LayoutWidth - Star.Width)</param>
+                            <param id="3" name="Y">-15</param>
+                        </action>
+                    </actions>
+                </event-block>
+            </sub-events>
+        </event-block>
+        <event-block sid="218040680655610">
+            <conditions>
+                <condition id="-6" name="Every X seconds" sid="727203358107989" type="System">
+                    <param id="0" name="Interval (seconds)">random(0.8, 1.2)</param>
+                </condition>
+            </conditions>
+            <actions />
+            <sub-events>
+                <event-block sid="384783285141603">
+                    <conditions />
+                    <actions>
+                        <action id="-3" name="Create object" sid="759200770918395" type="System">
+                            <param id="0" name="Object to create">Colletable</param>
+                            <param id="1" name="Layer">&quot;Player&quot;</param>
+                            <param id="2" name="X">random(Enemy.Width / 2, LayoutWidth - Enemy.Width / 2)</param>
+                            <param id="3" name="Y">-15</param>
+                        </action>
+                    </actions>
+                </event-block>
+            </sub-events>
+        </event-block>
+        <event-block sid="348199969604850">
+            <conditions>
+                <condition id="-6" name="Every X seconds" sid="747476589822960" type="System">
+                    <param id="0" name="Interval (seconds)">random(0.8, 1.2)</param>
+                </condition>
+            </conditions>
+            <actions />
+            <sub-events>
+                <event-block sid="266117531884210">
+                    <conditions />
+                    <actions>
+                        <action id="-3" name="Create object" sid="878397729756231" type="System">
+                            <param id="0" name="Object to create">Enemy</param>
+                            <param id="1" name="Layer">&quot;Player&quot;</param>
+                            <param id="2" name="X">random(Enemy.Width / 2, LayoutWidth - Enemy.Width / 2)</param>
+                            <param id="3" name="Y">-15</param>
+                        </action>
+                        <action id="-16" name="Wait" sid="377035308927712" type="System">
+                            <param id="0" name="Seconds">0.1</param>
+                        </action>
+                        <action id="-3" name="Create object" sid="401527537842389" type="System">
+                            <param id="0" name="Object to create">Enemy</param>
+                            <param id="1" name="Layer">&quot;Player&quot;</param>
+                            <param id="2" name="X">random(Enemy.Width / 2, LayoutWidth - Enemy.Width / 2)</param>
+                            <param id="3" name="Y">-15</param>
+                        </action>
+                        <action id="-16" name="Wait" sid="961554747495683" type="System">
+                            <param id="0" name="Seconds">0.1</param>
+                        </action>
+                        <action id="-3" name="Create object" sid="469874612202604" type="System">
+                            <param id="0" name="Object to create">Enemy</param>
+                            <param id="1" name="Layer">&quot;Player&quot;</param>
+                            <param id="2" name="X">random(Enemy.Width / 2, LayoutWidth - Enemy.Width / 2)</param>
                             <param id="3" name="Y">-15</param>
                         </action>
                     </actions>
@@ -108,10 +168,25 @@
                             <param id="0" name="Width">random(1, 5)</param>
                             <param id="1" name="Height">random(1, 5)</param>
                         </action>
-                        <action disabled="1" id="14" name="Log" sid="476537588045884" type="Browser">
-                            <param id="0" name="Type">0</param>
-                            <param id="1" name="Message">&quot;pxh2910: star w = &quot; &amp;Star.Width &amp; &quot;, star h = &quot; &amp;Star.Height</param>
+                        <action behavior="Bullet" id="0" name="Set speed" sid="639215491447082" type="Star">
+                            <param id="0" name="Speed">random(300, 500)</param>
                         </action>
+                    </actions>
+                </event-block>
+            </sub-events>
+        </event-block>
+        <event-block sid="124912755084097">
+            <conditions>
+                <condition id="1" name="Is overlapping another object" sid="979072774534468" type="gameObjects">
+                    <param id="0" name="Object">detroyItems</param>
+                </condition>
+            </conditions>
+            <actions />
+            <sub-events>
+                <event-block sid="419097905582661">
+                    <conditions />
+                    <actions>
+                        <action id="-9" name="Destroy" sid="266003258340547" type="gameObjects" />
                     </actions>
                 </event-block>
             </sub-events>
