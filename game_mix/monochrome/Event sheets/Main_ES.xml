@@ -6,66 +6,70 @@
         <include>esVariables</include>
         <include>esFunctions</include>
         <comment>Điều khiển nhân vật</comment>
-        <event-block sid="919695045234355">
-            <conditions>
-                <condition id="2" name="Is in touch" sid="494939810207833" type="Touch" />
-            </conditions>
-            <actions />
+        <event-group description="" sid="916787006696819" title="Điều Khiển Nhân Vật">
             <sub-events>
-                <event-block sid="515781484616207">
-                    <conditions />
-                    <actions>
-                        <action id="-1" name="Set X" sid="362019137167362" type="Player">
-                            <param id="0" name="X">Touch.X</param>
-                        </action>
-                    </actions>
-                </event-block>
-                <event-block sid="823812540024148">
+                <event-block sid="919695045234355">
                     <conditions>
-                        <condition id="-8" name="Compare two values" sid="654597721426739" type="System">
-                            <param id="0" name="First value">Touch.X</param>
-                            <param id="1" name="Comparison">2</param>
-                            <param id="2" name="Second value">Player.Width / 2</param>
-                        </condition>
+                        <condition id="2" name="Is in touch" sid="494939810207833" type="Touch" />
                     </conditions>
                     <actions />
                     <sub-events>
-                        <event-block sid="144727029501476">
+                        <event-block sid="515781484616207">
                             <conditions />
                             <actions>
-                                <action id="-1" name="Set X" sid="744077807048901" type="Player">
-                                    <param id="0" name="X">Player.Width / 2</param>
+                                <action id="-1" name="Set X" sid="362019137167362" type="Player">
+                                    <param id="0" name="X">Touch.X</param>
                                 </action>
                             </actions>
                         </event-block>
-                    </sub-events>
-                </event-block>
-                <event-block sid="299478571003874">
-                    <conditions>
-                        <condition id="-8" name="Compare two values" sid="141498220703718" type="System">
-                            <param id="0" name="First value">Touch.X</param>
-                            <param id="1" name="Comparison">4</param>
-                            <param id="2" name="Second value">LayoutWidth - Player.Width / 2</param>
-                        </condition>
-                    </conditions>
-                    <actions />
-                    <sub-events>
-                        <event-block sid="306637602938895">
-                            <conditions />
-                            <actions>
-                                <action id="-1" name="Set X" sid="849517605582226" type="Player">
-                                    <param id="0" name="X">LayoutWidth - Player.Width / 2</param>
-                                </action>
-                                <action disabled="1" id="14" name="Log" sid="537450026754800" type="Browser">
-                                    <param id="0" name="Type">0</param>
-                                    <param id="1" name="Message">&quot;pxh2910: player x = &quot; &amp;Player.X</param>
-                                </action>
-                            </actions>
+                        <event-block sid="823812540024148">
+                            <conditions>
+                                <condition id="-8" name="Compare two values" sid="654597721426739" type="System">
+                                    <param id="0" name="First value">Touch.X</param>
+                                    <param id="1" name="Comparison">2</param>
+                                    <param id="2" name="Second value">Player.Width / 2</param>
+                                </condition>
+                            </conditions>
+                            <actions />
+                            <sub-events>
+                                <event-block sid="144727029501476">
+                                    <conditions />
+                                    <actions>
+                                        <action id="-1" name="Set X" sid="744077807048901" type="Player">
+                                            <param id="0" name="X">Player.Width / 2</param>
+                                        </action>
+                                    </actions>
+                                </event-block>
+                            </sub-events>
+                        </event-block>
+                        <event-block sid="299478571003874">
+                            <conditions>
+                                <condition id="-8" name="Compare two values" sid="141498220703718" type="System">
+                                    <param id="0" name="First value">Touch.X</param>
+                                    <param id="1" name="Comparison">4</param>
+                                    <param id="2" name="Second value">LayoutWidth - Player.Width / 2</param>
+                                </condition>
+                            </conditions>
+                            <actions />
+                            <sub-events>
+                                <event-block sid="306637602938895">
+                                    <conditions />
+                                    <actions>
+                                        <action id="-1" name="Set X" sid="849517605582226" type="Player">
+                                            <param id="0" name="X">LayoutWidth - Player.Width / 2</param>
+                                        </action>
+                                        <action disabled="1" id="14" name="Log" sid="537450026754800" type="Browser">
+                                            <param id="0" name="Type">0</param>
+                                            <param id="1" name="Message">&quot;pxh2910: player x = &quot; &amp;Player.X</param>
+                                        </action>
+                                    </actions>
+                                </event-block>
+                            </sub-events>
                         </event-block>
                     </sub-events>
                 </event-block>
             </sub-events>
-        </event-block>
+        </event-group>
         <comment>Gọi các hàm đã xử lý</comment>
         <event-block sid="618463944299605">
             <conditions />
@@ -76,15 +80,15 @@
                     <actions>
                         <action id="0" name="Call function" sid="729457352797153" type="Function">
                             <param id="0" name="Name">&quot;createStarFalling&quot;</param>
-                            <param id="1" name="Parameter {n}">delayFallingStar{###}&quot;Player&quot;{###}-15</param>
+                            <param id="1" name="Parameter {n}">delayFallingStar</param>
                         </action>
                         <action id="0" name="Call function" sid="632516330681721" type="Function">
                             <param id="0" name="Name">&quot;createColletableFalling&quot;</param>
-                            <param id="1" name="Parameter {n}">0.8{###}1.2{###}&quot;Player&quot;{###}-15</param>
+                            <param id="1" name="Parameter {n}">0.8{###}1.2</param>
                         </action>
                         <action id="0" name="Call function" sid="964227976175822" type="Function">
                             <param id="0" name="Name">&quot;createEnemyFalling&quot;</param>
-                            <param id="1" name="Parameter {n}">0.8{###}1.2{###}&quot;Player&quot;{###}-15</param>
+                            <param id="1" name="Parameter {n}">0.8{###}1.2</param>
                         </action>
                     </actions>
                 </event-block>
@@ -138,11 +142,11 @@
                 <event-block sid="584730760548784">
                     <conditions />
                     <actions>
-                        <action id="-4" name="Set position to another object" sid="272799645946427" type="Score">
+                        <action id="-4" name="Set position to another object" sid="272799645946427" type="txtScore">
                             <param id="0" name="Object">Player</param>
                             <param id="1" name="Image point (optional)">&quot;Score&quot;</param>
                         </action>
-                        <action id="0" name="Set text" sid="879737487002484" type="Score">
+                        <action id="0" name="Set text" sid="879737487002484" type="txtScore">
                             <param id="0" name="Text">score</param>
                         </action>
                     </actions>
@@ -164,6 +168,132 @@
                         <action id="-10" name="Add to" sid="205375974890624" type="System">
                             <param id="0" name="Variable">score</param>
                             <param id="1" name="Value">1</param>
+                        </action>
+                    </actions>
+                </event-block>
+            </sub-events>
+        </event-block>
+        <comment>Xử lý khi game chạm vào enemy</comment>
+        <event-block sid="744926662600313">
+            <conditions>
+                <condition id="1" name="Is overlapping another object" sid="531772050658100" type="Player">
+                    <param id="0" name="Object">Enemy</param>
+                </condition>
+            </conditions>
+            <actions />
+            <sub-events>
+                <event-block sid="634769166321187">
+                    <conditions />
+                    <actions>
+                        <action id="-13" name="Set time scale" sid="232355624307649" type="System">
+                            <param id="0" name="Time scale">0</param>
+                        </action>
+                        <action id="-12" name="Set group active" sid="438041798376078" type="System">
+                            <param id="0" name="Group name">&quot;Điều Khiển Nhân Vật&quot;</param>
+                            <param id="1" name="State">0</param>
+                        </action>
+                        <action id="-16" name="Set opacity" sid="779325673072191" type="gameObjects">
+                            <param id="0" name="Opacity">30</param>
+                        </action>
+                        <action id="-9" name="Set value" sid="943797112538218" type="System">
+                            <param id="0" name="Variable">live</param>
+                            <param id="1" name="Value">0</param>
+                        </action>
+                    </actions>
+                </event-block>
+            </sub-events>
+        </event-block>
+        <event-block sid="150197913743508">
+            <conditions>
+                <condition id="-1" name="Every tick" sid="577931635020039" type="System" />
+            </conditions>
+            <actions />
+            <sub-events>
+                <event-block sid="674719961178119">
+                    <conditions>
+                        <condition id="-8" name="Compare two values" sid="965592594341725" type="System">
+                            <param id="0" name="First value">live</param>
+                            <param id="1" name="Comparison">0</param>
+                            <param id="2" name="Second value">0</param>
+                        </condition>
+                    </conditions>
+                    <actions>
+                        <action disabled="1" id="14" name="Log" sid="793596445549852" type="Browser">
+                            <param id="0" name="Type">0</param>
+                            <param id="1" name="Message">&quot;pxh2910: live = &quot; &amp;live</param>
+                        </action>
+                        <action id="-10" name="Add to" sid="772514518169270" type="System">
+                            <param id="0" name="Variable">showGameOver</param>
+                            <param id="1" name="Value">showGameOver &lt; 200 ? 1 : 0</param>
+                        </action>
+                    </actions>
+                </event-block>
+                <event-block sid="966038842789564">
+                    <conditions>
+                        <condition id="-8" name="Compare two values" sid="619154699883573" type="System">
+                            <param id="0" name="First value">showGameOver</param>
+                            <param id="1" name="Comparison">0</param>
+                            <param id="2" name="Second value">60</param>
+                        </condition>
+                    </conditions>
+                    <actions>
+                        <action id="-3" name="Set position" sid="488998766367316" type="txtMessage">
+                            <param id="0" name="X">LayoutWidth / 2</param>
+                            <param id="1" name="Y">LayoutHeight / 2</param>
+                        </action>
+                    </actions>
+                </event-block>
+            </sub-events>
+        </event-block>
+        <comment>Khởi tạo các giá trị</comment>
+        <event-block sid="858995082048051">
+            <conditions>
+                <condition id="-2" name="On start of layout" sid="431429465805338" type="System" />
+            </conditions>
+            <actions />
+            <sub-events>
+                <event-block sid="413502494532251">
+                    <conditions />
+                    <actions>
+                        <action id="-13" name="Set time scale" sid="720181346686329" type="System">
+                            <param id="0" name="Time scale">1</param>
+                        </action>
+                        <action id="-3" name="Set position" sid="506374651422582" type="txtMessage">
+                            <param id="0" name="X">5000</param>
+                            <param id="1" name="Y">5000</param>
+                        </action>
+                        <action id="-9" name="Set value" sid="449634642889401" type="System">
+                            <param id="0" name="Variable">live</param>
+                            <param id="1" name="Value">1</param>
+                        </action>
+                        <action id="-9" name="Set value" sid="298715120149179" type="System">
+                            <param id="0" name="Variable">showGameOver</param>
+                            <param id="1" name="Value">0</param>
+                        </action>
+                        <action id="-12" name="Set group active" sid="162003980332354" type="System">
+                            <param id="0" name="Group name">&quot;Điều Khiển Nhân Vật&quot;</param>
+                            <param id="1" name="State">1</param>
+                        </action>
+                    </actions>
+                </event-block>
+            </sub-events>
+        </event-block>
+        <comment>Nếu hiện GameOver</comment>
+        <event-block sid="706639668277257">
+            <conditions>
+                <condition id="-8" name="Compare two values" sid="126951266470329" type="System">
+                    <param id="0" name="First value">showGameOver</param>
+                    <param id="1" name="Comparison">0</param>
+                    <param id="2" name="Second value">120</param>
+                </condition>
+            </conditions>
+            <actions />
+            <sub-events>
+                <event-block sid="838181186116852">
+                    <conditions />
+                    <actions>
+                        <action id="-2" name="Go to layout" sid="313915454847878" type="System">
+                            <param id="0" name="Layout">Home_LO</param>
                         </action>
                     </actions>
                 </event-block>

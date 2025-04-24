@@ -30,6 +30,7 @@
     </window-size>
     <pixel-rounding>0</pixel-rounding>
     <preview-effects>1</preview-effects>
+    <first-layout>Main_LO</first-layout>
     <use-loader-layout>0</use-loader-layout>
     <configuration-settings>
         <prop name="Clear background">Yes</prop>
@@ -122,7 +123,26 @@
         <object-type name="Function" sid="461968792366749">
             <plugin id="Function" />
         </object-type>
-        <object-type name="Score" sid="131401316451398">
+        <object-type name="txtScore" sid="131401316451398">
+            <plugin id="Text" />
+        </object-type>
+        <object-type name="btnPlay" sid="603758721176796">
+            <plugin id="Sprite" />
+            <animation-folder>
+                <animation framecount="1" loop="0" name="Default" pingpong="0" repeatcount="1" repeatto="0" sid="482934737217630" speed="5">
+                    <frame duration="1" hotspotX="0.5" hotspotY="0.5" />
+                </animation>
+            </animation-folder>
+        </object-type>
+        <object-type name="btnMoreGames" sid="188671866190325">
+            <plugin id="Sprite" />
+            <animation-folder>
+                <animation framecount="1" loop="0" name="Default" pingpong="0" repeatcount="1" repeatto="0" sid="104580133436325" speed="5">
+                    <frame duration="1" hotspotX="0.5" hotspotY="0.5" />
+                </animation>
+            </animation-folder>
+        </object-type>
+        <object-type name="txtMessage" sid="250334472007875">
             <plugin id="Text" />
         </object-type>
     </object-folder>
@@ -137,11 +157,13 @@
     </families>
     <layout-folder>
         <layout>Main_LO.xml</layout>
+        <layout>Home_LO.xml</layout>
     </layout-folder>
     <event-folder>
         <event-sheet>Main_ES.xml</event-sheet>
         <event-sheet>esVariables.xml</event-sheet>
         <event-sheet>esFunctions.xml</event-sheet>
+        <event-sheet>Home_ES.xml</event-sheet>
     </event-folder>
     <global-instances>
         <global-instance type="Touch" uid="5">
