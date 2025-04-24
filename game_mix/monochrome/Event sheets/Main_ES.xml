@@ -199,6 +199,13 @@
                             <param id="0" name="Variable">live</param>
                             <param id="1" name="Value">0</param>
                         </action>
+                        <action id="-3" name="Create object" sid="334603944319224" type="System">
+                            <param id="0" name="Object to create">Die</param>
+                            <param id="1" name="Layer">&quot;Player&quot;</param>
+                            <param id="2" name="X">Player.X</param>
+                            <param id="3" name="Y">Player.Y</param>
+                        </action>
+                        <action id="-9" name="Destroy" sid="311871860577453" type="Player" />
                     </actions>
                 </event-block>
             </sub-events>
@@ -239,7 +246,15 @@
                     <actions>
                         <action id="-3" name="Set position" sid="488998766367316" type="txtMessage">
                             <param id="0" name="X">LayoutWidth / 2</param>
-                            <param id="1" name="Y">LayoutHeight / 2</param>
+                            <param id="1" name="Y">LayoutHeight / 2 - txtMessage.Height</param>
+                        </action>
+                        <action id="-3" name="Set position" sid="540328612545221" type="txtMSGKeyboardSpace">
+                            <param id="0" name="X">LayoutWidth / 2</param>
+                            <param id="1" name="Y">LayoutHeight / 2 - txtMessage.Height / 2</param>
+                        </action>
+                        <action id="-3" name="Set position" sid="562093847427792" type="txtMSGKeyboardE">
+                            <param id="0" name="X">LayoutWidth / 2</param>
+                            <param id="1" name="Y">LayoutHeight / 2 - txtMessage.Height / 3.9</param>
                         </action>
                     </actions>
                 </event-block>
@@ -262,9 +277,21 @@
                             <param id="0" name="X">5000</param>
                             <param id="1" name="Y">5000</param>
                         </action>
+                        <action id="-3" name="Set position" sid="707476019875933" type="txtMSGKeyboardSpace">
+                            <param id="0" name="X">5000</param>
+                            <param id="1" name="Y">5000</param>
+                        </action>
+                        <action id="-3" name="Set position" sid="309616328533527" type="txtMSGKeyboardE">
+                            <param id="0" name="X">5000</param>
+                            <param id="1" name="Y">5000</param>
+                        </action>
                         <action id="-9" name="Set value" sid="449634642889401" type="System">
                             <param id="0" name="Variable">live</param>
                             <param id="1" name="Value">1</param>
+                        </action>
+                        <action id="-9" name="Set value" sid="121960756773586" type="System">
+                            <param id="0" name="Variable">score</param>
+                            <param id="1" name="Value">0</param>
                         </action>
                         <action id="-9" name="Set value" sid="298715120149179" type="System">
                             <param id="0" name="Variable">showGameOver</param>
@@ -279,21 +306,87 @@
             </sub-events>
         </event-block>
         <comment>Nếu hiện GameOver</comment>
-        <event-block sid="706639668277257">
+        <event-block sid="243100826953819">
             <conditions>
-                <condition id="-8" name="Compare two values" sid="126951266470329" type="System">
-                    <param id="0" name="First value">showGameOver</param>
-                    <param id="1" name="Comparison">0</param>
-                    <param id="2" name="Second value">120</param>
+                <condition id="0" name="On key pressed" sid="728245939831947" type="Keyboard">
+                    <param id="0" name="Key">32</param>
                 </condition>
             </conditions>
             <actions />
             <sub-events>
-                <event-block sid="838181186116852">
+                <event-block sid="706639668277257">
+                    <conditions>
+                        <condition id="-8" name="Compare two values" sid="126951266470329" type="System">
+                            <param id="0" name="First value">txtMSGKeyboardSpace.X</param>
+                            <param id="1" name="Comparison">1</param>
+                            <param id="2" name="Second value">5000</param>
+                        </condition>
+                        <condition id="-8" name="Compare two values" sid="337905933098354" type="System">
+                            <param id="0" name="First value">txtMSGKeyboardSpace.Y</param>
+                            <param id="1" name="Comparison">1</param>
+                            <param id="2" name="Second value">5000</param>
+                        </condition>
+                    </conditions>
+                    <actions />
+                    <sub-events>
+                        <event-block sid="838181186116852">
+                            <conditions />
+                            <actions>
+                                <action id="-26" name="Restart layout" sid="308448650223864" type="System" />
+                            </actions>
+                        </event-block>
+                    </sub-events>
+                </event-block>
+            </sub-events>
+        </event-block>
+        <event-block sid="854591062736552">
+            <conditions>
+                <condition id="0" name="On key pressed" sid="291424063489682" type="Keyboard">
+                    <param id="0" name="Key">69</param>
+                </condition>
+            </conditions>
+            <actions />
+            <sub-events>
+                <event-block sid="502489953393864">
+                    <conditions>
+                        <condition id="-8" name="Compare two values" sid="765065898303129" type="System">
+                            <param id="0" name="First value">txtMSGKeyboardE.X</param>
+                            <param id="1" name="Comparison">1</param>
+                            <param id="2" name="Second value">5000</param>
+                        </condition>
+                        <condition id="-8" name="Compare two values" sid="577011859485983" type="System">
+                            <param id="0" name="First value">txtMSGKeyboardE.Y</param>
+                            <param id="1" name="Comparison">1</param>
+                            <param id="2" name="Second value">5000</param>
+                        </condition>
+                    </conditions>
+                    <actions />
+                    <sub-events>
+                        <event-block sid="466695420092034">
+                            <conditions />
+                            <actions>
+                                <action id="-2" name="Go to layout" sid="860693285848164" type="System">
+                                    <param id="0" name="Layout">Home_LO</param>
+                                </action>
+                            </actions>
+                        </event-block>
+                    </sub-events>
+                </event-block>
+            </sub-events>
+        </event-block>
+        <comment>Hiển thị hiệu ứng</comment>
+        <event-block sid="556790172454810">
+            <conditions>
+                <condition id="-1" name="Every tick" sid="418335638514626" type="System" />
+            </conditions>
+            <actions />
+            <sub-events>
+                <event-block sid="911344311226766">
                     <conditions />
                     <actions>
-                        <action id="-2" name="Go to layout" sid="313915454847878" type="System">
-                            <param id="0" name="Layout">Home_LO</param>
+                        <action id="-14" name="Set object time scale" sid="583216299892828" type="System">
+                            <param id="0" name="Object">Die</param>
+                            <param id="1" name="Time scale">1.0</param>
                         </action>
                     </actions>
                 </event-block>
