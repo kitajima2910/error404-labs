@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from "react-native";
 export default function Index() {
     return (
         <View style={styles.view}>
-            <Text>Hello World!</Text>
+            <Text>Trang chủ</Text>
             {/* <Link href={"/login"} style={styles.LinkLogin}>Đăng Nhập</Link> */}
         </View>
     );

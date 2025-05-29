@@ -4,7 +4,7 @@ const Login = () => {
     return (
         <>
             <View>
-                <Text>Đây là trang chủ</Text>
+                <Text>Đăng nhập</Text>
             </View>
         </>
     );

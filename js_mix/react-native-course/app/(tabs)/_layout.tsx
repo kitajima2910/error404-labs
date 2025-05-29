@@ -16,7 +16,7 @@ export default function TabsLayout() {
                 <Tabs.Screen
                     name="login"
                     options={{
-                        title: "Trang Đăng Nhập",
+                        title: "Đăng Nhập",
                         tabBarIcon: ({ color, focused }) => (focused ? <MaterialCommunityIcons name="login" size={24} color={color} /> : <AntDesign name="login" size={24} color="black" />),
                     }}
                 />
