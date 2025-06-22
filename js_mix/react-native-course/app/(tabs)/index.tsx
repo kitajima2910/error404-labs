@@ -1,16 +1,19 @@
-import { database, DATABASE_ID, HABITS_COLLECTION_ID } from "@/lib/appwrite";
+import { client, database, DATABASE_ID, HABITS_COLLECTION_ID, RealtimeResponse } from "@/lib/appwrite";
 import { useAuth } from "@/lib/auth-context";
 import { Habit } from "@/types/database.type";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { Query } from "react-native-appwrite";
+import { Swipeable } from "react-native-gesture-handler";
 import { Button, Surface, Text } from "react-native-paper";
 
 export default function Index() {
     const { signOut, user } = useAuth();
 
     const [habits, setHabits] = useState<Habit[]>();
+
+    const swipeableRefs = useRef<{ [key: string]: Swipeable | null }>({});
 
     const fetchHabits = async () => {
         try {
@@ -23,8 +26,32 @@ export default function Index() {
     };
 
     useEffect(() => {
+        if (!user) return;
+
+        const channel = `databases.${DATABASE_ID}.collections.${HABITS_COLLECTION_ID}.documents.*`;
+
+        const unsubscribe = client.subscribe(channel, (response: RealtimeResponse) => {
+            console.log("Realtime event:", response);
+            const eventStr = response.events.join(",");
+            if (eventStr.includes("create") || eventStr.includes("update") || eventStr.includes("delete")) {
+                fetchHabits();
+            }
+        });
+
         fetchHabits();
+
+        return () => {
+            unsubscribe();
+        };
     }, [user]);
+
+    const renderLeftActions = () => {
+        return <></>;
+    };
+
+    const renderRightActions = () => {
+        return <></>;
+    };
 
     return (
         <View style={styles.container}>
@@ -35,33 +62,46 @@ export default function Index() {
                 </Button>
             </View>
 
-            <View style={styles.content}>
-                {habits?.length === 0 ? (
-                    <View>
-                        <Text>Chưa có gì cả, bạn hãy thêm vào!</Text>
-                    </View>
-                ) : (
-                    habits?.map((habits, key) => (
-                        <Surface elevation={0}>
-                            <View key={key}>
-                                <Text style={styles.cardTitle}>{habits.title}</Text>
-                                <Text style={styles.cardDescription}>{habits.description}</Text>
-                                <View style={styles.cardFooter}>
-                                    <View style={styles.cardFooterItem}>
-                                        <View style={styles.cardFooterItemIcon}>
-                                            <MaterialCommunityIcons name="fire" size={18} color={"#ff9800"} />
+            <ScrollView showsVerticalScrollIndicator={false}>
+                <View style={styles.content}>
+                    {habits?.length === 0 ? (
+                        <View>
+                            <Text>Chưa có gì cả, bạn hãy thêm vào!</Text>
+                        </View>
+                    ) : (
+                        habits?.map((habits, key) => (
+                            <Swipeable
+                                ref={(ref) => {
+                                    swipeableRefs.current[habits.$id ?? key] = ref;
+                                }}
+                                key={key}
+                                overshootLeft={false}
+                                overshootRight={false}
+                                renderLeftActions={renderLeftActions}
+                                renderRightActions={renderRightActions}
+                            >
+                                <Surface elevation={0}>
+                                    <View>
+                                        <Text style={styles.cardTitle}>{habits.title}</Text>
+                                        <Text style={styles.cardDescription}>{habits.description}</Text>
+                                        <View style={styles.cardFooter}>
+                                            <View style={styles.cardFooterItem}>
+                                                <View style={styles.cardFooterItemIcon}>
+                                                    <MaterialCommunityIcons name="fire" size={18} color={"#ff9800"} />
+                                                </View>
+                                                <Text style={styles.cardFooterItemText}>{habits.streak_count} ngày streak</Text>
+                                            </View>
+                                            <View style={styles.cardFooterItemV2}>
+                                                <Text style={styles.cardFooterItemTextV2}>{habits.frequency.charAt(0).toUpperCase() + habits.frequency.slice(1)}</Text>
+                                            </View>
                                         </View>
-                                        <Text style={styles.cardFooterItemText}>{habits.streak_count} ngày streak</Text>
                                     </View>
-                                    <View style={styles.cardFooterItemV2}>
-                                        <Text style={styles.cardFooterItemTextV2}>{habits.frequency.charAt(0).toUpperCase() + habits.frequency.slice(1)}</Text>
-                                    </View>
-                                </View>
-                            </View>
-                        </Surface>
-                    ))
-                )}
-            </View>
+                                </Surface>
+                            </Swipeable>
+                        ))
+                    )}
+                </View>
+            </ScrollView>
         </View>
     );
 }
@@ -104,7 +144,7 @@ const styles = StyleSheet.create({
         marginBottom: 16,
         color: "#5f5f5f",
 
-        fontWeight: "600"
+        fontWeight: "600",
     },
     cardFooter: {
         display: "flex",
@@ -143,6 +183,6 @@ const styles = StyleSheet.create({
     logout: {
         color: "#7863B2",
         fontSize: 16,
-        fontWeight: "600"
-    }
+        fontWeight: "600",
+    },
 });
