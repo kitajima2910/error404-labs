@@ -10,13 +10,13 @@ export default function Index() {
 }
 
 const View = styled.View`
-	flex: 1;
-	justify-content: center;
-	align-items: center;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
 `;
 
 const Text = styled.Text`
-	color: #ab8bff;
-	font-size: 38px;
-	font-weight: 500;
+    color: #ab8bff;
+    font-size: 38px;
+    font-weight: 500;
 `;
