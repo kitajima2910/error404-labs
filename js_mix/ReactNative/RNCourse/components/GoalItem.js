@@ -1,25 +1,34 @@
-import { StyleSheet, Text, View } from "react-native";
-import React from "react";
+import React, { useCallback } from "react";
+import { StyleSheet, Text, View, Pressable } from "react-native";
 
 const GoalItem = (props) => {
+    const deleteGoalHandler = useCallback(() => {
+        props.onDeleteGoal(props.id);
+    }, [props.id, props.onDeleteGoal]);
+
     return (
         <View style={styles.goalItem}>
-            <Text style={styles.goalText}>{props.text}</Text>
+            <Pressable android_ripple={{ color: "#210644" }} style={({ pressed }) => pressed && styles.pressedItem} onPress={deleteGoalHandler}>
+                <Text style={styles.goalText}>{props.text}</Text>
+            </Pressable>
         </View>
     );
 };
 
-export default GoalItem;
+export default React.memo(GoalItem);
 
 const styles = StyleSheet.create({
     goalItem: {
         margin: 8,
-        padding: 8,
         borderRadius: 6,
         backgroundColor: "#5e0acc",
         color: "white",
     },
+    pressedItem: {
+        opacity: 0.5,
+    },
     goalText: {
         color: "white",
+        padding: 8,
     },
 });
