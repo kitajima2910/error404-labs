@@ -5,9 +5,13 @@ import styled from "styled-components/native";
 
 const TabIcon = ({ focused, text, icon }: any) => {
     return (
-        <ImageBackground source={focused ? images.highlight : ""}>
-            <Image source={icon} tintColor={focused ? "#151312" : "#ab8bff"} />
-            <Text focused={focused}>{focused ? text : ""}</Text>
+        <ImageBackground focused={focused} source={focused && images.highlight}>
+            <Image focused={focused} source={icon} tintColor={focused ? "#151312" : "#ab8bff"} 
+                style={ text === "Home" && focused &&  { marginLeft: 20 }}
+            />
+            <Text focused={focused}
+                style={ text === "Profile" && focused &&  { marginRight: 20 }}
+            >{focused ? text : ""}</Text>
         </ImageBackground>
     );
 };
@@ -28,11 +32,11 @@ const _Layout = () => {
                     borderRadius: 50,
                     marginHorizontal: 20,
                     marginBottom: 50,
-                    height: 50,
+                    height: 48,
                     position: "absolute",
                     overflow: "hidden",
                     borderWidth: 0,
-                    // borderColor: "#f0d23"
+                    borderColor: "#f0d23"
                 },
             }}
         >
@@ -91,15 +95,14 @@ const _Layout = () => {
 export default _Layout;
 
 const ImageBackground = styled.ImageBackground<{ focused?: boolean }>`
-    background-color: ${({ focused }) => (focused ? "#ab8bff" : "")};
-    min-width: 100px;
-    min-height: 60px;
-    margin-top: 15px;
+    min-width: 125px;
+    min-height: 48px;
+    margin-top: 14px;
+    border-radius: 50px;
     flex: 1;
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    border-radius: 50px;
 `;
 
 const Text = styled.Text<{ focused?: boolean }>`
@@ -112,4 +115,10 @@ const Text = styled.Text<{ focused?: boolean }>`
     font-size: 16px;
 `;
 
-const Image = styled.Image``;
+const Image = styled.Image<{ focused?: boolean }>`
+    ${(props) =>
+        props.focused &&
+        `
+        margin-right: 5px;
+    `}
+`;
