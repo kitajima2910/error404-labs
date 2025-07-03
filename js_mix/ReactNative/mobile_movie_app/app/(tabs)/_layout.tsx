@@ -6,7 +6,7 @@ import styled from "styled-components/native";
 const TabIcon = ({ focused, text, icon }: any) => {
     return (
         <ImageBackground focused={focused} source={focused && images.highlight}>
-            <Image focused={focused} source={icon} tintColor={focused ? "#151312" : "#ab8bff"} 
+            <Image focused={focused} source={icon} tintColor={focused ? "#120426" : "#A9ABC3"} 
                 style={ text === "Home" && focused &&  { marginLeft: 20 }}
             />
             <Text focused={focused}
@@ -111,8 +111,9 @@ const Text = styled.Text<{ focused?: boolean }>`
         props.focused &&
         `
         margin-left: 5px;
+        color: #151312;
     `}
-    font-size: 16px;
+    font-size: 17px;
 `;
 
 const Image = styled.Image<{ focused?: boolean }>`
