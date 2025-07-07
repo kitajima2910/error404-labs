@@ -3,11 +3,22 @@ import React, { useCallback, useState } from 'react'
 import StartGameScreen from '../screens/StartGameScreen'
 import GameScreen from '../screens/GameScreen'
 import GameOverScreen from '../screens/GameOverScreen'
+import { useFonts } from "expo-font"
+import AppLoading from 'expo-app-loading'
 
 const MiniGameApp = () => {
 
     const [userNumber, setUserNumber] = useState()
     const [gameIsOver, setGameIsOver] = useState(true)
+
+    const [fontsLoaded] = useFonts({
+        "open-sans": require("../assets/fonts/OpenSans-Regular.ttf"),
+        "open-sans-bold": require("../assets/fonts/OpenSans-Bold.ttf")
+    })
+
+    if (!fontsLoaded) {
+        return <AppLoading />
+    }
 
     const pickedNumberHandler = useCallback((pickedNumber) => {
         setUserNumber(pickedNumber)

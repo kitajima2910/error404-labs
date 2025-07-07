@@ -2,12 +2,9 @@ import React, { useCallback } from "react";
 import { Button, Image, Modal, StyleSheet, TextInput, View } from "react-native";
 
 const GoalInput = (props) => {
-    const onChangeTextHandler = useCallback(
-        (text) => {
+    const onChangeTextHandler = useCallback((text) => {
             props.onChangeText(text);
-        },
-        [props.onChangeText]
-    );
+    },[props.onChangeText]);
 
     const onAddGoalHandler = useCallback(() => {
         props.onAddGoal(props.value);
