@@ -32,7 +32,7 @@ const StartGameScreen = ({ onPickNumber }) => {
 
 
 
-            <Card style={styles.inputContainer}>
+            <Card>
                 <Text style={{ color: Colors.accent500, fontSize: 24 }}>Enter a Number</Text>
                 <TextInput value={enterNumber} onChangeText={setEnterNumber} style={styles.numberInput} maxLength={2} keyboardType="number-pad" autoCapitalize="none" autoCorrect={false} />
                 <View style={styles.buttonsPrimaryContainer}>
@@ -55,7 +55,8 @@ const styles = StyleSheet.create({
 
     titleContainer: {
         marginHorizontal: 24,
-        marginTop: 100
+        marginTop: 100,
+        marginBottom: 50
     },
 
     // inputContainer: {
