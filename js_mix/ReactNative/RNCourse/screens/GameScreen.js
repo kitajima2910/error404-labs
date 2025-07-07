@@ -5,6 +5,7 @@ import NumberContainer from "../components/game/NumberContainer";
 import PrimaryButton from "../components/ui/PrimaryButton";
 import Card from "../components/ui/Card";
 import Colors from "../constants/colors";
+import { Ionicons } from "@expo/vector-icons";
 
 const generateRandomBetween = (min, max, exclude) => {
     const rndNum = ~~(Math.random() * (max - min)) + min;
@@ -57,10 +58,14 @@ const GameScreen = ({ userNumber, onGameOver }) => {
                     <Text style={{ color: Colors.accent500, fontSize: 24 }}>Higher or lower?</Text>
                     <View style={styles.buttonsContainer}>
                         <View style={{ width: "50%" }}>
-                            <PrimaryButton onPress={nextGuessHandler.bind(this, "lower")}>-</PrimaryButton>
+                            <PrimaryButton onPress={nextGuessHandler.bind(this, "lower")}>
+                                <Ionicons name="remove" size={24} color="white" />
+                            </PrimaryButton>
                         </View>
                         <View style={{ width: "50%" }}>
-                            <PrimaryButton onPress={nextGuessHandler.bind(this, "greater")}>+</PrimaryButton>
+                            <PrimaryButton onPress={nextGuessHandler.bind(this, "greater")}>
+                                <Ionicons name="add" size={24} color="white" />
+                            </PrimaryButton>
                         </View>
                     </View>
                 </View>
@@ -95,5 +100,5 @@ const styles = StyleSheet.create({
     },
     buttonsContainer: {
         flexDirection: "row",
-    }
+    },
 });
