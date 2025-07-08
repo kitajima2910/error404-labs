@@ -29,6 +29,7 @@ let maxBoundary = 100;
 const GameScreen = ({ userNumber, onGameOver }) => {
     const initialGuess = generateRandomBetween(1, 100, userNumber);
     const [currentGuess, setCurrentGuess] = useState(initialGuess);
+    const [rounds, setRounds] = useState([initialGuess]);
 
     useEffect(() => {
 
@@ -57,21 +58,9 @@ const GameScreen = ({ userNumber, onGameOver }) => {
             minBoundary = currentGuess + 1;
         }
 
-        
-
-        // // ⚠️ Ngăn ngừa loop vô hạn
-        // if (minBoundary > maxBoundary) {
-        //     Alert.alert("Game Error", "No numbers left to guess.");
-        //     return;
-        // }
-
-        // if (minBoundary === maxBoundary) {
-        //     setCurrentGuess(minBoundary); // chỉ còn 1 số duy nhất
-        //     return;
-        // }
-
         const nextNumber = generateRandomBetween(minBoundary, maxBoundary, currentGuess);
         setCurrentGuess(nextNumber);
+        setRounds((curRounds) => [nextNumber, ...curRounds]);
     };
 
     return (
@@ -95,9 +84,9 @@ const GameScreen = ({ userNumber, onGameOver }) => {
                     </View>
                 </View>
             </Card>
-            {/* <View>
-                <Text>LOG ROUNDS</Text>
-            </View> */}
+            <View>
+                {rounds.map((roundNumber) => <Text key={roundNumber}>{roundNumber}</Text>)}
+            </View>
         </View>
     );
 };
