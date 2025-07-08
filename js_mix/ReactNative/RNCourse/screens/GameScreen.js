@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, SafeAreaView, Alert, FlatList, ScrollView } from "react-native";
+import { StyleSheet, Text, View, SafeAreaView, Alert, FlatList, ScrollView, useWindowDimensions } from "react-native";
 import React, { useEffect, useState } from "react";
 import Title from "../components/ui/Title";
 import NumberContainer from "../components/game/NumberContainer";
@@ -31,9 +31,9 @@ const GameScreen = ({ userNumber, onGameOver }) => {
     const initialGuess = generateRandomBetween(1, 100, userNumber);
     const [currentGuess, setCurrentGuess] = useState(initialGuess);
     const [rounds, setRounds] = useState([initialGuess]);
+    const { width, height } = useWindowDimensions();
 
     useEffect(() => {
-
         console.log(currentGuess, userNumber);
 
         if (currentGuess === +userNumber) {
@@ -64,9 +64,8 @@ const GameScreen = ({ userNumber, onGameOver }) => {
         setRounds((curRounds) => [nextNumber, ...curRounds]);
     };
 
-    return (
-        <View style={styles.screen}>
-            <Title>Opponent's Guess</Title>
+    let content = (
+        <>
             <NumberContainer>{currentGuess}</NumberContainer>
             <Card>
                 <View style={styles.buttonContainer}>
@@ -85,12 +84,35 @@ const GameScreen = ({ userNumber, onGameOver }) => {
                     </View>
                 </View>
             </Card>
-            <View style={{ flex: 1, padding: 16 }}>
-                <FlatList 
-                    data={rounds}
-                    renderItem={(itemData) => <GuessLogItems roundNumber={rounds.length - itemData.index} guess={itemData.item} />}
-                    keyExtractor={(item) => item}
-                />
+        </>
+    );
+
+    if (width > 500) {
+        content = (
+            <>
+                <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: -20 }}>
+                    <View style={{ width: "20%" }}>
+                        <PrimaryButton onPress={nextGuessHandler.bind(this, "lower")}>
+                            <Ionicons name="remove" size={24} color="white" />
+                        </PrimaryButton>
+                    </View>
+                    <NumberContainer>{currentGuess}</NumberContainer>
+                    <View style={{ width: "20%" }}>
+                        <PrimaryButton onPress={nextGuessHandler.bind(this, "greater")}>
+                            <Ionicons name="add" size={24} color="white" />
+                        </PrimaryButton>
+                    </View>
+                </View>
+            </>
+        );
+    }
+
+    return (
+        <View style={styles.screen}>
+            <Title>Opponent's Guess</Title>
+            <>{content}</>
+            <View style={{ flex: 1, padding:  16 }}>
+                <FlatList data={rounds} renderItem={(itemData) => <GuessLogItems roundNumber={rounds.length - itemData.index} guess={itemData.item} />} keyExtractor={(item) => item} />
             </View>
         </View>
     );
