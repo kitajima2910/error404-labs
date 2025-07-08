@@ -1,68 +1,65 @@
-import { Alert, Dimensions, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native'
-import React, { useState } from 'react'
-import PrimaryButton from '../components/ui/PrimaryButton'
-import Colors from '../constants/colors'
-import Title from '../components/ui/Title'
-import Card from '../components/ui/Card'
+import { Alert, Dimensions, KeyboardAvoidingView, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
+import React, { useState } from "react";
+import PrimaryButton from "../components/ui/PrimaryButton";
+import Colors from "../constants/colors";
+import Title from "../components/ui/Title";
+import Card from "../components/ui/Card";
 
-const deviceHeight = Dimensions.get("window").height
+const deviceHeight = Dimensions.get("window").height;
 
 const StartGameScreen = ({ onPickNumber }) => {
-
-    const [enterNumber, setEnterNumber] = useState("")
-    const { width, height } = useWindowDimensions()
+    const [enterNumber, setEnterNumber] = useState("");
+    const { width, height } = useWindowDimensions();
 
     const onResetHandler = () => {
-        setEnterNumber("")
-    }
+        setEnterNumber("");
+    };
 
     const onConfirmHandler = () => {
         if (isNaN(enterNumber) || enterNumber <= 0 || enterNumber > 99) {
-            Alert.alert("Invalid number!", "Number has to be between 1 and 99", [{ text: "OKay", style: "destructive", onPress: onResetHandler }])
-            return
+            Alert.alert("Invalid number!", "Number has to be between 1 and 99", [{ text: "OKay", style: "destructive", onPress: onResetHandler }]);
+            return;
         }
 
-        onPickNumber(enterNumber)
+        onPickNumber(enterNumber);
+    };
 
-    }
-
-    const marginTopDistance = height < 380 ? 30 : 50
+    const marginTopDistance = height < 380 ? 30 : 50;
 
     return (
-        <View style={[{ marginTop: marginTopDistance  }]}>
-            <View style={styles.titleContainer}>
-                <Title>Guess My Number</Title>
-
-            </View>
-
-
-
-            <Card>
-                <Text style={{ color: Colors.accent500, fontSize: 24 }}>Enter a Number</Text>
-                <TextInput value={enterNumber} onChangeText={setEnterNumber} style={styles.numberInput} maxLength={2} keyboardType="number-pad" autoCapitalize="none" autoCorrect={false} />
-                <View style={styles.buttonsPrimaryContainer}>
-                    <View style={styles.buttonPrimaryContainer}>
-                        <PrimaryButton onPress={onResetHandler}>Reset</PrimaryButton>
+        <ScrollView style={{ flex: 1 }}>
+            <KeyboardAvoidingView style={{ flex: 1 }} behavior="position">
+                <View style={[{ marginTop: marginTopDistance }]}>
+                    <View style={styles.titleContainer}>
+                        <Title>Guess My Number</Title>
                     </View>
-                    <View style={styles.buttonPrimaryContainer}>
-                        <PrimaryButton onPress={onConfirmHandler}>Confirm</PrimaryButton>
-                    </View>
+
+                    <Card>
+                        <Text style={{ color: Colors.accent500, fontSize: 24 }}>Enter a Number</Text>
+                        <TextInput value={enterNumber} onChangeText={setEnterNumber} style={styles.numberInput} maxLength={2} keyboardType="number-pad" autoCapitalize="none" autoCorrect={false} />
+                        <View style={styles.buttonsPrimaryContainer}>
+                            <View style={styles.buttonPrimaryContainer}>
+                                <PrimaryButton onPress={onResetHandler}>Reset</PrimaryButton>
+                            </View>
+                            <View style={styles.buttonPrimaryContainer}>
+                                <PrimaryButton onPress={onConfirmHandler}>Confirm</PrimaryButton>
+                            </View>
+                        </View>
+                    </Card>
                 </View>
-            </Card>
+            </KeyboardAvoidingView>
+        </ScrollView>
+    );
+};
 
-        </View>
-    )
-}
-
-export default (StartGameScreen); //StartGameScreen
+export default StartGameScreen; //StartGameScreen
 
 const styles = StyleSheet.create({
-
     titleContainer: {
         marginHorizontal: 24,
         // marginTop: 100,
         marginBottom: deviceHeight < 380 ? 20 : 50,
-        alignItems: 'center'
+        alignItems: "center",
     },
 
     // inputContainer: {
@@ -87,13 +84,13 @@ const styles = StyleSheet.create({
         borderBottomWidth: 2,
         color: Colors.accent500,
         marginVertical: 8,
-        fontWeight: 'bold',
-        textAlign: 'center'
+        fontWeight: "bold",
+        textAlign: "center",
     },
     buttonsPrimaryContainer: {
-        flexDirection: 'row',
+        flexDirection: "row",
     },
     buttonPrimaryContainer: {
-        flex: 1
-    }
-})
+        flex: 1,
+    },
+});
