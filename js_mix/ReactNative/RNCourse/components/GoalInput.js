@@ -1,18 +1,18 @@
-import React, { useCallback } from "react";
+import React from "react";
 import { Button, Image, Modal, StyleSheet, TextInput, View } from "react-native";
 
 const GoalInput = (props) => {
-    const onChangeTextHandler = useCallback((text) => {
+    const onChangeTextHandler = (text) => {
             props.onChangeText(text);
-    },[props.onChangeText]);
+    };
 
-    const onAddGoalHandler = useCallback(() => {
+    const onAddGoalHandler = () => {
         props.onAddGoal(props.value);
-    }, [props.onAddGoal, props.value]);
+    }
 
-    const cancelModelHandler = useCallback(() => {
+    const cancelModelHandler = () => {
         props.onCancel();
-    }, [props.onCancel]);
+    }
 
     return (
         <Modal visible={props.visible} animationType="slide">
@@ -32,7 +32,7 @@ const GoalInput = (props) => {
     );
 };
 
-export default React.memo(GoalInput);
+export default (GoalInput);
 
 const styles = StyleSheet.create({
     inputContainer: {

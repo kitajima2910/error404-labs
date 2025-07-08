@@ -8,7 +8,13 @@ import Colors from "../constants/colors";
 import { Ionicons } from "@expo/vector-icons";
 
 const generateRandomBetween = (min, max, exclude) => {
-    const rndNum = ~~(Math.random() * (max - min)) + min;
+    const rangeSize = max - min;
+
+    if (rangeSize <= 0) {
+        return min; // fallback, tránh crash
+    }
+
+    const rndNum = Math.floor(Math.random() * rangeSize) + min;
 
     if (rndNum === exclude) {
         return generateRandomBetween(min, max, exclude);
@@ -25,13 +31,19 @@ const GameScreen = ({ userNumber, onGameOver }) => {
     const [currentGuess, setCurrentGuess] = useState(initialGuess);
 
     useEffect(() => {
-        minBoundary = 1;
-        maxBoundary = 100;
 
-        if (currentGuess === userNumber) {
+        console.log(currentGuess, userNumber);
+
+        if (currentGuess === +userNumber) {
+            console.log("Game Over");
             onGameOver();
         }
     }, [currentGuess, userNumber, onGameOver]);
+
+    useEffect(() => {
+        minBoundary = 1;
+        maxBoundary = 100;
+    }, []);
 
     const nextGuessHandler = (direction) => {
         if ((direction === "lower" && currentGuess < userNumber) || (direction === "greater" && currentGuess > userNumber)) {
@@ -44,6 +56,19 @@ const GameScreen = ({ userNumber, onGameOver }) => {
         } else {
             minBoundary = currentGuess + 1;
         }
+
+        
+
+        // // ⚠️ Ngăn ngừa loop vô hạn
+        // if (minBoundary > maxBoundary) {
+        //     Alert.alert("Game Error", "No numbers left to guess.");
+        //     return;
+        // }
+
+        // if (minBoundary === maxBoundary) {
+        //     setCurrentGuess(minBoundary); // chỉ còn 1 số duy nhất
+        //     return;
+        // }
 
         const nextNumber = generateRandomBetween(minBoundary, maxBoundary, currentGuess);
         setCurrentGuess(nextNumber);
@@ -77,7 +102,7 @@ const GameScreen = ({ userNumber, onGameOver }) => {
     );
 };
 
-export default React.memo(GameScreen); //GameScreen
+export default GameScreen; //GameScreen
 
 const styles = StyleSheet.create({
     screen: {

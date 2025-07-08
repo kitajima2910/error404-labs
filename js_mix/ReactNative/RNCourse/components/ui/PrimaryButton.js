@@ -1,13 +1,13 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native'
-import React, { useCallback } from 'react'
+import React from 'react'
 import Colors from '../../constants/colors';
 
 const PrimaryButton = ({ children, onPress }) => {
 
 
-    const onPressHandler = useCallback(() => {
+    const onPressHandler = () => {
         onPress()
-    }, [onPress]);
+    }
 
 
     return (
@@ -21,7 +21,7 @@ const PrimaryButton = ({ children, onPress }) => {
     )
 }
 
-export default React.memo(PrimaryButton); //PrimaryButton
+export default (PrimaryButton); //PrimaryButton
 
 const styles = StyleSheet.create({
     buttonOuterContainer: {

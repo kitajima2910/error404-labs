@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import {  useState } from "react";
 import { Button, FlatList, StyleSheet, View } from "react-native";
 import GoalItem from "./GoalItem";
 import GoalInput from "./GoalInput";
@@ -9,28 +9,27 @@ const GoalsApp = () => {
     const [courseGoals, setCourseGoals] = useState([]);
     const [startVisibleModal, setStartVisibleModal] = useState(false);
 
-    const goalInputHandler = useCallback((enteredText) => {
+    const goalInputHandler = (enteredText) => {
         setEnteredGoalText(enteredText);
-    }, []);
+    }
 
-    const addGoalHandler = useCallback(() => {
+    const addGoalHandler = () => {
         setCourseGoals((currentCourseGoals) => [...currentCourseGoals, { text: enteredGoalText, id: Math.random().toString() }]);
         setEnteredGoalText("");
 
         cancelModelHandler();
-    }, [enteredGoalText]);
+    }
 
-    const deleteGoalHandler = useCallback((id) => {
+    const deleteGoalHandler =(id) => {
         setCourseGoals((currentCourseGoals) => currentCourseGoals.filter((item) => item.id !== id));
-    }, []);
-
+    }
     const startAddGoalHandler = () => {
         setStartVisibleModal(true);
     };
 
-    const cancelModelHandler = useCallback(() => {
+    const cancelModelHandler = () => {
         setStartVisibleModal(false);
-    }, []);
+    }
 
     return (
         <>

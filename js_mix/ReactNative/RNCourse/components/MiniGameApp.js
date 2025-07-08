@@ -1,5 +1,5 @@
 import { ImageBackground, StyleSheet, Text, View } from 'react-native'
-import React, { useCallback, useState } from 'react'
+import React, {  use, useState } from 'react'
 import StartGameScreen from '../screens/StartGameScreen'
 import GameScreen from '../screens/GameScreen'
 import GameOverScreen from '../screens/GameOverScreen'
@@ -10,6 +10,7 @@ const MiniGameApp = () => {
 
     const [userNumber, setUserNumber] = useState()
     const [gameIsOver, setGameIsOver] = useState(true)
+    const [guessRounds, setGuessRounds] = useState(0)
 
     const [fontsLoaded] = useFonts({
         "open-sans": require("../assets/fonts/OpenSans-Regular.ttf"),
@@ -20,14 +21,19 @@ const MiniGameApp = () => {
         return <AppLoading />
     }
 
-    const pickedNumberHandler = useCallback((pickedNumber) => {
+    const pickedNumberHandler = (pickedNumber) => {
         setUserNumber(pickedNumber)
         setGameIsOver(false)
-    }, [userNumber])
+    }
 
-    const gameOverHandler = useCallback((gameOver) => {
+    const gameOverHandler = (gameOver) => {
         setGameIsOver(true)
-    }, [gameIsOver])
+    }
+
+    const startNerGame = () => {
+        setUserNumber(null)
+        setGuessRounds(0)
+    }
 
     let currentScreen = <StartGameScreen onPickNumber={pickedNumberHandler} />
 
@@ -35,8 +41,9 @@ const MiniGameApp = () => {
         currentScreen = <GameScreen userNumber={userNumber} onGameOver={gameOverHandler} />
     }
 
+    console.log("miniGameApp = ", gameIsOver, userNumber);
     if (gameIsOver && userNumber) {
-        currentScreen = <GameOverScreen />
+        currentScreen = <GameOverScreen roundsNumber={0} userNumber={userNumber} onRestart={startNerGame} />
     }
 
     

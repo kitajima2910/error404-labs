@@ -1,10 +1,10 @@
-import React, { useCallback } from "react";
+import React from "react";
 import { StyleSheet, Text, View, Pressable } from "react-native";
 
 const GoalItem = (props) => {
-    const deleteGoalHandler = useCallback(() => {
+    const deleteGoalHandler = () => {
         props.onDeleteGoal(props.id);
-    }, [props.id, props.onDeleteGoal]);
+    }
 
     return (
         <View style={styles.goalItem}>
@@ -15,7 +15,7 @@ const GoalItem = (props) => {
     );
 };
 
-export default React.memo(GoalItem);
+export default (GoalItem);
 
 const styles = StyleSheet.create({
     goalItem: {
