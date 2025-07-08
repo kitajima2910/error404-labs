@@ -6,6 +6,7 @@ import PrimaryButton from "../components/ui/PrimaryButton";
 import Card from "../components/ui/Card";
 import Colors from "../constants/colors";
 import { Ionicons } from "@expo/vector-icons";
+import GuessLogItems from "../components/game/GuessLogItems";
 
 const generateRandomBetween = (min, max, exclude) => {
     const rangeSize = max - min;
@@ -88,7 +89,7 @@ const GameScreen = ({ userNumber, onGameOver }) => {
                 {/* {rounds.map((roundNumber) => <Text key={roundNumber}>{roundNumber}</Text>)} */}
                 <FlatList 
                     data={rounds}
-                    renderItem={(itemData) => <Text style={{ color: Colors.accent500, fontSize: 24 }}>{itemData.item}</Text>}
+                    renderItem={(itemData) => <GuessLogItems roundNumber={rounds.length - itemData.index} guess={itemData.item} />}
                     keyExtractor={(item) => item}
                 />
             </View>
