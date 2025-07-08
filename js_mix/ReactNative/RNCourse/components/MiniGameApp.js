@@ -5,6 +5,9 @@ import GameScreen from '../screens/GameScreen'
 import GameOverScreen from '../screens/GameOverScreen'
 import { useFonts } from "expo-font"
 import AppLoading from 'expo-app-loading'
+import { StatusBar } from 'expo-status-bar'
+
+
 
 const MiniGameApp = () => {
 
@@ -51,6 +54,7 @@ const MiniGameApp = () => {
 
     return (
         <>
+            <StatusBar style="light" />
             {/* <ImageBackground imageStyle={styles.ImageBackgroundStyle} source={require("../assets/images/background.png")} resizeMode="cover" style={styles.rootScreen}> */}
             {/* <StartGameScreen /> */}
             {currentScreen}
