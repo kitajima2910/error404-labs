@@ -103,6 +103,7 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 16,
         marginTop: 30,
+        alignItems: "center",
     },
     // title: {
     //     fontSize: 24,
