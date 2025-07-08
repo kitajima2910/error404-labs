@@ -28,6 +28,7 @@ const MiniGameApp = () => {
 
     const gameOverHandler = (gameOver) => {
         setGameIsOver(true)
+        setGuessRounds(gameOver)
     }
 
     const startNerGame = () => {
@@ -41,9 +42,9 @@ const MiniGameApp = () => {
         currentScreen = <GameScreen userNumber={userNumber} onGameOver={gameOverHandler} />
     }
 
-    console.log("miniGameApp = ", gameIsOver, userNumber);
+    // console.log("miniGameApp = ", gameIsOver, userNumber);
     if (gameIsOver && userNumber) {
-        currentScreen = <GameOverScreen roundsNumber={0} userNumber={userNumber} onRestart={startNerGame} />
+        currentScreen = <GameOverScreen roundsNumber={guessRounds} userNumber={userNumber} onRestart={startNerGame} />
     }
 
     

@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, SafeAreaView, Alert, FlatList } from "react-native";
+import { StyleSheet, Text, View, SafeAreaView, Alert, FlatList, ScrollView } from "react-native";
 import React, { useEffect, useState } from "react";
 import Title from "../components/ui/Title";
 import NumberContainer from "../components/game/NumberContainer";
@@ -38,7 +38,7 @@ const GameScreen = ({ userNumber, onGameOver }) => {
 
         if (currentGuess === +userNumber) {
             console.log("Game Over");
-            onGameOver();
+            onGameOver(rounds.length);
         }
     }, [currentGuess, userNumber, onGameOver]);
 
@@ -85,8 +85,7 @@ const GameScreen = ({ userNumber, onGameOver }) => {
                     </View>
                 </View>
             </Card>
-            <View>
-                {/* {rounds.map((roundNumber) => <Text key={roundNumber}>{roundNumber}</Text>)} */}
+            <View style={{ flex: 1, padding: 16 }}>
                 <FlatList 
                     data={rounds}
                     renderItem={(itemData) => <GuessLogItems roundNumber={rounds.length - itemData.index} guess={itemData.item} />}
