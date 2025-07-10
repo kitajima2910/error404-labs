@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Button, StyleSheet, Text, View } from "react-native";
 import React from "react";
 import CategoriesScreen from "../screens/CategoriesScreen";
 import { StatusBar } from "expo-status-bar";
