@@ -5,6 +5,7 @@ import MealDetail from "../components/MealDetail";
 import Subtitle from "../components/MealDetail/Subtitle";
 import List from "../components/MealDetail/List";
 import { useNavigation } from "@react-navigation/native";
+import IconButton from "../components/IconButton";
 
 const MealDetailScreen = ({ route }) => {
     const mealId = route.params.mealId;
@@ -17,10 +18,16 @@ const MealDetailScreen = ({ route }) => {
         console.log("pressed");
     };
 
+    const dataIconButton = {
+        icon: "star",
+        color: "white",
+        onPress: handerButtonPress,
+    };
+
     useLayoutEffect(() => {
         navigation.setOptions({
             headerRight: () => {
-                return <Button title="Tap me!" onPress={handerButtonPress} />;
+                return <IconButton {...dataIconButton} />;
             },
         });
     }, []);
