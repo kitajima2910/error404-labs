@@ -6,15 +6,22 @@ import Subtitle from "../components/MealDetail/Subtitle";
 import List from "../components/MealDetail/List";
 import { useNavigation } from "@react-navigation/native";
 import IconButton from "../components/IconButton";
-import { FavoritesContext } from "../store/context/favorites-context";
-import { useDispatch, useSelector } from "react-redux";
-import { addFavorite, removeFavorite } from "../store/redux/favorites";
+// import { FavoritesContext } from "../store/context/favorites-context";
+// import { useDispatch, useSelector } from "react-redux";
+// import { addFavorite, removeFavorite } from "../store/redux/favorites";
+import useFavoritesStore from "../store/zustand/favoritesStore";
 
 const MealDetailScreen = ({ route }) => {
     // const favoriteMealctx = useContext(FavoritesContext);
 
-    const favoriteMealIds = useSelector((state) => state.favoritesMeals.ids);
-    const dispatch = useDispatch();
+    // const favoriteMealIds = useSelector((state) => state.favoritesMeals.ids);
+    // const dispatch = useDispatch();
+
+    // zustand
+    const favorites = useFavoritesStore((state) => state.favorites);
+    const addFavorite = useFavoritesStore((state) => state.addFavorite);
+    const removeFavorite = useFavoritesStore((state) => state.removeFavorite);
+    // zustand
 
     const mealId = route.params.mealId;
 
@@ -22,15 +29,18 @@ const MealDetailScreen = ({ route }) => {
 
     const navigation = useNavigation();
 
-    const mealIsFavorite = favoriteMealIds.includes(mealId);
+    const mealIsFavorite = favorites.includes(mealId);
 
     const handerButtonPress = () => {
+        console.log(mealIsFavorite);
         if (mealIsFavorite) {
             // favoriteMealctx.removeFavorite(mealId);
-            dispatch(removeFavorite({ id: mealId }));
+            // dispatch(removeFavorite({ id: mealId }));
+            removeFavorite(mealId);
         } else {
             // favoriteMealctx.addFavorite(mealId);
-            dispatch(addFavorite({ id: mealId }));
+            // dispatch(addFavorite({ id: mealId }));
+            addFavorite(mealId);
         }
     };
 
