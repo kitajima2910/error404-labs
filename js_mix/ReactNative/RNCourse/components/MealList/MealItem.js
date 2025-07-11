@@ -1,17 +1,16 @@
 import { Image, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { useNavigation } from "@react-navigation/native";
-import MealDetail from "./MealDetail";
+import MealDetail from "../MealDetail";
 
 const MealItem = ({ title, imageUrl, duration, complexity, affordability, id }) => {
-
     const navigation = useNavigation();
 
     // navigation.navigate("MealDetail", { mealId: id });
 
     const selectMealItemHandler = () => {
         navigation.navigate("MealDetail", { mealId: id });
-    }
+    };
 
     return (
         <View style={styles.mealItem}>
@@ -42,9 +41,9 @@ const styles = StyleSheet.create({
         shadowRadius: 8,
         overflow: Platform.OS === "android" ? "hidden" : "visible",
     },
-	buttonPressed: {
-		opacity: 0.5
-	},
+    buttonPressed: {
+        opacity: 0.5,
+    },
     innerContainer: {
         borderRadius: 8,
         overflow: "hidden",
