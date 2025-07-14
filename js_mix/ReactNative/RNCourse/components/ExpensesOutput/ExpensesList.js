@@ -4,7 +4,7 @@ import ExpensesItem from "./ExpensesItem";
 
 const renderExpenseItem = (itemData) => {
     // return <Text>{itemData.item.description}</Text>;
-    return <ExpensesItem description={itemData.item.description} amount={itemData.item.amount} date={itemData.item.date} />;
+    return <ExpensesItem {...itemData.item} />;
 };
 
 const ExpensesList = ({ expenses }) => {
