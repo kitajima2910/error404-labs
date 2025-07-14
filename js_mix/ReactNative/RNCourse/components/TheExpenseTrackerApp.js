@@ -56,7 +56,7 @@ const ExpensesOverview = () => {
 const TheExpenseTrackerApp = () => {
     return (
         <>
-            <StatusBar style="light" />
+            <StatusBar style="drak" />
             <NavigationContainer>
                 <Stack.Navigator
                     screenOptions={{

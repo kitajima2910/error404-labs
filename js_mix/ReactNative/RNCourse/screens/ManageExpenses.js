@@ -14,11 +14,17 @@ const ManageExpenses = ({ route, navigation }) => {
         });
     }, [navigation, isEditing]);
 
-    const deleteExpenseHandler = () => {};
+    const deleteExpenseHandler = () => {
+        navigation.goBack();
+    };
 
-    const cancelHandler = () => {};
+    const cancelHandler = () => {
+        navigation.goBack();
+    };
 
-    const confirmHandler = () => {};
+    const confirmHandler = () => {
+        navigation.goBack();
+    };
 
     return (
         <View style={styles.container}>
@@ -32,7 +38,7 @@ const ManageExpenses = ({ route, navigation }) => {
             </View>
             {isEditing && (
                 <View style={styles.deleteContainer}>
-                    <IconButton icon="trash" size={24} color={GlobalStyles.colors.error500} onPress={() => deleteExpenseHandler} />
+                    <IconButton icon="trash" size={24} color={GlobalStyles.colors.error500} onPress={deleteExpenseHandler} />
                 </View>
             )}
         </View>
