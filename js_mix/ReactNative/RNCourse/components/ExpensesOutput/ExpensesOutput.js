@@ -3,10 +3,10 @@ import React from "react";
 import ExpensesSummary from "./ExpensesSummary";
 import ExpensesList from "./ExpensesList";
 
-const ExpensesOutput = ({ expenses }) => {
+const ExpensesOutput = ({ expenses, expensesPeriod }) => {
     return (
         <View>
-            <ExpensesSummary />
+            <ExpensesSummary expenses={expenses} periodName={expensesPeriod} />
             <ExpensesList />
         </View>
     );
