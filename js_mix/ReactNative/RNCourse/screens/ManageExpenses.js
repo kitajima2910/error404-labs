@@ -118,23 +118,25 @@ const ManageExpenses = ({ route, navigation }) => {
 
     return (
         <View style={styles.container}>
-            <ExpenseForm formInvalidFromParent={formInvalidFromParent} selectedExpense={selectedExpense} saveInputHandler={saveInputHandler} invalid={invalid} />
-
-            {invalid.formInvalid && (<Text style={[styles.errorText, { marginTop: isEditing ? 40 : 0 }]}>Invalid input values - please check your entered data!</Text>)}
-
-            <View style={styles.buttonsContainer}>
-                <Button style={styles.button} mode="flat" onPress={cancelHandler}>
-                    Cancel
-                </Button>
-                <Button style={styles.button} onPress={confirmHandler}>
-                    {isEditing ? "Update" : "Add"}
-                </Button>
+            <View style={{ flex: 1 }}>
+                <ExpenseForm formInvalidFromParent={formInvalidFromParent} selectedExpense={selectedExpense} saveInputHandler={saveInputHandler} />
             </View>
-            {isEditing && (
-                <View style={styles.deleteContainer}>
-                    <IconButton icon="trash" size={24} color={GlobalStyles.colors.error500} onPress={deleteExpenseHandler} />
+            <View style={{ flex: 1 }}>
+                {invalid && <Text style={[styles.errorText, { marginTop: isEditing ? 40 : 0 }]}>Invalid input values - please check your entered data!</Text>}
+                <View style={styles.buttonsContainer}>
+                    <Button style={styles.button} mode="flat" onPress={cancelHandler}>
+                        Cancel
+                    </Button>
+                    <Button style={styles.button} onPress={confirmHandler}>
+                        {isEditing ? "Update" : "Add"}
+                    </Button>
                 </View>
-            )}
+                {isEditing && (
+                    <View style={styles.deleteContainer}>
+                        <IconButton icon="trash" size={24} color={GlobalStyles.colors.error500} onPress={deleteExpenseHandler} />
+                    </View>
+                )}
+            </View>
         </View>
     );
 };
