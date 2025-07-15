@@ -24,15 +24,17 @@ const ManageExpenses = ({ route, navigation }) => {
     const [inputValueParent, setInputValueParent] = useState({
         amount: 0,
         date: "",
-        description: ""
+        description: "",
     });
 
     const [invalid, setInvalid] = useState({
         amount: false,
         date: false,
         description: false,
-        formInvalid: false
+        formInvalid: false,
     });
+
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useLayoutEffect(() => {
         navigation.setOptions({
@@ -51,18 +53,19 @@ const ManageExpenses = ({ route, navigation }) => {
     };
 
     const confirmHandler = () => {
+        setIsSubmitting(true);
 
         const amountIsValid = !isNaN(inputValueParent.amount) && inputValueParent.amount > 0;
-        const dateIsValid = inputValueParent.date.toString() !== "" && inputValueParent.date.toString() !== "Invalid Date"
+        const dateIsValid = inputValueParent.date.toString() !== "" && inputValueParent.date.toString() !== "Invalid Date";
         const descriptionIsValid = inputValueParent.description.trim().length > 0;
 
-        if (invalid.formInvalid) {
+        if (!amountIsValid || !dateIsValid || !descriptionIsValid) {
             // Alert.alert("Invalid Input", "Please check your input values", [{ text: "OKay", style: "destructive" }]);
             setInvalid({
                 amount: !amountIsValid,
                 date: !dateIsValid,
                 description: !descriptionIsValid,
-                formInvalid: true
+                formInvalid: true,
             });
             return;
         }
@@ -100,29 +103,29 @@ const ManageExpenses = ({ route, navigation }) => {
     };
 
     const saveInputHandler = (inputValue) => {
-        // console.log("pxh parent:", inputValue);
+        console.log("pxh parent:", inputValue);
 
         const expenseData = {
             amount: +inputValue.amount,
             date: new Date(inputValue.date),
-            description: inputValue.description
-        }
+            description: inputValue.description,
+        };
 
         setInputValueParent(expenseData);
     };
 
     const formInvalidFromParent = (invalid) => {
-        console.log("pxh invalid: ", invalid);
-        setInvalid(invalid);
+        // console.log("pxh invalid: ", invalid);
+        // setInvalid(invalid);
     };
 
     return (
         <View style={styles.container}>
-            <View style={{ flex: 1 }}>
-                <ExpenseForm formInvalidFromParent={formInvalidFromParent} selectedExpense={selectedExpense} saveInputHandler={saveInputHandler} />
+            <View style={{ flex: 0.5 }}>
+                <ExpenseForm formInvalidFromParent={formInvalidFromParent} selectedExpense={selectedExpense} saveInputHandler={saveInputHandler} isSubmitting={isSubmitting} />
             </View>
-            <View style={{ flex: 1 }}>
-                {invalid && <Text style={[styles.errorText, { marginTop: isEditing ? 40 : 0 }]}>Invalid input values - please check your entered data!</Text>}
+            <View style={{ flex: 0.5 }}>
+                {invalid.formInvalid && <Text style={[styles.errorText, { marginTop: isEditing ? 40 : 0 }]}>Invalid input values - please check your entered data!</Text>}
                 <View style={styles.buttonsContainer}>
                     <Button style={styles.button} mode="flat" onPress={cancelHandler}>
                         Cancel
@@ -170,6 +173,6 @@ const styles = StyleSheet.create({
         color: GlobalStyles.colors.error500,
         margin: 8,
         marginBottom: 30,
-        fontSize: 16
+        fontSize: 16,
     },
 });
