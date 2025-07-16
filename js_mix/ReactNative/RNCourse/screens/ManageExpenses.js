@@ -7,8 +7,15 @@ import { ExpensesContext } from "../store/context/expenses-context";
 import useExpensesStore from "../store/zustand/expensesStore";
 import ExpenseForm from "../components/ManageExpense/ExpenseForm";
 import { isValidDate } from "../utils/date";
+import { deleteExpense, storeExpenses, updateExpense } from "../utils/http";
+import LoadingOverlay from "../components/ui/LoadingOverlay";
+import ErrorOverlay from "../components/ui/ErrorOverlay";
 
 const ManageExpenses = ({ route, navigation }) => {
+
+    const [submit, setSubmit] = useState(false)
+    const [error, setError] = useState()
+
     const expensesCtx = useContext(ExpensesContext);
 
     const expenseStoreAddExpense = useExpensesStore((state) => state.addExpense);
@@ -42,64 +49,81 @@ const ManageExpenses = ({ route, navigation }) => {
         });
     }, [navigation, isEditing]);
 
-    const deleteExpenseHandler = () => {
+    const deleteExpenseHandler = async () => {
+        setSubmit(true)
         // expensesCtx.deleteExpense(editedExpenseId);
-        expenseStoreDeleteExpense(editedExpenseId);
-        navigation.goBack();
+        try {
+            await deleteExpense(editedExpenseId);
+            expenseStoreDeleteExpense(editedExpenseId);
+            navigation.goBack();
+        } catch (error) {
+            setError("Could not delete expense!")
+            setSubmit(false)
+        }
     };
 
     const cancelHandler = () => {
         navigation.goBack();
     };
 
-    const confirmHandler = () => {
+    const confirmHandler = async () => {
+
+        setSubmit(true)
+
         setIsSubmitting(true);
 
-        const amountIsValid = !isNaN(inputValueParent.amount) && inputValueParent.amount > 0;
-        const dateIsValid = inputValueParent.date.toString() !== "" && inputValueParent.date.toString() !== "Invalid Date";
-        const descriptionIsValid = inputValueParent.description.trim().length > 0;
+        try {
+            const amountIsValid = !isNaN(inputValueParent.amount) && inputValueParent.amount > 0;
+            const dateIsValid = inputValueParent.date.toString() !== "" && inputValueParent.date.toString() !== "Invalid Date";
+            const descriptionIsValid = inputValueParent.description.trim().length > 0;
 
-        if (!amountIsValid || !dateIsValid || !descriptionIsValid) {
-            // Alert.alert("Invalid Input", "Please check your input values", [{ text: "OKay", style: "destructive" }]);
-            setInvalid({
-                amount: !amountIsValid,
-                date: !dateIsValid,
-                description: !descriptionIsValid,
-                formInvalid: true,
-            });
-            return;
+            if (!amountIsValid || !dateIsValid || !descriptionIsValid) {
+                // Alert.alert("Invalid Input", "Please check your input values", [{ text: "OKay", style: "destructive" }]);
+                setInvalid({
+                    amount: !amountIsValid,
+                    date: !dateIsValid,
+                    description: !descriptionIsValid,
+                    formInvalid: true,
+                });
+                return;
+            }
+
+            if (isEditing) {
+                // expensesCtx.updateExpense(editedExpenseId, {
+                //     description: "New Expense <3",
+                //     amount: 29.99,
+                //     date: new Date(new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate()),
+                // });
+
+                // expenseStoreUpdateExpense(editedExpenseId, {
+                //     description: "New Expense Zustand <3",
+                //     amount: 99.99,
+                //     date: new Date(new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate()),
+                // });
+
+                await updateExpense(editedExpenseId, inputValueParent);
+                expenseStoreUpdateExpense(editedExpenseId, inputValueParent);
+            } else {
+                // expensesCtx.addExpense({
+                //     description: "New Expense",
+                //     amount: 19.99,
+                //     date: new Date(new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate()),
+                // });
+
+                // expenseStoreAddExpense({
+                //     description: "New Expense Zustand",
+                //     amount: 99.99,
+                //     date: new Date(new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate()),
+                // });
+                const id = await storeExpenses(inputValueParent);
+                expenseStoreAddExpense(id, inputValueParent);
+            }
+            navigation.goBack();
+        } catch (error) {
+            setError("Something went wrong!");
+            setSubmit(false);
         }
 
-        if (isEditing) {
-            // expensesCtx.updateExpense(editedExpenseId, {
-            //     description: "New Expense <3",
-            //     amount: 29.99,
-            //     date: new Date(new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate()),
-            // });
-
-            // expenseStoreUpdateExpense(editedExpenseId, {
-            //     description: "New Expense Zustand <3",
-            //     amount: 99.99,
-            //     date: new Date(new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate()),
-            // });
-
-            expenseStoreUpdateExpense(editedExpenseId, inputValueParent);
-        } else {
-            // expensesCtx.addExpense({
-            //     description: "New Expense",
-            //     amount: 19.99,
-            //     date: new Date(new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate()),
-            // });
-
-            // expenseStoreAddExpense({
-            //     description: "New Expense Zustand",
-            //     amount: 99.99,
-            //     date: new Date(new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate()),
-            // });
-
-            expenseStoreAddExpense(inputValueParent);
-        }
-        navigation.goBack();
     };
 
     const saveInputHandler = (inputValue) => {
@@ -118,6 +142,18 @@ const ManageExpenses = ({ route, navigation }) => {
         // console.log("pxh invalid: ", invalid);
         // setInvalid(invalid);
     };
+
+    const errorHandler = () => {
+        setError(null);
+    };
+
+    if (error && !submit) {
+        return <ErrorOverlay message={error} />
+    }
+
+    if (submit) {
+        return <LoadingOverlay />
+    }
 
     return (
         <View style={styles.container}>

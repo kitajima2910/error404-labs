@@ -76,10 +76,17 @@ const DUMMY_EXPENSES = [
 ];
 
 const useExpensesStore = create((set, get) => ({
-    expenses: [...DUMMY_EXPENSES],
+    expenses: [],
 
-    addExpense: ({ description, amount, date }) => {
-        const newExpense = { id: Math.random().toString(), description, amount, date };
+    setExpense: (data) => {
+        set(() => ({
+            expenses: data.reverse()
+        }))
+    },
+
+    addExpense: (id,{ description, amount, date }) => {
+        // const newExpense = { id: Math.random().toString(), description, amount, date };
+        const newExpense = { id: id, description, amount, date };
 
         set(() => ({
             expenses: [newExpense, ...get().expenses],
