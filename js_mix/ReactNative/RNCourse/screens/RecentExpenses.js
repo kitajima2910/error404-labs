@@ -9,9 +9,8 @@ import LoadingOverlay from "../components/ui/LoadingOverlay";
 import ErrorOverlay from "../components/ui/ErrorOverlay";
 
 const RecentExpenses = () => {
-
-    const [isFetching, setIsFetching] = useState(true)
-    const [error, setError] = useState()
+    const [isFetching, setIsFetching] = useState(true);
+    const [error, setError] = useState();
 
     const expensesCtx = useContext(ExpensesContext);
 
@@ -19,34 +18,32 @@ const RecentExpenses = () => {
     const expensesStoreSetExpenses = useExpensesStore((state) => state.setExpense);
 
     useEffect(() => {
-
         const getExpenses = async () => {
-            setIsFetching(true)
+            setIsFetching(true);
 
             try {
-                const expenses = await fetchExpenses()
-                expensesStoreSetExpenses(expenses)
+                const expenses = await fetchExpenses();
+                expensesStoreSetExpenses(expenses);
             } catch (error) {
-                setError("Could not fetch expenses!")
+                setError("Could not fetch expenses!");
             }
-            
-            setIsFetching(false)
-        }
 
-        getExpenses()
-    }, [])
+            setIsFetching(false);
+        };
+
+        getExpenses();
+    }, []);
 
     const errorHandler = () => {
-        setError(null)
-    }
+        setError(null);
+    };
 
     if (error && !isFetching) {
-        return <ErrorOverlay message={error} />
-
+        return <ErrorOverlay message={error} />;
     }
 
     if (isFetching) {
-        return <LoadingOverlay />
+        return <LoadingOverlay />;
     }
 
     const recentExpenses = expensesStoreExpenses.filter((expense) => {
@@ -56,7 +53,6 @@ const RecentExpenses = () => {
         return expense.date > date7DaysAgo;
     });
 
-    
     return <ExpensesOutput expenses={recentExpenses} expensesPeriod={"Last 7 Days"} fallBackText={"No expenses registered for the last 7 days."} />;
 };
 
