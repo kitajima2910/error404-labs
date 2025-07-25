@@ -1,9 +1,10 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 import IntroScreen from "./src/screens/IntroScreen";
+import UserAvatar from "./src/components/UserAvatar";
 
 export default function App() {
-    return <IntroScreen />;
+    return <UserAvatar />;
 }
 
 const styles = StyleSheet.create({
