@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         borderBottomWidth: 1,
         borderBottomColor: "#E4E6E8",
-        paddingBottom: s(15),
+        paddingVertical: s(15),
     },
     text: {
         flex: 1,
