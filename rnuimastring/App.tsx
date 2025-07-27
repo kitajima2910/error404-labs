@@ -1,18 +1,13 @@
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
-import IntroScreen from "./src/screens/IntroScreen";
-import UserAvatar from "./src/components/UserAvatar";
-import ContactUsScreen from "./src/screens/ContactUsScreen";
+import { useFonts } from "expo-font";
+import HomeScreen from "./src/screens/HomeScreen";
 
 export default function App() {
-    return <ContactUsScreen />;
-}
+    const [fontsLoaded] = useFonts({
+        "Montserrat-Regular": require("./src/assets/fonts/Montserrat/static/Montserrat-Regular.ttf"),
+        "Montserrat-SemiBold": require("./src/assets/fonts/Montserrat/static/Montserrat-SemiBold.ttf"),
+    });
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#fff",
-        alignItems: "center",
-        justifyContent: "center",
-    },
-});
+    if (!fontsLoaded) return null;
+
+    return <HomeScreen />;
+}
