@@ -1,9 +1,13 @@
 import { StyleSheet, Text, View } from "react-native";
-import React from "react";
+import React, { FC } from "react";
 import { s } from "react-native-size-matters";
 
-const SocialCircle = () => {
-    return <View style={styles.circle}></View>;
+type Props = {
+    icon: React.ReactNode;
+};
+
+const SocialCircle: FC<Props> = ({ icon }) => {
+    return <View style={styles.circle}>{icon}</View>;
 };
 
 export default SocialCircle;

@@ -3,9 +3,8 @@ import React from "react";
 import UserAvatar from "../components/UserAvatar";
 import BackButton from "../components/BackButton";
 import { s, vs } from "react-native-size-matters";
-import SendButton from "../components/SendButton";
-import SocialCircle from "../components/SocialCircle";
 import SocialSection from "../components/SocialSection";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 const ContactUsScreen = () => {
     return (
@@ -17,11 +16,11 @@ const ContactUsScreen = () => {
             <Text style={styles.scocialScreen}>Contact Us</Text>
             <View style={styles.scocialContainer}>
                 <Text style={styles.scocialTitle}>Social Media Platforms</Text>
-                <SocialSection />
-                <SocialSection />
-                <SocialSection />
-                <SocialSection />
-                <SocialSection />
+                <SocialSection icon={<Ionicons name="logo-whatsapp" size={24} color="#178AD9" />} title="WhatsApp" />
+                <SocialSection icon={<Ionicons name="logo-twitter" size={24} color="#178AD9" />} title="Twitter" />
+                <SocialSection icon={<Ionicons name="logo-instagram" size={24} color="#178AD9" />} title="Instagram" />
+                <SocialSection icon={<Ionicons name="logo-snapchat" size={24} color="#178AD9" />} title="Snap chat" />
+                <SocialSection icon={<Ionicons name="logo-tiktok" size={24} color="#178AD9" />} title="Tik Tok" />
             </View>
         </View>
     );

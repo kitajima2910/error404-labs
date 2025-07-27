@@ -1,14 +1,19 @@
 import { StyleSheet, Text, View } from "react-native";
-import React from "react";
+import React, { FC } from "react";
 import SendButton from "./SendButton";
 import SocialCircle from "./SocialCircle";
 import { s, vs } from "react-native-size-matters";
 
-const SocialSection = () => {
+type Props = {
+    title: string;
+    icon: React.ReactNode;
+};
+
+const SocialSection: FC<Props> = ({ title, icon }) => {
     return (
         <View style={styles.container}>
-            <SocialCircle />
-            <Text style={styles.text}>WhatsApp</Text>
+            <SocialCircle icon={icon} />
+            <Text style={styles.text}>{title}</Text>
             <SendButton />
         </View>
     );
