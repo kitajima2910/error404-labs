@@ -2,6 +2,7 @@ import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { s, vs } from "react-native-size-matters";
 import TopTabs from "../components/TopTabs";
+import MediataionCard from "../components/MediataionCard";
 
 const HomeScreen = () => {
     return (
@@ -29,6 +30,7 @@ const HomeScreen = () => {
                 Lorem Ipsum is simply dummy text
             </Text>
             <TopTabs />
+            <MediataionCard />
         </View>
     );
 };

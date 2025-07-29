@@ -33,6 +33,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         padding: s(4),
+        marginBottom: vs(24)
     },
     tabButton: {
         height: vs(32),
