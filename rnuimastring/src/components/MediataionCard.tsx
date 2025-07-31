@@ -1,13 +1,22 @@
-import { ImageBackground, StyleSheet, Text, View } from "react-native";
-import React from "react";
+import { Dimensions, ImageBackground, StyleSheet, Text, View } from "react-native";
+import React, { FC } from "react";
 import { s, vs } from "react-native-size-matters";
 import VideoIcon from "../assets/icons";
 
-const MediataionCard = () => {
+const PhoneWidth = Dimensions.get("window").width;
+const CardWidth = (PhoneWidth - s(16) * 3) / 2;
+
+type Props = {
+    image: string;
+    title: string;
+    date: string;
+};
+
+const MediataionCard = (props: Props) => {
     return (
         <ImageBackground
             source={{
-                uri: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSEsfiMUSaHNdvcCqNXL13Ote_UYX43DgBt7A&s",
+                uri: props.image,
             }}
             style={styles.imageContainer}
             imageStyle={styles.image}
@@ -17,7 +26,7 @@ const MediataionCard = () => {
                 <Text style={styles.liveText}>Live</Text>
             </View>
             <View style={styles.cardContent}>
-                <Text style={styles.title}>Mediataion</Text>
+                <Text style={styles.title}>{props.title}</Text>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
                     <VideoIcon style={{ marginRight: s(5) }} />
                     <Text
@@ -28,7 +37,7 @@ const MediataionCard = () => {
                             fontWeight: "400",
                         }}
                     >
-                        31st Jan - 09:00 am
+                        {props.date}
                     </Text>
                 </View>
             </View>
@@ -41,8 +50,8 @@ export default MediataionCard;
 const styles = StyleSheet.create({
     imageContainer: {
         position: "relative",
-        width: s(166),
-        height: vs(161),
+        width: CardWidth,
+        height: vs(140),
         borderRadius: s(12),
         overflow: "hidden",
     },
