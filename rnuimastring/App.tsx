@@ -1,5 +1,6 @@
 import { useFonts } from "expo-font";
 import HomeScreen from "./src/screens/HomeScreen";
+import PaymentScreen from "./src/screens/PaymentScreen";
 
 export default function App() {
     const [fontsLoaded] = useFonts({
@@ -9,5 +10,5 @@ export default function App() {
 
     if (!fontsLoaded) return null;
 
-    return <HomeScreen />;
+    return <PaymentScreen />;
 }
