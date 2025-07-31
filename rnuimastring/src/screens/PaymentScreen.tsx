@@ -1,7 +1,9 @@
-import { StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { s, vs } from "react-native-size-matters";
 import BackButton from "../components/BackButton";
+import PayMethodCard from "../components/PayMethodCard";
+import PaymentList from "../components/PaymentList";
 
 const PaymentScreen = () => {
     return (
@@ -9,6 +11,9 @@ const PaymentScreen = () => {
             <View style={styles.header}>
                 <BackButton />
                 <Text style={styles.headerTitle}>Payment</Text>
+            </View>
+            <View style={styles.containerPayments}>
+                <PaymentList />
             </View>
         </View>
     );
@@ -32,6 +37,10 @@ const styles = StyleSheet.create({
         fontSize: s(17),
         fontWeight: "400",
         fontFamily: "Montserrat-SemiBold",
-        color: "#181C2E"
-    }
+        color: "#181C2E",
+    },
+    containerPayments: {
+        marginTop: vs(20),
+        marginStart: s(24),
+    },
 });
