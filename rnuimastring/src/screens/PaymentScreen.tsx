@@ -4,6 +4,7 @@ import { s, vs } from "react-native-size-matters";
 import BackButton from "../components/BackButton";
 import PayMethodCard from "../components/PayMethodCard";
 import PaymentList from "../components/PaymentList";
+import BankCardBox from "../components/BankCardBox";
 
 const PaymentScreen = () => {
     return (
@@ -14,6 +15,9 @@ const PaymentScreen = () => {
             </View>
             <View style={styles.containerPayments}>
                 <PaymentList />
+            </View>
+            <View style={{ display: "flex", alignItems: "center" }}>
+                <BankCardBox />
             </View>
         </View>
     );
