@@ -5,6 +5,7 @@ import BackButton from "../components/BackButton";
 import PayMethodCard from "../components/PayMethodCard";
 import PaymentList from "../components/PaymentList";
 import BankCardBox from "../components/BankCardBox";
+import AddNewButton from "../components/AddNewButton";
 
 const PaymentScreen = () => {
     return (
@@ -19,6 +20,7 @@ const PaymentScreen = () => {
             <View style={{ display: "flex", alignItems: "center" }}>
                 <BankCardBox />
             </View>
+            <AddNewButton />
         </View>
     );
 };

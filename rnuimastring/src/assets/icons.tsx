@@ -187,3 +187,29 @@ export const CardIcon = (props: SvgProps) => (
     <Rect opacity={0.5} x={11} y={90} width={38} height={9} fill="#FBFBFC" />
   </Svg>
 );
+
+export const AddIcon = (props: SvgProps) => (
+  <Svg
+    width={17}
+    height={18}
+    viewBox="0 0 17 18"
+    fill="none"
+    {...props}
+  >
+    <Path
+      d="M8.07095 1.92893V16.0711"
+      stroke="#FF7622"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <Path
+      d="M0.999878 9H15.142"
+      stroke="#FF7622"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </Svg>
+);
+
