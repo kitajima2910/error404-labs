@@ -1,6 +1,8 @@
 import {
     FlatList,
     Image,
+    Keyboard,
+    KeyboardAvoidingView,
     StatusBar,
     StyleSheet,
     Text,
@@ -12,17 +14,104 @@ import { TODO_DATA } from "./data/fake";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import { ms, mvs, s } from "react-native-size-matters";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Checkbox } from "react-native-paper";
+import { Todo } from "./models/Todo";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const data = TODO_DATA;
 
 export default function App() {
+    const [dataTodo, setDataTodo] = useState<Todo[]>([]);
+    const [dataTodoOld, setDataTodoOld] = useState<Todo[]>([]);
     const [valueFilterTask, setValueFilterTask] = useState("");
+    const [valueAddNewTask, setValueAddNewTask] = useState("");
+
+    useEffect(() => {
+        const getData = async () => {
+            try {
+                const value = await AsyncStorage.getItem("TODO_DATA");
+                if (value !== null) {
+                    setDataTodo(JSON.parse(value));
+                    setDataTodoOld(JSON.parse(value));
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        };
+
+        getData();
+    }, []);
 
     const handleButtonClose = () => {
         setValueFilterTask("");
     };
+
+    const handleButtonAddNew = async () => {
+        if (valueAddNewTask !== "") {
+            try {
+                setDataTodo([
+                    {
+                        id: Math.random(),
+                        title: valueAddNewTask,
+                        isDone: false,
+                    },
+                    ...dataTodo,
+                ]);
+                setDataTodoOld(dataTodo);
+                await AsyncStorage.setItem(
+                    "TODO_DATA",
+                    JSON.stringify(dataTodo)
+                );
+
+                setValueAddNewTask("");
+                Keyboard.dismiss();
+            } catch (error) {
+                console.log(error);
+            }
+        }
+    };
+
+    const handleButtonRemove = async (id: number, title: string) => {
+        try {
+            alert("Removed: " + title);
+            setDataTodo(dataTodo.filter((item) => item.id !== id));
+            setDataTodoOld(dataTodo.filter((item) => item.id !== id));
+            await AsyncStorage.setItem("TODO_DATA", JSON.stringify(dataTodo));
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const handleCheckBox = async (id: number) => {
+        try {
+            const newData = dataTodo.map((item) => {
+                if (item.id === id) {
+                    item.isDone = !item.isDone;
+                }
+                return item;
+            });
+            setDataTodo(newData);
+            await AsyncStorage.setItem("TODO_DATA", JSON.stringify(newData));
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const handleSearchAuto = () => {
+        if (valueFilterTask === "") {
+            setDataTodo(dataTodoOld);
+        } else {
+            const newData = dataTodo.filter((item) =>
+                item.title.toLowerCase().includes(valueFilterTask.toLowerCase())
+            );
+            setDataTodo(newData);
+        }
+    };
+
+    useEffect(() => {
+        handleSearchAuto();
+    }, [valueFilterTask]);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -39,7 +128,7 @@ export default function App() {
                         source={{
                             uri: "https://avatars.githubusercontent.com/u/50172777?v=4",
                             width: ms(40),
-                            height: ms(40),
+                            height: mvs(40),
                         }}
                         style={{ borderRadius: ms(20) }}
                     />
@@ -67,7 +156,7 @@ export default function App() {
             </View>
 
             <FlatList
-                data={data}
+                data={dataTodo}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={({ item }) => (
                     <View style={styles.containerItem}>
@@ -75,6 +164,7 @@ export default function App() {
                             <Checkbox
                                 status={item.isDone ? "checked" : "unchecked"}
                                 color="blue"
+                                onPress={() => handleCheckBox(item.id)}
                             />
                             <Text
                                 style={[
@@ -90,9 +180,9 @@ export default function App() {
                             </Text>
                         </View>
                         <TouchableOpacity
-                            onPress={() => {
-                                alert("Deleted " + item.id);
-                            }}
+                            onPress={() =>
+                                handleButtonRemove(item.id, item.title)
+                            }
                         >
                             <Ionicons name="trash" size={24} color="red" />
                         </TouchableOpacity>
@@ -101,7 +191,11 @@ export default function App() {
                 style={{ width: "100%" }}
             />
 
-            <View style={styles.containerAddNew}>
+            <KeyboardAvoidingView
+                behavior="padding"
+                keyboardVerticalOffset={10}
+                style={styles.containerAddNew}
+            >
                 <TextInput
                     style={{
                         flex: 1,
@@ -109,12 +203,14 @@ export default function App() {
                         marginEnd: ms(10),
                         borderRadius: ms(10),
                         paddingHorizontal: ms(20),
-                        paddingTop: ms(10),
-                        paddingBottom: ms(10),
-                        marginBottom: ms(20),
+                        paddingTop: mvs(10),
+                        paddingBottom: mvs(10),
+                        marginBottom: mvs(20),
                         fontSize: ms(16),
                     }}
                     placeholder="Add new task"
+                    value={valueAddNewTask}
+                    onChangeText={setValueAddNewTask}
                 />
                 <TouchableOpacity
                     style={{
@@ -126,13 +222,13 @@ export default function App() {
                         justifyContent: "center",
                         width: ms(42),
                         height: ms(42),
-                        marginBottom: ms(20),
+                        marginBottom: mvs(20),
                     }}
-                    onPress={() => {}}
+                    onPress={handleButtonAddNew}
                 >
                     <Ionicons name="add" size={24} color="black" />
                 </TouchableOpacity>
-            </View>
+            </KeyboardAvoidingView>
         </SafeAreaView>
     );
 }
@@ -143,7 +239,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#fff",
         // alignItems: "center",
         // justifyContent: "center",
-        paddingTop: StatusBar.length + ms(20),
+        paddingTop: StatusBar.length + mvs(20),
         paddingHorizontal: ms(20),
     },
     containerHeader: {
@@ -151,7 +247,7 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         alignItems: "center",
         width: "100%",
-        marginBottom: ms(20),
+        marginBottom: mvs(20),
     },
     containerSearch: {
         width: "100%",
@@ -159,9 +255,9 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         paddingHorizontal: ms(20),
-        paddingVertical: ms(10),
+        paddingVertical: mvs(10),
         borderRadius: ms(10),
-        marginBottom: ms(20),
+        marginBottom: mvs(20),
         position: "relative",
     },
     containerSearchClose: {
@@ -174,7 +270,7 @@ const styles = StyleSheet.create({
         width: "100%",
         justifyContent: "space-between",
         alignItems: "center",
-        marginBottom: ms(10),
+        marginBottom: mvs(10),
         borderRadius: ms(10),
     },
     containerItemLeft: {
