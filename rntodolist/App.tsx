@@ -23,12 +23,12 @@ type TaskModel = {
 };
 
 export default function App() {
-    const [loaded, error] = useFonts({
-        RobotoRegular: require("./assets/fonts/Roboto/static/Roboto-Regular.ttf"),
-        RobotoBold: require("./assets/fonts/Roboto/static/Roboto-Bold.ttf"),
-    });
+    // const [loaded, error] = useFonts({
+    //     RobotoRegular: require("./assets/fonts/Roboto/static/Roboto-Regular.ttf"),
+    //     RobotoBold: require("./assets/fonts/Roboto/static/Roboto-Bold.ttf"),
+    // });
 
-    if (!loaded) return null;
+    // if (!loaded) return null;
 
     const [task, setTask] = useState<string>("");
     const [taskItems, setTaskItems] = useState<TaskModel[]>([]);
@@ -36,7 +36,7 @@ export default function App() {
     const handleAddTask = () => {
         Keyboard.dismiss();
         setTaskItems([
-            { id: Math.random().toString(), text: task, completed: true },
+            { id: Math.random().toString(), text: task, completed: false },
             ...taskItems,
         ]);
         setTask("");
