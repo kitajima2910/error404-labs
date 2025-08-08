@@ -1,8 +1,10 @@
+import Categories from "@/components/index/Categories";
 import Header from "@/components/index/Header";
+import Popular from "@/components/index/Popular";
 import Search from "@/components/index/Search";
 import Title from "@/components/index/Title";
 import * as SplashScreen from "expo-splash-screen";
-import { StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { mvs } from "react-native-size-matters";
 
@@ -12,9 +14,14 @@ export default function Index() {
     return (
         <View style={styles.container}>
             <SafeAreaView>
-                <Header />
-                <Title />
-                <Search />
+                {/* <Header /> */}
+                <ScrollView showsVerticalScrollIndicator={false}>
+                    <Header />
+                    <Title />
+                    <Search />
+                    <Categories />
+                    <Popular />
+                </ScrollView>
             </SafeAreaView>
         </View>
     );
@@ -22,6 +29,7 @@ export default function Index() {
 
 const styles = StyleSheet.create({
     container: {
-        paddingTop: mvs(60),
+        paddingTop: mvs(10),
+        flex: 1,
     },
 });

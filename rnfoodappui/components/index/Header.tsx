@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "space-between",
         paddingHorizontal: ms(20),
-        marginBottom: mvs(30),
+        marginBottom: mvs(20),
     },
     image: {
         width: ms(40),

@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
     },
     icon: {
         marginRight: ms(10),
-        paddingTop: mvs(13),
+        paddingTop: mvs(5),
     },
     input: {
         flex: 1,
