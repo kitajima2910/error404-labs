@@ -5,24 +5,23 @@ import Search from "@/components/index/Search";
 import Title from "@/components/index/Title";
 import * as SplashScreen from "expo-splash-screen";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { mvs } from "react-native-size-matters";
 
 SplashScreen.preventAutoHideAsync();
 
-export default function Index() {
+export default function Home() {
     return (
         <View style={styles.container}>
-            <SafeAreaView>
-                {/* <Header /> */}
-                <ScrollView showsVerticalScrollIndicator={false}>
-                    <Header />
-                    <Title />
-                    <Search />
-                    <Categories />
-                    <Popular />
-                </ScrollView>
-            </SafeAreaView>
+            {/* <SafeAreaView> */}
+            {/* <Header /> */}
+            <ScrollView showsVerticalScrollIndicator={false}>
+                <Header />
+                <Title />
+                <Search />
+                <Categories />
+                <Popular />
+            </ScrollView>
+            {/* </SafeAreaView> */}
         </View>
     );
 }

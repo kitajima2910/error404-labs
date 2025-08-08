@@ -1,20 +1,20 @@
 import popularData from "@/assets/data/popularData";
 import { VuongMien } from "@/assets/icons";
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { RelativePathString, router } from "expo-router";
 import React from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { ms, mvs } from "react-native-size-matters";
 
 const Popular = () => {
-    const { push } = router;
-
-    const goToDetails = () => {};
+    const goToDetails = (item: any) => {
+        router.push(`/details/${item.id}` as RelativePathString);
+    };
 
     const renderPopularItem = (item: any, index: number) => {
         return (
             <TouchableOpacity
-                onPress={goToDetails}
+                onPress={() => goToDetails(item)}
                 key={index}
                 style={styles.containerItem}
             >
@@ -45,7 +45,7 @@ const Popular = () => {
                         </View>
                     </View>
                 </View>
-                <Image source={item.image} />
+                <Image style={styles.containerItemImage} source={item.image} />
             </TouchableOpacity>
         );
     };
@@ -88,12 +88,28 @@ const styles = StyleSheet.create({
         paddingTop: mvs(20),
         overflow: "hidden",
     },
-    containerItemTextDetails: {},
+    containerItemTextDetails: {
+        // flex: 1,
+        // backgroundColor: "pink",
+        // borderTopLeftRadius: ms(25),
+        // borderBottomLeftRadius: ms(25),
+    },
+    containerItemImage: {
+        // flex: 1,
+        width: "100%",
+        height: "100%",
+        resizeMode: "cover",
+        // backgroundColor: "hotpink",
+        backgroundPosition: "center",
+        // borderTopRightRadius: ms(25),
+        // borderBottomRightRadius: ms(25),
+    },
     containerItemTextDetailsHeader: {
         flexDirection: "row",
         alignItems: "center",
         marginBottom: mvs(20),
-        paddingLeft: ms(20),
+        // backgroundColor: "red",
+        paddingStart: ms(20),
     },
     containerItemTextDetailsHeaderIcon: {
         marginRight: ms(10),
