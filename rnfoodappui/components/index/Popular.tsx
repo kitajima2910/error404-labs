@@ -1,14 +1,23 @@
 import popularData from "@/assets/data/popularData";
 import { VuongMien } from "@/assets/icons";
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { ms, mvs } from "react-native-size-matters";
 
 const Popular = () => {
+    const { push } = router;
+
+    const goToDetails = () => {};
+
     const renderPopularItem = (item: any, index: number) => {
         return (
-            <View key={index} style={styles.containerItem}>
+            <TouchableOpacity
+                onPress={goToDetails}
+                key={index}
+                style={styles.containerItem}
+            >
                 <View style={styles.containerItemTextDetails}>
                     <View style={styles.containerItemTextDetailsHeader}>
                         <VuongMien
@@ -37,7 +46,7 @@ const Popular = () => {
                     </View>
                 </View>
                 <Image source={item.image} />
-            </View>
+            </TouchableOpacity>
         );
     };
 
