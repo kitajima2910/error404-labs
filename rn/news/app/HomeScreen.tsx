@@ -1,7 +1,6 @@
-// eslint-disable-next-line import/no-unresolved
-import { API_NEWS_KEY } from "@env";
-import axios from "axios";
-import React, { useEffect, useState } from "react";
+import NewsCard from "@/components/NewsCard";
+import { useNewsStore } from "@/stores/newsStore";
+import React, { useEffect } from "react";
 import {
     ActivityIndicator,
     FlatList,
@@ -9,26 +8,16 @@ import {
     Text,
     View,
 } from "react-native";
+import { ms, mvs } from "react-native-size-matters";
 
 const HomeScreen = () => {
     const COUNTRY = "us";
-    const [news, setNews] = useState<any>([]);
-    const [loading, setLoading] = useState<boolean>(true);
 
-    const fetchNews = async () => {
-        const newsUrl = `https://newsapi.org/v2/top-headlines?country=${COUNTRY}&apiKey=${API_NEWS_KEY}`;
-        try {
-            const res = await axios.get(newsUrl);
-            setNews(res.data.articles);
-            setLoading(false);
-        } catch (error) {
-            console.log(error);
-        }
-    };
+    const { fetchNews, loading, articles } = useNewsStore();
 
     useEffect(() => {
-        fetchNews();
-    }, []);
+        fetchNews(COUNTRY);
+    }, [fetchNews]);
 
     return (
         <View style={styles.container}>
@@ -37,9 +26,9 @@ const HomeScreen = () => {
                 <ActivityIndicator size={"large"} color="red" />
             ) : (
                 <FlatList
-                    data={news}
+                    data={articles}
                     keyExtractor={(item, index) => index.toString()}
-                    renderItem={({ item }) => <Text>{item.title}</Text>}
+                    renderItem={({ item }) => <NewsCard {...item} />}
                 />
             )}
         </View>
@@ -51,8 +40,17 @@ export default HomeScreen;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
+        // justifyContent: "center",
+        // alignItems: "center",
     },
-    title: {},
+    title: {
+        fontSize: ms(26),
+        fontWeight: "bold",
+        textAlign: "center",
+        backgroundColor: "#000",
+        width: "100%",
+        color: "#fff",
+        padding: ms(10),
+        marginBottom: mvs(20),
+    },
 });

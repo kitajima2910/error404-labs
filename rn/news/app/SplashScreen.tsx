@@ -1,15 +1,18 @@
-import { router } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
 import LottieView from "lottie-react-native";
 import React, { useEffect } from "react";
 import { StyleSheet, View } from "react-native";
 import { ms, mvs } from "react-native-size-matters";
 
 const SplashScreen = () => {
+    const navigation = useNavigation<any>();
+
     useEffect(() => {
-        setTimeout(() => {
-            router.replace("/HomeScreen");
+        const timer = setTimeout(() => {
+            navigation.replace("drawer");
         }, 3000);
-    }, []);
+        return () => clearTimeout(timer);
+    }, [navigation]);
 
     return (
         <View style={styles.container}>
