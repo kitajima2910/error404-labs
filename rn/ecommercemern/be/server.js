@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 const PORT = process.env.PORT || 3000;
 
 // Test CRUD Firebase
-const TestCRUDFirebase = require("./testcrudfirebase");
+const TestCRUDFirebase = require("./controllers/testcrudfirebase");
 TestCRUDFirebase(app, rnecommercemern);
 
 app.listen(PORT, () => console.log("Server is running on port " + PORT));
