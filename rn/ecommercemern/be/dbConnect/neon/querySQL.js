@@ -6,6 +6,7 @@ const querySQLCreateTables = {
             email text,
             password text,
             role text,
+            deleted text,
             createdAt text,
             updatedAt text
         );`,
@@ -20,6 +21,7 @@ const querySQLCreateTables = {
             size text,
             color text,
             price text,
+            deleted text,
             createdAt text,
             updatedAt text
         );`,
@@ -33,6 +35,7 @@ const querySQLCreateTables = {
             amount text,
             address text,
             status text,
+            deleted text,
             createdAt text,
             updatedAt text
         );`,
@@ -43,6 +46,7 @@ const querySQLCreateTables = {
             userId text,
             productId text,
             quantity text,
+            deleted text,
             createdAt text,
             updatedAt text
         );`,
@@ -53,20 +57,20 @@ const querySQLDataTables = {
     create: {
         table: {
             users: () => `
-                INSERT INTO users (id, username, email, password, role, createdAt, updatedAt) 
-                VALUES ($1, $2, $3, $4, $5, $6, $7);
+                INSERT INTO users (id, username, email, password, role, deleted, createdAt, updatedAt) 
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
             `,
             products: () => `
-                INSERT INTO products (id, title, description, image, categories, size, color, price, createdAt, updatedAt) 
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);
+                INSERT INTO products (id, title, description, image, categories, size, color, price, deleted, createdAt, updatedAt) 
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);
             `,
             orders: () => `
-                INSERT INTO orders (id, userId, productId, quantity, amount, address, status, createdAt, updatedAt) 
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);
+                INSERT INTO orders (id, userId, productId, quantity, amount, address, status, deleted, createdAt, updatedAt) 
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10);
             `,
             carts: () => `
-                INSERT INTO carts (id, userId, productId, quantity, createdAt, updatedAt) 
-                VALUES ($1, $2, $3, $4, $5, $6);
+                INSERT INTO carts (id, userId, productId, quantity, deleted, createdAt, updatedAt) 
+                VALUES ($1, $2, $3, $4, $5, $6, $7);
             `,
         },
     },

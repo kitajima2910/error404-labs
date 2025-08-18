@@ -19,4 +19,9 @@ const PORT = process.env.PORT || 3000;
 // const Auth = require("./controllers/auth.controller");
 // Auth(app, rnecommercemern);
 
-app.listen(PORT, () => console.log("Server is running on port " + PORT));
+// User
+const Users = require("./controllers/user.controller");
+const users = new Users(app);
+users.run();
+
+app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

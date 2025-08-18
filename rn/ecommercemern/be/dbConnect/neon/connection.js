@@ -11,15 +11,7 @@ const client = new Client({
     connectionString: process.env.DATABASE_URL_NEON,
 });
 
-const bcrypt = require("bcrypt");
-const plaintextPassword = "pxh2910";
-const saltRounds = 10;
-
-const hashPassword = async (plaintextPassword) => {
-    const salt = await bcrypt.genSalt(saltRounds);
-    const hash = await bcrypt.hash(plaintextPassword, salt);
-    return hash.toString();
-};
+const { hashPassword } = require("./../../utils/password.util");
 
 const createTablesAndDatabase = async () => {
     try {
@@ -54,6 +46,7 @@ const createDatas = async () => {
                 email: `admin-${usersID01}@gmail.com`,
                 password: await hashPassword("123456"),
                 role: "Admin",
+                deleted: "no",
                 createdAt: new Date().toLocaleString("vi-VN", {
                     timeZone: "Asia/Ho_Chi_Minh",
                 }),
@@ -67,6 +60,7 @@ const createDatas = async () => {
                 email: `admin-${usersID02}@gmail.com`,
                 password: await hashPassword("123456"),
                 role: "Admin",
+                deleted: "yes",
                 createdAt: new Date().toLocaleString("vi-VN", {
                     timeZone: "Asia/Ho_Chi_Minh",
                 }),
@@ -80,6 +74,7 @@ const createDatas = async () => {
                 email: `admin-${usersID03}@gmail.com`,
                 password: await hashPassword("123456"),
                 role: "Admin",
+                deleted: "no",
                 createdAt: new Date().toLocaleString("vi-VN", {
                     timeZone: "Asia/Ho_Chi_Minh",
                 }),
@@ -96,6 +91,7 @@ const createDatas = async () => {
                 user.email,
                 user.password,
                 user.role,
+                user.deleted,
                 user.createdAt,
                 user.updatedAt,
             ]);
@@ -123,6 +119,7 @@ const createDatas = async () => {
                 size: "4GB",
                 color: "Đen",
                 price: "1000000",
+                deleted: "no",
                 createdAt: new Date().toLocaleString("vi-VN", {
                     timeZone: "Asia/Ho_Chi_Minh",
                 }),
@@ -142,6 +139,7 @@ const createDatas = async () => {
                 product.size,
                 product.color,
                 product.price,
+                product.deleted,
                 product.createdAt,
                 product.updatedAt,
             ]);
@@ -167,6 +165,7 @@ const createDatas = async () => {
                 amount: "1000000",
                 address: "Sài Gòn",
                 status: "Pending",
+                deleted: "no",
                 createdAt: new Date().toLocaleString("vi-VN", {
                     timeZone: "Asia/Ho_Chi_Minh",
                 }),
@@ -185,6 +184,7 @@ const createDatas = async () => {
                 order.amount,
                 order.address,
                 order.status,
+                order.deleted,
                 order.createdAt,
                 order.updatedAt,
             ]);
@@ -207,6 +207,7 @@ const createDatas = async () => {
                 userId: usersID02,
                 productId: productsID01,
                 quantity: "1",
+                deleted: "no",
                 createdAt: new Date().toLocaleString("vi-VN", {
                     timeZone: "Asia/Ho_Chi_Minh",
                 }),
@@ -222,6 +223,7 @@ const createDatas = async () => {
                 cart.userId,
                 cart.productId,
                 cart.quantity,
+                cart.deleted,
                 cart.createdAt,
                 cart.updatedAt,
             ]);
@@ -234,4 +236,16 @@ const createDatas = async () => {
     // ########################## END - CREATE CARTS ##########################
 };
 
-createTablesAndDatabase();
+// createTablesAndDatabase();
+
+const connection = async () => {
+    try {
+        await client.connect();
+    } catch (error) {
+        console.error("❌ Lỗi khi tạo connection:", error.message);
+    }
+};
+
+connection();
+
+module.exports = client;

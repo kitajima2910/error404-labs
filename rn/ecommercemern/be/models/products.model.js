@@ -7,12 +7,7 @@ class Product {
         size,
         color,
         price,
-        createdAt = new Date().toLocaleString("vi-VN", {
-            timeZone: "Asia/Ho_Chi_Minh",
-        }),
-        updatedAt = new Date().toLocaleString("vi-VN", {
-            timeZone: "Asia/Ho_Chi_Minh",
-        })
+        deleted
     ) {
         this.title = title;
         this.description = description;
@@ -21,8 +16,7 @@ class Product {
         this.size = size;
         this.color = color;
         this.price = price;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
+        this.deleted = deleted;
     }
 }
 
