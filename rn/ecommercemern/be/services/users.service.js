@@ -50,7 +50,8 @@ class UsersService {
         try {
             await client.query("BEGIN");
             const user = await client.query(
-                `SELECT * FROM users WHERE id = '${id}'`
+                `SELECT * FROM users WHERE id = $1`,
+                [id]
             );
             await client.query("COMMIT");
             return user.rows;
@@ -91,6 +92,24 @@ class UsersService {
         } catch (error) {
             await client.query("ROLLBACK");
             console.error("❌ Lỗi khi update user", error.message);
+        }
+    };
+
+    exists = async (user) => {
+        try {
+            await client.query("BEGIN");
+            const userExists = await client.query(
+                `   SELECT * FROM users 
+                    WHERE email = $1 OR username = $2
+                    LIMIT 1
+                `,
+                [user.email, user.username]
+            );
+            await client.query("COMMIT");
+            return userExists.rows;
+        } catch (error) {
+            await client.query("ROLLBACK");
+            console.error("❌ Lỗi khi lấy user", error.message);
         }
     };
 }

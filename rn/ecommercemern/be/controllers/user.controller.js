@@ -18,6 +18,12 @@ class Users {
                 user.password = data.password;
 
                 const usersService = new UsersService();
+
+                const resultUserExists = await usersService.exists(user);
+                if (resultUserExists.length) {
+                    return res.status(400).send("User already exists");
+                }
+
                 const resultUser = await usersService.create(user);
 
                 res.status(200).send({
