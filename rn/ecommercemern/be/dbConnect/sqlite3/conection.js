@@ -1,62 +1,59 @@
 const Database = require("better-sqlite3");
+const { excuteQuerySQLCreateTables, querySQLData } = require("./querySQL");
 
 const db = new Database("pxh2910.db3");
 
 try {
-    // Tạo bảng nếu chưa có
-    db.prepare(
-        `CREATE TABLE IF NOT EXISTS users (
-            id TEXT PRIMARY KEY,
-            username TEXT,
-            email TEXT,
-            password TEXT,
-            role TEXT,
-            createdAt TEXT,
-            updatedAt TEXT
-        )`
-    ).run();
+    excuteQuerySQLCreateTables(db);
 
+    // Add data test
     // Insert
-    const insertStmt = db.prepare(
-        "INSERT INTO users (id, username, email, password, role, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?)"
-    );
-
-    insertStmt.run(
-        Math.floor(new Date().getTime()),
-        "admin",
-        "admin@pxh2910",
-        "12345678",
-        "admin",
-        new Date().toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" }),
-        new Date().toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })
-    );
-
-    console.log("Inserted OK");
-
-    // Select
-    const selectStmt = db.prepare("SELECT * FROM users");
-    const users = selectStmt.all();
-    console.log(users);
-
-    // Update
-    const updateStmt = db.prepare(
-        "UPDATE users SET username = ?, email = ?, password = ?, role = ?, createdAt = ?, updatedAt = ? WHERE id = ?"
-    );
-    updateStmt.run(
-        "pxh2910",
-        "pxh2910@pxh2910.pxh2910",
+    const insertUsersStmt = db.prepare(querySQLData.create.table.users);
+    const idUser = new Date().getTime();
+    insertUsersStmt.run(
+        idUser,
+        `admin${idUser}`,
+        `admin@${idUser}.com`,
         "123456",
         "Admin",
         new Date().toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" }),
-        new Date().toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" }),
-        "1755448138290.0"
+        new Date().toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })
     );
-    console.log("Updated OK");
+    console.log("Inserted data to users OK");
 
-    // Delete
-    const deleteStmt = db.prepare("DELETE FROM users WHERE id = ?");
-    deleteStmt.run("1755448054394.0");
-    console.log("Deleted OK");
+    const insertProductsStmt = db.prepare(querySQLData.create.table.products);
+    const idProduct = new Date().getTime();
+    insertProductsStmt.run(
+        idProduct,
+        "Nubia A76 4GB 128GB (NFC)",
+        "Nubia A76 NFC được định vị là sản phẩm hướng đến nhóm người dùng phổ thông, đặc biệt là những ai tìm kiếm một chiếc điện thoại kết hợp hoàn hảo giữa thiết kế phong cách flagship, camera AI 50MP chuyên nghiệp và trải nghiệm Android 15 với Google Gemini tích hợp.",
+        "https://cdn2.fptshop.com.vn/unsafe/384x0/filters:format(webp):quality(75)/nubia_a76_xam_5_87aade2a96.jpg",
+        "Điện thoại",
+        "128",
+        "Xám",
+        "2.290.000",
+        new Date().toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" }),
+        new Date().toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })
+    );
+    console.log("Inserted data to products OK");
+
+    const insertOrdersStmt = db.prepare(querySQLData.create.table.orders);
+    const idOrder = new Date().getTime();
+    insertOrdersStmt.run(
+        idOrder,
+        idUser,
+        idProduct,
+        "1",
+        "2.290.000",
+        "Sài Gòn",
+        "Đang xử lý"
+    );
+    console.log("Inserted data to orders OK");
+
+    const insertCartsStmt = db.prepare(querySQLData.create.table.carts);
+    const idCart = new Date().getTime();
+    insertCartsStmt.run(idCart, idUser, idProduct, "10");
+    console.log("Inserted data to carts OK");
 } catch (error) {
     console.log(error);
 }
