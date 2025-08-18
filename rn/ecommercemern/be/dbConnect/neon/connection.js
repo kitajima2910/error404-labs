@@ -11,6 +11,16 @@ const client = new Client({
     connectionString: process.env.DATABASE_URL_NEON,
 });
 
+const bcrypt = require("bcrypt");
+const plaintextPassword = "pxh2910";
+const saltRounds = 10;
+
+const hashPassword = async (plaintextPassword) => {
+    const salt = await bcrypt.genSalt(saltRounds);
+    const hash = await bcrypt.hash(plaintextPassword, salt);
+    return hash.toString();
+};
+
 const createTablesAndDatabase = async () => {
     try {
         await client.connect();
@@ -42,7 +52,7 @@ const createDatas = async () => {
                 id: usersID01,
                 username: `admin-${usersID01}`,
                 email: `admin-${usersID01}@gmail.com`,
-                password: "123456",
+                password: await hashPassword("123456"),
                 role: "Admin",
                 createdAt: new Date().toLocaleString("vi-VN", {
                     timeZone: "Asia/Ho_Chi_Minh",
@@ -55,7 +65,7 @@ const createDatas = async () => {
                 id: usersID02,
                 username: `admin-${usersID02}`,
                 email: `admin-${usersID02}@gmail.com`,
-                password: "123456",
+                password: await hashPassword("123456"),
                 role: "Admin",
                 createdAt: new Date().toLocaleString("vi-VN", {
                     timeZone: "Asia/Ho_Chi_Minh",
@@ -68,7 +78,7 @@ const createDatas = async () => {
                 id: usersID03,
                 username: `admin-${usersID03}`,
                 email: `admin-${usersID03}@gmail.com`,
-                password: "123456",
+                password: await hashPassword("123456"),
                 role: "Admin",
                 createdAt: new Date().toLocaleString("vi-VN", {
                     timeZone: "Asia/Ho_Chi_Minh",
