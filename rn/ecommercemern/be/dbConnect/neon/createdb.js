@@ -1,29 +1,17 @@
 const { querySQLCreateTables, querySQLDataTables } = require("./querySQL");
 const { hashPassword } = require("../../utils/password.util");
-const client = require("./connection");
 
-const createTablesAndDatabase = async () => {
-    try {
-        await client.query("BEGIN");
-        await client.query(querySQLCreateTables.users.create);
-        await client.query(querySQLCreateTables.products.create);
-        await client.query(querySQLCreateTables.orders.create);
-        await client.query(querySQLCreateTables.carts.create);
+const db = require("./Postgres");
 
-        // await createDatas();
-        // console.log("✅ Đã tạo dữ liệu cho bảng.");
-        await client.query("COMMIT");
-        console.log("✅ Đã tạo các bảng thành công.");
-    } catch (error) {
-        await client.query("ROLLBACK");
-        console.error("❌ Lỗi khi tạo bảng:", error.message);
-    }
-};
+const main = async () => {
+    db.transaction(async (db) => {
+        await db.query(querySQLCreateTables.users.create);
+        await db.query(querySQLCreateTables.products.create);
+        await db.query(querySQLCreateTables.orders.create);
+        await db.query(querySQLCreateTables.carts.create);
+        console.log("Created tables OK");
 
-const createDatas = async () => {
-    // ########################## START - CREATE USERS ##########################
-    try {
-        await client.query("BEGIN");
+        // ########################## START - CREATE USERS ##########################
         var usersID01 = new Date().getTime() + 1;
         var usersID02 = new Date().getTime() + 2;
         var usersID03 = new Date().getTime() + 3;
@@ -74,7 +62,7 @@ const createDatas = async () => {
         ];
 
         for (const user of usersData) {
-            await client.query(querySQLDataTables.create.table.users(), [
+            await db.query(querySQLDataTables.create.table.users(), [
                 user.id,
                 user.username,
                 user.email,
@@ -85,16 +73,9 @@ const createDatas = async () => {
                 user.updatedAt,
             ]);
         }
-        await client.query("COMMIT");
-    } catch (error) {
-        await client.query("ROLLBACK");
-        console.error("❌ Lỗi khi tạo dữ liệu users:", error.message);
-    }
-    // ########################## END - CREATE USERS ##########################
+        // ########################## END - CREATE USERS ##########################
 
-    // ########################## START - CREATE PRODUCTS ##########################
-    try {
-        await client.query("BEGIN");
+        // ########################## START - CREATE PRODUCTS ##########################
         var productsID01 = new Date().getTime() + 1;
 
         const productsData = [
@@ -119,7 +100,7 @@ const createDatas = async () => {
         ];
 
         for (const product of productsData) {
-            await client.query(querySQLDataTables.create.table.products(), [
+            await db.query(querySQLDataTables.create.table.products(), [
                 product.id,
                 product.title,
                 product.description,
@@ -133,16 +114,9 @@ const createDatas = async () => {
                 product.updatedAt,
             ]);
         }
-        await client.query("COMMIT");
-    } catch (error) {
-        await client.query("ROLLBACK");
-        console.error("❌ Lỗi khi tạo dữ liệu products:", error.message);
-    }
-    // ########################## END - CREATE PRODUCTS ##########################
+        // ########################## END - CREATE PRODUCTS ##########################
 
-    // ########################## START - CREATE ORDERS ##########################
-    try {
-        await client.query("BEGIN");
+        // ########################## START - CREATE ORDERS ##########################
         var ordersID01 = new Date().getTime() + 1;
 
         const ordersData = [
@@ -165,7 +139,7 @@ const createDatas = async () => {
         ];
 
         for (const order of ordersData) {
-            await client.query(querySQLDataTables.create.table.orders(), [
+            await db.query(querySQLDataTables.create.table.orders(), [
                 order.id,
                 order.userId,
                 order.productId,
@@ -178,16 +152,9 @@ const createDatas = async () => {
                 order.updatedAt,
             ]);
         }
-        await client.query("COMMIT");
-    } catch (error) {
-        await client.query("ROLLBACK");
-        console.error("❌ Lỗi khi tạo dữ liệu orders:", error.message);
-    }
-    // ########################## END - CREATE ORDERS ##########################
+        // ########################## END - CREATE ORDERS ##########################
 
-    // ########################## START - CREATE CARTS ##########################
-    try {
-        await client.query("BEGIN");
+        // ########################## START - CREATE CARTS ##########################
         var cartsID01 = new Date().getTime() + 1;
 
         const cartsData = [
@@ -207,7 +174,7 @@ const createDatas = async () => {
         ];
 
         for (const cart of cartsData) {
-            await client.query(querySQLDataTables.create.table.carts(), [
+            await db.query(querySQLDataTables.create.table.carts(), [
                 cart.id,
                 cart.userId,
                 cart.productId,
@@ -217,12 +184,9 @@ const createDatas = async () => {
                 cart.updatedAt,
             ]);
         }
-        await client.query("COMMIT");
-    } catch (error) {
-        await client.query("ROLLBACK");
-        console.error("❌ Lỗi khi tạo dữ liệu carts:", error.message);
-    }
-    // ########################## END - CREATE CARTS ##########################
+        // ########################## END - CREATE CARTS ##########################
+        console.log("Database created successfully.");
+    });
 };
 
-createTablesAndDatabase();
+main();

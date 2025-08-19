@@ -1,10 +1,9 @@
-const { client } = require("../dbConnect/neon/connection");
 const { hashPassword } = require("./../utils/password.util");
 const db = require("../dbConnect/neon/Postgres");
 
 class UsersService {
     create = async (user) => {
-        try {
+        return db.transaction(async (db) => {
             const userCreated = await db.query(
                 `
                     INSERT INTO users (id, username, email, password, role, deleted, createdAt, updatedAt) 
@@ -27,33 +26,27 @@ class UsersService {
                 ]
             );
             return userCreated.rows[0];
-        } catch (error) {
-            console.error("❌ Lỗi khi tạo user:", error.message);
-        }
+        });
     };
 
     readAll = async () => {
-        try {
+        return db.transaction(async (db) => {
             const usersAll = await db.query("SELECT * FROM users");
             return usersAll.rows;
-        } catch (error) {
-            console.error("❌ Lỗi khi lấy tất cả user", error.message);
-        }
+        });
     };
 
     readId = async (id) => {
-        try {
+        return db.transaction(async (db) => {
             const user = await db.query(`SELECT * FROM users WHERE id = $1`, [
                 id,
             ]);
             return user.rows;
-        } catch (error) {
-            console.error("❌ Lỗi khi lấy user", error.message);
-        }
+        });
     };
 
     update = async (user) => {
-        try {
+        return db.transaction(async (db) => {
             const userUpdated = await db.query(
                 `
                     UPDATE users 
@@ -78,13 +71,11 @@ class UsersService {
                 ]
             );
             return userUpdated.rows;
-        } catch (error) {
-            console.error("❌ Lỗi khi update user", error.message);
-        }
+        });
     };
 
     exists = async (user) => {
-        try {
+        return db.transaction(async (db) => {
             const userExists = await db.query(
                 `   SELECT * FROM users 
                     WHERE email = $1 OR username = $2
@@ -92,11 +83,8 @@ class UsersService {
                 `,
                 [user.email, user.username]
             );
-            console.log(userExists.rows);
             return userExists.rows;
-        } catch (error) {
-            console.error("❌ Lỗi khi lấy user", error.message);
-        }
+        });
     };
 }
 
