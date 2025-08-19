@@ -36,8 +36,8 @@ const users = new Users(app);
 users.run();
 
 // Auth
-const Auth = require("./controllers/auth.controller");
-const auth = new Auth(app);
+const Auths = require("./controllers/auths.controller");
+const auth = new Auths(app);
 auth.run();
 
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

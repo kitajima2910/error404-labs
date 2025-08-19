@@ -1,6 +1,6 @@
 const AuthsService = require("../services/auths.service");
 
-class Auth {
+class Auths {
     constructor(app) {
         this.app = app;
     }
@@ -34,4 +34,4 @@ class Auth {
     };
 }
 
-module.exports = Auth;
+module.exports = Auths;
