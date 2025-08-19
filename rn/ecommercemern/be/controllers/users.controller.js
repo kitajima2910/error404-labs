@@ -1,5 +1,6 @@
 const User = require("../models/users.model");
 const UsersService = require("../services/users.service");
+const { authenticateToken } = require("./../utils/authMiddleware");
 
 class Users {
     constructor(app) {
@@ -8,7 +9,7 @@ class Users {
 
     // Create
     create = () => {
-        this.app.post("/users/create", async (req, res) => {
+        this.app.post("/users/create", authenticateToken, async (req, res) => {
             try {
                 const data = req.body;
 
@@ -40,7 +41,7 @@ class Users {
 
     // Read
     readAll = () => {
-        this.app.get("/users/readAll", async (req, res) => {
+        this.app.get("/users/readAll", authenticateToken, async (req, res) => {
             try {
                 const userService = new UsersService();
                 const resultUsers = await userService.readAll();
@@ -56,26 +57,30 @@ class Users {
 
     // Read id
     readId = () => {
-        this.app.get("/users/readId/:id", async (req, res) => {
-            try {
-                const id = req.params.id;
+        this.app.get(
+            "/users/readId/:id",
+            authenticateToken,
+            async (req, res) => {
+                try {
+                    const id = req.params.id;
 
-                const userService = new UsersService();
-                const resultUser = await userService.readId(id);
+                    const userService = new UsersService();
+                    const resultUser = await userService.readId(id);
 
-                res.status(200).send({
-                    message: "User read successfully",
-                    user: resultUser,
-                });
-            } catch (error) {
-                res.status(500).send(error);
+                    res.status(200).send({
+                        message: "User read successfully",
+                        user: resultUser,
+                    });
+                } catch (error) {
+                    res.status(500).send(error);
+                }
             }
-        });
+        );
     };
 
     // Update
     update = () => {
-        this.app.put("/users/update", async (req, res) => {
+        this.app.put("/users/update", authenticateToken, async (req, res) => {
             try {
                 const data = req.body;
 

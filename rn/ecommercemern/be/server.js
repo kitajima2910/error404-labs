@@ -6,10 +6,21 @@ const bodyParser = require("body-parser");
 const dotenv = require("dotenv");
 dotenv.config({ path: ".env.local", override: true });
 
+// const cors = require("cros");
+
 const app = express();
+
 app.use(bodyParser.json());
 
 const PORT = process.env.PORT || 3000;
+
+// const corsOptions = {
+//     origin: `http://localhost:${PORT}`,
+//     credentials: true, //access-control-allow-credentials:true
+//     optionSuccessStatus: 200,
+// };
+
+// app.use(cors(corsOptions));
 
 // Test CRUD Firebase
 // const TestCRUDFirebase = require("./controllers/testcrudfirebase.controller");

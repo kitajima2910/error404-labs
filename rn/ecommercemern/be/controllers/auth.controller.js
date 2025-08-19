@@ -21,7 +21,7 @@ class Auth {
 
                 res.status(200).send({
                     message: "Login successfully",
-                    user: resultAuth,
+                    resultAuth,
                 });
             } catch (error) {
                 res.status(500).send(error);
