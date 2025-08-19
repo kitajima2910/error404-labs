@@ -9,11 +9,17 @@ const client = new Client({
 
 const connection = async () => {
     try {
-        if (!client.connection) {
-            await client.connect();
-        }
+        await client.connect();
     } catch (error) {
         console.error("❌ Lỗi khi tạo connection:", error.message);
+    }
+};
+
+const disconnect = async () => {
+    try {
+        await client.end();
+    } catch (error) {
+        console.error(error.message);
     }
 };
 

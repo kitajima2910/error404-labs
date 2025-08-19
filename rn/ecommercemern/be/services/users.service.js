@@ -1,11 +1,11 @@
-const client = require("../dbConnect/neon/connection");
+const { client } = require("../dbConnect/neon/connection");
 const { hashPassword } = require("./../utils/password.util");
+const db = require("../dbConnect/neon/Postgres");
 
 class UsersService {
     create = async (user) => {
         try {
-            await client.query("BEGIN");
-            const userCreated = await client.query(
+            const userCreated = await db.query(
                 `
                     INSERT INTO users (id, username, email, password, role, deleted, createdAt, updatedAt) 
                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
@@ -26,45 +26,35 @@ class UsersService {
                     }),
                 ]
             );
-            await client.query("COMMIT");
             return userCreated.rows[0];
         } catch (error) {
-            await client.query("ROLLBACK");
             console.error("❌ Lỗi khi tạo user:", error.message);
         }
     };
 
     readAll = async () => {
         try {
-            await client.query("BEGIN");
-            const usersAll = await client.query("SELECT * FROM users");
-            await client.query("COMMIT");
+            const usersAll = await db.query("SELECT * FROM users");
             return usersAll.rows;
         } catch (error) {
-            await client.query("ROLLBACK");
             console.error("❌ Lỗi khi lấy tất cả user", error.message);
         }
     };
 
     readId = async (id) => {
         try {
-            await client.query("BEGIN");
-            const user = await client.query(
-                `SELECT * FROM users WHERE id = $1`,
-                [id]
-            );
-            await client.query("COMMIT");
+            const user = await db.query(`SELECT * FROM users WHERE id = $1`, [
+                id,
+            ]);
             return user.rows;
         } catch (error) {
-            await client.query("ROLLBACK");
             console.error("❌ Lỗi khi lấy user", error.message);
         }
     };
 
     update = async (user) => {
         try {
-            await client.query("BEGIN");
-            const userUpdated = await client.query(
+            const userUpdated = await db.query(
                 `
                     UPDATE users 
                     SET 
@@ -87,28 +77,24 @@ class UsersService {
                     user.id,
                 ]
             );
-            await client.query("COMMIT");
             return userUpdated.rows;
         } catch (error) {
-            await client.query("ROLLBACK");
             console.error("❌ Lỗi khi update user", error.message);
         }
     };
 
     exists = async (user) => {
         try {
-            await client.query("BEGIN");
-            const userExists = await client.query(
+            const userExists = await db.query(
                 `   SELECT * FROM users 
                     WHERE email = $1 OR username = $2
                     LIMIT 1
                 `,
                 [user.email, user.username]
             );
-            await client.query("COMMIT");
+            console.log(userExists.rows);
             return userExists.rows;
         } catch (error) {
-            await client.query("ROLLBACK");
             console.error("❌ Lỗi khi lấy user", error.message);
         }
     };

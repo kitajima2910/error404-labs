@@ -4,19 +4,19 @@ const client = require("./connection");
 
 const createTablesAndDatabase = async () => {
     try {
-        await client.connect();
+        await client.query("BEGIN");
         await client.query(querySQLCreateTables.users.create);
         await client.query(querySQLCreateTables.products.create);
         await client.query(querySQLCreateTables.orders.create);
         await client.query(querySQLCreateTables.carts.create);
-        console.log("✅ Đã tạo các bảng thành công.");
 
         // await createDatas();
         // console.log("✅ Đã tạo dữ liệu cho bảng.");
+        await client.query("COMMIT");
+        console.log("✅ Đã tạo các bảng thành công.");
     } catch (error) {
+        await client.query("ROLLBACK");
         console.error("❌ Lỗi khi tạo bảng:", error.message);
-    } finally {
-        await client.end();
     }
 };
 
