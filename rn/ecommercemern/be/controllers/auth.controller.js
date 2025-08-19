@@ -1,32 +1,37 @@
-const dotenv = require("dotenv");
-dotenv.config({ path: ".env.local", override: true });
+const AuthsService = require("../services/auths.service");
 
-const User = require("./../models/user.model");
+class Auth {
+    constructor(app) {
+        this.app = app;
+    }
 
-const BASE_API = process.env.BASE_API;
-const TABLE_NAME = "users";
+    login = () => {
+        this.app.post("/auths/login", async (req, res) => {
+            try {
+                const data = req.body;
 
-const REGISTER = `${BASE_API}/auth/register`;
-const LOGIN = `${BASE_API}/auth/login`;
+                const authsService = new AuthsService();
+                const resultAuth = await authsService.login(data);
 
-const Auth = (app, db) => {
-    // Register
-    app.post(REGISTER, (req, res) => {
-        const data = req.body;
-        const user = new User(data.username, data.email, data.password);
-        const ref = db.ref(TABLE_NAME);
-        ref.push(user)
-            .then(() =>
+                if (!resultAuth) {
+                    return res.status(400).send({
+                        message: "Invalid username or password",
+                    });
+                }
+
                 res.status(200).send({
-                    message: "User registered successfully",
-                    user,
-                })
-            )
-            .catch((error) => res.status(500).send(error));
-    });
+                    message: "Login successfully",
+                    user: resultAuth,
+                });
+            } catch (error) {
+                res.status(500).send(error);
+            }
+        });
+    };
 
-    // Login
-    app.post(LOGIN, (req, res) => {});
-};
+    run = () => {
+        this.login();
+    };
+}
 
 module.exports = Auth;

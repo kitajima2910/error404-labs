@@ -1,5 +1,5 @@
 const User = require("../models/users.model");
-const UsersService = require("./../services/users.service");
+const UsersService = require("../services/users.service");
 
 class Users {
     constructor(app) {
@@ -21,7 +21,9 @@ class Users {
 
                 const resultUserExists = await usersService.exists(user);
                 if (resultUserExists.length) {
-                    return res.status(400).send("User already exists");
+                    return res.status(400).send({
+                        message: "User already exists",
+                    });
                 }
 
                 const resultUser = await usersService.create(user);
