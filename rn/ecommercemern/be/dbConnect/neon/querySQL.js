@@ -51,6 +51,19 @@ const querySQLCreateTables = {
             updatedAt text
         );`,
     },
+    user_uploads: {
+        create: `create table if not exists user_uploads (
+            id text primary key,
+            userId text,
+            image_id text,
+            imageName text,
+            imageUrl text,
+            imageThumbnailUrl text,
+            deleted text,
+            createdAt text,
+            updatedAt text
+        );`,
+    },
 };
 
 const querySQLDataTables = {

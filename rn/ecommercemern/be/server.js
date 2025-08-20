@@ -30,14 +30,19 @@ const PORT = process.env.PORT || 3000;
 // const Auth = require("./controllers/auth.controller");
 // Auth(app, rnecommercemern);
 
-// User
+// Users
 const Users = require("./controllers/users.controller");
 const users = new Users(app);
 users.run();
 
-// Auth
+// Auths
 const Auths = require("./controllers/auths.controller");
-const auth = new Auths(app);
-auth.run();
+const auths = new Auths(app);
+auths.run();
+
+// Utils
+const Utils = require("./controllers/utils.controller");
+const utils = new Utils(app);
+utils.run();
 
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

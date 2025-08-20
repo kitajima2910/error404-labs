@@ -9,6 +9,7 @@ const main = async () => {
         await db.query(querySQLCreateTables.products.create);
         await db.query(querySQLCreateTables.orders.create);
         await db.query(querySQLCreateTables.carts.create);
+        await db.query(querySQLCreateTables.user_uploads.create);
         console.log("Created tables OK");
 
         // ########################## START - CREATE USERS ##########################
