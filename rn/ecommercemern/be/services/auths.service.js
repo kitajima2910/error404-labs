@@ -43,7 +43,7 @@ class AuthsService {
 
             return {
                 user: userExists.rows[0],
-                token,
+                token: `Bearer ${token}`,
             };
         });
     };
