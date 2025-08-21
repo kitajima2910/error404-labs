@@ -64,9 +64,26 @@ class UtilsController {
         );
     };
 
+    paymentMoMo = () => {
+        this.app.post("/utils/payment/MoMo", async (req, res) => {
+            try {
+                const utilsService = new UtilsService();
+                const result = await utilsService.momo(req.body);
+
+                res.status(200).send({
+                    message: "Payment successfully",
+                    result,
+                });
+            } catch (error) {
+                res.status(500).send(error);
+            }
+        });
+    };
+
     run = () => {
         this.upload();
         this.delete();
+        this.paymentMoMo();
     };
 }
 
