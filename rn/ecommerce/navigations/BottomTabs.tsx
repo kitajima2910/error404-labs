@@ -1,0 +1,85 @@
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import React from "react";
+import { StyleSheet } from "react-native";
+
+import Cart from "@/app/_cart";
+import Home from "@/app/_home";
+import Profile from "@/app/_profile";
+import ReOrder from "@/app/_re_order";
+
+import Entypo from "@expo/vector-icons/Entypo";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+
+import { mvs } from "react-native-size-matters";
+
+const Tab = createBottomTabNavigator();
+
+const BottomTabs = () => {
+    return (
+        <Tab.Navigator
+            screenOptions={{
+                headerShown: false,
+                tabBarShowLabel: false,
+                tabBarActiveTintColor: "rgba(233, 110, 110, 1)",
+                tabBarStyle: {
+                    minHeight: mvs(104),
+                    paddingTop: mvs(30),
+                },
+            }}
+        >
+            <Tab.Screen
+                name="Home"
+                component={Home}
+                options={{
+                    tabBarIcon: ({ color, size }) => (
+                        <Entypo name="home" size={size} color={color} />
+                    ),
+                }}
+            />
+            <Tab.Screen
+                name="ReOrder"
+                component={ReOrder}
+                options={{
+                    tabBarIcon: ({ color, size }) => (
+                        <MaterialCommunityIcons
+                            name="reorder-horizontal"
+                            size={size}
+                            color={color}
+                        />
+                    ),
+                }}
+            />
+            <Tab.Screen
+                name="Cart"
+                component={Cart}
+                options={{
+                    tabBarIcon: ({ color, size }) => (
+                        <MaterialIcons
+                            name="shopping-cart"
+                            size={size}
+                            color={color}
+                        />
+                    ),
+                }}
+            />
+            <Tab.Screen
+                name="Profile"
+                component={Profile}
+                options={{
+                    tabBarIcon: ({ color, size }) => (
+                        <MaterialCommunityIcons
+                            name="account"
+                            size={size}
+                            color={color}
+                        />
+                    ),
+                }}
+            />
+        </Tab.Navigator>
+    );
+};
+
+export default BottomTabs;
+
+const styles = StyleSheet.create({});
