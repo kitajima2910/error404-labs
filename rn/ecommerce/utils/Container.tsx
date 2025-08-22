@@ -5,6 +5,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 type Props = {
     children: React.ReactNode;
+    style?: any;
 };
 
 const Container = (props: Props) => {
@@ -13,7 +14,9 @@ const Container = (props: Props) => {
             colors={["rgba(253, 240, 243, 1)", "rgba(255, 251, 252, 1)"]}
             style={{ flex: 1 }}
         >
-            <SafeAreaView style={{ flex: 1 }}>{props.children}</SafeAreaView>
+            <SafeAreaView style={[{ flex: 1 }, props.style]}>
+                {props.children}
+            </SafeAreaView>
         </LinearGradient>
     );
 };

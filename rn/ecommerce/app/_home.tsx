@@ -1,14 +1,17 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet } from "react-native";
 
+import Header from "@/components/home/Header";
+import Search from "@/components/home/Search";
+import Title from "@/components/home/Title";
 import Container from "@/utils/Container";
 
 const Home = () => {
     return (
         <Container>
-            <View>
-                <Text>Home</Text>
-            </View>
+            <Header />
+            <Title title={"Match Your Style"} />
+            <Search />
         </Container>
     );
 };
