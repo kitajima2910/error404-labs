@@ -11,7 +11,7 @@ import { ms, mvs } from "react-native-size-matters";
 const data = ["Trending Now", "All", "New", "Clothing", "Shoes", "Accessories"];
 
 const Categories = () => {
-    const [selectedItem, setSelectedItem] = useState("");
+    const [selectedItem, setSelectedItem] = useState("Trending Now");
 
     const handleClick = (item: string) => {
         setSelectedItem(item);
@@ -52,6 +52,7 @@ export default Categories;
 const styles = StyleSheet.create({
     container: {
         marginHorizontal: ms(30),
+        marginBottom: mvs(30),
     },
     item: {
         backgroundColor: "rgba(223, 220, 220, 1)",

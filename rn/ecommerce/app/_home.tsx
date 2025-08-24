@@ -3,6 +3,7 @@ import { StyleSheet } from "react-native";
 
 import Categories from "@/components/home/Categories";
 import Header from "@/components/home/Header";
+import ProductsCard from "@/components/home/ProductsCard";
 import Search from "@/components/home/Search";
 import Title from "@/components/home/Title";
 import Container from "@/utils/Container";
@@ -14,6 +15,7 @@ const Home = () => {
             <Title title={"Match Your Style"} />
             <Search />
             <Categories />
+            <ProductsCard />
         </Container>
     );
 };
