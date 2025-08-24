@@ -92,10 +92,12 @@ const ProductCard = () => {
                 keyExtractor={(item) => item.id.toString()}
                 numColumns={2}
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{
-                    paddingBottom: mvs(30),
-                }}
                 showsVerticalScrollIndicator={false}
+                columnWrapperStyle={{
+                    justifyContent: "space-between",
+                    marginBottom: mvs(30),
+                    marginHorizontal: ms(15),
+                }}
             />
         </>
     );
@@ -105,20 +107,19 @@ export default ProductCard;
 
 const styles = StyleSheet.create({
     container: {
-        marginHorizontal: ms(10),
-        flex: 1, // mỗi item chiếm đều 1 cột
         // backgroundColor: "red",
-        // width: ms(167),
-        marginBottom: mvs(10),
+        marginBottom: mvs(30),
+        width: ms(167),
+        height: mvs(256),
     },
     wrapperImage: {
-        // marginBottom: mvs(10),
+        marginBottom: mvs(10),
         borderRadius: 12,
         overflow: "hidden",
     },
     image: {
-        width: ms(167),
-        height: mvs(256),
+        width: "100%",
+        height: "100%",
         resizeMode: "cover",
         borderRadius: ms(20),
     },
