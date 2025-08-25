@@ -3,7 +3,6 @@ import React from "react";
 import { StyleSheet } from "react-native";
 
 import Cart from "@/app/_cart";
-import Home from "@/app/_home";
 import Profile from "@/app/_profile";
 import ReOrder from "@/app/_re_order";
 
@@ -12,6 +11,7 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 import { mvs } from "react-native-size-matters";
+import StackTabs from "./StackTabs";
 
 const Tab = createBottomTabNavigator();
 
@@ -29,6 +29,15 @@ const BottomTabs = () => {
             }}
         >
             <Tab.Screen
+                name="StackTabs"
+                component={StackTabs}
+                options={{
+                    tabBarIcon: ({ color, size }) => (
+                        <Entypo name="home" size={size} color={color} />
+                    ),
+                }}
+            />
+            {/* <Tab.Screen
                 name="Home"
                 component={Home}
                 options={{
@@ -36,7 +45,7 @@ const BottomTabs = () => {
                         <Entypo name="home" size={size} color={color} />
                     ),
                 }}
-            />
+            /> */}
             <Tab.Screen
                 name="ReOrder"
                 component={ReOrder}

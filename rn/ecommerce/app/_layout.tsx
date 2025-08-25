@@ -1,4 +1,4 @@
-import BottomTabs from "@/navigations/BottomTabs";
+import MainNav from "@/navigations/MainNav";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { useCallback } from "react";
@@ -31,7 +31,9 @@ export default function RootLayout() {
 
     return (
         <View onLayout={onLayoutRootView} style={styles.container}>
-            <BottomTabs />
+            {/* <BottomTabs /> */}
+            {/* <StackTabs /> */}
+            <MainNav />
         </View>
     );
 }

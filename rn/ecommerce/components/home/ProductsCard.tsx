@@ -10,40 +10,41 @@ import {
 import { ms, mvs } from "react-native-size-matters";
 
 import AntDesign from "@expo/vector-icons/AntDesign";
+import { useNavigation } from "@react-navigation/native";
 
 const data = [
     {
         id: 1,
         image: require("@/assets/images/image_clone_product.jpg"),
-        title: "Jacket Jeans",
+        title: "Jacket Jeans 1",
         price: "$45.9",
         like: false,
     },
     {
         id: 2,
         image: require("@/assets/images/image_clone_product.jpg"),
-        title: "Jacket Jeans",
+        title: "Jacket Jeans 2",
         price: "$45.9",
         like: false,
     },
     {
         id: 3,
         image: require("@/assets/images/image_clone_product.jpg"),
-        title: "Jacket Jeans",
+        title: "Jacket Jeans 3",
         price: "$45.9",
         like: false,
     },
     {
         id: 4,
         image: require("@/assets/images/image_clone_product.jpg"),
-        title: "Jacket Jeans",
+        title: "Jacket Jeans 4",
         price: "$45.9",
         like: false,
     },
     {
         id: 5,
         image: require("@/assets/images/image_clone_product.jpg"),
-        title: "Jacket Jeans",
+        title: "Jacket Jeans 5",
         price: "$45.9",
         like: false,
     },
@@ -62,44 +63,50 @@ const ProductCard = () => {
             }
             return data;
         });
-        console.log(newData);
         setDataClone(newData);
     };
 
+    const navigation = useNavigation<any>();
+
+    const handleNavigate = (item: any) => {
+        navigation.navigate("ProductDetails", { dataID: item.id });
+    };
+
     return (
-        <>
-            <FlatList
-                data={dataClone}
-                renderItem={({ item }) => (
-                    <View style={styles.container}>
-                        <View style={styles.wrapperImage}>
-                            <Image style={styles.image} source={item.image} />
-                            <TouchableOpacity
-                                onPress={() => handleLike(item)}
-                                style={styles.wrapperLike}
-                            >
-                                <AntDesign
-                                    name={item.like ? "heart" : "hearto"}
-                                    size={17}
-                                    color="rgba(229, 91, 91, 1)"
-                                />
-                            </TouchableOpacity>
-                        </View>
-                        <Text style={styles.title}>{item.title}</Text>
-                        <Text style={styles.price}>{item.price}</Text>
+        <FlatList
+            data={dataClone}
+            renderItem={({ item }) => (
+                <TouchableOpacity
+                    style={styles.container}
+                    onPress={() => handleNavigate(item)}
+                >
+                    <View style={styles.wrapperImage}>
+                        <Image style={styles.image} source={item.image} />
+                        <TouchableOpacity
+                            onPress={() => handleLike(item)}
+                            style={styles.wrapperLike}
+                        >
+                            <AntDesign
+                                name={item.like ? "heart" : "hearto"}
+                                size={17}
+                                color="rgba(229, 91, 91, 1)"
+                            />
+                        </TouchableOpacity>
                     </View>
-                )}
-                keyExtractor={(item) => item.id.toString()}
-                numColumns={2}
-                showsHorizontalScrollIndicator={false}
-                showsVerticalScrollIndicator={false}
-                columnWrapperStyle={{
-                    justifyContent: "space-between",
-                    marginBottom: mvs(30),
-                    marginHorizontal: ms(15),
-                }}
-            />
-        </>
+                    <Text style={styles.title}>{item.title}</Text>
+                    <Text style={styles.price}>{item.price}</Text>
+                </TouchableOpacity>
+            )}
+            keyExtractor={(item) => item.id.toString()}
+            numColumns={2}
+            showsHorizontalScrollIndicator={false}
+            showsVerticalScrollIndicator={false}
+            columnWrapperStyle={{
+                justifyContent: "space-between",
+                marginBottom: mvs(30),
+                marginHorizontal: ms(15),
+            }}
+        />
     );
 };
 
