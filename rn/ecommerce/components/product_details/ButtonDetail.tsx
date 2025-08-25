@@ -1,13 +1,13 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { ms, mvs } from "react-native-size-matters";
 
 const ButtonDetail = () => {
     return (
         <View style={styles.container}>
-            <View style={styles.wrapperButton}>
+            <TouchableOpacity style={styles.wrapperButton}>
                 <Text style={styles.text}>Add to Cart</Text>
-            </View>
+            </TouchableOpacity>
         </View>
     );
 };
@@ -29,9 +29,9 @@ const styles = StyleSheet.create({
         borderRadius: ms(20),
     },
     text: {
-        fontFamily: "Poppins-Regular",
+        fontFamily: "Poppins-SemiBold",
         fontWeight: "500",
-        fontSize: ms(20),
+        fontSize: ms(18),
         color: "rgba(255, 255, 255, 1)",
     },
 });

@@ -10,6 +10,7 @@ import Entypo from "@expo/vector-icons/Entypo";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
+import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 import { mvs } from "react-native-size-matters";
 import StackTabs from "./StackTabs";
 
@@ -31,11 +32,33 @@ const BottomTabs = () => {
             <Tab.Screen
                 name="StackTabs"
                 component={StackTabs}
-                options={{
-                    tabBarIcon: ({ color, size }) => (
-                        <Entypo name="home" size={size} color={color} />
-                    ),
+                options={({ route }) => {
+                    const routeName =
+                        getFocusedRouteNameFromRoute(route) ?? "Home"; // mặc định là Home
+
+                    return {
+                        tabBarIcon: ({ color, size }) => (
+                            <Entypo
+                                name="home"
+                                size={size}
+                                // Nếu không ở Home thì cho màu inactive (xám)
+                                color={routeName === "Home" ? color : "gray"}
+                            />
+                        ),
+                    };
                 }}
+                listeners={({ navigation }) => ({
+                    tabPress: (e) => {
+                        const isFocused = navigation.isFocused();
+
+                        if (isFocused) {
+                            // Reset stack về Home trong StackTabs
+                            navigation.navigate("StackTabs", {
+                                screen: "Home",
+                            });
+                        }
+                    },
+                })}
             />
             {/* <Tab.Screen
                 name="Home"
