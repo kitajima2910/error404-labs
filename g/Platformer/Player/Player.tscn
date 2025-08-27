@@ -1,0 +1,155 @@
+[gd_scene load_steps=27 format=3 uid="uid://bej0iam4mmbro"]
+
+[ext_resource type="Texture2D" uid="uid://dqr04w4srh2lo" path="res://PNG/sprites/player/player-idle/player-idle-1.png" id="1_j23h2"]
+[ext_resource type="Script" uid="uid://doww0ris861a1" path="res://Player/player.gd" id="1_u5tep"]
+[ext_resource type="Texture2D" uid="uid://dyjsd828omtkv" path="res://PNG/sprites/player/player-idle/player-idle-2.png" id="2_0j2ni"]
+[ext_resource type="Texture2D" uid="uid://c6kaair0fdd46" path="res://PNG/sprites/player/player-idle/player-idle-3.png" id="3_v0k0e"]
+[ext_resource type="Texture2D" uid="uid://bij0hj8ldjke6" path="res://PNG/sprites/player/player-idle/player-idle-4.png" id="4_5wa8t"]
+[ext_resource type="Texture2D" uid="uid://dg6qgcr5lqpxf" path="res://PNG/sprites/player/player-idle/player-idle-5.png" id="5_p7tob"]
+[ext_resource type="Texture2D" uid="uid://hatxjmwg0a2b" path="res://PNG/sprites/player/player-idle/player-idle-6.png" id="6_dm7nj"]
+[ext_resource type="Texture2D" uid="uid://c23v15te14hya" path="res://PNG/sprites/player/player-idle/player-idle-7.png" id="7_3mea3"]
+[ext_resource type="Texture2D" uid="uid://dpc6gw6qi0wx4" path="res://PNG/sprites/player/player-idle/player-idle-8.png" id="8_7v5gs"]
+[ext_resource type="Texture2D" uid="uid://b0mg4i36fku7u" path="res://PNG/sprites/player/player-idle/player-idle-9.png" id="9_8sa4y"]
+[ext_resource type="Texture2D" uid="uid://cjpy7n8e3ca8h" path="res://PNG/sprites/player/player-jump/player-jump-1.png" id="10_roy6y"]
+[ext_resource type="Texture2D" uid="uid://caw0oedsbka0t" path="res://PNG/sprites/player/player-jump/player-jump-2.png" id="11_u5tep"]
+[ext_resource type="Texture2D" uid="uid://cgar8axose4o1" path="res://PNG/sprites/player/player-jump/player-jump-3.png" id="12_ps8ct"]
+[ext_resource type="Texture2D" uid="uid://dvs3eq0quc8u5" path="res://PNG/sprites/player/player-jump/player-jump-4.png" id="13_7uipr"]
+[ext_resource type="Texture2D" uid="uid://kfa0y1w4r88v" path="res://PNG/sprites/player/player-skip/player-skip-1.png" id="14_yifbt"]
+[ext_resource type="Texture2D" uid="uid://bcump1bup40bv" path="res://PNG/sprites/player/player-skip/player-skip-2.png" id="15_s0mko"]
+[ext_resource type="Texture2D" uid="uid://bv8wslhqce5m3" path="res://PNG/sprites/player/player-skip/player-skip-3.png" id="16_hqjia"]
+[ext_resource type="Texture2D" uid="uid://c514i670kog0f" path="res://PNG/sprites/player/player-skip/player-skip-4.png" id="17_x70vp"]
+[ext_resource type="Texture2D" uid="uid://5jto5kje7n73" path="res://PNG/sprites/player/player-skip/player-skip-5.png" id="18_wo5nf"]
+[ext_resource type="Texture2D" uid="uid://dq01bg1y8u580" path="res://PNG/sprites/player/player-skip/player-skip-6.png" id="19_croik"]
+[ext_resource type="Texture2D" uid="uid://doabj8jtgfqal" path="res://PNG/sprites/player/player-skip/player-skip-7.png" id="20_bgaaw"]
+[ext_resource type="Texture2D" uid="uid://cpwc8yfgttsqw" path="res://PNG/sprites/player/player-skip/player-skip-8.png" id="21_gv3fu"]
+[ext_resource type="Texture2D" uid="uid://b8eftf14brq8v" path="res://PNG/environment/layers/background.png" id="23_ps8ct"]
+[ext_resource type="Texture2D" uid="uid://b1q7khjkfjdde" path="res://PNG/environment/layers/middleground.png" id="24_7uipr"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_3nb2p"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_d7xyo"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_j23h2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_0j2ni")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_v0k0e")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_5wa8t")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_p7tob")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_dm7nj")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_3mea3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_7v5gs")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_8sa4y")
+}],
+"loop": true,
+"name": &"Idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("10_roy6y")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_u5tep")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_ps8ct")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_7uipr")
+}],
+"loop": true,
+"name": &"Jump",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("14_yifbt")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_s0mko")
+}, {
+"duration": 1.0,
+"texture": ExtResource("16_hqjia")
+}, {
+"duration": 1.0,
+"texture": ExtResource("17_x70vp")
+}, {
+"duration": 1.0,
+"texture": ExtResource("18_wo5nf")
+}, {
+"duration": 1.0,
+"texture": ExtResource("19_croik")
+}, {
+"duration": 1.0,
+"texture": ExtResource("20_bgaaw")
+}, {
+"duration": 1.0,
+"texture": ExtResource("21_gv3fu")
+}],
+"loop": true,
+"name": &"Run",
+"speed": 5.0
+}]
+
+[node name="Player" type="CharacterBody2D"]
+script = ExtResource("1_u5tep")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CapsuleShape2D_3nb2p")
+
+[node name="Container" type="Node2D" parent="."]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Container"]
+sprite_frames = SubResource("SpriteFrames_d7xyo")
+animation = &"Run"
+frame_progress = 0.774265
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(2.6, 2.6)
+
+[node name="Background" type="Sprite2D" parent="."]
+z_index = -300
+position = Vector2(-288, 0)
+texture = ExtResource("23_ps8ct")
+
+[node name="Background2" type="Sprite2D" parent="."]
+z_index = -300
+position = Vector2(-96, 0)
+texture = ExtResource("23_ps8ct")
+
+[node name="Background3" type="Sprite2D" parent="."]
+z_index = -300
+position = Vector2(96, 0)
+texture = ExtResource("23_ps8ct")
+
+[node name="Background4" type="Sprite2D" parent="."]
+z_index = -300
+position = Vector2(288, 0)
+texture = ExtResource("23_ps8ct")
+
+[node name="Middleground" type="Sprite2D" parent="."]
+z_index = -200
+position = Vector2(-192, 0)
+texture = ExtResource("24_7uipr")
+
+[node name="Middleground2" type="Sprite2D" parent="."]
+z_index = -200
+position = Vector2(192, 0)
+texture = ExtResource("24_7uipr")

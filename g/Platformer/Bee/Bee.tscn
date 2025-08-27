@@ -1,0 +1,77 @@
+[gd_scene load_steps=14 format=3 uid="uid://dvlvlirnfuqy"]
+
+[ext_resource type="Script" uid="uid://dustrvgcgddcn" path="res://Bee/bee.gd" id="1_8xeh7"]
+[ext_resource type="Texture2D" uid="uid://oyvwee4vl1am" path="res://PNG/sprites/enemies/bee/bee-1.png" id="1_vifm7"]
+[ext_resource type="Texture2D" uid="uid://r76dolwpkd7q" path="res://PNG/sprites/enemies/bee/bee-2.png" id="2_8xeh7"]
+[ext_resource type="Texture2D" uid="uid://8ea2ek4v6p76" path="res://PNG/sprites/enemies/bee/bee-3.png" id="3_ha87e"]
+[ext_resource type="Texture2D" uid="uid://7dmfee0ogdde" path="res://PNG/sprites/enemies/bee/bee-4.png" id="4_twtnc"]
+[ext_resource type="Texture2D" uid="uid://blkrcyc5783us" path="res://PNG/sprites/enemies/bee/bee-5.png" id="5_rssck"]
+[ext_resource type="Texture2D" uid="uid://chsngryafams6" path="res://PNG/sprites/enemies/bee/bee-6.png" id="6_b85oc"]
+[ext_resource type="Texture2D" uid="uid://cj7xa5xck0ggb" path="res://PNG/sprites/enemies/bee/bee-7.png" id="7_ipm5l"]
+[ext_resource type="Texture2D" uid="uid://bspaqswua5gxo" path="res://PNG/sprites/enemies/bee/bee-8.png" id="8_ao2l0"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_2wodd"]
+radius = 8.0
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_spol7"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_vifm7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_8xeh7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_ha87e")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_twtnc")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_rssck")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_b85oc")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_ipm5l")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_ao2l0")
+}],
+"loop": true,
+"name": &"Idile",
+"speed": 5.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_8xeh7"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ha87e"]
+radius = 56.0
+
+[node name="Bee" type="CharacterBody2D"]
+script = ExtResource("1_8xeh7")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_2wodd")
+
+[node name="Container" type="Node2D" parent="."]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Container"]
+sprite_frames = SubResource("SpriteFrames_spol7")
+animation = &"Idile"
+frame_progress = 0.0100443
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+shape = SubResource("CircleShape2D_8xeh7")
+
+[node name="Sight" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Sight"]
+shape = SubResource("CircleShape2D_ha87e")
+
+[connection signal="body_entered" from="Area2D" to="." method="_on_area_2d_body_entered"]
+[connection signal="body_entered" from="Sight" to="." method="_on_player_in_sight"]
