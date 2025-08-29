@@ -1,0 +1,20 @@
+[gd_scene load_steps=5 format=3 uid="uid://b00c7r43jx6xk"]
+
+[ext_resource type="Texture2D" uid="uid://cmtrvnwgwl1e2" path="res://Joystick/Background.png" id="1_62yua"]
+[ext_resource type="Script" uid="uid://bi7wb61stlg6n" path="res://Joystick/joystick.gd" id="1_k88vs"]
+[ext_resource type="Texture2D" uid="uid://dspqb7granvpn" path="res://Joystick/Handle.png" id="2_k88vs"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_62yua"]
+radius = 288.111
+
+[node name="Joystick" type="Area2D"]
+script = ExtResource("1_k88vs")
+
+[node name="Background" type="Sprite2D" parent="."]
+texture = ExtResource("1_62yua")
+
+[node name="Handle" type="Sprite2D" parent="."]
+texture = ExtResource("2_k88vs")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_62yua")
