@@ -6,6 +6,11 @@ const JUMP_VELOCITY = -400.0
 
 
 func _physics_process(delta: float) -> void:
+	if Global.playerIsHited:
+		$AnimatedSprite2D.play("Hit")
+		await get_tree().create_timer(.2).timeout
+		Global.playerIsHited = false
+	
 	# Add the gravity.
 	if not is_on_floor():
 		velocity += get_gravity() * delta
@@ -35,7 +40,7 @@ func _physics_process(delta: float) -> void:
 			$AnimatedSprite2D.flip_h = false
 			
 	else:
-		if is_on_floor():
+		if is_on_floor() and !Global.playerIsHited:
 			$AnimatedSprite2D.play("Idle")
 			
 		velocity.x = move_toward(velocity.x, 0, SPEED)
