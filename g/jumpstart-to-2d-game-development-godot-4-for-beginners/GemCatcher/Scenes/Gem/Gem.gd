@@ -12,6 +12,6 @@ func _process(delta: float) -> void:
 	position.y += SPEED * delta
 	
 	if position.y > get_viewport_rect().end.y:
-		print("Gem falls off")
+		#print("Gem falls off")
 		set_process(false)
 		queue_free()
