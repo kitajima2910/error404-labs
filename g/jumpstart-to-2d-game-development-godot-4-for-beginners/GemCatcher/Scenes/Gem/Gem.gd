@@ -13,5 +13,13 @@ func _process(delta: float) -> void:
 	
 	if position.y > get_viewport_rect().end.y:
 		#print("Gem falls off")
-		set_process(false)
-		queue_free()
+		die()
+
+func die() -> void:
+	set_process(false)
+	queue_free()
+
+func _on_area_entered(area: Area2D) -> void:
+	#print("area: ", area)
+	die()
+	pass
