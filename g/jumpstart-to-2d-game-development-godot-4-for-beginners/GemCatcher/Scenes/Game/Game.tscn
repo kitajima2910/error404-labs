@@ -30,5 +30,21 @@ autoplay = true
 stream = ExtResource("5_y3kpf")
 volume_db = -5.0
 
+[node name="ScoreLable" type="Label" parent="."]
+offset_left = 24.0
+offset_right = 106.0
+offset_bottom = 67.0
+theme_override_colors/font_color = Color(0, 0.756863, 0, 1)
+theme_override_colors/font_shadow_color = Color(0.811765, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(0.678431, 0, 0.690196, 1)
+theme_override_constants/line_spacing = 0
+theme_override_constants/paragraph_spacing = 0
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_constants/outline_size = 3
+theme_override_constants/shadow_outline_size = 3
+theme_override_font_sizes/font_size = 48
+text = "000"
+
 [connection signal="area_entered" from="Paddle" to="." method="_on_paddle_area_entered"]
 [connection signal="timeout" from="SpawnTimer" to="." method="_on_timer_timeout"]
