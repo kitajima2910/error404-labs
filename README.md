@@ -1,4 +1,4 @@
-# error404-lab
+# error404-labs
 
 > _Tìm hoài không thấy... nhưng lại có tất cả._
 
