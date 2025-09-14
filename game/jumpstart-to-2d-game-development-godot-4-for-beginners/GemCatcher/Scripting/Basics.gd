@@ -16,7 +16,7 @@ func _run() -> void:
 	print(type_string(typeof(power_level)))
 	
 	var result = "%03s %03d %03s" % [
-		hero, age, power_level
+		hero, age, power_level	
 	]
 	
 	print(result)
