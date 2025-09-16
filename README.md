@@ -35,6 +35,13 @@
       </a>
       💻 Developer
     </td>
+    <td align="center" width="200">
+      <a href="https://github.com/KinhNguyenss" style="text-decoration: none;">
+        <img src="https://avatars.githubusercontent.com/u/149393705?v=4" width="100" style="border: 2px solid #ccc;" /><br />
+        <span style="color: green; font-weight: bold; padding: 5px;">KinhNguyen's</span><br />
+      </a>
+      💻 Developer
+    </td>
   </tr>
 </table>
 
