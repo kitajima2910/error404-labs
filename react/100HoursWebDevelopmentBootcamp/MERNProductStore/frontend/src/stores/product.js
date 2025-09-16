@@ -22,7 +22,7 @@ export const useProductStore = create((set, get) => ({
         const data = await res.json();
 
         set({
-            products: [...get().products, data.data],
+            products: [...get().products, data.message],
         });
 
         return {
@@ -64,23 +64,25 @@ export const useProductStore = create((set, get) => ({
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify(updatedProduct)
-        })
+            body: JSON.stringify(updatedProduct),
+        });
 
-        const data = await res.json()
+        const data = await res.json();
         if (!data.success) {
             return {
                 success: false,
                 message: data.message,
             };
         }
-        
+
         set({
-            products: get().products.map(product => product._id === pid ? data.message : product)
-        })
+            products: get().products.map((product) =>
+                product._id === pid ? data.message : product
+            ),
+        });
         return {
             success: true,
             message: data.message,
         };
-    }
+    },
 }));

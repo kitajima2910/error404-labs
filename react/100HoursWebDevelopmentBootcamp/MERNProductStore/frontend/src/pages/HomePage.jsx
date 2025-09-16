@@ -46,21 +46,19 @@ const HomePage = () => {
                     </Text>
                 )}
 
-                {products && products.length > 0 && (
-                    <SimpleGrid
-                        columns={{
-                            base: 1,
-                            md: 2,
-                            lg: 3,
-                        }}
-                        spacing={10}
-                        w={"full"}
-                    >
-                        {products.map((product) => (
-                            <ProductCard key={product._id} product={product} />
-                        ))}
-                    </SimpleGrid>
-                )}
+                <SimpleGrid
+                    columns={{
+                        base: 1,
+                        md: 2,
+                        lg: 3,
+                    }}
+                    spacing={10}
+                    w={"full"}
+                >
+                    {products.map((product) => (
+                        <ProductCard key={product._id} product={product} />
+                    ))}
+                </SimpleGrid>
             </VStack>
         </Container>
     );

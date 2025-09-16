@@ -1,23 +1,26 @@
 {
-  "name": "mernproductstore",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon backend/server.js"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "module",
-  "dependencies": {
-    "@dotenvx/dotenvx": "^1.49.1",
-    "dotenv": "^17.2.2",
-    "express": "^4.19.2",
-    "mongoose": "^8.18.1"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.10"
-  }
+    "name": "mernproductstore",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "dev": "cross-env NODE_ENV=development nodemon backend/server.js",
+        "build": "npm install && npm install --prefix frontend && npm run build --prefix frontend",
+        "start": "cross-env NODE_ENV=production node backend/server.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "type": "module",
+    "dependencies": {
+        "@dotenvx/dotenvx": "^1.49.1",
+        "cross-env": "^10.0.0",
+        "dotenv": "^17.2.2",
+        "express": "^4.19.2",
+        "mongoose": "^8.18.1"
+    },
+    "devDependencies": {
+        "nodemon": "^3.1.10"
+    }
 }
