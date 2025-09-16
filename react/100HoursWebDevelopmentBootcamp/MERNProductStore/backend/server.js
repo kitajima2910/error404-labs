@@ -4,7 +4,7 @@ import { connectDB } from "./config/db.js";
 
 import productRoutes from "./routes/product.route.js";
 
-dotenv.config();
+dotenv.config({ path: ".env.local", override: true });
 
 const app = express();
 const PORT = process.env.PORT || 5000;
