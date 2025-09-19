@@ -35,3 +35,6 @@
 | 2 | Face Anonymizer | [🎥 Tutorial](https://www.youtube.com/watch?v=eDIj5LuIL4A&index=2&t=8928s) | [💻 Source](https://github.com/kitajima2910/error404-labs/tree/master/python/opencv/project2) |
 
 ---
+
+## 👨‍💻 Phạm Xuân Hoài – R&D Programmer
+📌 Chia sẻ kiến thức về AI, Computer Vision, Web, Mobile (Android) & Game Development
