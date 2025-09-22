@@ -24,7 +24,7 @@ npx expo run:android
 
 ## 📸 Demo giao diện
 
-![React Native UI Store](./demo/png)
+![React Native UI Store](./demo.png)
 
 ## 👨‍💻 Tác giả
 Phạm Xuân Hoài – R&D Programmer\
