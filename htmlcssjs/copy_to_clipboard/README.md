@@ -16,7 +16,7 @@ Một project nhỏ gọn giúp **copy text vào clipboard** chỉ với một c
 
 ## 📸 Screenshot
 
-<p align="center">
+<p>
   <img src="demo.png" alt="Copy to Clipboard" width="600">
 </p>
 
@@ -24,5 +24,5 @@ Một project nhỏ gọn giúp **copy text vào clipboard** chỉ với một c
 
 ## 👨‍💻 Tác giả
 
-Phạm Xuân Hoài – R&D Programmer
+Phạm Xuân Hoài – R&D Programmer\
 📌 Web/Game/Mobile/AI Developer
