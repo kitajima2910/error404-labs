@@ -16,7 +16,7 @@ Project này phù hợp cho người mới học web, hoặc để nhúng vào w
 
 ## 📸 Screenshot
 
-<p align="center">
+<p>
   <img src="demo.png" alt="Digital Clock" width="600">
 </p>
 
@@ -32,5 +32,5 @@ Project này phù hợp cho người mới học web, hoặc để nhúng vào w
 
 ## 👨‍💻 Tác giả
 
-Phạm Xuân Hoài – R&D Programmer
+Phạm Xuân Hoài – R&D Programmer\
 📌 Web/Game/Mobile/AI Developer
