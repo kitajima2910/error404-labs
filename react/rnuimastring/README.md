@@ -1,7 +1,6 @@
 # 📱 React Native UI Mastering
 
 Dự án demo giao diện với **React Native + Expo**.  
-Project này cũ nên chỉ cần cài đặt dependencies và chạy bằng Expo.
 
 ---
 
