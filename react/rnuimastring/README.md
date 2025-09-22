@@ -2,6 +2,7 @@
 
 Dự án demo giao diện với **React Native + Expo**.  
 Project đã cũ, chỉ cần cài đặt dependencies và chạy bằng Expo.
+
 ---
 
 ## 🚀 Cài đặt & Chạy project
