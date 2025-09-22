@@ -19,3 +19,9 @@ Website **Portfolio cá nhân** được xây dựng bằng **HTML, CSS và Java
 - **CSS3** – responsive, animation, style.
 - **JavaScript (ES6)** – xử lý logic và hiệu ứng.
 - **[ScrollReveal.js](https://scrollrevealjs.org/)** – tạo animation khi cuộn trang.
+
+---
+
+## 👨‍💻 Tác giả
+**Phạm Xuân Hoài** – R&D Programmer  
+📌 Chia sẻ kiến thức về **Web, Mobile, Game & AI**  
