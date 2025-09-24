@@ -48,7 +48,7 @@ const SignUpPage = () => {
         return true;
     };
 
-    const handlesubmit = (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
 
         const success = validateForm();
@@ -81,7 +81,7 @@ const SignUpPage = () => {
                     </div>
 
                     {/* form */}
-                    <form onSubmit={handlesubmit} className="space-y-6">
+                    <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="form-control">
                             <label className="label">
                                 <span className="label-text font-medium">
