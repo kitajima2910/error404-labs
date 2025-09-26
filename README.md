@@ -1,4 +1,4 @@
-# error404-labs edit
+# error404-labs edit v2
 
 > _Tìm hoài không thấy... nhưng lại có tất cả._
 
