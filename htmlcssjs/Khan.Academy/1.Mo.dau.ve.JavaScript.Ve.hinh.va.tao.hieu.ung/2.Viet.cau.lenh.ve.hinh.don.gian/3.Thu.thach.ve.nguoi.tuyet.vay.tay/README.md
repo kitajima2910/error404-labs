@@ -91,13 +91,5 @@ function setup() {
 
 ---
 
-### 🧠 Tổng kết nhanh
-
-| Hàm         | Ý nghĩa                | Tham số chính             | Ghi nhớ                   |
-| ----------- | ---------------------- | ------------------------- | ------------------------- |
-| `line()`    | Vẽ đoạn thẳng          | 4 tọa độ (x1, y1, x2, y2) | Không có màu tô           |
-| `rect()`    | Vẽ hình chữ nhật       | x, y, w, h                | Có thể đổi mode: `CENTER` |
-| `ellipse()` | Vẽ hình tròn / bầu dục | x, y, w, (h)              | Nếu bỏ `h` → hình tròn    |
-
 ✍️ Tác giả: Phạm Xuân Hoài\
 📚 Ôn tập p5.js cơ bản cho người mới bắt đầu.
