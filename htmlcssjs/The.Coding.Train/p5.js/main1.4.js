@@ -1,5 +1,6 @@
 function setup() {
     createCanvas(400, 300);
+    print("Hello, World!");
 }
 
 function draw() {
