@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Thử thách: Vẽ người tuyết đơn giản</title>
+    </head>
+    <body>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/2.0.5/p5.min.js"></script>
+        <script>
+            function setup() {
+                createCanvas(400, 400, WEBGL);
+            }
+
+            function draw() {
+                background(148, 251, 255);
+                noStroke();
+
+                // Mặt
+                fill(255, 255, 0);
+                ellipse(0, 0, 300);
+
+                // Miệng
+                fill(255, 0, 0);
+                ellipse(50, 60, 100, 100);
+
+                // Mắt phải
+                fill(0, 0, 0);
+                ellipse(80, -40, 50);
+
+                // Mắt trái
+                ellipse(-50, -40, 50);
+
+                // Băng đô
+                strokeWeight(33);
+                stroke(250, 0, 242, 100);
+                line(-110, -100, 70, -130);
+            }
+        </script>
+    </body>
+</html>
