@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Thử thách: Mặt trời chiếu sáng</title>
+    </head>
+    <body>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/2.0.5/p5.min.js"></script>
+        <script>
+            var sunSize;
+
+            function setup() {
+                createCanvas(400, 400);
+                noStroke();
+
+                sunSize = 30;
+            }
+
+            function draw() {
+                background(82, 222, 240);
+
+                // The sun, a little circle on the horizon
+                fill(255, 204, 0);
+                ellipse(200, 298, sunSize, sunSize);
+
+                // The land, blocking half of the sun
+                fill(76, 168, 67);
+                rect(0, 300, 400, 100);
+
+                sunSize++;
+            }
+        </script>
+    </body>
+</html>
