@@ -1,15 +1,28 @@
 var x;
 var speed;
+var on = false;
+
+var R;
+var G;
+var B;
 
 function setup() {
     createCanvas(400, 400);
 
     x = 0;
     speed = 2;
+
+    R = random(255);
+    G = random(255);
+    B = random(255);
 }
 
 function draw() {
-    background(0);
+    if (on) {
+        background(R, G, B);
+    } else {
+        background(0);
+    }
 
     noFill();
     stroke(255);
@@ -27,4 +40,18 @@ function draw() {
     }
 
     x = x + speed;
+
+    if (mouseIsPressed) {
+        fill(255, 0, 0);
+        noStroke();
+        ellipse(mouseX, mouseY, 20, 20);
+    }
+}
+
+function mousePressed() {
+    on = !on;
+
+    R = random(255);
+    G = random(255);
+    B = random(255);
 }
