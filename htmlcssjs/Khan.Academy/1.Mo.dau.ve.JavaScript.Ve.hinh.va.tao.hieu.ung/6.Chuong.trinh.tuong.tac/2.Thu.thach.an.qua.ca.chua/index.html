@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Thử thách: Ăn quả cà chua</title>
+    </head>
+    <body>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/2.0.5/p5.min.js"></script>
+        <script>
+            function setup() {
+                createCanvas(400, 400);
+                background(0);
+
+                noStroke();
+
+                // Vẽ quả cà chua
+                fill(224, 90, 90);
+                ellipse(180, 200, 150, 150);
+                ellipse(230, 200, 150, 150);
+
+                // Vẽ cuống cà chua
+                fill(48, 130, 31);
+                rect(200, 90, 15, 40);
+            }
+
+            function draw() {
+                // Vẽ miệng khi nhấn chuột
+                if (mouseIsPressed) {
+                    fill(0);
+                    ellipse(mouseX, mouseY, 50, 50);
+                }
+            }
+        </script>
+    </body>
+</html>
