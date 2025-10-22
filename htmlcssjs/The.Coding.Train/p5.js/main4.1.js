@@ -1,5 +1,6 @@
 function setup() {
-    createCanvas(600, 400);
+    // createCanvas(600, 400);
+    createCanvas(innerWidth / 2, innerHeight / 2);
 }
 
 function draw() {
@@ -28,4 +29,9 @@ function draw() {
             ellipse(x, y, 25, 25);
         }
     }
+}
+
+// Khi thay đổi kích thước cửa sổ trình duyệt, canvas tự cập nhật lại
+function windowResized() {
+    resizeCanvas(innerWidth / 2, innerHeight / 2);
 }
