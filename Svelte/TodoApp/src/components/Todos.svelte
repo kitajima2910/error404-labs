@@ -3,18 +3,25 @@
 	import AddTodo from './AddTodo.svelte';
 
 	// state
-	let todos: ITodo[] = [
+	let todos = $state<ITodo[]>([
 		{ id: '53ae48bf605cc', text: 'Tìm hiểu C/C++', completed: false },
 		{ id: '1e4a59703af84', text: 'Tìm hiểu HTML', completed: true },
 		{ id: '9e09bcd7b9349', text: 'Tìm hiểu CSS', completed: false },
 		{ id: '9e4273a51a37c', text: 'Tìm hiểu JavaScript', completed: false }
-	];
+	]);
 
-	// debug
-	$: console.log(todos);
+	// computed với Runes API
+	let todosAmount = $derived(todos.length);
 
-	// computed
-	$: todosAmount = todos.length;
+	// debug - reactive
+	$effect(() => {
+		console.log(
+			'$state.snapshot(todos): ',
+			$state.snapshot(todos),
+			' - todosAmount: ',
+			todosAmount
+		);
+	});
 
 	// methods
 	function generateRandomId(): string {
