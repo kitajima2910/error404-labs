@@ -3,15 +3,54 @@
 
 	type CompleteTodoType = (id: string) => void;
 	type RemoveTodoType = (id: string) => void;
+	type EditTodoType = (id: string, text: string) => void;
 
 	const {
 		todo,
 		completeTodo,
-		removeTodo
-	}: { todo: ITodo; completeTodo: CompleteTodoType; removeTodo: RemoveTodoType } = $props();
+		removeTodo,
+		editTodo
+	}: {
+		todo: ITodo;
+		completeTodo: CompleteTodoType;
+		removeTodo: RemoveTodoType;
+		editTodo: EditTodoType;
+	} = $props();
+
+	let editing = $state(false);
+
+	function toggleEdit(): void {
+		editing = true;
+	}
+
+	function handleEdit(event: KeyboardEvent, id: string): void {
+		let pressedKey = event.key;
+		let targetElement = event.target as HTMLInputElement;
+
+		let newTodo = targetElement.value;
+
+		switch (pressedKey) {
+			case 'Enter':
+				editTodo(id, newTodo);
+				targetElement.blur();
+				break;
+			case 'Escape':
+				targetElement.blur();
+				break;
+		}
+	}
+
+	function handleBlur(event: FocusEvent, id: string): void {
+		let targetElement = event.target as HTMLInputElement;
+		let newTodo = targetElement.value;
+
+		editTodo(id, newTodo);
+		targetElement.blur();
+		editing = false;
+	}
 </script>
 
-<li class="todo">
+<li class:editing class="todo">
 	<div class="todo-item">
 		<div>
 			<input
@@ -24,13 +63,25 @@
 			<!-- svelte-ignore element_invalid_self_closing_tag -->
 			<label aria-label="Kiểm tra việc cần làm" for="todo" class="todo-check" />
 		</div>
-		<span class:completed={todo.completed} class="todo-text">{todo.text}</span>
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
+		<span ondblclick={toggleEdit} class:completed={todo.completed} class="todo-text"
+			>{todo.text}</span
+		>
 		<!-- svelte-ignore element_invalid_self_closing_tag -->
 		<button onclick={() => removeTodo(todo.id)} aria-label="Xóa việc cần làm" class="remove" />
 	</div>
 
 	<!-- svelte-ignore a11y_autofocus -->
-	<!-- <input type="text" class="edit" autofocus /> -->
+	{#if editing}
+		<input
+			onkeydown={(event) => handleEdit(event, todo.id)}
+			onblur={(event) => handleBlur(event, todo.id)}
+			type="text"
+			class="edit"
+			value={todo.text}
+			autofocus
+		/>
+	{/if}
 </li>
 
 <style>
@@ -117,5 +168,10 @@
 
 	.todo:hover .remove {
 		display: block;
+	}
+
+	.todo-text {
+		user-select: none;
+		width: 100%;
 	}
 </style>
