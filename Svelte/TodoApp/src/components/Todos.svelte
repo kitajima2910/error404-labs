@@ -1,5 +1,8 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
+
 	import type { ITodo, FiltersType } from '$root/types/todo';
+	import { useStorage } from '$root/stores/useStorage';
 
 	import AddTodo from './AddTodo.svelte';
 	import Todo from './Todo.svelte';
@@ -8,26 +11,36 @@
 	import ClearTodos from './ClearTodos.svelte';
 
 	// state
-	let todos = $state<ITodo[]>([
-		{ id: '53ae48bf605cc', text: 'Tìm hiểu C/C++', completed: false },
-		{ id: '1e4a59703af84', text: 'Tìm hiểu HTML', completed: true },
-		{ id: '9e09bcd7b9349', text: 'Tìm hiểu CSS', completed: false },
-		{ id: '9e4273a51a37c', text: 'Tìm hiểu JavaScript', completed: false }
-	]);
+	// let todos = $state<ITodo[]>([
+	// 	{ id: '53ae48bf605cc', text: 'Tìm hiểu C/C++', completed: false },
+	// 	{ id: '1e4a59703af84', text: 'Tìm hiểu HTML', completed: true },
+	// 	{ id: '9e09bcd7b9349', text: 'Tìm hiểu CSS', completed: false },
+	// 	{ id: '9e4273a51a37c', text: 'Tìm hiểu JavaScript', completed: false }
+	// ]);
+
+	// let todos = $state<ITodo[]>(browser ? JSON.parse(localStorage.getItem('todos') || '[]') : []);
+
+	// $effect(() => {
+	// 	if (browser) {
+	// 		localStorage.setItem('todos', JSON.stringify($state.snapshot(todos)));
+	// 	}
+	// });
+
+	const todos = useStorage<ITodo[]>('todos', []);
 
 	let selectedFilter = $state<FiltersType>('all');
 
 	// computed với Runes API
-	let todosAmount = $derived(todos.length);
-	let incompleteTods = $derived(todos.filter((todo) => !todo.completed).length);
-	let filteredTodos = $derived(filterTodos(todos, selectedFilter));
-	let completeTodos = $derived(todos.filter((todo) => todo.completed).length);
+	let todosAmount = $derived($todos.length);
+	let incompleteTods = $derived($todos.filter((todo) => !todo.completed).length);
+	let filteredTodos = $derived(filterTodos($todos, selectedFilter));
+	let completeTodos = $derived($todos.filter((todo) => todo.completed).length);
 
 	// debug - reactive
 	$effect(() => {
 		console.log(
 			'$state.snapshot(todos): ',
-			$state.snapshot(todos),
+			$state.snapshot($todos),
 			' - todosAmount: ',
 			todosAmount
 		);
@@ -44,29 +57,31 @@
 			text: todo,
 			completed: false
 		};
-		todos = [newTodo, ...todos];
+		$todos = [newTodo, ...$todos];
 	}
 
 	function toggeCompleted(event: MouseEvent): void {
 		let { checked } = event.target as HTMLInputElement;
 
-		todos = todos.map((todo) => ({
+		$todos = $todos.map((todo) => ({
 			...todo,
 			completed: checked
 		}));
 	}
 
 	function completeTodo(id: string): void {
-		todos = todos.map((todo) => (todo.id === id ? { ...todo, completed: !todo.completed } : todo));
+		$todos = $todos.map((todo) =>
+			todo.id === id ? { ...todo, completed: !todo.completed } : todo
+		);
 	}
 
 	function removeTodo(id: string): void {
-		todos = todos.filter((todo) => todo.id !== id);
+		$todos = $todos.filter((todo) => todo.id !== id);
 	}
 
 	function editTodo(id: string, text: string): void {
-		let currentTodo = todos.findIndex((todo) => todo.id === id);
-		todos[currentTodo].text = text;
+		let currentTodo = $todos.findIndex((todo) => todo.id === id);
+		$todos[currentTodo].text = text;
 	}
 
 	function setFilter(newFilter: FiltersType): void {
@@ -86,7 +101,7 @@
 	}
 
 	function clearCompleted(): void {
-		todos = todos.filter((todo) => !todo.completed);
+		$todos = $todos.filter((todo) => !todo.completed);
 	}
 </script>
 
