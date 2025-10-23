@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
+	import { tick } from 'svelte';
 
 	import type { ITodo, FiltersType } from '$root/types/todo';
 	import { useStorage } from '$root/stores/useStorage';
@@ -29,12 +29,14 @@
 	const todos = useStorage<ITodo[]>('todos', []);
 
 	let selectedFilter = $state<FiltersType>('all');
+	let filtering = $state(false);
 
 	// computed với Runes API
 	let todosAmount = $derived($todos.length);
 	let incompleteTods = $derived($todos.filter((todo) => !todo.completed).length);
 	let filteredTodos = $derived(filterTodos($todos, selectedFilter));
 	let completeTodos = $derived($todos.filter((todo) => todo.completed).length);
+	let duration = $derived($state.snapshot(filtering) ? 0 : 250);
 
 	// debug - reactive
 	$effect(() => {
@@ -44,6 +46,8 @@
 			' - todosAmount: ',
 			todosAmount
 		);
+
+		console.log('duration: ', duration);
 	});
 
 	// methods
@@ -84,9 +88,12 @@
 		$todos[currentTodo].text = text;
 	}
 
-	function setFilter(newFilter: FiltersType): void {
-		console.log('newFilter: ', newFilter);
+	async function setFilter(newFilter: FiltersType): Promise<void> {
+		filtering = true;
+		await tick();
 		selectedFilter = newFilter;
+		await tick();
+		filtering = false;
 	}
 
 	function filterTodos(todos: ITodo[], filter: FiltersType): ITodo[] {
@@ -114,7 +121,7 @@
 		{#if todosAmount}
 			<ul class="todo-list">
 				{#each filteredTodos as todo (todo.id)}
-					<Todo {todo} {completeTodo} {removeTodo} {editTodo} />
+					<Todo {todo} {completeTodo} {removeTodo} {editTodo} {duration} />
 				{/each}
 			</ul>
 
