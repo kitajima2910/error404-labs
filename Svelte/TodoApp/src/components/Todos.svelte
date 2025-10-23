@@ -2,6 +2,7 @@
 	import type { ITodo } from '$root/types/todo';
 	import AddTodo from './AddTodo.svelte';
 	import Todo from './Todo.svelte';
+	import TodosLeft from './TodosLeft.svelte';
 
 	// state
 	let todos = $state<ITodo[]>([
@@ -13,6 +14,7 @@
 
 	// computed với Runes API
 	let todosAmount = $derived(todos.length);
+	let incompleteTods = $derived(todos.filter((todo) => !todo.completed).length);
 
 	// debug - reactive
 	$effect(() => {
@@ -62,7 +64,7 @@
 </script>
 
 <main>
-	<h1 class="title">todos</h1>
+	<h1 class="title">NHIỆM VỤ</h1>
 
 	<section class="todos">
 		<AddTodo {addTodo} {toggeCompleted} {todosAmount} />
@@ -75,13 +77,13 @@
 			</ul>
 
 			<div class="actions">
-				<span class="todo-count">0 trái</span>
+				<TodosLeft {incompleteTods} />
 				<div class="filters">
 					<div class="filter">Tất cả</div>
 					<div class="filter">Hoạt động</div>
 					<div class="filter">Hoàn thành</div>
 				</div>
-				<button class="clear-completed">Xóa công việc hoàn thành</button>
+				<button class="clear-completed">Xóa nhiệm vụ hoàn thành</button>
 			</div>
 		{/if}
 	</section>
@@ -98,7 +100,7 @@
 	}
 
 	.todos {
-		--width: 500px;
+		--width: 700px;
 		--todos-bg: hsl(0 0% 98%);
 		--todos-text: hsl(220 20% 14%);
 

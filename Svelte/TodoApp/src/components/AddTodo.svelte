@@ -32,7 +32,7 @@
 		type="text"
 		id="new-todo"
 		class="new-todo"
-		placeholder="Cần làm gì?"
+		placeholder="Bạn cần thêm nhiệm vụ gì?"
 		autofocus
 	/>
 </form>
