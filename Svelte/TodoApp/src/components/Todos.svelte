@@ -1,3 +1,15 @@
+<script lang="ts">
+	import type { ITodo } from '$root/types/todo';
+
+	// state
+	let todos: ITodo[] = [
+		{ id: '53ae48bf605cc', text: 'Tìm hiểu C/C++', completed: false },
+		{ id: '1e4a59703af84', text: 'Tìm hiểu HTML', completed: true },
+		{ id: '9e09bcd7b9349', text: 'Tìm hiểu CSS', completed: false },
+		{ id: '9e4273a51a37c', text: 'Tìm hiểu JavaScript', completed: false }
+	];
+</script>
+
 <main>
 	<h1 class="title">todos</h1>
 
@@ -13,21 +25,23 @@
 		</form>
 
 		<ul class="todo-list">
-			<li class="todo">
-				<div class="todo-item">
-					<div>
-						<input type="checkbox" id="todo" class="toggle" />
+			{#each todos as todo (todo.id)}
+				<li class="todo">
+					<div class="todo-item">
+						<div>
+							<input type="checkbox" id="todo" class="toggle" checked={todo.completed} />
+							<!-- svelte-ignore element_invalid_self_closing_tag -->
+							<label aria-label="Kiểm tra việc cần làm" for="todo" class="todo-check" />
+						</div>
+						<span class="todo-text">{todo.text}</span>
 						<!-- svelte-ignore element_invalid_self_closing_tag -->
-						<label aria-label="Kiểm tra việc cần làm" for="todo" class="todo-check" />
+						<button aria-label="Xóa việc cần làm" class="remove" />
 					</div>
-					<span class="todo-text">Công việc 1</span>
-					<!-- svelte-ignore element_invalid_self_closing_tag -->
-					<button aria-label="Xóa việc cần làm" class="remove" />
-				</div>
 
-				<!-- svelte-ignore a11y_autofocus -->
-				<!-- <input type="text" class="edit" autofocus /> -->
-			</li>
+					<!-- svelte-ignore a11y_autofocus -->
+					<!-- <input type="text" class="edit" autofocus /> -->
+				</li>
+			{/each}
 		</ul>
 
 		<div class="actions">
