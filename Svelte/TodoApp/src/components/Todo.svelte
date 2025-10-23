@@ -2,8 +2,13 @@
 	import type { ITodo } from '$root/types/todo';
 
 	type CompleteTodoType = (id: string) => void;
+	type RemoveTodoType = (id: string) => void;
 
-	const { todo, completeTodo }: { todo: ITodo; completeTodo: CompleteTodoType } = $props();
+	const {
+		todo,
+		completeTodo,
+		removeTodo
+	}: { todo: ITodo; completeTodo: CompleteTodoType; removeTodo: RemoveTodoType } = $props();
 </script>
 
 <li class="todo">
@@ -21,7 +26,7 @@
 		</div>
 		<span class:completed={todo.completed} class="todo-text">{todo.text}</span>
 		<!-- svelte-ignore element_invalid_self_closing_tag -->
-		<button aria-label="Xóa việc cần làm" class="remove" />
+		<button onclick={() => removeTodo(todo.id)} aria-label="Xóa việc cần làm" class="remove" />
 	</div>
 
 	<!-- svelte-ignore a11y_autofocus -->
