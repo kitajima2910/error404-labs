@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { ITodo } from '$root/types/todo';
+	import AddTodo from './AddTodo.svelte';
 
 	// state
 	let todos: ITodo[] = [
@@ -8,51 +9,74 @@
 		{ id: '9e09bcd7b9349', text: 'Tìm hiểu CSS', completed: false },
 		{ id: '9e4273a51a37c', text: 'Tìm hiểu JavaScript', completed: false }
 	];
+
+	// debug
+	$: console.log(todos);
+
+	// computed
+	$: todosAmount = todos.length;
+
+	// methods
+	function generateRandomId(): string {
+		return Math.random().toString(16).slice(2);
+	}
+
+	function addTodo(todo: string): void {
+		let newTodo: ITodo = {
+			id: generateRandomId(),
+			text: todo,
+			completed: false
+		};
+		todos = [newTodo, ...todos];
+	}
+
+	function toggeCompleted(event: MouseEvent): void {
+		let { checked } = event.target as HTMLInputElement;
+
+		todos = todos.map((todo) => ({
+			...todo,
+			completed: checked
+		}));
+	}
 </script>
 
 <main>
 	<h1 class="title">todos</h1>
 
 	<section class="todos">
-		<form>
-			<input type="checkbox" id="toggle-all" class="toggle-all" />
-			<label for="toggle-all" aria-label="Đánh dấu tất cả là hoàn tất">
-				Đánh dấu tất cả là hoàn tất
-			</label>
+		<AddTodo {addTodo} {toggeCompleted} {todosAmount} />
 
-			<!-- svelte-ignore a11y_autofocus -->
-			<input type="text" id="new-todo" class="new-todo" placeholder="Cần làm gì?" autofocus />
-		</form>
-
-		<ul class="todo-list">
-			{#each todos as todo (todo.id)}
-				<li class="todo">
-					<div class="todo-item">
-						<div>
-							<input type="checkbox" id="todo" class="toggle" checked={todo.completed} />
+		{#if todosAmount}
+			<ul class="todo-list">
+				{#each todos as todo (todo.id)}
+					<li class="todo">
+						<div class="todo-item">
+							<div>
+								<input type="checkbox" id="todo" class="toggle" checked={todo.completed} />
+								<!-- svelte-ignore element_invalid_self_closing_tag -->
+								<label aria-label="Kiểm tra việc cần làm" for="todo" class="todo-check" />
+							</div>
+							<span class="todo-text">{todo.text}</span>
 							<!-- svelte-ignore element_invalid_self_closing_tag -->
-							<label aria-label="Kiểm tra việc cần làm" for="todo" class="todo-check" />
+							<button aria-label="Xóa việc cần làm" class="remove" />
 						</div>
-						<span class="todo-text">{todo.text}</span>
-						<!-- svelte-ignore element_invalid_self_closing_tag -->
-						<button aria-label="Xóa việc cần làm" class="remove" />
-					</div>
 
-					<!-- svelte-ignore a11y_autofocus -->
-					<!-- <input type="text" class="edit" autofocus /> -->
-				</li>
-			{/each}
-		</ul>
+						<!-- svelte-ignore a11y_autofocus -->
+						<!-- <input type="text" class="edit" autofocus /> -->
+					</li>
+				{/each}
+			</ul>
 
-		<div class="actions">
-			<span class="todo-count">0 trái</span>
-			<div class="filters">
-				<div class="filter">Tất cả</div>
-				<div class="filter">Hoạt động</div>
-				<div class="filter">Hoàn thành</div>
+			<div class="actions">
+				<span class="todo-count">0 trái</span>
+				<div class="filters">
+					<div class="filter">Tất cả</div>
+					<div class="filter">Hoạt động</div>
+					<div class="filter">Hoàn thành</div>
+				</div>
+				<button class="clear-completed">Xóa công việc hoàn thành</button>
 			</div>
-			<button class="clear-completed">Xóa công việc hoàn thành</button>
-		</div>
+		{/if}
 	</section>
 </main>
 
@@ -107,42 +131,6 @@
 			0 16px 0 -6px hsl(0, 0%, 96%),
 			0 17px 2px -6px hsla(0, 0%, 0%, 0.2);
 		z-index: -1;
-	}
-
-	/* Add todo */
-
-	.toggle-all {
-		width: 1px;
-		height: 1px;
-		position: absolute;
-		opacity: 0;
-	}
-
-	.toggle-all + label {
-		position: absolute;
-		font-size: 0;
-	}
-
-	.toggle-all + label:before {
-		content: '❯';
-		display: block;
-		padding: var(--spacing-16);
-		font-size: var(--font-24);
-		color: var(--color-gray-58);
-		transform: rotate(90deg);
-	}
-
-	.toggle-all:checked + label:before {
-		color: var(--color-gray-28);
-	}
-
-	.new-todo {
-		width: 100%;
-		padding: var(--spacing-16);
-		padding-left: 60px;
-		font-size: var(--font-24);
-		border: none;
-		border-bottom: 1px solid var(--shadow-1);
 	}
 
 	/* Todo */
