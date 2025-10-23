@@ -1,8 +1,10 @@
 <script lang="ts">
-	import type { ITodo } from '$root/types/todo';
+	import type { ITodo, FiltersType } from '$root/types/todo';
+
 	import AddTodo from './AddTodo.svelte';
 	import Todo from './Todo.svelte';
 	import TodosLeft from './TodosLeft.svelte';
+	import FilterTodos from './FilterTodos.svelte';
 
 	// state
 	let todos = $state<ITodo[]>([
@@ -12,9 +14,12 @@
 		{ id: '9e4273a51a37c', text: 'Tìm hiểu JavaScript', completed: false }
 	]);
 
+	let selectedFilter = $state<FiltersType>('all');
+
 	// computed với Runes API
 	let todosAmount = $derived(todos.length);
 	let incompleteTods = $derived(todos.filter((todo) => !todo.completed).length);
+	let filteredTodos = $derived(filterTodos(todos, selectedFilter));
 
 	// debug - reactive
 	$effect(() => {
@@ -61,6 +66,22 @@
 		let currentTodo = todos.findIndex((todo) => todo.id === id);
 		todos[currentTodo].text = text;
 	}
+
+	function setFilter(newFilter: FiltersType): void {
+		console.log('newFilter: ', newFilter);
+		selectedFilter = newFilter;
+	}
+
+	function filterTodos(todos: ITodo[], filter: FiltersType): ITodo[] {
+		switch (filter) {
+			case 'active':
+				return todos.filter((todo) => !todo.completed);
+			case 'completed':
+				return todos.filter((todo) => todo.completed);
+			default:
+				return todos;
+		}
+	}
 </script>
 
 <main>
@@ -71,18 +92,14 @@
 
 		{#if todosAmount}
 			<ul class="todo-list">
-				{#each todos as todo (todo.id)}
+				{#each filteredTodos as todo (todo.id)}
 					<Todo {todo} {completeTodo} {removeTodo} {editTodo} />
 				{/each}
 			</ul>
 
 			<div class="actions">
 				<TodosLeft {incompleteTods} />
-				<div class="filters">
-					<div class="filter">Tất cả</div>
-					<div class="filter">Hoạt động</div>
-					<div class="filter">Hoàn thành</div>
-				</div>
+				<FilterTodos {setFilter} {selectedFilter} />
 				<button class="clear-completed">Xóa nhiệm vụ hoàn thành</button>
 			</div>
 		{/if}
@@ -90,8 +107,6 @@
 </main>
 
 <style>
-	/* Todos */
-
 	.title {
 		font-size: var(--font-80);
 		font-weight: inherit;
@@ -140,27 +155,5 @@
 			0 16px 0 -6px hsl(0, 0%, 96%),
 			0 17px 2px -6px hsla(0, 0%, 0%, 0.2);
 		z-index: -1;
-	}
-
-	/* Filters */
-
-	.filters {
-		display: flex;
-		gap: var(--spacing-4);
-	}
-
-	.filter {
-		text-transform: capitalize;
-		padding: var(--spacing-4) var(--spacing-8);
-		border: 1px solid transparent;
-		border-radius: var(--radius-base);
-	}
-
-	.filter:hover {
-		border: 1px solid var(--color-highlight);
-	}
-
-	.selected {
-		border-color: var(--color-highlight);
 	}
 </style>
