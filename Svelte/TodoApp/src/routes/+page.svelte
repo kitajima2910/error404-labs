@@ -1,5 +1,6 @@
 <script lang="ts">
 	import '$root/styles/global.css';
+	import Todos from '$root/components/Todos.svelte';
 </script>
 
-<h1>Hello, World 👋</h1>
+<Todos />
