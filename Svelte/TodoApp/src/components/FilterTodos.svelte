@@ -19,7 +19,7 @@
 			class:selected={selectedFilter === filter}
 			class="filter"
 		>
-			{filter}
+			{filter === 'all' ? 'Tất cả' : filter === 'active' ? 'Chưa hoàn thành' : 'Hoàn thành'}
 		</button>
 	{/each}
 </div>

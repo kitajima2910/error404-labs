@@ -5,6 +5,7 @@
 	import Todo from './Todo.svelte';
 	import TodosLeft from './TodosLeft.svelte';
 	import FilterTodos from './FilterTodos.svelte';
+	import ClearTodos from './ClearTodos.svelte';
 
 	// state
 	let todos = $state<ITodo[]>([
@@ -20,6 +21,7 @@
 	let todosAmount = $derived(todos.length);
 	let incompleteTods = $derived(todos.filter((todo) => !todo.completed).length);
 	let filteredTodos = $derived(filterTodos(todos, selectedFilter));
+	let completeTodos = $derived(todos.filter((todo) => todo.completed).length);
 
 	// debug - reactive
 	$effect(() => {
@@ -82,6 +84,10 @@
 				return todos;
 		}
 	}
+
+	function clearCompleted(): void {
+		todos = todos.filter((todo) => !todo.completed);
+	}
 </script>
 
 <main>
@@ -100,7 +106,7 @@
 			<div class="actions">
 				<TodosLeft {incompleteTods} />
 				<FilterTodos {setFilter} {selectedFilter} />
-				<button class="clear-completed">Xóa nhiệm vụ hoàn thành</button>
+				<ClearTodos {clearCompleted} {completeTodos} />
 			</div>
 		{/if}
 	</section>
