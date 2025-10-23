@@ -3,21 +3,24 @@
 	type ToggleCompletedType = (event: MouseEvent) => void;
 	type TodosAmountType = number;
 
-	export let addTodo: AddTodoType;
-	export let toggeCompleted: ToggleCompletedType;
-	export let todosAmount: TodosAmountType;
+	const {
+		addTodo,
+		toggeCompleted,
+		todosAmount
+	}: { addTodo: AddTodoType; toggeCompleted: ToggleCompletedType; todosAmount: TodosAmountType } =
+		$props();
 
-	let todo = '';
+	let todo = $state('');
 
-	function handleSubmit() {
+	function handleSubmit(): void {
 		addTodo(todo);
 		todo = '';
 	}
 </script>
 
-<form on:submit|preventDefault={handleSubmit}>
+<form onsubmit={handleSubmit} autocomplete="off">
 	{#if todosAmount > 0}
-		<input on:click={toggeCompleted} type="checkbox" id="toggle-all" class="toggle-all" />
+		<input onclick={toggeCompleted} type="checkbox" id="toggle-all" class="toggle-all" />
 		<label for="toggle-all" aria-label="Đánh dấu tất cả là hoàn tất">
 			Đánh dấu tất cả là hoàn tất
 		</label>
