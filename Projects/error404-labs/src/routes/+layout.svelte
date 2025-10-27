@@ -1,11 +1,12 @@
 <script lang="ts">
-	import icon_pxh from '$lib/assets/icon_pxh.png';
-
 	let { children } = $props();
+
+	const fontAwesome = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css';
 </script>
 
 <svelte:head>
-	<link rel="icon" type="image/x-icon" href={icon_pxh} />
+	<link rel="icon" type="image/x-icon" href="/imgs/icon_pxh.png" />
+	<link rel="stylesheet" href={fontAwesome} />
 </svelte:head>
 
 {@render children?.()}
