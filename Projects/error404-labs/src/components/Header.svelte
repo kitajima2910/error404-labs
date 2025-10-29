@@ -32,7 +32,10 @@
 				</div>
 			</div>
 			<div class="search">
-				<input type="text" placeholder="Search..." />
+				<input type="text" placeholder="Tìm kiếm..." />
+				<button type="submit" aria-label="search">
+					<i class="fa-solid fa-magnifying-glass"></i>
+				</button>
 			</div>
 		</div>
 	</div>
@@ -127,10 +130,37 @@
 	.search input {
 		width: calc((300 * 1rem) / 16);
 		height: calc((30 * 1rem) / 16);
-		border-radius: calc((5 * 1rem) / 16);
+		border-bottom-left-radius: calc((5 * 1rem) / 16);
+		border-top-left-radius: calc((5 * 1rem) / 16);
+		background-color: #fff;
 		outline: none;
 		border: none;
 		padding-left: calc((10 * 1rem) / 16);
+	}
+
+	.search input::placeholder {
+		font-size: calc((15 * 1rem) / 16);
+		font-weight: 400;
+	}
+
+	.search button {
+		width: calc((40 * 1rem) / 16);
+		height: calc((30 * 1rem) / 16);
+		background-color: #00adef;
+		cursor: pointer;
+		border-bottom-right-radius: calc((5 * 1rem) / 16);
+		border-top-right-radius: calc((5 * 1rem) / 16);
+		border: none;
+		outline: none;
+	}
+
+	.search button i {
+		color: #fff;
+		font-size: calc((16 * 1rem) / 16);
+	}
+
+	.search button i:hover {
+		color: #001a65;
 	}
 
 	/* Logo */
