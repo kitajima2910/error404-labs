@@ -1,3 +1,7 @@
+<script lang="ts">
+	const FACEBOOK: string = 'https://www.facebook.com/kitajima2910';
+</script>
+
 <div class="wrapper">
 	<div class="left">
 		<div class="location">
@@ -7,7 +11,9 @@
 	</div>
 	<div class="right">
 		<div class="media">
-			<i class="fa-brands fa-facebook"></i>
+			<a href={FACEBOOK} target="_blank" aria-label="facebook">
+				<i class="fa-brands fa-facebook"></i>
+			</a>
 		</div>
 	</div>
 </div>
@@ -16,17 +22,21 @@
 	.wrapper {
 		display: flex;
 		justify-content: space-between;
-
-		width: 100%;
+		align-items: center;
+		width: 1200px;
 		height: 40px;
+		margin: 0 auto;
+		/* background-color: pink; */
+	}
 
-		background-color: pink;
+	/* Location */
+	.location {
+		display: flex;
 	}
 
 	.location i {
 		color: #00adef;
 		margin-right: 6px;
-
 		display: flex;
 	}
 
@@ -34,7 +44,13 @@
 		font-size: 15px;
 	}
 
+	/* Media */
 	.media i {
 		color: #00adef;
+		font-size: 25px;
+	}
+
+	.media i:hover {
+		color: #001a65;
 	}
 </style>
