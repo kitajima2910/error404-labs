@@ -19,7 +19,7 @@
 
 <style>
 	.wrapper {
-		width: 1200px;
+		width: calc((1200 * 1rem) / 16);
 		margin: 0 auto;
 	}
 </style>
