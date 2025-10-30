@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="vi">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Sử dụng các tag cơ bản</title>
+        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+        <style>
+            :root {
+                color-scheme: light dark;
+                --primary: #1e5b66;
+                --radius: 10px;
+            }
+
+            /* ---------- Layout ---------- */
+            body {
+                font-family: "Segoe UI", system-ui, sans-serif;
+                line-height: 1.7;
+                margin: 0;
+                padding: 2rem;
+                display: flex;
+                justify-content: center;
+                background: var(--bg, #ffffff);
+                color: var(--text, #222);
+                transition: background 0.3s, color 0.3s;
+            }
+
+            #container {
+                width: 100%;
+                max-width: 900px;
+                background: var(--content-bg, #f9fafb);
+                padding: 2rem 2.5rem;
+                border-radius: var(--radius);
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+                box-sizing: border-box;
+                transition: background 0.3s, box-shadow 0.3s;
+            }
+
+            /* ---------- Dark Mode ---------- */
+            @media (prefers-color-scheme: dark) {
+                body {
+                    --bg: #0d1117;
+                    --text: #e6edf3;
+                    --content-bg: #161b22;
+                }
+                code,
+                pre {
+                    background: #1e232a;
+                    color: #d1d5db;
+                }
+                th {
+                    background-color: #21262d;
+                }
+            }
+
+            /* ---------- Typography ---------- */
+            h1,
+            h2,
+            h3,
+            h4,
+            h5,
+            h6 {
+                color: var(--primary);
+                margin-top: 1.4em;
+                scroll-margin-top: 1em;
+            }
+
+            h1 {
+                text-align: center;
+                border-bottom: 3px solid var(--primary);
+                display: inline-block;
+                padding-bottom: 0.2em;
+            }
+
+            a {
+                color: var(--primary);
+                text-decoration: none;
+            }
+            a:hover {
+                text-decoration: underline;
+            }
+
+            /* ---------- Code Block ---------- */
+            code,
+            pre {
+                background: #f6f8fa;
+                font-family: Consolas, monospace;
+                padding: 2px 5px;
+                border-radius: 6px;
+            }
+            pre {
+                padding: 12px 14px;
+                margin: 1em 0;
+                overflow-x: auto;
+            }
+
+            /* ---------- Table ---------- */
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 1.2em 0;
+                font-size: 0.95em;
+                border-radius: var(--radius);
+                overflow: hidden;
+            }
+            th,
+            td {
+                border: 1px solid #ccc;
+                padding: 8px 10px;
+            }
+            th {
+                background: #f0f0f0;
+                text-align: left;
+            }
+
+            /* ---------- Others ---------- */
+            ul,
+            ol {
+                padding-left: 1.5rem;
+            }
+
+            img {
+                max-width: 100%;
+                height: auto;
+                border-radius: 6px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            blockquote {
+                border-left: 4px solid var(--primary);
+                padding-left: 1em;
+                color: #555;
+                margin: 1.2em 0;
+                background: #f9fafb;
+                border-radius: 0 var(--radius) var(--radius) 0;
+            }
+
+            /* ---------- Responsive ---------- */
+            @media (max-width: 600px) {
+                body {
+                    padding: 1rem;
+                }
+                #container {
+                    padding: 1.2rem;
+                }
+                table,
+                th,
+                td {
+                    font-size: 0.9em;
+                    word-wrap: break-word;
+                }
+            }
+
+            /* ---------- Loading animation ---------- */
+            .loading {
+                color: #888;
+                text-align: center;
+                font-style: italic;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="container">
+            <div id="content" class="loading">⏳ Đang tải README.md...</div>
+        </div>
+
+        <script>
+            fetch("README.md")
+                .then((res) => {
+                    if (!res.ok) throw new Error("Không thể tải README.md");
+                    return res.text();
+                })
+                .then((text) => {
+                    document
+                        .getElementById("content")
+                        .classList.remove("loading");
+                    document.getElementById("content").innerHTML =
+                        marked.parse(text);
+                })
+                .catch((err) => {
+                    document.getElementById("content").innerHTML =
+                        "⚠️ Lỗi tải README.md: " + err.message;
+                });
+        </script>
+    </body>
+</html>
