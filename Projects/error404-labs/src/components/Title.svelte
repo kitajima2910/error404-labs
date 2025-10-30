@@ -16,7 +16,6 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		margin-top: calc((20 * 1rem) / 16);
 	}
 
 	.title div {
