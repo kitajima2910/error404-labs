@@ -19,7 +19,7 @@
 		suscipit, quidem voluptatibus quibusdam voluptate doloremque in eligendi repellat recusandae
 		accusantium assumenda dolores iste magnam repellendus beatae. Nisi, quidem!
 	</p>
-	<a href="/guides">View Guides</a>
+	<a data-sveltekit-preload-data href="/guides">View Guides</a>
 	<a href="/">Home</a>
 </div>
 

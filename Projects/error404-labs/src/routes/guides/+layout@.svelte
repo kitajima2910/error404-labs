@@ -7,7 +7,9 @@
 
 <header>
 	<nav>
-		<Title />
+		<a href="/" class="title">
+			<Title />
+		</a>
 		<div class="links">
 			<a href="/">Home</a>
 			<a href="/about">About</a>
@@ -57,5 +59,9 @@
 		align-items: center;
 		max-width: calc((1200 * 1rem) / 16);
 		margin: 0 auto;
+	}
+
+	.title {
+		text-decoration: none;
 	}
 </style>

@@ -3,12 +3,19 @@
 	import { page } from '$app/state';
 
 	let { id } = page.params;
-	let data: any = $state({});
+	let data: any = $state({
+		title: '',
+		body: ''
+	});
 
 	onMount(async () => {
 		try {
 			const response = await fetch(`https://jsonplaceholder.typicode.com/posts/${id}`);
 			if (!response.ok) {
+				data = {
+					title: response.status,
+					body: `An error occurred with "${id}"`
+				};
 				throw new Error(`HTTP error! status: ${response.status}`);
 			}
 			data = await response.json();

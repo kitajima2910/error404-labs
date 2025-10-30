@@ -18,7 +18,7 @@
 		modi necessitatibus in, repellat impedit autem, tempora sed. Natus velit iure ab, rem cum rerum,
 		placeat totam autem modi quo expedita.
 	</p>
-	<a href="/guides">View Guides</a>
+	<a data-sveltekit-preload-data href="/guides">View Guides</a>
 	<a href="/about">About</a>
 </div>
 
