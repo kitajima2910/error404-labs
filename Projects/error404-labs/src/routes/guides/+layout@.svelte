@@ -12,6 +12,7 @@
 		</a>
 		<div class="links">
 			<a href="/">Home</a>
+			<a href="/guides/htmlcssjs">Học HTML/CSS</a>
 			<a href="/about">About</a>
 			<a href="/guides">Guides</a>
 		</div>

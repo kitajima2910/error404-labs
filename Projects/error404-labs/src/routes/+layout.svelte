@@ -6,10 +6,6 @@
 	let { children } = $props();
 
 	let isGuidesPage = $derived(() => /^\/guides(\/\w+)?$/.test(page.url.pathname));
-
-	$effect(() => {
-		console.log('isGuidesPage', page.url.pathname.slice(1));
-	});
 </script>
 
 <svelte:head>

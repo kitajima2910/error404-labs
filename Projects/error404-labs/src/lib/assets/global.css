@@ -2,6 +2,9 @@
 
 :root {
 	font-size: 20px;
+	color-scheme: light dark;
+	--primary: #decff1;
+	--radius: 10px;
 }
 
 * {
@@ -26,4 +29,28 @@ li {
 	font-family: 'VT323', monospace;
 	font-weight: normal;
 	line-height: 1.2;
+}
+
+/* ---------- Custom Scrollbar ---------- */
+::-webkit-scrollbar {
+	width: 10px;
+}
+
+::-webkit-scrollbar-track {
+	background: rgba(0, 0, 0, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+	background: var(--primary);
+	border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: #165159;
+}
+
+/* Firefox scrollbar */
+* {
+	scrollbar-width: thin;
+	scrollbar-color: var(--primary) rgba(0, 0, 0, 0.05);
 }
