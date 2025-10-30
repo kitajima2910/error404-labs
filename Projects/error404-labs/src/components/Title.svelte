@@ -1,0 +1,38 @@
+<script lang="ts">
+	type Props = { title?: string };
+
+	const { title = 'Error404-Labs' }: Props = $props();
+</script>
+
+<div class="title">
+	<div>
+		<img src="/midcodekid.jpg" alt="site logo" />
+	</div>
+	<h1>{title}</h1>
+</div>
+
+<style>
+	.title {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin-top: calc((20 * 1rem) / 16);
+	}
+
+	.title div {
+		width: calc((50 * 1rem) / 16);
+		height: calc((50 * 1rem) / 16);
+	}
+
+	.title img {
+		display: inline-block;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		border-radius: 50%;
+	}
+
+	.title h1 {
+		margin-left: calc((10 * 1rem) / 16);
+	}
+</style>

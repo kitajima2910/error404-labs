@@ -1,6 +1,6 @@
 <script lang="ts">
 	import '$lib/assets/global.css';
-	import Header from '../components/Header.svelte';
+	import Title from '../components/Title.svelte';
 
 	let { children } = $props();
 
@@ -8,18 +8,34 @@
 </script>
 
 <svelte:head>
-	<link rel="icon" type="image/x-icon" href="/imgs/icon_pxh.png" />
+	<link rel="icon" type="image/x-icon" href="/midcodekid.jpg" />
 	<link rel="stylesheet" href={fontAwesome} />
 </svelte:head>
 
-<Header />
-<div class="wrapper">
+<header>
+	<Title />
+</header>
+
+<main>
 	{@render children?.()}
-</div>
+</main>
+
+<footer>
+	<p>Copyright &copy; {new Date().getFullYear()} - Phạm Xuân Hoài</p>
+</footer>
 
 <style>
-	.wrapper {
-		width: calc((1200 * 1rem) / 16);
-		margin: 0 auto;
+	header {
+		display: flex;
+		justify-content: center;
+	}
+
+	main {
+		max-width: calc((1200 * 1rem) / 16);
+		margin: calc((20 * 1rem) / 16) auto;
+	}
+
+	footer {
+		text-align: center;
 	}
 </style>

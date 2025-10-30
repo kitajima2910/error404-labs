@@ -21,7 +21,7 @@
 	<div class="bottom">
 		<div class="wrapper-bottom">
 			<div class="logo">
-				<img src="/imgs/icon_pxh.png" alt="logo" />
+				<img src="/midcodekid.jpg" alt="logo" />
 			</div>
 			<div class="menu">
 				<div class="menu-item">
