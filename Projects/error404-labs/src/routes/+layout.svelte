@@ -5,24 +5,28 @@
 
 	let { children } = $props();
 
-	let isGuidesPage = $derived(page.url.pathname.startsWith('/guides'));
+	let isGuidesPage = $derived(() => /^\/guides(\/\w+)?$/.test(page.url.pathname));
+
+	$effect(() => {
+		console.log('isGuidesPage', page.url.pathname.slice(1));
+	});
 </script>
 
 <svelte:head>
 	<link rel="icon" type="image/x-icon" href="/midcodekid.jpg" />
 </svelte:head>
 
-{#if !isGuidesPage}
+{#if !isGuidesPage()}
 	<header>
 		<Title />
 	</header>
 {/if}
 
-<main class:main={!isGuidesPage}>
+<main class:main={!isGuidesPage()}>
 	{@render children?.()}
 </main>
 
-{#if !isGuidesPage}
+{#if !isGuidesPage()}
 	<footer>
 		<p>Copyright &copy; {new Date().getFullYear()} - Phạm Xuân Hoài</p>
 	</footer>
