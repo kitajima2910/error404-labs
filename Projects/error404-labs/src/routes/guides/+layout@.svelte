@@ -39,6 +39,7 @@
 
 	footer {
 		text-align: center;
+		margin: calc((20 * 1rem) / 16);
 	}
 
 	.links {

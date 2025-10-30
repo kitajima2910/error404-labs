@@ -1,7 +1,26 @@
+<script lang="ts">
+	import { onMount } from 'svelte';
+
+	let data: any = $state(null);
+
+	onMount(async () => {
+		try {
+			const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+			if (!response.ok) {
+				throw new Error(`HTTP error! status: ${response.status}`);
+			}
+			data = await response.json();
+		} catch (e) {
+			throw new Error(`Failed to fetch data: ${e}`);
+		}
+	});
+</script>
+
 <div class="guides">
 	<ul>
-		<li><a href="/">guide 1</a></li>
-		<li><a href="/">guide 2</a></li>
+		{#each data as guide (guide.id)}
+			<li><a href="/">{guide.title}</a></li>
+		{/each}
 	</ul>
 </div>
 
