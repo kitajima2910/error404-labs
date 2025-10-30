@@ -38,6 +38,7 @@
 	.main {
 		max-width: calc((1200 * 1rem) / 16);
 		margin: calc((20 * 1rem) / 16) auto;
+		padding: calc((20 * 1rem) / 16);
 	}
 
 	footer {

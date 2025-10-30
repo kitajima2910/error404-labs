@@ -30,11 +30,13 @@
 		background-color: rgba(0, 0, 0, 0.1);
 		padding-top: 1rem;
 		padding-bottom: 1rem;
+		padding: calc((20 * 1rem) / 16);
 	}
 
 	main {
 		max-width: calc((1200 * 1rem) / 16);
 		margin: calc((20 * 1rem) / 16) auto;
+		padding: calc((20 * 1rem) / 16);
 	}
 
 	footer {
