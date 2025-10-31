@@ -34,6 +34,8 @@
 		padding-top: 1rem;
 		padding-bottom: 1rem;
 		padding: calc((20 * 1rem) / 16);
+		background: var(--primary); /* #1E5B66 */
+		color: white;
 	}
 
 	main {
@@ -53,6 +55,8 @@
 
 	a {
 		margin-left: calc((10 * 1rem) / 16);
+		color: white;
+		text-decoration: none;
 	}
 
 	nav {

@@ -1,39 +1,33 @@
-@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
 
 :root {
+	--primary: #1e5b66;
+	--primary-light: #2a7a88;
+	--secondary: #f4a261;
+	--accent: #e76f51;
+	--bg-primary: #ffffff;
+	--bg-secondary: #f8f9fa;
+	--text-primary: #2d3748;
+	--text-secondary: #4a5568;
+
 	font-size: 20px;
-	color-scheme: light dark;
-	--primary: #decff1;
-	--radius: 10px;
 }
 
 * {
-	box-sizing: border-box;
 	margin: 0;
 	padding: 0;
+	box-sizing: border-box;
 }
 
 body {
-	background: #422d5d;
-	margin: 0;
-}
-
-h1,
-h2,
-h3,
-h4,
-a,
-p,
-li {
-	color: #decff1;
-	font-family: 'VT323', monospace;
-	font-weight: normal;
-	line-height: 1.2;
+	font-family: 'Montserrat', sans-serif;
+	background: var(--bg-primary);
+	color: var(--text-primary);
 }
 
 /* ---------- Custom Scrollbar ---------- */
 ::-webkit-scrollbar {
-	width: 10px;
+	width: calc((10 * 1rem) / 16);
 }
 
 ::-webkit-scrollbar-track {
@@ -42,11 +36,11 @@ li {
 
 ::-webkit-scrollbar-thumb {
 	background: var(--primary);
-	border-radius: 5px;
+	border-radius: calc((5 * 1rem) / 16);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-	background: #165159;
+	background: var(--primary);
 }
 
 /* Firefox scrollbar */
