@@ -100,7 +100,7 @@
 			display: flex;
 			gap: calc((50 * 1rem) / 16);
 			li {
-				border: calc((2 * 1rem) / 16); dotted var(--primary);
+				border: calc((2 * 1rem) / 16) dotted var(--primary);
 				font-weight: bold;
 
 				a {
