@@ -5,7 +5,7 @@
 	let content: string | any = $state('⏳ Đang tải README.md');
 
 	$effect(() => {
-		loadMarkdown('/md/README.md').then((data) => {
+		loadMarkdown('/md/HOME.md').then((data) => {
 			content = data;
 		});
 	});

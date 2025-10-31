@@ -11,10 +11,9 @@
 			<Title />
 		</a>
 		<div class="links">
-			<a href="/">Home</a>
+			<a href="/">Trang Chủ</a>
 			<a href="/guides/htmlcssjs">Học HTML/CSS</a>
-			<a href="/about">About</a>
-			<a href="/guides">Guides</a>
+			<a href="/about">Về Tôi</a>
 		</div>
 	</nav>
 </header>
@@ -36,6 +35,23 @@
 		padding: calc((20 * 1rem) / 16);
 		background: var(--primary); /* #1E5B66 */
 		color: white;
+
+		nav {
+			display: flex;
+			align-items: center;
+			max-width: calc((1200 * 1rem) / 16);
+			margin: 0 auto;
+
+			a {
+				margin-left: calc((40 * 1rem) / 16);
+				color: white;
+				text-decoration: none;
+			}
+
+			.links {
+				margin-left: auto;
+			}
+		}
 	}
 
 	main {
@@ -47,26 +63,5 @@
 	footer {
 		text-align: center;
 		margin: calc((20 * 1rem) / 16);
-	}
-
-	.links {
-		margin-left: auto;
-	}
-
-	a {
-		margin-left: calc((10 * 1rem) / 16);
-		color: white;
-		text-decoration: none;
-	}
-
-	nav {
-		display: flex;
-		align-items: center;
-		max-width: calc((1200 * 1rem) / 16);
-		margin: 0 auto;
-	}
-
-	.title {
-		text-decoration: none;
 	}
 </style>

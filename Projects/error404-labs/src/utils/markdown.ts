@@ -13,7 +13,7 @@ const fixRelativePaths = (markdownText: string, basePath: string) => {
 export const loadMarkdown = async (path: string) => {
 	try {
 		const res = await fetch(path);
-		if (!res.ok) return 'Không thể tải README.md';
+		if (!res.ok) return '⚠️ Không thể tải file Markdown';
 		let text = await res.text();
 
 		// Lấy base path (bỏ tên file)
@@ -24,6 +24,6 @@ export const loadMarkdown = async (path: string) => {
 
 		return marked.parse(text) as string;
 	} catch {
-		return '⚠️ Lỗi tải README.md: ';
+		return '⚠️ Lỗi tải tải file Markdown';
 	}
 };
