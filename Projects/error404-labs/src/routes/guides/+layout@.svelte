@@ -65,10 +65,10 @@
 			</div>
 
 			<div class="dropdown link">
-				<a href="/guides/#" class="dropbtn">Lập Trình</a>
+				<a href="/guides" class="dropbtn">Lập Trình</a>
 				<div class="dropdown-content">
-					<a href="/guides/#">Lập Trình C/C++</a>
-					<a href="/guides/#">Lập Trình Web</a>
+					<a href="/guides/c">Lập Trình C/C++</a>
+					<a href="/guides/webs">Lập Trình Web</a>
 				</div>
 			</div>
 			<div class="link">
@@ -76,25 +76,23 @@
 			</div>
 		</div>
 
-		<!-- svelte-ignore a11y_click_events_have_key_events -->
-		<!-- svelte-ignore a11y_no_static_element_interactions -->
-		<span class="open-bar" onclick={toggleMenu}>
+		<button class="open-bar" onclick={toggleMenu}>
 			{#if isOpenBar}
 				&#9887;
 			{:else}
 				&#9776;
 			{/if}
-		</span>
+		</button>
 
 		<div class="links-bar" class:open={isOpenBar}>
 			<div class="link">
 				<a href="/">Trang Chủ</a>
 			</div>
 			<div class="link">
-				<a href="/guides/#">Lập Trình C/C++</a>
+				<a href="/guides/c">Lập Trình C/C++</a>
 			</div>
 			<div class="link">
-				<a href="/guides/#">Lập Trình Web</a>
+				<a href="/guides/webs">Lập Trình Web</a>
 			</div>
 			<div class="link">
 				<a href="/about">Về Tôi</a>
@@ -245,6 +243,10 @@
 			right: 3%;
 
 			transition: all 0.3s ease-in-out;
+
+			background: transparent;
+			border: none;
+			color: WHITE;
 		}
 	}
 </style>
