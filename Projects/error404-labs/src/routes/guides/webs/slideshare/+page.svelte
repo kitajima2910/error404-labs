@@ -5,7 +5,7 @@
 <Breadcrumb />
 
 <div class="slideshare">
-	<h2>Mục Lục Của SlideShare</h2>
+	<h2>Mục Lục Của Slide Share</h2>
 	<p>
 		<a href="/guides/webs/slideshare/01"><b>Bài 01:</b> Sử dụng các tag cơ bản</a>
 	</p>
