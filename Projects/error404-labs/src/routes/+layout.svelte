@@ -59,6 +59,8 @@
 
 <style>
 	header {
+		position: sticky;
+		top: 0;
 		background: var(--primary); /* #1E5B66 */
 		color: white;
 		display: flex;

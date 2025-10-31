@@ -34,4 +34,10 @@
 	.title h1 {
 		margin-left: calc((10 * 1rem) / 16);
 	}
+
+	@media (max-width: 450px) {
+		.title h1 {
+			font-size: 1.2em;
+		}
+	}
 </style>
