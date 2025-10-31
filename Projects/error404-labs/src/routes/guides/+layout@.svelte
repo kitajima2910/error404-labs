@@ -56,23 +56,23 @@
 
 <header>
 	<nav bind:this={menuEl}>
-		<a href="/" class="title">
+		<a data-sveltekit-preload-data href="/" class="title">
 			<Title />
 		</a>
 		<div class="links">
 			<div class="link">
-				<a href="/">Trang Chủ</a>
+				<a data-sveltekit-preload-data href="/">Trang Chủ</a>
 			</div>
 
 			<div class="dropdown link">
-				<a href="/guides" class="dropbtn">Lập Trình</a>
+				<a data-sveltekit-preload-data href="/guides" class="dropbtn">Lập Trình</a>
 				<div class="dropdown-content">
-					<a href="/guides/c">Lập Trình C/C++</a>
-					<a href="/guides/webs">Lập Trình Web</a>
+					<a data-sveltekit-preload-data href="/guides/c">Lập Trình C/C++</a>
+					<a data-sveltekit-preload-data href="/guides/webs">Lập Trình Web</a>
 				</div>
 			</div>
 			<div class="link">
-				<a href="/about">Về Tôi</a>
+				<a data-sveltekit-preload-data href="/about">Về Tôi</a>
 			</div>
 		</div>
 
@@ -86,16 +86,16 @@
 
 		<div class="links-bar" class:open={isOpenBar}>
 			<div class="link">
-				<a href="/">Trang Chủ</a>
+				<a data-sveltekit-preload-data href="/">Trang Chủ</a>
 			</div>
 			<div class="link">
-				<a href="/guides/c">Lập Trình C/C++</a>
+				<a data-sveltekit-preload-data href="/guides/c">Lập Trình C/C++</a>
 			</div>
 			<div class="link">
-				<a href="/guides/webs">Lập Trình Web</a>
+				<a data-sveltekit-preload-data href="/guides/webs">Lập Trình Web</a>
 			</div>
 			<div class="link">
-				<a href="/about">Về Tôi</a>
+				<a data-sveltekit-preload-data href="/about">Về Tôi</a>
 			</div>
 		</div>
 	</nav>
