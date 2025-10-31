@@ -76,4 +76,4 @@ Giúp làm quen với các **thẻ HTML cơ bản** và **thuộc tính CSS đơ
 </details>
 
 ✍️ **Người soạn:** _Phạm Xuân Hoài_ <br />
-📚 **Chủ đề:** HTML cơ bản - Bài học số: 01
+📚 **Chủ đề:** HTML cơ bản
