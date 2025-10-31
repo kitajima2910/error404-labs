@@ -23,7 +23,6 @@
 		text-align: center;
 		transition: all 0.3s ease-in-out;
 		width: 100%;
-		height: calc((200 * 1rem) / 16);
 		border-radius: calc((5 * 1rem) / 16);
 		box-shadow: 0 calc((2 * 1rem) / 16) calc((5 * 1rem) / 16) rgba(0, 0, 0, 0.1);
 
