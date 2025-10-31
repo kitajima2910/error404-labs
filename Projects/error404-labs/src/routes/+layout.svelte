@@ -6,7 +6,7 @@
 
 	let { children } = $props();
 
-	let isGuidesPage = $derived(() => /^\/guides(\/\w+)?$/.test(page.url.pathname));
+	let isGuidesPage = $derived(() => /^\/guides(\/.*)?$/.test(page.url.pathname));
 
 	const USER_GITHUB = 'kitajima2910';
 	const REPO_NAME = 'error404-labs';
