@@ -1,4 +1,4 @@
-# 🧩 Bài tập sử dụng các tag cơ bản
+# 🧩 Sử dụng các tag cơ bản
 
 ## 🎯 Mục tiêu
 Giúp làm quen với các **thẻ HTML cơ bản** và **thuộc tính CSS đơn giản** để định dạng văn bản trên trang web.
