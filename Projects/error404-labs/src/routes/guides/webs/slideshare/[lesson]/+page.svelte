@@ -1,5 +1,5 @@
 <script lang="ts">
-	import 'github-markdown-css/github-markdown.css';
+	import 'github-markdown-css/github-markdown-light.css';
 	import { loadMarkdown } from '../../../../../utils/markdown';
 	import { page } from '$app/state';
 	import { onMount } from 'svelte';
