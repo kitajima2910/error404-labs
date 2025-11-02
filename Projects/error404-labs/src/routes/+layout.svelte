@@ -13,7 +13,7 @@
 </script>
 
 <svelte:head>
-	<link rel="icon" type="image/x-icon" href="/midcodekid.jpg" />
+	<link rel="icon" type="image/x-icon" href="/midcodekid.png" />
 </svelte:head>
 
 {#if !isGuidesPage()}
