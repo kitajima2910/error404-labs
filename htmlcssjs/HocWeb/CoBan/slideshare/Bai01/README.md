@@ -1,16 +1,3 @@
----
-title: "Bài 01 - Sử dụng các tag cơ bản (HTML)"
-description: "Làm quen với các thẻ HTML cơ bản và cách sử dụng CSS trực tiếp trong thẻ để định dạng văn bản, căn chỉnh và tạo bố cục trang web."
-author: "Phạm Xuân Hoài"
-date: 2025-11-03
-keywords:
-    - HTML cơ bản
-    - học HTML
-    - CSS cơ bản
-    - bài tập HTML
-    - hướng dẫn lập trình web
----
-
 # 🧩 Sử dụng các tag cơ bản
 
 ## 🎯 Mục tiêu
