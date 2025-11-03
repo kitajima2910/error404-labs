@@ -1,18 +1,3 @@
----
-title: "Bài 02 - Sử dụng các tag cơ bản (HTML & CSS)"
-description: "Học cách kết hợp thẻ HTML với CSS để tạo bố cục, căn chỉnh, màu sắc và hiệu ứng trực quan trong trang web."
-author: "Phạm Xuân Hoài"
-date: 2025-11-03
-keywords:
-    - HTML cơ bản
-    - CSS cơ bản
-    - thẻ HTML
-    - học lập trình web
-    - bài tập HTML
-    - hướng dẫn HTML
-image: /demo.png
----
-
 # 🧩 Sử dụng các tag cơ bản (tt)
 
 ## 🎯 Mục tiêu
