@@ -2,6 +2,7 @@
 	import Breadcrumb from '../../../../components/Breadcrumb.svelte';
 
 	type Lesson = {
+		icon: string;
 		name_lesson: string;
 		name: string;
 		link: string;
@@ -9,11 +10,13 @@
 
 	const LESSONS: Lesson[] = [
 		{
+			icon: '🧩',
 			name_lesson: 'Bài 01',
 			name: 'Sử dụng các tag cơ bản',
 			link: '/guides/webs/slideshare/01'
 		},
 		{
+			icon: '🎨',
 			name_lesson: 'Bài 02',
 			name: 'Sử dụng các tag cơ bản (tt)',
 			link: '/guides/webs/slideshare/02'
@@ -24,11 +27,13 @@
 <Breadcrumb />
 
 <div class="slideshare">
-	<h2>Mục Lục Của Slide Share</h2>
-	{#each LESSONS as { name_lesson, name, link }}
+	<h3>✧･ﾟ: *✧･ﾟ:* 💎 BÀI HỌC 💎 *:･ﾟ✧*:･ﾟ✧</h3>
+	{#each LESSONS as { icon, name_lesson, name, link }}
 		<p>
-			<a data-sveltekit-preload-data data-sveltekit-preload href={link}
-				><b>{name_lesson}:</b> {name}</a
+			<a data-sveltekit-preload-data data-sveltekit-preload href={link}>
+				<span class="icon">{icon}</span>
+				<strong>{name_lesson}:</strong>
+				{name}</a
 			>
 		</p>
 	{/each}

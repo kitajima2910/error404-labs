@@ -5,13 +5,15 @@
 		name: string;
 		link: string;
 		link_img: string;
+		title: string;
 	};
 
 	const WEBS: Web[] = [
 		{
 			name: 'Slide Share',
 			link_img: '/webs/imgs/slideshare.webp',
-			link: '/guides/webs/slideshare'
+			link: '/guides/webs/slideshare',
+			title: 'Khóa học cơ bản trong Slide Share'
 		}
 	];
 </script>
@@ -19,8 +21,8 @@
 <Breadcrumb />
 
 <div class="webs">
-	{#each WEBS as { name, link, link_img }}
-		<div>
+	{#each WEBS as { name, link, link_img, title }}
+		<div {title}>
 			<a href={link}>
 				<p class="title">{name}</p>
 				<img src={link_img} alt={name} />

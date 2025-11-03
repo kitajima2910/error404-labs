@@ -23,8 +23,8 @@
 <br clear="both">
 
 <div align="center">
-  <img src="https://github-profile-summary-cards.vercel.app/api/cards/profile-details?username=kitajima2910&theme=github_dark" height="150" width="49%" alt="profile summary cards"  />
-  <img src="https://github-readme-stats.vercel.app/api/top-langs?username=kitajima2910&locale=en&hide_title=false&layout=compact&card_width=320&langs_count=5&theme=dracula&hide_border=false&order=2" height="150" width="49%" alt="languages graph"  />
+  <img src="https://github-profile-summary-cards.vercel.app/api/cards/profile-details?username=kitajima2910&theme=github_dark" height="auto" width="auto" alt="profile summary cards"  />
+  <img src="https://github-readme-stats.vercel.app/api/top-langs?username=kitajima2910&locale=en&hide_title=false&layout=compact&card_width=320&langs_count=5&theme=dracula&hide_border=false&order=2" height="auto" width="auto" alt="languages graph"  />
 </div>
 
 ###
