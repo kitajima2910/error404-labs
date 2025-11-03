@@ -11,13 +11,13 @@
 
 ---
 
-### ⚡ Motto
+## ⚡ Motto
 - **Try. Fail. Learn. Repeat.**
 - 404 doesn’t mean _not found_ — it means _keep exploring_.
 
 ---
 
-### 👥 Members
+## 👥 Members
 
 <table>
   <tr>
@@ -47,11 +47,11 @@
 
 ---
 
-### 🕳️ Disclaimer
+## 🕳️ Disclaimer
 > Repo này không hứa hẹn sự gọn gàng.  
 > Nhưng chắc chắn chứa **dấu vết của sự tiến bộ**.
 
 ---
 
-### ⭐ Ghi chú
+## ⭐ Ghi chú
 Nếu thấy dự án này hữu ích, hãy ⭐ Star repo để ủng hộ nhé!
