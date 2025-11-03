@@ -6,7 +6,7 @@
 
 <div class="title">
 	<div>
-		<img src="/midcodekid.jpg" alt="site logo" />
+		<img src="/midcodekid.webp" alt="site logo" />
 	</div>
 	<h1>{title}</h1>
 </div>
