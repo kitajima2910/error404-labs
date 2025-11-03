@@ -43,12 +43,12 @@
 		// 	isOpenBar = false;
 		// });
 
-		window.addEventListener(
-			'scroll',
-			throttle(() => {
-				isOpenBar = false;
-			}, 100)
-		);
+		// window.addEventListener(
+		// 	'scroll',
+		// 	throttle(() => {
+		// 		isOpenBar = false;
+		// 	}, 100)
+		// );
 
 		document.querySelector('header')?.addEventListener('click', () => {
 			if (isOpenBar) {
@@ -135,6 +135,7 @@
 	header {
 		/* position: relative; */
 		position: sticky;
+		z-index: 99999;
 		top: 0;
 		text-align: center;
 		background-color: rgba(0, 0, 0, 0.1);
