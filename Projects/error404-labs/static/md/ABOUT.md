@@ -15,7 +15,7 @@
 
 ###
 <div align="center">
-  <img height="200" src="https://cdn.pixabay.com/animation/2023/06/13/15/13/15-13-34-881_512.gif"  />
+  <img alt="Computer" width="200" height="200" src="https://cdn.pixabay.com/animation/2023/06/13/15/13/15-13-34-881_512.gif"  />
 </div>
 
 ###
