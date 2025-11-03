@@ -23,21 +23,21 @@
   <tr>
     <td align="center" width="200">
       <a href="/api/github-profile/kitajima2910" target="_blank">
-        <img alt="kitajima2910" src="/api/github-avatar/u/50172777" width="100" height="100" alt="kitajima2910" style="border-radius:50%; border:1px dashed rgba(0, 0, 0, 0.5)"/><br />
+        <img alt="kitajima2910" src="/api/github-avatar/u/50172777" alt="kitajima2910" style="border-radius:50%; border:1px dashed rgba(0, 0, 0, 0.5); width: 100px"/><br />
         <sub><b>kitajima2910</b></sub>
       </a><br />
       🧪 R&D Programmer
     </td>
     <td align="center" width="200">
       <a href="/api/github-profile/tttt0803" target="_blank">
-        <img alt="tttt0803" src="/api/github-avatar/u/149563945" width="100" height="100" alt="tttt0803" style="border-radius:50%; border:1px dashed rgba(0, 0, 0, 0.5)"/><br />
+        <img alt="tttt0803" src="/api/github-avatar/u/149563945" alt="tttt0803" style="border-radius:50%; border:1px dashed rgba(0, 0, 0, 0.5); width: 100px"/><br />
         <sub><b>tttt0803</b></sub>
       </a><br />
       💻 Developer
     </td>
     <td align="center" width="200">
       <a href="/api/github-profile/KinhNguyenss" target="_blank">
-        <img alt="KinhNguyenss" src="/api/github-avatar/u/149393705" width="100" height="100" alt="KinhNguyenss" style="border-radius:50%; border:1px dashed rgba(0, 0, 0, 0.5)"/><br />
+        <img alt="KinhNguyenss" src="/api/github-avatar/u/149393705" alt="KinhNguyenss" style="border-radius:50%; border:1px dashed rgba(0, 0, 0, 0.5); width: 100px"/><br />
         <sub><b>KinhNguyen's</b></sub>
       </a><br />
       💻 Developer
