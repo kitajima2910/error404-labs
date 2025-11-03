@@ -49,7 +49,7 @@
 		border-radius: calc((5 * 1rem) / 16);
 		box-shadow: 0 calc((2 * 1rem) / 16) calc((5 * 1rem) / 16) rgba(0, 0, 0, 0.1);
 
-		h2 {
+		h3 {
 			text-align: center;
 		}
 
