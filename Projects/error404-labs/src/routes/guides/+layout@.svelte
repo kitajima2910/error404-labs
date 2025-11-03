@@ -3,6 +3,18 @@
 	import Title from '../../components/Title.svelte';
 	import { onMount, onDestroy } from 'svelte';
 
+	function throttle(fn: Function, delay: number) {
+		let lastCall = 0;
+		return function (...args: any[]) {
+			const now = new Date().getTime();
+			if (now - lastCall < delay) {
+				return;
+			}
+			lastCall = now;
+			return fn(...args);
+		};
+	}
+
 	let { children } = $props();
 
 	let isOpenBar: boolean = $state(false);
@@ -27,9 +39,16 @@
 
 		window.addEventListener('click', handleClickOutside);
 
-		window.addEventListener('scroll', () => {
-			isOpenBar = false;
-		});
+		// window.addEventListener('scroll', () => {
+		// 	isOpenBar = false;
+		// });
+
+		window.addEventListener(
+			'scroll',
+			throttle(() => {
+				isOpenBar = false;
+			}, 100)
+		);
 
 		document.querySelector('header')?.addEventListener('click', () => {
 			if (isOpenBar) {
