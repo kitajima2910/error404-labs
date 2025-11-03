@@ -42,7 +42,9 @@
 
 	<nav>
 		<ul>
-			<li><a data-sveltekit-preload-data href="/guides">Hướng dẫn học</a></li>
+			<li>
+				<a data-sveltekit-preload-data data-sveltekit-preload href="/guides">Hướng dẫn học</a>
+			</li>
 		</ul>
 	</nav>
 {/if}

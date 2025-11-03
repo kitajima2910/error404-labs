@@ -19,7 +19,9 @@
 <div class="guides">
 	<ul>
 		{#each data as guide (guide.id)}
-			<li data-sveltekit-preload-data><a href="/guides/{guide.id}">{guide.title}</a></li>
+			<li data-sveltekit-preload-data data-sveltekit-preload>
+				<a href="/guides/{guide.id}">{guide.title}</a>
+			</li>
 		{/each}
 	</ul>
 </div>
