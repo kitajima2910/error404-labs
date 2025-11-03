@@ -22,24 +22,24 @@
 <table>
   <tr>
     <td align="center" width="200">
-      <a href="https://github.com/kitajima2910" style="text-decoration: none;">
-        <img alt="kitajima2910" src="https://avatars.githubusercontent.com/u/50172777?v=4&s=100" width="100" style="border: 2px solid #ccc;" /><br />
-        <span style="color: green; font-weight: bold; padding: 5px;">kitajima2910</span><br />
-      </a>
+      <a href="/api/github-profile/kitajima2910" target="_blank">
+        <img alt="kitajima2910" src="/api/github-avatar/u/50172777" alt="kitajima2910" style="border-radius:50%; border:1px dashed rgba(0, 0, 0, 0.5); width: 100px; height: 100px"/><br />
+        <sub><b>kitajima2910</b></sub>
+      </a><br />
       🧪 R&D Programmer
     </td>
     <td align="center" width="200">
-      <a href="https://github.com/tttt0803" style="text-decoration: none;">
-        <img alt="tttt0803" src="https://avatars.githubusercontent.com/u/149563945?v=4&s=100" width="100" style="border: 2px solid #ccc;" /><br />
-        <span style="color: green; font-weight: bold; padding: 5px;">tttt0803</span><br />
-      </a>
+      <a href="/api/github-profile/tttt0803" target="_blank">
+        <img alt="tttt0803" src="/api/github-avatar/u/149563945" alt="tttt0803" style="border-radius:50%; border:1px dashed rgba(0, 0, 0, 0.5); width: 100px; height: 100px"/><br />
+        <sub><b>tttt0803</b></sub>
+      </a><br />
       💻 Developer
     </td>
     <td align="center" width="200">
-      <a href="https://github.com/KinhNguyenss" style="text-decoration: none;">
-        <img alt="KinhNguyenss" src="https://avatars.githubusercontent.com/u/149393705?v=4&s=100" width="100" style="border: 2px solid #ccc;" /><br />
-        <span style="color: green; font-weight: bold; padding: 5px;">KinhNguyen's</span><br />
-      </a>
+      <a href="/api/github-profile/KinhNguyenss" target="_blank">
+        <img alt="KinhNguyenss" src="/api/github-avatar/u/149393705" alt="KinhNguyenss" style="border-radius:50%; border:1px dashed rgba(0, 0, 0, 0.5); width: 100px; height: 100px"/><br />
+        <sub><b>KinhNguyen's</b></sub>
+      </a><br />
       💻 Developer
     </td>
   </tr>
