@@ -13,7 +13,7 @@
 
 <br clear="both">
 <div align="center">
-  <img fetchpriority="high" layout="intrinsic" alt="Computer" width="300" height="300" src="/about/imgs/computer.webp"  />
+  <img fetchpriority="high" alt="Computer" width="250" height="250" src="/about/imgs/computer_gif.webp"  />
 </div>
 
 <br clear="both">
