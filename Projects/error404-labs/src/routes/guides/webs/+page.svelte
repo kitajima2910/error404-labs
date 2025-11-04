@@ -13,7 +13,7 @@
 			name: 'Slide Share',
 			link_img: '/webs/imgs/slideshare.webp',
 			link: '/guides/webs/slideshare',
-			title: 'Khóa học cơ bản trong Slide Share'
+			title: 'Khóa học: tạo trang web tạp chí điện tử'
 		}
 	];
 </script>

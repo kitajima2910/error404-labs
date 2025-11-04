@@ -10,13 +10,12 @@ Giúp làm quen với các **thẻ HTML cơ bản** và **thuộc tính CSS đơ
 
 ### **HTML Tags**
 
-| Thẻ     | Chức năng                  |
-| ------- | -------------------------- |
-| `<h1>`  | 🏷️ Tiêu đề lớn nhất        |
-| `<h2>`  | 🏷️ Tiêu đề nhỏ hơn         |
-| `<p>`   | 📝 Đoạn văn bản            |
-| `<div>` | 📦 Khối nội dung tổng quát |
-| `<br>`  | ⬇️ Xuống dòng              |
+| Thẻ    | Chức năng           |
+| ------ | ------------------- |
+| `<h1>` | 🏷️ Tiêu đề lớn nhất |
+| `<h2>` | 🏷️ Tiêu đề nhỏ hơn  |
+| `<p>`  | 📝 Đoạn văn bản     |
+| `<br>` | ⬇️ Xuống dòng       |
 
 ### **Thuộc tính HTML**
 
@@ -41,25 +40,25 @@ Giúp làm quen với các **thẻ HTML cơ bản** và **thuộc tính CSS đơ
 
 ### **Yêu cầu:**
 
-| STT | Đối tượng | Yêu cầu mô tả                                 | Ghi chú                                                                |
-| --- | --------- | --------------------------------------------- | ---------------------------------------------------------------------- |
-| 1   | Trang web | 🖥️ Tiêu đề cửa sổ: **Sử dụng các tag cơ bản** | Sử dụng thẻ `<title>`                                                  |
-| 2   | Dòng 1    | 🔹 Canh giữa nội dung                         | `<h1 align="center">` hoặc `style="text-align:center"`                 |
-| 3   | Dòng 2    | ✏️ Gạch chân văn bản                          | `<h2 style="text-decoration:underline;">`                              |
-| 4   | Dòng 3    | 💪 In đậm nội dung                            | `<p style="font-weight:bold;">` hoặc `<div style="font-weight:bold;">` |
-| 5   | Dòng 4    | 🎯 Canh giữa và xuống dòng                    | `<p style="text-align:center;"><br/></p>`                              |
+| STT | Đối tượng | Yêu cầu mô tả                                 | Ghi chú                                     |
+| --- | --------- | --------------------------------------------- | ------------------------------------------- |
+| 1   | Trang web | 🖥️ Tiêu đề cửa sổ: **Sử dụng các tag cơ bản** | Sử dụng thẻ `<title>`                       |
+| 2   | Dòng 1    | 🔹 Canh giữa tiêu đề                          | `<h1 align="center">`                       |
+| 3   | Dòng 2    | ✏️ Gạch chân văn bản "Yêu cầu"                | `<h2 style="text-decoration:underline;">`   |
+| 4   | Dòng 3    | 💪 In đậm nội dung                            | `<p style="font-weight:bold;">`             |
+| 5   | Dòng 4    | 🎯 Canh giữa và xuống dòng                    | `<p align="center">` kết hợp với `<br/>`    |
 
 ---
 
 ## 🧩 Hướng dẫn từng bước
 
-| STT | Bước                   | Cách thực hiện                                  | Mã minh họa                                                                     |
-| --- | ---------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------- |
-| 1   | Thêm tiêu đề trang     | Sử dụng thẻ `<title>` trong phần `<head>`       | `<title>Sử dụng các tag cơ bản</title>`                                         |
-| 2   | Tạo tiêu đề lớn        | Dùng `<h1>` để hiển thị tiêu đề lớn, căn giữa   | `<h1 align="center">Đây là tiêu đề</h1>`                                        |
-| 3   | Gạch chân văn bản      | Dùng `<h2>` với `text-decoration:underline`     | `<h2 style="text-decoration:underline;">Đây là dòng gạch chân</h2>`             |
-| 4   | In đậm nội dung        | Dùng `<p>` hoặc `<div>` với `font-weight:bold`  | `<p style="font-weight:bold;">Đây là dòng in đậm</p>`                           |
-| 5   | Canh giữa + xuống dòng | Dùng `<div>` với `text-align:center` và `<br/>` | `<div style="text-align:center;">Đây là dòng canh giữa<br/>và xuống dòng</div>` |
+| STT | Bước                   | Cách thực hiện                                 | Mã minh họa                                                            |
+| --- | ---------------------- | ---------------------------------------------- | ---------------------------------------------------------------------- |
+| 1   | Thêm tiêu đề trang     | Sử dụng thẻ `<title>` trong phần `<head>`      | `<title>Sử dụng các tag cơ bản</title>`                                |
+| 2   | Tạo tiêu đề lớn        | Dùng `<h1>` để hiển thị tiêu đề lớn, căn giữa  | `<h1 align="center">Bài 01: Sử dụng các tag cơ bản</h1>`              |
+| 3   | Gạch chân văn bản      | Dùng `<h2>` với `text-decoration:underline`    | `<h2 style="text-decoration: underline">Yêu cầu</h2>`                  |
+| 4   | In đậm nội dung        | Dùng `<p>` với `font-weight:bold`              | `<p style="font-weight: bold">Thiết kế trang web có nội dung...</p>`  |
+| 5   | Canh giữa + xuống dòng | Dùng `<p align="center">` kết hợp với `<br/>` | `<p align="center">Lập trình Web...<br/>Chào mừng các bạn...</p>` |
 
 ---
 

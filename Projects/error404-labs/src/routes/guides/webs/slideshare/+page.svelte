@@ -20,6 +20,12 @@
 			name_lesson: 'Bài 02',
 			name: 'Sử dụng các tag cơ bản (tt)',
 			link: '/guides/webs/slideshare/02'
+		},
+		{
+			icon: '🌈',
+			name_lesson: 'Bài 03',
+			name: 'Định dạng trang web',
+			link: '/guides/webs/slideshare/03'
 		}
 	];
 </script>
