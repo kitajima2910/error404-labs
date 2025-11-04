@@ -13,7 +13,7 @@
 
 <br clear="both">
 <div align="center">
-  <img loading="lazy" alt="Computer" width="200" height="200" src="https://cdn.pixabay.com/animation/2023/06/13/15/13/15-13-34-881_512.gif"  />
+  <img fetchpriority="high" alt="Computer" width="200" height="200" src="/about/imgs/computer.webp"  />
 </div>
 
 <br clear="both">
