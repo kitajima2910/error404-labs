@@ -28,7 +28,7 @@
 		{#each DATA_COURSE as course (course.title)}
 			<li data-sveltekit-preload-data data-sveltekit-preload>
 				<a href={course.link}>
-					<img src={course.img} alt={course.title} />
+					<img fetchpriority="high" src={course.img} alt={course.title} />
 				</a>
 			</li>
 		{/each}
