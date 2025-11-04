@@ -9,13 +9,13 @@
 	const DATA_COURSE: Course[] = [
 		{
 			title: 'Web',
-			img: '/guides/imgs/webs.png',
+			img: '/guides/imgs/webs.webp',
 			description: '',
 			link: '/guides/webs'
 		},
 		{
 			title: 'C/C++',
-			img: '/guides/imgs/c.png',
+			img: '/guides/imgs/c.webp',
 			description: '',
 			link: '/guides/c'
 		}
@@ -41,10 +41,12 @@
 			list-style: none;
 			display: grid;
 			grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-			gap: 3rem;
+			gap: 1rem;
 
 			li {
 				cursor: pointer;
+				display: flex;
+				justify-content: center;
 
 				a {
 					display: inline-block;

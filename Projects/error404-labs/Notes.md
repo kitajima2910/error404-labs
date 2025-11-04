@@ -1,7 +1,7 @@
 | STT | URL                                                         | Tối ưu hóa |
 | --- | ----------------------------------------------------------- | ---------- |
 | 1   | https://www.error404-labs.info.vn/                          | Đã làm     |
-| 2   | https://www.error404-labs.info.vn/guides                    |            |
+| 2   | https://www.error404-labs.info.vn/guides                    | Đang làm   |
 | 3   | https://www.error404-labs.info.vn/guides/c                  |            |
 | 4   | https://www.error404-labs.info.vn/guides/webs               |            |
 | 5   | https://www.error404-labs.info.vn/about                     | Đang làm   |
