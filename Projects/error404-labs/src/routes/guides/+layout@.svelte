@@ -1,5 +1,4 @@
 <script lang="ts">
-	import '$lib/assets/global.css';
 	import Title from '../../components/Title.svelte';
 	import { onMount, onDestroy } from 'svelte';
 
