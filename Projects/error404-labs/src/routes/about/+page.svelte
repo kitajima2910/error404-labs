@@ -11,6 +11,15 @@
 	});
 </script>
 
+<svelte:head>
+	<link
+		rel="preconnect"
+		as="image"
+		href="https://github-profile-summary-cards.vercel.app/api/cards/profile-details?username=kitajima2910&theme=github_dark"
+	/>
+	<link rel="preload" href="/about/imgs/computer_gif.webp" as="image" type="image/webp" />
+</svelte:head>
+
 <div class="markdown-body">
 	{@html content}
 </div>
