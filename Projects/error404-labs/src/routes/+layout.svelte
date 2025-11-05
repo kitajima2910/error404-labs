@@ -103,7 +103,7 @@
 			gap: calc((50 * 1rem) / 16);
 			li {
 				border: calc((2 * 1rem) / 16) dotted var(--primary);
-				font-weight: bold;
+				border-radius: calc((5 * 1rem) / 16);
 
 				a {
 					display: inline-block;
@@ -112,6 +112,15 @@
 					padding: calc((10 * 1rem) / 16);
 					text-decoration: none;
 					font-size: calc((14 * 1rem) / 16);
+				}
+
+				&:hover {
+					background: linear-gradient(
+						45deg,
+						rgba(255, 0, 0, 0.1),
+						rgba(0, 255, 0, 0.1),
+						rgba(0, 0, 255, 0.1)
+					);
 				}
 			}
 		}
