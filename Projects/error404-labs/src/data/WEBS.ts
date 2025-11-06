@@ -1,4 +1,4 @@
-interface Webs {
+export interface Webs {
 	name: string;
 	link: string;
 	title: string;

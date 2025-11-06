@@ -4,13 +4,8 @@
 	import Breadcrumb from '../../../../../components/Breadcrumb.svelte';
 	import { loadMarkdown } from '../../../../../utils/markdown';
 	import { onMount } from 'svelte';
-
-	interface PageParams {
-		lesson: string;
-		subLesson: string;
-		content: string;
-		readme: string;
-	}
+	import { renderMath } from '../../../../../utils/katex';
+	import type { PageParams } from '../../../../../data/LTCB_BTTH';
 
 	let lesson = $derived(page.params.lesson || '01');
 	let subLesson = $state('01');
@@ -44,7 +39,7 @@
 
 		const titleElement = document.querySelector('.right .title');
 		if (titleElement) {
-			titleElement.innerHTML = dataLesson.content;
+			titleElement.innerHTML = renderMath(dataLesson.content);
 		}
 
 		content = await loadMarkdown(dataLesson.readme);
@@ -71,7 +66,7 @@
 	<div class="right">
 		<div class="title"></div>
 		<div class="content markdown-body">
-			{@html content}
+			{@html renderMath(content)}
 		</div>
 	</div>
 </div>
@@ -121,9 +116,9 @@
 
 			.title {
 				width: 100%;
-				height: 100px;
 				border-bottom: 1px dotted var(--primary);
 				padding-bottom: 1rem;
+				margin-bottom: 1rem;
 				color: var(--primary);
 			}
 
