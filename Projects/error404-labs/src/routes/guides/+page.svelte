@@ -1,22 +1,18 @@
 <script lang="ts">
+	import PreloadLinkWithData from '../../components/PreloadLinkWithData.svelte';
+
 	type Course = {
 		title: string;
-		img: string;
-		description: string;
 		link: string;
 	};
 
 	const DATA_COURSE: Course[] = [
 		{
-			title: 'Web',
-			img: '/guides/imgs/webs.webp',
-			description: '',
+			title: 'Lập trình Web',
 			link: '/guides/webs'
 		},
 		{
-			title: 'C/C++',
-			img: '/guides/imgs/c.webp',
-			description: '',
+			title: 'Lập trình C/C++',
 			link: '/guides/c'
 		}
 	];
@@ -27,9 +23,12 @@
 	<ul>
 		{#each DATA_COURSE as course (course.title)}
 			<li data-sveltekit-preload-data data-sveltekit-preload>
-				<a href={course.link}>
-					<img fetchpriority="high" src={course.img} alt={course.title} />
-				</a>
+				<PreloadLinkWithData
+					href={course.link}
+					style="display: flex; align-items: center; justify-content: center; color: var(--primary);"
+				>
+					{course.title}
+				</PreloadLinkWithData>
 			</li>
 		{/each}
 	</ul>
@@ -45,26 +44,19 @@
 
 			li {
 				cursor: pointer;
-				display: flex;
-				justify-content: center;
+				width: calc((250 1rem) / 16);
+				height: calc((150 * 1rem) / 16);
+				border: 1px dotted var(--primary);
+				border-radius: calc((5 * 1rem) / 16);
+				box-shadow: 0 calc((2 * 1rem) / 16) calc((5 * 1rem) / 16) rgba(0, 0, 0, 0.1);
 
-				a {
-					display: inline-block;
-					text-decoration: none;
-					color: black;
-
-					img {
-						width: 100%;
-						height: 100%;
-						object-fit: cover;
-						transition: all 0.3s ease-in-out;
-						border-radius: calc((10 * 1rem) / 16);
-						box-shadow: 0 calc((2 * 1rem) / 16) calc((5 * 1rem) / 16) rgba(0, 0, 0, 0.1);
-
-						&:hover {
-							transform: scale(1.05);
-						}
-					}
+				&:hover {
+					background: linear-gradient(
+						45deg,
+						rgba(255, 0, 0, 0.1),
+						rgba(0, 255, 0, 0.1),
+						rgba(0, 0, 255, 0.1)
+					);
 				}
 			}
 		}

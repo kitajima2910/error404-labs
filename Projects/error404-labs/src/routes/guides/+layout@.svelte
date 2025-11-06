@@ -1,4 +1,5 @@
 <script lang="ts">
+	import PreloadLinkWithData from '../../components/PreloadLinkWithData.svelte';
 	import Title from '../../components/Title.svelte';
 	import { onMount, onDestroy } from 'svelte';
 
@@ -47,26 +48,38 @@
 
 <header>
 	<nav bind:this={menuEl}>
-		<a data-sveltekit-preload-data data-sveltekit-preload href="/" class="title">
-			<Title />
-		</a>
+		<div>
+			<PreloadLinkWithData href="/" style="color:#fff">
+				<Title />
+			</PreloadLinkWithData>
+		</div>
+
 		<div class="links">
 			<div class="link">
-				<a data-sveltekit-preload-data data-sveltekit-preload href="/">Trang Chủ</a>
+				<PreloadLinkWithData href="/" style="color:#fff">Trang Chủ</PreloadLinkWithData>
 			</div>
 
 			<div class="dropdown link">
-				<a data-sveltekit-preload-data data-sveltekit-preload href="/guides" class="dropbtn"
-					>Lập Trình</a
-				>
+				<PreloadLinkWithData href="/guides" style="color:#fff">Lập Trình</PreloadLinkWithData>
 				<div class="dropdown-content">
-					<a data-sveltekit-preload-data data-sveltekit-preload href="/guides/c">Lập Trình C/C++</a>
-					<a data-sveltekit-preload-data data-sveltekit-preload href="/guides/webs">Lập Trình Web</a
-					>
+					<span>
+						<PreloadLinkWithData
+							href="/guides/c"
+							style="color:#000; padding: calc((5 * 1rem) / 16) calc((15 * 1rem) / 16);"
+							>Lập Trình C/C++</PreloadLinkWithData
+						>
+					</span>
+					<span>
+						<PreloadLinkWithData
+							href="/guides/webs"
+							style="color:#000; padding: calc((5 * 1rem) / 16) calc((15 * 1rem) / 16);"
+							>Lập Trình Web</PreloadLinkWithData
+						>
+					</span>
 				</div>
 			</div>
 			<div class="link">
-				<a data-sveltekit-preload-data data-sveltekit-preload href="/about">Về Tôi</a>
+				<PreloadLinkWithData href="/about" style="color:#fff">Về Tôi</PreloadLinkWithData>
 			</div>
 		</div>
 
@@ -80,16 +93,20 @@
 
 		<div class="links-bar" class:open={isOpenBar}>
 			<div class="link">
-				<a data-sveltekit-preload-data data-sveltekit-preload href="/">Trang Chủ</a>
+				<PreloadLinkWithData href="/" style="color:#fff">Trang Chủ</PreloadLinkWithData>
 			</div>
 			<div class="link">
-				<a data-sveltekit-preload-data data-sveltekit-preload href="/guides/c">Lập Trình C/C++</a>
+				<PreloadLinkWithData href="/guides/c" style="color:#fff"
+					>Lập Trình C/C++</PreloadLinkWithData
+				>
 			</div>
 			<div class="link">
-				<a data-sveltekit-preload-data data-sveltekit-preload href="/guides/webs">Lập Trình Web</a>
+				<PreloadLinkWithData href="/guides/webs" style="color:#fff"
+					>Lập Trình Web</PreloadLinkWithData
+				>
 			</div>
 			<div class="link">
-				<a data-sveltekit-preload-data data-sveltekit-preload href="/about">Về Tôi</a>
+				<PreloadLinkWithData href="/about" style="color:#fff">Về Tôi</PreloadLinkWithData>
 			</div>
 		</div>
 	</nav>
@@ -105,7 +122,6 @@
 
 <style>
 	header {
-		/* position: relative; */
 		position: sticky;
 		z-index: 99999;
 		top: 0;
@@ -144,11 +160,6 @@
 				cursor: pointer;
 			}
 
-			a {
-				color: white;
-				text-decoration: none;
-			}
-
 			.links {
 				margin-left: auto;
 				display: flex;
@@ -170,12 +181,6 @@
 				.dropdown {
 					position: relative;
 
-					.dropbtn {
-						color: white;
-						border: none;
-						cursor: pointer;
-					}
-
 					.dropdown-content {
 						display: none;
 						position: absolute;
@@ -186,12 +191,10 @@
 						width: calc((190 * 1rem) / 16);
 						text-align: left;
 
-						a {
-							color: black;
-							text-decoration: none;
-							display: block;
-							padding: calc((5 * 1rem) / 16) calc((15 * 1rem) / 16);
-
+						span {
+							display: inline-block;
+							width: 100%;
+							height: 100%;
 							&:hover {
 								background-color: #f1f1f1;
 							}
@@ -223,7 +226,7 @@
 		margin: calc((20 * 1rem) / 16);
 	}
 
-	@media (max-width: 950px) {
+	@media (max-width: calc((950 * 1rem) / 16)) {
 		.links {
 			display: none !important;
 		}

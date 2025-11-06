@@ -3,6 +3,7 @@
 	import Title from '../components/Title.svelte';
 
 	import { page } from '$app/state';
+	import PreloadLinkWithData from '../components/PreloadLinkWithData.svelte';
 
 	let { children } = $props();
 
@@ -39,7 +40,7 @@
 	<nav>
 		<ul>
 			<li>
-				<a data-sveltekit-preload-data data-sveltekit-preload href="/guides">Hướng dẫn học</a>
+				<PreloadLinkWithData href="/guides">Hướng dẫn học</PreloadLinkWithData>
 			</li>
 		</ul>
 	</nav>
@@ -98,17 +99,14 @@
 			display: flex;
 			gap: calc((50 * 1rem) / 16);
 			li {
-				border: calc((2 * 1rem) / 16) dotted var(--primary);
+				border: 1px dotted var(--primary);
 				border-radius: calc((5 * 1rem) / 16);
 
-				a {
-					display: inline-block;
-					color: var(--primary);
-					text-align: center;
-					padding: calc((10 * 1rem) / 16);
-					text-decoration: none;
-					font-size: calc((14 * 1rem) / 16);
-				}
+				color: var(--primary);
+				text-align: center;
+				padding: calc((10 * 1rem) / 16);
+				text-decoration: none;
+				font-size: calc((14 * 1rem) / 16);
 
 				&:hover {
 					background: linear-gradient(

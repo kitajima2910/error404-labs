@@ -14,13 +14,13 @@
 	.error-container {
 		text-align: center;
 		padding: 2rem;
-	}
 
-	a {
-		display: inline-block;
-		margin-top: 1rem;
-		padding: 0.5rem 1rem;
-		border: 1px dotted rgba(255, 255, 255, 0.2);
-		text-decoration: none;
+		a {
+			display: inline-block;
+			margin-top: 1rem;
+			padding: 0.5rem 1rem;
+			border: 1px dotted rgba(255, 255, 255, 0.2);
+			text-decoration: none;
+		}
 	}
 </style>
