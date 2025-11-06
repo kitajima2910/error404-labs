@@ -1,100 +1,52 @@
 <script lang="ts">
 	import Breadcrumb from '../../../components/Breadcrumb.svelte';
+	import PreloadLinkWithData from '../../../components/PreloadLinkWithData.svelte';
+	import { DATA_WEBS } from '../../../data/WEBS';
 
-	type Web = {
-		name: string;
-		link: string;
-		link_img: string;
-		title: string;
-	};
-
-	const WEBS: Web[] = [
-		{
-			name: 'Slide Share',
-			link_img: '/webs/imgs/slideshare.webp',
-			link: '/guides/webs/slideshare',
-			title: 'Khóa học: tạo trang web tạp chí điện tử'
-		}
-	];
+	const WEBS = DATA_WEBS;
 </script>
 
 <Breadcrumb />
 
 <div class="webs">
-	{#each WEBS as { name, link, link_img, title }}
+	{#each WEBS as { name, link, title }}
 		<div {title}>
-			<a href={link}>
+			<PreloadLinkWithData
+				href={link}
+				style="color: var(--primary); display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; text-align: center;"
+			>
 				<p class="title">{name}</p>
-				<img src={link_img} alt={name} />
-			</a>
+			</PreloadLinkWithData>
 		</div>
 	{/each}
-	<!-- <div>
-		<a href="/guides/webs/slideshare">slideshare</a>
-	</div> -->
-	<!-- <div>slideshare</div>
-	<div>slideshare</div>
-	<div>slideshare</div>
-	<div>slideshare</div>
-	<div>slideshare</div>
-	<div>slideshare</div>
-	<div>slideshare</div> -->
 </div>
 
 <style>
 	.webs {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+		grid-template-columns: repeat(auto-fill, minmax(calc((250 * 1rem) / 16), 1fr));
 		gap: 1rem;
 
 		div {
 			position: relative;
 			z-index: 100;
 			border: 1px solid #ccc;
-			padding: 1rem;
+			padding: calc((10 * 1rem) / 16);
 			text-align: center;
 			cursor: pointer;
 			transition: all 0.3s ease-in-out;
-			width: 100%;
-			height: calc((200 * 1rem) / 16);
+			width: calc((250 * 1rem) / 16);
+			height: calc((150 * 1rem) / 16);
 			border-radius: calc((5 * 1rem) / 16);
 			box-shadow: 0 calc((2 * 1rem) / 16) calc((5 * 1rem) / 16) rgba(0, 0, 0, 0.1);
 
 			&:hover {
-				background-color: #f5f5f5;
-			}
-
-			a {
-				display: block;
-				text-decoration: none;
-				color: black;
-				width: 100%;
-				height: 100%;
-
-				img {
-					width: 100%;
-					height: 100%;
-					object-fit: cover;
-				}
-
-				.title {
-					font-weight: bold;
-					font-size: 1.2rem;
-					margin-bottom: 0.5rem;
-					position: absolute;
-					top: 0.5rem;
-					left: 0.5rem;
-					color: white;
-					text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-					background-color: rgba(0, 0, 0, 0.5);
-					padding: 0.25rem 0.5rem;
-					border-radius: calc((5 * 1rem) / 16);
-					box-shadow: 0 calc((2 * 1rem) / 16) calc((5 * 1rem) / 16) rgba(0, 0, 0, 0.1);
-
-					&:hover {
-						background-color: rgba(0, 0, 0, 0.7);
-					}
-				}
+				background: linear-gradient(
+					45deg,
+					rgba(255, 0, 0, 0.1),
+					rgba(0, 255, 0, 0.1),
+					rgba(0, 0, 255, 0.1)
+				);
 			}
 		}
 	}

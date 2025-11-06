@@ -5,47 +5,46 @@
 	import { loadMarkdown } from '../../../../../utils/markdown';
 	import { onMount } from 'svelte';
 
-	let lesson = $derived(page.params.lesson || '01'); // Mặc định là '01'
+	interface PageParams {
+		lesson: string;
+		subLesson: string;
+		content: string;
+		readme: string;
+	}
 
-	let content: string | any = $state('⏳ Đang tải bài học');
+	let lesson = $derived(page.params.lesson || '01');
+	let subLesson = $state('01');
+	let dataFromPrev: PageParams[] = $state([]);
+
+	let content: string = $state('⏳ Đang tải bài học');
 
 	const nameMap = {
 		// svelte-ignore state_referenced_locally
 		[lesson]: `Buổi ${lesson}`
 	};
 
-	const DATA_LESSON = [
-		{
-			id: '01',
-			title:
-				'Viết chương trình nhập vào một ký tự, một số nguyên, một số thực. Hãy in ra màn hình ký tự có độ rộng là 3, số nguyên có độ rộng là 6, số thực có độ rộng là 8 với 3 chữ số lẻ.',
-			readme: '/md/LTCB_BTTH/Buoi01/Bai01.md'
-		},
-		{
-			id: '02',
-			title: 'In ra màn hình ký tự, số nguyên, số thực với 2 chữ số lẻ.',
-			readme: '/md/LTCB_BTTH/Buoi01/Bai02.md'
-		}
-	];
-
-	// ✅ Chạy khi component được mount
 	onMount(() => {
-		getLesson('01');
+		const saved = sessionStorage.getItem('preload_link_data');
+		if (saved) {
+			dataFromPrev = JSON.parse(saved);
+			getLesson({ lesson: dataFromPrev[0].lesson, subLesson: dataFromPrev[0].subLesson });
+		}
 	});
 
-	const getLesson = async (data: string) => {
-		const dataLesson = DATA_LESSON.find((item) => item.id === data);
+	const getLesson = async (data: { lesson: string; subLesson: string }) => {
+		const dataLesson = dataFromPrev.find((item: any) => item.subLesson === data.subLesson);
 
 		if (!dataLesson) {
 			console.error('Không tìm thấy bài học');
 			return;
 		}
 
-		lesson = dataLesson.id;
+		lesson = data.lesson;
+		subLesson = data.subLesson;
 
 		const titleElement = document.querySelector('.right .title');
 		if (titleElement) {
-			titleElement.innerHTML = dataLesson.title;
+			titleElement.innerHTML = dataLesson.content;
 		}
 
 		content = await loadMarkdown(dataLesson.readme);
@@ -57,10 +56,15 @@
 <div class="lesson">
 	<div class="left">
 		<ul>
-			{#each DATA_LESSON as { id }}
+			{#each dataFromPrev as item}
 				<!-- svelte-ignore a11y_click_events_have_key_events -->
 				<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-				<li class={lesson === id ? 'active' : ''} onclick={() => getLesson(id)}>Bài {id}</li>
+				<li
+					class={subLesson === item.subLesson ? 'active' : ''}
+					onclick={() => getLesson({ lesson: item.lesson, subLesson: item.subLesson })}
+				>
+					Bài {item.subLesson}
+				</li>
 			{/each}
 		</ul>
 	</div>
@@ -84,7 +88,6 @@
 		.left {
 			grid-area: 'left';
 			width: 100%;
-			border: 1px dotted var(--primary);
 			border-radius: calc((5 * 1rem) / 16);
 			box-shadow: 0 calc((2 * 1rem) / 16) calc((5 * 1rem) / 16) rgba(0, 0, 0, 0.1);
 
@@ -121,11 +124,11 @@
 				height: 100px;
 				border-bottom: 1px dotted var(--primary);
 				padding-bottom: 1rem;
+				color: var(--primary);
 			}
 
 			.content {
 				width: 100%;
-				/* height: 100%; */
 				overflow-y: scroll;
 			}
 		}

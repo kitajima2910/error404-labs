@@ -1,67 +1,27 @@
 <script lang="ts">
 	import Breadcrumb from '../../../../components/Breadcrumb.svelte';
+	import PreloadLinkWithData from '../../../../components/PreloadLinkWithData.svelte';
+	import { DATA_LESSONS } from '../../../../data/LTCB_BTTH';
 
 	const nameMap = $derived({
 		LTCB_BTTH: 'Lập Trình Cơ Bản - Bài Tập Thực Hành'
 	});
 
-	type Lesson = {
-		lesson: string;
-		title: string;
-	};
-
-	const LESSONS: Lesson[] = [
-		{
-			lesson: '01',
-			title: 'Buổi 01: Kiểu dữ liệu, toán tử và biểu thức'
-		},
-		{
-			lesson: '02',
-			title: 'Buổi 02: Các cấu trúc điều kiện'
-		},
-		{
-			lesson: '03',
-			title: 'Buổi 03: Lập trình hàm'
-		},
-		{
-			lesson: '04',
-			title: 'Buổi 04: Chuỗi - Mảng 1 chiều'
-		},
-		{
-			lesson: '05',
-			title: 'Buổi 05: Mảng 1, 2 chiều'
-		},
-		{
-			lesson: '06',
-			title: 'Buổi 06: Con trỏ'
-		},
-		{
-			lesson: '07',
-			title: 'Buổi 07: Cấu trúc'
-		},
-		{
-			lesson: '08',
-			title: 'Buổi 08: Cấu trúc - Mảng'
-		},
-		{
-			lesson: '09',
-			title: 'Buổi 09: Cấu trúc - Mảng (tt)'
-		},
-		{
-			lesson: '10',
-			title: 'Buổi 10: Tập tin'
-		}
-	];
+	const LESSONS = DATA_LESSONS;
 </script>
 
 <Breadcrumb {nameMap} />
 
 <div class="LTCB_BTTH">
-	{#each LESSONS as { lesson, title }}
+	{#each LESSONS as { lesson, title, data }}
 		<div>
-			<a href="/guides/c/LTCB_BTTH/{lesson}" data-sveltekit-preload-data data-sveltekit-preload
-				>{title}</a
+			<PreloadLinkWithData
+				href="/guides/c/LTCB_BTTH/{lesson}"
+				style="color: var(--primary); display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; text-align: center;"
+				{data}
 			>
+				{title}
+			</PreloadLinkWithData>
 		</div>
 	{/each}
 </div>
@@ -69,27 +29,17 @@
 <style>
 	.LTCB_BTTH {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-		gap: 20px;
+		grid-template-columns: repeat(auto-fill, minmax(calc((250 * 1rem) / 16), 1fr));
+		gap: calc((20 * 1rem) / 16);
 		justify-items: center;
 
 		div {
-			width: 250px;
-			height: 150px;
-			border: 2px dotted var(--primary);
+			width: calc((250 * 1rem) / 16);
+			height: calc((150 * 1rem) / 16);
+			border: 1px dotted var(--primary);
 			border-radius: 5px;
-			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-
-			a {
-				text-decoration: none;
-				color: var(--primary);
-				width: 100%;
-				height: 100%;
-				display: flex;
-				justify-content: center;
-				align-items: center;
-				text-align: center;
-			}
+			box-shadow: 0 calc((2 * 1rem) / 16) calc((5 * 1rem) / 16) rgba(0, 0, 0, 0.1);
+			padding: calc((10 * 1rem) / 16);
 
 			&:hover {
 				background: linear-gradient(

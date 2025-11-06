@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Breadcrumb from '../../../components/Breadcrumb.svelte';
+	import PreloadLinkWithData from '../../../components/PreloadLinkWithData.svelte';
 
 	const nameMap = $derived({
 		c: 'C/C++'
@@ -25,9 +26,12 @@
 <div class="c">
 	{#each DATA_COURSE as { title, tooltip, link }}
 		<div title={tooltip}>
-			<a href={link} data-sveltekit-preload-data data-sveltekit-preload>
+			<PreloadLinkWithData
+				href={link}
+				style="color: var(--primary); text-align: center; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;"
+			>
 				<span>{title}</span>
-			</a>
+			</PreloadLinkWithData>
 		</div>
 	{/each}
 </div>
@@ -42,7 +46,7 @@
 		div {
 			width: calc((250 * 1rem) / 16);
 			height: calc((150 * 1rem) / 16);
-			border: calc((2 * 1rem) / 16) dotted var(--primary);
+			border: 1px dotted var(--primary);
 			border-radius: calc((5 * 1rem) / 16);
 			box-shadow: 0 calc((2 * 1rem) / 16) calc((5 * 1rem) / 16) rgba(0, 0, 0, 0.1);
 
@@ -50,7 +54,7 @@
 			justify-content: center;
 			align-items: center;
 			cursor: pointer;
-			padding: calc((5 * 1rem) / 16);
+			padding: calc((10 * 1rem) / 16);
 
 			transition: all 0.3s ease-in-out;
 
@@ -61,18 +65,6 @@
 					rgba(0, 255, 0, 0.1),
 					rgba(0, 0, 255, 0.1)
 				);
-			}
-
-			a {
-				text-decoration: none;
-				width: 100%;
-				height: 100%;
-				display: flex;
-				justify-content: center;
-				align-items: center;
-				color: var(--primary);
-				flex-direction: column;
-				text-align: center;
 			}
 		}
 	}
