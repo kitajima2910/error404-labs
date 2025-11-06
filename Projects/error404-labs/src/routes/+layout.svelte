@@ -12,10 +12,6 @@
 	const REPO_NAME = 'error404-labs';
 </script>
 
-<svelte:head>
-	<link rel="icon" type="image/x-icon" href="/midcodekid.png" />
-</svelte:head>
-
 {#if !isGuidesPage()}
 	<header>
 		<Title />
