@@ -1,4 +1,6 @@
 import { marked } from 'marked';
+import hljs from 'highlight.js';
+import 'highlight.js/styles/github.css';
 
 const fixRelativePaths = (markdownText: string, basePath: string) => {
 	return (
@@ -26,4 +28,10 @@ export const loadMarkdown = async (path: string) => {
 	} catch {
 		return '⚠️ Lỗi tải dữ liệu';
 	}
+};
+
+export const highlightCode = () => {
+	setTimeout(() => {
+		hljs.highlightAll();
+	}, 10);
 };

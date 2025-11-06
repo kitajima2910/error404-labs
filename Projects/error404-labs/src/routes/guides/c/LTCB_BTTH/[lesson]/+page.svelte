@@ -2,7 +2,7 @@
 	import 'github-markdown-css/github-markdown-light.css';
 	import { page } from '$app/state';
 	import Breadcrumb from '../../../../../components/Breadcrumb.svelte';
-	import { loadMarkdown } from '../../../../../utils/markdown';
+	import { highlightCode, loadMarkdown } from '../../../../../utils/markdown';
 	import { onMount } from 'svelte';
 	import { renderMath } from '../../../../../utils/katex';
 	import type { PageParams } from '../../../../../data/LTCB_BTTH';
@@ -43,6 +43,8 @@
 		}
 
 		content = await loadMarkdown(dataLesson.readme);
+
+		highlightCode();
 	};
 </script>
 
