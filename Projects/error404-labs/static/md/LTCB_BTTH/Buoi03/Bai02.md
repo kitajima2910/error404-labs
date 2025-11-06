@@ -30,7 +30,7 @@ long double toHop(int n, int k)
     if (k == 1 || k == n - 1)
         return n;
     if (k > n - k)
-        k = n - k; // tối ưu hoá
+        k = n - k;
     long double result = 1;
     for (int i = 1; i <= k; i++)
     {
@@ -182,29 +182,6 @@ C(5, 0) = 1
 
 ---
 
-## 🎯 Độ phức tạp
-
-- **Thời gian:** O(min(k, n-k))
-- **Không gian:** O(1)
-
----
-
-## 🔧 Cách biên dịch và chạy
-
-### **Trên Windows (Dev-C++, Code::Blocks):**
-```bash
-g++ -o combination combination.cpp
-combination.exe
-```
-
-### **Trên Linux/Mac:**
-```bash
-g++ -o combination combination.cpp
-./combination
-```
-
----
-
 ## 📚 Ứng dụng thực tế
 
 1. **Xác suất thống kê:** Tính số cách chọn mẫu
@@ -225,15 +202,7 @@ g++ -o combination combination.cpp
 
 ---
 
-## 🚀 Bài tập mở rộng
-
-1. Thêm kiểm tra đầu vào hợp lệ (n, k >= 0)
-2. Tính và in ra tam giác Pascal với n hàng
-3. Viết hàm tính số tổ hợp lặp C'(n, k)
-4. Tối ưu hơn nữa với Dynamic Programming (Quy hoạch động)
-
----
-
-**📅 Ngày tạo:** 2025  
-**👨‍💻 Ngôn ngữ:** C++  
+**📅 Ngày tạo:** 06/11/2025<br/> 
+**👨‍💻 Ngôn ngữ:** C++<br/>
+**👨‍🏫 Tác giả:** _Phạm Xuân Hoài_<br/>
 **📖 Chủ đề:** Toán học - Tổ hợp - Combinatorics
