@@ -39,12 +39,13 @@
 		ul {
 			list-style: none;
 			display: grid;
-			grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-			gap: 1rem;
+			grid-template-columns: repeat(auto-fill, minmax(calc((250 * 1rem) / 16), 1fr));
+			gap: calc((20 * 1rem) / 16);
+			justify-items: center;
 
 			li {
 				cursor: pointer;
-				width: calc((250 1rem) / 16);
+				width: calc((250 * 1rem) / 16);
 				height: calc((150 * 1rem) / 16);
 				border: 1px dotted var(--primary);
 				border-radius: calc((5 * 1rem) / 16);

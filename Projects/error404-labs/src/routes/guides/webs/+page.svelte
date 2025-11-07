@@ -25,7 +25,8 @@
 	.webs {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(calc((250 * 1rem) / 16), 1fr));
-		gap: 1rem;
+		gap: calc((20 * 1rem) / 16);
+		justify-items: center;
 
 		div {
 			position: relative;
