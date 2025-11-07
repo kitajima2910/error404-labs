@@ -1,27 +1,6 @@
-using namespace std;
-
 #include <iostream>
-
-bool laSoHoanHao(long long n);
-
-int main()
-{
-
-    long long n;
-    cout << "Nhập n: ";
-    cin >> n;
-
-    if (laSoHoanHao(n))
-    {
-        cout << n << " là số hoàn hảo\n";
-    }
-    else
-    {
-        cout << n << " không là số hoàn hảo\n";
-    }
-
-    return 0;
-}
+#include <cmath>
+using namespace std;
 
 bool laSoHoanHao(long long n)
 {
@@ -30,12 +9,29 @@ bool laSoHoanHao(long long n)
 
     long long sum = 1;
 
-    for (long long i = 2; i <= n / 2; i++)
+    for (long long i = 2; i <= sqrt(n); i++)
     {
         if (n % i == 0)
         {
             sum += i;
+            if (i != n / i) // tránh cộng trùng nếu là số chính phương
+                sum += n / i;
         }
     }
+
     return sum == n;
+}
+
+int main()
+{
+    long long n;
+    cout << "Nhập n: ";
+    cin >> n;
+
+    if (laSoHoanHao(n))
+        cout << "So vua nhap la so hoan hao\n";
+    else
+        cout << "So vua nhap khong phai la so hoan hao\n";
+
+    return 0;
 }
