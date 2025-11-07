@@ -111,7 +111,8 @@
 		.right {
 			grid-area: 'right';
 			width: 100%;
-			height: 100vh;
+			overflow-x: auto;
+			/* height: 100vh; */
 
 			display: flex;
 			flex-direction: column;
@@ -126,7 +127,24 @@
 
 			.content {
 				width: 100%;
-				overflow-y: scroll;
+				/* overflow-y: scroll; */
+			}
+		}
+	}
+
+	@media screen and (max-width: 950px) {
+		.lesson {
+			grid-template-columns: 1fr;
+			grid-template-areas:
+				'left'
+				'right';
+
+			.left {
+				max-width: 100%;
+
+				ul {
+					display: flex;
+				}
 			}
 		}
 	}
