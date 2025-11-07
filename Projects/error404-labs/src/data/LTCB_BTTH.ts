@@ -42,6 +42,16 @@ export const DATA_LESSONS: Lesson[] = [
 		data: [
 			{
 				lesson: '03',
+				subLesson: '01',
+				content: String.raw`
+					<span>Viết hàm kiểm tra một số nguyên dương có phải số hoàn hảo hay không (số hoàn hảo khi tổng các ước của n (không tính n) bằng với n). 
+					Viết chương trình nhập vào một số nguyên dương n, sử dụng hàm vừa viết để kiểm tra n. 
+					Nếu n là số hoàn hảo thì in “So vua nhap la so hoan hao”, ngược lại thì in “So vua nhap khong phai la so hoan hao”.</span>
+				`,
+				readme: '/md/LTCB_BTTH/Buoi03/Bai01.md'
+			},
+			{
+				lesson: '03',
 				subLesson: '02',
 				content: String.raw`
 					<span>Viết hàm tính và trả về tổ hợp chập k của n theo công thức: \(C_n^k = \frac{n!}{k!(n-k)!}\), 
