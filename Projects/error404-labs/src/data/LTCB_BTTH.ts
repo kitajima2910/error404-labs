@@ -44,9 +44,13 @@ export const DATA_LESSONS: Lesson[] = [
 				lesson: '03',
 				subLesson: '01',
 				content: String.raw`
-					<span>Viết hàm kiểm tra một số nguyên dương có phải số hoàn hảo hay không (số hoàn hảo khi tổng các ước của n (không tính n) bằng với n). 
+					<div>
+					Viết hàm kiểm tra một số nguyên dương có phải số hoàn hảo hay không (số hoàn hảo khi tổng các ước của n (không tính n) bằng với n).
+					<br/><br/> 
 					Viết chương trình nhập vào một số nguyên dương n, sử dụng hàm vừa viết để kiểm tra n. 
-					Nếu n là số hoàn hảo thì in “So vua nhap la so hoan hao”, ngược lại thì in “So vua nhap khong phai la so hoan hao”.</span>
+					<br/><br/> 
+					Nếu n là số hoàn hảo thì in “So vua nhap la so hoan hao”, ngược lại thì in “So vua nhap khong phai la so hoan hao”.
+					</div>
 				`,
 				readme: '/md/LTCB_BTTH/Buoi03/Bai01.md'
 			},
@@ -54,19 +58,13 @@ export const DATA_LESSONS: Lesson[] = [
 				lesson: '03',
 				subLesson: '02',
 				content: String.raw`
-					<span>Viết hàm tính và trả về tổ hợp chập k của n theo công thức: \(C_n^k = \frac{n!}{k!(n-k)!}\), 
-					trong đó n!=1*2*3*...*n với n, k là các số nguyên dương \((0 \leq k \leq n)\).
+					<div>
+					<p class="pxh-center"><span>Viết hàm tính và trả về tổ hợp chập k của n theo công thức:</span> \(C_n^k = \frac{n!}{k!(n-k)!}\)<p> 
+					<p class="pxh-center"><span>Trong đó n!=1*2*3*...*n với n, k là các số nguyên dương</span> \((0 \leq k \leq n)\)</p>
 					Viết chương trình nhập vào một số nguyên n và một số nguyên k, sử dụng hàm vừa viết để tính và in ra giá trị tổ hợp.<br/><br/>
-					<strong>Ví dụ:</strong> \(C_5^3 = \frac{5!}{3!(5-3)!} = \frac{120}{6 \times 2} = 10\)</span>
+					<strong>Ví dụ:</strong> \(C_5^3 = \frac{5!}{3!(5-3)!} = \frac{120}{6 \times 2} = 10\)</div>
 				`,
 				readme: '/md/LTCB_BTTH/Buoi03/Bai02.md'
-			},
-			{
-				lesson: '03',
-				subLesson: '03',
-				content:
-					'Viết hàm tính và trả về chu vi một hình tròn, biết rằng công thức chu vi là cv = 2 * 3.14 * R, trong đó R là bán kính. Viết chương trình nhập vào bán kính hình tròn, sử dụng hàm vừa viết để tính và in ra chu vi hình tròn.',
-				readme: '/md/LTCB_BTTH/Buoi03/Bai03.md'
 			}
 		]
 	}
