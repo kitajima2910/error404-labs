@@ -40,7 +40,11 @@
 	<nav>
 		<ul>
 			<li>
-				<PreloadLinkWithData href="/guides">Hướng dẫn học</PreloadLinkWithData>
+				<PreloadLinkWithData
+					href="/guides"
+					style="color: var(--primary); padding: calc((10 * 1rem) / 16);"
+					>Hướng dẫn học
+				</PreloadLinkWithData>
 			</li>
 		</ul>
 	</nav>
@@ -104,7 +108,7 @@
 
 				color: var(--primary);
 				text-align: center;
-				padding: calc((10 * 1rem) / 16);
+				/* padding: calc((10 * 1rem) / 16); */
 				text-decoration: none;
 				font-size: calc((14 * 1rem) / 16);
 
