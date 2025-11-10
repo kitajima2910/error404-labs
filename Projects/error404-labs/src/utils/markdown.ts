@@ -30,6 +30,15 @@ export const loadMarkdown = async (path: string) => {
 	}
 };
 
+export const loadMarkdownRaw = (raw: string) => {
+	try {
+		highlightCode();
+		return marked.parse(raw) as string;
+	} catch {
+		return '⚠️ Lỗi tải dữ liệu';
+	}
+};
+
 export const highlightCode = () => {
 	setTimeout(() => {
 		hljs.highlightAll();
