@@ -5,7 +5,6 @@ export interface Lesson {
 		lesson: string;
 		subLesson: string;
 		content: string;
-		readme: string;
 	}[];
 }
 
@@ -13,7 +12,6 @@ export interface PageParams {
 	lesson: string;
 	subLesson: string;
 	content: string;
-	readme: string;
 }
 
 export const DATA_LESSONS: Lesson[] = [
@@ -25,14 +23,12 @@ export const DATA_LESSONS: Lesson[] = [
 				lesson: '01',
 				subLesson: '01',
 				content:
-					'Viết chương trình nhập vào một ký tự, một số nguyên, một số thực. Hãy in ra màn hình ký tự có độ rộng là 3, số nguyên có độ rộng là 6, số thực có độ rộng là 8 với 3 chữ số lẻ.',
-				readme: '/md/LTCB_BTTH/Buoi01/Bai01.md'
+					'Viết chương trình nhập vào một ký tự, một số nguyên, một số thực. Hãy in ra màn hình ký tự có độ rộng là 3, số nguyên có độ rộng là 6, số thực có độ rộng là 8 với 3 chữ số lẻ.'
 			},
 			{
 				lesson: '01',
 				subLesson: '02',
-				content: 'Viết chương trình nhập vào một ký tự. Hãy in ra mã ASCII của ký tự.',
-				readme: '/md/LTCB_BTTH/Buoi01/Bai02.md'
+				content: 'Viết chương trình nhập vào một ký tự. Hãy in ra mã ASCII của ký tự.'
 			}
 		]
 	},
@@ -51,8 +47,7 @@ export const DATA_LESSONS: Lesson[] = [
 					<br/><br/> 
 					Nếu n là số hoàn hảo thì in “So vua nhap la so hoan hao”, ngược lại thì in “So vua nhap khong phai la so hoan hao”.
 					</div>
-				`,
-				readme: '/md/LTCB_BTTH/Buoi03/Bai01.md'
+				`
 			},
 			{
 				lesson: '03',
@@ -63,8 +58,7 @@ export const DATA_LESSONS: Lesson[] = [
 					<p class="pxh-center"><span>Trong đó n!=1*2*3*...*n với n, k là các số nguyên dương</span> \((0 \leq k \leq n)\)</p>
 					Viết chương trình nhập vào một số nguyên n và một số nguyên k, sử dụng hàm vừa viết để tính và in ra giá trị tổ hợp.<br/><br/>
 					<strong>Ví dụ:</strong> \(C_5^3 = \frac{5!}{3!(5-3)!} = \frac{120}{6 \times 2} = 10\)</div>
-				`,
-				readme: '/md/LTCB_BTTH/Buoi03/Bai02.md'
+				`
 			}
 		]
 	}

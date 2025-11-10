@@ -1,6 +1,6 @@
 <script lang="ts">
 	import 'github-markdown-css/github-markdown-light.css';
-	import { highlightCode, loadMarkdown } from '../../../../../utils/markdown';
+	import { highlightCode, loadMarkdownRaw } from '../../../../../utils/markdown';
 	import { page } from '$app/state';
 	import { onMount } from 'svelte';
 	import Breadcrumb from '../../../../../components/Breadcrumb.svelte';
@@ -14,7 +14,8 @@
 	});
 
 	onMount(async () => {
-		content = await loadMarkdown(`/md/HocWeb/CoBan/slideshare/Bai${lesson}/README.md`);
+		const LessonRaw = await import(`$lib/md/HocWeb/CoBan/slideshare/Bai${lesson}/README.md?raw`);
+		content = loadMarkdownRaw(LessonRaw.default);
 
 		highlightCode();
 	});

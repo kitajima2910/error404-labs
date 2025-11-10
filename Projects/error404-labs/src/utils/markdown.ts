@@ -42,5 +42,5 @@ export const loadMarkdownRaw = (raw: string) => {
 export const highlightCode = () => {
 	setTimeout(() => {
 		hljs.highlightAll();
-	}, 10);
+	}, 50);
 };

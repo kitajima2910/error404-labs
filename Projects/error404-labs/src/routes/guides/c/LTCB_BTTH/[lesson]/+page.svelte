@@ -2,7 +2,7 @@
 	import 'github-markdown-css/github-markdown-light.css';
 	import { page } from '$app/state';
 	import Breadcrumb from '../../../../../components/Breadcrumb.svelte';
-	import { highlightCode, loadMarkdown } from '../../../../../utils/markdown';
+	import { highlightCode, loadMarkdownRaw } from '../../../../../utils/markdown';
 	import { onMount } from 'svelte';
 	import { renderMath } from '../../../../../utils/katex';
 	import type { PageParams } from '../../../../../data/LTCB_BTTH';
@@ -42,7 +42,8 @@
 			titleElement.innerHTML = renderMath(dataLesson.content);
 		}
 
-		content = await loadMarkdown(dataLesson.readme);
+		const lessonRaw = await import(`$lib/md/LTCB_BTTH/Buoi${lesson}/Bai${subLesson}.md?raw`);
+		content = loadMarkdownRaw(lessonRaw.default);
 
 		highlightCode();
 	};
