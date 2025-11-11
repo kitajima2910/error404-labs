@@ -2,7 +2,7 @@
 	import '../app.css';
 	import favicon from '$lib/assets/favicon.svg';
 
-	let { children } = $props();
+	let { children, data } = $props();
 </script>
 
 <svelte:head>
@@ -10,6 +10,11 @@
 </svelte:head>
 
 <div class="relative container mx-auto p-4">
+	{#if data.email}
+		<div class="absolute top-2 right-2 text-sm opacity-60">
+			<a href="/admin">Admin</a> | <a href="/logout">Logout</a>
+		</div>
+	{/if}
 	<!-- Header -->
 	<div class="mb-6 text-center">
 		<a href="/">
