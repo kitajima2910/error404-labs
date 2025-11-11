@@ -1,5 +1,4 @@
 --- Create database first !
-
 CREATE SCHEMA "data";
 
 CREATE EXTENSION ltree;
@@ -37,11 +36,11 @@ CREATE TABLE data.posts_categories (
 
 CREATE INDEX IF NOT EXISTS posts_categories_index ON data.posts_categories (category_id, post_id);
 
-insert into data.categories (text) values ("Svelte");
-insert into data.categories (text) values ("SvelteKit");
-insert into data.categories (text) values ("TypeScript");
-insert into data.categories (text) values ("Node.js");
-insert into data.categories (text) values ("Linux");
+insert into data.categories (text) values ('Svelte');
+insert into data.categories (text) values ('SvelteKit');
+insert into data.categories (text) values ('TypeScript');
+insert into data.categories (text) values ('Node.js');
+insert into data.categories (text) values ('Linux');
 
 insert into data.users
 (email, hash_password)
