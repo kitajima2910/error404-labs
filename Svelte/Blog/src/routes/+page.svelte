@@ -5,11 +5,35 @@
 
 	let category_id = $derived(page.url.searchParams.get('category'));
 	let showMobileCategories = $state(false);
+	let searchTerm = $state('');
 
 	$effect(() => {
 		if (category_id) {
 			showMobileCategories = false;
 		}
+	});
+
+	let filteredList = $derived.by(() => {
+		let results = [];
+		if (category_id) {
+			results = data.posts.filter((a) => a.categories.includes(Number(category_id)));
+		} else {
+			results = data.posts;
+		}
+
+		if (searchTerm !== '') {
+			results = results.filter((a) => {
+				if (a.text.toLowerCase().includes(searchTerm.toLowerCase())) {
+					return true;
+				}
+				if (a.title.toLowerCase().includes(searchTerm.toLowerCase())) {
+					return true;
+				}
+				return false;
+			});
+		}
+
+		return results;
 	});
 </script>
 
@@ -45,6 +69,7 @@
 			type="text"
 			class="rounded-lg border border-zinc-200 px-2 py-1"
 			placeholder="Search"
+			bind:value={searchTerm}
 		/>
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -65,3 +90,15 @@
 </div>
 
 <!-- Show Posts -->
+<div class="grid w-full grid-cols-2 gap-4 lg:grid-cols-4">
+	{#each filteredList as post}
+		<a href="/post/{post.id}" aria-label={post.title}>
+			<div
+				class="aspect-video w-full bg-cover"
+				style="background-image: url('/file/{post.branner_path}')"
+			></div>
+			<div class="font-semibold">{post.title}</div>
+			<div class="line-clamp-4 max-h-16 text-sm opacity-80">{@html post.text}</div>
+		</a>
+	{/each}
+</div>
