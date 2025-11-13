@@ -16,7 +16,6 @@
 		name="keywords"
 		content="học lập trình web, error404 labs, error404-labs, erro 404 labs, html, css, javascript, lập trình frontend"
 	/>
-	<link rel="canonical" href="https://error404-labs.info.vn/huong-dan-hoc/lap-trinh-web" />
 </svelte:head>
 
 <Breadcrumb />
