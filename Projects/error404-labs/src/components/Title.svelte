@@ -4,7 +4,7 @@
 	const { title = 'Error404-Labs' }: Props = $props();
 </script>
 
-<div class="title flex justify-center items-center">
+<div class="title flex justify-center items-center flex-wrap">
 	<div class="w-[70px] h-[70px]">
 		<img
 			class="inline-block w-full h-full object-cover rounded-full"
