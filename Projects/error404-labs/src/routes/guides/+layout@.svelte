@@ -79,7 +79,7 @@
 				</div>
 			</div>
 			<div class="link">
-				<PreloadLinkWithData href="/about" style="color:#fff">Về Tôi</PreloadLinkWithData>
+				<PreloadLinkWithData href="/ve-toi" style="color:#fff">Về Tôi</PreloadLinkWithData>
 			</div>
 		</div>
 
@@ -106,7 +106,7 @@
 				>
 			</div>
 			<div class="link">
-				<PreloadLinkWithData href="/about" style="color:#fff">Về Tôi</PreloadLinkWithData>
+				<PreloadLinkWithData href="/ve-toi" style="color:#fff">Về Tôi</PreloadLinkWithData>
 			</div>
 		</div>
 	</nav>
