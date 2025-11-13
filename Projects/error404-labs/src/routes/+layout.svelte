@@ -1,4 +1,5 @@
 <script lang="ts">
+	import '../app.css';
 	import '$lib/assets/global.css';
 	import Title from '../components/Title.svelte';
 
@@ -14,11 +15,11 @@
 </script>
 
 {#if !isGuidesPage()}
-	<header>
+	<header class="sticky top-0 bg-[#1e5b66] text-white p-3!">
 		<Title />
 	</header>
 
-	<div class="github">
+	<div class="flex justify-center mt-5!">
 		<iframe
 			src="https://ghbtns.com/github-btn.html?user={USER_GITHUB}&repo={REPO_NAME}&type=follow&count=true"
 			frameborder="0"
@@ -37,9 +38,11 @@
 		></iframe>
 	</div>
 
-	<nav>
+	<nav class="w-full">
 		<ul>
-			<li>
+			<li
+				class="hover-rgb border border-dashed border-[#1e5b66] rounded-[5px] text-[#1e5b66] text-center decoration-0 text-[18px]"
+			>
 				<PreloadLinkWithData
 					href="/guides"
 					style="color: var(--primary); padding: calc((10 * 1rem) / 16);"
@@ -55,40 +58,20 @@
 </main>
 
 {#if !isGuidesPage()}
-	<footer>
+	<footer class="text-center m-5!">
 		<p>Copyright &copy; {new Date().getFullYear()} - Phạm Xuân Hoài</p>
 	</footer>
 {/if}
 
 <style>
-	header {
-		position: sticky;
-		top: 0;
-		background: var(--primary); /* #1E5B66 */
-		color: white;
-		display: flex;
-		justify-content: center;
-		padding: calc((20 * 1rem) / 16);
-	}
-
 	.main {
 		max-width: calc((1200 * 1rem) / 16);
 		margin: calc((20 * 1rem) / 16) auto;
 		padding: calc((20 * 1rem) / 16);
 	}
 
-	footer {
-		text-align: center;
-		margin: calc((20 * 1rem) / 16);
-	}
-
-	.github {
-		text-align: center;
-		margin: calc((10 * 1rem) / 16);
-	}
-
 	nav {
-		width: 100%;
+		/* width: 100%; */
 
 		ul {
 			list-style-type: none;
@@ -102,25 +85,6 @@
 
 			display: flex;
 			gap: calc((50 * 1rem) / 16);
-			li {
-				border: 1px dotted var(--primary);
-				border-radius: calc((5 * 1rem) / 16);
-
-				color: var(--primary);
-				text-align: center;
-				/* padding: calc((10 * 1rem) / 16); */
-				text-decoration: none;
-				font-size: calc((14 * 1rem) / 16);
-
-				&:hover {
-					background: linear-gradient(
-						45deg,
-						rgba(255, 0, 0, 0.1),
-						rgba(0, 255, 0, 0.1),
-						rgba(0, 0, 255, 0.1)
-					);
-				}
-			}
 		}
 	}
 </style>

@@ -4,41 +4,13 @@
 	const { title = 'Error404-Labs' }: Props = $props();
 </script>
 
-<div class="title">
-	<div>
-		<img src="/midcodekid.webp" alt="site logo" />
+<div class="title flex justify-center items-center">
+	<div class="w-[70px] h-[70px]">
+		<img
+			class="inline-block w-full h-full object-cover rounded-full"
+			src="/midcodekid.webp"
+			alt="site logo"
+		/>
 	</div>
-	<h1>{title}</h1>
+	<h1 class="ml-3! text-2xl">{title}</h1>
 </div>
-
-<style>
-	.title {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-
-		div {
-			width: calc((50 * 1rem) / 16);
-			height: calc((50 * 1rem) / 16);
-			img {
-				display: inline-block;
-				width: 100%;
-				height: 100%;
-				object-fit: cover;
-				border-radius: 50%;
-			}
-		}
-
-		h1 {
-			margin-left: calc((10 * 1rem) / 16);
-		}
-	}
-
-	@media (max-width: 450px) {
-		.title {
-			h1 {
-				font-size: 1.2em;
-			}
-		}
-	}
-</style>
