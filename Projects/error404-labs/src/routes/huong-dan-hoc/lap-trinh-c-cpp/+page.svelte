@@ -27,6 +27,7 @@
 		name="keywords"
 		content="học lập trình C, C++, error404 labs, error404-labs, erro 404 labs, học C, học C++, lập trình căn bản, hướng dẫn C++, dự án lập trình C++"
 	/>
+	<link rel="canonical" href="https://error404-labs.info.vn/huong-dan-hoc/lap-trinh-c-cpp" />
 </svelte:head>
 
 <Breadcrumb />
