@@ -13,7 +13,7 @@
 		},
 		{
 			title: 'Lập trình C/C++',
-			link: '/huong-dan-hoc/c'
+			link: '/huong-dan-hoc/lap-trinh-c-cpp'
 		}
 	];
 </script>

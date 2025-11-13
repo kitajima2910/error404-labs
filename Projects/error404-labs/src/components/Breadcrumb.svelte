@@ -12,7 +12,8 @@
 	const defaultNames: Record<string, string> = {
 		'huong-dan-hoc': 'Hướng dẫn',
 		'lap-trinh-web': 'Lập trình web',
-		'khoa-hoc-slideshare': 'Khóa học Slide Share'
+		'khoa-hoc-slideshare': 'Khóa học Slide Share',
+		'lap-trinh-c-cpp': 'Lập Trình C/C++'
 	};
 
 	const displayNames = $derived({ ...defaultNames, ...nameMap });

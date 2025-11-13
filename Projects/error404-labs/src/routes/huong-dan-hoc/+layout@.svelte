@@ -71,7 +71,7 @@
 				>
 					<span class="hover:bg-[#f1f1f1] inline-block w-full">
 						<PreloadLinkWithData
-							href="/huong-dan-hoc/c"
+							href="/huong-dan-hoc/lap-trinh-c-cpp"
 							style="color:#000; padding: calc((5 * 1rem) / 16) calc((15 * 1rem) / 16);"
 							>Lập Trình C/C++</PreloadLinkWithData
 						>
@@ -108,7 +108,7 @@
 				<PreloadLinkWithData href="/" style="color:#fff">Trang Chủ</PreloadLinkWithData>
 			</div>
 			<div class="link p-2.5! cursor-pointer hover:bg-[#246D7A80]">
-				<PreloadLinkWithData href="/huong-dan-hoc/c" style="color:#fff"
+				<PreloadLinkWithData href="/huong-dan-hoc/lap-trinh-c-cpp" style="color:#fff"
 					>Lập Trình C/C++</PreloadLinkWithData
 				>
 			</div>

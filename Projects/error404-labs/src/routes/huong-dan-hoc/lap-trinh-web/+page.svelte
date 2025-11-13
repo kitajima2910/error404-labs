@@ -30,7 +30,7 @@
 	</ul>
 </article>
 
-<div class="webs wrapper-box-card">
+<div class="wrapper-box-card">
 	{#each WEBS as { name, link, title }}
 		<div {title} class="box-card">
 			<PreloadLinkWithData
