@@ -16,7 +16,7 @@
 		{
 			title: 'Lập Trình Cơ Bản - Bài Tập Thực Hành',
 			tooltip: 'Khóa học: lập trình cơ bản - bài tập thực hành',
-			link: '/guides/c/LTCB_BTTH'
+			link: '/huong-dan-hoc/c/LTCB_BTTH'
 		}
 	];
 </script>

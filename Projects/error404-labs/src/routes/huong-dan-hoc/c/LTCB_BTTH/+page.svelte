@@ -16,7 +16,7 @@
 	{#each LESSONS as { lesson, title, data }}
 		<div>
 			<PreloadLinkWithData
-				href="/guides/c/LTCB_BTTH/{lesson}"
+				href="/huong-dan-hoc/c/LTCB_BTTH/{lesson}"
 				style="color: var(--primary); display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; text-align: center;"
 				{data}
 			>

@@ -8,7 +8,7 @@
 
 	let { children } = $props();
 
-	let isGuidesPage = $derived(() => /^\/guides(\/.*)?$/.test(page.url.pathname));
+	let isGuidesPage = $derived(() => /^\/huong-dan-hoc(\/.*)?$/.test(page.url.pathname));
 
 	const USER_GITHUB = 'kitajima2910';
 	const REPO_NAME = 'error404-labs';
@@ -44,7 +44,7 @@
 				class="hover-rgb border border-dashed border-[#1e5b66] rounded-[5px] text-[#1e5b66] text-center decoration-0 text-[18px]"
 			>
 				<PreloadLinkWithData
-					href="/guides"
+					href="/huong-dan-hoc"
 					style="color: var(--primary); padding: calc((10 * 1rem) / 16);"
 					>Hướng dẫn học
 				</PreloadLinkWithData>

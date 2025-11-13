@@ -4,7 +4,7 @@
 | 2   | error404-labs.info.vn/guides                    |              |
 | 3   | error404-labs.info.vn/guides/c                  |              |
 | 4   | error404-labs.info.vn/guides/webs               |              |
-| 5   | error404-labs.info.vn/ve-toi                    | OK           |
+| 5   | error404-labs.info.vn/ve-toi                    | OK - Indexed |
 | 6   | error404-labs.info.vn/guides/c/LTCB_BTTH        |              |
 | 7   | error404-labs.info.vn/guides/webs/slideshare    |              |
 | 8   | error404-labs.info.vn/guides/c/LTCB_BTTH/01     |              |
