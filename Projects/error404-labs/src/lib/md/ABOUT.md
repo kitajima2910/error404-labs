@@ -20,7 +20,7 @@
 
 <br clear="both">
 
-<div align="center">
+<div class="flex justify-center flex-wrap gap-2">
   <img fetchpriority="high" src="https://github-profile-summary-cards.vercel.app/api/cards/profile-details?username=kitajima2910&theme=github_dark" alt="profile summary cards"  />
   <img src="https://github-readme-stats.vercel.app/api/top-langs?username=kitajima2910&locale=en&hide_title=false&layout=compact&card_width=320&langs_count=5&theme=dracula&hide_border=false&order=2" alt="languages graph"  />
 </div>
@@ -31,7 +31,7 @@
 
 <br clear="both">
 
-<div align="center">
+<div class="flex justify-center flex-wrap gap-2">
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg" height="40" width="40" alt="java logo"  />
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/csharp/csharp-original.svg" height="40" width="40" alt="csharp logo"  />
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" height="40" width="40" alt="html5 logo"  />
