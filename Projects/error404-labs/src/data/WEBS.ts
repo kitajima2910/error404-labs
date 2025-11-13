@@ -7,7 +7,7 @@ export interface Webs {
 export const DATA_WEBS: Webs[] = [
 	{
 		name: 'Slide Share',
-		link: '/guides/webs/slideshare',
+		link: '/huong-dan-hoc/lap-trinh-web/slideshare',
 		title: 'Khóa học: tạo trang web tạp chí điện tử'
 	}
 ];

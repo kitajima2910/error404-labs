@@ -9,7 +9,7 @@
 	const DATA_COURSE: Course[] = [
 		{
 			title: 'Lập trình Web',
-			link: '/huong-dan-hoc/webs'
+			link: '/huong-dan-hoc/lap-trinh-web'
 		},
 		{
 			title: 'Lập trình C/C++',
@@ -18,17 +18,20 @@
 	];
 </script>
 
+<svelte:head>
+	<link rel="canonical" href="https://error404-labs.info.vn/huong-dan-hoc" />
+</svelte:head>
+
+<article class="mb-5! flex flex-col gap-2">
+	<h1 class="text-2xl">Học lập trình cùng Error404-Labs</h1>
+	<p>Các khóa học lập trình tại Error404-Labs giúp bạn training tốt hơn.</p>
+</article>
+
 <div class="guides">
 	<!-- List card course have title Web, C/C++, Java,... -->
-	<ul
-		class="list-none grid justify-items-center gap-5 grid-cols-[repeat(auto-fill,minmax(250px,1fr))]"
-	>
+	<ul class="wrapper-box-card">
 		{#each DATA_COURSE as course (course.title)}
-			<li
-				data-sveltekit-preload-data
-				data-sveltekit-preload
-				class="hover-rgb cursor-pointer w-[250px] h-[150px] border border-dashed border-[#1e5b66] rounded-[5px] p-2.5! shadow-[0_2px_5px_rgba(0,0,0,0.1)]"
-			>
+			<li data-sveltekit-preload-data data-sveltekit-preload class="box-card">
 				<PreloadLinkWithData
 					href={course.link}
 					style="display: flex; align-items: center; justify-content: center; color: var(--primary);"

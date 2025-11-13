@@ -13,19 +13,19 @@
 			icon: '🧩',
 			name_lesson: 'Bài 01',
 			name: 'Sử dụng các tag cơ bản',
-			link: '/huong-dan-hoc/webs/slideshare/01'
+			link: '/huong-dan-hoc/lap-trinh-web/slideshare/01'
 		},
 		{
 			icon: '🎨',
 			name_lesson: 'Bài 02',
 			name: 'Sử dụng các tag cơ bản (tt)',
-			link: '/huong-dan-hoc/webs/slideshare/02'
+			link: '/huong-dan-hoc/lap-trinh-web/slideshare/02'
 		},
 		{
 			icon: '🌈',
 			name_lesson: 'Bài 03',
 			name: 'Định dạng trang web',
-			link: '/huong-dan-hoc/webs/slideshare/03'
+			link: '/huong-dan-hoc/lap-trinh-web/slideshare/03'
 		}
 	];
 </script>

@@ -10,8 +10,8 @@
 
 	// ✅ Merge nameMap với default values
 	const defaultNames: Record<string, string> = {
-		guides: 'Hướng dẫn',
-		webs: 'Website',
+		'huong-dan-hoc': 'Hướng dẫn',
+		'lap-trinh-web': 'Lập trình web',
 		slideshare: 'Slide Share'
 	};
 
@@ -23,11 +23,11 @@
 	}
 </script>
 
-<nav class="breadcrumb">
+<nav class="text-[16px] flex flex-wrap items-center gap-0.5! mb-2.5!">
 	{#each pathParts as part, i}
 		<button
 			type="button"
-			class="crumb"
+			class="crumb bg-none border-none p-0 text-[#007bff] cursor-pointer capitalize font-[inherit]"
 			class:active={i === pathParts.length - 1}
 			onclick={() => navigateTo(i)}
 			disabled={i === pathParts.length - 1}
@@ -35,32 +35,12 @@
 			{displayNames[part] ?? part}
 		</button>
 		{#if i < pathParts.length - 1}
-			<span class="sep"> / </span>
+			<span class="text-[#888]"> / </span>
 		{/if}
 	{/each}
 </nav>
 
 <style>
-	.breadcrumb {
-		font-size: 1rem;
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: 0.25rem;
-		margin-bottom: 1rem;
-	}
-
-	.crumb {
-		background: none;
-		border: none;
-		padding: 0;
-		color: #007bff;
-		cursor: pointer;
-		text-transform: capitalize;
-		font-size: inherit;
-		font-family: inherit;
-	}
-
 	.crumb:hover:not(:disabled) {
 		text-decoration: underline;
 	}
@@ -70,9 +50,5 @@
 		color: #333;
 		cursor: default;
 		font-weight: bold;
-	}
-
-	.sep {
-		color: #888;
 	}
 </style>

@@ -78,7 +78,7 @@
 					</span>
 					<span class="hover:bg-[#f1f1f1] inline-block w-full">
 						<PreloadLinkWithData
-							href="/huong-dan-hoc/webs"
+							href="/huong-dan-hoc/lap-trinh-web"
 							style="color:#000; padding: calc((5 * 1rem) / 16) calc((15 * 1rem) / 16);"
 							>Lập Trình Web</PreloadLinkWithData
 						>
@@ -113,7 +113,7 @@
 				>
 			</div>
 			<div class="link p-2.5! cursor-pointer hover:bg-[#246D7A80]">
-				<PreloadLinkWithData href="/huong-dan-hoc/webs" style="color:#fff"
+				<PreloadLinkWithData href="/huong-dan-hoc/lap-trinh-web" style="color:#fff"
 					>Lập Trình Web</PreloadLinkWithData
 				>
 			</div>
