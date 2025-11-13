@@ -29,7 +29,7 @@
 	{#each pathParts as part, i}
 		<button
 			type="button"
-			class="crumb bg-none border-none p-0 text-[#007bff] cursor-pointer capitalize font-[inherit]"
+			class="crumb bg-none border-none p-0 text-blue-700 cursor-pointer capitalize font-[inherit]"
 			class:active={i === pathParts.length - 1}
 			onclick={() => navigateTo(i)}
 			disabled={i === pathParts.length - 1}
