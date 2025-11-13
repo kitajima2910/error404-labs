@@ -12,7 +12,7 @@
 		{
 			title: 'Lập Trình Cơ Bản - Bài Tập Thực Hành',
 			tooltip: 'Khóa học: lập trình cơ bản - bài tập thực hành',
-			link: '/huong-dan-hoc/lap-trinh-c-cpp/LTCB_BTTH'
+			link: '/huong-dan-hoc/lap-trinh-c-cpp/lap-trinh-co-ban-bai-tap-thuc-hanh'
 		}
 	];
 </script>

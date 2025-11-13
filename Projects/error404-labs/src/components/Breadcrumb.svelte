@@ -13,7 +13,8 @@
 		'huong-dan-hoc': 'Hướng dẫn',
 		'lap-trinh-web': 'Lập trình web',
 		'khoa-hoc-slideshare': 'Khóa học Slide Share',
-		'lap-trinh-c-cpp': 'Lập Trình C/C++'
+		'lap-trinh-c-cpp': 'Lập Trình C/C++',
+		'lap-trinh-co-ban-bai-tap-thuc-hanh': 'Lập Trình Cơ Bản - Bài Tập Thực Hành'
 	};
 
 	const displayNames = $derived({ ...defaultNames, ...nameMap });
