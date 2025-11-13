@@ -10,15 +10,15 @@
 
 	const LESSONS: Lesson[] = [
 		{
-			icon: '🧩',
+			icon: '📚',
 			name_lesson: 'Bài 01',
 			name: 'Sử dụng các Tag Cơ Bản HTML',
 			link: '/huong-dan-hoc/lap-trinh-web/khoa-hoc-slideshare/01'
 		},
 		{
-			icon: '🎨',
+			icon: '🎓',
 			name_lesson: 'Bài 02',
-			name: 'Sử dụng các tag cơ bản (tt)',
+			name: 'SỬ DỤNG CÁC TAG CƠ BẢN HTML (PHẦN TIẾP THEO)',
 			link: '/huong-dan-hoc/lap-trinh-web/khoa-hoc-slideshare/02'
 		},
 		{

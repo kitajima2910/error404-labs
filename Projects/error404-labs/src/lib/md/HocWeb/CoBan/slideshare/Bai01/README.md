@@ -310,9 +310,9 @@ Mỗi trang HTML đều có cấu trúc chuẩn như sau:
 
 ## 🔗 Tài Liệu Tham Khảo
 
-- MDN Web Docs: https://developer.mozilla.org/vi/docs/Web/HTML
-- W3Schools HTML Tutorial: https://www.w3schools.com/html/
-- HTML Living Standard: https://html.spec.whatwg.org/
+- MDN Web Docs: <a href="https://developer.mozilla.org/vi/docs/Web/HTML" target="_blank">https://developer.mozilla.org/vi/docs/Web/HTML</a>
+- W3Schools HTML Tutorial: <a href="https://www.w3schools.com/html/" target="_blank">https://www.w3schools.com/html/</a>
+- HTML Living Standard: <a href="https://html.spec.whatwg.org/" target="_blank">https://html.spec.whatwg.org/</a>
 
 ---
 
