@@ -37,9 +37,9 @@ Giúp làm quen với các **thuộc tính CSS nâng cao** để định dạng 
 
 ---
 
-## 🧠 Bài tập (dữ liệu: <a href="/md/HocWeb/CoBan/slideshare/Bai03/assets.rar" download>tải xuống</a>)
+## 🧠 Bài tập (dữ liệu: <a href="/hoc-lap-trinh-web/khoa-hoc-slideshare/bai-03/assets.rar" download>tải xuống</a>)
 
-![Bài tập minh họa](demo.png)
+![Bài tập minh họa](/hoc-lap-trinh-web/khoa-hoc-slideshare/bai-03/demo.png)
 
 ### **Yêu cầu:**
 
@@ -79,13 +79,13 @@ Giúp làm quen với các **thuộc tính CSS nâng cao** để định dạng 
 ```html
 <!DOCTYPE html>
 <html lang="vi">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Định dạng trang web</title>
-    </head>
-    <body
-        style="
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Định dạng trang web</title>
+	</head>
+	<body
+		style="
             background-color: #a06d21;
             color: #fff;
             background-image: url('./lorem-ipsum.png');
@@ -95,14 +95,10 @@ Giúp làm quen với các **thuộc tính CSS nâng cao** để định dạng 
             background-size: 50%;
             background-blend-mode: darken;
         "
-    >
-        <h2 align="center" style="color: #ffcc00; text-transform: uppercase">
-            Lorem Ipsum
-        </h2>
-        <span>
-            Lorem ipsum, dolor sit amet consectetur adipisicing elit...
-        </span>
-    </body>
+	>
+		<h2 align="center" style="color: #ffcc00; text-transform: uppercase">Lorem Ipsum</h2>
+		<span> Lorem ipsum, dolor sit amet consectetur adipisicing elit... </span>
+	</body>
 </html>
 ```
 

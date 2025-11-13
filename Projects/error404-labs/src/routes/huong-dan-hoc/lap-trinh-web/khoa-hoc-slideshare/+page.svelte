@@ -22,7 +22,7 @@
 			link: '/huong-dan-hoc/lap-trinh-web/khoa-hoc-slideshare/02'
 		},
 		{
-			icon: '🌈',
+			icon: '🎨',
 			name_lesson: 'Bài 03',
 			name: 'Định dạng trang web',
 			link: '/huong-dan-hoc/lap-trinh-web/khoa-hoc-slideshare/03'
