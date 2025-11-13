@@ -12,7 +12,7 @@
 		{
 			icon: '🧩',
 			name_lesson: 'Bài 01',
-			name: 'Sử dụng các tag cơ bản',
+			name: 'Sử dụng các Tag Cơ Bản HTML',
 			link: '/huong-dan-hoc/lap-trinh-web/khoa-hoc-slideshare/01'
 		},
 		{
