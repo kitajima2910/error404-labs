@@ -41,17 +41,12 @@
 	}
 </script>
 
-<a {href} onclick={handleClick} {...attrs} {style}>
+<a
+	{href}
+	onclick={handleClick}
+	{...attrs}
+	{style}
+	class="inline-block cursor-pointer decoration-0 w-full h-full transition-colors duration-75 ease-in"
+>
 	{@render children?.()}
 </a>
-
-<style>
-	a {
-		display: inline-block;
-		text-decoration: none;
-		cursor: pointer;
-		transition: color 0.2s ease;
-		width: 100%;
-		height: 100%;
-	}
-</style>
