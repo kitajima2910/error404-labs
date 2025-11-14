@@ -35,7 +35,7 @@
 <div
 	class="border! border-solid! border-[#ccc]! rounded-[5px]! p-4! text-center! transition-all! duration-300! ease-in-out! w-full! shadow-[0_8px_16px_0_rgba(0,0,0,0.2)]!"
 >
-	<h3 class="text-center!">✧･ﾟ: *✧･ﾟ:* 💎 BÀI HỌC 💎 *:･ﾟ✧*:･ﾟ✧</h3>
+	<h1 class="text-center!">✧･ﾟ: *✧･ﾟ:* 💎 BÀI HỌC 💎 *:･ﾟ✧*:･ﾟ✧</h1>
 	{#each LESSONS as { icon, name_lesson, name, link }}
 		<p class="m-7! text-justify! h-1.5!">
 			<a
