@@ -32,18 +32,11 @@
 
 <Breadcrumb />
 
-<div
-	class="border! border-solid! border-[#ccc]! rounded-[5px]! p-4! text-center! transition-all! duration-300! ease-in-out! w-full! shadow-[0_8px_16px_0_rgba(0,0,0,0.2)]!"
->
-	<h1 class="text-center!">✧･ﾟ: *✧･ﾟ:* 💎 BÀI HỌC 💎 *:･ﾟ✧*:･ﾟ✧</h1>
+<div class="slideshare">
+	<h3>✧･ﾟ: *✧･ﾟ:* 💎 BÀI HỌC 💎 *:･ﾟ✧*:･ﾟ✧</h3>
 	{#each LESSONS as { icon, name_lesson, name, link }}
-		<p class="m-7! text-justify! h-1.5!">
-			<a
-				data-sveltekit-preload-data
-				data-sveltekit-preload
-				href={link}
-				class="text-black! decoration-0! transition-all! duration-300! ease-in-out! hover:underline!"
-			>
+		<p>
+			<a data-sveltekit-preload-data data-sveltekit-preload href={link}>
 				<span class="icon">{icon}</span>
 				<strong>{name_lesson}:</strong>
 				{name}</a
@@ -51,3 +44,35 @@
 		</p>
 	{/each}
 </div>
+
+<style>
+	.slideshare {
+		border: 1px solid #ccc;
+		padding: 1rem;
+		text-align: center;
+		transition: all 0.3s ease-in-out;
+		width: 100%;
+		border-radius: calc((5 * 1rem) / 16);
+		box-shadow: 0 calc((2 * 1rem) / 16) calc((5 * 1rem) / 16) rgba(0, 0, 0, 0.1);
+
+		h3 {
+			text-align: center;
+		}
+
+		p {
+			margin: 1rem;
+			text-align: justify;
+			line-height: 1.5;
+
+			a {
+				color: black;
+				text-decoration: none;
+				transition: all 0.3s ease-in-out;
+
+				&:hover {
+					text-decoration: underline;
+				}
+			}
+		}
+	}
+</style>
