@@ -6,4 +6,4 @@
 | 4   | error404-labs.info.vn/huong-dan-hoc/lap-trinh-c-cpp                                    | OK - Indexed |
 | 5   | error404-labs.info.vn/huong-dan-hoc/lap-trinh-web                                      | OK - Indexed |
 | 6   | error404-labs.info.vn/huong-dan-hoc/lap-trinh-c-cpp/lap-trinh-co-ban-bai-tap-thuc-hanh | OK - Indexed |
-| 7   | error404-labs.info.vn/huong-dan-hoc/lap-trinh-web/khoa-hoc-slideshare                  |              |
+| 7   | error404-labs.info.vn/huong-dan-hoc/lap-trinh-web/khoa-hoc-slideshare                  | OK - Indexed |
