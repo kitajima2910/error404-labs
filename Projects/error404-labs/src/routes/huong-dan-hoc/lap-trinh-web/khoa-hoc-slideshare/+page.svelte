@@ -1,33 +1,8 @@
 <script lang="ts">
 	import Breadcrumb from '../../../../components/Breadcrumb.svelte';
+	import { DATA_SLIDESHARE_LESSONS } from '../../../../data/WEBS';
 
-	type Lesson = {
-		icon: string;
-		name_lesson: string;
-		name: string;
-		link: string;
-	};
-
-	const LESSONS: Lesson[] = [
-		{
-			icon: '📚',
-			name_lesson: 'Bài 01',
-			name: 'Sử dụng các Tag Cơ Bản HTML',
-			link: '/huong-dan-hoc/lap-trinh-web/khoa-hoc-slideshare/01'
-		},
-		{
-			icon: '🎓',
-			name_lesson: 'Bài 02',
-			name: 'SỬ DỤNG CÁC TAG CƠ BẢN HTML (PHẦN TIẾP THEO)',
-			link: '/huong-dan-hoc/lap-trinh-web/khoa-hoc-slideshare/02'
-		},
-		{
-			icon: '🎨',
-			name_lesson: 'Bài 03',
-			name: 'Định dạng trang web',
-			link: '/huong-dan-hoc/lap-trinh-web/khoa-hoc-slideshare/03'
-		}
-	];
+	const LESSONS = DATA_SLIDESHARE_LESSONS;
 </script>
 
 <Breadcrumb />
