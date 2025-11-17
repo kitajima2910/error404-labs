@@ -1,13 +1,16 @@
 <script lang="ts">
 	import 'github-markdown-css/github-markdown-light.css';
 	import { loadMarkdownRaw } from '../../utils/markdown';
-	import ABOUT from '$lib/md/ABOUT.md?raw';
 	import { onMount } from 'svelte';
 
 	let content: string | any = $state('⏳ Đang tải dữ liệu');
 
+	let { data } = $props();
+
+	const { dataABOUTRaw } = data;
+
 	onMount(() => {
-		content = loadMarkdownRaw(ABOUT);
+		content = loadMarkdownRaw(dataABOUTRaw);
 	});
 </script>
 
