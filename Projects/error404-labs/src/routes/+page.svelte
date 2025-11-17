@@ -3,7 +3,7 @@
 	import { loadMarkdownRaw } from '../utils/markdown';
 	import { onMount } from 'svelte';
 
-	let content: string | any = $state('⏳ Đang tải dữ liệu');
+	let content: string = $state('⏳ Đang tải dữ liệu');
 
 	let { data } = $props();
 

@@ -7,15 +7,18 @@
 
 	let lesson = $derived(page.params.lesson || '');
 
-	let content: string | any = $state('⏳ Đang tải bài học');
+	let content: string = $state('⏳ Đang tải bài học');
 
 	const nameMap = $derived({
 		[lesson]: `Bài ${lesson}`
 	});
 
+	let { data } = $props();
+
+	const { dataLESSONRaw } = data;
+
 	onMount(async () => {
-		const LessonRaw = await import(`$lib/md/HocWeb/CoBan/slideshare/Bai${lesson}/README.md?raw`);
-		content = loadMarkdownRaw(LessonRaw.default);
+		content = loadMarkdownRaw(dataLESSONRaw);
 
 		highlightCode();
 	});
