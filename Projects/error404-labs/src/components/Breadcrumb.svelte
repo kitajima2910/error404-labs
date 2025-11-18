@@ -22,6 +22,41 @@
 	function navigateTo(index: number) {
 		const target = '/' + pathParts.slice(0, index + 1).join('/');
 		goto(target);
+
+		console.clear();
+		// Dòng Logo Gradient 7 màu
+		console.log(
+			'%c Error404-Labs ',
+			`
+			font-size: 24px;
+			font-weight: bold;
+			padding: 12px 22px;
+			color: transparent;
+			background-image: linear-gradient(
+			90deg,
+			#0f2d33,
+			#16444d,
+			#1e5b66,
+			#267281,
+			#2f899c,
+			#37a0b7,
+			#40b8d2
+			);
+			-webkit-background-clip: text;
+			`
+		);
+
+		console.log(
+			'%c https://error404-labs.info.vn/ ',
+			`
+			font-size: 14px;
+			font-weight: bold;
+			padding: 6px 12px;
+			color: #1e5b66;
+			border: 2px solid #1e5b66;
+			border-radius: 6px;
+			`
+		);
 	}
 </script>
 

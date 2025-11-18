@@ -8,7 +8,7 @@
 
 ---
 
-## 🧩 **Kiến thức cần dùng trong bài học**
+## 🧩 **Kiến thức cần học thêm**
 
 ### 🌟 **Tag HTML cơ bản**
 
@@ -88,72 +88,8 @@
 <details>
 <summary>Xem code mẫu</summary>
 
-<iframe title="Sử dụng các  tag cơ bản" scrolling="no" loading="lazy" style="height:500px; width: 100%; border:1px solid black; border-radius:6px;" src="https://livecodes.io/?x=id/a2qw5gt7zir&embed=true&loading=eager">
+<iframe title="Sử dụng các  tag cơ bản" scrolling="no" loading="eager" style="height:500px; width: 100%; border:1px solid black; border-radius:6px;" src="https://livecodes.io/?x=id/a2qw5gt7zir&embed=true&loading=eager">
 </iframe>
-
-</details>
-
----
-
-## 🧪 **Bài tập thực hành**
-
-### 🔥 Bài tập 1: Tạo trang giới thiệu bản thân
-
-![Giới thiệu về tôi](/hoc-lap-trinh-web/khoa-hoc-slideshare/bai-01/bai-tap-1.png)
-
-<details>
-<summary>Xem code mẫu</summary>
-
-```html
-<!DOCTYPE html>
-<html lang="vi">
-	<head>
-		<meta charset="UTF-8" />
-		<title>Giới thiệu về tôi</title>
-	</head>
-	<body>
-		<h1 align="center">Giới Thiệu Về Tôi</h1>
-
-		<h2>Thông tin cơ bản</h2>
-		<p>Tôi là một lập trình viên đam mê học hỏi.</p>
-
-		<h2>Kỹ năng</h2>
-		<p style="font-weight: bold">HTML, CSS, JavaScript</p>
-
-		<p align="center" style="color: blue; margin-top: 30px;">Cảm ơn bạn đã ghé thăm!</p>
-	</body>
-</html>
-```
-
-</details>
-
-### 🔥 Bài tập 2: Tạo trang sản phẩm
-
-![Sản phẩm cơ bản](/hoc-lap-trinh-web/khoa-hoc-slideshare/bai-01/bai-tap-2.png)
-
-<details>
-<summary>Xem code mẫu</summary>
-
-```html
-<!DOCTYPE html>
-<html lang="vi">
-	<head>
-		<meta charset="UTF-8" />
-		<title>Sản phẩm</title>
-	</head>
-	<body>
-		<h1 style="text-align: center; color: green;">Sản Phẩm Của Chúng Tôi</h1>
-
-		<h2 style="text-decoration: underline;">Sản phẩm 1: Laptop Gaming</h2>
-		<p style="font-weight: bold;">Giá: 25.000.000 VNĐ</p>
-		<p>Laptop chuyên dụng cho gaming với cấu hình mạnh mẽ.</p>
-
-		<h2 style="text-decoration: underline;">Sản phẩm 2: Điện thoại thông minh</h2>
-		<p style="font-weight: bold;">Giá: 15.000.000 VNĐ</p>
-		<p>Điện thoại cao cấp với camera 108MP.</p>
-	</body>
-</html>
-```
 
 </details>
 
