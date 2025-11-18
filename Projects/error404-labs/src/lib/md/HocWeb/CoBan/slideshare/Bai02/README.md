@@ -2,9 +2,16 @@
 
 ## 🎯 **Học được gì qua bài này**
 
-- Sử dụng các **thẻ HTML** cơ bản để tạo ra trang Web
-- Định dạng Web với **thuộc tính** trong thẻ HTML
-- Sử dụng **CSS** cơ bản để định dạng Web
+- Sử dụng được **thẻ `<hr>`** để tạo đường phân cách nội dung.
+- Biết cách dùng **attribute `width`** để điều chỉnh chiều rộng của hình ảnh, bảng, video…
+- Áp dụng được **CSS màu sắc**:
+  - `color` (màu chữ)
+  - `background-color` (màu nền)
+
+- Dùng được **font-style** (normal, italic) để tạo định dạng chữ nghiêng.
+- Kết hợp nhiều thẻ và CSS để tạo bố cục nội dung như:
+  tiêu đề, thơ, đường kẻ ngang, màu nền, màu chữ.
+- Hoàn thành một bài thơ có bố cục đẹp, đúng màu sắc và có đường phân cách như mẫu.
 
 ---
 

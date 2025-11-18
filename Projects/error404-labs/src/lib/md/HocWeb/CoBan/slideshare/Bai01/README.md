@@ -2,9 +2,11 @@
 
 ## 🎯 **Học được gì qua bài này**
 
-- Sử dụng các **thẻ HTML** cơ bản để tạo ra trang Web
-- Định dạng Web với **thuộc tính** trong thẻ HTML
-- Sử dụng **CSS** cơ bản để định dạng Web
+- Hiểu và sử dụng các **thẻ HTML cơ bản** như `<title>`, `<h1>…<h6>`, `<p>`, `<div>`, `<br>`.<br/><br/>
+- Tạo được **một trang web đơn giản** có tiêu đề, tiêu đề chính, đoạn văn và bố cục cơ bản.<br/><br/>
+- Biết cách dùng **thuộc tính HTML (attribute)** để căn giữa nội dung.<br/><br/>
+- Biết áp dụng **CSS cơ bản** để định dạng chữ: gạch dưới, in đậm.<br/><br/>
+- Tự tay xây dựng một giao diện giống hình mẫu bài tập.<br/><br/>
 
 ---
 

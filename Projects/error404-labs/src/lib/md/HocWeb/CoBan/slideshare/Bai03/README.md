@@ -1,110 +1,96 @@
-# 🎨 Định dạng trang web
+# 📘 **Bài 03: Định dạng trang web**
 
-## 🎯 Mục tiêu
+## 🎯 **Học được gì qua bài này**
 
-Giúp làm quen với các **thuộc tính CSS nâng cao** để định dạng trang web, bao gồm màu sắc, hình nền, chữ viết và hiệu ứng hình ảnh.
-
----
-
-## 📘 Kiến thức trong bài
-
-### **HTML Tags**
-
-| Thẻ      | Chức năng              |
-| -------- | ---------------------- |
-| `<h2>`   | 🏷️ Tiêu đề cấp 2       |
-| `<span>` | 📝 Phần văn bản inline |
-| `<body>` | 📄 Thân trang web      |
-
-### **CSS Properties cho Background**
-
-| Thuộc tính              | Chức năng                               |
-| ----------------------- | --------------------------------------- |
-| `background-color`      | 🎨 Màu nền                              |
-| `background-image`      | 🖼️ Hình ảnh nền                         |
-| `background-position`   | 📍 Vị trí hình nền                      |
-| `background-repeat`     | 🔄 Lặp lại hình nền                     |
-| `background-attachment` | 📌 Cố định hình nền khi cuộn            |
-| `background-size`       | 📏 Kích thước hình nền                  |
-| `background-blend-mode` | 🎭 Chế độ pha trộn màu nền với hình nền |
-
-### **CSS Properties cho Text**
-
-| Thuộc tính       | Chức năng                            |
-| ---------------- | ------------------------------------ |
-| `color`          | 🎨 Màu chữ                           |
-| `text-transform` | 🔠 Chuyển đổi kiểu chữ (hoa, thường) |
+- Xây dựng cấu trúc trang Web bằng cách sử dụng các **thẻ HTML** cơ bản và hiệu quả<br/><br/>
+- Tùy chỉnh và định dạng các phần tử trang web thông qua **thuộc tính HTML**<br/><br/>
+- Trang trí giao diện Web một cách chuyên nghiệp bằng **CSS cơ bản**, bao gồm nền, màu chữ, vị trí và kích thước<br/><br/>
 
 ---
 
-## 🧠 Bài tập (dữ liệu: <a href="/hoc-lap-trinh-web/khoa-hoc-slideshare/bai-03/assets.rar" download>tải xuống</a>)
+## 🧩 **Kiến thức cần học thêm**
 
-![Bài tập minh họa](/hoc-lap-trinh-web/khoa-hoc-slideshare/bai-03/demo.png)
+### 🌟 **Tính năng CSS cơ bản**
 
-### **Yêu cầu:**
+| Thuộc tính CSS          | Ý nghĩa                                    | Ví dụ                                             |
+| ----------------------- | ------------------------------------------ | ------------------------------------------------- |
+| `background-image`      | Đặt hình ảnh làm nền cho phần tử           | `background-image: url('image.jpg');`             |
+| `background-position`   | Xác định vị trí hiển thị của hình ảnh nền  | `background-position: center;` hoặc `50% 50%;`    |
+| `background-repeat`     | Kiểm soát cách lặp lại hình ảnh nền        | `background-repeat: no-repeat;` hoặc `repeat-x;`  |
+| `background-attachment` | Xác định cách nền cuộn khi trang di chuyển | `background-attachment: fixed;` hoặc `scroll;`    |
+| `background-size`       | Đặt kích thước của hình ảnh nền            | `background-size: cover;` hoặc `100px 200px;`     |
+| `background-blend-mode` | Xác định cách pha trộn hình ảnh nền        | `background-blend-mode: multiply;` hoặc `screen;` |
+| `text-transform`        | Chuyển đổi kiểu chữ của văn bản            | `text-transform: uppercase;` hoặc `capitalize;`   |
 
-| STT | Đối tượng | Yêu cầu mô tả                              | Ghi chú                                      |
-| --- | --------- | ------------------------------------------ | -------------------------------------------- |
-| 1   | Trang web | 🖥️ Tiêu đề cửa sổ: **Định dạng trang web** | Sử dụng thẻ `<title>`                        |
-| 2   | Body      | 🎨 Màu nền: `#a06d21`, màu chữ: `#fff`     | `background-color` và `color`                |
-| 3   | Body      | 🖼️ Hình nền: `lorem-ipsum.png`             | `background-image: url('./lorem-ipsum.png')` |
-| 4   | Body      | 📍 Căn giữa hình nền, không lặp lại        | `center center`, `no-repeat`                 |
-| 5   | Body      | 📌 Cố định hình nền, kích thước 50%        | `fixed`, `50%`                               |
-| 6   | Body      | 🎭 Hiệu ứng làm tối hình nền               | `background-blend-mode: darken`              |
-| 7   | Tiêu đề   | 🔠 In hoa, màu vàng `#ffcc00`, căn giữa    | `uppercase`, `color`, `align="center"`       |
-| 8   | Nội dung  | 📝 Văn bản Lorem Ipsum dài (lorem5000)     | Sử dụng thẻ `<span>`                         |
+**Giải thích:**
+
+- **`background-image`**: Được sử dụng để thêm một hoặc nhiều hình ảnh làm nền. Giá trị thường là `url('đường-dẫn-ảnh')`. Nếu không có hình ảnh, bạn có thể sử dụng `background-color` để set màu nền thay thế.
+
+- **`background-position`**: Xác định vị trí bắt đầu của hình ảnh nền. Các giá trị phổ biến bao gồm `top`, `bottom`, `left`, `right`, `center`, hoặc sử dụng tọa độ như `10px 20px` (trái, trên) hay phần trăm `25% 75%`.
+
+- **`background-repeat`**: Kiểm soát việc lặp lại hình ảnh nền. Các giá trị bao gồm:
+  - `repeat` (mặc định): lặp lại cả chiều ngang và dọc
+  - `repeat-x`: chỉ lặp lại theo chiều ngang
+  - `repeat-y`: chỉ lặp lại theo chiều dọc
+  - `no-repeat`: không lặp lại
+
+- **`background-attachment`**: Kiểm soát xem hình ảnh nền có cuộn cùng nội dung hay cố định:
+  - `scroll` (mặc định): hình ảnh cuộn cùng nội dung
+  - `fixed`: hình ảnh cố định và không cuộn khi trang di chuyển
+  - `local`: hình ảnh cuộn với nội dung phần tử
+
+- **`background-size`**: Đặt kích thước hiển thị của hình ảnh nền:
+  - `cover`: phóng to ảnh để che phủ toàn bộ phần tử (có thể cắt)
+  - `contain`: hiển thị toàn bộ ảnh trong phần tử
+  - `100% 100%`: kéo giãn ảnh theo kích thước phần tử
+  - `200px 150px`: đặt kích thước cụ thể
+
+- **`background-blend-mode`**: Xác định cách pha trộn hình ảnh nền với màu nền hoặc nội dung phía dưới:
+  - `multiply`: làm tối hơn
+  - `screen`: làm sáng hơn
+  - `overlay`: kết hợp multiply và screen
+  - `darken`, `lighten`, `color-dodge`, v.v.
+
+- **`text-transform`**: Chuyển đổi kiểu chữ của văn bản mà không thay đổi HTML:
+  - `uppercase`: chuyển tất cả thành CHỮ HOA
+  - `lowercase`: chuyển tất cả thành chữ thường
+  - `capitalize`: viết hoa chữ cái đầu của mỗi từ
+  - `none` (mặc định): không thay đổi
 
 ---
 
-## 🧩 Hướng dẫn từng bước
+## 📝 **Yêu cầu bài tập**
 
-| STT | Bước                     | Cách thực hiện                                        | Mã minh họa                                                              |
-| --- | ------------------------ | ----------------------------------------------------- | ------------------------------------------------------------------------ |
-| 1   | Thêm tiêu đề trang       | Sử dụng thẻ `<title>` trong phần `<head>`             | `<title>Định dạng trang web</title>`                                     |
-| 2   | Đặt màu nền và màu chữ   | Dùng `background-color` và `color` trong thẻ `<body>` | `style="background-color: #a06d21; color: #fff;"`                        |
-| 3   | Thêm hình nền            | Dùng `background-image` với đường dẫn file            | `background-image: url('./lorem-ipsum.png');`                            |
-| 4   | Cấu hình vị trí hình nền | Dùng `background-position`, `background-repeat`       | `background-position: center center; background-repeat: no-repeat;`      |
-| 5   | Cố định và resize hình   | Dùng `background-attachment` và `background-size`     | `background-attachment: fixed; background-size: 50%;`                    |
-| 6   | Thêm hiệu ứng blend      | Dùng `background-blend-mode`                          | `background-blend-mode: darken;`                                         |
-| 7   | Định dạng tiêu đề        | Dùng `<h2>` với `text-transform`, `color`, `align`    | `<h2 align="center" style="color: #ffcc00; text-transform: uppercase;">` |
-| 8   | Thêm nội dung văn bản    | Dùng `<span>` để chứa văn bản                         | `<span>Lorem ipsum...</span>`                                            |
+> Nhiệm vụ: mô tả ngắn gọn sản phẩm cần làm
+
+| Đối tượng | Yêu cầu                                                                      | Mã màu  |
+| --------- | ---------------------------------------------------------------------------- | ------- |
+| Trang web | - Tiêu đề trang web: Định dạng trang web                                     |         |
+| Nội dung  | - Định dạng chung:<br/>                                                      |         |
+|           | <ul><li>Nền: Màu nâu đất</li></ul>                                           | #A06D21 |
+|           | <ul><li>Chữ: Màu trắng</li></ul>                                             | #FFFFFF |
+|           | <ul><li>Hình nền: Đặt giữa trang và không di chuyển khi cuộn trang</li></ul> |         |
+|           | - Dòng đầu tiên: Canh giữa, màu vàng đậm, chữ in hoa                         | #FFCC00 |
+
+### 📸 Hình ảnh minh hoạ bài tập (tài nguyên: <a href="/hoc-lap-trinh-web/khoa-hoc-slideshare/bai-03/assets.rar" download="">tải xuống</a>)
+
+![Hình ảnh minh hoạ bài tập](/hoc-lap-trinh-web/khoa-hoc-slideshare/bai-03/demo.png)
 
 ---
 
-## 🧩 Tham khảo
+## 💡 **Code mẫu (để tham khảo)**
 
 <details>
-<summary>💻 Xem mã HTML mẫu</summary>
+<summary>Xem code mẫu</summary>
 
-```html
-<!DOCTYPE html>
-<html lang="vi">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Định dạng trang web</title>
-	</head>
-	<body
-		style="
-            background-color: #a06d21;
-            color: #fff;
-            background-image: url('./lorem-ipsum.png');
-            background-position: center center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            background-size: 50%;
-            background-blend-mode: darken;
-        "
-	>
-		<h2 align="center" style="color: #ffcc00; text-transform: uppercase">Lorem Ipsum</h2>
-		<span> Lorem ipsum, dolor sit amet consectetur adipisicing elit... </span>
-	</body>
-</html>
-```
+<iframe title="Định dạng trang web" scrolling="no" loading="eager" style="height:500px; width: 100%; border:1px solid black; border-radius:6px;" src="https://embed.plnkr.co/plunk/nU2LSNOB8uGtwq3C">
+</iframe>
 
 </details>
 
 ---
 
-✍️ **Người soạn:** _Phạm Xuân Hoài_ <br />
-📚 **Chủ đề:** HTML cơ bản
+✍️ **Người soạn:** Phạm Xuân Hoài<br/>
+📚 **Chủ đề:** HTML cơ bản<br/>
+
+_Chúc bạn học tốt và hoàn thành bài tập thật xuất sắc!_
