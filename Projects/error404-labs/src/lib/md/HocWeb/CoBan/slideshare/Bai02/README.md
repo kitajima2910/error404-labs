@@ -86,7 +86,7 @@ Attribute `width` được sử dụng để thiết lập chiều rộng cụ t
 <details>
 <summary>Xem code mẫu</summary>
 
-<iframe title="Sử dụng các tag cơ bản (tt)" scrolling="no" loading="eager" style="height:500px; width: 100%; border:1px solid black; border-radius:6px;" src="https://v47.livecodes.io/?x=id/gcfaptyj5e3&embed=true&loading=eager">
+<iframe title="Sử dụng các tag cơ bản (tt)" scrolling="no" loading="eager" style="height:500px; width: 100%; border:1px solid black; border-radius:6px;" src="https://embed.plnkr.co/plunk/slUE5I0SE78F2nAH">
 </iframe>
 
 </details>

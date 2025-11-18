@@ -90,7 +90,7 @@
 <details>
 <summary>Xem code mẫu</summary>
 
-<iframe title="Sử dụng các  tag cơ bản" scrolling="no" loading="eager" style="height:500px; width: 100%; border:1px solid black; border-radius:6px;" src="https://livecodes.io/?x=id/a2qw5gt7zir&embed=true&loading=eager">
+<iframe title="Sử dụng các tag cơ bản" scrolling="no" loading="eager" style="height:500px; width: 100%; border:1px solid black; border-radius:6px;" src="https://embed.plnkr.co/plunk/Mk5iyoqHL48GNSIb">
 </iframe>
 
 </details>
