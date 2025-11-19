@@ -22,13 +22,20 @@ export const DATA_LESSONS: Lesson[] = [
 			{
 				lesson: '01',
 				subLesson: '01',
-				content:
-					'Viết chương trình nhập vào một ký tự, một số nguyên, một số thực. Hãy in ra màn hình ký tự có độ rộng là 3, số nguyên có độ rộng là 6, số thực có độ rộng là 8 với 3 chữ số lẻ.'
+				content: String.raw`
+					<div>
+					Viết chương trình nhập vào một ký tự, một số nguyên, một số thực. Hãy in ra màn hình ký tự có độ rộng là 3, số nguyên có độ rộng là 6, số thực có độ rộng là 8 với 3 chữ số lẻ.
+					</div>
+					`
 			},
 			{
 				lesson: '01',
 				subLesson: '02',
-				content: 'Viết chương trình nhập vào một ký tự. Hãy in ra mã ASCII của ký tự.'
+				content: String.raw`
+					<div>
+					Viết chương trình nhập vào một ký tự. Hãy in ra mã ASCII của ký tự.
+					</div>
+					`
 			}
 		]
 	},
