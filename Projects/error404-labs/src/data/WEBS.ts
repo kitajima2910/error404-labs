@@ -50,5 +50,11 @@ export const DATA_SLIDESHARE_LESSONS: Lesson[] = [
 		name_lesson: 'Bài 05',
 		name: 'Định dạng văn bản',
 		link: '/huong-dan-hoc/lap-trinh-web/khoa-hoc-slideshare/05'
+	},
+	{
+		icon: '📘',
+		name_lesson: 'Bài 06',
+		name: 'Định dạng văn bản (tt)',
+		link: '/huong-dan-hoc/lap-trinh-web/khoa-hoc-slideshare/06'
 	}
 ];
