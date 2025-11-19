@@ -1,12 +1,11 @@
 <script lang="ts">
 	import 'github-markdown-css/github-markdown-light.css';
 	import { page } from '$app/state';
-	import type { PageParams } from '../../../../../../data/LTCB_BTTH';
+	import { DATA_LESSONS, type PageParams } from '../../../../../../data/LTCB_BTTH';
 	import Breadcrumb from '../../../../../../components/Breadcrumb.svelte';
 	import { highlightCode, loadMarkdownRaw } from '../../../../../../utils/markdown';
 	import { renderMath } from '../../../../../../utils/katex';
 	import { goto } from '$app/navigation';
-	import PreloadLinkWithData from '../../../../../../components/PreloadLinkWithData.svelte';
 
 	let lesson = $derived(page.params.lesson || '01');
 	let subLesson = $derived(page.params.subLesson || '01');
@@ -16,6 +15,8 @@
 
 	let nameMap = $derived({});
 
+	const CLONE_DATA_LESSONS = DATA_LESSONS;
+
 	$effect(() => {
 		(async () => {
 			nameMap = {
@@ -24,7 +25,7 @@
 				// svelte-ignore state_referenced_locally
 				[subLesson]: `Bài ${subLesson}`
 			};
-			console.log(lesson, subLesson);
+			// console.log(lesson, subLesson);
 			const saved = sessionStorage.getItem('preload_link_data');
 
 			if (saved) {
@@ -35,6 +36,21 @@
 				);
 				const dataLESSONRaw = await res.text();
 				content = loadMarkdownRaw(dataLESSONRaw);
+
+				const title = document.querySelector('.right > .title');
+				if (title) {
+					const titleRaw = CLONE_DATA_LESSONS.filter(
+						(item) => item.lesson === lesson
+					)[0].data.filter((item) => item.lesson === lesson && item.subLesson === subLesson)[0]
+						.content;
+					title.innerHTML = titleRaw;
+					// console.log('title: ', title);
+				}
+
+				// data-state="open"
+				const onlineCPP = document.querySelector('[data-state="open"]');
+				console.log('onlineCPP: ', onlineCPP);
+
 				highlightCode();
 			}
 		})();

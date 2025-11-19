@@ -1,149 +1,103 @@
-# Bài học: Nhập xuất dữ liệu và định dạng với printf trong C++
+# 📘 **Nhập xuất dữ liệu cơ bản trong C++**
 
-## Mô tả bài học
-Chương trình minh họa cách nhập dữ liệu từ bàn phím và xuất dữ liệu có định dạng sử dụng hàm `printf()` trong C++.
+## 🎯 **Học được gì qua bài này**
 
-## Mã nguồn đầy đủ
-
-```cpp
-#include <iostream>
-using namespace std;
-
-int main()
-{
-    char kyTu;
-    int soNguyen;
-    float soThuc;
-    
-    cout << "Nhập vào ký tự: ";
-    cin >> kyTu;
-    cout << "Nhập vào số nguyên: ";
-    cin >> soNguyen;
-    cout << "Nhập vao số thực: ";
-    cin >> soThuc;
-    
-    printf("\n");
-    printf("Ký tự    :%3c\n", kyTu);
-    printf("Số nguyên:%6d\n", soNguyen);
-    printf("Số thực  :%8.3f", soThuc);
-    // printf("\n%3c%6d%8.3f\n", kyTu, soNguyen, soThuc);
-    
-    return 0;
-}
-```
-
-## Giải thích chi tiết
-
-### 1. Khai báo thư viện và biến
-
-```cpp
-#include <iostream>
-using namespace std;
-```
-- `#include <iostream>`: Thư viện cho phép sử dụng `cin`, `cout`
-- `using namespace std`: Không cần viết `std::` trước `cin`, `cout`
-
-```cpp
-char kyTu;      // Biến lưu 1 ký tự (a, b, @, #,...)
-int soNguyen;   // Biến lưu số nguyên (-5, 0, 100,...)
-float soThuc;   // Biến lưu số thực (3.14, -2.5, 10.0,...)
-```
-
-### 2. Nhập dữ liệu từ bàn phím
-
-```cpp
-cout << "Nhập vào ký tự: ";
-cin >> kyTu;
-```
-- `cout <<`: Hiển thị thông báo ra màn hình
-- `cin >>`: Nhận dữ liệu từ bàn phím và lưu vào biến
-
-**Ví dụ:**
-- Người dùng nhập: `A` → biến `kyTu` = 'A'
-- Người dùng nhập: `25` → biến `soNguyen` = 25
-- Người dùng nhập: `3.14159` → biến `soThuc` = 3.14159
-
-### 3. Xuất dữ liệu có định dạng với printf
-
-#### 📌 Cú pháp printf
-```cpp
-printf("chuỗi định dạng", biến1, biến2, ...);
-```
-
-#### 📌 Các ký hiệu định dạng chính
-
-| Ký hiệu | Kiểu dữ liệu | Ví dụ |
-|---------|--------------|-------|
-| `%c` | Ký tự (char) | 'A', 'x' |
-| `%d` | Số nguyên (int) | 25, -100 |
-| `%f` | Số thực (float) | 3.14, -2.5 |
-
-#### 📌 Định dạng độ rộng và độ chính xác
-
-```cpp
-printf("Ký tự    :%3c\n", kyTu);
-```
-- `%3c`: Dành **3 ô** để hiển thị ký tự, căn lề phải
-- Nếu `kyTu = 'A'` → kết quả: `  A` (2 khoảng trắng + chữ A)
-
-```cpp
-printf("Số nguyên:%6d\n", soNguyen);
-```
-- `%6d`: Dành **6 ô** để hiển thị số nguyên, căn lề phải
-- Nếu `soNguyen = 25` → kết quả: `    25` (4 khoảng trắng + 25)
-
-```cpp
-printf("Số thực  :%8.3f", soThuc);
-```
-- `%8.3f`: 
-  - **8** = tổng chiều rộng (bao gồm cả dấu chấm)
-  - **.3** = hiển thị 3 chữ số sau dấu phẩy
-- Nếu `soThuc = 3.14159` → kết quả: `   3.142` (3 khoảng trắng + 3.142)
-
-### 4. Ví dụ chạy chương trình
-
-```
-Nhập vào ký tự: A
-Nhập vào số nguyên: 125
-Nhập vao số thực: 9.87654
-
-Ký tự    :  A
-Số nguyên:   125
-Số thực  :   9.877
-```
-
-**Giải thích kết quả:**
-- Ký tự 'A' được căn sang phải trong 3 ô: `  A`
-- Số 125 được căn sang phải trong 6 ô: `   125`
-- Số 9.87654 làm tròn thành 9.877, căn sang phải trong 8 ô: `   9.877`
-
-### 5. Dòng code được comment
-
-```cpp
-// printf("\n%3c%6d%8.3f\n", kyTu, soNguyen, soThuc);
-```
-Dòng này in tất cả trên **một dòng duy nhất** thay vì 3 dòng riêng biệt.
-
-Nếu bỏ comment, kết quả sẽ là:
-```
-  A   125   9.877
-```
-
-## Tổng kết
-
-### ✅ Kiến thức đã học:
-1. Khai báo biến với các kiểu `char`, `int`, `float`
-2. Nhập dữ liệu với `cin >>`
-3. Xuất dữ liệu định dạng với `printf()`
-4. Sử dụng `%c`, `%d`, `%f` để định dạng
-5. Căn lề và làm tròn số với `%8.3f`
-
-### 🎯 Bài tập thực hành:
-1. Thay đổi `%6d` thành `%3d` và quan sát kết quả
-2. Thay đổi `%8.3f` thành `%10.2f` và so sánh
-3. Bỏ comment dòng cuối và chạy lại chương trình
-4. Thử nhập số âm và số lớn hơn để xem cách định dạng hoạt động
+- Sử dụng các **kiểu dữ liệu** cơ bản trong C++<br/><br/>
+- Nhập dữ liệu từ bàn phím bằng **`cin`**<br/><br/>
+- Xuất dữ liệu ra màn hình bằng **`cout`** và **`printf`**<br/><br/>
+- Định dạng đầu ra với các **specifier** trong `printf`<br/><br/>
 
 ---
 
-**Lưu ý:** Trong C++ hiện đại, người ta thường khuyến khích dùng `cout` thay vì `printf`, nhưng `printf` vẫn rất hữu ích khi cần định dạng chính xác!
+## 🧩 **Kiến thức cần học thêm**
+
+### 🌟 **Kiểu dữ liệu cơ bản**
+
+| Kiểu dữ liệu | Ý nghĩa                            | Ví dụ                   |
+| ------------ | ---------------------------------- | ----------------------- |
+| `char`       | Lưu trữ một ký tự đơn              | `char kyTu = 'A';`      |
+| `int`        | Lưu trữ số nguyên                  | `int soNguyen = 42;`    |
+| `float`      | Lưu trữ số thực (độ chính xác đơn) | `float soThuc = 3.14f;` |
+
+**Giải thích:**
+
+- **`char`**: Kiểu dữ liệu ký tự, chiếm 1 byte bộ nhớ
+- **`int`**: Kiểu dữ liệu số nguyên, thường chiếm 4 bytes
+- **`float`**: Kiểu dữ liệu số thực, chiếm 4 bytes, có thể lưu số thập phân
+
+---
+
+### 🌟 **Nhập dữ liệu với `cin`**
+
+| Cú pháp        | Ý nghĩa                           | Ví dụ              |
+| -------------- | --------------------------------- | ------------------ |
+| `cin >> biến;` | Nhập giá trị từ bàn phím vào biến | `cin >> soNguyen;` |
+
+**Giải thích:**
+
+- **`cin`**: Là luồng nhập từ bàn phím (console input)
+- **`>>`**: Toán tử trích xuất (extraction operator)
+- Người dùng nhập giá trị và nhấn Enter để xác nhận
+
+---
+
+### 🌟 **Xuất dữ liệu với `cout` và `printf`**
+
+| Hàm                    | Ý nghĩa                                     | Ví dụ                         |
+| ---------------------- | ------------------------------------------- | ----------------------------- |
+| `cout << biến;`        | Xuất dữ liệu ra màn hình (C++ style)        | `cout << "Số: " << soNguyen;` |
+| `printf(format, ...);` | Xuất dữ liệu với định dạng cụ thể (C style) | `printf("%d", soNguyen);`     |
+
+**Giải thích:**
+
+- **`cout`**: Luồng xuất ra màn hình, dễ sử dụng hơn, không cần định dạng phức tạp
+- **`printf`**: Hàm in với định dạng chi tiết, cần chỉ định kiểu dữ liệu
+
+---
+
+### 🌟 **Format specifier trong `printf`**
+
+| Specifier | Ý nghĩa                                                   | Ví dụ                      |
+| --------- | --------------------------------------------------------- | -------------------------- |
+| `%c`      | Xuất ký tự                                                | `printf("%c", kyTu);`      |
+| `%d`      | Xuất số nguyên                                            | `printf("%d", soNguyen);`  |
+| `%f`      | Xuất số thực (mặc định 6 chữ số thập phân)                | `printf("%f", soThuc);`    |
+| `%3c`     | Xuất ký tự, chiếm tối thiểu 3 ký tự                       | `printf("%3c", kyTu);`     |
+| `%6d`     | Xuất số nguyên, chiếm tối thiểu 6 ký tự                   | `printf("%6d", soNguyen);` |
+| `%.3f`    | Xuất số thực với 3 chữ số thập phân                       | `printf("%.3f", soThuc);`  |
+| `%8.3f`   | Xuất số thực, chiếm tối thiểu 8 ký tự, 3 chữ số thập phân | `printf("%8.3f", soThuc);` |
+
+**Giải thích:**
+
+- **Số trước dấu chấm**: Tổng chiều rộng tối thiểu mà dữ liệu sẽ chiếm (canh phải)
+- **Số sau dấu chấm**: Số chữ số thập phân (cho `%f`)
+- Ví dụ: `%8.3f` nghĩa là số thực sẽ hiển thị với tối thiểu 8 ký tự, trong đó có 3 chữ số sau dấu thập phân
+
+---
+
+### 🌟 **Các ký tự đặc biệt**
+
+| Ký tự | Ý nghĩa              | Ví dụ                |
+| ----- | -------------------- | -------------------- |
+| `\n`  | Xuống dòng           | `printf("Hello\n");` |
+| `\t`  | Tab (khoảng trắng)   | `printf("A\tB");`    |
+| `\\`  | Xuất ký tự backslash | `printf("\\");`      |
+
+---
+
+## 💡 **Code mẫu**---
+
+<details>
+<summary>Xem code mẫu</summary>
+
+<iframe title="Nhập xuất dữ liệu cơ bản trong C++" scrolling="no" loading="eager" style="height:600px; width: 100%; border:1px solid black; border-radius:6px;" src="https://www.online-cpp.com/t6zjehmnvz">
+</iframe>
+
+</details>
+
+---
+
+✍️ **Người soạn:** Phạm Xuân Hoài<br/>
+📚 **Chủ đề:** C++ - Nhập xuất dữ liệu<br/>
+
+_Chúc bạn học tốt và hoàn thành bài tập thành công!_
