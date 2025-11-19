@@ -37,9 +37,7 @@ cout << soThuNhat << " + " << soThuHai << " = " << tong << endl;
 
 | Ký tự  | Ý nghĩa                 | Ví dụ                      |
 | ------ | ----------------------- | -------------------------- |
-| `\n`   | Xuống dòng              | `cout << "Hello\n";`       |
 | `endl` | Xuống dòng (xóa bộ đệm) | `cout << "Hello" << endl;` |
-| `\t`   | Tab (khoảng trắng)      | `cout << "A\tB";`          |
 
 ---
 
