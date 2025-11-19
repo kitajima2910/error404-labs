@@ -77,11 +77,9 @@
 
 ### 🌟 **Các ký tự đặc biệt**
 
-| Ký tự | Ý nghĩa              | Ví dụ                |
-| ----- | -------------------- | -------------------- |
-| `\n`  | Xuống dòng           | `printf("Hello\n");` |
-| `\t`  | Tab (khoảng trắng)   | `printf("A\tB");`    |
-| `\\`  | Xuất ký tự backslash | `printf("\\");`      |
+| Ký tự | Ý nghĩa    | Ví dụ                |
+| ----- | ---------- | -------------------- |
+| `\n`  | Xuống dòng | `printf("Hello\n");` |
 
 ---
 
@@ -98,6 +96,6 @@
 ---
 
 ✍️ **Người soạn:** Phạm Xuân Hoài<br/>
-📚 **Chủ đề:** C++ - Nhập xuất dữ liệu<br/>
+📚 **Chủ đề:** C/C++ cơ bản<br/>
 
 _Chúc bạn học tốt và hoàn thành bài tập thành công!_

@@ -36,6 +36,33 @@ export const DATA_LESSONS: Lesson[] = [
 					Viết chương trình nhập vào một ký tự. Hãy in ra mã ASCII của ký tự.
 					</div>
 					`
+			},
+			{
+				lesson: '01',
+				subLesson: '03',
+				content: String.raw`
+					<div>
+					Viết chương trình nhập hai số nguyên a, b. Hãy in ra tổng và tích của hai số.
+					</div>
+					`
+			},
+			{
+				lesson: '01',
+				subLesson: '04',
+				content: String.raw`
+					<div>
+					Viết chương trình nhập hai số nguyên a, b. Hãy in ra giá trị trung bình của hai số, lưu ý: giá trị trung bình có thể là số lẻ. Gợi ý: dùng toán tử ép kiểu bắt buộc.
+					</div>
+					`
+			},
+			{
+				lesson: '01',
+				subLesson: '05',
+				content: String.raw`
+					<div>
+					Viết chương trình nhập ba số thực x, y, z. Hãy in ra giá trị trung bình của ba số.
+					</div>
+					`
 			}
 		]
 	},

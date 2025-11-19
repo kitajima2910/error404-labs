@@ -47,10 +47,6 @@
 					// console.log('title: ', title);
 				}
 
-				// data-state="open"
-				const onlineCPP = document.querySelector('[data-state="open"]');
-				console.log('onlineCPP: ', onlineCPP);
-
 				highlightCode();
 			}
 		})();

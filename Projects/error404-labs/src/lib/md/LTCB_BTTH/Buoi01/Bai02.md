@@ -42,6 +42,6 @@
 ---
 
 ✍️ **Người soạn:** Phạm Xuân Hoài<br/>
-📚 **Chủ đề:** C++ - Nhập xuất dữ liệu<br/>
+📚 **Chủ đề:** C/C++ cơ bản<br/>
 
 _Chúc bạn học tốt và hoàn thành bài tập thành công!_
