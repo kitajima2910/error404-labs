@@ -17,6 +17,8 @@
 
 	const CLONE_DATA_LESSONS = DATA_LESSONS;
 
+	let titleLessonSublesson = $derived('');
+
 	$effect(() => {
 		nameMap = {
 			// svelte-ignore state_referenced_locally
@@ -27,11 +29,13 @@
 		(async () => {
 			// console.log(lesson, subLesson);
 			// const saved = sessionStorage.getItem('preload_link_data');
-			const saved = CLONE_DATA_LESSONS.filter((item) => item.lesson === lesson)[0].data;
+			const saved = CLONE_DATA_LESSONS.filter((item) => item.lesson === lesson)[0];
 
 			if (saved) {
 				// dataFromPrev = JSON.parse(saved);
-				dataFromPrev = saved;
+				dataFromPrev = saved.data;
+				titleLessonSublesson = saved.title;
+				// console.log('dataFromPrev: ', saved);
 
 				try {
 					const res = await fetch(
@@ -64,6 +68,16 @@
 		);
 	};
 </script>
+
+<svelte:head>
+	<title>Error404-Labs | {titleLessonSublesson}</title>
+	<meta name="description" content={titleLessonSublesson} />
+	<meta name="keywords" content={titleLessonSublesson} />
+	<link
+		rel="canonical"
+		href="https://error404-labs.info.vn/huong-dan-hoc/lap-trinh-c-cpp/lap-trinh-co-ban-bai-tap-thuc-hanh/{lesson}/{subLesson}"
+	/>
+</svelte:head>
 
 <Breadcrumb {nameMap} />
 
