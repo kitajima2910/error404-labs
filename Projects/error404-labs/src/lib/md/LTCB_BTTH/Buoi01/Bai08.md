@@ -2,7 +2,7 @@
 
 ## 🎯 **Học được gì qua bài này**
 
-- Sử dụng kiểu dữ liệu `long long` trong C++<br/><br/>
+- Sử dụng kiểu dữ liệu **`long long`** trong C++<br/><br/>
 - Thực hiện phép toán chia lấy phần nguyên và chia lấy phần dư<br/><br/>
 - Áp dụng toán tử `/` và `%` trong C++<br/><br/>
 

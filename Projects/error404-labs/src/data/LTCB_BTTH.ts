@@ -16,11 +16,11 @@ export interface PageParams {
 
 export const DATA_LESSONS: Lesson[] = [
 	{
-		lesson: '01',
+		lesson: 'b-01',
 		title: 'Buổi 01: Kiểu dữ liệu, toán tử và biểu thức',
 		data: [
 			{
-				lesson: '01',
+				lesson: 'b-01',
 				subLesson: '01',
 				content: String.raw`
 					<div>
@@ -29,7 +29,7 @@ export const DATA_LESSONS: Lesson[] = [
 					`
 			},
 			{
-				lesson: '01',
+				lesson: 'b-01',
 				subLesson: '02',
 				content: String.raw`
 					<div>
@@ -38,7 +38,7 @@ export const DATA_LESSONS: Lesson[] = [
 					`
 			},
 			{
-				lesson: '01',
+				lesson: 'b-01',
 				subLesson: '03',
 				content: String.raw`
 					<div>
@@ -47,7 +47,7 @@ export const DATA_LESSONS: Lesson[] = [
 					`
 			},
 			{
-				lesson: '01',
+				lesson: 'b-01',
 				subLesson: '04',
 				content: String.raw`
 					<div>
@@ -56,7 +56,7 @@ export const DATA_LESSONS: Lesson[] = [
 					`
 			},
 			{
-				lesson: '01',
+				lesson: 'b-01',
 				subLesson: '05',
 				content: String.raw`
 					<div>
@@ -65,7 +65,7 @@ export const DATA_LESSONS: Lesson[] = [
 					`
 			},
 			{
-				lesson: '01',
+				lesson: 'b-01',
 				subLesson: '06',
 				content: String.raw`
 					<div>
@@ -75,7 +75,7 @@ export const DATA_LESSONS: Lesson[] = [
 					`
 			},
 			{
-				lesson: '01',
+				lesson: 'b-01',
 				subLesson: '07',
 				content: String.raw`
 					<div>
@@ -84,7 +84,7 @@ export const DATA_LESSONS: Lesson[] = [
 					`
 			},
 			{
-				lesson: '01',
+				lesson: 'b-01',
 				subLesson: '08',
 				content: String.raw`
 					<div>
@@ -93,7 +93,7 @@ export const DATA_LESSONS: Lesson[] = [
 					`
 			},
 			{
-				lesson: '01',
+				lesson: 'b-01',
 				subLesson: '09',
 				content: String.raw`
 					<div>
@@ -107,7 +107,7 @@ export const DATA_LESSONS: Lesson[] = [
 					`
 			},
 			{
-				lesson: '01',
+				lesson: 'b-01',
 				subLesson: '10',
 				content: String.raw`
 					<div>
@@ -123,11 +123,11 @@ export const DATA_LESSONS: Lesson[] = [
 		]
 	},
 	{
-		lesson: '03',
+		lesson: 'b-03',
 		title: 'Buổi 03: Lập trình hàm',
 		data: [
 			{
-				lesson: '03',
+				lesson: 'b-03',
 				subLesson: '01',
 				content: String.raw`
 					<div>
@@ -140,7 +140,7 @@ export const DATA_LESSONS: Lesson[] = [
 				`
 			},
 			{
-				lesson: '03',
+				lesson: 'b-03',
 				subLesson: '02',
 				content: String.raw`
 					<div>

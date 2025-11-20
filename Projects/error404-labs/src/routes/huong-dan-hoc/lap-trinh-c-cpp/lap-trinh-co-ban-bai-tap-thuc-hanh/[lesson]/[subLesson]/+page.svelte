@@ -7,7 +7,7 @@
 	import { renderMath } from '../../../../../../utils/katex';
 	import { goto } from '$app/navigation';
 
-	let lesson = $derived(page.params.lesson || '01');
+	let lesson = $derived(page.params.lesson || 'b-01');
 	let subLesson = $derived(page.params.subLesson || '01');
 	let dataFromPrev: PageParams[] = $state([]);
 
@@ -18,13 +18,13 @@
 	const CLONE_DATA_LESSONS = DATA_LESSONS;
 
 	$effect(() => {
+		nameMap = {
+			// svelte-ignore state_referenced_locally
+			[lesson]: `Buổi ${lesson.split('-')[1]}`,
+			// svelte-ignore state_referenced_locally
+			[subLesson]: `Bài ${subLesson}`
+		};
 		(async () => {
-			nameMap = {
-				// svelte-ignore state_referenced_locally
-				[lesson]: `Buổi ${lesson}`,
-				// svelte-ignore state_referenced_locally
-				[subLesson]: `Bài ${subLesson}`
-			};
 			// console.log(lesson, subLesson);
 			const saved = sessionStorage.getItem('preload_link_data');
 
