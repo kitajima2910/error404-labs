@@ -149,6 +149,16 @@
 		}
 	}
 
+	@media screen and (max-width: 1200px) {
+		ul {
+			li {
+				button {
+					font-size: calc((13 * 1rem) / 16) !important;
+				}
+			}
+		}
+	}
+
 	@media screen and (max-width: 950px) {
 		.lesson {
 			grid-template-columns: 1fr;
@@ -161,6 +171,12 @@
 
 				ul {
 					display: flex;
+					flex-wrap: wrap;
+					li {
+						button {
+							font-size: calc((16 * 1rem) / 16) !important;
+						}
+					}
 				}
 			}
 		}

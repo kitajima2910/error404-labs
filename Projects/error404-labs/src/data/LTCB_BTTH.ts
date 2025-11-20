@@ -63,6 +63,62 @@ export const DATA_LESSONS: Lesson[] = [
 					Viết chương trình nhập ba số thực x, y, z. Hãy in ra giá trị trung bình của ba số.
 					</div>
 					`
+			},
+			{
+				lesson: '01',
+				subLesson: '06',
+				content: String.raw`
+					<div>
+					Viết chương trình nhập hai số nguyên a, b. Hãy in ra tổng bình phương của hai số.<br/>
+					Tổng = a² + b².
+					</div>
+					`
+			},
+			{
+				lesson: '01',
+				subLesson: '07',
+				content: String.raw`
+					<div>
+					Viết chương trình nhập hai số nguyên a, b. Hãy tính giá trị biểu thức (a + b)².
+					</div>
+					`
+			},
+			{
+				lesson: '01',
+				subLesson: '08',
+				content: String.raw`
+					<div>
+					Viết chương trình nhập một số nguyên n. Hãy in ra phần nguyên và phần dư khi chia n cho 6.
+					</div>
+					`
+			},
+			{
+				lesson: '01',
+				subLesson: '09',
+				content: String.raw`
+					<div>
+					Viết chương trình nhập vào bán kính của hình tròn. Tính và in ra chu vi hình tròn và diện tích của hình tròn <i>(định dạng hai số thập phân)</i>.<br/>
+					Biết rằng:
+					<ul style="padding-left: 50px">
+						<li>Chu vi: cv = 2 * 3.14 * R</li>
+						<li>Diện tích: dt = 3.14 * R * R, với R là bán kính hình tròn.</li>
+					</ul>
+					</div>
+					`
+			},
+			{
+				lesson: '01',
+				subLesson: '10',
+				content: String.raw`
+					<div>
+					Viết chương trình nhập vào chiều dài 2 cạnh của hình chữ nhật. Tính và in ra chu vi, diện tích hình chữ nhật.<br/>
+					Biết rằng:
+					<ul style="padding-left: 50px">
+						<li>Chu vi: cv = (d + r) * 2</li>
+						<li>Diện tích: dt = d * r, với d và r là độ dài 2 cạnh.</li>
+					</ul>
+					</div>
+					`
 			}
 		]
 	},
