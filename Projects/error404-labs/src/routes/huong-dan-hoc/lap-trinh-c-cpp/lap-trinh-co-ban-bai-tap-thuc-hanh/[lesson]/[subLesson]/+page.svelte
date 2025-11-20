@@ -26,28 +26,34 @@
 		};
 		(async () => {
 			// console.log(lesson, subLesson);
-			const saved = sessionStorage.getItem('preload_link_data');
+			// const saved = sessionStorage.getItem('preload_link_data');
+			const saved = CLONE_DATA_LESSONS.filter((item) => item.lesson === lesson)[0].data;
 
 			if (saved) {
-				dataFromPrev = JSON.parse(saved);
+				// dataFromPrev = JSON.parse(saved);
+				dataFromPrev = saved;
 
-				const res = await fetch(
-					`/huong-dan-hoc/lap-trinh-c-cpp/lap-trinh-co-ban-bai-tap-thuc-hanh/${lesson}/${subLesson}`
-				);
-				const dataLESSONRaw = await res.text();
-				content = loadMarkdownRaw(dataLESSONRaw);
+				try {
+					const res = await fetch(
+						`/huong-dan-hoc/lap-trinh-c-cpp/lap-trinh-co-ban-bai-tap-thuc-hanh/${lesson}/${subLesson}`
+					);
+					const dataLESSONRaw = await res.text();
+					content = loadMarkdownRaw(dataLESSONRaw);
 
-				const title = document.querySelector('.right > .title');
-				if (title) {
-					const titleRaw = CLONE_DATA_LESSONS.filter(
-						(item) => item.lesson === lesson
-					)[0].data.filter((item) => item.lesson === lesson && item.subLesson === subLesson)[0]
-						.content;
-					title.innerHTML = titleRaw;
-					// console.log('title: ', title);
+					const title = document.querySelector('.right > .title');
+					if (title) {
+						const titleRaw = CLONE_DATA_LESSONS.filter(
+							(item) => item.lesson === lesson
+						)[0].data.filter((item) => item.lesson === lesson && item.subLesson === subLesson)[0]
+							.content;
+						title.innerHTML = titleRaw;
+						// console.log('title: ', title);
+					}
+
+					highlightCode();
+				} catch (error) {
+					content = 'Không tìm thấy bài học';
 				}
-
-				highlightCode();
 			}
 		})();
 	});
