@@ -50,8 +50,6 @@ Hàm `pow(x, y)` dùng để tính x mũ y (x^y).
 
 ---
 
----
-
 ## 📊 **Ví dụ kết quả**
 
 **Input:**
