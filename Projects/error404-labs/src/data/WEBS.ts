@@ -56,5 +56,11 @@ export const DATA_SLIDESHARE_LESSONS: Lesson[] = [
 		name_lesson: 'Bài 06',
 		name: 'Định dạng văn bản (tt)',
 		link: '/huong-dan-hoc/lap-trinh-web/khoa-hoc-slideshare/06'
+	},
+	{
+		icon: '📘',
+		name_lesson: 'Bài 07',
+		name: 'Ký tự đặc biệt, chèn hình ảnh, tạo danh sách và liên kết',
+		link: '/huong-dan-hoc/lap-trinh-web/khoa-hoc-slideshare/07'
 	}
 ];
