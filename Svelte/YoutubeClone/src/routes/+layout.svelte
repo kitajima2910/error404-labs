@@ -14,7 +14,7 @@
 <Header />
 <div class="flex">
 	<Siderbar />
-	<main class="ml-[74px] p-6">
+	<main class="ml-[74px] w-full p-6">
 		{@render children?.()}
 	</main>
 </div>
