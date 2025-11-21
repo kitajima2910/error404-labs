@@ -85,6 +85,76 @@
 
 ---
 
+## 📝 **Ví dụ thực tế**
+
+### Bảng cơ bản:
+
+```html
+<table border="1">
+	<thead>
+		<tr>
+			<th>Tên</th>
+			<th>Tuổi</th>
+			<th>Thành phố</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>Nguyễn Văn A</td>
+			<td>25</td>
+			<td>Hà Nội</td>
+		</tr>
+		<tr>
+			<td>Trần Thị B</td>
+			<td>28</td>
+			<td>TP. Hồ Chí Minh</td>
+		</tr>
+	</tbody>
+</table>
+```
+
+### Bảng có CSS:
+
+```html
+<style>
+	table {
+		border-collapse: collapse;
+		width: 100%;
+		font-family: Arial, sans-serif;
+	}
+
+	thead {
+		background-color: #4caf50;
+		color: white;
+	}
+
+	th,
+	td {
+		border: 1px solid #ddd;
+		padding: 12px;
+		text-align: left;
+	}
+
+	tbody tr:hover {
+		background-color: #f5f5f5;
+	}
+
+	tbody tr:nth-child(even) {
+		background-color: #f9f9f9;
+	}
+</style>
+```
+
+---
+
+## 🎓 **Lưu ý quan trọng**
+
+1. Luôn sử dụng `<thead>`, `<tbody>`, `<tfoot>` để cấu trúc bảng rõ ràng
+2. Dùng `<th>` cho tiêu đề, không phải `<td>`
+3. CSS hiệu quả hơn attribute HTML cũ, tránh dùng `border`, `bordercolor`, `bgcolor`
+4. Sử dụng `border-collapse: collapse;` để bảng trông gọn gàng
+5. Thêm `padding` và `text-align` để làm bảng dễ đọc hơn
+
 ## 📝 **Yêu cầu bài tập**
 
 > Nhiệm vụ: mô tả ngắn gọn sản phẩm cần làm
