@@ -24,7 +24,7 @@
 	);
 
 	onMount(async () => {
-		console.log('SEOLesson: ', SEOLesson);
+		// console.log('SEOLesson: ', SEOLesson);
 		content = loadMarkdownRaw(dataLESSONRaw);
 
 		highlightCode();
