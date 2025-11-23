@@ -68,5 +68,11 @@ export const DATA_SLIDESHARE_LESSONS: Lesson[] = [
 		name_lesson: 'Bài 08',
 		name: 'Tạo bảng',
 		link: '/huong-dan-hoc/lap-trinh-web/khoa-hoc-slideshare/08'
+	},
+	{
+		icon: '📘',
+		name_lesson: "Bài 09",
+		name: 'Tạo bảng, trộn dòng và cột',
+		link: '/huong-dan-hoc/lap-trinh-web/khoa-hoc-slideshare/v2/09'
 	}
 ];

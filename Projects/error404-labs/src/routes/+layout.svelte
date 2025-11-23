@@ -19,25 +19,6 @@
 		<Title />
 	</header>
 
-	<!-- <div class="flex justify-center mt-5! flex-wrap gap-1.5">
-		<iframe
-			src="https://ghbtns.com/github-btn.html?user={USER_GITHUB}&repo={REPO_NAME}&type=follow&count=true"
-			frameborder="0"
-			scrolling="0"
-			width="170"
-			height="20"
-			title="GitHub"
-		></iframe>
-		<iframe
-			src="https://ghbtns.com/github-btn.html?user={USER_GITHUB}&repo={REPO_NAME}&type=star&count=true"
-			frameborder="0"
-			scrolling="0"
-			width="150"
-			height="20"
-			title="GitHub"
-		></iframe>
-	</div> -->
-
 	<nav class="w-full">
 		<ul>
 			<li
