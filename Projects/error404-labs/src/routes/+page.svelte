@@ -49,7 +49,7 @@
 			>
 				<img
 					alt="kitajima2910"
-					src="https://avatars.githubusercontent.com/u/50172777?v=4"
+					src="/api/github-avatar/u/50172777"
 					style="width: 100%; height: 100%; object-fit: cover"
 				/>
 			</div>
@@ -63,7 +63,7 @@
 					"
 			>
 				<a
-					href="https://github.com/kitajima2910"
+					href="/api/github-profile/kitajima2910"
                     target="_blank"
 					style="text-decoration: none; text-transform: capitalize">kitajima2910</a
 				>
@@ -94,7 +94,7 @@
 			>
 				<img
 					alt="TTTT0803"
-					src="https://avatars.githubusercontent.com/u/149563945?v=4"
+					src="/api/github-avatar/u/149563945"
 					style="width: 100%; height: 100%; object-fit: cover"
 				/>
 			</div>
@@ -108,7 +108,7 @@
 					"
 			>
 				<a
-					href="https://github.com/tttt0803"
+					href="/api/github-profile/tttt0803"
                     target="_blank"
 					style="text-decoration: none; text-transform: capitalize">TTTT0803</a
 				>
@@ -139,7 +139,7 @@
 			>
 				<img
 					alt="KinhNguyenss"
-					src="https://avatars.githubusercontent.com/u/149393705?v=4"
+					src="/api/github-avatar/u/149393705"
 					style="width: 100%; height: 100%; object-fit: cover"
 				/>
 			</div>
@@ -153,7 +153,7 @@
 					"
 			>
 				<a
-					href="https://github.com/KinhNguyenss"
+					href="/api/github-profile/KinhNguyenss"
                     target="_blank"
 					style="text-decoration: none; text-transform: capitalize">KinhNguyenss</a
 				>
