@@ -29,7 +29,7 @@
                 margin: 30px auto;
 			"
 	>
-		<img alt="TTTT0803" src="/about/imgs/computer_gif.webp" style="width: 100%; height: 100%;" />
+		<img alt="Computer" src="/computer_gif.webp" style="width: 100%; height: 100%;" />
 	</div>
 	<div
 		style="
