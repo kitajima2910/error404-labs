@@ -64,6 +64,7 @@
 			>
 				<a
 					href="https://github.com/kitajima2910"
+                    target="_blank"
 					style="text-decoration: none; text-transform: capitalize">kitajima2910</a
 				>
 				<span>🧪 R&D Programmer</span>
@@ -108,6 +109,7 @@
 			>
 				<a
 					href="https://github.com/tttt0803"
+                    target="_blank"
 					style="text-decoration: none; text-transform: capitalize">TTTT0803</a
 				>
 				<span>💻 Developer</span>
@@ -152,6 +154,7 @@
 			>
 				<a
 					href="https://github.com/KinhNguyenss"
+                    target="_blank"
 					style="text-decoration: none; text-transform: capitalize">KinhNguyenss</a
 				>
 				<span>💻 Developer</span>
