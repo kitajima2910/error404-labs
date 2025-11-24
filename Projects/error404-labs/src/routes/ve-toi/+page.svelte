@@ -18,6 +18,7 @@
 	</h1>
 	<img
 		style="width: 100%; height: 100%;"
+		fetchpriority="high"
 		src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&amp;size=22&amp;duration=3000&amp;pause=1000&amp;center=true&amp;vCenter=true&amp;width=700&amp;lines=%F0%9F%91%8B+Hey+I'm+Kitajima2910+%7C+R%26D+Dev;💡+Code+is+Poetry%2C+Logic+is+Art.;🔧+Tools+don't+build+great+devs%2C+habits+do.;🧩+Fixing+a+bug+is+unlocking+a+story.;⏳+Keep+coding+until+magic+feels+normal."
 		alt="Typing SVG"
 	/>
@@ -27,9 +28,14 @@
 				width: 250px;
 				height: 250px;
                 margin: 30px auto;
+                border-radius: 50%;
+                border: 1px solid #d1d9e0b3;
 			"
 	>
-		<img alt="Computer" src="/computer_gif.webp" style="width: 100%; height: 100%;" />
+		<!-- <img alt="Computer" src="/computer_gif.webp" style="width: 100%; height: 100%;" /> -->
+		<video autoplay muted loop playsinline style="width:100%;height:100%">
+			<source src="/computer_gif.mp4" type="video/mp4" />
+		</video>
 	</div>
 	<div
 		style="
