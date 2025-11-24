@@ -46,8 +46,6 @@
 				<a
 					href="/huong-dan-hoc"
 					style="color: var(--primary); padding: calc((10 * 1rem) / 16); display: block;"
-                    data-sveltekit-preload-code
-                    data-sveltekit-preload-data
 				>
 					Hướng dẫn học
 				</a>
