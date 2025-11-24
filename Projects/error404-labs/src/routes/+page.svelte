@@ -164,7 +164,7 @@
 		Repo này không hứa hẹn sự gọn gàng.<br />
 		Nhưng chắc chắn chứa <strong>dấu vết của sự tiến bộ</strong>.
 	</blockquote>
-	<hr style="background-color: #d1d9e0; height: 4px; border: none; margin: 30px 0" />
+	<!-- <hr style="background-color: #d1d9e0; height: 4px; border: none; margin: 30px 0" />
 	<h2 style="border-bottom: 1px solid #d1d9e0b3; padding-bottom: 9.6px">⭐ Ghi chú</h2>
-	<p>Nếu thấy dự án này hữu ích, hãy ⭐ Star repo để ủng hộ nhé!</p>
+	<p>Nếu thấy dự án này hữu ích, hãy ⭐ Star repo để ủng hộ nhé!</p> -->
 </div>

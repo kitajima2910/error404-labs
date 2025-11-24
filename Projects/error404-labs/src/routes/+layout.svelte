@@ -19,7 +19,7 @@
 		<Title />
 	</header>
 
-	<div class="flex justify-center mt-5! flex-wrap gap-1.5">
+	<!-- <div class="flex justify-center mt-5! flex-wrap gap-1.5">
 		<iframe
 			src="https://ghbtns.com/github-btn.html?user={USER_GITHUB}&repo={REPO_NAME}&type=follow&count=true"
 			frameborder="0"
@@ -36,18 +36,21 @@
 			height="20"
 			title="GitHub"
 		></iframe>
-	</div>
+	</div> -->
 
 	<nav class="w-full">
 		<ul>
 			<li
 				class="hover-rgb border border-dashed border-[#1e5b66] rounded-[5px] text-[#1e5b66] text-center decoration-0 text-[18px]"
 			>
-				<PreloadLinkWithData
+				<a
 					href="/huong-dan-hoc"
-					style="color: var(--primary); padding: calc((10 * 1rem) / 16);"
-					>Hướng dẫn học
-				</PreloadLinkWithData>
+					style="color: var(--primary); padding: calc((10 * 1rem) / 16); display: block;"
+                    data-sveltekit-preload-code
+                    data-sveltekit-preload-data
+				>
+					Hướng dẫn học
+				</a>
 			</li>
 		</ul>
 	</nav>
