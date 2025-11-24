@@ -49,38 +49,39 @@
 <header class="sticky z-99999 top-0 bg-[#1e5b66] text-white text-center p-3!">
 	<nav bind:this={menuEl} class="flex items-center">
 		<div>
-			<PreloadLinkWithData href="/" style="color:#fff">
+			<a href="/" style="color:#fff; display: block; width: 100%; height: 100%;">
 				<Title />
-			</PreloadLinkWithData>
+			</a>
 		</div>
 
 		<div class="links hidden lg:flex ml-auto! text-center!">
 			<div
 				class="link ml-10! flex justify-center items-center p-[5px]! rounded-[5px] hover:bg-[#2a7a88]"
 			>
-				<PreloadLinkWithData href="/" style="color:#fff">Trang Chủ</PreloadLinkWithData>
+				<a href="/" style="color:#fff; display: block; width: 100%; height: 100%;">Trang Chủ</a>
 			</div>
 
 			<div
 				class="link ml-10! flex justify-center items-center relative group p-[5px]! rounded-[5px] hover:bg-[#2a7a88]"
 			>
-				<PreloadLinkWithData href="/huong-dan-hoc" style="color:#fff">Lập Trình</PreloadLinkWithData
+				<a href="/huong-dan-hoc" style="color:#fff; display: block; width: 100%; height: 100%;"
+					>Lập Trình</a
 				>
 				<div
 					class="group-hover:block hidden absolute top-full right-0 w-[190px] bg-[#ffffff] text-left shadow[0_8px_16px_0_rgba(0,0,0,0.2)] text-[16px]"
 				>
 					<span class="hover:bg-[#f1f1f1] inline-block w-full">
-						<PreloadLinkWithData
+						<a
 							href="/huong-dan-hoc/lap-trinh-c-cpp"
-							style="color:#000; padding: calc((5 * 1rem) / 16) calc((15 * 1rem) / 16);"
-							>Lập Trình C/C++</PreloadLinkWithData
+							style="color:#000; padding: calc((5 * 1rem) / 16) calc((15 * 1rem) / 16); display: block; width: 100%; height: 100%;"
+							>Lập Trình C/C++</a
 						>
 					</span>
 					<span class="hover:bg-[#f1f1f1] inline-block w-full">
-						<PreloadLinkWithData
+						<a
 							href="/huong-dan-hoc/lap-trinh-web"
-							style="color:#000; padding: calc((5 * 1rem) / 16) calc((15 * 1rem) / 16);"
-							>Lập Trình Web</PreloadLinkWithData
+							style="color:#000; padding: calc((5 * 1rem) / 16) calc((15 * 1rem) / 16); display: block; width: 100%; height: 100%;"
+							>Lập Trình Web</a
 						>
 					</span>
 				</div>
@@ -88,7 +89,7 @@
 			<div
 				class="link ml-10! flex justify-center items-center p-[5px]! rounded-[5px] hover:bg-[#2a7a88]"
 			>
-				<PreloadLinkWithData href="/ve-toi" style="color:#fff">Về Tôi</PreloadLinkWithData>
+				<a href="/ve-toi" style="color:#fff; display: block; width: 100%; height: 100%;">Về Tôi</a>
 			</div>
 		</div>
 
@@ -105,20 +106,22 @@
 
 		<div class="hidden" class:open={isOpenBar}>
 			<div class="link p-2.5! cursor-pointer hover:bg-[#246D7A80]">
-				<PreloadLinkWithData href="/" style="color:#fff">Trang Chủ</PreloadLinkWithData>
+				<a href="/" style="color:#fff; display: block; width: 100%; height: 100%;">Trang Chủ</a>
 			</div>
 			<div class="link p-2.5! cursor-pointer hover:bg-[#246D7A80]">
-				<PreloadLinkWithData href="/huong-dan-hoc/lap-trinh-c-cpp" style="color:#fff"
-					>Lập Trình C/C++</PreloadLinkWithData
+				<a
+					href="/huong-dan-hoc/lap-trinh-c-cpp"
+					style="color:#fff; display: block; width: 100%; height: 100%;">Lập Trình C/C++</a
 				>
 			</div>
 			<div class="link p-2.5! cursor-pointer hover:bg-[#246D7A80]">
-				<PreloadLinkWithData href="/huong-dan-hoc/lap-trinh-web" style="color:#fff"
-					>Lập Trình Web</PreloadLinkWithData
+				<a
+					href="/huong-dan-hoc/lap-trinh-web"
+					style="color:#fff; display: block; width: 100%; height: 100%;">Lập Trình Web</a
 				>
 			</div>
 			<div class="link p-2.5! cursor-pointer hover:bg-[#246D7A80]">
-				<PreloadLinkWithData href="/ve-toi" style="color:#fff">Về Tôi</PreloadLinkWithData>
+				<a href="/ve-toi" style="color:#fff; display: block; width: 100%; height: 100%;">Về Tôi</a>
 			</div>
 		</div>
 	</nav>

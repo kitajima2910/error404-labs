@@ -4,39 +4,16 @@
 	import Title from '../components/Title.svelte';
 
 	import { page } from '$app/state';
-	import PreloadLinkWithData from '../components/PreloadLinkWithData.svelte';
 
 	let { children } = $props();
 
 	let isGuidesPage = $derived(() => /^\/huong-dan-hoc(\/.*)?$/.test(page.url.pathname));
-
-	const USER_GITHUB = 'kitajima2910';
-	const REPO_NAME = 'error404-labs';
 </script>
 
 {#if !isGuidesPage()}
 	<header class="sticky top-0 bg-[#1e5b66] text-white p-3!">
 		<Title />
 	</header>
-
-	<!-- <div class="flex justify-center mt-5! flex-wrap gap-1.5">
-		<iframe
-			src="https://ghbtns.com/github-btn.html?user={USER_GITHUB}&repo={REPO_NAME}&type=follow&count=true"
-			frameborder="0"
-			scrolling="0"
-			width="170"
-			height="20"
-			title="GitHub"
-		></iframe>
-		<iframe
-			src="https://ghbtns.com/github-btn.html?user={USER_GITHUB}&repo={REPO_NAME}&type=star&count=true"
-			frameborder="0"
-			scrolling="0"
-			width="150"
-			height="20"
-			title="GitHub"
-		></iframe>
-	</div> -->
 
 	<nav class="w-full">
 		<ul>
