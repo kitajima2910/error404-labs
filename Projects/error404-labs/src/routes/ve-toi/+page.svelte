@@ -42,70 +42,70 @@
 	>
 		<div style="width: 40px; height: 40px">
 			<img
-				src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg"
+				src="/java-original.svg"
 				style="width: 100%; height: 100%; object-fit: cover"
 				alt="java logo"
 			/>
 		</div>
 		<div style="width: 40px; height: 40px">
 			<img
-				src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/csharp/csharp-original.svg"
+				src="/csharp-original.svg"
 				style="width: 100%; height: 100%; object-fit: cover"
 				alt="csharp logo"
 			/>
 		</div>
 		<div style="width: 40px; height: 40px">
 			<img
-				src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg"
+				src="/html5-original.svg"
 				style="width: 100%; height: 100%; object-fit: cover"
 				alt="html5 logo"
 			/>
 		</div>
 		<div style="width: 40px; height: 40px">
 			<img
-				src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg"
+				src="/css3-original.svg"
 				style="width: 100%; height: 100%; object-fit: cover"
 				alt="css3 logo"
 			/>
 		</div>
 		<div style="width: 40px; height: 40px">
 			<img
-				src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg"
+				src="/javascript-original.svg"
 				style="width: 100%; height: 100%; object-fit: cover"
 				alt="javascript logo"
 			/>
 		</div>
 		<div style="width: 40px; height: 40px">
 			<img
-				src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/android/android-original.svg"
+				src="/android-original.svg"
 				style="width: 100%; height: 100%; object-fit: cover"
 				alt="android logo"
 			/>
 		</div>
 		<div style="width: 40px; height: 40px">
 			<img
-				src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/androidstudio/androidstudio-original.svg"
+				src="/androidstudio-original.svg"
 				style="width: 100%; height: 100%; object-fit: cover"
 				alt="androidstudio logo"
 			/>
 		</div>
 		<div style="width: 40px; height: 40px">
 			<img
-				src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tortoisegit/tortoisegit-original.svg"
+				src="/tortoisegit-original.svg"
 				style="width: 100%; height: 100%; object-fit: cover"
 				alt="tortoisegit logo"
 			/>
 		</div>
 		<div style="width: 40px; height: 40px">
 			<img
-				src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg"
+				src="/git-original.svg"
 				style="width: 100%; height: 100%; object-fit: cover"
 				alt="git logo"
 			/>
 		</div>
 		<div style="width: 40px; height: 40px">
 			<img
-				src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg"
+				src="/github-original.svg"
 				style="width: 100%; height: 100%; object-fit: cover"
 				alt="github logo"
 			/>
@@ -116,8 +116,8 @@
 <style>
 	@media screen and (max-width: 300px) {
 		.computer_gif {
-            width: auto !important;
-            height: auto !important;
+			width: auto !important;
+			height: auto !important;
 		}
 	}
 </style>
