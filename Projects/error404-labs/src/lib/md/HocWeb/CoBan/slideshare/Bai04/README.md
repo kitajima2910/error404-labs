@@ -50,35 +50,36 @@
 <details>
 <summary>Xem code mẫu</summary>
 
-<pre class="code_syntax" style="color:#000000;background:#ffffff;"><span class="line_wrapper"><span style="color:#004a43; ">&lt;!doctype html&gt;</span></span>
-<span class="line_wrapper"><span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">html</span><span style="color:#274796; "> </span><span style="color:#074726; ">lang</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"vi"</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">    <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">head</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">meta</span><span style="color:#274796; "> </span><span style="color:#074726; ">charset</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"UTF-8"</span><span style="color:#274796; "> </span><span style="color:#a65700; ">/&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">meta</span><span style="color:#274796; "> </span><span style="color:#074726; ">name</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"viewport"</span><span style="color:#274796; "> </span><span style="color:#074726; ">content</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"width=device-width, initial-scale=1.0"</span><span style="color:#274796; "> </span><span style="color:#a65700; ">/&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">title</span><span style="color:#a65700; ">&gt;</span>Định dạng trang web (tt)<span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">title</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">    <span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">head</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">    <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">body</span><span style="color:#274796; "> </span><span style="color:#074726; ">style</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"</span><span style="color:#bb7977; font-weight:bold; ">background-image</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#400000; ">url</span><span style="color:#808030; ">(</span><span style="color:#0000e6; ">'</span><span style="color:#666616; ">https</span><span style="color:#800080; ">:</span><span style="color:#800000; font-weight:bold; ">//</span><span style="color:#5555dd; ">iili.io</span><span style="color:#40015a; ">/fdcwRZF.jpg</span><span style="color:#0000e6; ">'</span><span style="color:#808030; ">)</span><span style="color:#800080; ">;</span><span style="color:#274796; "> </span><span style="color:#bb7977; font-weight:bold; ">color</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#008c00; ">#</span><span style="color:#008000; ">008888</span><span style="color:#0000e6; ">"</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">h1</span><span style="color:#274796; "> </span><span style="color:#074726; ">style</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"</span><span style="color:#bb7977; font-weight:bold; ">text-align</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#074726; ">center</span><span style="color:#0000e6; ">"</span><span style="color:#a65700; ">&gt;</span>lorem ipsum<span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">h1</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">p</span><span style="color:#274796; "> </span><span style="color:#074726; ">style</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"</span><span style="color:#bb7977; font-weight:bold; ">background-color</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#008c00; ">#</span><span style="color:#008000; ">339999</span><span style="color:#800080; ">;</span><span style="color:#274796; "> </span><span style="color:#bb7977; font-weight:bold; ">color</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#008c00; ">#</span><span style="color:#008000; ">fff</span><span style="color:#800080; ">;</span><span style="color:#274796; "> </span><span style="color:#bb7977; font-weight:bold; ">font-weight</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#008c00; ">700</span><span style="color:#800080; ">;</span><span style="color:#274796; "> </span><span style="color:#bb7977; font-weight:bold; ">font-style</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#074726; ">italic</span><span style="color:#0000e6; ">"</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">            Lorem ipsum dolor sit amet consectetur adipisicing elit<span style="color:#008c00; ">.</span> Veritatis voluptate optio non</span>
-<span class="line_wrapper">            dignissimos culpa ipsum nulla esse ab nihil veniam? Possimus quaerat excepturi totam</span>
-<span class="line_wrapper">            dignissimos? Labore quis recusandae ab quod porro itaque deserunt sit maiores sint ut quisquam</span>
-<span class="line_wrapper">            nesciunt quasi vitae tempore exercitationem, animi nostrum officiis iste, rerum illo eaque!</span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">p</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">p</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">            Lorem ipsum dolor, sit amet consectetur adipisicing elit<span style="color:#008c00; ">.</span> Est vel voluptate sequi optio</span>
-<span class="line_wrapper">            impedit, doloremque corrupti nihil natus, aliquid adipisci minus fugiat cum ratione et</span>
-<span class="line_wrapper">            voluptatum magnam ex non consequatur<span style="color:#008c00; ">.</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">p</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">p</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">            Lorem ipsum dolor sit amet consectetur adipisicing elit<span style="color:#008c00; ">.</span> Enim vel illo earum a sint magni<span style="color:#008c00; ">.</span> Ab</span>
-<span class="line_wrapper">            cupiditate fuga vel, accusamus tempore facere consectetur sunt quod<span style="color:#008c00; ">.</span> Dignissimos est debitis</span>
-<span class="line_wrapper">            hic ullam libero saepe, dolore provident asperiores in architecto necessitatibus, non laborum</span>
-<span class="line_wrapper">            praesentium, eos minima atque velit alias! Autem officiis perferendis nemo<span style="color:#008c00; ">.</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">p</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">    <span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">body</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper"><span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">html</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper"></span></pre>
+```html
+<!doctype html>
+<html lang="vi">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Định dạng trang web (tt)</title>
+	</head>
+	<body style="background-image: url('https://iili.io/fdcwRZF.jpg'); color: #008888">
+		<h1 style="text-align: center">lorem ipsum</h1>
+		<p style="background-color: #339999; color: #fff; font-weight: 700; font-style: italic">
+			Lorem ipsum dolor sit amet consectetur adipisicing elit. Veritatis voluptate optio non
+			dignissimos culpa ipsum nulla esse ab nihil veniam? Possimus quaerat excepturi totam
+			dignissimos? Labore quis recusandae ab quod porro itaque deserunt sit maiores sint ut quisquam
+			nesciunt quasi vitae tempore exercitationem, animi nostrum officiis iste, rerum illo eaque!
+		</p>
+		<p>
+			Lorem ipsum dolor, sit amet consectetur adipisicing elit. Est vel voluptate sequi optio
+			impedit, doloremque corrupti nihil natus, aliquid adipisci minus fugiat cum ratione et
+			voluptatum magnam ex non consequatur.
+		</p>
+		<p>
+			Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim vel illo earum a sint magni. Ab
+			cupiditate fuga vel, accusamus tempore facere consectetur sunt quod. Dignissimos est debitis
+			hic ullam libero saepe, dolore provident asperiores in architecto necessitatibus, non laborum
+			praesentium, eos minima atque velit alias! Autem officiis perferendis nemo.
+		</p>
+	</body>
+</html>
+```
 
 </details>
 

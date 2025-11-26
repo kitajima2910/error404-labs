@@ -2,11 +2,11 @@
 
 ## 🎯 **Học được gì qua bài này**
 
-- Sử dụng các ký tự đặc biệt trong HTML<br/><br/>
-- Chèn và định dạng hình ảnh trên trang web<br/><br/>
-- Tạo danh sách có thứ tự (ordered list) và danh sách không thứ tự (unordered list)<br/><br/>
-- Tạo liên kết siêu văn bản (hyperlink) để điều hướng trang web<br/><br/>
-- Sử dụng các thuộc tính CSS để điều chỉnh khoảng cách (padding, margin) và hiển thị (display)<br/><br/>
+- Sử dụng các ký tự đặc biệt trong HTML
+- Chèn và định dạng hình ảnh trên trang web
+- Tạo danh sách có thứ tự (ordered list) và danh sách không thứ tự (unordered list)
+- Tạo liên kết siêu văn bản (hyperlink) để điều hướng trang web
+- Sử dụng các thuộc tính CSS để điều chỉnh khoảng cách (padding, margin) và hiển thị (display)
 
 ---
 
@@ -115,8 +115,50 @@
 <details>
 <summary>Xem code mẫu</summary>
 
-<iframe title="Ký tự đặc biệt, chèn hình ảnh, tạo danh sách và liên kết" scrolling="no" loading="eager" style="height:500px; width: 100%; border:1px solid black; border-radius:6px;" src="https://embed.plnkr.co/plunk/9hhV93LjAS1m7Glw">
-</iframe>
+```html
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Ký tự đặc biệt, chèn hình ảnh, tạo danh sách và liên kết</title>
+	</head>
+	<body>
+		<h1 style="text-align: center; color: #d21e61">Công ty Hoa tươi Nhân Ái</h1>
+		<div style="display: flex">
+			<img src="https://iili.io/f2BukPV.png" alt="Hoa Tươi" height="230px" />
+			<div>
+				<ol>
+					<li>
+						<span style="background-color: #d21e61; color: #fff">Giới thiệu&nbsp;&nbsp;</span>
+						<ul type="square" style="padding-left: 20px; margin-bottom: 20px">
+							<li>Thành lập ngày: 11/20/2025</li>
+							<li>Chuyên cung cấp các loại hoa tươi</li>
+							<li>Có trên 20 cửa hàng bán lẻ tại TP.HCM</li>
+							<li>Nhận kết giỏ hoa theo yêu cầu của khách hàng</li>
+						</ul>
+					</li>
+					<hr />
+					<li>
+						<span style="background-color: #d21e61; color: #fff"
+							>Liên hệ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span
+						>
+						<ul style="padding-left: 20px">
+							<li>Điện thoại: 84-09-1858004</li>
+							<li>Địa chỉ: <i>123 Thạnh Xuân, Quận 12, TP.HCM</i></li>
+						</ul>
+						<p style="background-color: #fce7fd; font-weight: 700">
+							&copy; Copyright:
+							<a href="https://www.error404-labs.info.vn/" target="_blank">Error404-Labs</a> -
+							<a href="https://artkidgarden.edu.vn/" target="_blank">ART KID GARDEN</a>
+						</p>
+					</li>
+				</ol>
+			</div>
+		</div>
+	</body>
+</html>
+```
 
 </details>
 

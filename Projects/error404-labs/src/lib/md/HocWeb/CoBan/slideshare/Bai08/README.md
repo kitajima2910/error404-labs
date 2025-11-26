@@ -2,10 +2,10 @@
 
 ## 🎯 **Học được gì qua bài này**
 
-- Hiểu cấu trúc cơ bản của bảng HTML<br/><br/>
-- Sử dụng các tag HTML để tạo bảng với hàng, cột, tiêu đề<br/><br/>
-- Áp dụng các attribute để định dạng bảng<br/><br/>
-- Trang trí bảng bằng CSS để tăng tính thẩm mỹ<br/><br/>
+- Hiểu cấu trúc cơ bản của bảng HTML
+- Sử dụng các tag HTML để tạo bảng với hàng, cột, tiêu đề
+- Áp dụng các attribute để định dạng bảng
+- Trang trí bảng bằng CSS để tăng tính thẩm mỹ
 
 ---
 
@@ -179,8 +179,83 @@
 <details>
 <summary>Xem code mẫu</summary>
 
-<iframe title="Tạo bảng" scrolling="no" loading="eager" style="height:500px; width: 100%; border:1px solid black; border-radius:6px;" src="https://embed.plnkr.co/plunk/Q8ySDZ205entJVJv">
-</iframe>
+```html
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Tạo bảng</title>
+	</head>
+	<body style="background-color: #ffedca">
+		<div style="text-align: center; color: #cc6600">
+			<h1 style="text-transform: capitalize">Các món ngon Sài Gòn</h1>
+		</div>
+		<div style="display: flex; justify-content: center">
+			<div style="width: 300px; height: 200px">
+				<img src="https://iili.io/f2sr8UG.png" alt="Cafe" width="100%" height="100%" />
+			</div>
+			<div>
+				<table
+					width="300px"
+					border="1"
+					bordercolor="#a5818e"
+					cellpadding="5"
+					cellspacing="0"
+					style="border-collapse: collapse"
+				>
+					<thead style="background-color: #cc6600; color: #ffffff; font-weight: 700">
+						<tr>
+							<th>STT</th>
+							<th>Tên món ăn</th>
+						</tr>
+					</thead>
+					<tr style="background-color: #fff">
+						<td>1.</td>
+						<td>Cháo lòng</td>
+					</tr>
+					<tr>
+						<td>2.</td>
+						<td>Bánh mì</td>
+					</tr>
+					<tr style="background-color: #fff">
+						<td>3.</td>
+						<td>Xôi</td>
+					</tr>
+					<tr>
+						<td>4.</td>
+						<td>Bột chiên</td>
+					</tr>
+					<tr style="background-color: #fff">
+						<td>5.</td>
+						<td>Bún bò</td>
+					</tr>
+					<tr>
+						<td>6.</td>
+						<td>Hủ tiếu</td>
+					</tr>
+					<tr style="background-color: #fff">
+						<td>7.</td>
+						<td>Bánh canh</td>
+					</tr>
+					<tr>
+						<td>8.</td>
+						<td>Cơm tấm</td>
+					</tr>
+					<tr style="background-color: #fff">
+						<td>9.</td>
+						<td>Bánh khọt</td>
+					</tr>
+					<tr>
+						<td>10.</td>
+						<td>Bánh xèo</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+	</body>
+</html>
+```
 
 </details>
 

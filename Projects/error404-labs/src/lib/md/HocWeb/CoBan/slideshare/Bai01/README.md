@@ -90,30 +90,32 @@
 <details>
 <summary>Xem code mẫu</summary>
 
-<pre class="code_syntax" style="color:#000000;background:#ffffff;"><span class="line_wrapper"><span style="color:#004a43; ">&lt;!DOCTYPE html&gt;</span></span>
-<span class="line_wrapper"><span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">html</span><span style="color:#274796; "> </span><span style="color:#074726; ">lang</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"vi"</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">    <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">head</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">meta</span><span style="color:#274796; "> </span><span style="color:#074726; ">charset</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"UTF-8"</span><span style="color:#274796; "> </span><span style="color:#a65700; ">/&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">meta</span><span style="color:#274796; "> </span><span style="color:#074726; ">name</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"viewport"</span><span style="color:#274796; "> </span><span style="color:#074726; ">content</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"width=device-width, initial-scale=1.0"</span><span style="color:#274796; "> </span><span style="color:#a65700; ">/&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">title</span><span style="color:#a65700; ">&gt;</span>Sử dụng các tag cơ bản<span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">title</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">    <span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">head</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">    <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">body</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#696969; ">&lt;!-- Tiêu đề chính, căn giữa --&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">h1</span><span style="color:#274796; "> </span><span style="color:#074726; ">align</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"center"</span><span style="color:#a65700; ">&gt;</span>Bài <span style="color:#008c00; ">01</span>: Sử dụng các tag cơ bản<span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">h1</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper"></span>
-<span class="line_wrapper">        <span style="color:#696969; ">&lt;!-- Tiêu đề phụ với gạch chân --&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">h2</span><span style="color:#274796; "> </span><span style="color:#074726; ">style</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"</span><span style="color:#bb7977; font-weight:bold; ">text-decoration</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#074726; ">underline</span><span style="color:#0000e6; ">"</span><span style="color:#a65700; ">&gt;</span>Yêu cầu<span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">h2</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper"></span>
-<span class="line_wrapper">        <span style="color:#696969; ">&lt;!-- Đoạn văn in đậm --&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">p</span><span style="color:#274796; "> </span><span style="color:#074726; ">style</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"</span><span style="color:#bb7977; font-weight:bold; ">font-weight</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#074726; ">bold</span><span style="color:#0000e6; ">"</span><span style="color:#a65700; ">&gt;</span>Thiết kế trang web có nội dung như sau:<span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">p</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper"></span>
-<span class="line_wrapper">        <span style="color:#696969; ">&lt;!-- Nội dung căn giữa với ngắt dòng --&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">p</span><span style="color:#274796; "> </span><span style="color:#074726; ">align</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"center"</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">            Lập trình Web tại Error404-Labs<span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">br</span><span style="color:#274796; "> </span><span style="color:#a65700; ">/&gt;</span></span>
-<span class="line_wrapper">            Chào mừng các bạn đến với ngôn ngữ HTML</span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">p</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">    <span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">body</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper"><span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">html</span><span style="color:#a65700; ">&gt;</span></span></pre>
+```html
+<!DOCTYPE html>
+<html lang="vi">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Sử dụng các tag cơ bản</title>
+	</head>
+	<body>
+		<!-- Tiêu đề chính, căn giữa -->
+		<h1 align="center">Bài 01: Sử dụng các tag cơ bản</h1>
+
+		<!-- Tiêu đề phụ với gạch chân -->
+		<h2 style="text-decoration: underline">Yêu cầu</h2>
+
+		<!-- Đoạn văn in đậm -->
+		<p style="font-weight: bold">Thiết kế trang web có nội dung như sau:</p>
+
+		<!-- Nội dung căn giữa với ngắt dòng -->
+		<p align="center">
+			Lập trình Web tại Error404-Labs<br />
+			Chào mừng các bạn đến với ngôn ngữ HTML
+		</p>
+	</body>
+</html>
+```
 
 </details>
 

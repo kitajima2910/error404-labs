@@ -27,7 +27,7 @@
 		// console.log('SEOLesson: ', SEOLesson);
 		content = loadMarkdownRaw(dataLESSONRaw);
 
-		highlightCode();
+		// highlightCode();
 	});
 </script>
 

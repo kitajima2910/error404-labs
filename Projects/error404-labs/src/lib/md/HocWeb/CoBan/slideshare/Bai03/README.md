@@ -83,32 +83,31 @@
 <details>
 <summary>Xem code mẫu</summary>
 
-<pre class="code_syntax" style="color:#000000;background:#ffffff;"><span class="line_wrapper"><span style="color:#004a43; ">&lt;!doctype html&gt;</span></span>
-<span class="line_wrapper"><span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">html</span><span style="color:#274796; "> </span><span style="color:#074726; ">lang</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"vi"</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">    <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">head</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">meta</span><span style="color:#274796; "> </span><span style="color:#074726; ">charset</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"UTF-8"</span><span style="color:#274796; "> </span><span style="color:#a65700; ">/&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">meta</span><span style="color:#274796; "> </span><span style="color:#074726; ">name</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"viewport"</span><span style="color:#274796; "> </span><span style="color:#074726; ">content</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"width=device-width, initial-scale=1.0"</span><span style="color:#274796; "> </span><span style="color:#a65700; ">/&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">title</span><span style="color:#a65700; ">&gt;</span>Định dạng trang web<span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">title</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">    <span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">head</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">    <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">body</span><span style="color:#5f5035; "></span></span>
-<span class="line_wrapper"><span style="color:#274796; ">        </span><span style="color:#074726; ">style</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"</span><span style="color:#274796; "></span></span>
-<span class="line_wrapper"><span style="color:#274796; ">            </span><span style="color:#bb7977; font-weight:bold; ">background-color</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#008c00; ">#</span><span style="color:#008000; ">a06d21</span><span style="color:#800080; ">;</span><span style="color:#274796; "></span></span>
-<span class="line_wrapper"><span style="color:#274796; ">            </span><span style="color:#bb7977; font-weight:bold; ">color</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#008c00; ">#</span><span style="color:#008000; ">fff</span><span style="color:#800080; ">;</span><span style="color:#274796; "></span></span>
-<span class="line_wrapper"><span style="color:#274796; ">            </span><span style="color:#bb7977; font-weight:bold; ">background-image</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#400000; ">url</span><span style="color:#808030; ">(</span><span style="color:#0000e6; ">'</span><span style="color:#666616; ">https</span><span style="color:#800080; ">:</span><span style="color:#800000; font-weight:bold; ">//</span><span style="color:#5555dd; ">uploads.onecompiler.io</span><span style="color:#40015a; ">/442t2gwzd/444zm92ph/lorem-ipsum.png</span><span style="color:#0000e6; ">'</span><span style="color:#808030; ">)</span><span style="color:#800080; ">;</span><span style="color:#274796; "></span></span>
-<span class="line_wrapper"><span style="color:#274796; ">            </span><span style="color:#bb7977; font-weight:bold; ">background-position</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#074726; ">center</span><span style="color:#274796; "> </span><span style="color:#074726; ">center</span><span style="color:#800080; ">;</span><span style="color:#274796; "></span></span>
-<span class="line_wrapper"><span style="color:#274796; ">            </span><span style="color:#bb7977; font-weight:bold; ">background-repeat</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#074726; ">no-repeat</span><span style="color:#800080; ">;</span><span style="color:#274796; "></span></span>
-<span class="line_wrapper"><span style="color:#274796; ">            </span><span style="color:#bb7977; font-weight:bold; ">background-attachment</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#074726; ">fixed</span><span style="color:#800080; ">;</span><span style="color:#274796; "></span></span>
-<span class="line_wrapper"><span style="color:#274796; ">            </span><span style="color:#bb7977; font-weight:bold; ">background-size</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#008c00; ">50</span><span style="color:#006600; ">%</span><span style="color:#800080; ">;</span><span style="color:#274796; "></span></span>
-<span class="line_wrapper"><span style="color:#274796; ">            background-blend-mode</span><span style="color:#808030; ">:</span><span style="color:#274796; "> darken</span><span style="color:#800080; ">;</span><span style="color:#274796; "></span></span>
-<span class="line_wrapper"><span style="color:#274796; ">        </span><span style="color:#0000e6; ">"</span><span style="color:#5f5035; "></span></span>
-<span class="line_wrapper"><span style="color:#274796; ">    </span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">h2</span><span style="color:#274796; "> </span><span style="color:#074726; ">align</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"center"</span><span style="color:#274796; "> </span><span style="color:#074726; ">style</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"</span><span style="color:#bb7977; font-weight:bold; ">color</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#008c00; ">#</span><span style="color:#008000; ">ffcc00</span><span style="color:#800080; ">;</span><span style="color:#274796; "> </span><span style="color:#bb7977; font-weight:bold; ">text-transform</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#074726; ">uppercase</span><span style="color:#0000e6; ">"</span><span style="color:#a65700; ">&gt;</span>Lorem Ipsum<span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">h2</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">p</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">            Lorem5000<span style="color:#008c00; ">...</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">p</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">    <span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">body</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper"><span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">html</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper"></span></pre>
+```html
+<!doctype html>
+<html lang="vi">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Định dạng trang web</title>
+	</head>
+	<body
+		style="
+			background-color: #a06d21;
+			color: #fff;
+			background-image: url('https://uploads.onecompiler.io/442t2gwzd/444zm92ph/lorem-ipsum.png');
+			background-position: center center;
+			background-repeat: no-repeat;
+			background-attachment: fixed;
+			background-size: 50%;
+			background-blend-mode: darken;
+		"
+	>
+		<h2 align="center" style="color: #ffcc00; text-transform: uppercase">Lorem Ipsum</h2>
+		<p>Lorem5000...</p>
+	</body>
+</html>
+```
 
 </details>
 

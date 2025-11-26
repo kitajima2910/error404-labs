@@ -55,36 +55,37 @@
 <details>
 <summary>Xem code mẫu</summary>
 
-<pre class="code_syntax" style="color:#000000;background:#ffffff;"><span class="line_wrapper"><span style="color:#004a43; ">&lt;!doctype html&gt;</span></span>
-<span class="line_wrapper"><span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">html</span><span style="color:#274796; "> </span><span style="color:#074726; ">lang</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"en"</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">    <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">head</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">meta</span><span style="color:#274796; "> </span><span style="color:#074726; ">charset</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"UTF-8"</span><span style="color:#274796; "> </span><span style="color:#a65700; ">/&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">meta</span><span style="color:#274796; "> </span><span style="color:#074726; ">name</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"viewport"</span><span style="color:#274796; "> </span><span style="color:#074726; ">content</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"width=device-width, initial-scale=1.0"</span><span style="color:#274796; "> </span><span style="color:#a65700; ">/&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">title</span><span style="color:#a65700; ">&gt;</span>Định dạng văn bản<span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">title</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">    <span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">head</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">    <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">body</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">h1</span><span style="color:#274796; "> </span><span style="color:#074726; ">style</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"</span><span style="color:#bb7977; font-weight:bold; ">text-align</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#074726; ">center</span><span style="color:#800080; ">;</span><span style="color:#274796; "> </span><span style="color:#bb7977; font-weight:bold; ">color</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#008c00; ">#</span><span style="color:#008000; ">008888</span><span style="color:#0000e6; ">"</span><span style="color:#a65700; ">&gt;</span>Định dạng văn bản<span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">h1</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">div</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">            <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">b</span><span style="color:#a65700; ">&gt;</span><span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">u</span><span style="color:#a65700; ">&gt;</span>Hóa học:<span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">u</span><span style="color:#a65700; ">&gt;</span><span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">b</span><span style="color:#a65700; ">&gt;</span> <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">i</span><span style="color:#a65700; ">&gt;</span>Nước:<span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">i</span><span style="color:#a65700; ">&gt;</span><span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">font</span><span style="color:#274796; "> </span><span style="color:#074726; ">color</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"red"</span><span style="color:#a65700; ">&gt;</span>H<span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">sub</span><span style="color:#a65700; ">&gt;</span><span style="color:#008c00; ">2</span><span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">sub</span><span style="color:#a65700; ">&gt;</span>O<span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">font</span><span style="color:#a65700; ">&gt;</span>;</span>
-<span class="line_wrapper">            <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">i</span><span style="color:#a65700; ">&gt;</span>Axit Sunfuric:<span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">i</span><span style="color:#a65700; ">&gt;</span> <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">font</span><span style="color:#274796; "> </span><span style="color:#074726; ">color</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"red"</span><span style="color:#a65700; ">&gt;</span>H<span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">sub</span><span style="color:#a65700; ">&gt;</span><span style="color:#008c00; ">2</span><span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">sub</span><span style="color:#a65700; ">&gt;</span>SO<span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">sub</span><span style="color:#a65700; ">&gt;</span><span style="color:#008c00; ">4</span><span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">sub</span><span style="color:#a65700; ">&gt;</span><span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">font</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">div</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">div</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">            <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">b</span><span style="color:#a65700; ">&gt;</span><span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">u</span><span style="color:#a65700; ">&gt;</span>Toán học:<span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">u</span><span style="color:#a65700; ">&gt;</span><span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">b</span><span style="color:#a65700; ">&gt;</span> <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">i</span><span style="color:#a65700; ">&gt;</span>Pương trình bậc <span style="color:#008c00; ">2</span>:<span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">i</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">            <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">font</span><span style="color:#274796; "> </span><span style="color:#074726; ">color</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"red"</span><span style="color:#a65700; ">&gt;</span>ax<span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">sup</span><span style="color:#a65700; ">&gt;</span><span style="color:#008c00; ">2</span><span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">sup</span><span style="color:#a65700; ">&gt;</span> + bx + c = <span style="color:#008c00; ">0</span><span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">font</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">div</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">div</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">            <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">b</span><span style="color:#a65700; ">&gt;</span><span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">u</span><span style="color:#a65700; ">&gt;</span>Tin học:<span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">u</span><span style="color:#a65700; ">&gt;</span><span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">b</span><span style="color:#a65700; ">&gt;</span> <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">i</span><span style="color:#a65700; ">&gt;</span>Vòng lặp For:<span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">i</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">div</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">pre</span><span style="color:#274796; "> </span><span style="color:#074726; ">style</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"</span><span style="color:#bb7977; font-weight:bold; ">color</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#008c00; ">#</span><span style="color:#008000; ">0000cc</span><span style="color:#800080; ">;</span><span style="color:#274796; "> </span><span style="color:#bb7977; font-weight:bold; ">background-color</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#008c00; ">#</span><span style="color:#008000; ">ccc</span><span style="color:#0000e6; ">"</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">            </span>
-<span class="line_wrapper">            for(int i = <span style="color:#008c00; ">0</span>; i &lt; <span style="color:#008c00; ">10</span>; i++) {</span>
-<span class="line_wrapper">                cout &lt;<span style="color:#a65700; ">&lt;</span> <span style="color:#800000; font-weight:bold; ">i</span><span style="color:#274796; "> &lt;&lt; endl;</span></span>
-<span class="line_wrapper"><span style="color:#274796; ">            }</span></span>
-<span class="line_wrapper"><span style="color:#274796; ">        &lt;/pre</span></span>
-<span class="line_wrapper"><span style="color:#274796; ">        </span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">    <span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">body</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper"><span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">html</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper"></span></pre>
+```html
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Định dạng văn bản</title>
+	</head>
+	<body>
+		<h1 style="text-align: center; color: #008888">Định dạng văn bản</h1>
+		<div>
+			<b><u>Hóa học:</u></b> <i>Nước:</i><font color="red">H<sub>2</sub>O</font>;
+			<i>Axit Sunfuric:</i> <font color="red">H<sub>2</sub>SO<sub>4</sub></font>
+		</div>
+		<div>
+			<b><u>Toán học:</u></b> <i>Pương trình bậc 2:</i>
+			<font color="red">ax<sup>2</sup> + bx + c = 0</font>
+		</div>
+		<div>
+			<b><u>Tin học:</u></b> <i>Vòng lặp For:</i>
+		</div>
+		<pre style="color: #0000cc; background-color: #ccc">
+			
+			for(int i = 0; i < 10; i++) {
+				cout << i << endl;
+			}
+		</pre
+		>
+	</body>
+</html>
+```
 
 </details>
 

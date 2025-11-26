@@ -65,45 +65,46 @@
 <details>
 <summary>Xem code mẫu</summary>
 
-<pre class="code_syntax" style="color:#000000;background:#ffffff;"><span class="line_wrapper"><span style="color:#004a43; ">&lt;!doctype html&gt;</span></span>
-<span class="line_wrapper"><span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">html</span><span style="color:#274796; "> </span><span style="color:#074726; ">lang</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"en"</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">    <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">head</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">meta</span><span style="color:#274796; "> </span><span style="color:#074726; ">charset</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"UTF-8"</span><span style="color:#274796; "> </span><span style="color:#a65700; ">/&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">meta</span><span style="color:#274796; "> </span><span style="color:#074726; ">name</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"viewport"</span><span style="color:#274796; "> </span><span style="color:#074726; ">content</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"width=device-width, initial-scale=1.0"</span><span style="color:#274796; "> </span><span style="color:#a65700; ">/&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">title</span><span style="color:#a65700; ">&gt;</span>ART KID GARDEN<span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">title</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">    <span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">head</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">    <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">body</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">h1</span><span style="color:#5f5035; "></span></span>
-<span class="line_wrapper"><span style="color:#274796; ">           </span><span style="color:#274796; "> </span><span style="color:#074726; ">style</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"</span><span style="color:#274796; "></span></span>
-<span class="line_wrapper"><span style="color:#274796; ">                </span><span style="color:#bb7977; font-weight:bold; ">border-width</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#008c00; ">3</span><span style="color:#006600; ">px</span><span style="color:#800080; ">;</span><span style="color:#274796; "></span></span>
-<span class="line_wrapper"><span style="color:#274796; ">                </span><span style="color:#bb7977; font-weight:bold; ">border-style</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#074726; ">solid</span><span style="color:#800080; ">;</span><span style="color:#274796; "></span></span>
-<span class="line_wrapper"><span style="color:#274796; ">                </span><span style="color:#bb7977; font-weight:bold; ">border-color</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#008c00; ">#</span><span style="color:#008000; ">ee710e</span><span style="color:#800080; ">;</span><span style="color:#274796; "></span></span>
-<span class="line_wrapper"><span style="color:#274796; ">                </span><span style="color:#bb7977; font-weight:bold; ">text-align</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#074726; ">center</span><span style="color:#800080; ">;</span><span style="color:#274796; "></span></span>
-<span class="line_wrapper"><span style="color:#274796; ">                </span><span style="color:#bb7977; font-weight:bold; ">color</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#008c00; ">#</span><span style="color:#008000; ">ee710e</span><span style="color:#800080; ">;</span><span style="color:#274796; "></span></span>
-<span class="line_wrapper"><span style="color:#274796; ">            </span><span style="color:#0000e6; ">"</span><span style="color:#274796; "></span></span>
-<span class="line_wrapper"><span style="color:#274796; ">        </span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">            ART KID GARDEN</span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">h1</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">p</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">            <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">span</span><span style="color:#274796; "> </span><span style="color:#074726; ">style</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"</span><span style="color:#bb7977; font-weight:bold; ">font-size</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#008c00; ">50</span><span style="color:#006600; ">px</span><span style="color:#800080; ">;</span><span style="color:#274796; "> </span><span style="color:#bb7977; font-weight:bold; ">color</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#008c00; ">#</span><span style="color:#008000; ">9c0105</span><span style="color:#800080; ">;</span><span style="color:#274796; "> </span><span style="color:#bb7977; font-weight:bold; ">font-weight</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#008c00; ">700</span><span style="color:#0000e6; ">"</span><span style="color:#a65700; ">&gt;</span>A<span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">span</span><span style="color:#a65700; ">&gt;</span>rt Kid Garden là lớp</span>
-<span class="line_wrapper">            học giáo dục nghệ thuật và kĩ năng dành cho nhóm trẻ từ <span style="color:#008c00; ">4</span> đến <span style="color:#008c00; ">12</span> tuổi, tập trung vào mục tiêu</span>
-<span class="line_wrapper">            phát triển <span style="color:#008c00; ">4</span> năng lực nền tảng và cân bằng gốc thông qua các hoạt động đa dạng do Nhà giáo dục</span>
-<span class="line_wrapper">            Phan Tường An (Cô Cỏ) xây dựng và phát triển<span style="color:#008c00; ">.</span> Nhiệm vụ của Art Kid Garden là xây dựng môi</span>
-<span class="line_wrapper">            trường phù hợp <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">b</span><span style="color:#a65700; ">&gt;</span><span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">u</span><span style="color:#a65700; ">&gt;</span>cho sự phát triển tự nhiên của trẻ<span style="color:#008c00; ">.</span><span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">u</span><span style="color:#a65700; ">&gt;</span><span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">b</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">p</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">h2</span><span style="color:#274796; "> </span><span style="color:#074726; ">style</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"</span><span style="color:#bb7977; font-weight:bold; ">text-align</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#074726; ">right</span><span style="color:#800080; ">;</span><span style="color:#274796; "> </span><span style="color:#bb7977; font-weight:bold; ">background-color</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#008c00; ">#</span><span style="color:#008000; ">ee710e</span><span style="color:#800080; ">;</span><span style="color:#274796; "> </span><span style="color:#bb7977; font-weight:bold; ">color</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#008c00; ">#</span><span style="color:#008000; ">fff</span><span style="color:#0000e6; ">"</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">            HỆ SINH THÁI MINDFLOW ART!</span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">h2</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">p</span><span style="color:#274796; "> </span><span style="color:#074726; ">style</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"</span><span style="color:#bb7977; font-weight:bold; ">text-align</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#074726; ">right</span><span style="color:#0000e6; ">"</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">            <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">span</span><span style="color:#274796; "> </span><span style="color:#074726; ">style</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"</span><span style="color:#bb7977; font-weight:bold; ">font-size</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#008c00; ">50</span><span style="color:#006600; ">px</span><span style="color:#800080; ">;</span><span style="color:#274796; "> </span><span style="color:#bb7977; font-weight:bold; ">color</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#008c00; ">#</span><span style="color:#008000; ">9c0105</span><span style="color:#800080; ">;</span><span style="color:#274796; "> </span><span style="color:#bb7977; font-weight:bold; ">font-weight</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#008c00; ">700</span><span style="color:#0000e6; ">"</span><span style="color:#a65700; ">&gt;</span>A<span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">span</span><span style="color:#a65700; ">&gt;</span>rt Kid Garden là lớp</span>
-<span class="line_wrapper">            học giáo dục <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">span</span><span style="color:#274796; "> </span><span style="color:#074726; ">style</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"</span><span style="color:#bb7977; font-weight:bold; ">color</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#008c00; ">#</span><span style="color:#008000; ">9c0105</span><span style="color:#800080; ">;</span><span style="color:#274796; "> </span><span style="color:#bb7977; font-weight:bold; ">font-weight</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#008c00; ">700</span><span style="color:#0000e6; ">"</span><span style="color:#a65700; ">&gt;</span>nghệ thuật<span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">span</span><span style="color:#a65700; ">&gt;</span> và</span>
-<span class="line_wrapper">            <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">span</span><span style="color:#274796; "> </span><span style="color:#074726; ">style</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"</span><span style="color:#bb7977; font-weight:bold; ">color</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#008c00; ">#</span><span style="color:#008000; ">9c0105</span><span style="color:#800080; ">;</span><span style="color:#274796; "> </span><span style="color:#bb7977; font-weight:bold; ">font-weight</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#008c00; ">700</span><span style="color:#0000e6; ">"</span><span style="color:#a65700; ">&gt;</span>kĩ năng<span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">span</span><span style="color:#a65700; ">&gt;</span> cho trẻ từ <span style="color:#008c00; ">4</span> đến <span style="color:#008c00; ">12</span> tuổi, thành</span>
-<span class="line_wrapper">            lập từ năm <span style="color:#008c00; ">2018.</span> Sử dụng chương trình giáo dục nghệ thuật Mindflow Art do Nhà giáo dục</span>
-<span class="line_wrapper">            <span style="color:#a65700; ">&lt;</span><span style="color:#800000; font-weight:bold; ">span</span><span style="color:#274796; "> </span><span style="color:#074726; ">style</span><span style="color:#808030; ">=</span><span style="color:#0000e6; ">"</span><span style="color:#bb7977; font-weight:bold; ">background-color</span><span style="color:#808030; ">:</span><span style="color:#274796; "> </span><span style="color:#008c00; ">#</span><span style="color:#008000; ">facb02</span><span style="color:#0000e6; ">"</span><span style="color:#a65700; ">&gt;</span>Phan Tường An<span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">span</span><span style="color:#a65700; ">&gt;</span> xây dựng và phát triển<span style="color:#008c00; ">.</span></span>
-<span class="line_wrapper">        <span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">p</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper">    <span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">body</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper"><span style="color:#a65700; ">&lt;/</span><span style="color:#800000; font-weight:bold; ">html</span><span style="color:#a65700; ">&gt;</span></span>
-<span class="line_wrapper"></span></pre>
+```html
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>ART KID GARDEN</title>
+	</head>
+	<body>
+		<h1
+			style="
+				border-width: 3px;
+				border-style: solid;
+				border-color: #ee710e;
+				text-align: center;
+				color: #ee710e;
+			"
+		>
+			ART KID GARDEN
+		</h1>
+		<p>
+			<span style="font-size: 50px; color: #9c0105; font-weight: 700">A</span>rt Kid Garden là lớp
+			học giáo dục nghệ thuật và kĩ năng dành cho nhóm trẻ từ 4 đến 12 tuổi, tập trung vào mục tiêu
+			phát triển 4 năng lực nền tảng và cân bằng gốc thông qua các hoạt động đa dạng do Nhà giáo dục
+			Phan Tường An (Cô Cỏ) xây dựng và phát triển. Nhiệm vụ của Art Kid Garden là xây dựng môi
+			trường phù hợp <b><u>cho sự phát triển tự nhiên của trẻ.</u></b>
+		</p>
+		<h2 style="text-align: right; background-color: #ee710e; color: #fff">
+			HỆ SINH THÁI MINDFLOW ART!
+		</h2>
+		<p style="text-align: right">
+			<span style="font-size: 50px; color: #9c0105; font-weight: 700">A</span>rt Kid Garden là lớp
+			học giáo dục <span style="color: #9c0105; font-weight: 700">nghệ thuật</span> và
+			<span style="color: #9c0105; font-weight: 700">kĩ năng</span> cho trẻ từ 4 đến 12 tuổi, thành
+			lập từ năm 2018. Sử dụng chương trình giáo dục nghệ thuật Mindflow Art do Nhà giáo dục
+			<span style="background-color: #facb02">Phan Tường An</span> xây dựng và phát triển.
+		</p>
+	</body>
+</html>
+```
 
 </details>
 
