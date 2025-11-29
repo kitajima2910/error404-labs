@@ -1,5 +1,5 @@
 <script lang="ts">
-	import PreloadLinkWithData from '../../components/PreloadLinkWithData.svelte';
+	import { page } from '$app/state';
 	import Title from '../../components/Title.svelte';
 	import { onMount, onDestroy } from 'svelte';
 
@@ -11,6 +11,18 @@
 	const toggleMenu = () => {
 		isOpenBar = !isOpenBar;
 	};
+
+	let checkWhiteList = $derived(false);
+
+	$effect(() => {
+		const urlPath = page.route.id;
+
+		const urlWhitelist = ['/huong-dan-hoc/lap-trinh-c-cpp/tu-co-ban-den-nang-cao'];
+
+		// console.log("urlPath: ", urlWitelist.find(item => urlPath === item));
+
+		checkWhiteList = urlWhitelist.find((item) => urlPath === item) ? true : false;
+	});
 
 	onMount(() => {
 		const handleResize = () => {
@@ -127,9 +139,15 @@
 	</nav>
 </header>
 
-<main class="max-w-[1200px] mx-auto! p-5!">
-	{@render children?.()}
-</main>
+{#if checkWhiteList}
+	<main class="w-full mx-auto! p-5!">
+		{@render children?.()}
+	</main>
+{:else}
+	<main class="max-w-[1200px] mx-auto! p-5!">
+		{@render children?.()}
+	</main>
+{/if}
 
 <footer class="text-center m-5!">
 	<p>Copyright &copy; {new Date().getFullYear()} - Phạm Xuân Hoài</p>

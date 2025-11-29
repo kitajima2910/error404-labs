@@ -13,6 +13,11 @@
 			title: 'Lập Trình Cơ Bản - Bài Tập Thực Hành',
 			tooltip: 'Khóa học: lập trình cơ bản - bài tập thực hành',
 			link: '/huong-dan-hoc/lap-trinh-c-cpp/lap-trinh-co-ban-bai-tap-thuc-hanh'
+		},
+		{
+			title: 'Lập Trình C++ - Từ Cơ Bản Đến Nâng Cao',
+			tooltip: 'Khóa học: Lập Trình C++ - Từ Cơ Bản Đến Nâng Cao',
+			link: '/huong-dan-hoc/lap-trinh-c-cpp/tu-co-ban-den-nang-cao'
 		}
 	];
 </script>
