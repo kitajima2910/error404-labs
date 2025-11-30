@@ -4,8 +4,24 @@
 	let currentContent: string = $derived('');
 	let activeContent: string = $derived('');
 
-	const onLoadLesson = async (fileName: string) => {
-		activeContent = fileName;
+	interface LESSON {
+		fileName?: string;
+		title?: string;
+	}
+
+	const LESSONS: LESSON[] = [
+		{
+			fileName: 'bai01.html',
+			title: 'Bài 01: Tải C-Free 5.0 Pro'
+		},
+		{
+			fileName: 'bai02.html',
+			title: 'Bài 02: Class'
+		}
+	];
+
+	const onLoadLesson = async (fileName?: string) => {
+		activeContent = fileName ?? 'bai01.html';
 		const res = await fetch(`/tu-co-ban-den-nang-cao/${fileName}`);
 		currentContent = await res.text();
 	};
@@ -24,12 +40,11 @@
 	<div class="right">
 		<p class="title">Nội dung khóa học</p>
 		<ul>
-			<li class:active={activeContent === 'bai01.html'}>
-				<button onclick={() => onLoadLesson('bai01.html')}>Bài 01: Tải C-Free 5.0 Pro</button>
-			</li>
-			<li class:active={activeContent === 'bai02.html'}>
-				<button onclick={() => onLoadLesson('bai02.html')}>Bài 02: Class</button>
-			</li>
+			{#each LESSONS as { fileName, title }}
+				<li class:active={activeContent === fileName}>
+					<button onclick={() => onLoadLesson(fileName)}>{title}</button>
+				</li>
+			{/each}
 		</ul>
 	</div>
 </div>
@@ -47,7 +62,8 @@
 			/* border-radius: 10px; */
 			height: calc(100vh - 200px);
 			overflow-y: scroll;
-			/* padding: 15px; */
+			padding: 0 15px;
+			padding-bottom: 50px;
 		}
 
 		.right {
@@ -78,6 +94,7 @@
 					overflow: hidden;
 					display: -webkit-inline-box;
 					-webkit-box-orient: vertical;
+					line-clamp: 2;
 					-webkit-line-clamp: 2;
 
 					border: 1px dashed #1e5b66;
