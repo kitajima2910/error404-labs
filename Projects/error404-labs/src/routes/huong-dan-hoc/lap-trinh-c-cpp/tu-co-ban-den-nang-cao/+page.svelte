@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Breadcrumb from '../../../../components/Breadcrumb.svelte';
+	import { onMount } from 'svelte';
 
 	let currentContent: string = $derived('');
 	let activeContent: string = $derived('');
@@ -24,10 +25,21 @@
 		activeContent = fileName ?? 'bai01.html';
 		const res = await fetch(`/tu-co-ban-den-nang-cao/${fileName}`);
 		currentContent = await res.text();
+
+		// console.log("currentLesson: ", LESSONS.filter(item => item.fileName === activeContent)[0]);
+		const currentLesson = LESSONS.filter((item) => item.fileName === activeContent)[0];
+		localStorage.setItem('tu-co-ban-den-nang-cao', JSON.stringify(currentLesson));
 	};
 
-	$effect(() => {
-		onLoadLesson('bai01.html');
+	onMount(() => {
+		if (localStorage.getItem('tu-co-ban-den-nang-cao')) {
+			const currentLesson: LESSON = JSON.parse(
+				JSON.parse(JSON.stringify(localStorage.getItem('tu-co-ban-den-nang-cao')))
+			);
+			onLoadLesson(currentLesson.fileName);
+		} else {
+			onLoadLesson('bai01.html');
+		}
 	});
 </script>
 
