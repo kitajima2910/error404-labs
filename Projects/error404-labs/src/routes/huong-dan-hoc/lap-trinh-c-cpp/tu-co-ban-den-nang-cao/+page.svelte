@@ -43,11 +43,11 @@
 
 		.left {
 			grid-area: 'left';
-			border: 1px dashed #1e5b66;
-			border-radius: 10px;
+			/* border: 1px dashed #1e5b66; */
+			/* border-radius: 10px; */
 			height: calc(100vh - 200px);
 			overflow-y: scroll;
-			padding: 15px;
+			/* padding: 15px; */
 		}
 
 		.right {
@@ -94,10 +94,20 @@
 					}
 
 					&.active {
-						color: red;
-						background-color: #ccc;
+						/* color: red;
+						background-color: #ccc; */
+						background: linear-gradient(
+							45deg,
+							rgba(255, 0, 0, 0.1),
+							rgba(0, 255, 0, 0.1),
+							rgba(0, 0, 255, 0.1)
+						);
 					}
 				}
+			}
+
+			@media screen and (max-width: 1200px) {
+				height: calc(100vh - 700px);
 			}
 		}
 
