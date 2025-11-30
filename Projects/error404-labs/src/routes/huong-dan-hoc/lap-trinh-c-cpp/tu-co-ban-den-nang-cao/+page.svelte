@@ -53,7 +53,7 @@
 		<p class="title">Nội dung khóa học</p>
 		<ul>
 			{#each LESSONS as { fileName, title }}
-				<li class:active={activeContent === fileName}>
+				<li class:active={activeContent === fileName} title={title}>
 					<button onclick={() => onLoadLesson(fileName)}>{title}</button>
 				</li>
 			{/each}
