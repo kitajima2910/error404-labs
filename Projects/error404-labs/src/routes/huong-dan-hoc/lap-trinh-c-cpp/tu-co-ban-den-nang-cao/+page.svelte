@@ -1,9 +1,13 @@
 <script lang="ts">
 	import Breadcrumb from '../../../../components/Breadcrumb.svelte';
 	import { onMount } from 'svelte';
+	import 'github-markdown-css/github-markdown-light.css';
 
-	let currentContent: string = $derived('');
 	let activeContent: string = $derived('');
+
+	let CurrentLesson: any = $derived(null);
+
+	let contentEl: HTMLElement | null = $derived(null);
 
 	interface LESSON {
 		fileName?: string;
@@ -12,23 +16,33 @@
 
 	const LESSONS: LESSON[] = [
 		{
-			fileName: 'bai01.html',
+			fileName: 'bai01',
 			title: 'Bài 01: Tải C-Free 5.0 Pro'
 		},
 		{
-			fileName: 'bai02.html',
-			title: 'Bài 02: Class'
+			fileName: 'bai02',
+			title: 'Bài 02: Lập Trình Hướng Đối Tượng Trong C++'
 		}
 	];
 
-	const onLoadLesson = async (fileName?: string) => {
-		activeContent = fileName ?? 'bai01.html';
-		const res = await fetch(`/tu-co-ban-den-nang-cao/${fileName}`);
-		currentContent = await res.text();
+	const scrollToTop = () => {
+		if (contentEl) {
+			// contentEl.scrollTop = 0;
+			// Hoặc smooth scroll (tuỳ chọn):
+			contentEl.scrollTo({ top: 0, behavior: 'smooth' });
+		}
+	};
+
+	const onLoadLessonV2 = async (fileName?: string) => {
+		activeContent = fileName ?? 'bai01.svelte';
+		const module = await import(`$lib/tu-co-ban-den-nang-cao/${fileName}.svelte`);
+		CurrentLesson = module.default;
 
 		// console.log("currentLesson: ", LESSONS.filter(item => item.fileName === activeContent)[0]);
 		const currentLesson = LESSONS.filter((item) => item.fileName === activeContent)[0];
 		localStorage.setItem('tu-co-ban-den-nang-cao', JSON.stringify(currentLesson));
+
+		scrollToTop();
 	};
 
 	onMount(() => {
@@ -36,9 +50,9 @@
 			const currentLesson: LESSON = JSON.parse(
 				JSON.parse(JSON.stringify(localStorage.getItem('tu-co-ban-den-nang-cao')))
 			);
-			onLoadLesson(currentLesson.fileName);
+			onLoadLessonV2(currentLesson.fileName);
 		} else {
-			onLoadLesson('bai01.html');
+			onLoadLessonV2('bai01');
 		}
 	});
 </script>
@@ -46,15 +60,17 @@
 <Breadcrumb />
 
 <div class="wrapper">
-	<div class="left">
-		{@html currentContent}
+	<div bind:this={contentEl} class="left markdown-body">
+		{#if CurrentLesson}
+			<CurrentLesson />
+		{/if}
 	</div>
 	<div class="right">
 		<p class="title">Nội dung khóa học</p>
 		<ul>
 			{#each LESSONS as { fileName, title }}
-				<li class:active={activeContent === fileName} title={title}>
-					<button onclick={() => onLoadLesson(fileName)}>{title}</button>
+				<li class:active={activeContent === fileName} {title}>
+					<button onclick={() => onLoadLessonV2(fileName)}>{title}</button>
 				</li>
 			{/each}
 		</ul>
