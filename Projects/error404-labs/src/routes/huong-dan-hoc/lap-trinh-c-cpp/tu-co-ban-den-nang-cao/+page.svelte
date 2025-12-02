@@ -59,7 +59,7 @@
 
 <Breadcrumb />
 
-<div class="wrapper">
+<div class="container">
 	<div bind:this={contentEl} class="left markdown-body">
 		{#if CurrentLesson}
 			<CurrentLesson />
@@ -78,7 +78,7 @@
 </div>
 
 <style>
-	.wrapper {
+	.container {
 		display: grid;
 		grid-template-columns: 1fr 0.3fr;
 		grid-template-areas: 'left right';
@@ -88,7 +88,7 @@
 			grid-area: 'left';
 			/* border: 1px dashed #1e5b66; */
 			/* border-radius: 10px; */
-			height: calc(100vh - 200px);
+			height: calc(45rem - 200px);
 			overflow-y: scroll;
 			padding: 0 15px;
 			padding-bottom: 50px;
@@ -97,7 +97,7 @@
 		.right {
 			grid-area: 'right';
 			/* border: 1px dashed #1e5b66; */
-			height: calc(100vh - 200px);
+			height: calc(45rem - 200px);
 			overflow: hidden;
 			position: relative;
 
@@ -150,15 +150,17 @@
 					}
 				}
 			}
-
-			@media screen and (max-width: 1200px) {
-				height: calc(100vh - 700px);
-			}
 		}
+	}
 
-		@media screen and (max-width: 1200px) {
+	@media screen and (max-width: 1200px) {
+		.container {
 			grid-template-columns: 1fr;
 			grid-template-areas: 'left';
+
+			.right {
+				height: calc(30rem - 200px);
+			}
 		}
 	}
 </style>

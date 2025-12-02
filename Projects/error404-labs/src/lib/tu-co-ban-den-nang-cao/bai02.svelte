@@ -1,4 +1,5 @@
 <script lang="ts">
+	import './main.css';
 	import CodeBlock from '../../components/CodeBlock.svelte';
 
 	const code: string = `
@@ -214,60 +215,3 @@
 		<li>Code có cấu trúc, dễ bảo trì</li>
 	</ul>
 </div>
-
-<style>
-	.wrapper {
-		position: relative;
-		font-size: large;
-
-		.p {
-			font-size: medium;
-		}
-
-		h1 {
-			font-weight: bolder;
-			font-size: xx-large;
-			position: sticky;
-			top: 0;
-			background: linear-gradient(45deg, rgb(190, 129, 129), rgb(84, 146, 84), rgb(117, 117, 194));
-			border-radius: 10px;
-			text-align: center;
-			padding-top: 6px;
-			z-index: 888;
-			color: floralwhite;
-		}
-
-		div {
-			a {
-				background-color: #35b219;
-				color: #000;
-				padding: 0 15px;
-				border-radius: 10px;
-
-				&:hover {
-					text-decoration: none;
-				}
-			}
-
-			code {
-				display: block;
-				text-align: center;
-				margin: 15px 0;
-				color: #35b219;
-			}
-		}
-
-		h2 {
-			font-weight: bolder;
-			font-size: large;
-			width: fit-content;
-			margin: 15px 0;
-		}
-
-		ul {
-			li {
-				font-size: medium;
-			}
-		}
-	}
-</style>
