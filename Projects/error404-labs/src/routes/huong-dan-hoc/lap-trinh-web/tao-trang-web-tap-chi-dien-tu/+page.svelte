@@ -17,11 +17,35 @@
 	const LESSONS: LESSON[] = [
 		{
 			fileName: 'bai01',
-			title: 'Bài 01: Tải C-Free 5.0 Pro'
+			title: 'Bài 01: Sử dụng các tag cơ bản'
 		},
 		{
 			fileName: 'bai02',
-			title: 'Bài 02: Lập Trình Hướng Đối Tượng Trong C++'
+			title: 'Bài 02: Sử dụng các tag cơ bản (tt)'
+		},
+		{
+			fileName: 'bai03',
+			title: 'Bài 03: Định dạng trang web'
+		},
+		{
+			fileName: 'bai04',
+			title: 'Bài 04: Định dạng trang web (tt)'
+		},
+		{
+			fileName: 'bai05',
+			title: 'Bài 05: Định dạng văn bản'
+		},
+		{
+			fileName: 'bai06',
+			title: 'Bài 06: Định dạng văn bản (tt)'
+		},
+		{
+			fileName: 'bai07',
+			title: 'Bài 07: Ký tự đặc biệt, chèn hình ảnh, tạo danh sách và liên kết'
+		},
+		{
+			fileName: 'bai08',
+			title: 'Bài 08: Tạo bảng'
 		}
 	];
 
@@ -35,20 +59,20 @@
 
 	const onLoadLessonV2 = async (fileName?: string) => {
 		activeContent = fileName ?? 'bai01.svelte';
-		const module = await import(`$lib/tu-co-ban-den-nang-cao/${fileName}.svelte`);
+		const module = await import(`$lib/tao-trang-web-tap-chi-dien-tu/${fileName}.svelte`);
 		CurrentLesson = module.default;
 
 		// console.log("currentLesson: ", LESSONS.filter(item => item.fileName === activeContent)[0]);
 		const currentLesson = LESSONS.filter((item) => item.fileName === activeContent)[0];
-		localStorage.setItem('tu-co-ban-den-nang-cao', JSON.stringify(currentLesson));
+		localStorage.setItem('tao-trang-web-tap-chi-dien-tu', JSON.stringify(currentLesson));
 
 		scrollToTop();
 	};
 
 	onMount(() => {
-		if (localStorage.getItem('tu-co-ban-den-nang-cao')) {
+		if (localStorage.getItem('tao-trang-web-tap-chi-dien-tu')) {
 			const currentLesson: LESSON = JSON.parse(
-				JSON.parse(JSON.stringify(localStorage.getItem('tu-co-ban-den-nang-cao')))
+				JSON.parse(JSON.stringify(localStorage.getItem('tao-trang-web-tap-chi-dien-tu')))
 			);
 			onLoadLessonV2(currentLesson.fileName);
 		} else {

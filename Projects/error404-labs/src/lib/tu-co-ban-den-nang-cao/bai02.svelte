@@ -1,5 +1,5 @@
 <script lang="ts">
-	import './main.css';
+	import './../huong-dan-hoc.css';
 	import CodeBlock from '../../components/CodeBlock.svelte';
 
 	const code: string = `

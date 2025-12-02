@@ -8,7 +8,12 @@ export const DATA_WEBS: Webs[] = [
 	{
 		name: 'Slide Share',
 		link: '/huong-dan-hoc/lap-trinh-web/khoa-hoc-slideshare',
-		title: 'Khóa học: tạo trang web tạp chí điện tử'
+		title: 'Khóa học: Tạo trang web tạp chí điện tử'
+	},
+	{
+		name: 'Tạo trang web tạp chí điện tử',
+		link: '/huong-dan-hoc/lap-trinh-web/tao-trang-web-tap-chi-dien-tu',
+		title: 'Khóa học: Tạo trang web tạp chí điện tử'
 	}
 ];
 

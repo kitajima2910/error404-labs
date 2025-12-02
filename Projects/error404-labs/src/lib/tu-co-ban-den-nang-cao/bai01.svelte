@@ -1,3 +1,7 @@
+<script lang="ts">
+	import './../huong-dan-hoc.css';
+</script>
+
 <div class="wrapper">
 	<h1>Tải C-Free 5.0 Pro</h1>
 	<div class="p"><strong>C-Free</strong> - là IDE giúp viết code C/C++</div>

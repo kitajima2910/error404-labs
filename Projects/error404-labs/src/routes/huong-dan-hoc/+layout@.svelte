@@ -17,7 +17,10 @@
 	$effect(() => {
 		const urlPath = page.route.id;
 
-		const urlWhitelist = ['/huong-dan-hoc/lap-trinh-c-cpp/tu-co-ban-den-nang-cao'];
+		const urlWhitelist = [
+			'/huong-dan-hoc/lap-trinh-c-cpp/tu-co-ban-den-nang-cao',
+			'/huong-dan-hoc/lap-trinh-web/tao-trang-web-tap-chi-dien-tu'
+		];
 
 		// console.log("urlPath: ", urlWitelist.find(item => urlPath === item));
 

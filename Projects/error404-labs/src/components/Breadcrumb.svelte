@@ -15,7 +15,8 @@
 		'khoa-hoc-slideshare': 'Khóa học Slide Share',
 		'lap-trinh-c-cpp': 'Lập Trình C/C++',
 		'lap-trinh-co-ban-bai-tap-thuc-hanh': 'Lập Trình Cơ Bản - Bài Tập Thực Hành',
-		'tu-co-ban-den-nang-cao': 'Từ Cơ Bản Đến Nâng Cao'
+		'tu-co-ban-den-nang-cao': 'Từ Cơ Bản Đến Nâng Cao',
+		'tao-trang-web-tap-chi-dien-tu': 'Tạo Trang Web Tạp Chí Điện Tử'
 	};
 
 	const displayNames = $derived({ ...defaultNames, ...nameMap });
