@@ -33,6 +33,7 @@
 	.code-container {
 		position: relative;
 		margin: 1rem 0;
+		padding-bottom: 10px;
 	}
 
 	.copy-btn {

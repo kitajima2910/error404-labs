@@ -32,9 +32,9 @@
 </script>
 
 <svelte:head>
-	<title>Error404-Labs | {`${SEOLesson.name_lesson} + " " + ${SEOLesson.name}`}</title>
-	<meta name="description" content={`${SEOLesson.name_lesson} + " " + ${SEOLesson.name}`} />
-	<meta name="keywords" content={`${SEOLesson.name_lesson} + " " + ${SEOLesson.name}`} />
+	<title>Error404-Labs | {`${SEOLesson.name_lesson} ${SEOLesson.name}`}</title>
+	<meta name="description" content={`${SEOLesson.name_lesson} ${SEOLesson.name}`} />
+	<meta name="keywords" content={`${SEOLesson.name_lesson} ${SEOLesson.name}`} />
 	<link rel="canonical" href="https://error404-labs.info.vn/{SEOLesson.link}" />
 </svelte:head>
 
