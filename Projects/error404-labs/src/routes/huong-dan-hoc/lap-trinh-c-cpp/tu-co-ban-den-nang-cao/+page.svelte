@@ -22,6 +22,10 @@
 		{
 			fileName: 'bai02',
 			title: 'Bài 02: Lập Trình Hướng Đối Tượng Trong C++'
+		},
+		{
+			fileName: 'bai03',
+			title: 'Bài 03: Data Types trong C++'
 		}
 	];
 
