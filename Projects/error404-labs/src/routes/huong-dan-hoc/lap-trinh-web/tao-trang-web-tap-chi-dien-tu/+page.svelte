@@ -190,7 +190,10 @@
 			grid-template-areas: 'left';
 
 			.right {
-				height: calc(30rem - 200px);
+				height: fit-content;
+				ul {
+					height: calc(20rem - 200px);
+				}
 			}
 		}
 	}
