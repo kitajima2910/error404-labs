@@ -1,0 +1,1 @@
+<h1>Hello, World! - hello.blade.php</h1>
