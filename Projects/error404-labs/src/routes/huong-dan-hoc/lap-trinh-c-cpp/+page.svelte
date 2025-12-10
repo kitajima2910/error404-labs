@@ -18,12 +18,12 @@
 			title: 'Lập Trình C++ - Từ Cơ Bản Đến Nâng Cao',
 			tooltip: 'Khóa học: Lập Trình C++ - Từ Cơ Bản Đến Nâng Cao',
 			link: '/huong-dan-hoc/lap-trinh-c-cpp/tu-co-ban-den-nang-cao'
-		},
-		{
-			title: 'oj.isp88.win',
-			tooltip: 'Training Gen 7 tại ISP CLUB - CLB ATTT PTIT',
-			link: '/huong-dan-hoc/lap-trinh-c-cpp/oj.isp88.win'
 		}
+		// {
+		// 	title: 'oj.isp88.win',
+		// 	tooltip: 'Training Gen 7 tại ISP CLUB - CLB ATTT PTIT',
+		// 	link: '/huong-dan-hoc/lap-trinh-c-cpp/oj.isp88.win'
+		// }
 	];
 </script>
 
