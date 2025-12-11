@@ -1,0 +1,17 @@
+using namespace std;
+#include <iostream>
+
+int main() {
+	
+	int b[4] = {10, 20, 30, 40};
+	
+	int sum = 0;
+	
+	for (int i = 0; i < 4; i++) {
+		sum += b[i];
+	}
+	
+	cout << "Sum = " << sum << endl;
+	
+	return 0;
+}

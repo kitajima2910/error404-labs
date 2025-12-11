@@ -26,6 +26,10 @@
 		{
 			fileName: 'bai03',
 			title: 'Bài 03: Data Types trong C++'
+		},
+		{
+			fileName: 'bai04',
+			title: 'Bài 04: Arrays trong C++'
 		}
 	];
 
