@@ -34,15 +34,14 @@ class GameScreen extends Phaser.Scene {
 
 		this.cursors = this.input.keyboard.createCursorKeys();
 
-		this.leftScoreLabel = this.add.text(300, 125, this.leftScore, {
-			fontSize: 48
-		})
-			.setOrigin(0.5, 0.5);
+		const scoreStyle = {
+			fontSize: 48,
+			fontFamily: '"Press Start 2P"',
+		}
 
-		this.rightScoreLabel = this.add.text(500, 125, this.rightScore, {
-			fontSize: 48
-		})
-			.setOrigin(0.5, 0.5);
+		this.leftScoreLabel = this.add.text(300, 125, this.leftScore, scoreStyle).setOrigin(0.5, 0.5);
+
+		this.rightScoreLabel = this.add.text(500, 125, this.rightScore, scoreStyle).setOrigin(0.5, 0.5);
 	}
 
 	incrementLeftScore() {
