@@ -36,7 +36,7 @@
 </script>
 
 <div class="wrapper">
-	<h1>📝 Bài giảng: Định dạng trang web với HTML</h1>
+	<h1>📝 Bài giảng: Định dạng văn bản</h1>
 	<h2>1. Các thẻ định dạng văn bản cơ bản</h2>
 	<table>
 		<thead>
