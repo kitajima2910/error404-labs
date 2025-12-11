@@ -1,0 +1,1 @@
+<h1 style="color: red; text-align: center; font-size: 50px;">404 | Trang Không Tồn Tại</h1>
