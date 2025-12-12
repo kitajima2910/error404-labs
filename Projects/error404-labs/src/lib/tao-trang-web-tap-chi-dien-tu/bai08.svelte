@@ -82,7 +82,7 @@
 </script>
 
 <div class="wrapper">
-	<h1>Bài Giảng: Tạo Bảng trong HTML</h1>
+	<h1>Tạo Bảng trong HTML</h1>
 	<h2>1. Giới Thiệu Về Bảng HTML</h2>
 	<div class="p">
 		Bảng (table) là một cấu trúc quan trọng trong HTML để hiển thị dữ liệu có tổ chức theo hàng và

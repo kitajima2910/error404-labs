@@ -46,6 +46,10 @@
 		{
 			fileName: 'bai08',
 			title: 'Bài 08: Tạo bảng'
+		},
+		{
+			fileName: 'bai09',
+			title: 'Bài 09: Tạo bảng, Trộn dòng và Trộn cột trong HTML'
 		}
 	];
 

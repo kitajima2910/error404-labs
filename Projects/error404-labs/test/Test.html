@@ -1,33 +1,103 @@
 <!doctype html>
 <html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Tạo bảng, trộn dòng và cột</title>
 
-<head>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>Định dạng văn bản</title>
-</head>
+		<style>
+			body {
+				font-family: 'tahoma';
 
-<body>
-	<h1 style="text-align: center; color: #008888">Định dạng văn bản</h1>
-	<div>
-		<b><u>Hóa học:</u></b> <i>Nước:</i>
-		<font color="red">H<sub>2</sub>O</font>;
-		<i>Axit Sunfuric:</i>
-		<font color="red">H<sub>2</sub>SO<sub>4</sub></font>
-	</div>
-	<div>
-		<b><u>Toán học:</u></b> <i>Pương trình bậc 2:</i>
-		<font color="red">ax<sup>2</sup> + bx + c = 0</font>
-	</div>
-	<div>
-		<b><u>Tin học:</u></b> <i>Vòng lặp For:</i>
-	</div>
-	<pre style="color: #0000cc; background-color: #ccc">
+				.title {
+					text-align: center;
+					color: #cc0033;
+				}
 
-			for(int i = 0; i < 10; i++) {
-				cout << i << endl;
+				table {
+					max-width: 100%;
+					width: 600px;
+					margin: 0 auto;
+					border-collapse: collapse;
+					font-size: 12px;
+
+					th {
+						background-color: #cc0033;
+						color: #fff;
+					}
+
+					th,
+					td {
+						border: 1px solid #cc0033;
+					}
+				}
 			}
-		</pre>
-</body>
+		</style>
+	</head>
+	<body>
+		<h1 class="title">Chương trình học - ngành lập trình</h1>
 
+		<table>
+			<thead>
+				<tr>
+					<th rowspan="2">Nhóm học phần</th>
+					<th rowspan="2">Môn học</th>
+					<th colspan="2">Số tiết</th>
+				</tr>
+				<tr>
+					<th>Lý thuyết</th>
+					<th>Thực hành</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td rowspan="6" style="text-align: center; color: #cc0033">I<br />Tin học văn phòng</td>
+					<td>Hệ điều hành Windows</td>
+					<td style="text-align: center">3</td>
+					<td style="text-align: center">5</td>
+				</tr>
+				<tr>
+					<td>Sử dụng Internet</td>
+					<td style="text-align: center">3</td>
+					<td style="text-align: center">5</td>
+				</tr>
+				<tr>
+					<td>Soạn thảo văn bản với MS Word</td>
+					<td style="text-align: center">24</td>
+					<td style="text-align: center">40</td>
+				</tr>
+				<tr>
+					<td>Tạo bài trình diễn với MS PowerPoint</td>
+					<td style="text-align: center">9</td>
+					<td style="text-align: center">15</td>
+				</tr>
+				<tr>
+					<td>Xử lý số liệu với MS Excel</td>
+					<td style="text-align: center">24</td>
+					<td style="text-align: center">40</td>
+				</tr>
+				<tr>
+					<td>Tạo trang Web với MS FrontPage</td>
+					<td style="text-align: center">9</td>
+					<td style="text-align: center">15</td>
+				</tr>
+				<tr>
+					<td rowspan="2" style="text-align: center; color: #cc0033">
+						II<br />Kỹ thuật lập trình (VB.NET)
+					</td>
+					<td>Nhập môn lập trình</td>
+					<td style="text-align: center">36</td>
+					<td style="text-align: center">60</td>
+				</tr>
+				<tr>
+					<td>Kỹ thuật lập trình</td>
+					<td style="text-align: center">36</td>
+					<td style="text-align: center">60</td>
+				</tr>
+				<tr>
+					<td colspan="4">...</td>
+				</tr>
+			</tbody>
+		</table>
+	</body>
 </html>

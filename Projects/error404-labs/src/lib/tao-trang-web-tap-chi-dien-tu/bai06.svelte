@@ -45,7 +45,7 @@
 </script>
 
 <div class="wrapper">
-	<h1>Bài Giảng: Định dạng văn bản (tt)</h1>
+	<h1>Định dạng văn bản (tt)</h1>
 	<details>
 		<summary>Xem Code</summary>
 		<div class="full-code">

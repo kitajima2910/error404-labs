@@ -49,7 +49,7 @@
 </script>
 
 <div class="wrapper">
-	<h1>📘 Bài 07: Ký tự đặc biệt, chèn hình ảnh, tạo danh sách và liên kết</h1>
+	<h1>📘 Ký tự đặc biệt, chèn hình ảnh, tạo danh sách và liên kết</h1>
 	<h2>🎯 Học được gì qua bài này</h2>
 	<ul>
 		<li>Sử dụng các ký tự đặc biệt trong HTML</li>
