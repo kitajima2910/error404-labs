@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/home', function () {
@@ -33,3 +34,5 @@ Route::prefix("/san-pham")->group(function () {
 Route::fallback(function () {
     return view("404");
 });
+
+Route::get("/nguoi-dung", [UserController::class, "index"])->name("user.index");
