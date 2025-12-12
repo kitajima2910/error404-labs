@@ -18,5 +18,5 @@ game.scene.add(SceneKeys.TitleScreen, TitleScreen);
 game.scene.add(SceneKeys.GameScreen, GameScreen);
 game.scene.add(SceneKeys.GameBackground, GameBackground);
 
-// game.scene.start("TitleScreen");
-game.scene.start(SceneKeys.GameScreen);
+game.scene.start(SceneKeys.TitleScreen);
+// game.scene.start(SceneKeys.GameScreen);
