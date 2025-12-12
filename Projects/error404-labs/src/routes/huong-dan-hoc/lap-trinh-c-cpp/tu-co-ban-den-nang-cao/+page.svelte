@@ -34,6 +34,10 @@
 		{
 			fileName: 'bai05',
 			title: 'Bài 05: Single & Multidimensional Arrays trong C++'
+		},
+		{
+			fileName: 'bai06',
+			title: 'Bài 06: Strings in C++ with Examples'
 		}
 	];
 
