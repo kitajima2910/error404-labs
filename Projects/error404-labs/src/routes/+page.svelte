@@ -31,6 +31,7 @@
 					width: 200px;
 					height: 230px;
 					border: 1px solid #d1d9e0b3;
+					border-radius: 10px;
 					display: flex;
 					flex-direction: column;
 					justify-content: center;
@@ -76,6 +77,7 @@
 					width: 200px;
 					height: 230px;
 					border: 1px solid #d1d9e0b3;
+					border-radius: 10px;
 					display: flex;
 					flex-direction: column;
 					justify-content: center;
@@ -121,6 +123,7 @@
 					width: 200px;
 					height: 230px;
 					border: 1px solid #d1d9e0b3;
+					border-radius: 10px;
 					display: flex;
 					flex-direction: column;
 					justify-content: center;
