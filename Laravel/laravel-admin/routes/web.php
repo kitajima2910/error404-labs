@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
+use App\Http\Middleware\ChackAccessTime;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/home', function () {
@@ -35,4 +37,14 @@ Route::fallback(function () {
     return view("404");
 });
 
-Route::get("/nguoi-dung", [UserController::class, "index"])->name("user.index");
+// Route::get("/nguoi-dung", [UserController::class, "index"])->middleware("access.time")->name("user.index");
+// Route::get("/nguoi-dung", [UserController::class, "index"])->name("user.index")->middleware("access.time");
+// Route::get("/nguoi-dung", [UserController::class, "index"])->name("user.index")->middleware(["access.time"]);
+// Route::get("/nguoi-dung", [UserController::class, "index"])->name("user.index");
+// Route::get("/nguoi-dung", [UserController::class, "index"])->name("user.index")->middleware(ChackAccessTime::class);
+Route::get("/nguoi-dung", [UserController::class, "index"])->name("user.index")->middleware([ChackAccessTime::class]);
+
+Route::get("/", [HomeController::class, "index"])->name("home.index");
+Route::redirect("/trang-chu-1", "/");
+Route::redirect("/trang-chu-2", "/");
+Route::redirect("/trang-chu-3", "/");

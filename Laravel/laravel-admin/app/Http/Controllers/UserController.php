@@ -2,11 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Middleware\ChackAccessTime;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
 
-class UserController extends Controller
+class UserController extends Controller implements HasMiddleware
 {
+
+    public static function middleware()
+    {
+        return [
+            // ChackAccessTime::class,
+            // "access.time"
+        ];
+    }
+
     public function index()
     {
 
