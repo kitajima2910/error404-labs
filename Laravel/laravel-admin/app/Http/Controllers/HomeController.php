@@ -10,4 +10,9 @@ class HomeController extends Controller
     {
         return view("trang-chu");
     }
+
+    public function about()
+    {
+        return "Trang Chủ  - About Us";
+    }
 }
