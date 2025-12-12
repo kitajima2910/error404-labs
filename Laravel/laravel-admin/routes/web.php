@@ -43,7 +43,13 @@ Route::fallback(function () {
 // Route::get("/nguoi-dung", [UserController::class, "index"])->name("user.index")->middleware(["access.time"]);
 // Route::get("/nguoi-dung", [UserController::class, "index"])->name("user.index");
 // Route::get("/nguoi-dung", [UserController::class, "index"])->name("user.index")->middleware(ChackAccessTime::class);
-Route::get("/nguoi-dung", [UserController::class, "index"])->name("user.index")->middleware([ChackAccessTime::class]);
+// Route::get("/nguoi-dung", [UserController::class, "index"])->name("user.index")->middleware([ChackAccessTime::class]);
+Route::prefix("/nguoi-dung-v3")->controller(UserController::class)->name("nguoi-dung-v3.")->group(function () {
+    Route::get("/", "index")->name("trang-chu");
+    Route::get("/trang-chu", "index")->name("trang-chu");
+    Route::get("/dang-ki", "create")->name("dang-ki");
+    Route::post("/luu-dang-ki", "store")->name("luu-dang-ki");
+});
 
 // Route::get("/", [HomeController::class, "index"])->name("home.index");
 // Route::redirect("/trang-chu-1", "/");
