@@ -4,7 +4,7 @@
 </script>
 
 <div class="wrapper">
-    <h1>🧩 BÀI GIẢNG NGẮN: Arrays trong C++</h1>
+    <h1>🧩 Arrays trong C++</h1>
     <h2>🎯 Mục tiêu bài học</h2>
     <div class="p">Sau bài học này, học viên sẽ:</div>
     <ul>

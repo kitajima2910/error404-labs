@@ -30,6 +30,10 @@
 		{
 			fileName: 'bai04',
 			title: 'Bài 04: Arrays trong C++'
+		},
+		{
+			fileName: 'bai05',
+			title: 'Bài 05: Single & Multidimensional Arrays trong C++'
 		}
 	];
 
