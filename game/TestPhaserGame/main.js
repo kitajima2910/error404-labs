@@ -2,7 +2,7 @@ const config = {
   width: 800,
   height: 500,
   type: Phaser.AUTO,
-  backgroundColor: "#000000",
+  backgroundColor: Colors.blackColor,
   physics: {
     default: "arcade",
     arcade: {
@@ -14,9 +14,9 @@ const config = {
 
 const game = new Phaser.Game(config);
 
-game.scene.add("TitleScreen", TitleScreen);
-game.scene.add("GameScreen", GameScreen);
-game.scene.add("GameBackground", GameBackground);
+game.scene.add(SceneKeys.TitleScreen, TitleScreen);
+game.scene.add(SceneKeys.GameScreen, GameScreen);
+game.scene.add(SceneKeys.GameBackground, GameBackground);
 
 // game.scene.start("TitleScreen");
-game.scene.start("GameScreen");
+game.scene.start(SceneKeys.GameScreen);

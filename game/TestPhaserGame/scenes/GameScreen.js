@@ -13,12 +13,13 @@ class GameScreen extends Phaser.Scene {
 	create() {
 		/** @type {Phaser.Physics.Arcade.Body} */
 
-		this.scene.run("GameBackground");
+		this.scene.run(SceneKeys.GameBackground);
+		this.scene.sendToBack(SceneKeys.GameBackground);
 
 		this.physics.world.setBounds(-100, 0, 1000, 500);
 
 		// this.add.text(400, 250, "Game");
-		this.ball = this.add.circle(400, 250, 10, 0xffffff, 1);
+		this.ball = this.add.circle(400, 250, 10, Colors.ballColor, 1);
 		this.physics.add.existing(this.ball);
 		this.ball.body.setBounce(1, 1);
 
@@ -26,11 +27,11 @@ class GameScreen extends Phaser.Scene {
 
 		this.resetBall();
 
-		this.paddleLeft = this.add.rectangle(30, 250, 20, 100, 0xffffff, 1);
+		this.paddleLeft = this.add.rectangle(30, 250, 20, 100, Colors.paddleColor, 1);
 		this.physics.add.existing(this.paddleLeft, true);
 		this.physics.add.collider(this.paddleLeft, this.ball);
 
-		this.paddleRight = this.add.rectangle(770, 250, 20, 100, 0xffffff, 1);
+		this.paddleRight = this.add.rectangle(770, 250, 20, 100, Colors.paddleColor, 1);
 		this.physics.add.existing(this.paddleRight, true);
 		this.physics.add.collider(this.paddleRight, this.ball);
 
@@ -66,23 +67,12 @@ class GameScreen extends Phaser.Scene {
 	}
 
 	update() {
-		/** @type {Phaser.Physics.Arcade.Body} */
-		const body = this.paddleLeft.body;
+		this.handlePlayerInput();
+		this.updateAI();
+		this.checkScore();
+	}
 
-		if (this.cursors.up.isDown) {
-			// console.log("up pressed");
-			this.paddleLeft.y += -10;
-			body.updateFromGameObject();
-
-		} else if (this.cursors.down.isDown) {
-			// console.log("down pressed");
-			this.paddleLeft.y += 10;
-			body.updateFromGameObject();
-
-		} else {
-			// body.setVelocityY(0);
-		}
-
+	updateAI() {
 		const diff = this.ball.y - this.paddleRight.y;
 		// console.log(diff);
 
@@ -106,7 +96,9 @@ class GameScreen extends Phaser.Scene {
 
 		this.paddleRight.y += this.paddleRightVelocity.y;
 		this.paddleRight.body.updateFromGameObject();
+	}
 
+	checkScore() {
 		if (this.ball.x < -30) {
 			this.incrementRightScore();
 			// console.log("aaaaaaaa");
@@ -115,6 +107,25 @@ class GameScreen extends Phaser.Scene {
 			this.incrementLeftScore();
 			// console.log("bbbbbbbb");
 			this.resetBall();
+		}
+	}
+
+	handlePlayerInput() {
+		/** @type {Phaser.Physics.Arcade.Body} */
+		const body = this.paddleLeft.body;
+
+		if (this.cursors.up.isDown) {
+			// console.log("up pressed");
+			this.paddleLeft.y += -10;
+			body.updateFromGameObject();
+
+		} else if (this.cursors.down.isDown) {
+			// console.log("down pressed");
+			this.paddleLeft.y += 10;
+			body.updateFromGameObject();
+
+		} else {
+			// body.setVelocityY(0);
 		}
 	}
 }
