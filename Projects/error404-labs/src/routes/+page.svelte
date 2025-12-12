@@ -24,7 +24,7 @@
 	</ul>
 	<hr style="background-color: #d1d9e0; height: 4px; border: none; margin: 30px 0" />
 	<h2 style="border-bottom: 1px solid #d1d9e0b3; padding-bottom: 9.6px">👥 Members</h2>
-	<div style="display: flex; gap: 5px; flex-wrap: wrap">
+	<div style="display: flex; gap: 5px; flex-wrap: wrap; justify-content: space-around">
 		<!-- Member -->
 		<div
 			style="
