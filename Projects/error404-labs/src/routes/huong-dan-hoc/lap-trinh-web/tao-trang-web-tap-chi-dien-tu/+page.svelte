@@ -50,6 +50,10 @@
 		{
 			fileName: 'bai09',
 			title: 'Bài 09: Tạo bảng, Trộn dòng và Trộn cột trong HTML'
+		},
+		{
+			fileName: 'bai10',
+			title: 'Bài 10: Tạo bảng HTML – Trộn dòng và cột (rowspan & colspan)'
 		}
 	];
 
