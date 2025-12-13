@@ -76,6 +76,13 @@
 			>
 				<a href="/" style="color:#fff; display: block; width: 100%; height: 100%;">Trang Chủ</a>
 			</div>
+			<div
+				class="link ml-10! flex justify-center items-center p-[5px]! rounded-[5px] hover:bg-[#2a7a88]"
+			>
+				<a href="/tro-choi" style="color:#fff; display: block; width: 100%; height: 100%;"
+					>Trò Chơi</a
+				>
+			</div>
 
 			<div
 				class="link ml-10! flex justify-center items-center relative group p-[5px]! rounded-[5px] hover:bg-[#2a7a88]"
@@ -123,6 +130,11 @@
 		<div class="hidden" class:open={isOpenBar}>
 			<div class="link p-2.5! cursor-pointer hover:bg-[#246D7A80]">
 				<a href="/" style="color:#fff; display: block; width: 100%; height: 100%;">Trang Chủ</a>
+			</div>
+			<div class="link p-2.5! cursor-pointer hover:bg-[#246D7A80]">
+				<a href="/tro-choi" style="color:#fff; display: block; width: 100%; height: 100%;"
+					>Trò Chơi</a
+				>
 			</div>
 			<div class="link p-2.5! cursor-pointer hover:bg-[#246D7A80]">
 				<a
