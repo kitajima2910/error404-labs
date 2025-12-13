@@ -1,5 +1,8 @@
 class TitleScreen extends Phaser.Scene {
-    preload() {}
+    preload() {
+        this.load.audio(PongBeep, "public/ping_pong_8bit_beeep.ogg");
+        this.load.audio(PongPlop, "public/ping_pong_8bit_plop.ogg");
+    }
 
     create() {
         const title = this.add.text(400, 150, "Quan Vot Kieu Co Dien", {
@@ -19,6 +22,7 @@ class TitleScreen extends Phaser.Scene {
         });
 
         this.input.keyboard.once("keydown-SPACE", () => {
+            this.sound.play(PongBeep);
             this.scene.start(SceneKeys.GameScreen);
             //   console.log("Space pressed");
         });

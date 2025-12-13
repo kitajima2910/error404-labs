@@ -1,15 +1,15 @@
 const config = {
-  width: 800,
-  height: 500,
-  type: Phaser.AUTO,
-  backgroundColor: Colors.blackColor,
-  physics: {
-    default: "arcade",
-    arcade: {
-      gravity: { y: 0 },
-      debug: true,
+    width: 800,
+    height: 500,
+    type: Phaser.AUTO,
+    backgroundColor: Colors.blackColor,
+    physics: {
+        default: "arcade",
+        arcade: {
+            gravity: { y: 0 },
+            debug: true,
+        },
     },
-  },
 };
 
 const game = new Phaser.Game(config);

@@ -32,8 +32,10 @@ class GameScreen extends Phaser.Scene {
         this.physics.add.existing(this.ball);
         this.ball.body.setCircle(10);
         this.ball.body.setBounce(1, 1);
+        this.ball.body.setMaxSpeed(400);
 
         this.ball.body.setCollideWorldBounds(true, 1, 1);
+        this.ball.body.onWorldBounds = true;
 
         // this.resetBall();
 
@@ -46,7 +48,13 @@ class GameScreen extends Phaser.Scene {
             1
         );
         this.physics.add.existing(this.paddleLeft, true);
-        this.physics.add.collider(this.paddleLeft, this.ball);
+        this.physics.add.collider(
+            this.paddleLeft,
+            this.ball,
+            this.handlePaddleBallCollision,
+            null,
+            this
+        );
 
         this.paddleRight = this.add.rectangle(
             770,
@@ -57,13 +65,25 @@ class GameScreen extends Phaser.Scene {
             1
         );
         this.physics.add.existing(this.paddleRight, true);
-        this.physics.add.collider(this.paddleRight, this.ball);
+        this.physics.add.collider(
+            this.paddleRight,
+            this.ball,
+            this.handlePaddleBallCollision,
+            null,
+            this
+        );
 
         this.cursors = this.input.keyboard.createCursorKeys();
 
+        this.physics.world.on(
+            "worldbounds",
+            this.handleBallWorldBoundsCollision,
+            this
+        );
+
         const scoreStyle = {
             fontSize: 48,
-            fontFamily: '"Press Start 2P"',
+            fontFamily: PressStart2P,
         };
 
         this.leftScoreLabel = this.add
@@ -77,6 +97,28 @@ class GameScreen extends Phaser.Scene {
         this.time.delayedCall(1500, () => {
             this.resetBall();
         });
+    }
+
+    handleBallWorldBoundsCollision(body, up, down, left, right) {
+        if (left || right) {
+            return;
+        }
+
+        this.sound.play(PongPlop);
+    }
+
+    handlePaddleBallCollision(paddle, ball) {
+        this.sound.play(PongBeep);
+        // console.log("paddle: ", paddle);
+        // console.log("ball: ", ball);
+
+        /** @type {Phaser.Physics.Arcade.Body} */
+        const body = this.ball.body;
+        const vel = body.velocity;
+        vel.x *= 1.05;
+        vel.y *= 1.05;
+
+        body.setVelocity(vel.x, vel.y);
     }
 
     incrementLeftScore() {
@@ -156,7 +198,7 @@ class GameScreen extends Phaser.Scene {
             //   this.resetBall();
         }
 
-        const maxScore = 1;
+        const maxScore = 3;
         if (this.leftScore >= maxScore) {
             // player won
             console.log("Player won");
