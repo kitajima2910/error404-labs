@@ -7,3 +7,5 @@
 | 5   | https://www.error404-labs.info.vn/huong-dan-hoc/lap-trinh-web                               | OK - Indexed |
 | 6   | https://www.error404-labs.info.vn/huong-dan-hoc/lap-trinh-c-cpp/tu-co-ban-den-nang-cao      | OK - Indexed |
 | 7   | https://www.error404-labs.info.vn/huong-dan-hoc/lap-trinh-web/tao-trang-web-tap-chi-dien-tu | OK - Indexed |
+| 8   | https://www.error404-labs.info.vn/tro-choi                                                  | OK - Indexed |
+| 9   | https://www.error404-labs.info.vn/tro-choi/TestPhaserGame/index.html                        | Indexed      |
