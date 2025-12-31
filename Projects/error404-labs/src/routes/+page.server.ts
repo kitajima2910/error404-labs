@@ -1,9 +1,8 @@
+import type { Post } from '$lib/type';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async () => {
-	const HOME: string = (await import('$lib/md/HOME.md?raw')).default;
-
-	return {
-		dataHOMERaw: HOME
-	};
+export const load: PageServerLoad = async ({ fetch }) => {
+	const response = await fetch('/api/bai-dang');
+	const data = await response.json();
+	return { posts: data.posts as Post[] };
 };
