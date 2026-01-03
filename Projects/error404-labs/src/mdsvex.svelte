@@ -1,5 +1,10 @@
-<script lang="ts">
-    let props = $props()
+<script lang="ts" module>
+	import { img } from '$lib/components/custom';
+	export { img };
 </script>
-aaaa
-{@render props.children?.()}
+
+<script lang="ts">
+	let { children } = $props();
+</script>
+
+{@render children?.()}
