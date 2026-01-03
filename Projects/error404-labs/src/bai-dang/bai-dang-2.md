@@ -8,8 +8,16 @@ categories:
 published: true
 ---
 
+<script>
+    import Counter from './counter.svelte'
+</script>
+
 # Svelte
 
 Media inside the **static** folder is served from `/`.
 
 ![MidCodeKid](midcodekid.png)
+
+## Counter
+
+<Counter />

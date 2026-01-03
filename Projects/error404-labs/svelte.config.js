@@ -1,11 +1,15 @@
 import adapter from '@sveltejs/adapter-auto';
 
+import path from 'node:path';
 import { escapeSvelte, mdsvex } from 'mdsvex';
 import { createHighlighter } from 'shiki';
 
 /** @type {import('mdsvex').Options} */
 const mdsvexOptions = {
-	extensions: ['.md'],
+	extensions: ['.md', '.svx'],
+	layout: {
+		_: path.resolve('./src/mdsvex.svelte')
+	},
 	highlight: {
 		highlighter: async (code, lang = 'text') => {
 			const highlighter = await createHighlighter({
@@ -27,7 +31,7 @@ const mdsvexOptions = {
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
-	extensions: ['.svelte', '.md'],
+	extensions: ['.svelte', '.md', '.svx'],
 	preprocess: [mdsvex(mdsvexOptions)],
 	kit: {
 		adapter: adapter()
