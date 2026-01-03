@@ -1,4 +1,4 @@
-import adapter from '@sveltejs/adapter-auto';
+import adapter from '@sveltejs/adapter-vercel';
 
 import path from 'node:path';
 import { escapeSvelte, mdsvex } from 'mdsvex';

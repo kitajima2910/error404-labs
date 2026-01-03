@@ -1,46 +1,28 @@
-import * as config from '$lib/config';
-import type { Post } from '$lib/types';
+import { getPosts } from '$lib/server/posts';
 
-export async function GET({ fetch }) {
-	const response = await fetch('/api/bai-dang');
-	const { posts }: { posts: Post[] } = await response.json();
+export const prerender = true;
 
-	const baseUrl = config.url.replace(/\/$/, '');
+export async function GET() {
+	const posts = await getPosts();
 
-	const headers = {
-		'Content-Type': 'application/xml; charset=utf-8'
-	};
+	const xml = `<?xml version="1.0" encoding="UTF-8"?>
+		<rss version="2.0">
+		<channel>
+			<title>Error404 Labs</title>
+			<link>https://error404labs.dev</link>
+			<description>RSS Feed</description>
+			${posts.map(post => `
+			<item>
+				<title>${post.title}</title>
+				<link>https://error404labs.dev/${post.slug}</link>
+				<pubDate>${new Date(post.date).toUTCString()}</pubDate>
+			</item>`).join('')}
+		</channel>
+		</rss>`;
 
-	const xml = `
-		<?xml version="1.0" encoding="UTF-8"?>
-		<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
-			<channel>
-				<title><![CDATA[${config.title}]]></title>
-				<description><![CDATA[${config.description}]]></description>
-				<link><![CDATA[${baseUrl}]]></link>
-
-				<atom:link
-					href="${baseUrl}/rss.xml"
-					rel="self"
-					type="application/rss+xml"
-				/>
-
-				${posts
-					.map(
-						(post) => `
-				<item>
-					<title><![CDATA[${post.title}]]></title>
-					<description><![CDATA[${post.description}]]></description>
-					<link><![CDATA[${baseUrl}/${post.slug}]]></link>
-					<guid isPermaLink="true"><![CDATA[${baseUrl}/${post.slug}]]></guid>
-					<pubDate>${new Date(post.date).toUTCString()}</pubDate>
-				</item>
-			`
-					)
-					.join('')}
-			</channel>
-		</rss>
-		`.trim();
-
-	return new Response(xml, { headers });
+	return new Response(xml, {
+		headers: {
+			'Content-Type': 'application/xml; charset=utf-8'
+		}
+	});
 }
