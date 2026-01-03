@@ -120,6 +120,11 @@
 
 		<!-- ✅ Các phần động của SvelteKit -->
 		%sveltekit.head%
+
+		<script type="module">
+			const theme = localStorage.getItem('color-scheme')
+			theme ? document.documentElement.setAttribute('color-scheme', theme) : localStorage.setItem('color-scheme', 'dark')
+		</script>
 	</head>
 	<body data-sveltekit-preload-data="hover">
 		<!-- Google Tag Manager (noscript) -->
