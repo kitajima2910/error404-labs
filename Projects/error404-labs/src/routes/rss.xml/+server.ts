@@ -5,6 +5,8 @@ export async function GET({ fetch }) {
 	const response = await fetch('/api/bai-dang');
 	const { posts }: { posts: Post[] } = await response.json();
 
+	const baseUrl = config.url.replace(/\/$/, '');
+
 	const headers = {
 		'Content-Type': 'application/xml; charset=utf-8'
 	};
@@ -15,10 +17,10 @@ export async function GET({ fetch }) {
 			<channel>
 				<title><![CDATA[${config.title}]]></title>
 				<description><![CDATA[${config.description}]]></description>
-				<link><![CDATA[${config.url}]]></link>
+				<link><![CDATA[${baseUrl}]]></link>
 
 				<atom:link
-					href="${config.url}/rss.xml"
+					href="${baseUrl}/rss.xml"
 					rel="self"
 					type="application/rss+xml"
 				/>
@@ -29,8 +31,8 @@ export async function GET({ fetch }) {
 				<item>
 					<title><![CDATA[${post.title}]]></title>
 					<description><![CDATA[${post.description}]]></description>
-					<link><![CDATA[${config.url}/${post.slug}]]></link>
-					<guid isPermaLink="true"><![CDATA[${config.url}/${post.slug}]]></guid>
+					<link><![CDATA[${baseUrl}/${post.slug}]]></link>
+					<guid isPermaLink="true"><![CDATA[${baseUrl}/${post.slug}]]></guid>
 					<pubDate>${new Date(post.date).toUTCString()}</pubDate>
 				</item>
 			`
