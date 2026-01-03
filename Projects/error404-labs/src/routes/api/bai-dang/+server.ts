@@ -1,4 +1,4 @@
-import type { Post } from '$lib/type';
+import type { Post } from '$lib/types';
 import { json, type RequestHandler } from '@sveltejs/kit';
 
 const getPosts = async () => {
