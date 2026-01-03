@@ -3,6 +3,9 @@ import adapter from '@sveltejs/adapter-auto';
 import path from 'node:path';
 import { escapeSvelte, mdsvex } from 'mdsvex';
 import { createHighlighter } from 'shiki';
+import remarkUnwrapImages from 'remark-unwrap-images';
+import remarkToc from 'remark-toc';
+import rehypeSlug from 'rehype-slug';
 
 /** @type {import('mdsvex').Options} */
 const mdsvexOptions = {
@@ -26,7 +29,9 @@ const mdsvexOptions = {
 
 			return `{@html \`${html}\`}`;
 		}
-	}
+	},
+	remarkPlugins: [remarkUnwrapImages, [remarkToc, { tight: true }]],
+	rehypePlugins: [rehypeSlug]
 };
 
 /** @type {import('@sveltejs/kit').Config} */
