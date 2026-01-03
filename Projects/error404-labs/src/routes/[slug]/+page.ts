@@ -11,6 +11,6 @@ export async function load({ params }) {
 			meta: post.metadata
 		};
 	} catch (e) {
-        throw error(404, `Không thể tìm thấy ${params.slug}`);
+        throw error(404, `Không thể tìm thấy đường dẫn ${params.slug}`);
     }
 }
