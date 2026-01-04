@@ -8,7 +8,7 @@ categories:
 published: true
 ---
 
-# Markdown
+## Markdown
 
 Hey friends 🔥
 

@@ -49,6 +49,10 @@ code .line::before {
 	transition: opacity 0.2s ease;
 }
 
+pre.shiki.poimandres {
+	padding-bottom: 15px;
+}
+
 pre.shiki.poimandres:hover .code-copy-button {
 	opacity: 1;
 }
@@ -59,8 +63,7 @@ pre.shiki.poimandres:hover .code-copy-button {
 
 .code-wrapper {
 	margin: 1.5rem 0;
-	border-radius: 8px;
-	overflow: hidden;
+	max-width: 100%;
 }
 
 .code-title {
@@ -68,14 +71,22 @@ pre.shiki.poimandres:hover .code-copy-button {
 	color: #a6accd;
 	padding: 0.75rem 1.25rem;
 	font-size: 0.875rem;
-	font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', monospace;
-	font-weight: 500;
+	font-family: ui-monospace, 'Cascadia Code', 'JetBrains Mono', monospace;
 	border-bottom: 1px solid #2a2d3a;
+	border-radius: 8px 8px 0 0;
 }
 
 .code-wrapper pre {
-	margin: 0 !important;
-	border-radius: 0 !important;
+	overflow-x: auto !important;
+	overflow-y: hidden !important;
+	border-radius: 0 0 8px 8px !important;
+	-webkit-overflow-scrolling: touch;
+}
+
+.code-wrapper code {
+	display: block !important;
+	white-space: pre !important;
+	min-width: max-content !important;
 }
 
 /* ###################### Code Blocks - End ###################### */

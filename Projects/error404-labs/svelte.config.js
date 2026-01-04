@@ -20,7 +20,6 @@ const mdsvexOptions = {
 				langs: ['javascript', 'typescript', 'html', 'css', 'json', 'c', 'c++', 'c#', 'java']
 			});
 
-			// Xử lý trường hợp meta null/undefined
 			const metaString = meta || '';
 			const titleMatch = metaString.match(/title="([^"]+)"/);
 			const title = titleMatch ? titleMatch[1] : '';
@@ -32,12 +31,15 @@ const mdsvexOptions = {
 				})
 			);
 
-			// Wrap với title nếu có
-			if (title) {
-				return `{@html \`<div class="code-wrapper"><div class="code-title">${escapeSvelte(title)}</div>${html}</div>\`}`;
-			}
-
-			return `{@html \`${html}\`}`;
+			// ✅ Thêm custom wrapper với inline styles
+			return `{@html \`
+		<div class="code-wrapper">
+			${title ? `<div class="code-title">${escapeSvelte(title)}</div>` : ''}
+			<div style="overflow-x: auto; overflow-y: hidden; border-radius: 0 0 8px 8px;">
+				${html}
+			</div>
+		</div>
+		\`}`;
 		}
 	},
 	remarkPlugins: [remarkUnwrapImages, [remarkToc, { tight: true }]],
