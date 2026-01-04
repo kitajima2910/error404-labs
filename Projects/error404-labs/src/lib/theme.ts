@@ -3,15 +3,15 @@ import { writable } from "svelte/store"
 
 type Theme = 'light' | 'dark'
 
-const userTheme = browser && localStorage.getItem('color-scheme')
+const userTheme = browser && localStorage.getItem('data-theme')
 
 export const theme = writable(userTheme ?? 'dark')
 
 export function toggleTheme() {
     theme.update(currentTheme => {
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark'
-        document.documentElement.setAttribute('color-scheme', newTheme)
-        localStorage.setItem('color-scheme', newTheme)
+        document.documentElement.setAttribute('data-theme', newTheme)
+        localStorage.setItem('data-theme', newTheme)
         return newTheme
     })
 }
