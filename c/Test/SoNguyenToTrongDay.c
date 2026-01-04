@@ -20,7 +20,7 @@ int main() {
                 printf("%lld ", arr[i]);
             }
         }
-        printf("\n"); // ? quan tr?ng
+        printf("\n");
     }
 
     return 0;
