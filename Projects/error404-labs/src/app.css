@@ -1,9 +1,11 @@
-@import '@fontsource/atkinson-hyperlegible';
+@import '@fontsource/montserrat';
+@import '@fontsource/manrope';
 @import '@fontsource/jetbrains-mono';
 
 html {
 	/* font */
-	--font-system-ui: 'Atkinson Hyperlegible', sans-serif;
+	--font-heading: 'Montserrat', system-ui, sans-serif;
+	--font-body: 'Manrope', system-ui, sans-serif;
 	--font-monospace-code: 'JetBrains Mono', monospace;
 
 	/* dark */
@@ -158,3 +160,66 @@ li {
 	border-radius: 8px;
 	tab-size: 4;
 }
+
+/* ###################### Code Blocks - Start ###################### */
+code {
+	counter-reset: step;
+	counter-increment: step 0;
+}
+
+code .line::before {
+	content: counter(step);
+	counter-increment: step;
+	width: 1rem;
+	margin-right: 1.5rem;
+	display: inline-block;
+	text-align: right;
+	color: rgba(115, 138, 148, 0.4);
+}
+
+.code-copy-button {
+	position: absolute;
+	top: 0.5rem;
+	right: 0.75rem;
+
+	font-size: 1rem;
+	padding: 0.25rem 0.5rem;
+	border-radius: 6px;
+
+	background: rgba(255, 255, 255, 0.08);
+	color: #cdd6f4;
+	opacity: 0;
+	cursor: pointer;
+	transition: opacity 0.2s ease;
+}
+
+pre.shiki.poimandres:hover .code-copy-button {
+	opacity: 1;
+}
+
+.code-copy-button:hover {
+	background: rgba(255, 255, 255, 0.15);
+}
+
+.code-wrapper {
+	margin: 1.5rem 0;
+	border-radius: 8px;
+	overflow: hidden;
+}
+
+.code-title {
+	background: #1b1e28;
+	color: #a6accd;
+	padding: 0.75rem 1.25rem;
+	font-size: 0.875rem;
+	font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', monospace;
+	font-weight: 500;
+	border-bottom: 1px solid #2a2d3a;
+}
+
+.code-wrapper pre {
+	margin: 0 !important;
+	border-radius: 0 !important;
+}
+
+/* ###################### Code Blocks - End ###################### */

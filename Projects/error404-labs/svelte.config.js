@@ -14,11 +14,16 @@ const mdsvexOptions = {
 		_: path.resolve('./src/mdsvex.svelte')
 	},
 	highlight: {
-		highlighter: async (code, lang = 'text') => {
+		highlighter: async (code, lang = 'text', meta) => {
 			const highlighter = await createHighlighter({
 				themes: ['poimandres'],
 				langs: ['javascript', 'typescript', 'html', 'css', 'json', 'c', 'c++', 'c#', 'java']
 			});
+
+			// Xử lý trường hợp meta null/undefined
+			const metaString = meta || '';
+			const titleMatch = metaString.match(/title="([^"]+)"/);
+			const title = titleMatch ? titleMatch[1] : '';
 
 			const html = escapeSvelte(
 				highlighter.codeToHtml(code, {
@@ -26,6 +31,11 @@ const mdsvexOptions = {
 					theme: 'poimandres'
 				})
 			);
+
+			// Wrap với title nếu có
+			if (title) {
+				return `{@html \`<div class="code-wrapper"><div class="code-title">${escapeSvelte(title)}</div>${html}</div>\`}`;
+			}
 
 			return `{@html \`${html}\`}`;
 		}

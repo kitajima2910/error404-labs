@@ -12,7 +12,7 @@ published: true
 
 Hey friends 🔥
 
-```ts
+```ts title="greet.ts"
 function greet(name: string) {
 	console.log(`Hello ${name} 🔥`);
 }
