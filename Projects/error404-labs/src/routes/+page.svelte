@@ -1,6 +1,7 @@
 <script lang="ts">
 	import * as config from '$lib/config';
 	import { formatDate } from '$lib/utils.js';
+	import '../app.css';
 
 	let { data } = $props();
 </script>
@@ -10,42 +11,20 @@
 </svelte:head>
 
 <section>
-	<ul class="posts">
+	<ul class="list bg-base-100 rounded-box shadow-md">
+		<li class="p-4 pb-2 text-xs opacity-60 tracking-wide">Bài viết mới dành cho bạn</li>
 		{#each data.posts as post}
-			<li class="post">
-				<a href={post.slug} class="title">{post.title}</a>
-				<p class="date">{formatDate(post.date)}</p>
-				<p class="description">{post.description}</p>
+			<li class="list-row">
+				<a href={post.slug}>
+					<div>
+						<div class="text-3xl py-3">{post.title}</div>
+						<div class="text-xs uppercase font-semibold opacity-60 py-3">
+							{formatDate(post.date)}
+						</div>
+					</div>
+					<p class="list-col-wrap text-xs">{post.description}</p>
+				</a>
 			</li>
 		{/each}
 	</ul>
 </section>
-
-<style>
-	.posts {
-		display: grid;
-		gap: var(--size-7);
-	}
-
-	.post {
-		max-inline-size: var(--size-content-3);
-	}
-
-	.post:not(:last-child) {
-		border-bottom: 1px solid var(--border);
-		padding-bottom: var(--size-7);
-	}
-
-	.title {
-		font-size: var(--font-size-fluid-3);
-		text-transform: capitalize;
-	}
-
-	.date {
-		color: var(--size-2);
-	}
-
-	.description {
-		margin-top: var(--size-3);
-	}
-</style>

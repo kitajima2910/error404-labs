@@ -2,17 +2,8 @@
 	import * as config from '$lib/config';
 </script>
 
-<footer>
-	<p>{config.title} &copy; {new Date().getFullYear()}</p>
+<footer class="footer sm:footer-horizontal footer-center bg-base-300 text-base-content p-4">
+	<aside>
+		<p>{config.author} &copy; 2023 - {new Date().getFullYear()}</p>
+	</aside>
 </footer>
-
-<style>
-	footer {
-		padding-block: var(--size-7);
-		border-top: 1px solid var(--border);
-	}
-
-	p {
-		color: var(--text-2);
-	}
-</style>
