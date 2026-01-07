@@ -1,0 +1,65 @@
+---
+interface Props {
+    text: string
+    href: string
+    style: 'primary' | 'secondary'
+    icon?: {
+        component: any
+        side: 'left' | 'right'
+    }
+    isFilled?: boolean
+    borderVisible?: boolean
+    classes?: string
+}
+
+const {
+    text,
+    href,
+    style,
+    icon,
+    isFilled = true,
+    borderVisible = false,
+    classes,
+    ...rest
+} = Astro.props as Props
+
+const base =
+    'group inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ease-out active:scale-95'
+
+const styles = {
+    primary: isFilled
+        ? 'bg-blue-600 text-white hover:bg-blue-500 hover:shadow-md active:bg-blue-700'
+        : 'text-blue-600 hover:text-blue-500 hover:underline',
+
+    secondary: isFilled
+        ? 'bg-gray-200 text-gray-900 hover:bg-gray-100 hover:shadow-sm active:bg-gray-300'
+        : 'text-gray-600 hover:text-gray-500 hover:underline',
+}
+
+const border = borderVisible
+    ? style === 'primary'
+        ? 'border border-blue-600'
+        : 'border border-gray-400'
+    : ''
+---
+
+<a
+    href={href}
+    {...rest}
+    class:list={[base, styles[style], border, classes]}
+    class="py-1! px-2!"
+>
+    {
+        icon && icon.side === 'left' && (
+            <icon.component class="w-5 h-5 transition-transform duration-200 group-hover:-translate-x-0.5 group-active:-translate-x-1" />
+        )
+    }
+
+    <span>{text}</span>
+
+    {
+        icon && icon.side === 'right' && (
+            <icon.component class="w-5 h-5 transition-transform duration-200 group-hover:translate-x-0.5 group-active:translate-x-1" />
+        )
+    }
+</a>

@@ -1,0 +1,38 @@
+---
+import { Image } from 'astro:assets'
+import logomark from '../icons/logomark.svg'
+import navData from '../data/navData'
+import Link from './Link.astro'
+import ContractEditRounded from '../icons/ContractEditRounded.astro'
+---
+
+<nav
+    aria-label="Primary"
+    class="bg-[#FBFBFB] shadow-[0_4px_12px_rgba(0,0,0,0.06)] min-h-25"
+>
+    <div class="flex items-center h-full w-full justify-between">
+        <a href="/" class="logomark" arial-label="Go Home">
+            <Image src={logomark} alt="logomark" class="rounded-full w-15" />
+        </a>
+        <ul class="flex">
+            {
+                navData.map((item) => (
+                    <li class="mr-5!">
+                        <Link
+                            text={item.name}
+                            href={item.path}
+                            style="primary"
+                            isFilled={false}
+                            borderVisible={true}
+                            data-navLink
+                        />
+                    </li>
+                ))
+            }
+        </ul>
+    </div>
+</nav>
+
+<script>
+    import '../js/nav.js'
+</script>

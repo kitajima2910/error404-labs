@@ -1,5 +1,9 @@
 ---
+import '../styles/global.css'
+
 import MainHead from './MainHead.astro'
+import Nav from '../components/Nav.astro'
+import Footer from '../components/Footer.astro'
 
 interface Props {
     title?: string
@@ -14,7 +18,11 @@ const {
 
 <html lang="vi">
     <MainHead {title} {description} />
-    <body>
-        <slot />
+    <body class="grid min-h-screen grid-rows-[auto_1fr_auto]">
+        <Nav />
+        <main class="flex justify-center items-center">
+            <slot />
+        </main>
+        <Footer />
     </body>
 </html>
