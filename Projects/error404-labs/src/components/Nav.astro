@@ -3,21 +3,31 @@ import { Image } from 'astro:assets'
 import logomark from '../icons/logomark.svg'
 import navData from '../data/navData'
 import Link from './Link.astro'
-import ContractEditRounded from '../icons/ContractEditRounded.astro'
+import IconBlog from '../icons/IconBlog.astro'
+import IconAbout from '../icons/IconAbout.astro'
+
+const onIcons = (name: string) => {
+    switch (name) {
+        case 'Giới Thiệu':
+            return { component: IconAbout }
+        case 'Bài Viết':
+            return { component: IconBlog }
+    }
+}
 ---
 
 <nav
     aria-label="Primary"
-    class="bg-[#FBFBFB] shadow-[0_4px_12px_rgba(0,0,0,0.06)] min-h-25"
+    class="bg-[#FBFBFB] shadow-[0_4px_12px_rgba(0,0,0,0.06)] min-h-25 flex justify-center items-center"
 >
-    <div class="flex items-center h-full w-full justify-between">
+    <div class="flex items-center h-full w-10/12 mx-auto justify-between">
         <a href="/" class="logomark" arial-label="Go Home">
             <Image src={logomark} alt="logomark" class="rounded-full w-15" />
         </a>
         <ul class="flex">
             {
                 navData.map((item) => (
-                    <li class="mr-5!">
+                    <li class="mr-5">
                         <Link
                             text={item.name}
                             href={item.path}
@@ -25,6 +35,10 @@ import ContractEditRounded from '../icons/ContractEditRounded.astro'
                             isFilled={false}
                             borderVisible={true}
                             data-navLink
+                            icon={{
+                                component: onIcons(item.name)?.component,
+                                side: 'left',
+                            }}
                         />
                     </li>
                 ))

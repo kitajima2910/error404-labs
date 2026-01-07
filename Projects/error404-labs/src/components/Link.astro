@@ -10,6 +10,7 @@ interface Props {
     isFilled?: boolean
     borderVisible?: boolean
     classes?: string
+    target?: string
 }
 
 const {
@@ -20,6 +21,7 @@ const {
     isFilled = true,
     borderVisible = false,
     classes,
+    target = '_self',
     ...rest
 } = Astro.props as Props
 
@@ -45,9 +47,10 @@ const border = borderVisible
 
 <a
     href={href}
+    target={target}
     {...rest}
     class:list={[base, styles[style], border, classes]}
-    class="py-1! px-2!"
+    class="py-1 px-2"
 >
     {
         icon && icon.side === 'left' && (

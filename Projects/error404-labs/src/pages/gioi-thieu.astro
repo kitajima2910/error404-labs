@@ -1,5 +1,59 @@
 ---
+import Link from '../components/Link.astro'
 import MainLayout from '../layouts/MainLayout.astro'
+import { TC_TITLE } from '../common/TextConst'
+import IconFacebook from '../icons/IconFacebook.astro'
+
+const Facebook = 'https://www.facebook.com/kitajima2910'
 ---
 
-<MainLayout>About</MainLayout>
+<MainLayout title=`Giới thiệu | ${TC_TITLE}`>
+    <section
+        aria-label="Giới thiệu"
+        class="mx-auto
+      max-w-5xl
+      px-4
+      grid
+      grid-cols-1
+      md:grid-cols-[auto_1fr]
+      items-center
+      gap-10"
+    >
+        <img
+            src="/images/me.png"
+            alt="Kitajima2910"
+            class="shadow-xl/30
+    rounded-4xl
+    justify-self-center
+    md:justify-self-start
+    max-w-60
+    md:max-w-none"
+        />
+
+        <div class="text-center md:text-left space-y-6">
+            <h1 class="font-bold text-2xl">Bài Viết Của Tôi</h1>
+
+            <p class="text-[16px] font-medium max-w-prose mx-auto md:mx-0">
+                Lorem, ipsum dolor sit amet consectetur adipisicing elit.
+                Pariatur perferendis vel natus suscipit debitis id quam
+                quibusdam tenetur aspernatur sed consectetur fugiat, neque
+                labore? Sint!
+            </p>
+
+            <div class="flex justify-center md:justify-start">
+                <Link
+                    text="Liên Hệ"
+                    style="primary"
+                    isFilled={false}
+                    borderVisible={true}
+                    href={Facebook}
+                    target="_blank"
+                    icon={{
+                        component: IconFacebook,
+                        side: 'left',
+                    }}
+                />
+            </div>
+        </div>
+    </section>
+</MainLayout>
