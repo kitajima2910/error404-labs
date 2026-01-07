@@ -4,7 +4,7 @@ title: A Post about Important Items Of Life
 date: 2022-12-11
 author: Darnell McClure
 image: { src: '/images/post-1.webp', alt: 'A picture of a coder' }
-description: Have you ever wondered what the most important items of life are? Well, wonder no more!
+description: Have you ever wondered what the most important items of life are? Well, wonder no more!Have you ever wondered what the most important items of life are? Well, wonder no more!Have you ever wondered what the most important items of life are? Well, wonder no more!Have you ever wondered what the most important items of life are? Well, wonder no more!Have you ever wondered what the most important items of life are? Well, wonder no more!Have you ever wondered what the most important items of life are? Well, wonder no more!
 draft: false
 category: Reference Docs
 ---
