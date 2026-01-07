@@ -1,27 +1,56 @@
 ---
 import { TC_TITLE } from '../../common/TextConst'
 import MainLayout from '../../layouts/MainLayout.astro'
+import PostCard from '../../components/PostCard.astro'
+
+const allPosts = Object.values(import.meta.glob<any>('./*.md', { eager: true }))
+    .sort(
+        (a, b) =>
+            new Date(b.frontmatter.date).getTime() -
+            new Date(a.frontmatter.date).getTime(),
+    )
+    .slice(0)
+
+const length = allPosts.length
+
+// console.log('allPosts: ', allPosts)
 ---
 
 <MainLayout title=`Bài Viết | ${TC_TITLE}`>
-    <ul>
-        <li>
-            <a href="/bai-viet/post-1/">Post 1</a>
-        </li>
-        <li>
-            <a href="/bai-viet/post-2/">Post 2</a>
-        </li>
-        <li>
-            <a href="/bai-viet/post-3/">Post 3</a>
-        </li>
-        <li>
-            <a href="/bai-viet/post-4/">Post 4</a>
-        </li>
-        <li>
-            <a href="/bai-viet/post-5/">Post 5</a>
-        </li>
-        <li>
-            <a href="/bai-viet/post-6/">Post 6</a>
-        </li>
-    </ul>
+    <section class="my-5 mb-15 w-10/12 mx-auto" aria-label="Bài Viết Mới">
+        <h1 class="text-5xl font-semibold mb-10 mt-10">Bài Viết Mới</h1>
+        <div
+            class="custom-grid"
+            style={`max-width: ${length > 1 ? '3000px' : '400px'}`}
+        >
+            {
+                allPosts.map((post) => (
+                    <PostCard
+                        frontmatter={post.frontmatter}
+                        url={post.url}
+                        tagType="h2"
+                    />
+                ))
+            }
+            <!-- {
+            (
+                <PostCard
+                    frontmatter={allPosts[0].frontmatter}
+                    url={allPosts[0].url}
+                    tagType="h2"
+                />
+            )
+        } -->
+        </div>
+    </section>
 </MainLayout>
+
+<style>
+    .custom-grid {
+        display: grid;
+        gap: 40px;
+        justify-content: center;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
+        width: 100%;
+    }
+</style>

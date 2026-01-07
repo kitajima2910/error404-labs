@@ -1,7 +1,7 @@
 ---
 layout: '../../layouts/BlogPostLayout.astro'
 title: Beginning with CSS
-date: 2022-12-03
+date: 2023-12-06
 author: Darnell McClure
 image: { src: '/images/post-3.jpg', alt: 'A picture of a coder' }
 description: CSS is a great way to style your website. In fact, there are no alternatives! Learn how to use it here.

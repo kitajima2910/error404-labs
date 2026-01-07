@@ -1,0 +1,61 @@
+---
+import { Image } from 'astro:assets'
+import { formatDate, slugify } from '../js/utils'
+import Link from './Link.astro'
+import IconRead from '../icons/IconRead.astro'
+
+const { frontmatter, url, tagType } = Astro.props
+
+const Tag = tagType
+
+const { title, description, date, category, author, image } = frontmatter
+---
+
+<!-- <pre>{JSON.stringify(frontmatter, null, 4)}</pre> -->
+<article
+    class="flex flex-col w-full h-full bg-[#FBFBFB] rounded-lg shadow-[1px_1px_1px_3px_rgba(0,0,0,0.06)]"
+>
+    <div>
+        <a href={`/danh-muc/${slugify(category)}`} class="block my-5 mx-5">
+            <span
+                class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 inset-ring inset-ring-blue-700/10"
+                >{category}</span
+            >
+        </a>
+        <a href={url} class="inline-block">
+            <Image
+                src={image.src}
+                alt={image.alt}
+                width={5000}
+                height={200}
+                densities={[1, 1.5]}
+                quality={65}
+            />
+        </a>
+        <div class="p-5">
+            <div>
+                <Tag class="text-3xl/tight">
+                    <a href={url}>{title}</a>
+                </Tag>
+                <p class="my-5">
+                    bởi <a
+                        href={`/tac-gia/${slugify(author)}`}
+                        class="underline font-medium">{author}</a
+                    > - {formatDate(date, 'vi-VN')}
+                </p>
+            </div>
+            <p class="mb-3 line-clamp-3">{description}</p>
+            <Link
+                href={url}
+                text="Xem chi tiết"
+                style="primary"
+                isFilled={false}
+                borderVisible
+                icon={{
+                    component: IconRead,
+                    side: 'left',
+                }}
+            />
+        </div>
+    </div>
+</article>
