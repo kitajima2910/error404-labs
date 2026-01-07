@@ -1,0 +1,33 @@
+---
+import { Image } from 'astro:assets'
+import { formatDate, slugify } from '../js/utils'
+
+const { title, description, date, category, author, image } = Astro.props
+---
+
+<header class="my-15">
+    <div class="text-center">
+        <a href={`/danh-muc/${slugify(category)}`} class="block mb-5">
+            <span
+                class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 inset-ring inset-ring-blue-700/10"
+                >{category}</span
+            >
+        </a>
+        <h1 class="text-4xl font-semibold mb-5">{title}</h1>
+        <p class="mb-15">
+            bởi <a
+                href={`/tac-gia/${slugify(author)}`}
+                class="underline font-medium">{author}</a
+            > - {formatDate(date, 'vi-VN')}
+        </p>
+    </div>
+    <Image
+        src={image.src}
+        alt={image.alt}
+        width={1200}
+        height={600}
+        densities={[1, 1.5]}
+        quality={65}
+        class="rounded-4xl shadow-xl/30"
+    />
+</header>
