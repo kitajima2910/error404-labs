@@ -6,6 +6,7 @@ import Link from './Link.astro'
 import IconBlog from '../icons/IconBlog.astro'
 import IconAbout from '../icons/IconAbout.astro'
 import IconRSS from '../icons/IconRSS.astro'
+import IconSearch from '../icons/IconSearch.astro'
 
 const onIcons = (name: string) => {
     switch (name) {
@@ -68,6 +69,21 @@ const onIcons = (name: string) => {
                         class="rounded-full w-20"
                     />
                 </a>
+
+                <!-- Open button -->
+                <button id="openModal" class="ml-5">
+                    <Link
+                        text="Tìm"
+                        href="#/tim"
+                        style="primary"
+                        isFilled={false}
+                        borderVisible={true}
+                        icon={{
+                            component: IconSearch,
+                            side: 'left',
+                        }}
+                    />
+                </button>
             </div>
 
             <!-- Desktop Menu -->
@@ -152,6 +168,65 @@ const onIcons = (name: string) => {
     </div>
 </nav>
 
+<!-- Overlay -->
+<div
+    id="modal"
+    class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50"
+>
+    <!-- Modal box -->
+    <div
+        class="w-full max-w-3xl m-10 rounded-2xl bg-white p-6 shadow-xl
+           animate-in fade-in zoom-in duration-200"
+    >
+        <!-- Header -->
+        <div class="flex items-center justify-between">
+            <h2 class="text-lg font-semibold">
+                Mọi Thứ Trong Website Ở Đây :D
+            </h2>
+            <button id="closeModal" class="text-gray-400 hover:text-gray-600">
+                ✕
+            </button>
+        </div>
+
+        <!-- Content -->
+        <p class="mt-4 text-gray-600">
+            <div class="max-h-[50vh] overflow-y-auto">
+                <div id="search"></div>
+            </div>
+            <script>
+                window.addEventListener('DOMContentLoaded', () => {
+                    // @ts-ignore
+                    new PagefindUI({
+                        element: '#search',
+                        debounceTimeoutMs: 300,
+                        resetStyles: false,
+                        showEmptyFilters: false,
+                        excerptLength: 15,
+                        showImages: !true,
+                        showSubResults: true,
+                        pageSize: 3,
+                    })
+                })
+            </script>
+        </p>
+
+        <!-- Actions -->
+        <div class="mt-6 flex justify-end gap-3 hidden">
+            <button
+                id="cancelModal"
+                class="rounded-lg border px-4 py-2 hover:bg-gray-100"
+            >
+                Cancel
+            </button>
+            <button
+                class="rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
+            >
+                Confirm
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
     const btn = document.getElementById('menuBtn')
     const menu = document.getElementById('mobileMenu')
@@ -161,4 +236,46 @@ const onIcons = (name: string) => {
             menu.classList.toggle('hidden')
         })
     }
+</script>
+
+<script is:inline>
+    try {
+        const modal = document.getElementById('modal')
+        const openBtn = document.getElementById('openModal')
+        const closeBtn = document.getElementById('closeModal')
+        const cancelBtn = document.getElementById('cancelModal')
+
+        const openModal = () => {
+            modal.classList.remove('hidden')
+            modal.classList.add('flex')
+            document.body.classList.add('overflow-hidden')
+
+            const search = document.querySelector('.pagefind-ui__search-input')
+            const btnClear = document.querySelector(
+                '.pagefind-ui__search-clear',
+            )
+            // console.log('search: ', search)
+            if (search) {
+                search.value = ''
+            }
+
+            if (btnClear) {
+                btnClear.click()
+            }
+        }
+
+        const closeModal = () => {
+            modal.classList.add('hidden')
+            modal.classList.remove('flex')
+            document.body.classList.remove('overflow-hidden')
+        }
+
+        openBtn.onclick = openModal
+        closeBtn.onclick = closeModal
+        cancelBtn.onclick = closeModal
+
+        modal.onclick = (e) => {
+            if (e.target === modal) closeModal()
+        }
+    } catch (error) {}
 </script>

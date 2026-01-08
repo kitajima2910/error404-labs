@@ -34,7 +34,7 @@ export const formatBlogPost = (
             )
         })
     } else {
-        postsClone = postsClone.sort((a, b) => Math.random() - 0.5)
+        postsClone = postsClone.sort(() => Math.random() - 0.5)
     }
 
     if (filterOutDrafts) {

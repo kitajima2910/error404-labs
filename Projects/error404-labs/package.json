@@ -1,24 +1,28 @@
 {
-  "name": "error404-labs",
-  "type": "module",
-  "version": "0.0.1",
-  "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
-  },
-  "dependencies": {
-    "@astrojs/rss": "^4.0.14",
-    "@astrojs/sitemap": "^3.6.1",
-    "@fontsource/montserrat": "^5.2.8",
-    "@tailwindcss/vite": "^4.1.18",
-    "astro": "^5.16.6",
-    "sharp": "^0.34.5",
-    "tailwindcss": "^4.1.18"
-  },
-  "devDependencies": {
-    "prettier": "^3.7.4",
-    "prettier-plugin-astro": "^0.14.1"
-  }
+    "name": "error404-labs",
+    "type": "module",
+    "version": "0.0.1",
+    "scripts": {
+        "dev": "astro dev",
+        "build": "astro check && astro build && pagefind --site dist && copyfiles -u 1 dist/pagefind/** public",
+        "preview": "astro preview",
+        "astro": "astro"
+    },
+    "dependencies": {
+        "@astrojs/check": "^0.9.6",
+        "@astrojs/rss": "^4.0.14",
+        "@astrojs/sitemap": "^3.6.1",
+        "@fontsource/montserrat": "^5.2.8",
+        "@tailwindcss/vite": "^4.1.18",
+        "astro": "^5.16.6",
+        "sharp": "^0.34.5",
+        "tailwindcss": "^4.1.18",
+        "typescript": "^5.9.3"
+    },
+    "devDependencies": {
+        "copyfiles": "^2.4.1",
+        "pagefind": "^1.4.0",
+        "prettier": "^3.7.4",
+        "prettier-plugin-astro": "^0.14.1"
+    }
 }

@@ -1,7 +1,6 @@
 import rss from '@astrojs/rss'
 import { formatBlogPost } from '../js/utils'
 import { TC_TITLE } from '../common/TextConst'
-import { custom } from 'astro:schema'
 
 export async function GET(context) {
     const allPosts = Object.values(

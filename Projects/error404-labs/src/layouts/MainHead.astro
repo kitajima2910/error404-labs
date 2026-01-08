@@ -4,8 +4,10 @@ const { title, description } = Astro.props
 
 <head>
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KSWVM2K976"
-    ></script>
+    <script
+        is:inline
+        async
+        src="https://www.googletagmanager.com/gtag/js?id=G-KSWVM2K976"></script>
     <script is:inline define:vars={{}}>
         window.dataLayer = window.dataLayer || []
         function gtag() {
@@ -74,7 +76,7 @@ const { title, description } = Astro.props
     <meta name="apple-mobile-web-app-title" content="Error404-Labs" />
     <link rel="manifest" href="/site.webmanifest" />
 
-    <script type="application/ld+json">
+    <script is:inline type="application/ld+json">
         {
             "@context": "https://schema.org",
             "@type": "EducationalOrganization",
@@ -109,4 +111,6 @@ const { title, description } = Astro.props
             }
         }
     </script>
+    <link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
+    <script is:inline src="/pagefind/pagefind-ui.js"></script>
 </head>
