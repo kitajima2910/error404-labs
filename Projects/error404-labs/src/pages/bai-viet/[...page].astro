@@ -1,39 +1,43 @@
 ---
+import type { GetStaticPaths } from 'astro'
 import { TC_TITLE } from '../../common/TextConst'
 import MainLayout from '../../layouts/MainLayout.astro'
 import PostCard from '../../components/PostCard.astro'
 import { formatBlogPost } from '../../js/utils'
+import Pagination from '../../components/Pagination.astro'
 
-const allPosts = Object.values(import.meta.glob<any>('./*.md', { eager: true }))
-// .sort(
-//     (a, b) =>
-//         new Date(b.frontmatter.date).getTime() -
-//         new Date(a.frontmatter.date).getTime(),
-// )
-// .slice(0)
+export const getStaticPaths = (({ paginate }) => {
+    const allPosts = Object.values(
+        import.meta.glob<any>('./*.md', { eager: true }),
+    )
 
-// const length = allPosts.length
+    const formattedPosts: any[] = formatBlogPost(allPosts, {
+        limit: allPosts.length,
+        filterOutDrafts: true,
+        sortByDate: true,
+    })
 
-const formattedPosts: any[] = formatBlogPost(allPosts, {
-    limit: 3,
-    filterOutDrafts: true,
-    sortByDate: true,
-})
+    return paginate(formattedPosts, {
+        pageSize: 3,
+    })
+}) satisfies GetStaticPaths
 
-const length = formattedPosts.length
+const { page } = Astro.props
 
-// console.log('allPosts: ', allPosts)
+const length = page.data.length
+
+// console.log('page: ', page)
 ---
 
 <MainLayout title=`Bài Viết | ${TC_TITLE}`>
     <section class="my-5 mb-15 w-10/12 mx-auto" aria-label="Bài Viết Mới">
         <h1 class="text-5xl font-semibold mb-10 mt-10">Bài Viết Mới</h1>
         <div
-            class="custom-grid"
+            class="custom-grid mb-10"
             style={`max-width: ${length > 1 ? '100%' : '400px'}`}
         >
             {
-                formattedPosts.map((post) => (
+                page.data.map((post) => (
                     <PostCard
                         frontmatter={post.frontmatter}
                         url={post.url}
@@ -41,15 +45,9 @@ const length = formattedPosts.length
                     />
                 ))
             }
-            <!-- {
-            (
-                <PostCard
-                    frontmatter={allPosts[0].frontmatter}
-                    url={allPosts[0].url}
-                    tagType="h2"
-                />
-            )
-        } -->
+        </div>
+        <div class="flex justify-center">
+            <Pagination prevURL={page.url.prev} nextURL={page.url.next} />
         </div>
     </section>
 </MainLayout>

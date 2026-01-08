@@ -4,6 +4,7 @@ import { formatBlogPost, slugify } from '../../js/utils'
 import MainLayout from '../../layouts/MainLayout.astro'
 import { TC_TITLE } from '../../common/TextConst'
 import PostCard from '../../components/PostCard.astro'
+
 export const getStaticPaths = (() => {
     const posts = Object.values(
         import.meta.glob<any>('../bai-viet/*.md', { eager: true }),
@@ -17,49 +18,11 @@ export const getStaticPaths = (() => {
         params: { category: slugify(category) },
         props: { name: category, posts },
     }))
-
-    // return [
-    //     {
-    //         params: {
-    //             category: slugify('Reference Docs'),
-    //         },
-    //         props: {
-    //             name: 'Refernce Docs',
-    //         },
-    //     },
-    //     {
-    //         params: {
-    //             category: slugify('General'),
-    //         },
-    //         props: {
-    //             name: 'General',
-    //         },
-    //     },
-    //     {
-    //         params: {
-    //             category: slugify('CSS'),
-    //         },
-    //         props: {
-    //             name: 'CSS',
-    //         },
-    //     },
-    //     {
-    //         params: {
-    //             category: slugify('Astro'),
-    //         },
-    //         props: {
-    //             name: 'Astro',
-    //         },
-    //     },
-    // ]
 }) satisfies GetStaticPaths
 
 const { category } = Astro.params
 const { name, posts } = Astro.props
 
-// let allPosts = Object.values(
-//     import.meta.glob<any>('../bai-viet/*.md', { eager: true }),
-// )
 const allPosts = posts.filter(
     (post) => slugify(post.frontmatter.category) === category,
 )

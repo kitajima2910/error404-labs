@@ -1,0 +1,41 @@
+---
+import IconPrevious from '../icons/IconPrevious.astro'
+import IconNext from '../icons/IconNext.astro'
+import Link from './Link.astro'
+
+const { prevURL, nextURL } = Astro.props
+---
+
+<nav arial-label="Pagination" class="flex gap-5">
+    {
+        prevURL && (
+            <Link
+                href={prevURL}
+                text="Trang Trước"
+                style="primary"
+                isFilled={false}
+                borderVisible={true}
+                icon={{
+                    component: IconPrevious,
+                    side: 'left',
+                }}
+            />
+        )
+    }
+
+    {
+        nextURL && (
+            <Link
+                href={nextURL}
+                text="Trang Sau"
+                style="primary"
+                isFilled={false}
+                borderVisible={true}
+                icon={{
+                    component: IconNext,
+                    side: 'right',
+                }}
+            />
+        )
+    }
+</nav>
