@@ -23,13 +23,13 @@ const counts = allCategories.map((category) => {
     return { name: category, count }
 })
 
-// console.log('counts: ', counts)
+const { styleLeft = !false, showCount } = Astro.props
 
-const { showCount } = Astro.props
+// console.log('counts: ', counts)
 ---
 
-<div class="text-left">
-    <h3 class="text-xl font-semibold">Danh Mục</h3>
+<div class={!styleLeft ? 'text-center' : 'text-left'}>
+    <h3 class="text-xl font-semibold mb-2">Danh Mục</h3>
 
     <ul class="flex gap-3 flex-wrap">
         {
