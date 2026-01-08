@@ -5,6 +5,7 @@ import MainLayout from '../../layouts/MainLayout.astro'
 import PostCard from '../../components/PostCard.astro'
 import { formatBlogPost } from '../../js/utils'
 import Pagination from '../../components/Pagination.astro'
+import CategoryCloud from '../../components/CategoryCloud.astro'
 
 export const getStaticPaths = (({ paginate }) => {
     const allPosts = Object.values(
@@ -49,6 +50,9 @@ const length = page.data.length
         <div class="flex justify-center">
             <Pagination prevURL={page.url.prev} nextURL={page.url.next} />
         </div>
+        <aside aria-label="Danh Mục Bài Viết" class="flex justify-center">
+            <CategoryCloud showCount={true} />
+        </aside>
     </section>
 </MainLayout>
 

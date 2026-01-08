@@ -2,6 +2,7 @@
 import { TC_TITLE } from '../common/TextConst'
 import MainLayout from './MainLayout.astro'
 import PostHeader from '../components/PostHeader.astro'
+import CategoryCloud from '../components/CategoryCloud.astro'
 
 const { frontmatter } = Astro.props
 // console.log(frontmatter)
@@ -18,11 +19,18 @@ const { title, description, date, category, author, image } = frontmatter
             author={author}
             image={image}
         />
-        <div class="mb-15">
-            <div>
+        <div class="mb-15 lg:flex">
+            <div class="lg:w-10/12">
                 <slot />
             </div>
-            <div></div>
+            <div class="lg:w-2/12">
+                <aside
+                    aria-label="Danh Mục Bài Viết"
+                    class="flex justify-center"
+                >
+                    <CategoryCloud showCount={!true} />
+                </aside>
+            </div>
         </div>
     </section>
 </MainLayout>

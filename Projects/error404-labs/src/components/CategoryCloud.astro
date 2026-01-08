@@ -1,0 +1,46 @@
+---
+import { formatBlogPost, slugify } from '../js/utils'
+
+const allPosts = Object.values(
+    import.meta.glob<any>('../pages/bai-viet/*.md', { eager: true }),
+)
+
+const formattedPosts: any[] = formatBlogPost(allPosts, {
+    limit: allPosts.length,
+    filterOutDrafts: true,
+    sortByDate: true,
+})
+
+const allCategories = [
+    ...new Set(formattedPosts.map((p) => p.frontmatter.category).flat()),
+]
+
+const counts = allCategories.map((category) => {
+    const count = formattedPosts.filter(
+        (post) => post.frontmatter.category === category,
+    ).length
+    return { name: category, count }
+})
+
+// console.log('counts: ', counts)
+
+const { showCount } = Astro.props
+---
+
+<div class="text-center">
+    <h3 class="my-5 text-3xl font-semibold">Danh Mục</h3>
+
+    <ul class="flex gap-3 flex-wrap">
+        {
+            counts.map((category) => (
+                <li>
+                    <a href={`/danh-muc/${slugify(category.name)}`}>
+                        <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 inset-ring inset-ring-blue-700/10">
+                            {category.name} {showCount && `(${category.count})`}
+                        </span>
+                    </a>
+                </li>
+            ))
+        }
+    </ul>
+</div>
