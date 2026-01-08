@@ -2,16 +2,25 @@
 import { TC_TITLE } from '../../common/TextConst'
 import MainLayout from '../../layouts/MainLayout.astro'
 import PostCard from '../../components/PostCard.astro'
+import { formatBlogPost } from '../../js/utils'
 
 const allPosts = Object.values(import.meta.glob<any>('./*.md', { eager: true }))
-    .sort(
-        (a, b) =>
-            new Date(b.frontmatter.date).getTime() -
-            new Date(a.frontmatter.date).getTime(),
-    )
-    .slice(0)
+// .sort(
+//     (a, b) =>
+//         new Date(b.frontmatter.date).getTime() -
+//         new Date(a.frontmatter.date).getTime(),
+// )
+// .slice(0)
 
-const length = allPosts.length
+// const length = allPosts.length
+
+const formattedPosts: any[] = formatBlogPost(allPosts, {
+    limit: 3,
+    filterOutDrafts: true,
+    sortByDate: true,
+})
+
+const length = formattedPosts.length
 
 // console.log('allPosts: ', allPosts)
 ---
@@ -24,7 +33,7 @@ const length = allPosts.length
             style={`max-width: ${length > 1 ? '100%' : '400px'}`}
         >
             {
-                allPosts.map((post) => (
+                formattedPosts.map((post) => (
                     <PostCard
                         frontmatter={post.frontmatter}
                         url={post.url}
