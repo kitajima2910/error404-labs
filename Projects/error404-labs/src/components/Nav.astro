@@ -19,7 +19,7 @@ const onIcons = (name: string) => {
 }
 ---
 
-<nav
+<!-- <nav
     aria-label="Primary"
     class="bg-[#FBFBFB] shadow-[0_4px_12px_rgba(0,0,0,0.06)] min-h-25 flex justify-center items-center"
 >
@@ -53,4 +53,112 @@ const onIcons = (name: string) => {
 
 <script>
     import '../js/nav.js'
+</script> -->
+<nav
+    class="sticky top-0 z-50 bg-[#FBFBFB] shadow-[0_4px_12px_rgba(0,0,0,0.06)] py-5"
+>
+    <div class="mx-auto w-10/12 px-0 sm:px-0 lg:px-0">
+        <div class="flex h-16 items-center justify-between">
+            <!-- Logo -->
+            <div class="flex items-center">
+                <a href="/" class="logomark" arial-label="Go Home">
+                    <Image
+                        src={logomark}
+                        alt="logomark"
+                        class="rounded-full w-20"
+                    />
+                </a>
+            </div>
+
+            <!-- Desktop Menu -->
+            <div class="hidden md:flex items-center space-x-8">
+                <ul class="flex">
+                    {
+                        navData.map((item) => (
+                            <li class="ml-5">
+                                <Link
+                                    text={item.name}
+                                    href={item.path}
+                                    style="primary"
+                                    isFilled={false}
+                                    borderVisible={true}
+                                    data-navLink
+                                    icon={{
+                                        component: onIcons(item.name)
+                                            ?.component,
+                                        side: 'left',
+                                    }}
+                                    target={
+                                        item.name === 'RSS' ? '_blank' : '_self'
+                                    }
+                                />
+                            </li>
+                        ))
+                    }
+                </ul>
+            </div>
+
+            <!-- Mobile button -->
+            <button
+                id="menuBtn"
+                class="md:hidden inline-flex items-center justify-center rounded-md p-3 text-blue-700 hover:bg-gray-100 focus:outline-none"
+            >
+                <svg
+                    class="h-6 w-6"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div
+        id="mobileMenu"
+        class="md:hidden hidden border-t border-gray-200 mt-3.75"
+    >
+        <div class="space-y-1 px-4 py-4">
+            <ul class="flex flex-col">
+                {
+                    navData.map((item) => (
+                        <li class="mr-5">
+                            <Link
+                                text={item.name}
+                                href={item.path}
+                                style="primary"
+                                isFilled={false}
+                                borderVisible={!true}
+                                data-navLink
+                                icon={{
+                                    component: onIcons(item.name)?.component,
+                                    side: 'left',
+                                }}
+                                target={
+                                    item.name === 'RSS' ? '_blank' : '_self'
+                                }
+                            />
+                        </li>
+                    ))
+                }
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<script>
+    const btn = document.getElementById('menuBtn')
+    const menu = document.getElementById('mobileMenu')
+
+    if (btn && menu) {
+        btn.addEventListener('click', () => {
+            menu.classList.toggle('hidden')
+        })
+    }
 </script>

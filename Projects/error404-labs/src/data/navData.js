@@ -1,7 +1,7 @@
 const navData = [
     {
         name: 'Giới Thiệu',
-        path: '/gioi-thieu',
+        path: '/gioi-thieu-v2',
     },
     {
         name: 'Bài Viết',
