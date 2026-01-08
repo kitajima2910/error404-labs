@@ -5,6 +5,7 @@ import navData from '../data/navData'
 import Link from './Link.astro'
 import IconBlog from '../icons/IconBlog.astro'
 import IconAbout from '../icons/IconAbout.astro'
+import IconRSS from '../icons/IconRSS.astro'
 
 const onIcons = (name: string) => {
     switch (name) {
@@ -12,6 +13,8 @@ const onIcons = (name: string) => {
             return { component: IconAbout }
         case 'Bài Viết':
             return { component: IconBlog }
+        case 'RSS':
+            return { component: IconRSS }
     }
 }
 ---
@@ -39,6 +42,7 @@ const onIcons = (name: string) => {
                                 component: onIcons(item.name)?.component,
                                 side: 'left',
                             }}
+                            target={item.name === 'RSS' ? '_blank' : '_self'}
                         />
                     </li>
                 ))
