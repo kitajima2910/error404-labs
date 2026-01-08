@@ -21,7 +21,9 @@ export const getStaticPaths = (() => {
 const { author } = Astro.params
 const { name, posts } = Astro.props
 
-const allPosts = posts.filter((post) => post.frontmatter.author === name)
+const allPosts = posts.filter(
+    (post) => post.frontmatter.author.toLowerCase() === name.toLowerCase(),
+)
 
 // console.log('allPosts: ', allPosts)
 

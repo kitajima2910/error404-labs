@@ -3,11 +3,35 @@ import { TC_TITLE } from '../common/TextConst'
 import MainLayout from './MainLayout.astro'
 import PostHeader from '../components/PostHeader.astro'
 import CategoryCloud from '../components/CategoryCloud.astro'
+import RelatedPost from '../components/RelatedPost.astro'
+import { formatBlogPost } from '../js/utils'
 
 const { frontmatter } = Astro.props
 // console.log(frontmatter)
 
 const { title, description, date, category, author, image } = frontmatter
+
+const allPosts = Object.values(
+    import.meta.glob<any>('../pages/bai-viet/*.md', { eager: true }),
+)
+
+const formattedPosts: any[] = formatBlogPost(allPosts, {
+    limit: allPosts.length,
+    filterOutDrafts: true,
+    sortByDate: false,
+})
+
+const relatedPosts = formattedPosts
+    .filter(
+        (post) =>
+            post.frontmatter.category.toLowerCase() ===
+                category.toLowerCase() && post.frontmatter.title !== title,
+    )
+    .slice(0, 3)
+
+// console.log('relatedPosts: ', relatedPosts)
+// console.log('category: ', category)
+// console.log('title: ', title)
 ---
 
 <MainLayout title=`${title} | ${TC_TITLE}` {description}>
@@ -19,17 +43,29 @@ const { title, description, date, category, author, image } = frontmatter
             author={author}
             image={image}
         />
-        <div class="mb-15 lg:flex">
-            <div class="lg:w-10/12">
+        <div class="mb-15 lg:flex gap-5">
+            <div class="lg:w-10/12 mb-10">
                 <slot />
             </div>
             <div class="lg:w-2/12">
-                <aside
-                    aria-label="Danh Mục Bài Viết"
-                    class="flex justify-center"
+                <div
+                    class="flex lg:flex-col justify-between items-end flex-wrap"
+                    style="align-items: baseline;"
                 >
-                    <CategoryCloud showCount={!true} />
-                </aside>
+                    <aside
+                        aria-label="Danh Mục Bài Viết"
+                        class="flex justify-center mb-5 h-full"
+                        style="align-self: flex-start;"
+                    >
+                        <CategoryCloud showCount={!true} />
+                    </aside>
+                    <aside
+                        aria-label="Bài Viết Liên Quan"
+                        class="flex justify-center"
+                    >
+                        <RelatedPost {relatedPosts} />
+                    </aside>
+                </div>
             </div>
         </div>
     </section>
