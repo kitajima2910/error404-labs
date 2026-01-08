@@ -1,0 +1,70 @@
+---
+import type { GetStaticPaths } from 'astro'
+import { formatBlogPost, slugify } from '../../js/utils'
+import MainLayout from '../../layouts/MainLayout.astro'
+import { TC_TITLE } from '../../common/TextConst'
+import PostCard from '../../components/PostCard.astro'
+
+export const getStaticPaths = (() => {
+    const posts = Object.values(
+        import.meta.glob<any>('../bai-viet/*.md', { eager: true }),
+    )
+
+    const authors = [...new Set(posts.map((p) => p.frontmatter.author).flat())]
+
+    return authors.map((author) => ({
+        params: { author: slugify(author) },
+        props: { name: author, posts },
+    }))
+}) satisfies GetStaticPaths
+
+const { author } = Astro.params
+const { name, posts } = Astro.props
+
+const allPosts = posts.filter((post) => post.frontmatter.author === name)
+
+// console.log('allPosts: ', allPosts)
+
+const formattedPosts: any[] = formatBlogPost(allPosts, {
+    limit: 3,
+    filterOutDrafts: true,
+    sortByDate: true,
+})
+
+const length = formattedPosts.length
+---
+
+<MainLayout title=`${name} | ${TC_TITLE}`>
+    <section
+        class="my-5 mb-15 w-10/12 mx-auto"
+        aria-label=`Bài Viết Của ${name}`
+    >
+        <h1 class="text-5xl font-semibold mb-10 mt-10">
+            Bài Viết Của <span class="text-blue-700">{name}</span>
+        </h1>
+        <div
+            class="custom-grid"
+            style={`max-width: ${length > 1 ? '100%' : '400px'}`}
+        >
+            {
+                formattedPosts.map((post) => (
+                    <PostCard
+                        frontmatter={post.frontmatter}
+                        url={post.url}
+                        tagType="h2"
+                    />
+                ))
+            }
+        </div>
+    </section>
+</MainLayout>
+
+<style>
+    .custom-grid {
+        display: grid;
+        gap: 40px;
+        justify-content: center;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
+        width: 100%;
+    }
+</style>
