@@ -1,0 +1,1 @@
+export { default as component } from "../../../../src/routes/huong-dan-hoc/lap-trinh-c-cpp/tu-co-ban-den-nang-cao/+page.svelte";

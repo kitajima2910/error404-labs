@@ -1,0 +1,1 @@
+export { default as component } from "../../../../src/routes/ve-toi/+page.svelte";
