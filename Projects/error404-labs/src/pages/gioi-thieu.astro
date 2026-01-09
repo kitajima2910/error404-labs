@@ -10,50 +10,40 @@ const Facebook = 'https://www.facebook.com/kitajima2910'
 <MainLayout title=`Giới thiệu | ${TC_TITLE}`>
     <section
         aria-label="Giới thiệu"
-        class="mx-auto
-      max-w-5xl
-      px-4
-      grid
-      grid-cols-1
-      md:grid-cols-[auto_1fr]
-      items-center
-      gap-10 my-5"
+        class="h-[calc(100vh-64px)] flex justify-center items-center px-2"
     >
-        <img
-            src="/images/me.png"
-            alt="Kitajima2910"
-            class="shadow-xl/30
-    rounded-4xl
-    justify-self-center
-    md:justify-self-start
-    max-w-60
-    md:max-w-none"
-        />
+        <div class="md:flex">
+            <img
+                src="/images/me.png"
+                alt="Kitajima2910"
+                class="shadow-xl/30 rounded-4xl justify-self-center max-w-60 mb-5"
+            />
 
-        <div class="text-center md:text-left space-y-6">
-            <h1 class="font-bold text-2xl">Bản Thân Tôi</h1>
+            <div class="text-center md:text-left md:pl-10">
+                <h1 class="font-bold text-2xl pb-5">Bản Thân Tôi</h1>
 
-            <p class="text-[16px] font-medium max-w-prose mx-auto md:mx-0">
-                Xin chào 👋<br /> Mình là một lập trình viên theo hướng Research &
-                Development, thích đào sâu vấn đề và biến ý tưởng thành sản phẩm chạy
-                được thật. Tại Error404-Labs, mình chia sẻ kiến thức về C/C++, Web,
-                Game, Mobile và AI, kèm kinh nghiệm thực chiến để giúp bạn học lập
-                trình bớt mơ hồ và đỡ “lạc lối” hơn 🚀
-            </p>
+                <p class="text-[16px] max-w-prose pb-5">
+                    Xin chào 👋<br /> Mình là một lập trình viên theo hướng Research
+                    & Development, thích đào sâu vấn đề và biến ý tưởng thành sản
+                    phẩm chạy được thật. Tại Error404-Labs, mình chia sẻ kiến thức
+                    về C/C++, Web, Game, Mobile và AI, kèm kinh nghiệm thực chiến
+                    để giúp bạn học lập trình bớt mơ hồ và đỡ “lạc lối” hơn 🚀
+                </p>
 
-            <div class="flex justify-center md:justify-start">
-                <Link
-                    text="Liên Hệ"
-                    style="primary"
-                    isFilled={false}
-                    borderVisible={true}
-                    href={Facebook}
-                    target="_blank"
-                    icon={{
-                        component: IconFacebook,
-                        side: 'left',
-                    }}
-                />
+                <div class="flex justify-center md:justify-start">
+                    <Link
+                        text="Liên Hệ"
+                        style="primary"
+                        isFilled={false}
+                        borderVisible={true}
+                        href={Facebook}
+                        target="_blank"
+                        icon={{
+                            component: IconFacebook,
+                            side: 'left',
+                        }}
+                    />
+                </div>
             </div>
         </div>
     </section>

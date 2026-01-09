@@ -37,7 +37,7 @@ layout: '../layouts/AboutLayout.astro'
 
 ###
 
-<div align="center" class="flex justify-center my-10">
+<div align="center" class="flex justify-center my-10 flex-wrap">
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg" width="40" height="40" alt="java logo"  />
 
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/csharp/csharp-original.svg" width="40" height="40" alt="csharp logo"  />
