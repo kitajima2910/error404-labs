@@ -5,10 +5,10 @@ date: 2026-01-09
 author: Phạm Xuân Hoài
 image:
     {
-        src: '/images/cau-truc-co-ban-cua-trang-html.webp',
+        src: '/images/html/cau-truc-co-ban-cua-trang-html.webp',
         alt: 'Cấu trúc cơ bản của trang HTML',
     }
-description: Cấu trúc cơ bản của trang HTML
+description: Tìm hiểu cách một trang web được tạo nên từ những dòng HTML đầu tiên — nền tảng quan trọng giúp bước vào thế giới lập trình web 🌐
 draft: false
 category: HTML
 ---
@@ -58,4 +58,4 @@ Bên dưới tham khảo mô tả của một trang đơn giản sử dụng 2 c
 
 <br/>
 
-![Cấu trúc cơ bản của trang web](/images/cau-truc-co-ban-cua-trang-html-01.webp)
+![Cấu trúc cơ bản của trang web](/images/html/cau-truc-co-ban-cua-trang-html-01.webp)
