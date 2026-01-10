@@ -9,40 +9,39 @@
     Github: https://github.com/kitajima2910
 
     Setup: 
-    - Load pxh-ui.js sau framework
+    - Load pxh-ui.js sau framework (nên load sau pxh-ui.css)
 
 */
 
 /* ############# CSS ############### */
 
 /* ############# UI ############### */
+
 document.addEventListener('DOMContentLoaded', () => {
     console.log('pxh-ui.js')
 
-    const pxh = document.querySelector('body.pxh')
+    if (!document.body.classList.contains('pxh')) return
 
-    if (pxh) {
-        // Back To Top
-        const pxhBackToTop = document.querySelector('.pxhBackToTop')
-        // console.log(pxhBackToTop)
+    /* ================================
+       PXH :: Back To Top
+    ================================= */
+    {
+        const btn = document.querySelector('.pxhBackToTop')
+        if (!btn) return
 
-        if (pxhBackToTop) {
-            pxhBackToTop.style.right = '5000px'
+        window.addEventListener(
+            'scroll',
+            () => {
+                btn.style.right = window.scrollY > 500 ? '1rem' : '5000rem'
+            },
+            { passive: true },
+        )
 
-            window.addEventListener('scroll', () => {
-                if (window.scrollY > 500) {
-                    pxhBackToTop.style.right = '1rem'
-                } else {
-                    pxhBackToTop.style.right = '5000rem'
-                }
-            })
-
-            pxhBackToTop.addEventListener('click', () => {
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth',
-                })
-            })
-        }
+        btn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' })
+        })
     }
+    /* ================================
+       PXH :: Back To Top - END
+    ================================= */
 })
