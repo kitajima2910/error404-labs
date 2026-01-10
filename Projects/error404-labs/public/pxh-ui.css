@@ -1,0 +1,61 @@
+/* 
+
+    pxh-ui.css
+
+    Tác giả: Phạm Xuân Hoài
+    Thời gian: 2026/01/10
+    
+    Facebook: https://www.facebook.com/kitajima2910
+    Github: https://github.com/kitajima2910
+
+    Setup: 
+    - Chỉ cần body.pxh
+    - all: unset cho từng pxh-*
+    - Load pxh-ui.css sau framework
+
+*/
+.pxh * {
+    box-sizing: border-box;
+}
+
+.pxh {
+}
+
+/* Utility class */
+
+/* eset */
+.pxh .pxhBackToTop,
+.pxh .pxhCursorPointer {
+    all: unset;
+}
+
+/* ############# CSS ############### */
+.pxh .pxhCursorPointer {
+    cursor: pointer;
+}
+
+/* ############# UI ############### */
+.pxh .pxhBackToTop {
+    position: fixed;
+    z-index: 9999;
+    bottom: 5rem;
+    right: 1rem;
+
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+
+    background: transparent;
+    color: #2b7fff;
+
+    border: 1px solid #2b7fff;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pxh .pxhBackToTop::before {
+    content: '⇧';
+    font-size: 1.5rem;
+}

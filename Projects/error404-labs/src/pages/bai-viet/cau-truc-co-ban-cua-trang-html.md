@@ -1,6 +1,6 @@
 ---
 layout: '../../layouts/BlogPostLayout.astro'
-title: '[HTMLB1LT]: Cấu trúc cơ bản của trang HTML'
+title: 'Cấu trúc cơ bản của trang HTML'
 date: 2026-01-09
 author: Phạm Xuân Hoài
 image:

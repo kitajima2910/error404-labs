@@ -20,41 +20,6 @@ const onIcons = (name: string) => {
 }
 ---
 
-<!-- <nav
-    aria-label="Primary"
-    class="bg-[#FBFBFB] shadow-[0_4px_12px_rgba(0,0,0,0.06)] min-h-25 flex justify-center items-center"
->
-    <div class="flex items-center h-full w-10/12 mx-auto justify-between">
-        <a href="/" class="logomark" arial-label="Go Home">
-            <Image src={logomark} alt="logomark" class="rounded-full w-15" />
-        </a>
-        <ul class="flex">
-            {
-                navData.map((item) => (
-                    <li class="mr-5">
-                        <Link
-                            text={item.name}
-                            href={item.path}
-                            style="primary"
-                            isFilled={false}
-                            borderVisible={true}
-                            data-navLink
-                            icon={{
-                                component: onIcons(item.name)?.component,
-                                side: 'left',
-                            }}
-                            target={item.name === 'RSS' ? '_blank' : '_self'}
-                        />
-                    </li>
-                ))
-            }
-        </ul>
-    </div>
-</nav>
-
-<script>
-    import '../js/nav.js'
-</script> -->
 <nav
     class="fixed top-0 left-0 w-full z-50
     bg-[#FBFBFB]
@@ -186,7 +151,10 @@ const onIcons = (name: string) => {
             <h2 class="text-lg font-semibold">
                 Mọi Thứ Trong Website Ở Đây :D
             </h2>
-            <button id="closeModal" class="text-gray-400 hover:text-gray-600">
+            <button
+                id="closeModal"
+                class="text-gray-400 hover:text-gray-600 pxhCursorPointer"
+            >
                 ✕
             </button>
         </div>

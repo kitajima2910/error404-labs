@@ -1,6 +1,6 @@
 ---
 layout: '../../layouts/BlogPostLayout.astro'
-title: '[HTMLB3LT]: Các thẻ HTML phổ biến phần 2'
+title: 'Các thẻ HTML phổ biến phần 2'
 date: 2026-01-10
 author: Phạm Xuân Hoài
 image:
