@@ -13,7 +13,7 @@ export async function GET(context) {
         sortByDate: true,
     })
 
-    console.log(blog)
+    // console.log(blog)
 
     // return new Response('')
     return rss({
