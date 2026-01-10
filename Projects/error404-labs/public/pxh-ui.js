@@ -17,31 +17,86 @@
 
 /* ############# UI ############### */
 
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('pxh-ui.js')
+;(() => {
+    // Avoid duplicate loading if Astro or HMR reload.
+    if (window.__pxh_loaded) return
+    window.__pxh_loaded = true
 
-    if (!document.body.classList.contains('pxh')) return
-
-    /* ================================
-       PXH :: Back To Top
-    ================================= */
-    {
-        const btn = document.querySelector('.pxhBackToTop')
-        if (!btn) return
-
-        window.addEventListener(
-            'scroll',
-            () => {
-                btn.style.right = window.scrollY > 500 ? '1rem' : '5000rem'
-            },
-            { passive: true },
-        )
-
-        btn.addEventListener('click', () => {
-            window.scrollTo({ top: 0, behavior: 'smooth' })
-        })
+    const ready = (fn) => {
+        if (document.readyState !== 'loading') fn()
+        else document.addEventListener('DOMContentLoaded', fn)
     }
-    /* ================================
-       PXH :: Back To Top - END
-    ================================= */
-})
+
+    ready(() => {
+        if (!document.body.classList.contains('pxh')) {
+            console.warn('[pxh-ui] body.pxh not found')
+            return
+        }
+
+        console.log('pxh-ui engine started')
+
+        /* ================= CORE ================= */
+
+        const components = []
+
+        const register = (fn) => components.push(fn)
+
+        const scan = () => {
+            components.forEach((fn) => fn())
+        }
+
+        new MutationObserver(scan).observe(document.body, {
+            childList: true,
+            subtree: true,
+        })
+
+        /* ================= Back To Top ================= */
+
+        register(() => {
+            const backToTopButton = document.querySelector('.pxhBackToTop')
+            if (!backToTopButton || backToTopButton.__pxh) return
+
+            backToTopButton.__pxh = true
+
+            let isVisible = false
+
+            backToTopButton.style.right = '-5rem'
+            backToTopButton.style.transition = 'right 0.3s ease'
+
+            const updateVisibility = () => {
+                const shouldShow = window.scrollY > 500
+
+                if (shouldShow !== isVisible) {
+                    isVisible = shouldShow
+                    backToTopButton.style.right = shouldShow ? '1rem' : '-5rem'
+                }
+            }
+
+            window.addEventListener('scroll', updateVisibility, {
+                passive: true,
+            })
+
+            backToTopButton.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' })
+            })
+
+            updateVisibility()
+        })
+
+        /* ================= Modal ================= */
+
+        register(() => {})
+
+        /* ================= Toast ================= */
+
+        register(() => {})
+
+        /* ================= Tooltip ================= */
+
+        register(() => {})
+
+        /* ================= START ================= */
+
+        scan()
+    })
+})()
