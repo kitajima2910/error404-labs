@@ -6,7 +6,7 @@ author: Phạm Xuân Hoài
 image:
     {
         src: '/images/html/cac-the-html-pho-bien-phan-1.webp',
-        alt: 'Cấu trúc cơ bản của trang HTML',
+        alt: 'Các thẻ HTML phổ biến phần 1',
     }
 description: Khám phá các thẻ HTML phổ biến nhất giúp xây dựng cấu trúc website nhanh chóng, dễ hiểu và chuẩn nền tảng cho người mới bắt đầu học lập trình web 🚀
 draft: false
