@@ -1,1 +1,0 @@
-export { default as component } from "../../../../src/routes/huong-dan-hoc/lap-trinh-web/tao-trang-web-tap-chi-dien-tu/+page.svelte";

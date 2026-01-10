@@ -1,1 +1,0 @@
-import{f as o,a as r}from"../chunks/1ECRtOeo.js";import"../chunks/DCRZB7lX.js";var t=o('<iframe src="/CodePTIT-C/Slides/1_tong_quan.pdf" width="100%" height="100%" style="border:none;" title="pdf" class="svelte-1ejwau8"></iframe>');function m(e){var a=t();r(e,a)}export{m as component};

@@ -1,1 +1,0 @@
-export { default as component } from "../../../../src/routes/huong-dan-hoc/lap-trinh-c-cpp/oj.isp88.win/+page.svelte";
