@@ -1,0 +1,23 @@
+---
+const data = [
+    'KH_C_B?',
+    'KH_CPP_B?',
+    'KH_WEB_B?',
+    'KH_GAME_B?',
+    'KH_MOBILE_B?',
+    'KH_PY_B?',
+    'KH_AI_B?',
+]
+---
+
+<marquee behavior="scroll" direction="left">
+    <div class="flex gap-5 py-3">
+        {
+            data.map((item) => (
+                <div class="border border-dashed border-blue-700 flex flex-col w-fit rounded-lg p-3 shadow-2xs/30">
+                    <p class="text-[0.5rem]">{item}</p>
+                </div>
+            ))
+        }
+    </div>
+</marquee>
