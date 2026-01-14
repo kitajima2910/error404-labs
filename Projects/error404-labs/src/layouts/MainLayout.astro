@@ -35,9 +35,44 @@ const {
 
 <script>
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Tab') {
+        if (e.key === 'Tab' || e.key === 'F12') {
             e.preventDefault()
             // TODO: focusable elements
         }
     })
+
+    // document.addEventListener('contextmenu', function (e) {
+    //     e.preventDefault() // Prevents the default right-click menu
+    //     // You can add your custom action here, such as showing a custom menu
+    //     console.log('Right-click action prevented; custom action goes here.')
+    // })
+
+    // https://www.jqueryscript.net/menu/simple-dynamic-context-menu.html
+    // @ts-ignore
+    $("body").simpleContextMenu({
+        class: null,
+        onShow: function () {
+          console.log("context menu shown");
+        },
+        onHide: function () {
+          console.log("context menu hide");
+        },
+        options: [
+          {
+            label: "Algorithms Basic",
+            icon: '<i class="fa fa-cog"></i>',
+            action: () => alert("Algorithms Basic"),
+          },
+          {
+            label: "Algorithms Advanced",
+            icon: '<i class="fa fa-rocket"></i>',
+            action: () => alert("Algorithms Advanced"),
+          },
+          {
+            label: "DSA",
+            icon: '<i class="fa fa-code"></i>',
+            action: () => alert("DSA"),
+          },
+        ],
+      });
 </script>
