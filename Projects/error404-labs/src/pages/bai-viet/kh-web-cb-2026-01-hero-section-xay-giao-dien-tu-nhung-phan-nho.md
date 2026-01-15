@@ -5,12 +5,12 @@ date: 2026-01-14
 author: Phạm Xuân Hoài
 image:
     {
-        src: '/images/kh_web_2026_01/kh-web-2026-01-hero-section-xay-giao-dien-tu-nhung-phan-nho.avif',
+        src: '/images/kh_web_cb_2026_01/kh-web-cb-2026-01-hero-section-xay-giao-dien-tu-nhung-phan-nho.avif',
         alt: 'Hero Section – Xây giao diện từ những phần nhỏ',
     }
 description: Trong bài này, chúng ta sẽ xây dựng Hero Section – phần mở đầu của một website. Thay vì code một giao diện lớn ngay từ đầu, ta sẽ chia nhỏ giao diện thành từng phần, hoàn thành từng phần theo level, rồi ghép lại thành một UI hoàn chỉnh.
 draft: false
-category: KH_WEB_2026_01
+category: KH_WEB_CB_2026_01
 ---
 
 ## 🎯 Mục tiêu bài học

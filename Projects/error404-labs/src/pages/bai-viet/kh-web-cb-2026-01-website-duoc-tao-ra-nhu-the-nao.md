@@ -5,12 +5,12 @@ date: 2026-01-13
 author: Phạm Xuân Hoài
 image:
     {
-        src: '/images/kh_web_2026_01/kh-web-2026-01-website-duoc-tao-ra-nhu-the-nao.avif',
+        src: '/images/kh_web_cb_2026_01/kh-web-cb-2026-01-website-duoc-tao-ra-nhu-the-nao.avif',
         alt: '📘 Website được tạo ra như thế nào?',
     }
 description: Từ vài dòng chữ ✍️, hình ảnh 🖼️ và một chút “phép thuật” 💫 của HTML & CSS, cả thế giới web đã ra đời! Cùng khám phá hành trình biến ý tưởng 💡 thành một website sống động nhé 🚀💻
 draft: false
-category: KH_WEB_2026_01
+category: KH_WEB_CB_2026_01
 ---
 
 ## 🌍 Website là gì?
