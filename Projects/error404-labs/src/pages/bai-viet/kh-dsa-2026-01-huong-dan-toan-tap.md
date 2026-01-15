@@ -8,7 +8,7 @@ image:
         src: '/images/kh_dsa_2026_01/kh-dsa-2026-01-huong-dan-toan-tap.avif',
         alt: '🚀 Hướng dẫn toàn tập',
     }
-description: Hướng dẫn toàn tập – chuẩn cho người mới học lập trình 👇
+description: Hướng dẫn toàn tập – chuẩn cho người mới học lập trình
 draft: false
 category: KH_DSA_2026_01
 ---
