@@ -33,7 +33,7 @@
             return
         }
 
-        console.log('pxh-ui engine started')
+        // console.log('pxh-ui engine started')
 
         /* ================= CORE ================= */
 
