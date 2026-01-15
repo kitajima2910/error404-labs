@@ -35,7 +35,7 @@ const {
 
 <script>
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Tab' || e.key === 'F12') {
+        if (e.key === 'Tab') {
             e.preventDefault()
             // TODO: focusable elements
         }
@@ -49,30 +49,32 @@ const {
 
     // https://www.jqueryscript.net/menu/simple-dynamic-context-menu.html
     // @ts-ignore
-    $("body").simpleContextMenu({
+    $('body').simpleContextMenu({
         class: null,
         onShow: function () {
-          console.log("context menu shown");
+            console.log('context menu shown')
         },
         onHide: function () {
-          console.log("context menu hide");
+            console.log('context menu hide')
         },
         options: [
-          {
-            label: "Algorithms Basic",
-            icon: '<i class="fa fa-cog"></i>',
-            action: () => alert("Algorithms Basic"),
-          },
-          {
-            label: "Algorithms Advanced",
-            icon: '<i class="fa fa-rocket"></i>',
-            action: () => alert("Algorithms Advanced"),
-          },
-          {
-            label: "DSA",
-            icon: '<i class="fa fa-code"></i>',
-            action: () => alert("DSA"),
-          },
+            {
+                label: 'Algorithms Basic',
+                icon: '<i class="fa fa-cog"></i>',
+                action: () => alert('Algorithms Basic'),
+            },
+            {
+                label: 'Algorithms Advanced',
+                icon: '<i class="fa fa-rocket"></i>',
+                action: () => alert('Algorithms Advanced'),
+            },
+            {
+                label: 'DSA',
+                icon: '<i class="fa fa-code"></i>',
+                action: () =>
+                    (window.location.href =
+                        '/bai-viet/kh-dsa-2026-01-cau-truc-du-lieu-va-giai-thuat'),
+            },
         ],
-      });
+    })
 </script>
