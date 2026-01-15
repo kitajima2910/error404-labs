@@ -142,6 +142,9 @@ Khóa học dành cho:
         <a href="/bai-viet/kh-dsa-2026-01-cau-truc-du-lieu-mang-array" target="_blank" class="block">
             <i class="fa fa-file-code-o" aria-hidden="true"></i> Cấu trúc dữ liệu mảng - Array
         </a>
+        <a href="/bai-viet/kh-dsa-2026-01-cau-truc-du-lieu-mang-cap-nhat-phan-tu" target="_blank" class="block">
+            <i class="fa fa-file-code-o" aria-hidden="true"></i> Cấu trúc dữ liệu mảng - cập nhật phần tử
+        </a>
     </div>
 </div>
 
