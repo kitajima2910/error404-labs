@@ -1,16 +1,16 @@
 ---
 layout: '../../layouts/BlogPostLayout.astro'
-title: 'Cấu trúc dữ liệu mảng – cập nhật phần tử ✨'
+title: '📦 Cấu trúc dữ liệu mảng – cập nhật phần tử'
 date: 2026-01-18
 author: Phạm Xuân Hoài
 image:
     {
-        src: '/images/kh_dsa_2026_01/kh-dsa-2026-01-cau-truc-du-lieu-mang-cap-nhat-phan-tu.avif',
-        alt: 'Cấu trúc dữ liệu mảng – cập nhật phần tử ✨',
+        src: '/images/kh_dsa_c_2026_01/kh-dsa-c-2026-01-cau-truc-du-lieu-mang-cap-nhat-phan-tu.avif',
+        alt: '📦 Cấu trúc dữ liệu mảng – cập nhật phần tử',
     }
 description: Hướng dẫn đầy đủ, dễ hiểu cho bài Cấu trúc dữ liệu mảng – cập nhật phần tử ✨
 draft: false
-category: KH_DSA_2026_01
+category: KH_DSA_C_2026_01
 ---
 
 ## 📌 Mô tả bài toán

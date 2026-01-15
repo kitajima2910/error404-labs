@@ -5,12 +5,12 @@ date: 2026-01-16
 author: Phạm Xuân Hoài
 image:
     {
-        src: '/images/kh_dsa_2026_01/kh-dsa-2026-01-huong-dan-toan-tap.avif',
+        src: '/images/kh_dsa_c_2026_01/kh-dsa-c-2026-01-huong-dan-toan-tap.avif',
         alt: '🚀 Hướng dẫn toàn tập',
     }
 description: Hướng dẫn toàn tập – chuẩn cho người mới học lập trình
 draft: false
-category: KH_DSA_2026_01
+category: KH_DSA_C_2026_01
 ---
 
 Dưới đây là **hướng dẫn toàn tập – chuẩn cho người mới học lập trình** 👇

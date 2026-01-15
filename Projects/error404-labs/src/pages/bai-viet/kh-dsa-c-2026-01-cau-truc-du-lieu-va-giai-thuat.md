@@ -5,12 +5,12 @@ date: 2026-01-15
 author: Phạm Xuân Hoài
 image:
     {
-        src: '/images/kh_dsa_2026_01/kh-dsa-2026-01-cau-truc-du-lieu-va-giai-thuat.avif',
+        src: '/images/kh_dsa_c_2026_01/kh-dsa-c-2026-01-cau-truc-du-lieu-va-giai-thuat.avif',
         alt: '🚀 Giới thiệu khóa học Cấu trúc dữ liệu & Giải thuật',
     }
 description: Cấu trúc dữ liệu và Giải thuật (Data Structures & Algorithms – DSA) là nền tảng cốt lõi của lập trình hiện đại. Khóa học này được thiết kế nhằm giúp bạn hiểu sâu cách dữ liệu được tổ chức, cách thuật toán vận hành, và cách áp dụng chúng để giải quyết bài toán một cách tối ưu.
 draft: false
-category: KH_DSA_2026_01
+category: KH_DSA_C_2026_01
 ---
 
 **Cấu trúc dữ liệu và Giải thuật (Data Structures & Algorithms – DSA)** là nền tảng cốt lõi của lập trình hiện đại.
@@ -144,6 +144,9 @@ Khóa học dành cho:
         </a>
         <a href="/bai-viet/kh-dsa-2026-01-cau-truc-du-lieu-mang-cap-nhat-phan-tu" target="_blank" class="block">
             <i class="fa fa-file-code-o" aria-hidden="true"></i> Cấu trúc dữ liệu mảng - cập nhật phần tử
+        </a>
+        <a href="/bai-viet/kh-dsa-2026-01-cau-truc-du-lieu-mang-chen-phan-tu" target="_blank" class="block">
+            <i class="fa fa-file-code-o" aria-hidden="true"></i> Cấu trúc dữ liệu mảng - chèn phần tử
         </a>
     </div>
 </div>

@@ -5,12 +5,12 @@ date: 2026-01-17
 author: Phạm Xuân Hoài
 image:
     {
-        src: '/images/kh_dsa_2026_01/kh-dsa-2026-01-cau-truc-du-lieu-mang-array.avif',
+        src: '/images/kh_dsa_c_2026_01/kh-dsa-c-2026-01-cau-truc-du-lieu-mang-array.avif',
         alt: '📦 Cấu trúc dữ liệu mảng – Array',
     }
 description: Mảng là một cấu trúc dữ liệu dùng để lưu trữ nhiều giá trị cùng kiểu dữ liệu trong cùng một biến. Các phần tử trong mảng được truy cập thông qua chỉ số (index), bắt đầu từ 0.
 draft: false
-category: KH_DSA_2026_01
+category: KH_DSA_C_2026_01
 ---
 
 ### 🔹 Mảng (Array) là gì?
