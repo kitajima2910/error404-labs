@@ -151,6 +151,9 @@ Khóa học dành cho:
         <a href="/bai-viet/kh-dsa-c-2026-01-cau-truc-du-lieu-mang-xoa-phan-tu" target="_blank" class="block">
             <i class="fa fa-file-code-o" aria-hidden="true"></i> Cấu trúc dữ liệu mảng - Xóa phần tử
         </a>
+        <a href="/bai-viet/kh-dsa-c-2026-01-array-data-structure-sequence-of-prime-numbers" target="_blank" class="block">
+            <i class="fa fa-file-code-o" aria-hidden="true"></i> Array data structure - Sequence of prime numbers
+        </a>
     </div>
 </div>
 
