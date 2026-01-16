@@ -70,7 +70,7 @@ Mỗi **Phần** đều học theo **3 Level**:
 Cho icon:
 
 - https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css
-- https://fontawesome.com/icons
+- https://fontawesome.com/v4/icons/
 
 ```html
 <div class="icon">
