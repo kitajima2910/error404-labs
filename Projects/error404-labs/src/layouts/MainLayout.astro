@@ -34,10 +34,35 @@ const {
 </html>
 
 <script>
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Tab' || e.key === 'F12') {
+    document.addEventListener('keydown', function (e) {
+        // Ctrl + U
+        if (e.ctrlKey && e.key.toLowerCase() === 'u') {
             e.preventDefault()
-            // TODO: focusable elements
+            return false
+        }
+
+        // F12
+        if (e.key === 'F12') {
+            e.preventDefault()
+            return false
+        }
+
+        // Ctrl + Shift + I (DevTools)
+        if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'i') {
+            e.preventDefault()
+            return false
+        }
+
+        // Ctrl + Shift + J (Console)
+        if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'j') {
+            e.preventDefault()
+            return false
+        }
+
+        // Tab
+        if (e.key === 'Tab') {
+            e.preventDefault()
+            return false
         }
     })
 
