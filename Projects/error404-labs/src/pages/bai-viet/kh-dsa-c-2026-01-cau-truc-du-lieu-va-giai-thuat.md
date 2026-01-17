@@ -157,6 +157,9 @@ Khóa học dành cho:
         <a href="/bai-viet/kh-dsa-c-2026-01-cau-truc-du-lieu-mang-mang-danh-dau" target="_blank" class="block">
             <i class="fa fa-file-code-o" aria-hidden="true"></i> Cấu trúc dữ liệu mảng - Mảng đánh dấu
         </a>
+        <a href="/bai-viet/kh-dsa-c-2026-01-cau-truc-du-lieu-day-day-so-don-dieu" target="_blank" class="block">
+            <i class="fa fa-file-code-o" aria-hidden="true"></i> Cấu trúc dữ liệu dãy - Dãy số đơn điệu
+        </a>
     </div>
 </div>
 
