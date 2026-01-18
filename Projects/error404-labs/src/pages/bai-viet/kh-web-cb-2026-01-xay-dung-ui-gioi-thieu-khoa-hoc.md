@@ -302,7 +302,7 @@ Phần này **chưa cần màu mè**, vì đây là khung tổng.
 ## 👉 Tham khảo code
 
 <details>
-    <summary>Tham khảo code</summary>
+    <summary>Xem code</summary>
 
 ```html
 <!-- index.html -->
