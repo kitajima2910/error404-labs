@@ -176,6 +176,9 @@ Vì chỉ có **2 khả năng**:
 
 ## 📌 Code kỹ thuật lập trình (ĐẦY ĐỦ)
 
+<details>
+<summary>Xem code</summary>
+
 ```c
 #include <stdio.h>
 
@@ -261,6 +264,8 @@ void xuatMang(int len, int arr[]) {
     }
 }
 ```
+
+</details>
 
 ---
 
