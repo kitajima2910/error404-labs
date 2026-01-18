@@ -1,280 +1,363 @@
 ---
 layout: '../../layouts/BlogPostLayout.astro'
-title: '📘 Xây Dựng UI - Thu Thập E-Mail'
+title: '📘 Xây dựng UI - Thu Thập E-Mail'
 date: 2026-01-16
 author: Phạm Xuân Hoài
 image:
     {
         src: '/images/kh_web_cb_2026_01/kh-web-cb-2026-01-ui-ve-thu-thap-email.avif',
-        alt: '📘 Xây Dựng UI - Thu Thập E-Mail',
+        alt: '📘 Xây dựng UI - Thu Thập E-Mail',
     }
 description: Bài viết hướng dẫn từng bước từ phân tích giao diện, chia bố cục, chia level học cho đến ghép UI hoàn chỉnh. Phù hợp cho người mới học frontend, học sinh – sinh viên và giáo viên dạy lập trình.
 draft: false
 category: KH_WEB_CB_2026_01
 ---
 
-👉 **Mục tiêu của bài học**
+## 🧠 UI là gì? (Hiểu trước khi làm)
 
-- Hiểu **UI là gì**
-- Biết cách **chia UI thành từng phần**
-- Mỗi phần học theo **3 level: HTML → CSS → Trang trí**
-- Cuối cùng **ghép lại thành 1 giao diện hoàn chỉnh**
+**UI (User Interface)** là **giao diện người dùng** – những gì ta **nhìn thấy và bấm vào** trên website/app:
 
-Chúng ta học theo thứ tự rất dễ nhớ:
+- Chữ ✍️
+- Nút bấm 🔘
+- Ô nhập email 📩
+- Màu sắc 🎨
+- Khoảng cách 📐
+
+👉 **UI giống như một bức tranh LEGO**
+Muốn xây được → **phải tách từng mảnh nhỏ ra trước**
+
+---
+
+## 🧩 Sơ đồ học UI (Cách học CHUẨN cho người mới)
+
+```
+UI
+├── Phần 1 – Level 1: HTML | Level 2: CSS | Level 3: Trang trí
+├── Phần 2 – Level 1: HTML | Level 2: CSS | Level 3: Trang trí
+├── Phần 3 – Level 1: HTML | Level 2: CSS | Level 3: Trang trí
+└── Phần 4 – Level 1: HTML | Level 2: CSS | Level 3: Trang trí
+```
+
+📌 **Thứ tự học đúng:**
 
 > **UI → Chia phần → Chia level → Ghép lại**
 
 ---
 
-## 🎨 UI là gì? (Nói cho dễ hiểu)
+# 🧱 PHẦN 1: KHUNG UI (CÁI HỘP LỚN)
 
-**UI (User Interface)** là **giao diện người dùng** – tức là **những gì mắt mình nhìn thấy** trên website:
+## 🔹 Level 1 – HTML: Tạo khung UI
 
-- Chữ
-- Hình
-- Nút bấm
-- Ô nhập liệu
+HTML giống như **xây nhà bằng gạch**, chưa cần đẹp.
 
-💡 Ví dụ:
+```html
+<section class="invite"></section>
+```
 
-- Biểu tượng ✉️
-- Dòng chữ “Khơi Dậy Sáng Tạo & Tư Duy”
-- Ô nhập email + nút “Nhận Tư Vấn”
+📌 Giải thích:
 
-➡️ Tất cả gọi chung là **UI**
+- `<section>` = **một khu vực**
+- `invite` = **đặt tên để lát nữa trang trí**
+
+👉 Lúc này UI **chưa thấy gì**, chỉ là khung vô hình.
 
 ---
 
-# 🧩 Cấu trúc UI tổng thể (Sơ đồ)
+## 🔹 Level 2 – CSS: Cho khung có hình dạng
 
+```css
+.invite {
+    background-color: #f2f2f2;
+    width: 100%;
+    max-width: 1024px;
+    margin: 0 auto;
+    padding: 20px;
+}
 ```
-UI
- ├── Phần 1 – Icon + Tiêu đề
- ├── Phần 2 – Mô tả nội dung
- ├── Phần 3 – Ô nhập + Nút bấm
- └── Phần 4 – Khung nền & canh giữa
-```
 
-Mỗi **Phần** đều học theo **3 Level**:
+🧠 Hiểu đơn giản:
 
-- 🧱 **Level 1 – HTML**: Xây khung
-- 🎨 **Level 2 – CSS**: Làm gọn gàng
-- ✨ **Level 3 – Trang trí**: Làm đẹp – vui – sinh động
+- `background-color` → tô màu nền
+- `max-width` → không cho UI quá rộng
+- `margin: 0 auto` → căn giữa
+- `padding` → chừa chỗ cho nội dung thở 😄
 
 ---
 
-# 🧩 PHẦN 1 – ICON + TIÊU ĐỀ
+## 🔹 Level 3 – Trang trí: Nhìn cho “ra UI”
 
-## 🧱 Level 1 – HTML (Xây khung)
+➡️ Chỉ cần **màu nền + căn giữa** là đã thấy **một khối UI rõ ràng**
+
+---
+
+# 🧱 PHẦN 2: BIỂU TƯỢNG (ICON)
 
 Cho icon:
 
 - https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css
 - https://fontawesome.com/v4/icons/
 
+## 🔹 Level 1 – HTML: Thêm icon
+
 ```html
 <div class="icon">
     <i class="fa fa-envelope-o"></i>
-</div>
-
-<div class="title">
-    <h2>Khơi Dậy Sáng Tạo & Tư Duy</h2>
 </div>
 ```
 
 📌 Giải thích:
 
-- `div` giống như **hộp đồ**
-- `h2` là **chữ to (tiêu đề)**
-- `i` là **icon hình cái thư**
+- `<div>` = cái hộp nhỏ
+- `<i>` = icon (lá thư 📩)
 
 ---
 
-## 🎨 Level 2 – CSS (Sắp xếp gọn gàng)
+## 🔹 Level 2 – CSS: Làm icon tròn
 
 ```css
-.icon {
+.invite .icon {
+    border: 2px solid #5ac6d0;
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    border: 2px solid #5ac6d0;
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 30px auto;
-}
-
-.title {
-    text-align: center;
+    margin: 0 auto;
 }
 ```
 
-📌 Hiểu đơn giản:
+🧠 Cho học sinh:
 
-- `border-radius: 50%` → làm **hình tròn**
-- `margin: auto` → **canh giữa**
-- `text-align: center` → chữ nằm giữa
+- `border-radius: 50%` → hình tròn 🎯
+- `flex` → căn icon vào giữa
 
 ---
 
-## ✨ Level 3 – Trang trí
+## 🔹 Level 3 – Trang trí: Tô màu icon
 
 ```css
-.icon i {
+.invite .icon i {
     color: #5ac6d0;
     font-size: 20px;
 }
 ```
 
-🎯 Kết quả:
-
-- Icon có màu
-- Nhìn **dễ thương & rõ ràng**
+🎨 UI bắt đầu **có cảm xúc**
 
 ---
 
-# 🧩 PHẦN 2 – MÔ TẢ NỘI DUNG
+# 🧱 PHẦN 3: TIÊU ĐỀ & MÔ TẢ
 
-## 🧱 Level 1 – HTML
+## 🔹 Level 1 – HTML: Văn bản
 
 ```html
-<div class="description">
-    <p>
-        Vừa vẽ tranh, vừa học lập trình cơ bản qua trò chơi và hoạt động sáng
-        tạo mỗi ngày.
-    </p>
-</div>
+<h2 class="title">Khơi Dậy Sáng Tạo & Tư Duy</h2>
+<p class="description">Vừa vẽ tranh, vừa học lập trình cơ bản qua trò chơi.</p>
 ```
 
 ---
 
-## 🎨 Level 2 – CSS
+## 🔹 Level 2 – CSS: Căn giữa & làm rõ chữ
 
 ```css
-.description {
+.invite .title {
     text-align: center;
 }
-```
 
-📌 Chỉ cần vậy là đủ cho người mới 👍
-
----
-
-## ✨ Level 3 – Trang trí (tùy chọn)
-
-```css
-.description p {
-    font-size: 16px;
-    color: #333;
+.invite .description {
+    text-align: center;
+    font-weight: 600;
 }
-```
-
----
-
-# 🧩 PHẦN 3 – Ô NHẬP & NÚT BẤM
-
-## 🧱 Level 1 – HTML
-
-```html
-<div class="form">
-    <form action="" method="get">
-        <input type="text" placeholder="Nhập email" />
-        <button>Nhận Tư Vấn</button>
-    </form>
-</div>
 ```
 
 📌 Giải thích:
 
-- `input` → ô gõ chữ
-- `button` → nút bấm
+- `text-align: center` → chữ ra giữa
+- `font-weight: 600` → chữ đậm vừa
 
 ---
 
-## 🎨 Level 2 – CSS
+## 🔹 Level 3 – Trang trí: Tạo cảm giác “giáo dục – thân thiện”
 
-```css
-form {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 30px;
-}
-```
+➡️ Chữ **không quá to – không quá nhỏ**
 
-📌 Hiểu như xếp lego:
-
-- `flex-direction: column` → xếp **từ trên xuống**
-- `gap` → khoảng cách giữa các món
+➡️ Dễ đọc cho trẻ em
 
 ---
 
-## ✨ Level 3 – Trang trí
+# 🧱 PHẦN 4: FORM NHẬP EMAIL
 
-```css
-form input {
-    padding: 10px;
-    border-radius: 5px;
-}
-
-form button {
-    background-color: #5ac6d0;
-    color: white;
-    border-radius: 5px;
-    padding: 10px;
-}
-```
-
-🎯 Nhìn giống **website thật**
-
----
-
-# 🧩 PHẦN 4 – KHUNG NỀN (BAO TẤT CẢ)
-
-## 🧱 Level 1 – HTML
+## 🔹 Level 1 – HTML: Form
 
 ```html
-<section class="get-the-invite">
-    <!-- tất cả các phần nằm trong đây -->
-</section>
+<form>
+    <input type="text" placeholder="Nhập email" />
+    <button>Nhận Tư Vấn</button>
+</form>
+```
+
+📌 Giải thích:
+
+- `input` → ô gõ chữ ✍️
+- `button` → nút bấm 🔘
+
+---
+
+## 🔹 Level 2 – CSS: Xếp dọc, căn giữa
+
+```css
+.invite form {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    align-items: center;
+}
 ```
 
 ---
 
-## 🎨 Level 2 – CSS
+## 🔹 Level 3 – Trang trí: Làm nút đẹp
 
 ```css
-.get-the-invite {
+.invite form input {
+    width: 100%;
+    max-width: 30%;
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+}
+
+.invite form button {
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #5ac6d0;
+    border: none;
+    color: #fff;
+}
+```
+
+🎉 **Lúc này UI đã hoàn chỉnh**
+
+---
+
+# 🧠 TỔNG KẾT – TƯ DUY UI CHUẨN CHO NGƯỜI MỚI
+
+✅ **Không học lan man**
+
+✅ **Không copy mù**
+
+✅ **Hiểu từng khối**
+
+📌 Công thức nhớ mãi:
+
+> **UI → Chia phần → Mỗi phần 3 level → Ghép lại**
+
+---
+
+## 📝 Tham khảo code
+
+<details>
+    <summary>Xem code</summary>
+
+```html
+<!-- index.html -->
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Tiêu đề trang web</title>
+        <link rel="stylesheet" href="main.css" />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+        />
+    </head>
+
+    <body>
+        <section class="invite">
+            <div class="icon">
+                <i class="fa fa-envelope-o" aria-hidden="true"></i>
+            </div>
+            <h2 class="title">Khơi Dậy Sáng Tạo & Tư Duy</h2>
+            <p class="description">
+                Vừa vẽ tranh, vừa học lập trình cơ bản qua trò chơi và hoạt động
+                sáng tạo mỗi ngày.
+            </p>
+            <form action="" method="get">
+                <input type="text" placeholder="Nhập email" />
+                <button>Nhận Tư Vấn</button>
+            </form>
+        </section>
+    </body>
+</html>
+```
+
+```css
+/* main.css */
+.invite {
     background-color: #f2f2f2;
+    /* border: 1px solid #000; */
+
+    width: 100%;
     max-width: 1024px;
+
+    margin: 0 auto;
+
+    padding: 20px;
+}
+
+.invite .icon {
+    border: 2px solid #5ac6d0;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
     margin: 0 auto;
 }
-```
 
-📌 `margin: 0 auto` → canh giữa trang web
+.invite .icon i {
+    color: #5ac6d0;
+    font-size: 20px;
+}
 
----
+.invite .title {
+    text-align: center;
+}
 
-## ✨ Level 3 – Trang trí
+.invite .description {
+    text-align: center;
+    font-weight: 600;
+}
 
-```css
-.get-the-invite {
-    border: 1px solid #000;
+.invite form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    flex-direction: column;
+    gap: 30px;
+}
+
+.invite form input {
+    width: 100%;
+    max-width: 30%;
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+}
+
+.invite form button {
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #5ac6d0;
+    border: none;
+    color: #fff;
 }
 ```
 
----
-
-# 🧠 TỔNG KẾT CHO HỌC SINH
-
-👉 Khi làm UI, hãy nhớ:
-
-1. **Không làm tất cả cùng lúc**
-2. Luôn đi theo thứ tự:
-
-    ```
-    HTML → CSS → Trang trí
-    ```
-
-3. Mỗi phần làm xong mới sang phần khác
-4. UI giống như **xếp hình Lego** 🧩
+</details>
