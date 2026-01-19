@@ -13,70 +13,63 @@ draft: false
 category: KH_WEB_CB_2026_01
 ---
 
-## 🌍 Website là gì?
+### 🌍 Website là gì?
 
-👉 Website là **một trang hiển thị trên trình duyệt** (Chrome, Edge, Safari…)
+👉 **Website** là những trang bạn nhìn thấy khi mở trình duyệt như **Chrome, Edge, Safari…**
 
-Trình duyệt sẽ:
+Khi bạn mở một website, trình duyệt sẽ:
 
-- Đọc **HTML** → hiểu cấu trúc
-- Đọc **CSS** → hiểu cách hiển thị
-- Rồi vẽ ra màn hình cho người dùng xem
+- 📄 Đọc **HTML** để hiểu cấu trúc
+- 🎨 Đọc **CSS** để biết cách hiển thị
+- 🖥️ Vẽ toàn bộ giao diện ra màn hình
 
----
-
-## 🧱 Website được tạo từ mấy phần?
-
-Một website cơ bản gồm **3 phần chính**:
-
-```
-HTML  → Khung xương
-CSS   → Quần áo
-Browser → Người vẽ ra màn hình
-```
-
-👉 Trong khóa này, chúng ta tập trung vào **HTML & CSS**.
+👉 Trình duyệt giống như **người vẽ**, còn HTML & CSS là **bản thiết kế**.
 
 ---
 
-## 🧩 HTML dùng để làm gì?
+### 🧱 Website gồm những phần nào?
 
-HTML trả lời câu hỏi:
+Một website cơ bản có **3 phần chính**:
 
-> “Đây là cái gì?”
+- **HTML** → Tạo cấu trúc (tiêu đề, chữ, hình, nút…)
+- **CSS** → Trang trí (màu sắc, kích thước, vị trí…)
+- **Browser** → Hiển thị ra màn hình
 
-Ví dụ:
-
-- Đây là **tiêu đề**
-- Đây là **đoạn chữ**
-- Đây là **hình ảnh**
-- Đây là **nút bấm**
-
-HTML **không làm đẹp**, chỉ nói cho trình duyệt biết:
-
-> “Phần này là gì”
+👉 Trong khóa học này, chúng ta tập trung vào **HTML & CSS**.
 
 ---
 
-## 🎨 CSS dùng để làm gì?
+### 🧩 HTML là gì?
 
-CSS trả lời câu hỏi:
+HTML dùng để **xây dựng nội dung và cấu trúc** cho website.
 
-> “Nó trông như thế nào?”
+Nhờ HTML, trình duyệt biết:
 
-Ví dụ:
+- Phần nào là tiêu đề
+- Phần nào là đoạn văn
+- Phần nào là hình ảnh, nút bấm
 
-- Chữ to hay nhỏ?
-- Màu gì?
-- Nằm bên trái hay ở giữa?
-
-👉 **HTML + CSS = website hoàn chỉnh**
+👉 HTML **không làm đẹp**, chỉ tạo khung.
 
 ---
 
-## 🧱 Khung HTML cơ bản (Boilerplate)
+### 🎨 CSS là gì?
 
-Mọi website HTML đều bắt đầu từ **một khung cơ bản**:
+CSS dùng để **làm đẹp giao diện** cho website.
+
+CSS quyết định:
+
+- Chữ to hay nhỏ
+- Màu sắc
+- Bố cục trái – phải – giữa
+
+👉 Không có CSS, website vẫn chạy nhưng **rất xấu** 😅
+
+---
+
+### 🧱 Khung HTML cơ bản (Boilerplate)
+
+Mọi website HTML đều bắt đầu từ một khung chuẩn:
 
 ```html
 <!DOCTYPE html>
@@ -90,46 +83,38 @@ Mọi website HTML đều bắt đầu từ **một khung cơ bản**:
 </html>
 ```
 
----
+**Giải thích nhanh:**
 
-### Giải thích ngắn gọn từng phần
+- `<!DOCTYPE html>` → Khai báo HTML hiện đại
+- `<head>` → Thông tin cho trình duyệt
+- `<body>` → Toàn bộ giao diện người dùng nhìn thấy
 
-- `<!DOCTYPE html>`
-  → Báo cho trình duyệt biết: **đây là HTML hiện đại**
-
-- `<head>`
-  → Nơi chứa **thông tin cho trình duyệt**
-  (không hiển thị ra màn hình)
-
-- `<body>`
-  → Nơi chứa **tất cả những gì người dùng nhìn thấy**
-
-👉 **Tất cả UI bạn học sau này đều nằm trong `<body>`**
+👉 Tất cả UI sau này đều nằm trong `<body>`.
 
 ---
 
-## 🎯 Trong khóa này, chúng ta học như thế nào?
+### 🎯 Cách học trong khóa này
 
-Chúng ta **không học HTML & CSS rời rạc**.
+Chúng ta học theo **cách làm thật**:
 
-Thay vào đó:
+1. Nhìn giao diện mẫu
+2. Chia thành các khối nhỏ
+3. Viết HTML cho từng khối
+4. Dùng CSS để trang trí
+5. Ghép lại thành website hoàn chỉnh
 
-1. Nhìn một giao diện (UI)
-2. Chia UI thành phần nhỏ
-3. Viết HTML cho từng phần
-4. Dùng CSS làm đẹp
-5. Ghép lại thành website
-
-👉 Đây là **cách frontend developer làm việc ngoài đời**
+👉 Học tới đâu, **làm được tới đó**.
 
 ---
 
-## 🚀 Kết thúc bài mở đầu
+### 🚀 Kết thúc bài mở đầu
 
 Từ bài sau:
 
-- Chúng ta **bắt đầu làm UI thật**
-- Không nói lý thuyết dài
-- Mỗi bài đều ra **một phần của website**
+- Bắt đầu làm UI thật
+- Ít lý thuyết, nhiều thực hành
+- Mỗi bài là một phần của website
 
-> _Website không khó – chỉ là nhiều mảnh nhỏ ghép lại đúng chỗ._
+👉 **Website không khó**
+
+👉 Chỉ cần ghép đúng từng mảnh nhỏ 🧩
