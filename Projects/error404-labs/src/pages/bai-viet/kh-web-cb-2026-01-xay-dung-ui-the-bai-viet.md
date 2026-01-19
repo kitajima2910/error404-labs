@@ -54,7 +54,7 @@ Nhìn vào giao diện, ta thấy có:
 ## 🟢 Level 1 – HTML
 
 ```html
-<div class="article">...</div>
+<section class="article">...</section>
 ```
 
 👉 Đây là **cái hộp lớn**, chứa toàn bộ UI.
@@ -305,7 +305,7 @@ Nhìn vào giao diện, ta thấy có:
     </head>
 
     <body>
-        <div class="article">
+        <section class="article">
             <h1 class="title">Học Vẽ & Lập Trình Chuẩn</h1>
             <div class="card">
                 <img src="https://placehold.co/700x400" alt="Ảnh Đẹp" />
@@ -322,7 +322,7 @@ Nhìn vào giao diện, ta thấy có:
                 phù hợp cho người mới bắt đầu yêu thích sáng tạo và công nghệ.
             </p>
             <button class="btn">Khám Phá Ngay</button>
-        </div>
+        </section>
     </body>
 </html>
 ```
