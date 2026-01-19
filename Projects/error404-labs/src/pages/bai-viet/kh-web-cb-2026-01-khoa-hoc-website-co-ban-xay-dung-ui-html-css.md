@@ -80,5 +80,14 @@ Bạn không chỉ **hiểu** HTML + CSS, mà còn **tạo ra được một web
         <a href="/bai-viet/kh-web-cb-2026-01-xay-dung-ui-gioi-thieu-khoa-hoc" target="_blank" class="block">
             <i class="fa fa-file-code-o" aria-hidden="true"></i> Xây dựng UI - Giới Thiệu Khóa Học
         </a>
+        <a href="/bai-viet/kh-web-cb-2026-01-xay-dung-ui-the-bai-viet" target="_blank" class="block">
+            <i class="fa fa-file-code-o" aria-hidden="true"></i> Xây dựng UI - Thẻ Bài Viết
+        </a>
     </div>
 </div>
+
+---
+
+<br/>
+
+##### 📌 Tham khảo: Học web chuẩn
