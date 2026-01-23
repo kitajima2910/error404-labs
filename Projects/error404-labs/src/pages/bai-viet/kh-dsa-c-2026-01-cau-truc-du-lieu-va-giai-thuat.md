@@ -132,6 +132,9 @@ Khóa học dành cho:
         <li>
             <a href="#tabs-1">Level 1</a>
         </li>
+        <li>
+            <a href="#tabs-2">Level 2</a>
+        </li>
     </ul>
     <div id="tabs-1">
         <h4 class="font-semibold">📦 Cấu trúc dữ liệu mảng</h4>
@@ -165,6 +168,13 @@ Khóa học dành cho:
         </a>
         <a href="/bai-viet/kh-dsa-c-2026-01-cau-truc-du-lieu-mang-gioi-thieu-mang-hai-chieu" target="_blank" class="block">
             <i class="fa fa-file-code-o" aria-hidden="true"></i> Cấu trúc dữ liệu mảng - Giới thiệu mảng hai chiều
+        </a>
+    </div>
+    <div id="tabs-2">
+        <h4 class="font-semibold">📚 Ngăn xếp và hàng đợi</h4>
+        <hr class="py-2" />
+        <a href="/bai-viet/kh-dsa-c-2026-01-cau-truc-du-lieu-ngan-xep" target="_blank" class="block">
+            <i class="fa fa-file-code-o" aria-hidden="true"></i> Cấu trúc dữ liệu ngăn xếp
         </a>
     </div>
 </div>
