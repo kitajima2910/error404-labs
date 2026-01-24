@@ -1,5 +1,4 @@
 ---
-import { fade } from 'astro:transitions'
 import { TC_TITLE } from '../common/TextConst'
 import Link from '../components/Link.astro'
 import PostCard from '../components/PostCard.astro'
@@ -113,16 +112,19 @@ const Facebook = 'https://www.facebook.com/kitajima2910'
                 Bài Viết Dành Cho Bạn
             </h2>
             <div
+                id="post-list"
                 class="custom-grid"
                 style={`max-width: ${length > 1 ? '100%' : '400px'}`}
             >
                 {
                     formattedPosts.map((post) => (
-                        <PostCard
-                            frontmatter={post.frontmatter}
-                            url={post.url}
-                            tagType="h3"
-                        />
+                        <div class="post">
+                            <PostCard
+                                frontmatter={post.frontmatter}
+                                url={post.url}
+                                tagType="h3"
+                            />
+                        </div>
                     ))
                 }
             </div>
@@ -139,3 +141,21 @@ const Facebook = 'https://www.facebook.com/kitajima2910'
         width: 100%;
     }
 </style>
+
+<script>
+    function shufflePosts() {
+        const list = document.getElementById('post-list')
+        if (!list) return
+
+        const posts = Array.from(list.children)
+
+        for (let i = posts.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1))
+            ;[posts[i], posts[j]] = [posts[j], posts[i]]
+        }
+
+        posts.forEach((p) => list.appendChild(p))
+    }
+
+    shufflePosts()
+</script>
