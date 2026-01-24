@@ -12,7 +12,7 @@ const allPosts = Object.values(
 )
 
 const formattedPosts: any[] = formatBlogPost(allPosts, {
-    limit: 3,
+    limit: 15,
     filterOutDrafts: true,
     sortByDate: false,
 })
@@ -143,7 +143,7 @@ const Facebook = 'https://www.facebook.com/kitajima2910'
 </style>
 
 <script>
-    function shufflePosts() {
+    function pickRandomPosts(limit = 3) {
         const list = document.getElementById('post-list')
         if (!list) return
 
@@ -154,8 +154,10 @@ const Facebook = 'https://www.facebook.com/kitajima2910'
             ;[posts[i], posts[j]] = [posts[j], posts[i]]
         }
 
-        posts.forEach((p) => list.appendChild(p))
+        posts.forEach((p, i) => {
+            if (i >= limit) p.remove()
+        })
     }
 
-    shufflePosts()
+    pickRandomPosts(3)
 </script>
