@@ -176,6 +176,9 @@ Khóa học dành cho:
         <a href="/bai-viet/kh-dsa-c-2026-01-cau-truc-du-lieu-ngan-xep" target="_blank" class="block">
             <i class="fa fa-file-code-o" aria-hidden="true"></i> Cấu trúc dữ liệu ngăn xếp
         </a>
+        <a href="/bai-viet/kh-dsa-c-2026-01-cau-truc-du-lieu-ngan-xep-chuyen-so-than-chuoi-nhi-phan" target="_blank" class="block">
+            <i class="fa fa-file-code-o" aria-hidden="true"></i> Cấu trúc dữ liệu ngăn xếp - Chuyển số thành chuỗi nhị phân
+        </a>
     </div>
 </div>
 
