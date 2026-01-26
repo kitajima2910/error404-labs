@@ -37,7 +37,7 @@ Bộ **1000 bài tập** này tập trung vào đúng điều đó: luyện tư 
         <hr class="py-2" />
 <div class="math-scroll-wrapper">
 <div 
-class="block cursor-pointer text-pink-500 hover:underline"
+class="cursor-pointer text-pink-500 hover:underline flex items-center gap-1.25 flex-wrap"
 onclick="window.open('https\://github.com/kitajima2910/error404-labs/blob/master/Projects/error404-labs/public/luyen-code/chuong-1-luu-do-thuat-toan/LDTT1.c', '_blank')">
     <i class="fa fa-file-code-o" aria-hidden="true"></i> 1. Tính
 
@@ -50,7 +50,7 @@ $$
 
 <div class="math-scroll-wrapper">
 <div
-class="block cursor-pointer text-pink-500 hover:underline"
+class="cursor-pointer text-pink-500 hover:underline flex items-center gap-1.25 flex-wrap"
 onclick="window.open('https\://github.com/kitajima2910/error404-labs/blob/master/Projects/error404-labs/public/luyen-code/chuong-1-luu-do-thuat-toan/LDTT2.c', '_blank')">
     <i class="fa fa-file-code-o" aria-hidden="true"></i> 2. Tính
 
