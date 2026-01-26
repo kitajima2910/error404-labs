@@ -39,6 +39,9 @@ Bộ **1000 bài tập** này tập trung vào đúng điều đó: luyện tư 
         <a href="https://github.com/kitajima2910/error404-labs/blob/master/Projects/error404-labs/public/luyen-code/chuong-5-mang-mot-chieu/ky-thuat-dat-linh-canh-cac-bai-tap-co-ban/KTDLC134.c" target="_blank" class="block">
             <i class="fa fa-file-code-o" aria-hidden="true"></i> 134.Viết hàm tìm "giá trị lớn nhất" trong mảng một chiều số thực (lonnhat).
         </a>
+        <a href="https://github.com/kitajima2910/error404-labs/blob/master/Projects/error404-labs/public/luyen-code/chuong-5-mang-mot-chieu/ky-thuat-dat-linh-canh-cac-bai-tap-co-ban/KTDLC135.c" target="_blank" class="block">
+            <i class="fa fa-file-code-o" aria-hidden="true"></i> 135.Tìm “giá trị dương đầu tiên” trong mảng một chiều các số thực (duongdau). Nếu mảng không có giá trị dương thì trả về giá trị -1.
+        </a>
     </div>
 </div>
 

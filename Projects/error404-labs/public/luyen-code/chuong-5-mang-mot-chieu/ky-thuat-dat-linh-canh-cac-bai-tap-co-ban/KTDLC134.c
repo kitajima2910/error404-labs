@@ -4,6 +4,7 @@
 */
 
 #include <stdio.h>
+#include <float.h>
 
 #define MAX 1000
 
@@ -24,38 +25,42 @@ void xuat(float a[], int n)
     }
 }
 
+// Tìm giá trị lớn nhất bằng kỹ thuật đặt lính canh
 float lonnhat(float a[], int n)
 {
     float max = a[0];
-    for (int i = 1; i < n; i++)
+
+    // Lính canh: số rất lớn
+    a[n] = FLT_MAX;
+
+    int i = 1;
+    while (a[i] != FLT_MAX)
     {
         if (a[i] > max)
         {
             max = a[i];
         }
+        i++;
     }
+
     return max;
 }
 
 int main()
 {
-
     int n;
-    float a[MAX];
+    // DƯ 1 PHẦN TỬ CHO LÍNH CANH
+    float a[MAX + 1];
 
-    while (1)
+    do
     {
         printf("\nNhap n = ");
         scanf("%d", &n);
 
         if (n < 1 || n > MAX)
-        {
             printf("\nVui long nhap 1 <= n <= %d!", MAX);
-            continue;
-        }
 
-        break;
-    }
+    } while (n < 1 || n > MAX);
 
     nhap(a, n);
 
