@@ -1,6 +1,20 @@
 /*
     Author: Pham Xuan Hoai
     Website: https://www.error404-labs.info.vn/
+
+    ===================== ĐỀ BÀI =====================
+    Cho mảng một chiều các số thực gồm n phần tử.
+
+    Hãy tìm PHẦN TỬ DƯƠNG ĐẦU TIÊN trong mảng
+    bằng cách sử dụng KỸ THUẬT ĐẶT LÍNH CANH (sentinel).
+
+    Nếu mảng không có phần tử dương nào,
+    hãy thông báo "Không có phần tử dương".
+
+    ===================== GHI CHÚ =====================
+    - Bài toán tập trung minh họa thuật toán.
+    - Giả sử dữ liệu vào hợp lệ.
+    - Mảng không chứa giá trị FLT_MAX.
 */
 
 #include <stdio.h>
@@ -27,10 +41,11 @@ void xuat(float a[], int n)
     }
 }
 
-// Kỹ thuật đặt lính canh: tìm giá trị dương đầu tiên
+// Tìm phần tử dương đầu tiên bằng kỹ thuật đặt lính canh
 float duongdau(float a[], int n)
 {
-    // Đặt lính canh (số dương chắc chắn)
+    // Đặt lính canh tại cuối mảng
+    // FLT_MAX chắc chắn là số dương
     a[n] = FLT_MAX;
 
     int i = 0;
@@ -39,7 +54,7 @@ float duongdau(float a[], int n)
         i++;
     }
 
-    // Nếu dừng ở lính canh → không có số dương trong mảng
+    // Nếu dừng tại lính canh → không có số dương
     if (i == n)
         return -1;
 
@@ -49,7 +64,7 @@ float duongdau(float a[], int n)
 int main()
 {
     int n;
-    // PHẢI dư 1 phần tử cho lính canh
+    // Dư 1 phần tử cho lính canh
     float a[MAX + 1];
 
     // Nhập số lượng phần tử
@@ -70,7 +85,7 @@ int main()
     printf("\nMang da nhap: ");
     xuat(a, n);
 
-    // Tìm giá trị dương đầu tiên
+    // Tìm phần tử dương đầu tiên
     float giaTriDuong = duongdau(a, n);
 
     if (giaTriDuong != -1)

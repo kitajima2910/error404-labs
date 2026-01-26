@@ -23,10 +23,22 @@ Bộ **1000 bài tập** này tập trung vào đúng điều đó: luyện tư 
 <div id="tabs">
     <ul>
         <li>
-            <a href="#tabs-1">CHƯƠNG 5</a>
+            <a href="#tabs-1">CHƯƠNG 1</a>
         </li>
-    </ul>
-    <div id="tabs-1">
+        <li>
+            <a href="#tabs-5">CHƯƠNG 5</a>
+        </li>
+    </ul><div id="tabs-1">
+        <h4 class="font-semibold">
+            <i class="fa fa-sitemap mr-1" aria-hidden="true"></i>
+            LƯU ĐỒ THUẬT TOÁN
+        </h4>
+        <hr class="py-2" />
+        <a href="https://github.com/kitajima2910/error404-labs/blob/master/Projects/error404-labs/public/luyen-code/chuong-1-luu-do-thuat-toan/LDTT1.c" target="_blank" class="block">
+            <i class="fa fa-file-code-o" aria-hidden="true"></i> 1.Tính S(n) = 1 + 2 + 3 + … + n.
+        </a>
+    </div>
+    <div id="tabs-5">
         <h4 class="font-semibold">
             <i class="fa fa-th-large mr-1" aria-hidden="true"></i>
             MẢNG MỘT CHIỀU
