@@ -83,6 +83,12 @@ Bạn không chỉ **hiểu** HTML + CSS, mà còn **tạo ra được một web
         <a href="/bai-viet/kh-web-cb-2026-01-xay-dung-ui-the-bai-viet" target="_blank" class="block">
             <i class="fa fa-file-code-o" aria-hidden="true"></i> Xây dựng UI - Thẻ Bài Viết
         </a>
+        <a href="/bai-viet/kh-web-cb-2026-01-xay-dung-ui-card-grid" target="_blank" class="block">
+            <i class="fa fa-file-code-o" aria-hidden="true"></i> Xây dựng UI - Card Grid
+        </a>
+        <a href="/bai-viet/kh-web-cb-2026-01-xay-dung-ui-course-card" target="_blank" class="block">
+            <i class="fa fa-file-code-o" aria-hidden="true"></i> Xây dựng UI – Course Card
+        </a>
     </div>
 </div>
 
