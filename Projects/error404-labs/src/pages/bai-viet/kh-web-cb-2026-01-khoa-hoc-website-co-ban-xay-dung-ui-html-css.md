@@ -89,6 +89,9 @@ Bạn không chỉ **hiểu** HTML + CSS, mà còn **tạo ra được một web
         <a href="/bai-viet/kh-web-cb-2026-01-xay-dung-ui-course-card" target="_blank" class="block">
             <i class="fa fa-file-code-o" aria-hidden="true"></i> Xây dựng UI – Course Card
         </a>
+        <a href="/bai-viet/kh-web-cb-2026-01-xay-dung-ui-portfolio" target="_blank" class="block">
+            <i class="fa fa-file-code-o" aria-hidden="true"></i> Xây dựng UI – Portfolio
+        </a>
     </div>
 </div>
 
