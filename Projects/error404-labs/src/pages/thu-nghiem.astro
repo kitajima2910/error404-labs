@@ -1,6 +1,19 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro'
 import { TC_TITLE } from '../common/TextConst'
+
+const DATA_GAMES = [
+    {
+        name: 'Space Ship',
+        link: '/thu-nghiem/game/space-ship/index.html',
+        image: '/thu-nghiem/game/space-ship/space-ship.avif',
+    },
+    {
+        name: 'Test Phaser Game',
+        link: '/thu-nghiem/game/TestPhaserGame/index.html',
+        image: '/thu-nghiem/game/TestPhaserGame/TestPhaserGame.avif',
+    },
+]
 ---
 
 <MainLayout title=`Thử nghiệm | ${TC_TITLE}`>
@@ -8,7 +21,7 @@ import { TC_TITLE } from '../common/TextConst'
         <h1 class="text-3xl font-bold mb-5">Trò chơi</h1>
         <div class="customMarquee" id="m1">
             <div class="marqueeInner" style="gap: 10px;">
-                <div class="marquee-item">
+                <!-- <div class="marquee-item">
                     <a
                         href="/thu-nghiem/game/space-ship/index.html"
                         target="_blank"
@@ -18,7 +31,16 @@ import { TC_TITLE } from '../common/TextConst'
                             alt="Space Ship"
                         />
                     </a>
-                </div>
+                </div> -->
+                {
+                    DATA_GAMES.map((item) => (
+                        <div class="marquee-item">
+                            <a href={item.link} target="_blank">
+                                <img src={item.image} alt={item.name} />
+                            </a>
+                        </div>
+                    ))
+                }
             </div>
         </div>
         <!-- <div class="customMarquee" id="m2">
