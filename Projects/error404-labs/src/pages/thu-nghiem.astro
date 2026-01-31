@@ -1,0 +1,102 @@
+---
+import MainLayout from '../layouts/MainLayout.astro'
+import { TC_TITLE } from '../common/TextConst'
+---
+
+<MainLayout title=`Thử nghiệm | ${TC_TITLE}`>
+    <section class="demo">
+        <div class="customMarquee" id="m1">
+            <div class="marqueeInner" style="gap: 10px;">
+                <div class="marquee-item">News 1</div>
+            </div>
+        </div>
+        <div class="customMarquee" id="m2">
+            <div class="marqueeInner" style="gap: 10px;">
+                <div class="marquee-item">News 2</div>
+            </div>
+        </div>
+        <div class="customMarquee" id="m3">
+            <div class="marqueeInner" style="gap: 10px;">
+                <div class="marquee-item">News 3</div>
+            </div>
+        </div>
+    </section>
+</MainLayout>
+
+<style>
+    .demo {
+        width: 100%;
+        max-width: 1024px;
+        margin: 0 auto;
+    }
+
+    .customMarquee {
+        overflow: hidden;
+        white-space: nowrap;
+        border-radius: 12px;
+        border: 1px solid #ddd;
+        background: #fff;
+        padding: 12px;
+        margin: 16px 0;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        transition: box-shadow 0.3s ease;
+    }
+
+    .customMarquee:hover {
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .marqueeInner {
+        display: inline-flex;
+        align-items: center;
+        will-change: transform;
+    }
+
+    .marquee-item {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 16px;
+        margin-right: 12px;
+        border-radius: 50px;
+        background: #e0f7fa;
+        border: 1px solid #b2ebf2;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        font-weight: 500;
+        color: #00796b;
+        white-space: nowrap;
+        transition:
+            transform 0.3s,
+            background 0.3s;
+    }
+    .marquee-item:hover {
+        transform: scale(1.05);
+        background: #b2ebf2;
+    }
+</style>
+
+<script>
+    // @ts-ignore
+    window.gsapMarquee('#m1', {
+        speed: 100,
+        pauseOnHover: true,
+        containerSelector: '.marqueeInner',
+        itemsSelector: '.marquee-item',
+    })
+
+    // @ts-ignore
+    window.gsapMarquee('#m2', {
+        speed: 100,
+        pauseOnHover: true,
+        containerSelector: '.marqueeInner',
+        itemsSelector: '.marquee-item',
+    })
+
+    // @ts-ignore
+    window.gsapMarquee('#m3', {
+        speed: 100,
+        pauseOnHover: true,
+        containerSelector: '.marqueeInner',
+        itemsSelector: '.marquee-item',
+    })
+</script>
