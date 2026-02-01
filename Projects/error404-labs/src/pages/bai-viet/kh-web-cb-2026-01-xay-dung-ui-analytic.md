@@ -1,7 +1,7 @@
 ---
 layout: '../../layouts/BlogPostLayout.astro'
 title: '💻 Xây dựng UI - Analytic'
-date: 2026-02-02
+date: 2026-02-01
 author: Phạm Xuân Hoài
 image:
     {
