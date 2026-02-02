@@ -1,7 +1,7 @@
 ---
 layout: '../../layouts/BlogPostLayout.astro'
 title: '🌟 Số Nguyên Tố Là Gì?'
-date: 2026-01-15
+date: 2026-02-03
 author: Phạm Xuân Hoài
 image:
     {

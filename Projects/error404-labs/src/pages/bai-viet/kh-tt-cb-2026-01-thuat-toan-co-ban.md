@@ -1,7 +1,7 @@
 ---
 layout: '../../layouts/BlogPostLayout.astro'
 title: '🧠💻 Thuật toán căn bản'
-date: 2026-01-15
+date: 2026-02-02
 author: Phạm Xuân Hoài
 image:
     {
