@@ -26,10 +26,11 @@ category: KH_TT_CB_2026_01
 ## 🧠 1. Số nguyên tố là gì?
 
 👉 **Số nguyên tố** là số tự nhiên **lớn hơn 1**,
+
 👉 và **chỉ có đúng 2 ước số**:
 
-* 1
-* chính nó
+- 1
+- chính nó
 
 ### Ví dụ:
 
@@ -45,13 +46,13 @@ category: KH_TT_CB_2026_01
 
 ### Ví dụ:
 
-* `n = 47` → ✅ `true`
-* `n = 4` → ❌ `false`
+- `n = 47` → ✅ `true`
+- `n = 4` → ❌ `false`
 
 ⏱️ Giới hạn:
 
-* `0 ≤ n ≤ 1000`
-* Thời gian chạy rất ngắn → cần code **gọn & thông minh**
+- `0 ≤ n ≤ 1000`
+- Thời gian chạy rất ngắn → cần code **gọn & thông minh**
 
 ---
 
@@ -73,9 +74,9 @@ Ta **không cần kiểm tra từ 2 tới n - 1** ❌ (quá chậm!)
 
 ## 🚀 4. Tối ưu thêm một chút cho “dân pro”
 
-* Số **chẵn > 2** → ❌ loại ngay
-* Chỉ kiểm tra **số lẻ**
-* Tránh dùng `sqrt()` → dùng `i <= n / i` cho an toàn & nhanh hơn
+- Số **chẵn > 2** → ❌ loại ngay
+- Chỉ kiểm tra **số lẻ**
+- Tránh dùng `sqrt()` → dùng `i <= n / i` cho an toàn & nhanh hơn
 
 ---
 
@@ -85,24 +86,24 @@ Ta **không cần kiểm tra từ 2 tới n - 1** ❌ (quá chậm!)
 int isPrime(int n)
 {
     if (n < 2) {
-        return false;
+        return 0;
     }
 
     if (n == 2) {
-        return true;
+        return 1;
     }
 
     if (n % 2 == 0) {
-        return false;
+        return 0;
     }
 
     for (int i = 3; i <= n / i; i += 2) {
         if (n % i == 0) {
-            return false;
+            return 0;
         }
     }
 
-    return true;
+    return 1;
 }
 ```
 
@@ -124,14 +125,14 @@ int isPrime(int n)
 
 ## 🧪 7. Kiểm tra thử nhé!
 
-| n  | Kết quả |
-| -- | ------- |
-| 1  | false   |
-| 2  | true    |
-| 3  | true    |
-| 4  | false   |
-| 47 | true    |
-| 49 | false   |
+| n   | Kết quả |
+| --- | ------- |
+| 1   | false   |
+| 2   | true    |
+| 3   | true    |
+| 4   | false   |
+| 47  | true    |
+| 49  | false   |
 
 ✔️ Chuẩn bài!
 
@@ -143,9 +144,9 @@ int isPrime(int n)
 
 🌱 Nhưng giúp ta học được:
 
-* Tư duy tối ưu
-* Hiểu bản chất toán học
-* Viết code sạch & hiệu quả
+- Tư duy tối ưu
+- Hiểu bản chất toán học
+- Viết code sạch & hiệu quả
 
 > “Lập trình không phải viết cho máy hiểu,
 > mà là viết sao cho **con người đọc cũng thấy dễ thương** 🥰”
