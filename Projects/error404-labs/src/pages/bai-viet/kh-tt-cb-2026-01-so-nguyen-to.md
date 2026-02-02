@@ -127,12 +127,12 @@ int isPrime(int n)
 
 | n   | Kết quả |
 | --- | ------- |
-| 1   | false   |
-| 2   | true    |
-| 3   | true    |
-| 4   | false   |
-| 47  | true    |
-| 49  | false   |
+| 1   | 0       |
+| 2   | 1       |
+| 3   | 1       |
+| 4   | 0       |
+| 47  | 1       |
+| 49  | 0       |
 
 ✔️ Chuẩn bài!
 
