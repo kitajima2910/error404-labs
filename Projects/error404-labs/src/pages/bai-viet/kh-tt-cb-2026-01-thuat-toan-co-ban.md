@@ -12,6 +12,7 @@ description: Giải thuật (Algorithm) là nền tảng cốt lõi của lập 
 draft: false
 category: KH_TT_CB_2026_01
 ---
+
 ## 📌 Giới thiệu về Giải thuật (Thuật toán)
 
 **Giải thuật (Algorithm)** là nền tảng cốt lõi của lập trình và khoa học máy tính.
@@ -20,7 +21,7 @@ category: KH_TT_CB_2026_01
 
 Dù được cài đặt bằng **Python, C++, Java hay bất kỳ ngôn ngữ nào**, bản chất của giải thuật vẫn không thay đổi:
 
-👉 *Tư duy đúng → quy trình đúng → kết quả đúng.*
+👉 _Tư duy đúng → quy trình đúng → kết quả đúng._
 
 ---
 
@@ -69,6 +70,9 @@ Một giải thuật đúng nghĩa cần đảm bảo:
         <hr class="py-2" />
         <a href="/bai-viet/kh-tt-cb-2026-01-so-nguyen-to" target="_blank" class="block">
             <i class="fa fa-file-code-o" aria-hidden="true"></i> Số nguyên tố
+        </a>
+        <a href="/bai-viet/kh-tt-cb-2026-01-factor-sum-khi-mot-con-so-tu-soi-lai-chinh-minh" target="_blank" class="block">
+            <i class="fa fa-file-code-o" aria-hidden="true"></i> Tổng các thừa số
         </a>
     </div>
 </div>
