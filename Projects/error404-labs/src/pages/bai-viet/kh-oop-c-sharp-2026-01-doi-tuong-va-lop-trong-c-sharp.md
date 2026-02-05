@@ -333,9 +333,11 @@ public class SinhVien
 
 ## UI bạn chèn:
 
-- Label lblTen: tên
-- Label lblTuoi: tuổi
-- Lablel lblThongTin: thông tin
+- Label:
+    - lblTen: tên
+    - lblTuoi: tuổi
+    - Đường kẻ ngang (optional)
+    - lblThongTin: thông tin
 
 ```csharp
 SinhVien sv = new SinhVien();
