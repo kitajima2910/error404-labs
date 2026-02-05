@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Buoi01DoiTuongVaLopTrongCSharp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e43ffb028bf56b996178e9d56d2e961a35488b57")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+368d0d538172af65cc5e408569b4507ddb07b11f")]
 [assembly: System.Reflection.AssemblyProductAttribute("Buoi01DoiTuongVaLopTrongCSharp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Buoi01DoiTuongVaLopTrongCSharp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
