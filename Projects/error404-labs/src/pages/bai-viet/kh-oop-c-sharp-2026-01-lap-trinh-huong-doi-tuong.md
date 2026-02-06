@@ -86,5 +86,8 @@ Chúng ta sẽ đi từ dễ → khó.
         <a href="/bai-viet/kh-oop-c-sharp-2026-01-ham-khoi-tao-va-ham-huy-trong-c-sharp" target="_blank" class="block">
             <i class="fa fa-file-code-o" aria-hidden="true"></i> Hàm Khởi Tạo & Hàm Hủy Trong C#
         </a>
+        <a href="/bai-viet/kh-oop-c-sharp-2026-01-pham-vi-truy-cap-va-dong-goi-encapsulation" target="_blank" class="block">
+            <i class="fa fa-file-code-o" aria-hidden="true"></i> Phạm Vi Truy Cập & Đóng Gói
+        </a>
     </div>
 </div>
