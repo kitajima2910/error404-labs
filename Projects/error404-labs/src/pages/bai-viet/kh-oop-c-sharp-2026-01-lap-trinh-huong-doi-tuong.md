@@ -89,5 +89,8 @@ Chúng ta sẽ đi từ dễ → khó.
         <a href="/bai-viet/kh-oop-c-sharp-2026-01-pham-vi-truy-cap-va-dong-goi-encapsulation" target="_blank" class="block">
             <i class="fa fa-file-code-o" aria-hidden="true"></i> Phạm Vi Truy Cập & Đóng Gói
         </a>
+        <a href="/bai-viet/kh-oop-c-sharp-2026-01-this-va-static-trong-c-sharp" target="_blank" class="block">
+            <i class="fa fa-file-code-o" aria-hidden="true"></i> this và static trong C#
+        </a>
     </div>
 </div>
