@@ -407,7 +407,7 @@ class Test
 - .NET có Garbage Collector
 - Không biết chính xác khi nào chạy
 
-👉 Mentor note học viên:
+👉 Note:
 
 > Biết để đọc code, không cần lạm dụng.
 
