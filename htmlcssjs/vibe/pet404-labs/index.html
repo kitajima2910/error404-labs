@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pet404-Labs | Chăm Sóc Thú Cưng Thông Minh</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&subset=vietnamese&display=swap"
+    rel="stylesheet">
+
+  <!-- Icons -->
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/hero.css">
+  <link rel="stylesheet" href="css/products.css">
+  <link rel="stylesheet" href="css/bestseller.css">
+  <link rel="stylesheet" href="css/features.css">
+  <link rel="stylesheet" href="css/blog.css">
+  <link rel="stylesheet" href="css/footer.css">
+  <link rel="stylesheet" href="css/modal.css">
+  <link rel="stylesheet" href="css/cart.css">
+</head>
+
+<body>
+  <!-- Header -->
+  <header class="header glass" id="header">
+    <div class="header-container">
+      <a href="#" class="logo">
+        <i class='bx bxs-dog'></i>
+        <span>Pet404-Labs</span>
+      </a>
+
+      <nav class="nav-menu">
+        <i class='bx bx-x' id="close-menu"></i>
+        <ul class="nav-list">
+          <li><a href="#products" class="active">Shop</a></li>
+          <li><a href="#bestseller">Best Seller</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#blog">Blog</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <button class="icon-btn" id="search-btn"><i class='bx bx-search'></i></button>
+        <button class="icon-btn cart-btn" id="cart-btn">
+          <i class='bx bx-cart'></i>
+          <span class="cart-count" id="cart-count">0</span>
+        </button>
+        <button class="icon-btn" id="account-btn"><i class='bx bx-user'></i></button>
+        <a href="#products" class="btn btn-primary btn-glow">Mua ngay</a>
+        <i class='bx bx-menu' id="menu-icon"></i>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero" id="home">
+    <div class="hero-container">
+      <div class="hero-content">
+        <div class="hero-badge animate-fadeInUp">🐾 Thương hiệu tin cậy #1 Việt Nam</div>
+        <h1 class="hero-title animate-fadeInUp" style="animation-delay: 0.1s;">
+          Chăm Sóc Thú Cưng<br><span class="highlight">Thông Minh Hơn</span>
+        </h1>
+        <p class="hero-subtitle animate-fadeInUp" style="animation-delay: 0.2s;">
+          Sản phẩm chất lượng cao – An toàn – Được kiểm chứng bởi cộng đồng yêu thú cưng trên toàn quốc.
+        </p>
+        <div class="hero-buttons animate-fadeInUp" style="animation-delay: 0.35s;">
+          <a href="#products" class="btn btn-primary btn-glow">Khám phá ngay</a>
+          <a href="#bestseller" class="btn btn-secondary">Xem best seller</a>
+        </div>
+        <div class="hero-stats animate-fadeInUp" style="animation-delay: 0.5s;">
+          <div class="hero-stat">
+            <span class="hero-stat-value">5,000+</span>
+            <span class="hero-stat-label">Khách hàng</span>
+          </div>
+          <div class="hero-stat">
+            <span class="hero-stat-value">200+</span>
+            <span class="hero-stat-label">Sản phẩm</span>
+          </div>
+          <div class="hero-stat">
+            <span class="hero-stat-value">4.9★</span>
+            <span class="hero-stat-label">Đánh giá</span>
+          </div>
+        </div>
+      </div>
+      <div class="hero-image animate-fadeInUp" style="animation-delay: 0.6s;">
+        <img src="https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=600&h=600&fit=crop"
+          alt="Happy pet with owner">
+      </div>
+    </div>
+    <div class="hero-shape"></div>
+  </section>
+
+  <!-- Products Section -->
+  <section class="products" id="products">
+    <div class="container">
+      <div class="section-title">
+        <h2>Sản Phẩm CủA Chúng Tôi</h2>
+        <p>Khám phá bộ sưu tập sản phẩm chất lượng cao cho thú cưng của bạn</p>
+      </div>
+
+      <div class="products-grid" id="products-grid">
+        <!-- Products will be injected by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Best Seller Section -->
+  <section class="bestseller glass-dark" id="bestseller">
+    <div class="container">
+      <div class="section-title">
+        <h2>Best Seller</h2>
+        <p>Những sản phẩm được yêu thích nhất bởi cộng đồng</p>
+      </div>
+
+      <div class="bestseller-carousel">
+        <button class="carousel-btn prev" id="carousel-prev"><i class='bx bx-chevron-left'></i></button>
+        <div class="carousel-track" id="carousel-track">
+          <!-- Best seller products will be injected by JS -->
+        </div>
+        <button class="carousel-btn next" id="carousel-next"><i class='bx bx-chevron-right'></i></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features" id="about">
+    <div class="container">
+      <div class="section-title">
+        <h2>Lý Do Chọn Pet404-Labs</h2>
+        <p>Chúng tôi cam kết mang đến trải nghiệm mua sắm tốt nhất cho bạn</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fa-solid fa-shield-heart"></i>
+          </div>
+          <h3 class="feature-title">Sản Phẩm An Toàn</h3>
+          <p class="feature-desc">100% sản phẩm được kiểm định chất lượng, đảm bảo an toàn tuyệt đối cho thú cưng của
+            bạn</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fa-solid fa-truck-fast"></i>
+          </div>
+          <h3 class="feature-title">Giao Hàng Nhanh</h3>
+          <p class="feature-desc">Đơn hàng được xử lý trong 24h và giao nhanh 2-3 ngày toàn quốc, miễn phí đơn từ 300k
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fa-solid fa-headset"></i>
+          </div>
+          <h3 class="feature-title">Hỗ Trợ 24/7</h3>
+          <p class="feature-desc">Đội ngũ chăm sóc khách hàng chuyên nghiệp luôn sẵn sàng hỗ trợ bạn mọi lúc mọi nơi</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fa-solid fa-rotate-left"></i>
+          </div>
+          <h3 class="feature-title">Đổi Trả Dễ Dàng</h3>
+          <p class="feature-desc">Chính sách đổi trả linh hoạt trong vòng 30 ngày nếu không hài lòng, hoàn tiền 100%</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Blog Section -->
+  <section class="blog" id="blog">
+    <div class="container">
+      <div class="section-title">
+        <h2>Tin Tức & Mẹo Hay</h2>
+        <p>Cập nhật kiến thức chăm sóc thú cưng mới nhất</p>
+      </div>
+
+      <div class="blog-grid">
+        <article class="blog-card glass">
+          <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=250&fit=crop"
+            alt="Dog nutrition">
+          <div class="blog-content">
+            <span class="blog-tag">Dinh Dưỡng</span>
+            <h3>Top 10 Thực Phẩm Tốt Nhất Cho Chó Con</h3>
+            <p>Khám phá những loại thực phẩm giàu dinh dưỡng giúp chó con phát triển khỏe mạnh...</p>
+            <a href="#" class="blog-link">Đọc thêm <i class='bx bx-right-arrow-alt'></i></a>
+          </div>
+        </article>
+
+        <article class="blog-card glass">
+          <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=400&h=250&fit=crop" alt="Cat care">
+          <div class="blog-content">
+            <span class="blog-tag">Chăm Sóc</span>
+            <h3>Cách Tắm Mèo Đúng Cách Tại Nhà</h3>
+            <p>Hướng dẫn chi tiết cách tắm mèo an toàn, giúp bé sạch sẽ mà không bị stress...</p>
+            <a href="#" class="blog-link">Đọc thêm <i class='bx bx-right-arrow-alt'></i></a>
+          </div>
+        </article>
+
+        <article class="blog-card glass">
+          <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=400&h=250&fit=crop" alt="Dog training">
+          <div class="blog-content">
+            <span class="blog-tag">Huấn Luyện</span>
+            <h3>5 Bước Huấn Luyện Chó Cơ Bản</h3>
+            <p>Bắt đầu hành trình huấn luyện chó của bạn với 5 kỹ thuật cơ bản và hiệu quả...</p>
+            <a href="#" class="blog-link">Đọc thêm <i class='bx bx-right-arrow-alt'></i></a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="#" class="footer-logo">
+            <i class='bx bxs-dog'></i>
+            <span>Pet404-Labs</span>
+          </a>
+          <p>Chăm sóc thú cưng theo cách thông minh hơn. Chúng tôi mang đến những sản phẩm chất lượng cao cho người bạn
+            bốn chân của bạn.</p>
+          <div class="footer-social">
+            <a href="#"><i class='bx bxl-facebook'></i></a>
+            <a href="#"><i class='bx bxl-instagram'></i></a>
+            <a href="#"><i class='bx bxl-tiktok'></i></a>
+            <a href="#"><i class='bx bxl-youtube'></i></a>
+          </div>
+        </div>
+
+        <div class="footer-links">
+          <h4>Liên Kết Nhanh</h4>
+          <ul>
+            <li><a href="#products">Shop</a></li>
+            <li><a href="#bestseller">Best Seller</a></li>
+            <li><a href="#blog">Blog</a></li>
+            <li><a href="#about">Về chúng tôi</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links">
+          <h4>Chính Sách</h4>
+          <ul>
+            <li><a href="#">Chính sách bảo mật</a></li>
+            <li><a href="#">Điều khoản sử dụng</a></li>
+            <li><a href="#">Chính sách đổi trả</a></li>
+            <li><a href="#">Vận chuyển & Giao hàng</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Liên Hệ</h4>
+          <div class="footer-contact-item">
+            <i class="fa-solid fa-location-dot"></i>
+            <span>123 Đường Pet, Quận 1, TP.HCM</span>
+          </div>
+          <div class="footer-contact-item">
+            <i class="fa-solid fa-phone"></i>
+            <span>1900 1234</span>
+          </div>
+          <div class="footer-contact-item">
+            <i class="fa-solid fa-envelope"></i>
+            <span>hello@error404-labs.info.vn</span>
+          </div>
+          <div class="footer-contact-item">
+            <i class="fa-solid fa-globe"></i>
+            <span><a href="https://www.error404-labs.info.vn" target="_blank"
+                style="color: var(--emerald);">error404-labs.info.vn</a></span>
+          </div>
+          <div class="footer-contact-item">
+            <i class="fa-solid fa-clock"></i>
+            <span>Hỗ trợ 24/7</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2025 Pet404-Labs. Tất cả quyền được bảo lưu.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Product Modal -->
+  <div class="modal-overlay" id="product-modal">
+    <div class="modal-content">
+      <button class="modal-close" id="modal-close"><i class='bx bx-x'></i></button>
+      <div class="modal-body" id="modal-body">
+        <!-- Modal content will be injected by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Cart Sidebar -->
+  <div class="cart-overlay" id="cart-overlay"></div>
+  <div class="cart-sidebar" id="cart-sidebar">
+    <div class="cart-header">
+      <h3><i class='bx bx-cart'></i> Giỏ Hàng</h3>
+      <button class="cart-close" id="cart-close"><i class='bx bx-x'></i></button>
+    </div>
+    <div class="cart-items" id="cart-items">
+      <!-- Cart items will be injected by JS -->
+    </div>
+    <div class="cart-footer">
+      <div class="cart-total">
+        <span>Tổng:</span>
+        <strong id="cart-total">0đ</strong>
+      </div>
+      <button class="btn btn-primary" style="width: 100%;">Thanh Toán</button>
+    </div>
+  </div>
+
+  <!-- Search Overlay -->
+  <div class="search-overlay" id="search-overlay">
+    <div class="search-container">
+      <input type="text" placeholder="Tìm kiếm sản phẩm..." id="search-input">
+      <button id="search-close"><i class='bx bx-x'></i></button>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/modal.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/festive.js"></script>
+</body>
+
+</html>
