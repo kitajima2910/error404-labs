@@ -161,9 +161,11 @@
     }
 
     /* Periodic rockets */
+    let launchTimeout;
     function scheduleLaunch() {
+        if (document.hidden) return; // Stop if tab is hidden
         launchRocket();
-        setTimeout(scheduleLaunch, Math.random() * 1800 + 800);
+        launchTimeout = setTimeout(scheduleLaunch, Math.random() * 1800 + 800);
     }
 
     /* Animation loop */
@@ -196,6 +198,21 @@
     // Kick off
     setTimeout(burstOnLoad, 300);
     setTimeout(scheduleLaunch, 1500);
+
+    /* Handle visibility change to prevent lag */
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            // When hidden, clear everything and stop the timeout
+            clearTimeout(launchTimeout);
+            rockets = [];
+            fireworks = [];
+            // Clear canvas immediately
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        } else {
+            // When coming back, restart the cycle after a short delay
+            setTimeout(scheduleLaunch, 500);
+        }
+    });
 
     /* ── 2. RUNNING HORSE ── */
     const horseStyle = document.createElement('style');
