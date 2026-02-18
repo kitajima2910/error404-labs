@@ -1,0 +1,355 @@
+/* ============================================
+   GLOBAL RESET & DESIGN SYSTEM
+   Pet404-Labs — Premium Dark Theme
+   ============================================ */
+
+*,
+*::before,
+*::after {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  list-style: none;
+  text-decoration: none;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+:root {
+  /* === Brand Colors === */
+  --emerald: #10b981;
+  --emerald-light: #34d399;
+  --emerald-dark: #059669;
+  --emerald-glow: rgba(16, 185, 129, 0.25);
+
+  /* === Backgrounds === */
+  --bg-base: #0a0f1e;
+  --bg-surface: #111827;
+  --bg-card: rgba(17, 24, 39, 0.8);
+  --bg-card-hover: rgba(30, 41, 59, 0.95);
+  --bg-glass: rgba(255, 255, 255, 0.04);
+
+  /* === Text === */
+  --text-primary: #f9fafb;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+  --text-white: #ffffff;
+
+  /* === Accents === */
+  --gold: #f59e0b;
+  --rose: #f43f5e;
+  --rose-glow: rgba(244, 63, 94, 0.3);
+
+  /* === Borders & Shadows === */
+  --border: 1px solid rgba(255, 255, 255, 0.08);
+  --border-accent: 1px solid rgba(16, 185, 129, 0.35);
+  --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 30px rgba(16, 185, 129, 0.15);
+
+  /* === Glassmorphism === */
+  --blur-sm: blur(8px);
+  --blur-md: blur(16px);
+  --blur-lg: blur(40px);
+
+  /* === Spacing === */
+  --section-py: 120px;
+  --section-px: 8%;
+  --container-max: 1400px;
+
+  /* === Typography === */
+  --font: 'Montserrat', sans-serif;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
+
+  /* === Radius === */
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-full: 9999px;
+
+  /* === Transitions === */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-fast: 0.2s;
+  --duration-base: 0.35s;
+  --duration-slow: 0.6s;
+}
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
+
+body {
+  font-family: var(--font);
+  background: var(--bg-base);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+img {
+  display: block;
+  width: 100%;
+  object-fit: cover;
+}
+
+/* ============================================
+   SCROLLBAR
+   ============================================ */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--emerald-dark);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--emerald);
+}
+
+/* ============================================
+   LAYOUT UTILITIES
+   ============================================ */
+
+.container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 var(--section-px);
+}
+
+section {
+  padding: var(--section-py) var(--section-px);
+}
+
+/* ============================================
+   GLASS EFFECTS
+   ============================================ */
+
+.glass {
+  background: var(--bg-glass);
+  backdrop-filter: var(--blur-md);
+  -webkit-backdrop-filter: var(--blur-md);
+  border: var(--border);
+}
+
+.glass-dark {
+  background: var(--bg-card);
+  backdrop-filter: var(--blur-lg);
+  -webkit-backdrop-filter: var(--blur-lg);
+  border: var(--border);
+}
+
+/* ============================================
+   SECTION TITLES
+   ============================================ */
+
+.section-title {
+  text-align: center;
+  margin-bottom: 70px;
+}
+
+.section-title h2 {
+  font-size: var(--text-4xl);
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -1.5px;
+  line-height: 1.1;
+  margin-bottom: 16px;
+}
+
+.section-title h2 span {
+  color: var(--emerald);
+}
+
+.section-title p {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--emerald);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 30px;
+  border-radius: var(--radius-full);
+  font-family: var(--font);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: all var(--duration-base) var(--ease);
+  border: none;
+  outline: none;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--emerald), var(--emerald-dark));
+  color: white;
+  box-shadow: 0 4px 20px var(--emerald-glow);
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px var(--emerald-glow);
+  background: linear-gradient(135deg, var(--emerald-light), var(--emerald));
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-glow:hover {
+  box-shadow: 0 0 25px var(--emerald-glow);
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-18px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+
+  100% {
+    background-position: 200% center;
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 var(--emerald-glow);
+  }
+
+  70% {
+    box-shadow: 0 0 0 12px rgba(16, 185, 129, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.8s var(--ease) forwards;
+}
+
+/* Scroll Reveal */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(35px);
+  transition: opacity var(--duration-slow) var(--ease),
+    transform var(--duration-slow) var(--ease);
+}
+
+.scroll-reveal.reveal {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ============================================
+   MOBILE MENU ICON
+   ============================================ */
+
+#menu-icon {
+  font-size: 28px;
+  color: var(--text-white);
+  cursor: pointer;
+  display: none;
+  z-index: 10001;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 1200px) {
+  :root {
+    --section-py: 90px;
+    --section-px: 5%;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --section-py: 70px;
+    --section-px: 4%;
+    --text-4xl: 1.875rem;
+    --text-5xl: 2.25rem;
+  }
+
+  #menu-icon {
+    display: block;
+  }
+
+  .section-title h2 {
+    font-size: var(--text-3xl);
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --section-py: 60px;
+    --section-px: 5%;
+  }
+}

@@ -1,0 +1,142 @@
+/* ============================================
+   BEST SELLER SECTION — HORIZONTAL CAROUSEL
+   ============================================ */
+
+.bestseller {
+  background: transparent;
+  overflow: hidden;
+}
+
+/* Carousel wrapper */
+.bestseller-carousel {
+  position: relative;
+  padding: 0 60px;
+}
+
+/* Track — horizontal auto-scroll */
+.carousel-track {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  overflow-x: hidden;
+  overflow-y: visible;
+  padding: 16px 0 24px;
+  cursor: grab;
+  /* Fade left/right edges */
+  mask-image: linear-gradient(to right,
+      transparent 0%,
+      black 6%,
+      black 94%,
+      transparent 100%);
+  -webkit-mask-image: linear-gradient(to right,
+      transparent 0%,
+      black 6%,
+      black 94%,
+      transparent 100%);
+}
+
+.carousel-track:active {
+  cursor: grabbing;
+}
+
+/* Each item */
+.carousel-item {
+  flex-shrink: 0;
+  width: 280px;
+}
+
+/* Product card inside carousel — vertical (default) */
+.carousel-item .product-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: var(--border);
+  transition: all var(--duration-base) var(--ease);
+}
+
+.carousel-item .product-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(16, 185, 129, 0.3);
+  box-shadow: var(--shadow-md), var(--shadow-glow);
+}
+
+.carousel-item .product-image {
+  aspect-ratio: 1;
+  margin: 10px;
+  border-radius: var(--radius-md);
+}
+
+.carousel-item .product-info {
+  padding: 4px 16px 16px;
+}
+
+.carousel-item .product-title {
+  font-size: var(--text-sm);
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  min-height: unset;
+}
+
+.carousel-item .product-actions {
+  grid-template-columns: 1fr;
+}
+
+.carousel-item .btn-view {
+  display: none;
+}
+
+/* Nav buttons */
+.carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--bg-card);
+  border: var(--border);
+  color: var(--text-primary);
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  cursor: pointer;
+  z-index: 10;
+  transition: all var(--duration-base) var(--ease);
+  backdrop-filter: var(--blur-sm);
+}
+
+.carousel-btn:hover {
+  background: var(--emerald);
+  border-color: var(--emerald);
+  color: white;
+  transform: translateY(-50%) scale(1.05);
+}
+
+.carousel-btn.prev {
+  left: 0;
+}
+
+.carousel-btn.next {
+  right: 0;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+  .bestseller-carousel {
+    padding: 0 44px;
+  }
+
+  .carousel-item {
+    width: 220px;
+  }
+
+  .carousel-btn {
+    width: 38px;
+    height: 38px;
+    font-size: 1.2rem;
+  }
+}
