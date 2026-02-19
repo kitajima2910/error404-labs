@@ -11,7 +11,7 @@ export default {
                 "background-dark": "#181a18",
             },
             fontFamily: {
-                "display": ["Spline Sans", "sans-serif"]
+                "display": ["Montserrat", "sans-serif"]
             },
             borderRadius: {
                 "DEFAULT": "0.5rem",
