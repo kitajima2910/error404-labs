@@ -325,8 +325,11 @@
   top: calc(100% + 14px);
   right: 0;
   width: 360px;
-  max-height: 80vh;
+  max-height: 70vh;
+  /* Giảm nhẹ để an toàn hơn trên mobile/màn hình nhỏ */
   overflow-y: auto;
+  overflow-x: hidden;
+  /* Chỉ ẩn cuộn ngang */
   background: var(--bg-surface);
   border: var(--border);
   border-radius: var(--radius-lg);
@@ -334,7 +337,6 @@
     var(--shadow-lg),
     0 0 60px rgba(16, 185, 129, 0.12);
   z-index: 1200;
-  overflow: hidden;
   opacity: 0;
   visibility: hidden;
   transform: translateY(-10px) scale(0.97);
