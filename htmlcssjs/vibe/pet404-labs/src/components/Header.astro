@@ -1,0 +1,257 @@
+<!-- Header -->
+<header class="header glass" id="header">
+    <div class="header-container">
+        <a href="#" class="logo">
+            <i class="bx bxs-dog"></i>
+            <span>Pet404-Labs</span>
+        </a>
+
+        <nav class="nav-menu">
+            <i class="bx bx-x" id="close-menu"></i>
+            <ul class="nav-list">
+                <li><a href="#products" class="active">Shop</a></li>
+                <li><a href="#bestseller">Best Seller</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#blog">Blog</a></li>
+                <li
+                    class="mobile-only mobile-auth-section"
+                    id="mobile-auth-section"
+                >
+                    <!-- Will be populated by JS -->
+                </li>
+            </ul>
+        </nav>
+
+        <div class="header-actions">
+            <button class="icon-btn" id="search-btn">
+                <i class="bx bx-search"></i>
+            </button>
+            <button class="icon-btn cart-btn" id="cart-btn">
+                <i class="bx bx-cart"></i>
+                <span class="cart-count" id="cart-count">0</span>
+            </button>
+            <div class="account-wrapper">
+                <button
+                    class="icon-btn account-btn-avatar"
+                    id="account-btn"
+                    aria-label="Tài khoản"
+                >
+                    <span class="account-initials">NV</span>
+                    <span class="vip-badge" id="vip-badge">VIP</span>
+                </button>
+                <div class="account-dropdown" id="account-dropdown">
+                    <!-- Profile header with VIP -->
+                    <div class="acct-header">
+                        <div class="acct-avatar-wrapper">
+                            <div class="acct-avatar" id="acct-avatar">NV</div>
+                            <div class="acct-vip-icon" id="acct-vip-icon">
+                                👑
+                            </div>
+                        </div>
+                        <div class="acct-info">
+                            <p class="acct-name" id="acct-name">Nguyễn Văn A</p>
+                            <p class="acct-email" id="acct-email">
+                                nguyenvana@pet404.vn
+                            </p>
+                            <div class="acct-tier-wrapper">
+                                <span class="acct-tier" id="acct-tier"
+                                    >🏆 Gold Member</span
+                                >
+                                <span class="acct-expire" id="acct-expire"
+                                    >Hết hạn: 31/12/2025</span
+                                >
+                            </div>
+                        </div>
+                        <!-- Logout button moved here for visibility -->
+                        <button
+                            class="acct-logout logout-inline"
+                            id="acct-logout-btn-header"
+                            title="Đăng xuất"
+                        >
+                            <i class="bx bx-log-out"></i>
+                        </button>
+                    </div>
+
+                    <!-- VIP Progress Bar -->
+                    <div class="vip-progress-section" id="vip-progress-section">
+                        <div class="vip-progress-header">
+                            <span class="vip-current" id="vip-current"
+                                >Gold</span
+                            >
+                            <span class="vip-next" id="vip-next">Platinum</span>
+                        </div>
+                        <div class="vip-progress-bar">
+                            <div
+                                class="vip-progress-fill"
+                                id="vip-progress-fill"
+                                style="width: 65%"
+                            >
+                            </div>
+                        </div>
+                        <div class="vip-progress-text">
+                            <span
+                                >Còn <strong id="vip-remaining">850</strong> điểm
+                                nữa để lên hạng</span
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Wallet & Coupons -->
+                    <div class="acct-wallet-section">
+                        <div class="wallet-item">
+                            <i class="bx bx-wallet"></i>
+                            <div class="wallet-info">
+                                <span class="wallet-label">Ví tiền</span>
+                                <span class="wallet-value" id="wallet-balance"
+                                    >2.450.000đ</span
+                                >
+                            </div>
+                        </div>
+                        <div class="wallet-item">
+                            <i class="bx bx-gift"></i>
+                            <div class="wallet-info">
+                                <span class="wallet-label">Mã giảm giá</span>
+                                <span class="wallet-value" id="wallet-coupons"
+                                    >5 mã</span
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stats Grid -->
+                    <div class="acct-stats">
+                        <div class="acct-stat">
+                            <span class="acct-stat-value" id="stat-orders"
+                                >12</span
+                            >
+                            <span class="acct-stat-label">Đơn hàng</span>
+                        </div>
+                        <div class="acct-stat">
+                            <span class="acct-stat-value" id="stat-points"
+                                >2.450</span
+                            >
+                            <span class="acct-stat-label">Điểm</span>
+                        </div>
+                        <div class="acct-stat">
+                            <span class="acct-stat-value" id="stat-wishlist"
+                                >5</span
+                            >
+                            <span class="acct-stat-label">Yêu thích</span>
+                        </div>
+                    </div>
+
+                    <!-- VIP Benefits -->
+                    <div class="vip-benefits" id="vip-benefits">
+                        <div class="vip-benefits-header">
+                            <i class="bx bx-crown"></i>
+                            <span>Đặc quyền VIP</span>
+                        </div>
+                        <ul class="vip-benefits-list">
+                            <li>
+                                <i class="bx bx-check"></i> Giảm 10% mọi đơn hàng
+                            </li>
+                            <li>
+                                <i class="bx bx-check"></i> Freeship toàn quốc
+                            </li>
+                            <li>
+                                <i class="bx bx-check"></i> Ưu tiên xử lý đơn
+                            </li>
+                            <li>
+                                <i class="bx bx-check"></i> Quà sinh nhật đặc biệt
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Recent Orders Preview -->
+                    <div class="recent-orders" id="recent-orders">
+                        <div class="recent-orders-header">
+                            <span>Đơn hàng gần đây</span>
+                            <a href="#" class="view-all">Xem tất cả</a>
+                        </div>
+                        <div class="recent-order-item">
+                            <div class="order-info">
+                                <span class="order-id">#PET2024001</span>
+                                <span class="order-status delivered"
+                                    >Đã giao</span
+                                >
+                            </div>
+                            <span class="order-amount">450.000đ</span>
+                        </div>
+                    </div>
+
+                    <!-- Menu -->
+                    <ul class="acct-menu">
+                        <li>
+                            <a href="#" class="acct-menu-item">
+                                <div class="menu-icon-wrapper profile">
+                                    <i class="bx bx-user-circle"></i>
+                                </div>
+                                <span>Hồ sơ của tôi</span>
+                                <i class="bx bx-chevron-right acct-arrow"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="acct-menu-item">
+                                <div class="menu-icon-wrapper orders">
+                                    <i class="bx bx-package"></i>
+                                </div>
+                                <span>Đơn hàng</span>
+                                <span class="acct-badge" id="menu-badge-orders"
+                                    >12</span
+                                >
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="acct-menu-item">
+                                <div class="menu-icon-wrapper wishlist">
+                                    <i class="bx bx-heart"></i>
+                                </div>
+                                <span>Yêu thích</span>
+                                <span
+                                    class="acct-badge"
+                                    id="menu-badge-wishlist">5</span
+                                >
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="acct-menu-item">
+                                <div class="menu-icon-wrapper notifications">
+                                    <i class="bx bx-bell"></i>
+                                </div>
+                                <span>Thông báo</span>
+                                <span class="acct-badge acct-badge-new">3</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="acct-menu-item">
+                                <div class="menu-icon-wrapper vip">
+                                    <i class="bx bx-crown"></i>
+                                </div>
+                                <span>Hạng thành viên</span>
+                                <i class="bx bx-chevron-right acct-arrow"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="acct-menu-item">
+                                <div class="menu-icon-wrapper settings">
+                                    <i class="bx bx-cog"></i>
+                                </div>
+                                <span>Cài đặt</span>
+                                <i class="bx bx-chevron-right acct-arrow"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <button
+                class="btn btn-sm btn-outline"
+                id="login-btn"
+                style="margin-left: 8px"
+            >
+                Đăng nhập
+            </button>
+            <a href="#products" class="btn btn-primary btn-glow">Mua ngay</a>
+            <i class="bx bx-menu" id="menu-icon"></i>
+        </div>
+    </div>
+</header>

@@ -228,64 +228,56 @@ class AuthManager {
     this.registerForm?.classList.toggle("active", tab === "register");
   }
 
-  login(email, password) {
-    const user = this.users.find(
-      (u) => u.email === email && u.password === password,
-    );
-    if (!user) {
-      window.cart?.showNotification?.("Email hoặc mật khẩu không đúng!");
-      return;
+  async login(email, password) {
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        window.cart?.showNotification?.(data.message || "Email hoặc mật khẩu không đúng!");
+        return;
+      }
+
+      this.currentUser = data;
+      this.saveSession();
+      this.updateHeaderUI();
+      window.cart?.showNotification?.(`Chào mừng ${data.name || data.email} đã trở lại! 👋`);
+      this.closeModal();
+    } catch (error) {
+      console.error('Login error:', error);
+      window.cart?.showNotification?.("Lỗi kết nối server!");
     }
-    // Include all user data including VIP info
-    this.currentUser = {
-      name: user.name,
-      email: user.email,
-      points: user.points || 2450,
-      orders: user.orders || 12,
-      wishlist: user.wishlist || 5,
-      wallet: user.wallet || 2450000,
-      coupons: user.coupons || 5,
-      tier: user.tier || "gold"
-    };
-    this.saveSession();
-    this.updateHeaderUI();
-    window.cart?.showNotification?.(`Chào mừng ${user.name || user.email} đã trở lại! 👋`);
-    this.closeModal();
   }
 
-  register(name, email, password) {
-    if (this.users.find((u) => u.email === email)) {
-      window.cart?.showNotification?.("Email đã tồn tại!");
-      return;
+  async register(name, email, password) {
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        window.cart?.showNotification?.(data.message || "Đăng ký không thành công!");
+        return;
+      }
+
+      this.currentUser = data;
+      this.saveSession();
+      this.updateHeaderUI();
+      window.cart?.showNotification?.("Đăng ký thành công! 🎉 Bạn nhận được 3 mã giảm giá!");
+      this.closeModal();
+    } catch (error) {
+      console.error('Registration error:', error);
+      window.cart?.showNotification?.("Lỗi kết nối server!");
     }
-    const newUser = {
-      name,
-      email,
-      password,
-      points: 0,
-      orders: 0,
-      wishlist: 0,
-      wallet: 0,
-      coupons: 3,
-      tier: "bronze",
-      createdAt: new Date().toISOString()
-    };
-    this.users.push(newUser);
-    this.saveUsers();
-    this.currentUser = {
-      name,
-      email,
-      points: 0,
-      orders: 0,
-      wishlist: 0,
-      wallet: 0,
-      coupons: 3,
-      tier: "bronze"
-    };
-    this.saveSession();
-    this.updateHeaderUI();
-    window.cart?.showNotification?.("Đăng ký thành công! 🎉 Bạn nhận được 3 mã giảm giá!");
-    this.closeModal();
   }
 
   logout() {

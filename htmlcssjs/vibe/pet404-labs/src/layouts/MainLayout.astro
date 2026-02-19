@@ -1,0 +1,73 @@
+---
+const { title = "Pet404-Labs | Chăm Sóc Thú Cưng Thông Minh" } = Astro.props;
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import AuthModal from "../components/AuthModal.astro";
+import ProductModal from "../components/ProductModal.astro";
+import CartSidebar from "../components/CartSidebar.astro";
+import SearchOverlay from "../components/SearchOverlay.astro";
+import Ads from "../components/Ads.astro";
+---
+
+<!doctype html>
+<html lang="vi">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{title}</title>
+
+        <!-- Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&subset=vietnamese&display=swap"
+            rel="stylesheet"
+        />
+
+        <!-- Icons -->
+        <link
+            href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+            rel="stylesheet"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+        />
+
+        <!-- Styles -->
+        <link rel="stylesheet" href="/css/style.css" />
+        <link rel="stylesheet" href="/css/header.css" />
+        <link rel="stylesheet" href="/css/hero.css" />
+        <link rel="stylesheet" href="/css/products.css" />
+        <link rel="stylesheet" href="/css/bestseller.css" />
+        <link rel="stylesheet" href="/css/features.css" />
+        <link rel="stylesheet" href="/css/blog.css" />
+        <link rel="stylesheet" href="/css/footer.css" />
+        <link rel="stylesheet" href="/css/modal.css" />
+        <link rel="stylesheet" href="/css/cart.css" />
+        <link rel="stylesheet" href="/css/auth.css" />
+        <link rel="stylesheet" href="/css/ads.css" />
+    </head>
+
+    <body>
+        <Header />
+
+        <slot />
+
+        <Footer />
+
+        <AuthModal />
+        <ProductModal />
+        <CartSidebar />
+        <SearchOverlay />
+        <Ads />
+
+        <!-- Global Scripts -->
+        <script is:inline src="/js/data.js"></script>
+        <script is:inline src="/js/cart.js"></script>
+        <script is:inline src="/js/modal.js"></script>
+        <script is:inline src="/js/auth.js"></script>
+        <script is:inline src="/js/main.js"></script>
+        <script is:inline src="/js/festive.js"></script>
+    </body>
+</html>
