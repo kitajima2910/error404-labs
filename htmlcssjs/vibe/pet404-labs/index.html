@@ -1,33 +1,35 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pet404-Labs | Chăm Sóc Thú Cưng Thông Minh</title>
 
   <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
     href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&subset=vietnamese&display=swap"
-    rel="stylesheet">
+    rel="stylesheet" />
 
   <!-- Icons -->
-  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
   <!-- Styles -->
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/header.css">
-  <link rel="stylesheet" href="css/hero.css">
-  <link rel="stylesheet" href="css/products.css">
-  <link rel="stylesheet" href="css/bestseller.css">
-  <link rel="stylesheet" href="css/features.css">
-  <link rel="stylesheet" href="css/blog.css">
-  <link rel="stylesheet" href="css/footer.css">
-  <link rel="stylesheet" href="css/modal.css">
-  <link rel="stylesheet" href="css/cart.css">
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/header.css" />
+  <link rel="stylesheet" href="css/hero.css" />
+  <link rel="stylesheet" href="css/products.css" />
+  <link rel="stylesheet" href="css/bestseller.css" />
+  <link rel="stylesheet" href="css/features.css" />
+  <link rel="stylesheet" href="css/blog.css" />
+  <link rel="stylesheet" href="css/footer.css" />
+  <link rel="stylesheet" href="css/modal.css" />
+  <link rel="stylesheet" href="css/cart.css" />
+  <link rel="stylesheet" href="css/auth.css" />
+  <link rel="stylesheet" href="css/ads.css" />
 </head>
 
 <body>
@@ -35,29 +37,198 @@
   <header class="header glass" id="header">
     <div class="header-container">
       <a href="#" class="logo">
-        <i class='bx bxs-dog'></i>
+        <i class="bx bxs-dog"></i>
         <span>Pet404-Labs</span>
       </a>
 
       <nav class="nav-menu">
-        <i class='bx bx-x' id="close-menu"></i>
+        <i class="bx bx-x" id="close-menu"></i>
         <ul class="nav-list">
           <li><a href="#products" class="active">Shop</a></li>
           <li><a href="#bestseller">Best Seller</a></li>
           <li><a href="#about">About</a></li>
           <li><a href="#blog">Blog</a></li>
+          <li class="mobile-only mobile-auth-section" id="mobile-auth-section">
+            <!-- Will be populated by JS -->
+          </li>
         </ul>
       </nav>
 
       <div class="header-actions">
-        <button class="icon-btn" id="search-btn"><i class='bx bx-search'></i></button>
+        <button class="icon-btn" id="search-btn">
+          <i class="bx bx-search"></i>
+        </button>
         <button class="icon-btn cart-btn" id="cart-btn">
-          <i class='bx bx-cart'></i>
+          <i class="bx bx-cart"></i>
           <span class="cart-count" id="cart-count">0</span>
         </button>
-        <button class="icon-btn" id="account-btn"><i class='bx bx-user'></i></button>
+        <div class="account-wrapper">
+          <button class="icon-btn account-btn-avatar" id="account-btn" aria-label="Tài khoản">
+            <span class="account-initials">NV</span>
+            <span class="vip-badge" id="vip-badge">VIP</span>
+          </button>
+          <div class="account-dropdown" id="account-dropdown">
+            <!-- Profile header with VIP -->
+            <div class="acct-header">
+              <div class="acct-avatar-wrapper">
+                <div class="acct-avatar" id="acct-avatar">NV</div>
+                <div class="acct-vip-icon" id="acct-vip-icon">👑</div>
+              </div>
+              <div class="acct-info">
+                <p class="acct-name" id="acct-name">Nguyễn Văn A</p>
+                <p class="acct-email" id="acct-email">nguyenvana@pet404.vn</p>
+                <div class="acct-tier-wrapper">
+                  <span class="acct-tier" id="acct-tier">🏆 Gold Member</span>
+                  <span class="acct-expire" id="acct-expire">Hết hạn: 31/12/2025</span>
+                </div>
+              </div>
+              <!-- Logout button moved here for visibility -->
+              <button class="acct-logout logout-inline" id="acct-logout-btn-header" title="Đăng xuất">
+                <i class="bx bx-log-out"></i>
+              </button>
+            </div>
+
+            <!-- VIP Progress Bar -->
+            <div class="vip-progress-section" id="vip-progress-section">
+              <div class="vip-progress-header">
+                <span class="vip-current" id="vip-current">Gold</span>
+                <span class="vip-next" id="vip-next">Platinum</span>
+              </div>
+              <div class="vip-progress-bar">
+                <div class="vip-progress-fill" id="vip-progress-fill" style="width: 65%"></div>
+              </div>
+              <div class="vip-progress-text">
+                <span>Còn <strong id="vip-remaining">850</strong> điểm nữa để lên hạng</span>
+              </div>
+            </div>
+
+            <!-- Wallet & Coupons -->
+            <div class="acct-wallet-section">
+              <div class="wallet-item">
+                <i class='bx bx-wallet'></i>
+                <div class="wallet-info">
+                  <span class="wallet-label">Ví tiền</span>
+                  <span class="wallet-value" id="wallet-balance">2.450.000đ</span>
+                </div>
+              </div>
+              <div class="wallet-item">
+                <i class='bx bx-gift'></i>
+                <div class="wallet-info">
+                  <span class="wallet-label">Mã giảm giá</span>
+                  <span class="wallet-value" id="wallet-coupons">5 mã</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="acct-stats">
+              <div class="acct-stat">
+                <span class="acct-stat-value" id="stat-orders">12</span>
+                <span class="acct-stat-label">Đơn hàng</span>
+              </div>
+              <div class="acct-stat">
+                <span class="acct-stat-value" id="stat-points">2.450</span>
+                <span class="acct-stat-label">Điểm</span>
+              </div>
+              <div class="acct-stat">
+                <span class="acct-stat-value" id="stat-wishlist">5</span>
+                <span class="acct-stat-label">Yêu thích</span>
+              </div>
+            </div>
+
+            <!-- VIP Benefits -->
+            <div class="vip-benefits" id="vip-benefits">
+              <div class="vip-benefits-header">
+                <i class='bx bx-crown'></i>
+                <span>Đặc quyền VIP</span>
+              </div>
+              <ul class="vip-benefits-list">
+                <li><i class='bx bx-check'></i> Giảm 10% mọi đơn hàng</li>
+                <li><i class='bx bx-check'></i> Freeship toàn quốc</li>
+                <li><i class='bx bx-check'></i> Ưu tiên xử lý đơn</li>
+                <li><i class='bx bx-check'></i> Quà sinh nhật đặc biệt</li>
+              </ul>
+            </div>
+
+            <!-- Recent Orders Preview -->
+            <div class="recent-orders" id="recent-orders">
+              <div class="recent-orders-header">
+                <span>Đơn hàng gần đây</span>
+                <a href="#" class="view-all">Xem tất cả</a>
+              </div>
+              <div class="recent-order-item">
+                <div class="order-info">
+                  <span class="order-id">#PET2024001</span>
+                  <span class="order-status delivered">Đã giao</span>
+                </div>
+                <span class="order-amount">450.000đ</span>
+              </div>
+            </div>
+
+            <!-- Menu -->
+            <ul class="acct-menu">
+              <li>
+                <a href="#" class="acct-menu-item">
+                  <div class="menu-icon-wrapper profile">
+                    <i class="bx bx-user-circle"></i>
+                  </div>
+                  <span>Hồ sơ của tôi</span>
+                  <i class="bx bx-chevron-right acct-arrow"></i>
+                </a>
+              </li>
+              <li>
+                <a href="#" class="acct-menu-item">
+                  <div class="menu-icon-wrapper orders">
+                    <i class="bx bx-package"></i>
+                  </div>
+                  <span>Đơn hàng</span>
+                  <span class="acct-badge" id="menu-badge-orders">12</span>
+                </a>
+              </li>
+              <li>
+                <a href="#" class="acct-menu-item">
+                  <div class="menu-icon-wrapper wishlist">
+                    <i class="bx bx-heart"></i>
+                  </div>
+                  <span>Yêu thích</span>
+                  <span class="acct-badge" id="menu-badge-wishlist">5</span>
+                </a>
+              </li>
+              <li>
+                <a href="#" class="acct-menu-item">
+                  <div class="menu-icon-wrapper notifications">
+                    <i class="bx bx-bell"></i>
+                  </div>
+                  <span>Thông báo</span>
+                  <span class="acct-badge acct-badge-new">3</span>
+                </a>
+              </li>
+              <li>
+                <a href="#" class="acct-menu-item">
+                  <div class="menu-icon-wrapper vip">
+                    <i class="bx bx-crown"></i>
+                  </div>
+                  <span>Hạng thành viên</span>
+                  <i class="bx bx-chevron-right acct-arrow"></i>
+                </a>
+              </li>
+              <li>
+                <a href="#" class="acct-menu-item">
+                  <div class="menu-icon-wrapper settings">
+                    <i class="bx bx-cog"></i>
+                  </div>
+                  <span>Cài đặt</span>
+                  <i class="bx bx-chevron-right acct-arrow"></i>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <button class="btn btn-sm btn-outline" id="login-btn" style="margin-left: 8px">
+          Đăng nhập
+        </button>
         <a href="#products" class="btn btn-primary btn-glow">Mua ngay</a>
-        <i class='bx bx-menu' id="menu-icon"></i>
+        <i class="bx bx-menu" id="menu-icon"></i>
       </div>
     </div>
   </header>
@@ -66,18 +237,21 @@
   <section class="hero" id="home">
     <div class="hero-container">
       <div class="hero-content">
-        <div class="hero-badge animate-fadeInUp">🐾 Thương hiệu tin cậy #1 Việt Nam</div>
-        <h1 class="hero-title animate-fadeInUp" style="animation-delay: 0.1s;">
-          Chăm Sóc Thú Cưng<br><span class="highlight">Thông Minh Hơn</span>
+        <div class="hero-badge animate-fadeInUp">
+          🐾 Thương hiệu tin cậy #1 Việt Nam
+        </div>
+        <h1 class="hero-title animate-fadeInUp" style="animation-delay: 0.1s">
+          Chăm Sóc Thú Cưng<br /><span class="highlight">Thông Minh Hơn</span>
         </h1>
-        <p class="hero-subtitle animate-fadeInUp" style="animation-delay: 0.2s;">
-          Sản phẩm chất lượng cao – An toàn – Được kiểm chứng bởi cộng đồng yêu thú cưng trên toàn quốc.
+        <p class="hero-subtitle animate-fadeInUp" style="animation-delay: 0.2s">
+          Sản phẩm chất lượng cao – An toàn – Được kiểm chứng bởi cộng đồng
+          yêu thú cưng trên toàn quốc.
         </p>
-        <div class="hero-buttons animate-fadeInUp" style="animation-delay: 0.35s;">
+        <div class="hero-buttons animate-fadeInUp" style="animation-delay: 0.35s">
           <a href="#products" class="btn btn-primary btn-glow">Khám phá ngay</a>
           <a href="#bestseller" class="btn btn-secondary">Xem best seller</a>
         </div>
-        <div class="hero-stats animate-fadeInUp" style="animation-delay: 0.5s;">
+        <div class="hero-stats animate-fadeInUp" style="animation-delay: 0.5s">
           <div class="hero-stat">
             <span class="hero-stat-value">5,000+</span>
             <span class="hero-stat-label">Khách hàng</span>
@@ -92,9 +266,9 @@
           </div>
         </div>
       </div>
-      <div class="hero-image animate-fadeInUp" style="animation-delay: 0.6s;">
+      <div class="hero-image animate-fadeInUp" style="animation-delay: 0.6s">
         <img src="https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=600&h=600&fit=crop"
-          alt="Happy pet with owner">
+          alt="Happy pet with owner" />
       </div>
     </div>
     <div class="hero-shape"></div>
@@ -105,7 +279,9 @@
     <div class="container">
       <div class="section-title">
         <h2>Sản Phẩm CủA Chúng Tôi</h2>
-        <p>Khám phá bộ sưu tập sản phẩm chất lượng cao cho thú cưng của bạn</p>
+        <p>
+          Khám phá bộ sưu tập sản phẩm chất lượng cao cho thú cưng của bạn
+        </p>
       </div>
 
       <div class="products-grid" id="products-grid">
@@ -123,11 +299,15 @@
       </div>
 
       <div class="bestseller-carousel">
-        <button class="carousel-btn prev" id="carousel-prev"><i class='bx bx-chevron-left'></i></button>
+        <button class="carousel-btn prev" id="carousel-prev">
+          <i class="bx bx-chevron-left"></i>
+        </button>
         <div class="carousel-track" id="carousel-track">
           <!-- Best seller products will be injected by JS -->
         </div>
-        <button class="carousel-btn next" id="carousel-next"><i class='bx bx-chevron-right'></i></button>
+        <button class="carousel-btn next" id="carousel-next">
+          <i class="bx bx-chevron-right"></i>
+        </button>
       </div>
     </div>
   </section>
@@ -146,8 +326,10 @@
             <i class="fa-solid fa-shield-heart"></i>
           </div>
           <h3 class="feature-title">Sản Phẩm An Toàn</h3>
-          <p class="feature-desc">100% sản phẩm được kiểm định chất lượng, đảm bảo an toàn tuyệt đối cho thú cưng của
-            bạn</p>
+          <p class="feature-desc">
+            100% sản phẩm được kiểm định chất lượng, đảm bảo an toàn tuyệt đối
+            cho thú cưng của bạn
+          </p>
         </div>
 
         <div class="feature-card">
@@ -155,7 +337,9 @@
             <i class="fa-solid fa-truck-fast"></i>
           </div>
           <h3 class="feature-title">Giao Hàng Nhanh</h3>
-          <p class="feature-desc">Đơn hàng được xử lý trong 24h và giao nhanh 2-3 ngày toàn quốc, miễn phí đơn từ 300k
+          <p class="feature-desc">
+            Đơn hàng được xử lý trong 24h và giao nhanh 2-3 ngày toàn quốc,
+            miễn phí đơn từ 300k
           </p>
         </div>
 
@@ -164,7 +348,10 @@
             <i class="fa-solid fa-headset"></i>
           </div>
           <h3 class="feature-title">Hỗ Trợ 24/7</h3>
-          <p class="feature-desc">Đội ngũ chăm sóc khách hàng chuyên nghiệp luôn sẵn sàng hỗ trợ bạn mọi lúc mọi nơi</p>
+          <p class="feature-desc">
+            Đội ngũ chăm sóc khách hàng chuyên nghiệp luôn sẵn sàng hỗ trợ bạn
+            mọi lúc mọi nơi
+          </p>
         </div>
 
         <div class="feature-card">
@@ -172,7 +359,10 @@
             <i class="fa-solid fa-rotate-left"></i>
           </div>
           <h3 class="feature-title">Đổi Trả Dễ Dàng</h3>
-          <p class="feature-desc">Chính sách đổi trả linh hoạt trong vòng 30 ngày nếu không hài lòng, hoàn tiền 100%</p>
+          <p class="feature-desc">
+            Chính sách đổi trả linh hoạt trong vòng 30 ngày nếu không hài
+            lòng, hoàn tiền 100%
+          </p>
         </div>
       </div>
     </div>
@@ -189,32 +379,42 @@
       <div class="blog-grid">
         <article class="blog-card glass">
           <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=250&fit=crop"
-            alt="Dog nutrition">
+            alt="Dog nutrition" />
           <div class="blog-content">
             <span class="blog-tag">Dinh Dưỡng</span>
             <h3>Top 10 Thực Phẩm Tốt Nhất Cho Chó Con</h3>
-            <p>Khám phá những loại thực phẩm giàu dinh dưỡng giúp chó con phát triển khỏe mạnh...</p>
-            <a href="#" class="blog-link">Đọc thêm <i class='bx bx-right-arrow-alt'></i></a>
+            <p>
+              Khám phá những loại thực phẩm giàu dinh dưỡng giúp chó con phát
+              triển khỏe mạnh...
+            </p>
+            <a href="#" class="blog-link">Đọc thêm <i class="bx bx-right-arrow-alt"></i></a>
           </div>
         </article>
 
         <article class="blog-card glass">
-          <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=400&h=250&fit=crop" alt="Cat care">
+          <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=400&h=250&fit=crop" alt="Cat care" />
           <div class="blog-content">
             <span class="blog-tag">Chăm Sóc</span>
             <h3>Cách Tắm Mèo Đúng Cách Tại Nhà</h3>
-            <p>Hướng dẫn chi tiết cách tắm mèo an toàn, giúp bé sạch sẽ mà không bị stress...</p>
-            <a href="#" class="blog-link">Đọc thêm <i class='bx bx-right-arrow-alt'></i></a>
+            <p>
+              Hướng dẫn chi tiết cách tắm mèo an toàn, giúp bé sạch sẽ mà
+              không bị stress...
+            </p>
+            <a href="#" class="blog-link">Đọc thêm <i class="bx bx-right-arrow-alt"></i></a>
           </div>
         </article>
 
         <article class="blog-card glass">
-          <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=400&h=250&fit=crop" alt="Dog training">
+          <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=400&h=250&fit=crop"
+            alt="Dog training" />
           <div class="blog-content">
             <span class="blog-tag">Huấn Luyện</span>
             <h3>5 Bước Huấn Luyện Chó Cơ Bản</h3>
-            <p>Bắt đầu hành trình huấn luyện chó của bạn với 5 kỹ thuật cơ bản và hiệu quả...</p>
-            <a href="#" class="blog-link">Đọc thêm <i class='bx bx-right-arrow-alt'></i></a>
+            <p>
+              Bắt đầu hành trình huấn luyện chó của bạn với 5 kỹ thuật cơ bản
+              và hiệu quả...
+            </p>
+            <a href="#" class="blog-link">Đọc thêm <i class="bx bx-right-arrow-alt"></i></a>
           </div>
         </article>
       </div>
@@ -227,16 +427,18 @@
       <div class="footer-grid">
         <div class="footer-brand">
           <a href="#" class="footer-logo">
-            <i class='bx bxs-dog'></i>
+            <i class="bx bxs-dog"></i>
             <span>Pet404-Labs</span>
           </a>
-          <p>Chăm sóc thú cưng theo cách thông minh hơn. Chúng tôi mang đến những sản phẩm chất lượng cao cho người bạn
-            bốn chân của bạn.</p>
+          <p>
+            Chăm sóc thú cưng theo cách thông minh hơn. Chúng tôi mang đến
+            những sản phẩm chất lượng cao cho người bạn bốn chân của bạn.
+          </p>
           <div class="footer-social">
-            <a href="#"><i class='bx bxl-facebook'></i></a>
-            <a href="#"><i class='bx bxl-instagram'></i></a>
-            <a href="#"><i class='bx bxl-tiktok'></i></a>
-            <a href="#"><i class='bx bxl-youtube'></i></a>
+            <a href="#"><i class="bx bxl-facebook"></i></a>
+            <a href="#"><i class="bx bxl-instagram"></i></a>
+            <a href="#"><i class="bx bxl-tiktok"></i></a>
+            <a href="#"><i class="bx bxl-youtube"></i></a>
           </div>
         </div>
 
@@ -277,7 +479,7 @@
           <div class="footer-contact-item">
             <i class="fa-solid fa-globe"></i>
             <span><a href="https://www.error404-labs.info.vn" target="_blank"
-                style="color: var(--emerald);">error404-labs.info.vn</a></span>
+                style="color: var(--emerald)">error404-labs.info.vn</a></span>
           </div>
           <div class="footer-contact-item">
             <i class="fa-solid fa-clock"></i>
@@ -293,9 +495,79 @@
   </footer>
 
   <!-- Product Modal -->
+
+  <!-- Auth Modal -->
+  <div class="modal-overlay" id="auth-modal">
+    <div class="modal-content auth-modal">
+      <button class="modal-close" id="auth-modal-close">
+        <i class="bx bx-x"></i>
+      </button>
+
+      <div class="auth-header-bg">
+        <i class="bx bxs-dog"></i>
+        <h2>Chào mừng bạn!</h2>
+      </div>
+
+      <div class="modal-body auth-body">
+        <div class="auth-tabs">
+          <button class="auth-tab active" data-tab="login">Đăng nhập</button>
+          <button class="auth-tab" data-tab="register">Đăng ký</button>
+        </div>
+
+        <div class="auth-forms">
+          <form id="login-form" class="auth-form active">
+            <div class="input-groups">
+              <div class="input-field">
+                <i class="bx bx-envelope"></i>
+                <input type="email" id="login-email" placeholder="Email của bạn" required />
+              </div>
+              <div class="input-field">
+                <i class="bx bx-lock-alt"></i>
+                <input type="password" id="login-password" placeholder="Mật khẩu" required minlength="6" />
+              </div>
+            </div>
+            <button class="btn btn-primary" id="login-submit">Đăng nhập</button>
+
+            <div class="auth-divider">hoặc đăng nhập bằng</div>
+
+            <div class="social-btns">
+              <button type="button" class="social-btn fb"><i class="bx bxl-facebook-circle"></i> Facebook</button>
+              <button type="button" class="social-btn gg"><i class="bx bxl-google"></i> Google</button>
+            </div>
+          </form>
+
+          <form id="register-form" class="auth-form">
+            <div class="input-groups">
+              <div class="input-field">
+                <i class="bx bx-user"></i>
+                <input type="text" id="register-name" placeholder="Họ và tên" required />
+              </div>
+              <div class="input-field">
+                <i class="bx bx-envelope"></i>
+                <input type="email" id="register-email" placeholder="Email" required />
+              </div>
+              <div class="input-field">
+                <i class="bx bx-lock-alt"></i>
+                <input type="password" id="register-password" placeholder="Mật khẩu (tối thiểu 6 ký tự)" required
+                  minlength="6" />
+              </div>
+            </div>
+            <button class="btn btn-primary" id="register-submit">Tạo tài khoản</button>
+          </form>
+        </div>
+
+        <div class="auth-footer">
+          Bằng việc tiếp tục, bạn đồng ý với <a href="#">Điều khoản dịch vụ</a> của chúng tôi.
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="product-modal">
     <div class="modal-content">
-      <button class="modal-close" id="modal-close"><i class='bx bx-x'></i></button>
+      <button class="modal-close" id="modal-close">
+        <i class="bx bx-x"></i>
+      </button>
       <div class="modal-body" id="modal-body">
         <!-- Modal content will be injected by JS -->
       </div>
@@ -306,8 +578,10 @@
   <div class="cart-overlay" id="cart-overlay"></div>
   <div class="cart-sidebar" id="cart-sidebar">
     <div class="cart-header">
-      <h3><i class='bx bx-cart'></i> Giỏ Hàng</h3>
-      <button class="cart-close" id="cart-close"><i class='bx bx-x'></i></button>
+      <h3><i class="bx bx-cart"></i> Giỏ Hàng</h3>
+      <button class="cart-close" id="cart-close">
+        <i class="bx bx-x"></i>
+      </button>
     </div>
     <div class="cart-items" id="cart-items">
       <!-- Cart items will be injected by JS -->
@@ -317,15 +591,15 @@
         <span>Tổng:</span>
         <strong id="cart-total">0đ</strong>
       </div>
-      <button class="btn btn-primary" style="width: 100%;">Thanh Toán</button>
+      <button class="btn btn-primary" style="width: 100%">Thanh Toán</button>
     </div>
   </div>
 
   <!-- Search Overlay -->
   <div class="search-overlay" id="search-overlay">
     <div class="search-container">
-      <input type="text" placeholder="Tìm kiếm sản phẩm..." id="search-input">
-      <button id="search-close"><i class='bx bx-x'></i></button>
+      <input type="text" placeholder="Tìm kiếm sản phẩm..." id="search-input" />
+      <button id="search-close"><i class="bx bx-x"></i></button>
     </div>
   </div>
 
@@ -333,8 +607,30 @@
   <script src="js/data.js"></script>
   <script src="js/cart.js"></script>
   <script src="js/modal.js"></script>
+  <script src="js/auth.js"></script>
   <script src="js/main.js"></script>
   <script src="js/festive.js"></script>
+
+  <!-- Sidebar Ads -->
+  <aside class="side-ad left-ad" id="left-ad">
+    <button class="ad-close" onclick="document.getElementById('left-ad').style.display='none'"><i
+        class="bx bx-x"></i></button>
+    <a href="#">
+      <img src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=160&h=600&fit=crop"
+        alt="Pet Food Advertisement" />
+    </a>
+    <div class="ad-label">QUẢNG CÁO</div>
+  </aside>
+
+  <aside class="side-ad right-ad" id="right-ad">
+    <button class="ad-close" onclick="document.getElementById('right-ad').style.display='none'"><i
+        class="bx bx-x"></i></button>
+    <a href="#">
+      <img src="https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=160&h=600&fit=crop"
+        alt="Pet Spa Advertisement" />
+    </a>
+    <div class="ad-label">QUẢNG CÁO</div>
+  </aside>
 </body>
 
 </html>

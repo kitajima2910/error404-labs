@@ -1,0 +1,223 @@
+/* ============================================
+   AUTH MODAL - REDESIGN (PREMIUM GLASS)
+   ============================================ */
+
+.auth-modal {
+  max-width: 500px;
+  /* Tăng từ 450px lên 500px */
+  width: 95%;
+  padding: 0;
+  background: rgba(15, 23, 42, 0.9) !important;
+  /* Đậm hơn một chút để dễ nhìn */
+  backdrop-filter: blur(25px) !important;
+  -webkit-backdrop-filter: blur(25px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6) !important;
+  overflow: hidden;
+  border-radius: 28px !important;
+}
+
+.auth-header-bg {
+  height: 120px;
+  background: linear-gradient(135deg, var(--emerald-dark) 0%, var(--emerald) 100%);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  color: white;
+}
+
+.auth-header-bg i {
+  font-size: 3rem;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
+}
+
+.auth-header-bg h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.auth-body {
+  padding: 40px !important;
+  /* Tăng từ 30px lên 40px */
+  display: flex !important;
+  /* Ghi đè grid của modal.css */
+  flex-direction: column !important;
+  grid-template-columns: none !important;
+  /* Chắc chắn xóa grid */
+}
+
+.auth-tabs {
+  display: flex;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 6px;
+  border-radius: 12px;
+  margin-bottom: 35px;
+  /* Tăng từ 25px lên 35px */
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.auth-tab {
+  flex: 1;
+  padding: 12px;
+  /* Tăng từ 10px lên 12px */
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  transition: all 0.3s var(--ease);
+}
+
+.auth-tab.active {
+  background: white;
+  color: var(--emerald-dark);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.auth-form {
+  display: none;
+}
+
+.auth-form.active {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  /* Tăng từ 18px lên 25px */
+  animation: authFadeIn 0.4s var(--ease);
+}
+
+@keyframes authFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.input-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  /* Tăng từ 12px lên 16px */
+}
+
+.input-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-field i {
+  position: absolute;
+  left: 16px;
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  transition: color 0.3s;
+}
+
+.input-field input {
+  width: 100%;
+  padding: 16px 16px 16px 52px !important;
+  /* Tăng padding trái */
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 14px !important;
+  color: white !important;
+  font-size: 1rem;
+  /* Tăng kích thước chữ */
+  transition: all 0.3s;
+}
+
+.input-field input:focus {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: var(--emerald) !important;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15) !important;
+  outline: none;
+}
+
+.input-field input:focus+i {
+  color: var(--emerald);
+}
+
+/* Social Login */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin: 20px 0;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.social-btns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.social-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.social-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.social-btn.fb {
+  color: #1877f2;
+}
+
+.social-btn.gg {
+  color: #ea4335;
+}
+
+.auth-footer {
+  margin-top: 25px;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.auth-footer a {
+  color: var(--emerald);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* Modal close button fix */
+.auth-modal .modal-close {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  top: 15px;
+  right: 15px;
+}

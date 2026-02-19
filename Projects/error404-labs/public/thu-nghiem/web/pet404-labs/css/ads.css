@@ -1,0 +1,85 @@
+/* Sidebar Ads Styling */
+.side-ad {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 160px;
+    height: 600px;
+    z-index: 100;
+    transition: var(--transition);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    animation: floating 3s ease-in-out infinite;
+}
+
+@keyframes floating {
+    0% {
+        transform: translateY(-50%);
+    }
+
+    50% {
+        transform: translateY(-55%);
+    }
+
+    100% {
+        transform: translateY(-50%);
+    }
+}
+
+.side-ad.left-ad {
+    left: 20px;
+}
+
+.side-ad.right-ad {
+    right: 20px;
+}
+
+.side-ad img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.ad-close {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 24px;
+    height: 24px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    z-index: 101;
+    backdrop-filter: blur(4px);
+}
+
+.ad-close:hover {
+    background: var(--primary);
+}
+
+.ad-label {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 4px;
+    background: rgba(0, 0, 0, 0.3);
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 10px;
+    text-align: center;
+    pointer-events: none;
+}
+
+/* Responsive: Hide ads on screens smaller than 1400px to avoid overlapping content */
+@media screen and (max-width: 1400px) {
+    .side-ad {
+        display: none;
+    }
+}
