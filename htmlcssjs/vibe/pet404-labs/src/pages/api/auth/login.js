@@ -1,11 +1,19 @@
 import sql from '../../../lib/neon';
 
+export const prerender = false;
+
 export const POST = async ({ request }) => {
     try {
         const { email, password } = await request.json();
 
+        console.log("pxh2910: ", email, password);
+
         if (!email || !password) {
             return new Response(JSON.stringify({ message: 'Thiếu email hoặc mật khẩu' }), { status: 400 });
+        }
+
+        if (!sql) {
+            return new Response(JSON.stringify({ message: 'Database client not initialized. Check NEON_DATABASE_URL.' }), { status: 500 });
         }
 
         const users = await sql`
@@ -21,6 +29,10 @@ export const POST = async ({ request }) => {
         return new Response(JSON.stringify(users[0]), { status: 200 });
     } catch (error) {
         console.error('Login error:', error);
-        return new Response(JSON.stringify({ message: 'Lỗi server', error: error.message }), { status: 500 });
+        return new Response(JSON.stringify({
+            message: 'Lỗi server',
+            error: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        }), { status: 500 });
     }
 };

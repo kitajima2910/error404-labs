@@ -1,5 +1,7 @@
 import sql from '../../../lib/neon';
 
+export const prerender = false;
+
 export const POST = async ({ request }) => {
     try {
         const { name, email, password } = await request.json();

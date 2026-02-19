@@ -1,9 +1,17 @@
 import { neon } from '@neondatabase/serverless';
-import dotenv from 'dotenv';
 
-dotenv.config();
+const getEnv = (key) => {
+    if (typeof import.meta.env !== 'undefined' && import.meta.env[key]) return import.meta.env[key];
+    if (typeof process !== 'undefined' && process.env && process.env[key]) return process.env[key];
+    return undefined;
+};
 
-const sql = neon(process.env.NEON_DATABASE_URL);
+const url = getEnv('NEON_DATABASE_URL');
+if (!url) {
+    console.error('CRITICAL: NEON_DATABASE_URL is not defined!');
+}
+
+const sql = url ? neon(url) : null;
 
 /**
  * Tiện ích hỗ trợ truy vấn với tiền tố bảng tự động
@@ -11,7 +19,7 @@ const sql = neon(process.env.NEON_DATABASE_URL);
  * @returns {string} - Tên bảng đã có tiền tố
  */
 export const getTableName = (tableName) => {
-    const prefix = process.env.TABLE_PREFIX || 'pet404_';
+    const prefix = getEnv('TABLE_PREFIX') || 'pet404_';
     return `${prefix}${tableName}`;
 };
 
