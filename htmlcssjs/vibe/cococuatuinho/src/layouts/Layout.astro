@@ -44,12 +44,23 @@ const { title, description = "Cô Cỏ Của Tụi Nhỏ - Tranh Dịu Dàng Cho
 			.paper-texture {
 				background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuD4iZE25z4Wv_xczJf05TQZ67JDvfFwbBTfX5au2FCKF_UkISD2eIft5ltpVDh97HDzXj3d6-EK0IJF6jxyi6GQi9O3Wua45fK67WsuLYFwbwo9an4iluWUINrUyo5heWwRcd1HiIXxLmNnWnBNpLLSX8y8oYbPnAuYfNJ20iZH7vXelHIzRHpch-LrhxnVIdNoulUexK5McRTuRJ4LtVJHsUBVaCvRf1wNwGF1Fqxdppdun3kTBquSuzBkil2zWepXoAtI6O1Wudg);
 			}
+			.no-scrollbar::-webkit-scrollbar {
+				display: none;
+			}
+			.no-scrollbar {
+				-ms-overflow-style: none;
+				scrollbar-width: none;
+			}
+			html {
+				scroll-behavior: smooth;
+			}
 		</style>
 	</head>
 	<body
 		class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 selection:bg-primary/30"
 	>
 		<nav
+			id="main-nav"
 			class="fixed top-0 w-full z-50 glass-nav px-6 lg:px-20 py-4 transition-all duration-300"
 		>
 			<div class="max-w-7xl mx-auto flex items-center justify-between">
@@ -64,7 +75,8 @@ const { title, description = "Cô Cỏ Của Tụi Nhỏ - Tranh Dịu Dàng Cho
 						</div>
 						<span
 							class="text-xl font-extrabold tracking-tight text-primary"
-							>Cô Cỏ <span class="text-slate-700 font-medium"
+							>Cô Cỏ <span
+								class="text-slate-700 dark:text-slate-300 font-medium"
 								>Của Tụi Nhỏ</span
 							></span
 						>
@@ -113,9 +125,92 @@ const { title, description = "Cô Cỏ Của Tụi Nhỏ - Tranh Dịu Dàng Cho
 							>2</span
 						>
 					</button>
+
+					<!-- Mobile Menu Button -->
+					<button
+						id="mobile-menu-btn"
+						class="md:hidden p-2 text-slate-600 dark:text-slate-300 hover:bg-primary/10 rounded-lg transition-colors"
+						aria-label="Toggle Menu"
+					>
+						<span class="material-symbols-outlined text-2xl"
+							>menu</span
+						>
+					</button>
+				</div>
+			</div>
+
+			<!-- Mobile Navigation Menu -->
+			<div
+				id="mobile-menu"
+				class="hidden md:hidden absolute top-full left-0 w-full bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 p-6 space-y-4 shadow-xl animate-in slide-in-from-top-4 duration-300"
+			>
+				<a
+					class="block py-2 text-lg font-medium text-slate-900 dark:text-slate-100 border-b border-slate-50 dark:border-slate-800"
+					href="/">Trang chủ</a
+				>
+				<a
+					class="block py-2 text-lg font-medium text-slate-900 dark:text-slate-100 border-b border-slate-50 dark:border-slate-800"
+					href="/cua-hang">Cửa hàng</a
+				>
+				<a
+					class="block py-2 text-lg font-medium text-slate-900 dark:text-slate-100 border-b border-slate-50 dark:border-slate-800"
+					href="#">Bộ sưu tập</a
+				>
+				<a
+					class="block py-2 text-lg font-medium text-slate-900 dark:text-slate-100 border-b border-slate-50 dark:border-slate-800"
+					href="#">Về chúng tôi</a
+				>
+
+				<div
+					class="pt-4 flex items-center bg-primary/5 rounded-xl px-4 py-2 border border-primary/10"
+				>
+					<span
+						class="material-symbols-outlined text-primary text-xl mr-2"
+						>search</span
+					>
+					<input
+						class="bg-transparent border-none focus:ring-0 text-sm w-full placeholder:text-slate-400"
+						placeholder="Tìm kiếm tranh..."
+						type="text"
+					/>
 				</div>
 			</div>
 		</nav>
+
+		<script>
+			const menuBtn = document.getElementById("mobile-menu-btn");
+			const mobileMenu = document.getElementById("mobile-menu");
+			const nav = document.getElementById("main-nav");
+
+			if (menuBtn && mobileMenu) {
+				menuBtn.addEventListener("click", () => {
+					mobileMenu.classList.toggle("hidden");
+					const icon = menuBtn.querySelector(
+						".material-symbols-outlined",
+					);
+					if (icon) {
+						icon.textContent = mobileMenu.classList.contains(
+							"hidden",
+						)
+							? "menu"
+							: "close";
+					}
+				});
+			}
+
+			// Scroll effect
+			window.addEventListener("scroll", () => {
+				if (nav) {
+					if (window.scrollY > 20) {
+						nav.classList.add("py-2", "shadow-md");
+						nav.classList.remove("py-4");
+					} else {
+						nav.classList.add("py-4");
+						nav.classList.remove("py-2", "shadow-md");
+					}
+				}
+			});
+		</script>
 
 		<slot />
 
