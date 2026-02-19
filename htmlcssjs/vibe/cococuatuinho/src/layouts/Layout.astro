@@ -1,0 +1,99 @@
+---
+interface Props {
+	title: string;
+	description?: string;
+}
+
+const { title, description = "Cô Cỏ Của Tụi Nhỏ - Tranh Dịu Dàng Cho Bé" } = Astro.props;
+---
+
+<!doctype html>
+<html lang="vi">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content={description} />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title}</title>
+
+		<link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+		<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+		<style is:global>
+			.glass-nav {
+				background: rgba(253, 246, 236, 0.7);
+				backdrop-filter: blur(16px);
+				-webkit-backdrop-filter: blur(16px);
+				border-bottom: 1px solid rgba(114, 142, 107, 0.1)
+			}
+			.bento-card-gradient {
+				background: linear-gradient(0deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0) 60%)
+			}
+			.paper-texture {
+				background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuD4iZE25z4Wv_xczJf05TQZ67JDvfFwbBTfX5au2FCKF_UkISD2eIft5ltpVDh97HDzXj3d6-EK0IJF6jxyi6GQi9O3Wua45fK67WsuLYFwbwo9an4iluWUINrUyo5heWwRcd1HiIXxLmNnWnBNpLLSX8y8oYbPnAuYfNJ20iZH7vXelHIzRHpch-LrhxnVIdNoulUexK5McRTuRJ4LtVJHsUBVaCvRf1wNwGF1Fqxdppdun3kTBquSuzBkil2zWepXoAtI6O1Wudg)
+			}
+		</style>
+	</head>
+	<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 selection:bg-primary/30">
+		<nav class="fixed top-0 w-full z-50 glass-nav px-6 lg:px-20 py-4 transition-all duration-300">
+			<div class="max-w-7xl mx-auto flex items-center justify-between">
+				<div class="flex items-center gap-12">
+					<a class="flex items-center gap-2 group" href="/">
+						<div class="bg-primary text-white p-2 rounded-lg flex items-center justify-center transition-transform group-hover:rotate-12">
+							<span class="material-symbols-outlined text-2xl">palette</span>
+						</div>
+						<span class="text-xl font-extrabold tracking-tight text-primary">Cô Cỏ <span class="text-slate-700 font-medium">Của Tụi Nhỏ</span></span>
+					</a>
+					<div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600 dark:text-slate-300">
+						<a class="hover:text-primary transition-colors" href="/">Trang chủ</a>
+						<a class="hover:text-primary transition-colors" href="/cua-hang">Cửa hàng</a>
+						<a class="hover:text-primary transition-colors" href="#">Bộ sưu tập</a>
+						<a class="hover:text-primary transition-colors" href="#">Về chúng tôi</a>
+					</div>
+				</div>
+				<div class="flex items-center gap-4">
+					<div class="hidden lg:flex items-center bg-primary/5 rounded-full px-4 py-1.5 border border-primary/10">
+						<span class="material-symbols-outlined text-primary text-xl">search</span>
+						<input class="bg-transparent border-none focus:ring-0 text-sm w-40 placeholder:text-slate-400" placeholder="Tìm kiếm tranh..." type="text"/>
+					</div>
+					<button class="relative p-2 bg-white dark:bg-slate-800 rounded-full shadow-sm border border-slate-100 dark:border-slate-700 hover:scale-105 transition-transform">
+						<span class="material-symbols-outlined text-slate-700 dark:text-slate-200">shopping_bag</span>
+						<span class="absolute -top-1 -right-1 bg-accent-pink text-slate-800 text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center border-2 border-background-light">2</span>
+					</button>
+				</div>
+			</div>
+		</nav>
+
+		<slot />
+
+		<footer class="bg-white dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800 py-12">
+			<div class="max-w-7xl mx-auto px-6 lg:px-20">
+				<div class="flex flex-col md:flex-row justify-between items-center gap-8">
+					<div class="flex items-center gap-2">
+						<div class="bg-primary/20 text-primary p-1.5 rounded flex items-center justify-center">
+							<span class="material-symbols-outlined text-xl">palette</span>
+						</div>
+						<span class="font-bold text-slate-800 dark:text-slate-200">Cô Cỏ Của Tụi Nhỏ</span>
+					</div>
+					<div class="flex gap-8 text-sm text-slate-500">
+						<a class="hover:text-primary" href="#">Chính sách giao hàng</a>
+						<a class="hover:text-primary" href="#">Bảo mật</a>
+						<a class="hover:text-primary" href="#">Liên hệ</a>
+					</div>
+					<div class="flex gap-4">
+						<a class="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 hover:text-primary transition-colors" href="#">
+							<span class="material-symbols-outlined">social_leaderboard</span>
+						</a>
+						<a class="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 hover:text-primary transition-colors" href="#">
+							<span class="material-symbols-outlined">photo_camera</span>
+						</a>
+					</div>
+				</div>
+				<div class="mt-8 pt-8 border-t border-slate-50 dark:border-slate-900 text-center text-xs text-slate-400">
+					© 2024 Cô Cỏ Của Tụi Nhỏ. All rights reserved. Crafted with love for children.
+				</div>
+			</div>
+		</footer>
+	</body>
+</html>

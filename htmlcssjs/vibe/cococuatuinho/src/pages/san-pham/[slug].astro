@@ -1,0 +1,97 @@
+---
+import Layout from "../../layouts/Layout.astro";
+
+export function getStaticPaths() {
+    return [
+        { params: { slug: "khu-vuon-bi-mat" } },
+        { params: { slug: "gau-nho-ngu-ngon" } },
+        { params: { slug: "chuyen-bay-cua-be" } },
+    ];
+}
+
+const { slug } = Astro.params;
+
+// Mock data lookup based on slug (In real app, this would be from a database or API)
+const productNames: Record<string, string> = {
+    "khu-vuon-bi-mat": "Khu Vườn Bí Mật",
+    "gau-nho-ngu-ngon": "Gấu Nhỏ Ngủ Ngon",
+    "chuyen-bay-cua-be": "Chuyến Bay Của Bé",
+};
+
+const title = productNames[slug as string] || "Sản Phẩm";
+---
+
+<Layout title={`${title} - Cô Cỏ Của Tụi Nhỏ`}>
+    <main class="pt-32 pb-20 max-w-7xl mx-auto px-6">
+        <div class="flex flex-col lg:flex-row gap-12">
+            <div class="flex-1">
+                <div
+                    class="aspect-square rounded-3xl overflow-hidden bg-white border border-primary/10 shadow-sm"
+                >
+                    <img
+                        class="w-full h-full object-cover"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGV6izlkChM4qtM6FegrYP9HXNEmQ1thDTdR3JzKyyaYaCGv8lC-WWAf7N_Chi6CItrUTJSWHHvwsvv-pEJjUcVb7TRXMaaQdx4_HBMsFBgq9wqpU5byuHteJlUiCTG6W5QWBVIcKXgqS9YA-6RvRGvNlplozpmMSysTGTSO9AJ6WUG7EiXxGhijdY5bGNX3Iq9u20Vh5KW_N4uArnbd5s7DoJdE-RsR86DT4kUraacdc32xT7hgS-GjmCg8nBihYN1cAdOUSCLHU"
+                        alt={title}
+                    />
+                </div>
+            </div>
+            <div class="flex-1 space-y-8">
+                <div>
+                    <nav class="flex gap-2 text-sm text-slate-500 mb-4">
+                        <a href="/" class="hover:text-primary">Trang chủ</a>
+                        <span>/</span>
+                        <a href="/cua-hang" class="hover:text-primary"
+                            >Cửa hàng</a
+                        >
+                        <span>/</span>
+                        <span class="text-primary">{title}</span>
+                    </nav>
+                    <h1 class="text-4xl font-bold text-slate-900">{title}</h1>
+                    <p class="text-2xl font-bold text-primary mt-2">250.000đ</p>
+                </div>
+
+                <div class="space-y-4">
+                    <p class="text-slate-600 leading-relaxed">
+                        Một tác phẩm nghệ thuật dịu dàng dành tặng cho không
+                        gian của bé. Mỗi nét vẽ đều chứa đựng tình yêu và sự tỉ
+                        mỉ, giúp nuôi dưỡng tâm hồn và trí tưởng tượng phong
+                        phú.
+                    </p>
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="flex items-center border border-slate-200 rounded-lg"
+                        >
+                            <button class="px-4 py-2 hover:bg-slate-50"
+                                >-</button
+                            >
+                            <span class="px-4 font-bold">1</span>
+                            <button class="px-4 py-2 hover:bg-slate-50"
+                                >+</button
+                            >
+                        </div>
+                        <button
+                            class="flex-1 bg-primary text-white py-3 rounded-xl font-bold hover:bg-primary/90 transition-all"
+                        >
+                            Thêm vào giỏ hàng
+                        </button>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-100 pt-6 space-y-4">
+                    <div class="flex items-center gap-3 text-sm text-slate-600">
+                        <span class="material-symbols-outlined text-primary"
+                            >local_shipping</span
+                        >
+                        <span>Giao hàng toàn quốc trong 3-5 ngày</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-sm text-slate-600">
+                        <span class="material-symbols-outlined text-primary"
+                            >verified</span
+                        >
+                        <span>Đảm bảo chất lượng giấy in mỹ thuật cao cấp</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</Layout>

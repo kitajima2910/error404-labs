@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chi tiết sản phẩm &amp; Giỏ hàng - Cô Cỏ Của Tụi Nhỏ</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#728e6b",
+                        "background-light": "#f7f7f7",
+                        "background-dark": "#181a18",
+                        "sage-light": "#e9ede8",
+                        "warm-gray": "#737972",
+                    },
+                    fontFamily: {
+                        "display": ["Spline Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: "Spline Sans", sans-serif;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #728e6b40;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 overflow-hidden">
+<!-- Main Shop Background (Simulated) -->
+<div class="fixed inset-0 z-0 opacity-40 pointer-events-none">
+<div class="grid grid-cols-4 gap-8 p-20">
+<div class="aspect-[3/4] bg-white rounded-xl shadow-sm"></div>
+<div class="aspect-[3/4] bg-white rounded-xl shadow-sm"></div>
+<div class="aspect-[3/4] bg-white rounded-xl shadow-sm"></div>
+<div class="aspect-[3/4] bg-white rounded-xl shadow-sm"></div>
+</div>
+</div>
+<!-- Modal Backdrop -->
+<div class="fixed inset-0 bg-black/10 backdrop-blur-sm z-10 flex items-center justify-center p-6">
+<!-- Product Detail Modal -->
+<div class="bg-white dark:bg-slate-900 w-full max-w-5xl h-[85vh] rounded-xl shadow-2xl overflow-hidden flex flex-col md:flex-row relative">
+<!-- Left: Image Gallery -->
+<div class="w-full md:w-3/5 bg-sage-light dark:bg-slate-800 flex flex-col p-8 gap-6">
+<div class="flex-1 relative rounded-lg overflow-hidden group">
+<img alt="Main product preview" class="w-full h-full object-cover" data-alt="Hand-drawn illustration of children playing in a summer field" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAj37q3ehVyAUok452dmY8MzdUSUFz8Qy3XXtXAXrBVdGJL3_JjYOxXxEWf3bxclfZgga0O3VNYTi4axcQ2gfC6y624ylFM8Il2IsIsfHdK1RjIyv1vlZY2by5E_xYJt3AH-ZlEnO4MDAZG0wVStyhHfnD25UsIoJRU-umofGGKZJFkKPOepJdPMuxh-3zruoKQPgX1ma18ugO4lhYK-lB9CbWM7WnpGC--G3MspLmqwcLpcrNAEqcriesH9jFKCKRi6vIsW9XUBj4"/>
+<button class="absolute top-4 right-4 bg-white/80 p-2 rounded-full shadow-md text-primary hover:bg-white transition-colors">
+<span class="material-symbols-outlined">zoom_in</span>
+</button>
+</div>
+<!-- Thumbnails -->
+<div class="flex gap-4 justify-center">
+<div class="size-20 rounded-lg border-2 border-primary overflow-hidden cursor-pointer ring-2 ring-primary/20">
+<img alt="Thumbnail 1" class="w-full h-full object-cover" data-alt="Close-up of illustration brush strokes" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzwYfdfnqEbefp1W5X4Vu8Aa-oOm2TOXSlbcprvXUP_a8myQgVaKk31YRwuBpMP9txCSp4iT0RJ2tfOk4AEmaBj0AwoSy0sJe73frji843mmUFUI6HOmGJaAjdfsXSXtzPMof4OTYslCvrmJQmACmf4UdNKwsZThOAk7rL7UoA5pV8tfxLNMWC6NIZ6Si4i2lRkuA9bm67cbWUT0BKc1pxkFV0nfhIMaVI04ISXlryCUkOosAHMTxwDwSpsrsN2Mlo1sPbZY6OBB8"/>
+</div>
+<div class="size-20 rounded-lg border border-slate-200 overflow-hidden cursor-pointer opacity-70 hover:opacity-100 transition-opacity">
+<img alt="Thumbnail 2" class="w-full h-full object-cover" data-alt="Illustration showing whimsical animal characters" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwPLGnDnf8n59MqfwU-fHL5Lr7-aVZtKtom7F-bpCmJ9OWnSNnteUIu3GMWTVb1nG2IBJpRG7yS04HzPjdQqAansYqOto64nrsXFnwb3CRd4m52QSKR-QbJgGJHecpbR-MemIKdP3QsZmGgGUqvaKkKpW5zRB8yJsHILbfQrgjQm-NzlbyagNhdbEJBo2LONqrVa7RrdxH-lES4ZUEw8swk94cI6526FiPK0QXSp_dUtGPWiVeWvm7l5wC6r5wSuRuGJEHODXo1RM"/>
+</div>
+<div class="size-20 rounded-lg border border-slate-200 overflow-hidden cursor-pointer opacity-70 hover:opacity-100 transition-opacity">
+<img alt="Thumbnail 3" class="w-full h-full object-cover" data-alt="Illustration in a wooden frame on a wall" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIE3ttckZg7gu0C49k9VgTzGg2B6TqUygZPRIbXiNCrqrPRVUgNRNLwGDx8gSf5d8fUPfu67KYTw0GyGMpgGERkYJ0jGlR5FblhRnxNvnizzxGUjXiR9ZnIku2pY-niIo2eI57xVFlS1YM1_TA10Wf2TKlz7KUALLwpUWKkC25MGGpqBAw1t5QJpGMGRkxmGn3suQ67R6nBFxlAq5AQI3_8gCrYWvyBlp9Nis36ZRyNL4k3B0CwCBjSNVxrb4KLU_WpH54aJhzbyc"/>
+</div>
+</div>
+</div>
+<!-- Right: Product Info -->
+<div class="w-full md:w-2/5 p-10 flex flex-col overflow-y-auto custom-scrollbar">
+<div class="mb-2">
+<span class="text-xs font-bold tracking-widest text-primary uppercase">Tranh in cao cấp</span>
+</div>
+<h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">Ký ức mùa hè</h1>
+<p class="text-warm-gray mb-6 italic">Họa sĩ: Thu Cỏ</p>
+<div class="text-2xl font-semibold text-primary mb-8">
+                    450.000đ
+                </div>
+<div class="space-y-6 mb-10">
+<div>
+<label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Kích thước</label>
+<div class="grid grid-cols-2 gap-3">
+<button class="px-4 py-2 border-2 border-primary bg-primary/5 rounded-lg text-sm font-medium">A3 (29.7 x 42 cm)</button>
+<button class="px-4 py-2 border border-slate-200 rounded-lg text-sm font-medium hover:border-primary/50">A4 (21 x 29.7 cm)</button>
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Khung tranh</label>
+<select class="w-full rounded-lg border-slate-200 focus:ring-primary focus:border-primary dark:bg-slate-800">
+<option>Không khung (Chỉ tranh)</option>
+<option>Khung gỗ sồi tự nhiên (+150k)</option>
+<option>Khung trắng tối giản (+120k)</option>
+</select>
+</div>
+</div>
+<div class="prose prose-sm text-warm-gray dark:text-slate-400 mb-10">
+<p>Bức tranh tái hiện những buổi chiều rực nắng của tuổi thơ, nơi tiếng cười giòn tan hòa vào hương cỏ may. Mỗi nét vẽ được chăm chút tỉ mỉ bằng màu nước thủ công, mang lại cảm giác ấm áp và bình yên cho căn phòng của bé.</p>
+</div>
+<div class="mt-auto pt-6 border-t border-slate-100 dark:border-slate-800">
+<button class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-3 transition-all transform hover:scale-[1.02]">
+<span class="material-symbols-outlined">shopping_bag</span>
+                        Thêm vào giỏ hàng
+                    </button>
+</div>
+</div>
+<!-- Modal Close -->
+<button class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+<span class="material-symbols-outlined text-3xl">close</span>
+</button>
+</div>
+</div>
+<!-- Cart Drawer Overlaid -->
+<div class="fixed inset-y-0 right-0 w-full max-w-md z-50 flex shadow-2xl">
+<!-- Backdrop for Drawer -->
+<div class="absolute inset-0 bg-black/5 backdrop-blur-md -z-10"></div>
+<!-- Drawer Panel -->
+<div class="glass-panel w-full flex flex-col h-full border-l border-white/20">
+<!-- Drawer Header -->
+<div class="p-6 border-b border-primary/10 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">shopping_cart</span>
+<h2 class="text-xl font-bold">Giỏ hàng của bạn (3)</h2>
+</div>
+<button class="p-2 hover:bg-primary/10 rounded-full transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+<!-- Cart Items List -->
+<div class="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+<!-- Item 1 -->
+<div class="flex gap-4 group">
+<div class="size-24 rounded-lg overflow-hidden flex-shrink-0 bg-slate-100">
+<img alt="Cart item 1" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Small preview of 'Ký ức mùa hè' print" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbf4dJpYjJpkWeXAJFVdRXoqpUb4pt-sueHoJkZcFxh3S0FaF6ZBmiVeLfQt3xrxj0fH2vT8J2X6uTjyh5Y4QCWM5DHfiO8r35uuQJmQxgF80kidqtkFG1fGfNCihocCP8yJ4-VaYW2NISqxmK64ysqNeI5RjYhMqnG_smK4k9THygsJg9VxA2e1AaHjdbx7brmv_m-BqYxg2h120qqh6tOeoCiRqiemEgrGqtH57sF7uYuSgkqAi9K5tRfXHG_lzHjxpbNLedvH4"/>
+</div>
+<div class="flex-1 flex flex-col justify-between py-1">
+<div>
+<div class="flex justify-between items-start">
+<h3 class="font-bold text-slate-800 dark:text-white leading-tight">Ký ức mùa hè</h3>
+<button class="text-slate-300 hover:text-red-400 transition-colors">
+<span class="material-symbols-outlined text-sm">delete</span>
+</button>
+</div>
+<p class="text-xs text-warm-gray mt-1">Size A3 • Khung gỗ sồi</p>
+</div>
+<div class="flex justify-between items-end">
+<div class="flex items-center bg-background-light dark:bg-slate-800 rounded-full px-2 py-1 border border-primary/10">
+<button class="size-6 flex items-center justify-center text-primary hover:bg-primary/10 rounded-full transition-colors">
+<span class="material-symbols-outlined text-lg">remove</span>
+</button>
+<span class="px-3 text-sm font-semibold">1</span>
+<button class="size-6 flex items-center justify-center text-primary hover:bg-primary/10 rounded-full transition-colors">
+<span class="material-symbols-outlined text-lg">add</span>
+</button>
+</div>
+<span class="font-bold text-slate-900 dark:text-white">600.000đ</span>
+</div>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="flex gap-4 group">
+<div class="size-24 rounded-lg overflow-hidden flex-shrink-0 bg-slate-100">
+<img alt="Cart item 2" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Small preview of whimsical animal art print" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjXJv9ihYrWU-0097B9O8UIQ-uBrP7YNDYWqpd1dqmGFTwjpuQ5Qk-bvokBPm5XrpCUHJewD4QZIR14vREffsWuEki1Sh9fc6V_ofxMR8RziGDFPXJpjgD2V2Sts1nKkf0K5Y_0bQxi1UyrQ3qzJXtOVo_XPq1tEiKYlCUtIz3E5iQp-hPmIAR8CSe1PQ5uaJiipMoH0wRKRpdqrToX-8YGLbovFvvmqVg2HoJ8y5toVmLFviKvw-R8z9pBNqVIp0Cx1jOa9pbJ00"/>
+</div>
+<div class="flex-1 flex flex-col justify-between py-1">
+<div>
+<div class="flex justify-between items-start">
+<h3 class="font-bold text-slate-800 dark:text-white leading-tight">Những người bạn rừng xanh</h3>
+<button class="text-slate-300 hover:text-red-400 transition-colors">
+<span class="material-symbols-outlined text-sm">delete</span>
+</button>
+</div>
+<p class="text-xs text-warm-gray mt-1">Size A4 • Không khung</p>
+</div>
+<div class="flex justify-between items-end">
+<div class="flex items-center bg-background-light dark:bg-slate-800 rounded-full px-2 py-1 border border-primary/10">
+<button class="size-6 flex items-center justify-center text-primary hover:bg-primary/10 rounded-full transition-colors">
+<span class="material-symbols-outlined text-lg">remove</span>
+</button>
+<span class="px-3 text-sm font-semibold">2</span>
+<button class="size-6 flex items-center justify-center text-primary hover:bg-primary/10 rounded-full transition-colors">
+<span class="material-symbols-outlined text-lg">add</span>
+</button>
+</div>
+<span class="font-bold text-slate-900 dark:text-white">700.000đ</span>
+</div>
+</div>
+</div>
+<!-- Complimentary Item Suggestion -->
+<div class="bg-primary/5 p-4 rounded-xl border border-primary/10">
+<p class="text-xs font-semibold text-primary mb-2 uppercase tracking-tight">Gợi ý cho bạn</p>
+<div class="flex items-center gap-3">
+<div class="size-12 rounded bg-white overflow-hidden shadow-sm">
+<img alt="Suggest" class="w-full h-full object-cover" data-alt="Small square preview of complementary art piece" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWE-jaoEbyGhiPZksMo-SIs7eXkrFzBQsYcq06TrsVSNDAypn3J9g0zBKzQggcUWmW2u1UnuOGiG8Adh0miLQY-BIsd1jLAUFEATCsKuVnNm59JGhltN62BwPWGrt-UubnUP_c_mk8d7cBWPEc1NNdcl-Z7W4rCokfvtr3SPBWdsXpSPljvEDEH4FwuYh_b3kpDzDr-4A_a_DBtCdanBTKvY7OAxpsMRk4tuCJWt3ZmxVJZGn8nbWt7tCycc3m0XWDu6W9_cu08ic"/>
+</div>
+<div class="flex-1">
+<p class="text-xs font-medium leading-tight">Bộ thẻ lời chúc "Yêu Thương"</p>
+<p class="text-xs text-warm-gray">45.000đ</p>
+</div>
+<button class="bg-primary/10 text-primary p-1.5 rounded-full hover:bg-primary/20">
+<span class="material-symbols-outlined text-lg">add</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Drawer Footer -->
+<div class="p-6 border-t border-primary/10 bg-white/40 dark:bg-slate-900/40">
+<div class="space-y-3 mb-6">
+<div class="flex justify-between text-sm text-warm-gray">
+<span>Tạm tính</span>
+<span>1.300.000đ</span>
+</div>
+<div class="flex justify-between text-sm text-warm-gray">
+<span>Phí vận chuyển</span>
+<span>30.000đ</span>
+</div>
+<div class="flex justify-between text-lg font-bold">
+<span>Tổng cộng</span>
+<span class="text-primary">1.330.000đ</span>
+</div>
+</div>
+<button class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-3 transition-all">
+<span>Thanh toán ngay</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<p class="text-center text-[10px] text-warm-gray mt-4">Miễn phí vận chuyển cho đơn hàng từ 1.500.000đ</p>
+</div>
+</div>
+</div>
+</body></html>

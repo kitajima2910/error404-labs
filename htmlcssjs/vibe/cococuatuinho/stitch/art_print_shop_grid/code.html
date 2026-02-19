@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cửa Hàng Cô Cỏ Của Tụi Nhỏ - Art Print Shop</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#728e6b",
+                        "background-light": "#FFFDF5", // Soft warm cream
+                        "background-dark": "#1c1e1c",
+                        "neutral-warm": "#f4f1ea",
+                    },
+                    fontFamily: {
+                        "display": ["Spline Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-nav {
+            background: rgba(255, 253, 245, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .product-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: inset 0 0 0 1px rgba(114, 142, 107, 0.05), 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+        }
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(114, 142, 107, 0.1), 0 10px 10px -5px rgba(114, 142, 107, 0.04);
+        }
+        .ai-glow {
+            box-shadow: 0 0 15px rgba(114, 142, 107, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .ai-glow::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        body {
+            font-family: 'Spline Sans', sans-serif;
+            background-color: #FFFDF5;
+        }
+    </style>
+</head>
+<body class="bg-background-light text-slate-900 selection:bg-primary/20">
+<!-- Fixed Glassmorphism Top Bar -->
+<header class="fixed top-0 z-50 w-full glass-nav border-b border-primary/10">
+<div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+<div class="flex items-center gap-12">
+<a class="flex items-center gap-3 group" href="#">
+<div class="size-10 bg-primary rounded-xl flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-2xl">palette</span>
+</div>
+<div>
+<h1 class="text-xl font-bold tracking-tight text-slate-900">Cô Cỏ <span class="text-primary">Của Tụi Nhỏ</span></h1>
+<p class="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-semibold">Art for Little Souls</p>
+</div>
+</a>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-sm font-semibold text-primary" href="#">Cửa Hàng</a>
+<a class="text-sm font-semibold text-slate-600 hover:text-primary transition-colors" href="#">Về Cô Cỏ</a>
+<a class="text-sm font-semibold text-slate-600 hover:text-primary transition-colors" href="#">Bộ Sưu Tập</a>
+<a class="text-sm font-semibold text-slate-600 hover:text-primary transition-colors" href="#">Liên Hệ</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">search</span>
+<input class="pl-10 pr-4 py-2 bg-neutral-warm border-none rounded-full text-sm w-64 focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all" placeholder="Tìm tranh cho bé..." type="text"/>
+</div>
+<button class="p-2 text-slate-600 hover:bg-primary/10 rounded-full transition-colors relative">
+<span class="material-symbols-outlined">shopping_cart</span>
+<span class="absolute top-1 right-1 size-4 bg-primary text-[10px] text-white flex items-center justify-center rounded-full border-2 border-background-light">2</span>
+</button>
+<button class="p-2 text-slate-600 hover:bg-primary/10 rounded-full transition-colors">
+<span class="material-symbols-outlined">person</span>
+</button>
+</div>
+</div>
+</header>
+<main class="pt-32 pb-20 max-w-7xl mx-auto px-6">
+<!-- Header & AI Promo Section -->
+<div class="flex flex-col md:flex-row justify-between items-end gap-6 mb-12">
+<div class="max-w-xl">
+<div class="flex items-center gap-2 text-primary mb-2">
+<span class="h-px w-8 bg-primary"></span>
+<span class="text-xs font-bold uppercase tracking-widest">Góc nhỏ của yêu thương</span>
+</div>
+<h2 class="text-4xl md:text-5xl font-bold text-slate-900 leading-tight">Cửa Hàng Của Cô Cỏ</h2>
+<p class="mt-4 text-lg text-slate-600 leading-relaxed">Khám phá những bức tranh được vẽ bằng cả trái tim, mang đến không gian nhiệm màu cho thế giới của bé.</p>
+</div>
+<button class="ai-glow group flex items-center gap-3 bg-primary px-6 py-4 rounded-xl text-white font-bold hover:scale-105 transition-transform duration-300">
+<span class="material-symbols-outlined animate-pulse">auto_awesome</span>
+<span>Gợi ý tranh cho bé (Gemini AI)</span>
+</button>
+</div>
+<!-- Filters & Category Navigation -->
+<div class="flex flex-wrap items-center justify-between gap-4 mb-10 border-b border-primary/10 pb-6">
+<div class="flex items-center gap-2">
+<button class="px-6 py-2.5 rounded-full bg-primary text-white font-bold text-sm shadow-md">Tất cả</button>
+<button class="px-6 py-2.5 rounded-full bg-neutral-warm text-slate-600 font-bold text-sm hover:bg-primary/10 transition-colors">Tranh In (Printed)</button>
+<button class="px-6 py-2.5 rounded-full bg-neutral-warm text-slate-600 font-bold text-sm hover:bg-primary/10 transition-colors">Kỹ Thuật Số (Digital)</button>
+<button class="px-6 py-2.5 rounded-full bg-neutral-warm text-slate-600 font-bold text-sm hover:bg-primary/10 transition-colors">Vẽ Theo Yêu Cầu</button>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 text-sm font-medium text-slate-500">
+<span>Sắp xếp:</span>
+<select class="border-none bg-transparent text-slate-900 font-bold focus:ring-0 cursor-pointer">
+<option>Mới nhất</option>
+<option>Giá tăng dần</option>
+<option>Giá giảm dần</option>
+<option>Yêu thích nhất</option>
+</select>
+</div>
+<button class="flex items-center gap-2 text-slate-600 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">tune</span>
+<span class="text-sm font-bold">Lọc thêm</span>
+</button>
+</div>
+</div>
+<!-- Product Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+<!-- Card 1 -->
+<div class="product-card group bg-white rounded-xl overflow-hidden p-3 border border-primary/5">
+<div class="relative aspect-[3/4] rounded-lg overflow-hidden mb-4">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Childrens illustration of a magical forest garden" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGV6izlkChM4qtM6FegrYP9HXNEmQ1thDTdR3JzKyyaYaCGv8lC-WWAf7N_Chi6CItrUTJSWHHvwsvv-pEJjUcVb7TRXMaaQdx4_HBMsFBgq9wqpU5byuHteJlUiCTG6W5QWBVIcKXgqS9YA-6RvRGvNlplozpmMSysTGTSO9AJ6WUG7EiXxGhijdY5bGNX3Iq9u20Vh5KW_N4uArnbd5s7DoJdE-RsR86DT4kUraacdc32xT7hgS-GjmCg8nBihYN1cAdOUSCLHU"/>
+<div class="absolute top-3 left-3 flex flex-col gap-2">
+<span class="bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold uppercase text-primary shadow-sm tracking-wider">Tranh In</span>
+</div>
+<button class="absolute top-3 right-3 size-8 bg-white/90 backdrop-blur rounded-full flex items-center justify-center text-slate-400 hover:text-rose-500 transition-colors shadow-sm">
+<span class="material-symbols-outlined text-xl">favorite</span>
+</button>
+</div>
+<div class="px-2 pb-2">
+<h3 class="text-lg font-bold text-slate-800 mb-1">Khu Vườn Bí Mật</h3>
+<div class="flex items-center justify-between mt-3">
+<p class="text-primary font-bold text-xl">250.000đ</p>
+<button class="bg-primary/10 hover:bg-primary group/btn px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-300">
+<span class="material-symbols-outlined text-primary group-hover/btn:text-white text-xl transition-colors">add_shopping_cart</span>
+<span class="text-sm font-bold text-primary group-hover/btn:text-white transition-colors">Thêm</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="product-card group bg-white rounded-xl overflow-hidden p-3 border border-primary/5">
+<div class="relative aspect-[3/4] rounded-lg overflow-hidden mb-4">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Cute sleeping bear illustration for kids room" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7JBrWoqBWlGBh8iny51TxHe-Fsvrh5HxJ88_DVhbjF_MFM51wY2B2SY7qxr9Fmxv5JmF8lejs-nL57Cm6Jekkp-RlAzutY0Hc7X4uSc6wKC0oxu-4CbUnSKqTRFG9hSlpATi2z2j8mrKETJTkj_o3qwvUKZ0eTEG3nuNzZ55ddNzVX6XPUpWnHZueJxgVRKvh2h4LhauoHX075vn3aat3QJTbQLQ2j0NZblPP8nwfKZMwgFhHiV6xwoTRgYr3X20OqBm0hPXEXBU"/>
+<div class="absolute top-3 left-3 flex flex-col gap-2">
+<span class="bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold uppercase text-primary shadow-sm tracking-wider">Digital</span>
+</div>
+<button class="absolute top-3 right-3 size-8 bg-white/90 backdrop-blur rounded-full flex items-center justify-center text-slate-400 hover:text-rose-500 transition-colors shadow-sm">
+<span class="material-symbols-outlined text-xl">favorite</span>
+</button>
+</div>
+<div class="px-2 pb-2">
+<h3 class="text-lg font-bold text-slate-800 mb-1">Gấu Nhỏ Ngủ Ngon</h3>
+<div class="flex items-center justify-between mt-3">
+<p class="text-primary font-bold text-xl">180.000đ</p>
+<button class="bg-primary/10 hover:bg-primary group/btn px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-300">
+<span class="material-symbols-outlined text-primary group-hover/btn:text-white text-xl transition-colors">add_shopping_cart</span>
+<span class="text-sm font-bold text-primary group-hover/btn:text-white transition-colors">Thêm</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="product-card group bg-white rounded-xl overflow-hidden p-3 border border-primary/5">
+<div class="relative aspect-[3/4] rounded-lg overflow-hidden mb-4">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Dreamy hot air balloon illustration in blue sky" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCHORuA774RLcVnrC3xM7m3iHZE1WjB6_AdbY2k6xjwmRol9BCESiqpR77Z4JDzMC29Ll-ko-CHptHmhaTLVybLrfTJJWvBrajwt8_sIqibPrsqN7UdzqpxgZPhz0QqkaXwXDBxPdblMIB61Zw7JVTDkgofM70llfYdmd56XBVKQa9GfHOfKNjBaaz2BFtjsy6qXZaWO-WWm_lNJw2o1_pih-2ORxdmu1hLPWei5GlDYOc5OhZAatewmiWCWeXmde5OxYqFelSHuEs"/>
+<div class="absolute top-3 left-3 flex flex-col gap-2">
+<span class="bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold uppercase text-amber-600 shadow-sm tracking-wider">Phổ biến</span>
+</div>
+<button class="absolute top-3 right-3 size-8 bg-white/90 backdrop-blur rounded-full flex items-center justify-center text-slate-400 hover:text-rose-500 transition-colors shadow-sm">
+<span class="material-symbols-outlined text-xl">favorite</span>
+</button>
+</div>
+<div class="px-2 pb-2">
+<h3 class="text-lg font-bold text-slate-800 mb-1">Chuyến Bay Của Bé</h3>
+<div class="flex items-center justify-between mt-3">
+<p class="text-primary font-bold text-xl">320.000đ</p>
+<button class="bg-primary/10 hover:bg-primary group/btn px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-300">
+<span class="material-symbols-outlined text-primary group-hover/btn:text-white text-xl transition-colors">add_shopping_cart</span>
+<span class="text-sm font-bold text-primary group-hover/btn:text-white transition-colors">Thêm</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="product-card group bg-white rounded-xl overflow-hidden p-3 border border-primary/5">
+<div class="relative aspect-[3/4] rounded-lg overflow-hidden mb-4">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Artistic illustration of a kitten with mushrooms" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBymyoWv9_Nhx9-wKbfe-FP77nur7hb_i3ZIj1UpqZyuQDKvC71bUGvlhmWHpbJdsBNoJJ_J0tvbu5qXAWovfb1KFMx6iCGIhbGOHwFWj8ya3WDcVuYg1nlO-OTQd1PxA0LxGdZO4uD9AurTbqjkTYla7JfHZKTnywhA4jm8txJgby6yJewZA4dfTIayeMctOqFXvH-tbN9006IntpGh-RwgR77r_T0F8Y9FTkFIO4S6f0-PRzZPNpf-VsJTqUhqWKwIjrX66zDYgw"/>
+<button class="absolute top-3 right-3 size-8 bg-white/90 backdrop-blur rounded-full flex items-center justify-center text-slate-400 hover:text-rose-500 transition-colors shadow-sm">
+<span class="material-symbols-outlined text-xl">favorite</span>
+</button>
+</div>
+<div class="px-2 pb-2">
+<h3 class="text-lg font-bold text-slate-800 mb-1">Mèo Con Hái Nấm</h3>
+<div class="flex items-center justify-between mt-3">
+<p class="text-primary font-bold text-xl">150.000đ</p>
+<button class="bg-primary/10 hover:bg-primary group/btn px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-300">
+<span class="material-symbols-outlined text-primary group-hover/btn:text-white text-xl transition-colors">add_shopping_cart</span>
+<span class="text-sm font-bold text-primary group-hover/btn:text-white transition-colors">Thêm</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 5 -->
+<div class="product-card group bg-white rounded-xl overflow-hidden p-3 border border-primary/5">
+<div class="relative aspect-[3/4] rounded-lg overflow-hidden mb-4">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Endless green fields landscape illustration" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCvOz8TVQSEeNtMlhCREbM6ZB3yRgc9ibFvzqdKBp3D3DKKO4RnxAbzLBXXTH64mYLKbdnBclAAPgHdpE-HdKD2fV5M1_5b4lvAH8l8OLT6HowUxTRC_mrWNMmqrJOwr48UPCVrQIRoMikAhKuOJNHUZjqj7VnEzE1zz9Dx30M0inG2izilF3DkFiv8wpjMgpUynMBpExmZgLAHnXFiPTB56eLMompS2w1b1btR7XQjpTTvK5GUeM6ypaFFdLiReSY8YHYj8-_lt28"/>
+<button class="absolute top-3 right-3 size-8 bg-white/90 backdrop-blur rounded-full flex items-center justify-center text-slate-400 hover:text-rose-500 transition-colors shadow-sm">
+<span class="material-symbols-outlined text-xl">favorite</span>
+</button>
+</div>
+<div class="px-2 pb-2">
+<h3 class="text-lg font-bold text-slate-800 mb-1">Cánh Đồng Bất Tận</h3>
+<div class="flex items-center justify-between mt-3">
+<p class="text-primary font-bold text-xl">290.000đ</p>
+<button class="bg-primary/10 hover:bg-primary group/btn px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-300">
+<span class="material-symbols-outlined text-primary group-hover/btn:text-white text-xl transition-colors">add_shopping_cart</span>
+<span class="text-sm font-bold text-primary group-hover/btn:text-white transition-colors">Thêm</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 6 -->
+<div class="product-card group bg-white rounded-xl overflow-hidden p-3 border border-primary/5">
+<div class="relative aspect-[3/4] rounded-lg overflow-hidden mb-4">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Dreamy sky and stars nursery art" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-ynrCHxS4rk1iH6ORVwqm3NovgV_bomLnQWS-bErc3bP0oAZY7nWHO9ipwGPlwRtch3IxNkbV-bGzjpG6N9nqHDnWRnKc_sIaHPCoDZftBLPEGv4vpO_rWfcYJbJXxnpzFqNg9qB98U8LbUjlJOcZxCB8YqzL9TRicjoiOA5jUc5kwuT4sP-4e6y6jii58mDADNhjCe6qJRYQ-HHG1V9QTadFxWBQ8wCU8nUDMIeMoFbTn5PPT0EYbhP-9K-_z3twbcPYgXBT6lY"/>
+<button class="absolute top-3 right-3 size-8 bg-white/90 backdrop-blur rounded-full flex items-center justify-center text-slate-400 hover:text-rose-500 transition-colors shadow-sm">
+<span class="material-symbols-outlined text-xl">favorite</span>
+</button>
+</div>
+<div class="px-2 pb-2">
+<h3 class="text-lg font-bold text-slate-800 mb-1">Bầu Trời Ước Mơ</h3>
+<div class="flex items-center justify-between mt-3">
+<p class="text-primary font-bold text-xl">210.000đ</p>
+<button class="bg-primary/10 hover:bg-primary group/btn px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-300">
+<span class="material-symbols-outlined text-primary group-hover/btn:text-white text-xl transition-colors">add_shopping_cart</span>
+<span class="text-sm font-bold text-primary group-hover/btn:text-white transition-colors">Thêm</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Custom Order Placeholder -->
+<div class="product-card flex flex-col items-center justify-center bg-primary/5 border-2 border-dashed border-primary/20 rounded-xl p-8 text-center group">
+<div class="size-20 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+<span class="material-symbols-outlined text-4xl text-primary">draw</span>
+</div>
+<h3 class="text-xl font-bold text-slate-800 mb-2">Vẽ theo yêu cầu?</h3>
+<p class="text-slate-500 text-sm mb-6 px-4 leading-relaxed">Cô Cỏ nhận vẽ riêng chân dung hoặc chủ đề bé yêu thích.</p>
+<button class="text-primary font-bold text-sm border-b-2 border-primary hover:pb-1 transition-all">Liên hệ ngay</button>
+</div>
+<!-- More prints... -->
+<div class="product-card group bg-white rounded-xl overflow-hidden p-3 border border-primary/5">
+<div class="relative aspect-[3/4] rounded-lg overflow-hidden mb-4">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Whimsical colorful animal illustration" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDteJZK0PBjtPg-osxNvykDEhp6QBjXGTcGipEa46EDh6q9nj5nojUX6wigcCghNWAY9TMHLlwju-TL327OxWUd7BFKLDxpijedqjncepLPsLSBerLZfNqdw0BOGHKrViM0CZHwaGJKnid_lMXoIurXjkEgLbOwef3elPzG1clo8GqPXPJnA9LJUolm2SimGaUnKMZabexSI-X57K7UVgSG1gLKHX9IZNouNRbw6XeoUYs_FVNrf2nOnD0tnfBhl2PhUcLuDNYv81c"/>
+<button class="absolute top-3 right-3 size-8 bg-white/90 backdrop-blur rounded-full flex items-center justify-center text-slate-400 hover:text-rose-500 transition-colors shadow-sm">
+<span class="material-symbols-outlined text-xl">favorite</span>
+</button>
+</div>
+<div class="px-2 pb-2">
+<h3 class="text-lg font-bold text-slate-800 mb-1">Muông Thú Trẩy Hội</h3>
+<div class="flex items-center justify-between mt-3">
+<p class="text-primary font-bold text-xl">275.000đ</p>
+<button class="bg-primary/10 hover:bg-primary group/btn px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-300">
+<span class="material-symbols-outlined text-primary group-hover/btn:text-white text-xl transition-colors">add_shopping_cart</span>
+<span class="text-sm font-bold text-primary group-hover/btn:text-white transition-colors">Thêm</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Gemini AI Integration Card -->
+<section class="mt-20">
+<div class="relative overflow-hidden rounded-3xl bg-primary/10 p-8 md:p-12 border border-primary/10">
+<div class="relative z-10 flex flex-col md:flex-row items-center gap-10">
+<div class="flex-1 text-center md:text-left">
+<div class="inline-flex items-center gap-2 bg-white/80 backdrop-blur px-4 py-1.5 rounded-full text-primary text-xs font-bold uppercase tracking-widest mb-6">
+<span class="material-symbols-outlined text-sm">auto_awesome</span>
+                            Powered by Gemini
+                        </div>
+<h2 class="text-3xl md:text-4xl font-bold text-slate-900 leading-tight">Bạn chưa tìm thấy bức tranh ưng ý?</h2>
+<p class="mt-4 text-slate-600 text-lg leading-relaxed max-w-xl">Hãy để trợ lý AI của chúng mình giúp bạn. Chỉ cần mô tả tính cách hoặc sở thích của bé, Gemini sẽ gợi ý những bức tranh phù hợp nhất để làm quà tặng.</p>
+<div class="mt-8 flex flex-col sm:flex-row items-center gap-4 justify-center md:justify-start">
+<button class="ai-glow bg-primary text-white px-8 py-4 rounded-xl font-bold text-lg hover:scale-105 transition-transform flex items-center gap-3">
+<span>Thử trải nghiệm AI ngay</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<a class="text-primary font-bold hover:underline" href="#">Tìm hiểu cách hoạt động</a>
+</div>
+</div>
+<div class="flex-shrink-0 size-64 bg-white/50 backdrop-blur rounded-full flex items-center justify-center shadow-xl border border-white">
+<span class="material-symbols-outlined text-[100px] text-primary/40 animate-pulse">auto_awesome</span>
+</div>
+</div>
+<!-- Abstract blobs for warmth -->
+<div class="absolute -top-24 -right-24 size-64 bg-primary/5 rounded-full blur-3xl"></div>
+<div class="absolute -bottom-24 -left-24 size-64 bg-amber-500/5 rounded-full blur-3xl"></div>
+</div>
+</section>
+</main>
+<footer class="bg-neutral-warm pt-16 pb-8 border-t border-primary/10">
+<div class="max-w-7xl mx-auto px-6">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+<div class="col-span-1 md:col-span-1">
+<div class="flex items-center gap-3 mb-6">
+<div class="size-8 bg-primary rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-xl">palette</span>
+</div>
+<h2 class="text-lg font-bold text-slate-900">Cô Cỏ Của Tụi Nhỏ</h2>
+</div>
+<p class="text-slate-500 text-sm leading-relaxed">
+                        Nơi những câu chuyện cổ tích được vẽ lại bằng sắc màu, mang đến niềm vui và sự ấm áp cho mọi căn phòng của bé.
+                    </p>
+</div>
+<div>
+<h4 class="font-bold text-slate-900 mb-6 uppercase text-xs tracking-widest">Sản Phẩm</h4>
+<ul class="space-y-4 text-sm text-slate-600">
+<li><a class="hover:text-primary transition-colors" href="#">Tranh In Canvas</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Tranh Kỹ Thuật Số</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Bộ Sưu Tập Mùa Hè</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Tranh Tùy Chỉnh</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold text-slate-900 mb-6 uppercase text-xs tracking-widest">Hỗ Trợ</h4>
+<ul class="space-y-4 text-sm text-slate-600">
+<li><a class="hover:text-primary transition-colors" href="#">Hướng Dẫn Mua Hàng</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Chính Sách Giao Hàng</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Chính Sách Đổi Trả</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Câu Hỏi Thường Gặp</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold text-slate-900 mb-6 uppercase text-xs tracking-widest">Kết Nối</h4>
+<div class="flex gap-4 mb-6">
+<a class="size-10 bg-white rounded-lg flex items-center justify-center text-slate-600 hover:text-primary shadow-sm hover:shadow transition-all" href="#">
+<span class="material-symbols-outlined">social_leaderboard</span>
+</a>
+<a class="size-10 bg-white rounded-lg flex items-center justify-center text-slate-600 hover:text-primary shadow-sm hover:shadow transition-all" href="#">
+<span class="material-symbols-outlined">camera</span>
+</a>
+<a class="size-10 bg-white rounded-lg flex items-center justify-center text-slate-600 hover:text-primary shadow-sm hover:shadow transition-all" href="#">
+<span class="material-symbols-outlined">mail</span>
+</a>
+</div>
+<p class="text-xs text-slate-500">Đăng ký để nhận thông tin bộ sưu tập mới nhất.</p>
+</div>
+</div>
+<div class="pt-8 border-t border-primary/10 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-xs text-slate-500">© 2024 Cô Cỏ Của Tụi Nhỏ. All rights reserved.</p>
+<div class="flex gap-6">
+<a class="text-xs text-slate-500 hover:text-primary" href="#">Quy định bảo mật</a>
+<a class="text-xs text-slate-500 hover:text-primary" href="#">Điều khoản dịch vụ</a>
+</div>
+</div>
+</div>
+</footer>
+</body></html>

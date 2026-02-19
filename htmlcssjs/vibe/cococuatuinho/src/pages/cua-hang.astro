@@ -1,0 +1,126 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+const products = [
+    {
+        title: "Khu Vườn Bí Mật",
+        price: "250.000đ",
+        category: "Tranh In",
+        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCGV6izlkChM4qtM6FegrYP9HXNEmQ1thDTdR3JzKyyaYaCGv8lC-WWAf7N_Chi6CItrUTJSWHHvwsvv-pEJjUcVb7TRXMaaQdx4_HBMsFBgq9wqpU5byuHteJlUiCTG6W5QWBVIcKXgqS9YA-6RvRGvNlplozpmMSysTGTSO9AJ6WUG7EiXxGhijdY5bGNX3Iq9u20Vh5KW_N4uArnbd5s7DoJdE-RsR86DT4kUraacdc32xT7hgS-GjmCg8nBihYN1cAdOUSCLHU",
+        slug: "khu-vuon-bi-mat",
+    },
+    {
+        title: "Gấu Nhỏ Ngủ Ngon",
+        price: "180.000đ",
+        category: "Digital",
+        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuB7JBrWoqBWlGBh8iny51TxHe-Fsvrh5HxJ88_DVhbjF_MFM51wY2B2SY7qxr9Fmxv5JmF8lejs-nL57Cm6Jekkp-RlAzutY0Hc7X4uSc6wKC0oxu-4CbUnSKqTRFG9hSlpATi2z2j8mrKETJTkj_o3qwvUKZ0eTEG3nuNzZ55ddNzVX6XPUpWnHZueJxgVRKvh2h4LhauoHX075vn3aat3QJTbQLQ2j0NZblPP8nwfKZMwgFhHiV6xwoTRgYr3X20OqBm0hPXEXBU",
+        slug: "gau-nho-ngu-ngon",
+    },
+    {
+        title: "Chuyến Bay Của Bé",
+        price: "320.000đ",
+        category: "Phổ biến",
+        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCHORuA774RLcVnrC3xM7m3iHZE1WjB6_AdbY2k6xjwmRol9BCESiqpR77Z4JDzMC29Ll-ko-CHptHmhaTLVybLrfTJJWvBrajwt8_sIqibPrsqN7UdzqpxgZPhz0QqkaXwXDBxPdblMIB61Zw7JVTDkgofM70llfYdmd56XBVKQa9GfHOfKNjBaaz2BFtjsy6qXZaWO-WWm_lNJw2o1_pih-2ORxdmu1hLPWei5GlDYOc5OhZAatewmiWCWeXmde5OxYqFelSHuEs",
+        slug: "chuyen-bay-cua-be",
+    },
+];
+---
+
+<Layout title="Cửa Hàng Cô Cỏ Của Tụi Nhỏ - Tranh Cho Bé">
+    <main class="pt-32 pb-20 max-w-7xl mx-auto px-6">
+        <div
+            class="flex flex-col md:flex-row justify-between items-end gap-6 mb-12"
+        >
+            <div class="max-w-xl">
+                <div class="flex items-center gap-2 text-primary mb-2">
+                    <span class="h-px w-8 bg-primary"></span>
+                    <span class="text-xs font-bold uppercase tracking-widest"
+                        >Góc nhỏ của yêu thương</span
+                    >
+                </div>
+                <h2
+                    class="text-4xl md:text-5xl font-bold text-slate-900 leading-tight"
+                >
+                    Cửa Hàng Của Cô Cỏ
+                </h2>
+                <p class="mt-4 text-lg text-slate-600 leading-relaxed">
+                    Khám phá những bức tranh được vẽ bằng cả trái tim, mang đến
+                    không gian nhiệm màu cho thế giới của bé.
+                </p>
+            </div>
+            <button
+                class="flex items-center gap-3 bg-primary px-6 py-4 rounded-xl text-white font-bold hover:scale-105 transition-transform duration-300"
+            >
+                <span class="material-symbols-outlined animate-pulse"
+                    >auto_awesome</span
+                >
+                <span>Gợi ý tranh cho bé (Gemini AI)</span>
+            </button>
+        </div>
+
+        <!-- Filters -->
+        <div
+            class="flex flex-wrap items-center justify-between gap-4 mb-10 border-b border-primary/10 pb-6"
+        >
+            <div class="flex items-center gap-2">
+                <button
+                    class="px-6 py-2.5 rounded-full bg-primary text-white font-bold text-sm shadow-md"
+                    >Tất cả</button
+                >
+                <button
+                    class="px-6 py-2.5 rounded-full bg-neutral-200 text-slate-600 font-bold text-sm hover:bg-primary/10 transition-colors"
+                    >Tranh In</button
+                >
+                <button
+                    class="px-6 py-2.5 rounded-full bg-neutral-200 text-slate-600 font-bold text-sm hover:bg-primary/10 transition-colors"
+                    >Kỹ Thuật Số</button
+                >
+            </div>
+        </div>
+
+        <!-- Product Grid -->
+        <div
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
+        >
+            {
+                products.map((product) => (
+                    <div class="group bg-white rounded-xl overflow-hidden p-3 border border-primary/5 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300">
+                        <div class="relative aspect-[3/4] rounded-lg overflow-hidden mb-4">
+                            <img
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                alt={product.title}
+                                src={product.image}
+                            />
+                            <div class="absolute top-3 left-3">
+                                <span class="bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold uppercase text-primary shadow-sm tracking-wider">
+                                    {product.category}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="px-2 pb-2">
+                            <h3 class="text-lg font-bold text-slate-800 mb-1">
+                                {product.title}
+                            </h3>
+                            <div class="flex items-center justify-between mt-3">
+                                <p class="text-primary font-bold text-xl">
+                                    {product.price}
+                                </p>
+                                <a
+                                    href={`/san-pham/${product.slug}`}
+                                    class="bg-primary/10 hover:bg-primary group/btn px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-300"
+                                >
+                                    <span class="material-symbols-outlined text-primary group-hover/btn:text-white text-xl transition-colors">
+                                        visibility
+                                    </span>
+                                    <span class="text-sm font-bold text-primary group-hover/btn:text-white transition-colors">
+                                        Xem
+                                    </span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                ))
+            }
+        </div>
+    </main>
+</Layout>
