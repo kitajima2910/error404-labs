@@ -101,6 +101,9 @@ Bạn không chỉ **hiểu** HTML + CSS, mà còn **tạo ra được một web
         <a href="/bai-viet/kh-web-cb-2026-01-xay-dung-ui-navigation" target="_blank" class="block">
             <i class="fa fa-file-code-o" aria-hidden="true"></i> Xây dựng UI – Navigation
         </a>
+        <a href="/bai-viet/kh-web-cb-2026-01-xay-dung-ui-products" target="_blank" class="block">
+            <i class="fa fa-file-code-o" aria-hidden="true"></i> Xây dựng UI – Products
+        </a>
     </div>
 </div>
 
