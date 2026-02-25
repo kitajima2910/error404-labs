@@ -62,18 +62,24 @@
 
         <!-- Theme Controller -->
         <div class="absolute top-4 right-4 z-50">
-            <div class="dropdown dropdown-end">
-                <div tabindex="0" role="button"
+            <div class="relative" x-data="{ themeOpen: false }" @click.outside="themeOpen = false">
+                <div role="button" @click="themeOpen = !themeOpen"
                     class="btn btn-ghost btn-circle bg-base-100/50 hover:bg-base-200 backdrop-blur-sm shadow-sm"
                     aria-label="Theme Switcher">
                     <i data-lucide="palette" class="w-5 h-5"></i>
                 </div>
-                <ul tabindex="0"
-                    class="dropdown-content bg-base-100 text-base-content rounded-box z-[1] w-48 p-2 shadow-2xl h-[60vh] max-h-96 overflow-y-auto flex flex-col gap-1 border border-base-content/5 mt-2">
+                <ul x-show="themeOpen" style="display: none;"
+                    x-transition:enter="transition ease-out duration-100"
+                    x-transition:enter-start="transform opacity-0 scale-95"
+                    x-transition:enter-end="transform opacity-100 scale-100"
+                    x-transition:leave="transition ease-in duration-75"
+                    x-transition:leave-start="transform opacity-100 scale-100"
+                    x-transition:leave-end="transform opacity-0 scale-95"
+                    class="absolute right-0 top-full mt-2 bg-base-100 text-base-content rounded-box z-[1] w-48 p-2 shadow-2xl h-[60vh] max-h-96 overflow-y-auto flex flex-col gap-1 border border-base-content/5">
                     <template x-for="t in themes" :key="t">
                         <li>
                             <button
-                                @click="theme = t; localStorage.setItem('theme', t); document.documentElement.setAttribute('data-theme', t); document.activeElement.blur()"
+                                @click="theme = t; localStorage.setItem('theme', t); document.documentElement.setAttribute('data-theme', t); themeOpen = false;"
                                 class="w-full text-left btn btn-sm btn-ghost justify-start"
                                 :class="theme === t ? 'bg-primary/10 text-primary font-bold' : ''">
                                 <span class="capitalize" x-text="t"></span>
