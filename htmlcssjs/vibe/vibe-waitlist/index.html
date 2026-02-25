@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="luxury">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sản Phẩm Tiếp Theo Của Bạn Sắp Ra Mắt</title>
+
+    <link rel="icon" type="image/avif" href="/avatar_v2.avif" />
+
+    <meta name="description"
+        content="Đăng ký Waitlist để trở thành những người đầu tiên trải nghiệm sản phẩm tiếp theo của chúng tôi.">
+
+    <!-- CSS Vite/Tailwind v4 -->
+    <link rel="stylesheet" href="./style.css">
+
+    <!-- HTMX & Alpine.js -->
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
+</head>
+
+<body
+    class="min-h-screen flex items-center justify-center bg-base-200 p-4 font-sans text-base-content selection:bg-primary selection:text-primary-content">
+
+    <div class="card w-full max-w-xl bg-base-100 shadow-2xl overflow-hidden glass">
+        <div class="card-body items-center text-center p-8 sm:p-14">
+
+            <h1 class="text-4xl sm:text-5xl font-extrabold mb-6 pb-2 text-primary">
+                Sản Phẩm Tiếp Theo Của Bạn Sắp Ra Mắt
+            </h1>
+
+            <p class="text-base-content/80 mb-10 sm:text-lg leading-relaxed">
+                Trở thành một trong những người tiên phong định hình tương lai. Đăng ký ngay để nhận thông báo khi chúng
+                tôi ra mắt sản phẩm đột phá này!
+            </p>
+
+            <!-- Form Container (HTMX Target) -->
+            <div id="form-container" class="w-full">
+                <form hx-post="/api/subscribe" hx-target="#form-container" hx-swap="outerHTML"
+                    class="flex flex-col gap-5 w-full">
+                    <div class="form-control w-full relative group">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"
+                            class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-base-content/50 group-focus-within:text-primary transition-colors">
+                            <path
+                                d="M2.5 3A1.5 1.5 0 0 0 1 4.5v.793c.026.009.051.02.076.032L7.674 8.51c.206.1.446.1.652 0l6.598-3.185A.755.755 0 0 1 15 5.293V4.5A1.5 1.5 0 0 0 13.5 3h-11Z" />
+                            <path
+                                d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z" />
+                        </svg>
+                        <input type="email" name="email" placeholder="Nhập địa chỉ email của bạn..."
+                            class="input input-bordered input-primary w-full pl-12 bg-base-100/50 backdrop-blur-sm transition-all focus:ring-2 focus:ring-primary/20 text-lg py-6"
+                            required />
+                    </div>
+
+                    <button
+                        class="btn btn-primary w-full shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95 h-14"
+                        type="submit">
+                        <span class="submit-text font-bold text-lg">Join the Waitlist</span>
+                        <span class="htmx-indicator loading loading-spinner loading-md"></span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Footer Policy -->
+            <div class="mt-10 text-xs text-base-content/40 flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                </svg>
+                <span>Chúng tôi cam kết bảo mật thông tin của bạn. Không bao giờ gửi spam.</span>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+
+</html>
