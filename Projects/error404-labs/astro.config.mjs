@@ -17,6 +17,14 @@ export default defineConfig({
     integrations: [sitemap()],
     markdown: {
         remarkPlugins: [remarkMath],
-        rehypePlugins: [rehypeKatex],
+        rehypePlugins: [
+            [
+                rehypeKatex,
+                {
+                    strict: false,
+                    throwOnError: false,
+                },
+            ],
+        ],
     },
 })

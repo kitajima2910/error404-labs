@@ -18,9 +18,9 @@ category: Java
 > **💡 Công thức toán học dùng chung (Cấp số cộng):**
 >
 > 1. **Số lượng số hạng ($m$):** >  
->    $$m = (Số\_cuối - Số\_đầu) / Khoảng\_cách + 1$$
+>    $$m = (SoCuoi - SoDau) / KhoangCach + 1$$
 > 2. **Tổng dãy số ($S$):** >  
->    $$S = (Số\_đầu + Số\_cuối) \times m / 2$$
+>    $$S = (SoDau + SoCuoi) \times m / 2$$
 
 ---
 
@@ -43,9 +43,9 @@ for (int i = 1; i <= 99; i += 2) {
 ```
 
 - **Cách 2 - Toán học (Thế số):**
-- $Số\_đầu = 1$
-- $Số\_cuối = 99$
-- $Khoảng\_cách = 2$
+- $SoDau = 1$
+- $SoCuoi = 99$
+- $KhoangCach = 2$
 - $m = (99 - 1) / 2 + 1 = 50$ (số hạng)
 - **Áp dụng:** $S = (1 + 99) \times 50 / 2 = 2500$
 
@@ -66,9 +66,9 @@ for (int i = 5; i <= 100; i += 5) {
 ```
 
 - **Cách 2 - Toán học (Thế số):**
-- $Số\_đầu = 5$
-- $Số\_cuối = 100$
-- $Khoảng\_cách = 5$
+- $SoDau = 5$
+- $SoCuoi = 100$
+- $KhoangCach = 5$
 - $m = (100 - 5) / 5 + 1 = 20$
 - **Áp dụng:** $S = (5 + 100) \times 20 / 2 = 1050$
 
@@ -87,9 +87,9 @@ for (int i = 1; i <= n; i++) sum += i;
 ```
 
 - **Cách 2 - Toán học (Thế số):**
-- $Số\_đầu = 1$
-- $Số\_cuối = n$
-- $Khoảng\_cách = 1$
+- $SoDau = 1$
+- $SoCuoi = n$
+- $KhoangCach = 1$
 - $m = (n - 1) / 1 + 1 = n$
 - **Áp dụng:** $S = (1 + n) \times n / 2$
 
@@ -112,17 +112,17 @@ for (int i = soDau; i <= n; i += 2) {
 
 - **Cách 2 - Toán học (Thế số):**
 - **Nếu $n = 10$ (Chẵn):**
-- $Số\_đầu = 2$
-- $Số\_cuối = 10$
-- $Khoảng\_cách = 2$
+- $SoDau = 2$
+- $SoCuoi = 10$
+- $KhoangCach = 2$
 - $m = (10 - 2) / 2 + 1 = 5$
 - **Áp dụng:** $S = (2 + 10) \times 5 / 2 = 30$
 
 <br/>
 
 - **Nếu $n = 11$ (Lẻ):**
-- $Số\_đầu = 1$
-- $Số\_cuối = 11$
-- $Khoảng\_cách = 2$
+- $SoDau = 1$
+- $SoCuoi = 11$
+- $KhoangCach = 2$
 - $m = (11 - 1) / 2 + 1 = 6$
 - **Áp dụng:** $S = (1 + 11) \times 6 / 2 = 36$
