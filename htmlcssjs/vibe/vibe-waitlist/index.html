@@ -12,10 +12,11 @@
         content="Đăng ký Waitlist để trở thành những người đầu tiên trải nghiệm sản phẩm tiếp theo của chúng tôi.">
 
     <!-- CSS Vite/Tailwind v4 -->
-    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="/style.css">
 
     <!-- HTMX & Alpine.js -->
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    <meta name="htmx-config" content='{"selfRequestsOnly": false}'>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
 </head>
 
@@ -36,8 +37,8 @@
 
             <!-- Form Container (HTMX Target) -->
             <div id="form-container" class="w-full">
-                <form hx-post="/api/subscribe" hx-target="#form-container" hx-swap="outerHTML"
-                    class="flex flex-col gap-5 w-full">
+                <form hx-post="https://vibe-waitlist-nine.vercel.app/api/subscribe" hx-target="#form-container"
+                    hx-swap="outerHTML" class="flex flex-col gap-5 w-full">
                     <div class="form-control w-full relative group">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"
                             class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-base-content/50 group-focus-within:text-primary transition-colors">
