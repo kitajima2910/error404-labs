@@ -9,6 +9,7 @@ const pool = new Pool({
 export default async function handler(req, res) {
     // 1. Cấu hình CORS
     const allowedOrigins = [
+        'http://localhost:4321',
         'http://localhost:5173',
         'http://127.0.0.1:5173',
         'http://127.0.0.1:5500',
