@@ -15,12 +15,20 @@ export default async function handler(req, res) {
         'http://127.0.0.1:5500',
         'http://localhost:5500',
         'http://localhost:2910',
-        'https://www.error404-labs.info.vn'
+        'https://www.error404-labs.info.vn',
+        'https://vibe-waitlist-nine.vercel.app'
     ];
-    const origin = req.headers.origin;
 
-    // Strict CORS: Block if origin is present but NOT in allowedOrigins
-    if (origin && !allowedOrigins.includes(origin)) {
+    // Lấy origin từ request, fallback sang referer vì một số trình duyệt có thể không gửi origin
+    let origin = req.headers.origin;
+    if (!origin && req.headers.referer) {
+        try {
+            origin = new URL(req.headers.referer).origin;
+        } catch (e) { }
+    }
+
+    // Strict CORS: Chặn hoàn toàn nếu không có origin (như chạy qua Postman) hoặc origin không hợp lệ
+    if (!origin || !allowedOrigins.includes(origin)) {
         return res.status(403).send(`<div class='alert alert-error'>Truy cập bị từ chối do chính sách bảo mật CORS!</div>`);
     }
 
