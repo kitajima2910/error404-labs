@@ -25,3 +25,4 @@
 - Tạo ra file .gitignore để git ignore các files không cần thiết.
 - Không sử dụng các thư viện không cần thiết, code phải được tối ưu hóa, không để lộ thông tin nhạy cảm, API key, database credentials, ...
 - Không dùng gradient cho bất kì thứ gì, chỉ dùng màu đơn sắc.
+- Refactor cho dễ maintain, dễ đọc, dễ hiểu.
