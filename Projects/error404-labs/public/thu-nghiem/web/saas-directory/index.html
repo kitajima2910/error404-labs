@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="vi" data-theme="lofi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>App 3</title>
+
+    <link rel="icon" type="image/avif" href="/avatar_v2.avif" />
+
+    <!-- Google Fonts for Modern Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Tailwind CSS v4 CDN -->
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+
+    <!-- DaisyUI CDN -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+
+    <!-- HTMX -->
+    <meta name="htmx-config" content='{"selfRequestsOnly": false}' />
+    <script src="https://unpkg.com/htmx.org@2.0.0"></script>
+
+    <!-- Alpine JS -->
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        font-family: "Outfit", sans-serif;
+      }
+
+      /* Skeleton is hidden by default */
+      #search-loading {
+        display: none;
+      }
+    </style>
+  </head>
+  <body class="bg-base-200 min-h-screen text-base-content antialiased">
+    <!-- Header Section -->
+    <header class="bg-base-100 border-b border-base-300 py-16 px-4">
+      <div class="max-w-4xl mx-auto text-center">
+        <div
+          class="inline-block mb-4 px-3 py-1 rounded-full bg-primary/10 text-primary font-medium text-sm"
+        >
+          Khám phá công cụ tốt nhất
+        </div>
+        <h1
+          class="hidden text-4xl md:text-5xl font-bold mb-6 text-base-content tracking-tight"
+        >
+          SaaS Directory
+        </h1>
+        <p class="text-lg text-center opacity-70 mb-10 max-w-2xl mx-auto" style="margin: inherit; padding-bottom: 1rem;">
+          Tìm kiếm và khám phá phần mềm phù hợp nhất cho doanh nghiệp của bạn. Được tuyển chọn và phân loại rõ ràng.
+        </p>
+
+        <!-- Large Search Bar -->
+        <div class="relative max-w-2xl mx-auto form-control w-full" x-data="{ category: '' }">
+          <!-- Include hidden input so HTMX includes category on search -->
+          <input type="hidden" name="category" x-model="category" />
+          
+          <!-- Search Icon -->
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 text-base-content/50 pointer-events-none"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+
+          <!-- Search Input with HTMX -->
+          <input
+            type="search"
+            name="search"
+            id="search-input"
+            placeholder="Tìm kiếm công cụ (ví dụ: Marketing, CRM, AI...)"
+            class="input input-bordered input-lg w-full pl-16 pr-6 rounded-full shadow-lg border-2 focus:border-primary transition-all duration-300 text-lg"
+            hx-get="/api/tools"
+            hx-trigger="keyup changed delay:200ms, search, load, categoryChanged from:body, sortChanged from:body"
+            hx-include="[name='category'], [name='sort']"
+            hx-target="#tool-grid"
+            autocomplete="off"
+            style="padding-left: 3.5rem;"
+          />
+        </div>
+        
+        <!-- Category Filters (Alpine.js) -->
+        <div class="flex flex-wrap justify-center gap-2 mt-6" x-data="{ currentCategory: '' }">
+            <button 
+                @click="currentCategory = ''; document.querySelector('[name=category]').value = ''; document.body.dispatchEvent(new Event('categoryChanged'))" 
+                class="badge badge-lg transition-all hover:scale-105 cursor-pointer py-3" 
+                :class="currentCategory === '' ? 'badge-primary' : 'badge-ghost border-base-300 bg-base-100'"
+            >
+                Tất cả
+            </button>
+            <button 
+                @click="currentCategory = 'AI'; document.querySelector('[name=category]').value = 'AI'; document.body.dispatchEvent(new Event('categoryChanged'))" 
+                class="badge badge-lg transition-all hover:scale-105 cursor-pointer py-3" 
+                :class="currentCategory === 'AI' ? 'badge-primary' : 'badge-ghost border-base-300 bg-base-100'"
+            >
+                AI
+            </button>
+            <button 
+                @click="currentCategory = 'Database'; document.querySelector('[name=category]').value = 'Database'; document.body.dispatchEvent(new Event('categoryChanged'))" 
+                class="badge badge-lg transition-all hover:scale-105 cursor-pointer py-3" 
+                :class="currentCategory === 'Database' ? 'badge-primary' : 'badge-ghost border-base-300 bg-base-100'"
+            >
+                Database
+            </button>
+            <button 
+                @click="currentCategory = 'Payment'; document.querySelector('[name=category]').value = 'Payment'; document.body.dispatchEvent(new Event('categoryChanged'))" 
+                class="badge badge-lg transition-all hover:scale-105 cursor-pointer py-3" 
+                :class="currentCategory === 'Payment' ? 'badge-primary' : 'badge-ghost border-base-300 bg-base-100'"
+            >
+                Payment
+            </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-12">
+      <div class="flex items-center justify-between mb-8">
+        <h2 class="text-2xl font-bold tracking-tight">Kết quả tìm kiếm</h2>
+
+        <!-- Filter Dropdown using Alpine.js -->
+        <div x-data="{ open: false }" class="relative z-10">
+          <button
+            @click="open = !open"
+            class="btn btn-ghost hover:bg-base-300 transition-colors"
+          >
+            Sắp xếp & Lọc
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4 ml-1"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
+          <div
+            x-show="open"
+            @click.away="open = false"
+            x-transition:enter="transition ease-out duration-100"
+            x-transition:enter-start="transform opacity-0 scale-95"
+            x-transition:enter-end="transform opacity-100 scale-100"
+            x-transition:leave="transition ease-in duration-75"
+            x-transition:leave-start="transform opacity-100 scale-100"
+            x-transition:leave-end="transform opacity-0 scale-95"
+            class="absolute right-0 mt-2 p-4 bg-base-100 border border-base-300 rounded-2xl shadow-xl w-56 hidden"
+            :class="{'hidden': !open, 'block': open}"
+          >
+            <div class="space-y-3">
+              <label
+                class="label cursor-pointer justify-start gap-3 hover:bg-base-200 p-2 rounded-lg transition-colors"
+              >
+                <input
+                  type="radio"
+                  name="sort"
+                  value="newest"
+                  class="radio radio-primary radio-sm"
+                  checked
+                  @change="document.body.dispatchEvent(new Event('sortChanged'))"
+                />
+                <span class="label-text font-medium">Mới nhất</span>
+              </label>
+              <label
+                class="label cursor-pointer justify-start gap-3 hover:bg-base-200 p-2 rounded-lg transition-colors"
+              >
+                <input
+                  type="radio"
+                  name="sort"
+                  value="popular"
+                  class="radio radio-primary radio-sm"
+                  @change="document.body.dispatchEvent(new Event('sortChanged'))"
+                />
+                <span class="label-text font-medium">Phổ biến</span>
+              </label>
+              <label
+                class="label cursor-pointer justify-start gap-3 hover:bg-base-200 p-2 rounded-lg transition-colors"
+              >
+                <input
+                  type="radio"
+                  name="sort"
+                  value="alphabet"
+                  class="radio radio-primary radio-sm"
+                  @change="document.body.dispatchEvent(new Event('sortChanged'))"
+                />
+                <span class="label-text font-medium">Alphabet (A-Z)</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Skeleton Loading Indicator (DaisyUI) -->
+      <div
+        id="search-loading"
+        class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 w-full"
+      >
+        <!-- Skeleton Card 1 -->
+        <div class="card bg-base-100 shadow-sm border border-base-200 flex flex-col h-full overflow-hidden">
+          <figure class="px-6 pt-6 shrink-0 h-48 bg-base-200/50 relative border-b border-base-200">
+             <div class="skeleton h-full w-full rounded-xl"></div>
+             <div class="skeleton absolute top-4 right-4 h-6 w-16 rounded-full"></div>
+          </figure>
+          <div class="card-body p-6 flex flex-col flex-grow gap-3">
+             <div class="skeleton h-7 w-3/4 mb-1"></div>
+             <div class="space-y-2 flex-grow">
+               <div class="skeleton h-4 w-full"></div>
+               <div class="skeleton h-4 w-full"></div>
+               <div class="skeleton h-4 w-4/5"></div>
+             </div>
+             <div class="card-actions justify-end mt-4 pt-4 border-t border-base-200/60 w-full shrink-0">
+               <div class="skeleton h-10 w-full lg:w-32 rounded-full"></div>
+             </div>
+          </div>
+        </div>
+
+        <!-- Skeleton Card 2 -->
+        <div class="card bg-base-100 shadow-sm border border-base-200 flex flex-col h-full overflow-hidden hidden md:flex">
+          <figure class="px-6 pt-6 shrink-0 h-48 bg-base-200/50 relative border-b border-base-200">
+             <div class="skeleton h-full w-full rounded-xl"></div>
+             <div class="skeleton absolute top-4 right-4 h-6 w-16 rounded-full"></div>
+          </figure>
+          <div class="card-body p-6 flex flex-col flex-grow gap-3">
+             <div class="skeleton h-7 w-2/3 mb-1"></div>
+             <div class="space-y-2 flex-grow">
+               <div class="skeleton h-4 w-full"></div>
+               <div class="skeleton h-4 w-full"></div>
+               <div class="skeleton h-4 w-3/4"></div>
+             </div>
+             <div class="card-actions justify-end mt-4 pt-4 border-t border-base-200/60 w-full shrink-0">
+               <div class="skeleton h-10 w-full lg:w-32 rounded-full"></div>
+             </div>
+          </div>
+        </div>
+
+        <!-- Skeleton Card 3 -->
+        <div class="card bg-base-100 shadow-sm border border-base-200 flex flex-col h-full overflow-hidden hidden md:flex">
+          <figure class="px-6 pt-6 shrink-0 h-48 bg-base-200/50 relative border-b border-base-200">
+             <div class="skeleton h-full w-full rounded-xl"></div>
+             <div class="skeleton absolute top-4 right-4 h-6 w-16 rounded-full"></div>
+          </figure>
+          <div class="card-body p-6 flex flex-col flex-grow gap-3">
+             <div class="skeleton h-7 w-1/2 mb-1"></div>
+             <div class="space-y-2 flex-grow">
+               <div class="skeleton h-4 w-full"></div>
+               <div class="skeleton h-4 w-full"></div>
+               <div class="skeleton h-4 w-5/6"></div>
+             </div>
+             <div class="card-actions justify-end mt-4 pt-4 border-t border-base-200/60 w-full shrink-0">
+               <div class="skeleton h-10 w-full lg:w-32 rounded-full"></div>
+             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tool Grid (Target for HTMX API Response) -->
+      <div id="tool-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Lần đầu load trang HTMX sẽ tự gọi /api/tools và điền dữ liệu vào đây -->
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer
+      class="footer footer-center p-10 bg-base-100/50 text-base-content rounded mt-12 border-t border-base-300"
+    >
+      <aside>
+        <p class="font-medium text-base-content/60">
+          Copyright © 2026 - Error404-Labs.Info.Vn
+        </p>
+      </aside>
+    </footer>
+
+    <!-- HTMX Loading Logic + API Base URL auto-detect -->
+    <script>
+      // ============================================================
+      // CẤU HÌNH: Thay URL này bằng domain Vercel production của bạn
+      // ============================================================
+      var VERCEL_PROD_URL = 'https://saas-directory-one.vercel.app'; // Ví dụ: 'https://saas-directory.vercel.app'
+
+      // Auto-detect API base URL
+      var API_BASE = '';
+      (function() {
+        var loc = window.location;
+        var isVercelDev = (loc.hostname === 'localhost' || loc.hostname === '127.0.0.1') && loc.port === '3000';
+        var isVercelProd = VERCEL_PROD_URL && loc.origin === VERCEL_PROD_URL;
+        // Chỉ dùng relative path khi đang trên Vercel Dev (port 3000) hoặc Vercel Production
+        // Mọi trường hợp khác (Live Server, file://, embed) → dùng VERCEL_PROD_URL
+        if (!isVercelDev && !isVercelProd && VERCEL_PROD_URL) {
+          API_BASE = VERCEL_PROD_URL;
+        }
+      })();
+
+      // Prepend API_BASE vào mọi HTMX request có path bắt đầu bằng /api/
+      document.addEventListener('htmx:configRequest', function(evt) {
+        if (API_BASE && evt.detail.path && evt.detail.path.startsWith('/api/')) {
+          evt.detail.path = API_BASE + evt.detail.path;
+        }
+      });
+
+      // Skeleton loading logic
+      document.addEventListener('htmx:beforeRequest', function(evt) {
+        if (evt.detail.target && evt.detail.target.id === 'tool-grid') {
+          document.getElementById('tool-grid').style.display = 'none';
+          document.getElementById('search-loading').style.display = 'grid';
+        }
+      });
+      document.addEventListener('htmx:afterSwap', function(evt) {
+        if (evt.detail.target && evt.detail.target.id === 'tool-grid') {
+          document.getElementById('search-loading').style.display = 'none';
+          document.getElementById('tool-grid').style.display = 'grid';
+        }
+      });
+    </script>
+  </body>
+</html>
