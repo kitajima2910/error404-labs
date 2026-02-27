@@ -19,6 +19,8 @@ module.exports = async function handler(req, res) {
     "https://saas-directory-one.vercel.app",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "http://localhost:4321",
+    "http://127.0.0.1:4321",
     // Development (Live Server) - xoá/comment dòng dưới khi production
     "http://localhost:5500",
     "http://127.0.0.1:5500",
@@ -50,11 +52,9 @@ module.exports = async function handler(req, res) {
 
   // Chặn origin không nằm trong whitelist
   if (!ALLOWED_ORIGINS.includes(effectiveOrigin)) {
-    return res
-      .status(403)
-      .json({
-        error: `Forbidden: Origin '${effectiveOrigin}' không được phép.`,
-      });
+    return res.status(403).json({
+      error: `Forbidden: Origin '${effectiveOrigin}' không được phép.`,
+    });
   }
 
   // Set CORS headers cho origin hợp lệ (chỉ set khi có cross-origin request)
