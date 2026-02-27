@@ -25,29 +25,48 @@ module.exports = async function handler(req, res) {
   ];
 
   const origin = req.headers["origin"];
+  const referer = req.headers["referer"] || "";
 
-  // Chặn request không có Origin (Postman, curl, server-to-server)
-  if (!origin) {
+  // Xác định effective origin:
+  // - Same-origin request (Vercel serving HTML+API) → không có Origin, nhưng có Referer
+  // - Cross-origin request (Live Server, embed) → có Origin
+  // - Postman/curl → không có cả hai → chặn
+  let effectiveOrigin = origin;
+  if (!effectiveOrigin) {
+    // Fallback: lấy origin từ Referer URL
+    try {
+      effectiveOrigin = referer ? new URL(referer).origin : null;
+    } catch (_) {
+      effectiveOrigin = null;
+    }
+  }
+
+  // Chặn nếu không xác định được origin (Postman, curl)
+  if (!effectiveOrigin) {
     return res
       .status(403)
       .json({ error: "Forbidden: Direct API access không được phép." });
   }
 
   // Chặn origin không nằm trong whitelist
-  if (!ALLOWED_ORIGINS.includes(origin)) {
+  if (!ALLOWED_ORIGINS.includes(effectiveOrigin)) {
     return res
       .status(403)
-      .json({ error: `Forbidden: Origin '${origin}' không được phép.` });
+      .json({
+        error: `Forbidden: Origin '${effectiveOrigin}' không được phép.`,
+      });
   }
 
-  // Set CORS headers cho origin hợp lệ
-  res.setHeader("Access-Control-Allow-Origin", origin);
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, HX-Request, HX-Trigger, HX-Trigger-Name, HX-Target, HX-Current-URL, HX-Boosted, HX-History-Restore-Request, HX-Prompt",
-  );
+  // Set CORS headers cho origin hợp lệ (chỉ set khi có cross-origin request)
+  if (origin) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, HX-Request, HX-Trigger, HX-Trigger-Name, HX-Target, HX-Current-URL, HX-Boosted, HX-History-Restore-Request, HX-Prompt",
+    );
+  }
 
   // Preflight Request
   if (req.method === "OPTIONS") {
