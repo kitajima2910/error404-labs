@@ -15,12 +15,24 @@ category: C
 
 ## 📖 Tài liệu
 
-<iframe 
+<div class="mb-3 flex gap-3">
+  <a 
+    href="/images/c/so-hoan-hao-khi-con-so-du-day-theo-cach-rat-de-thuong.pdf" 
+    target="_blank" 
+    rel="noopener noreferrer"
+    class="py-2 text-white">
+    🔎 Mở tab mới xem tài liệu
+  </a>
+</div>
+
+<iframe
   src="/images/c/so-hoan-hao-khi-con-so-du-day-theo-cach-rat-de-thuong.pdf"
   width="100%"
   height="1000px"
   style="border: none;"
-  allowfullscreen
+  loading="lazy"
+  title="Tài liệu số hoàn hảo"
+  aria-label="Tài liệu số hoàn hảo"
 ></iframe>
 
 ---
