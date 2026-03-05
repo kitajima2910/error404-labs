@@ -1,0 +1,15 @@
+diff --git a/common/cpu.c b/common/cpu.c
+index 3150626..5a8d6a5 100644
+--- a/common/cpu.c
++++ b/common/cpu.c
+@@ -610,6 +610,10 @@ int x264_cpu_num_processors( void )
+ #if !HAVE_THREAD
+     return 1;
+ 
++#elif __EMSCRIPTEN__
++    #include <emscripten/threading.h>
++    return emscripten_has_threading_support() ? emscripten_num_logical_cores() : 1;
++
+ #elif SYS_WINDOWS
+     return x264_pthread_num_processors_np();
+ 

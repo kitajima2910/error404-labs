@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script type="module">
+        import { transcode } from "../transcode/transcode.js"
+
+        async function go() {
+            const res = await fetch("./d3theme.amr");
+            const ab = await res.arrayBuffer();
+
+            console.log(Date.now(), 'outer transcode start');
+            const transcoded = await transcode(ab);
+            console.log(Date.now(), 'outer transcode end');
+
+            if (transcoded) {
+                const video = document.createElement('video');
+                video.controls = true;
+                video.addEventListener('loadedmetadata', () => {
+                    console.log('duration on loadedmetadata', video.duration);
+                }, {once:true});
+
+                setMediaBlob(video, new Blob([transcoded], { type: "video/mp4" }));
+                document.body.appendChild(video);
+                console.log('duration right after setting blob', video.duration);
+
+                document.addEventListener('click', x=> {
+                  video.play();
+                });
+            }
+        }
+
+        go();
+
+
+        function setMediaBlob(mediaElement, blob) {
+          // why the HELL isn't this possible with srcObject???
+
+          if (mediaElement.src && mediaElement.src.startsWith('blob:')) {
+            URL.revokeObjectURL(mediaElement.src);
+          }
+
+          const objectUrl = URL.createObjectURL(blob);
+
+          const cleanup = (e) => {
+            console.log('duration on loadeddata', mediaElement.duration);
+            URL.revokeObjectURL(objectUrl);
+            mediaElement.removeEventListener('ended', cleanup);
+            mediaElement.removeEventListener('error', cleanup);
+          };
+
+          mediaElement.addEventListener('ended', cleanup);
+          mediaElement.addEventListener('error', cleanup);
+          mediaElement.src = objectUrl;
+        }
+
+    </script>
+</body>
+</html>

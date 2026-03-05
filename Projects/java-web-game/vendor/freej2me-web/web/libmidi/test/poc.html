@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>libmidi Test</title>
+</head>
+<body>
+  <h1>libmidi Test</h1>
+  <button id="brun">run</button>
+  <button id="bplay">play</button>
+  <button id="bstop">stop</button>
+
+
+  <script type="module">
+    import { createUnlockingAudioContext, LibMidi } from "../libmidi.js";
+
+    let context, lib;
+    let midiBuffer;
+    let player;
+
+    async function fetchBuffer(name) {
+      const res = await fetch(name);
+
+      return await res.arrayBuffer();
+    }
+
+    async function init() {
+      context = createUnlockingAudioContext();
+
+      lib = new LibMidi(context);
+
+      [, midiBuffer] = await Promise.all([
+        lib.init(),
+        fetchBuffer("./conv.mid")
+      ]);
+
+      window.buffa = midiBuffer;
+      window.lib = lib;
+    }
+
+
+    async function run() {
+      await init();
+
+      player = window.playah = lib.midiPlayer;
+
+      console.log('done1');
+
+      player.setSequence(midiBuffer);
+      player.loop(4);
+    }
+
+    function play() {
+      window.playah.play();
+    }
+
+    function stop() {
+      window.playah.stop();
+    }
+
+    window.runn = run;
+
+
+
+    // Attach event listeners to buttons
+    document.getElementById('brun').addEventListener('click', run);
+    document.getElementById('bplay').addEventListener('click', play);
+    document.getElementById('bstop').addEventListener('click', stop);
+
+  </script>
+</body>
+</html>

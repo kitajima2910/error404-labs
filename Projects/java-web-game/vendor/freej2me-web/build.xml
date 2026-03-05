@@ -1,0 +1,25 @@
+<project name="FreeJ2ME">
+	<echo message="Building FreeJ2ME" />
+
+	<echo message="FreeJ2ME" />
+	<mkdir dir="build/classes"/>
+	<javac
+		srcdir="src"
+		destdir="build/classes"
+		includeantruntime="false"
+		debug="true"
+		debuglevel="lines,vars,source"
+		target="1.8"
+	>
+		<compilerarg value="-Xlint:unchecked"/>
+		<compilerarg value="-Xlint:deprecation"/>
+	</javac>
+
+	<echo message="Building JAR" />
+	<jar
+		destfile="web/freej2me-web.jar"
+		basedir="build/classes">
+		<fileset dir="resources" />
+	</jar>
+
+</project>
