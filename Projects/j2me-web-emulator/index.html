@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J2ME Web Emulator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <main class="app">
+        <section class="top-bar">
+            <div class="brand">
+                <h1>Giả lập J2ME Web</h1>
+                <p class="hint">Bản hiện tại tập trung chạy MIDlet đơn giản: Canvas/GameCanvas, số nguyên, field, method call và input phím mũi tên.</p>
+            </div>
+            <div class="actions">
+                <label class="picker" for="jarFile">
+                    <span>Tải game.jar</span>
+                    <input type="file" id="jarFile" accept=".jar">
+                </label>
+                <div id="gameInfo" class="status">Sẵn sàng.</div>
+            </div>
+        </section>
+
+        <section class="screen-shell">
+            <canvas id="screen" width="240" height="320"></canvas>
+            <div id="keypad">
+                <div class="softkeys">
+                    <button data-k="F1">Mềm trái</button>
+                    <button data-k="ArrowUp">Lên</button>
+                    <button data-k="F2">Mềm phải</button>
+                </div>
+                <div class="navkeys">
+                    <button data-k="ArrowLeft">Trái</button>
+                    <button data-k="Enter">OK</button>
+                    <button data-k="ArrowRight">Phải</button>
+                </div>
+                <div class="downkey">
+                    <button class="spacer" aria-hidden="true"></button>
+                    <button data-k="ArrowDown">Xuống</button>
+                    <button class="spacer" aria-hidden="true"></button>
+                </div>
+                <div class="numkeys">
+                    <button data-k="1">1</button>
+                    <button data-k="2">2</button>
+                    <button data-k="3">3</button>
+                    <button data-k="4">4</button>
+                    <button data-k="5">5</button>
+                    <button data-k="6">6</button>
+                    <button data-k="7">7</button>
+                    <button data-k="8">8</button>
+                    <button data-k="9">9</button>
+                    <button data-k="*">*</button>
+                    <button data-k="0">0</button>
+                    <button data-k="#">#</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="libs/jszip.min.js"></script>
+    <script type="module" src="main.js"></script>
+    <script>
+        document.querySelectorAll("#keypad button").forEach((btn) => {
+            if (!btn.dataset.k) {
+                return
+            }
+
+            btn.onmousedown = () => {
+                window.dispatchEvent(new KeyboardEvent("keydown", { key: btn.dataset.k }))
+            }
+
+            btn.onmouseup = btn.onmouseleave = () => {
+                window.dispatchEvent(new KeyboardEvent("keyup", { key: btn.dataset.k }))
+            }
+        })
+    </script>
+</body>
+
+</html>
