@@ -25,28 +25,10 @@ let screenCtx = null;
 
 let fractionScale = sp.get('fractionScale') || (localStorage && localStorage.getItem("pl.zb3.freej2me.fractionScale") === "true");
 let scaleSet = false;
-const fitMode = sp.get('fit') || 'contain';
 
 const keyRepeatManager = new KeyRepeatManager();
 
 window.evtQueue = evtQueue;
-
-async function mountJarFromUrl(jarUrl) {
-    const response = await fetch(jarUrl, { mode: 'cors' });
-    if (!response.ok) {
-        throw new Error(`Failed to download jar (${response.status})`);
-    }
-
-    const bytes = new Uint8Array(await response.arrayBuffer());
-    const pathPart = jarUrl.split('?')[0].split('#')[0];
-    const fileNameRaw = pathPart.substring(pathPart.lastIndexOf('/') + 1) || 'game.jar';
-    const fileName = fileNameRaw.toLowerCase().endsWith('.jar') ? fileNameRaw : `${fileNameRaw}.jar`;
-    const safeName = fileName.replace(/[^a-zA-Z0-9._-]+/g, '_');
-    const runtimePath = `/str/${safeName}`;
-
-    cheerpOSAddStringFile(runtimePath, bytes);
-    return runtimePath;
-}
 
 function autoscale() {
     if (!scaleSet) return;
@@ -69,18 +51,10 @@ function autoscale() {
         }
     }
 
-    let scale;
-    if (fitMode === 'cover') {
-        scale = Math.max(
-            screenWidth/screenCtx.canvas.width,
-            screenHeight/screenCtx.canvas.height
-        );
-    } else {
-        scale = Math.min(
-            screenWidth/screenCtx.canvas.width,
-            screenHeight/screenCtx.canvas.height
-        );
-    }
+    let scale = Math.min(
+        screenWidth/screenCtx.canvas.width,
+        screenHeight/screenCtx.canvas.height
+    );
 
     if (!fractionScale) {
         scale = scale|0;
@@ -356,9 +330,6 @@ async function init() {
         await ensureAppInstalled(lib, app);
 
         args = ['app', sp.get('app')];
-    } else if (sp.get('jarUrl')) {
-        const runtimeJarPath = await mountJarFromUrl(sp.get('jarUrl'));
-        args = ['jar', runtimeJarPath];
     } else {
         args = ['jar', cheerpjWebRoot+"/jar/" + (sp.get('jar') || "game.jar")];
     }
