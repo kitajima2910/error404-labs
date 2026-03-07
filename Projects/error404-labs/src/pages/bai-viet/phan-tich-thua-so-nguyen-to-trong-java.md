@@ -13,6 +13,20 @@ draft: false
 category: Java
 ---
 
+## 📖 Tài liệu
+
+<div class="mb-3 flex gap-3">
+  <a 
+    href="/images/java/phan-tich-thua-so-nguyen-to-trong-java.pdf" 
+    target="_blank" 
+    rel="noopener noreferrer"
+    class="py-2 text-white">
+    🔎 Mở tab mới xem tài liệu (PDF)
+  </a>
+</div>
+
+---
+
 **Phân tích thừa số nguyên tố** là việc biểu diễn một số nguyên dương thành tích của các **số nguyên tố**.
 
 Ví dụ:
