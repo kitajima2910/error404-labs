@@ -1,11 +1,333 @@
 ---
+import { formatBlogPost } from '../js/utils'
 
+const allPosts = Object.values(import.meta.glob('../pages/bai-viet/*.md', { eager: true }))
+
+const blog = formatBlogPost(allPosts, {
+    limit: 20,
+    filterOutDrafts: true,
+    sortByDate: !true,
+})
+
+const titles = blog.map((post: any) => post.frontmatter.title)
+
+const titles_and_urls = blog.map((post: any) => ({
+    title: post.frontmatter.title,
+    url: post.url,
+}))
+
+// console.log('titles_and_urls: ', titles_and_urls)
 ---
 
-<footer
-    class="bg-[#FBFBFB] py-5 min-h-15 flex justify-center items-center shadow-[0_-4px_12px_rgba(0,0,0,0.06)]"
->
+<footer class="bg-[#FBFBFB] py-5 min-h-15 flex justify-center items-center shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
     <p>
         Phạm Xuân Hoài &copy; 2023 - {new Date().getFullYear()}
     </p>
 </footer>
+
+<div id="notifyBox"></div>
+
+<style>
+    #notifyBox {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        width: 260px;
+
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(6px);
+
+        padding: 14px 16px;
+        border-radius: 12px;
+
+        border: 1px solid rgba(0, 0, 0, 0.05);
+
+        box-shadow:
+            0 10px 30px rgba(0, 0, 0, 0.15),
+            0 2px 8px rgba(0, 0, 0, 0.08);
+
+        font-size: 14px;
+        line-height: 1.4;
+
+        opacity: 0.8;
+        transform: translateY(30px) scale(0.95);
+
+        transition:
+            opacity 0.5s ease,
+            transform 0.5s ease;
+
+        z-index: 9999;
+
+        user-select: none;
+    }
+
+    #notifyBox.show {
+        opacity: 0.8;
+        transform: translateY(0) scale(1);
+    }
+
+    /* nút tắt */
+
+    .notify-close {
+        position: absolute;
+        top: 8px;
+        right: 10px;
+
+        font-size: 16px;
+        cursor: pointer;
+
+        opacity: 0.6;
+        padding: 2px 6px;
+        border-radius: 4px;
+
+        transition: all 0.2s ease;
+    }
+
+    .notify-close:hover {
+        opacity: 0.8;
+        background: #eee;
+    }
+
+    /* title */
+
+    .notify-title {
+        margin-top: 4px;
+        font-weight: 600;
+    }
+
+    /* time */
+
+    .notify-time {
+        margin-top: 4px;
+        font-size: 12px;
+        color: #777;
+    }
+
+    /* progress bar */
+
+    .notify-progress {
+        height: 3px;
+        background: #4caf50;
+        margin-top: 8px;
+        border-radius: 3px;
+        animation: progressBar 7s linear forwards;
+    }
+
+    #notifyBox:hover .notify-progress {
+        animation-play-state: paused;
+    }
+
+    @keyframes progressBar {
+        from {
+            width: 100%;
+        }
+        to {
+            width: 0;
+        }
+    }
+
+    @media (max-width: 600px) {
+        #notifyBox {
+            left: 10px;
+            bottom: 10px;
+            width: 220px;
+        }
+    }
+</style>
+
+<script define:vars={{ titles, titles_and_urls }}>
+    const names = [
+        'Minh',
+        'Lan',
+        'Hải',
+        'Tuấn',
+        'Thảo',
+        'Phúc',
+        'Quang',
+        'Linh',
+        'Hùng',
+        'Nam',
+        'Đức',
+        'Dũng',
+        'Tú',
+        'Hiếu',
+        'Khang',
+        'Khánh',
+        'Long',
+        'Phương',
+        'Trang',
+        'Vy',
+        'Ngọc',
+        'Hương',
+        'Tâm',
+        'Tùng',
+        'Bảo',
+        'Sơn',
+        'Hà',
+        'Yến',
+        'Thành',
+        'Tiến',
+        'Quỳnh',
+        'Mai',
+        'Thu',
+        'Giang',
+        'Kiên',
+        'Trung',
+        'An',
+        'Nhung',
+        'Vân',
+        'Lộc',
+        'Phú',
+        'Hòa',
+        'Bình',
+        'Tấn',
+        'Nghĩa',
+        'Thanh',
+        'Trí',
+        'Thiện',
+        'Duy',
+    ]
+
+    const cities = [
+        'Hà Nội',
+        'TP.HCM',
+        'Đà Nẵng',
+        'Cần Thơ',
+        'Huế',
+        'Hải Phòng',
+        'Quảng Ninh',
+        'Bắc Ninh',
+        'Bắc Giang',
+        'Thái Nguyên',
+        'Nam Định',
+        'Ninh Bình',
+        'Thanh Hóa',
+        'Nghệ An',
+        'Hà Tĩnh',
+        'Quảng Bình',
+        'Quảng Trị',
+        'Quảng Nam',
+        'Quảng Ngãi',
+        'Bình Định',
+        'Phú Yên',
+        'Khánh Hòa',
+        'Ninh Thuận',
+        'Bình Thuận',
+        'Kon Tum',
+        'Gia Lai',
+        'Đắk Lắk',
+        'Đắk Nông',
+        'Lâm Đồng',
+        'Bình Phước',
+        'Bình Dương',
+        'Đồng Nai',
+        'Tây Ninh',
+        'Bà Rịa - Vũng Tàu',
+        'Long An',
+        'Tiền Giang',
+        'Bến Tre',
+        'Trà Vinh',
+        'Vĩnh Long',
+        'Đồng Tháp',
+        'An Giang',
+        'Kiên Giang',
+        'Hậu Giang',
+        'Sóc Trăng',
+        'Bạc Liêu',
+        'Cà Mau',
+    ]
+
+    const icons = [
+        '👨‍💻',
+        '🧑‍💻',
+        '👩‍💻',
+        '📚',
+        '💻',
+        '🧠',
+    ]
+
+    const actions = [
+        'đang học',
+        'đang đọc',
+        'vừa xem',
+        'vừa truy cập',
+        'đang tìm hiểu',
+    ]
+
+    const devices = [
+        '💻',
+        '📱',
+    ]
+
+    let lastTitle = null
+    let disabled = false
+
+    function randomItem(arr) {
+        return arr[Math.floor(Math.random() * arr.length)]
+    }
+
+    function randomTime() {
+        return Math.floor(Math.random() * 5) + 1
+    }
+
+    function getRandomTitle() {
+        let lesson = randomItem(titles)
+
+        while (lesson === lastTitle) {
+            lesson = randomItem(titles)
+        }
+
+        lastTitle = lesson
+        return lesson
+    }
+
+    function showNotify() {
+        if (disabled) return
+
+        const box = document.getElementById('notifyBox')
+        if (!box) return
+
+        const name = randomItem(names)
+        const city = randomItem(cities)
+        const lesson = getRandomTitle()
+        const time = randomTime()
+        const icon = randomItem(icons)
+        const action = randomItem(actions)
+        const device = randomItem(devices)
+
+        box.classList.remove('show')
+
+        setTimeout(() => {
+            box.innerHTML = `
+                <div style="display: flex; justify-content: space-between;">
+                    <div>
+                        ${device} ${icon} <b>${name}</b> (${city}) ${action}
+                    </div>
+                    <div class="notify-close" title="Tắt thông báo" style="margin-left: 6px; cursor: pointer;">✕</div>
+
+                </div>
+
+                <div class="notify-title" style="margin-top: 6px;">
+                    <a href="${titles_and_urls.find((p) => lesson.includes(p.title))?.url}">${lesson}</a>
+                </div>
+
+                <div class="notify-time" style="margin-top: 6px;">${time} phút trước</div>
+
+                <div class="notify-progress"></div>
+            `
+
+            box.classList.add('show')
+
+            box.querySelector('.notify-close').onclick = () => {
+                disabled = true
+                box.style.display = 'none'
+            }
+        }, 400)
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(showNotify, 3000)
+
+        setInterval(showNotify, 9000)
+    })
+</script>
