@@ -17,7 +17,7 @@ category: Java
 
 <div class="mb-3 flex gap-3">
   <a 
-    href="/images/java/phan-tich-thua-so-nguyen-to-trong-java.pdf" 
+    href="/images/java/chuyen-so-thap-phan-sang-nhi-phan-va-nguoc-lai-trong-java.pdf" 
     target="_blank" 
     rel="noopener noreferrer"
     class="py-2 text-white">
