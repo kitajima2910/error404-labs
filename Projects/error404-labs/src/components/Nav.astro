@@ -7,6 +7,7 @@ import IconBlog from '../icons/IconBlog.astro'
 import IconAbout from '../icons/IconAbout.astro'
 import IconRSS from '../icons/IconRSS.astro'
 import IconSearch from '../icons/IconSearch.astro'
+import ScrollProgress from './ScrollProgress.astro'
 
 const onIcons = (name: string) => {
     switch (name) {
@@ -18,14 +19,17 @@ const onIcons = (name: string) => {
             return { component: IconRSS }
     }
 }
+
+const pathname = Astro.url.pathname
+const isPost = pathname.startsWith('/bai-viet/')
 ---
 
-<nav
-    class="fixed top-0 left-0 w-full z-50
+<nav class="fixed top-0 left-0 w-full z-50
     bg-[#FBFBFB]
     shadow-[0_4px_12px_rgba(0,0,0,0.06)]
-    py-5"
->
+    py-5">
+    {isPost && <ScrollProgress />}
+
     <div class="mx-auto w-10/12 px-0 sm:px-0 lg:px-0">
         <div class="flex h-16 items-center justify-between">
             <!-- Logo -->
@@ -36,11 +40,7 @@ const onIcons = (name: string) => {
                         alt="logomark"
                         class="rounded-full w-20"
                     /> -->
-                    <img
-                        src="/avatar_v2.avif"
-                        alt="Avatar"
-                        class="rounded-full w-20"
-                    />
+                    <img src="/avatar_v2.avif" alt="Avatar" class="rounded-full w-20" />
                 </a>
 
                 <!-- Open button -->
@@ -73,13 +73,10 @@ const onIcons = (name: string) => {
                                     borderVisible={true}
                                     data-navLink
                                     icon={{
-                                        component: onIcons(item.name)
-                                            ?.component,
+                                        component: onIcons(item.name)?.component,
                                         side: 'left',
                                     }}
-                                    target={
-                                        item.name === 'RSS' ? '_blank' : '_self'
-                                    }
+                                    target={item.name === 'RSS' ? '_blank' : '_self'}
                                 />
                             </li>
                         ))
@@ -92,27 +89,15 @@ const onIcons = (name: string) => {
                 id="menuBtn"
                 class="md:hidden inline-flex items-center justify-center rounded-md p-3 text-blue-700 hover:bg-gray-100 focus:outline-none"
             >
-                <svg
-                    class="h-6 w-6"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    viewBox="0 0 24 24"
-                >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M4 6h16M4 12h16M4 18h16"></path>
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
                 </svg>
             </button>
         </div>
     </div>
 
     <!-- Mobile Menu -->
-    <div
-        id="mobileMenu"
-        class="md:hidden hidden border-t border-gray-200 mt-3.75"
-    >
+    <div id="mobileMenu" class="md:hidden hidden border-t border-gray-200 mt-3.75">
         <div class="space-y-1 px-4 py-4">
             <ul class="flex flex-col">
                 {
@@ -129,9 +114,7 @@ const onIcons = (name: string) => {
                                     component: onIcons(item.name)?.component,
                                     side: 'left',
                                 }}
-                                target={
-                                    item.name === 'RSS' ? '_blank' : '_self'
-                                }
+                                target={item.name === 'RSS' ? '_blank' : '_self'}
                             />
                         </li>
                     ))
@@ -142,10 +125,7 @@ const onIcons = (name: string) => {
 </nav>
 
 <!-- Overlay -->
-<div
-    id="modal"
-    class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50"
->
+<div id="modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50">
     <!-- Modal box -->
     <div
         class="w-full max-w-3xl m-10 rounded-2xl bg-white p-6 shadow-xl
@@ -153,15 +133,8 @@ const onIcons = (name: string) => {
     >
         <!-- Header -->
         <div class="flex items-center justify-between">
-            <h2 class="text-lg font-semibold">
-                Mọi Thứ Trong Website Ở Đây :D
-            </h2>
-            <button
-                id="closeModal"
-                class="text-gray-400 hover:text-gray-600 pxhCursorPointer"
-            >
-                ✕
-            </button>
+            <h2 class="text-lg font-semibold">Mọi Thứ Trong Website Ở Đây :D</h2>
+            <button id="closeModal" class="text-gray-400 hover:text-gray-600 pxhCursorPointer"> ✕ </button>
         </div>
 
         <!-- Content -->
@@ -188,17 +161,8 @@ const onIcons = (name: string) => {
 
         <!-- Actions -->
         <div class="mt-6 flex justify-end gap-3 hidden">
-            <button
-                id="cancelModal"
-                class="rounded-lg border px-4 py-2 hover:bg-gray-100"
-            >
-                Cancel
-            </button>
-            <button
-                class="rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
-            >
-                Confirm
-            </button>
+            <button id="cancelModal" class="rounded-lg border px-4 py-2 hover:bg-gray-100"> Cancel </button>
+            <button class="rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"> Confirm </button>
         </div>
     </div>
 </div>
@@ -227,9 +191,7 @@ const onIcons = (name: string) => {
             document.body.classList.add('overflow-hidden')
 
             const search = document.querySelector('.pagefind-ui__search-input')
-            const btnClear = document.querySelector(
-                '.pagefind-ui__search-clear',
-            )
+            const btnClear = document.querySelector('.pagefind-ui__search-clear')
             // console.log('search: ', search)
             if (search) {
                 search.value = ''

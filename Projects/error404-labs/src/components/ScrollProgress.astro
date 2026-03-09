@@ -1,0 +1,41 @@
+---
+
+---
+
+<div id="scroll-progress"></div>
+
+<style>
+    #scroll-progress {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 0%;
+        height: 3px;
+        z-index: 9999;
+
+        /* gradient */
+        background: linear-gradient(90deg, #00c6ff, #0072ff, #9d4edd);
+
+        /* smooth animation */
+        transition: width 0.15s ease-out;
+
+        /* glow effect */
+        box-shadow: 0 0 10px rgba(0, 114, 255, 0.6);
+    }
+</style>
+
+<script>
+    function updateScrollProgress() {
+        const scrollTop = document.documentElement.scrollTop
+        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight
+
+        const percent = (scrollTop / height) * 100
+
+        const bar = document.getElementById('scroll-progress')
+        if (bar) {
+            bar.style.width = percent + '%'
+        }
+    }
+
+    window.addEventListener('scroll', updateScrollProgress)
+</script>
