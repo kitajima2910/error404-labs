@@ -92,5 +92,8 @@ Chúng ta sẽ đi từ dễ → khó.
         <a href="/bai-viet/kh-oop-c-sharp-2026-01-this-va-static-trong-c-sharp" target="_blank" class="block">
             <i class="fa fa-file-code-o" aria-hidden="true"></i> this và static trong C#
         </a>
+        <a href="/bai-viet/kh-oop-c-sharp-2026-01-ke-thua-inheritance-va-base-chuyen-sau" target="_blank" class="block">
+            <i class="fa fa-file-code-o" aria-hidden="true"></i> Kế Thừa (Inheritance) & base chuyên sâu
+        </a>
     </div>
 </div>
