@@ -124,8 +124,8 @@ class NhanVienVanPhong : NhanVien
 {
     private double phuCap;
 
-    public NhanVienVanPhong(string ten, double luong, double phuCap)
-        : base(ten, luong)
+    public NhanVienVanPhong(string ten, double luongCoBan, double phuCap)
+        : base(ten, luongCoBan)
     {
         this.phuCap = phuCap;
     }
@@ -147,7 +147,7 @@ Trình tự:
 1. Constructor của `NhanVien` chạy trước
 2. Constructor của `NhanVienVanPhong` chạy sau
 
-`base(ten, luong)` đảm bảo phần cha được khởi tạo đúng.
+`base(ten, luongCoBan)` đảm bảo phần cha được khởi tạo đúng.
 
 ---
 
@@ -179,8 +179,8 @@ class NhanVienVanPhong : NhanVien
 {
     private double phuCap;
 
-    public NhanVienVanPhong(string ten, double luong, double phuCap)
-        : base(ten, luong)
+    public NhanVienVanPhong(string ten, double luongCoBan, double phuCap)
+        : base(ten, luongCoBan)
     {
         this.phuCap = phuCap;
     }
@@ -210,8 +210,8 @@ class NhanVienSanXuat : NhanVien
 {
     private int soSanPham;
 
-    public NhanVienSanXuat(string ten, double luong, int soSanPham)
-        : base(ten, luong)
+    public NhanVienSanXuat(string ten, double luongCoBan, int soSanPham)
+        : base(ten, luongCoBan)
     {
         this.soSanPham = soSanPham;
     }
