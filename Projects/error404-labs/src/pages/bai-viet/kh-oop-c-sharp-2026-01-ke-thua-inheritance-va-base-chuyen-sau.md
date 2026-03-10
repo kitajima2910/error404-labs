@@ -17,7 +17,7 @@ category: KH_OOP_C_SHARP_2026_01
 
 <div class="mb-3 flex gap-3">
   <a 
-    href="/images/java/phan-tich-thua-so-nguyen-to-trong-java.pdf" 
+    href="/images/java/KeThua.pdf" 
     target="_blank" 
     rel="noopener noreferrer"
     class="py-2 text-white">
