@@ -13,7 +13,7 @@ category: C
 
 <div class="mb-3 flex gap-3">
   <a 
-    href="/images/java/KeThua.pdf" 
+    href="/images/c/struct-trong-c-input-output-chuan.pdf" 
     target="_blank" 
     rel="noopener noreferrer"
     class="py-2 text-white">
