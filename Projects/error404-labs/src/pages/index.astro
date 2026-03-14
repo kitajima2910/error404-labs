@@ -3,14 +3,13 @@ import { TC_TITLE } from '../common/TextConst'
 import Link from '../components/Link.astro'
 import PostCard from '../components/PostCard.astro'
 import IconAbout from '../icons/IconAbout.astro'
+import IconDonate from '../icons/IconDonate.astro'
 import IconFacebook from '../icons/IconFacebook.astro'
 import IconWeb from '../icons/IconWeb.astro'
 import { formatBlogPost } from '../js/utils'
 import MainLayout from '../layouts/MainLayout.astro'
 
-const allPosts = Object.values(
-    import.meta.glob<any>('./bai-viet/*.md', { eager: true }),
-)
+const allPosts = Object.values(import.meta.glob<any>('./bai-viet/*.md', { eager: true }))
 
 const formattedPosts: any[] = formatBlogPost(allPosts, {
     limit: 3,
@@ -72,24 +71,20 @@ const Facebook = 'https://www.facebook.com/kitajima2910'
                 <h1 class="font-bold text-2xl">Bài Viết Của Tôi</h1>
 
                 <p class="text-[16px] font-medium max-w-prose mx-auto md:mx-0">
-                    Error404-Labs là nơi chia sẻ kiến thức lập trình C/C++, Web,
-                    Game, Mobile & AI, tập trung vào tư duy R&D, học từ dự án
-                    thực tế, code dễ hiểu, áp dụng được ngay cho người mới lẫn
-                    dev đang lên trình 🚀
+                    Error404-Labs là nơi chia sẻ kiến thức lập trình C/C++, Web, Game, Mobile & AI, tập trung vào tư duy
+                    R&D, học từ dự án thực tế, code dễ hiểu, áp dụng được ngay cho người mới lẫn dev đang lên trình 🚀
                 </p>
 
-                <div
-                    class="flex justify-center md:justify-start gap-3 flex-wrap"
-                >
+                <div class="flex justify-center md:justify-start gap-3 flex-wrap">
                     <Link
-                        text="Giới Thiệu"
+                        text="Donate"
                         style="primary"
                         isFilled={false}
                         borderVisible={true}
-                        href="/gioi-thieu-v2"
+                        href="/donate"
                         target="_blank"
                         icon={{
-                            component: IconAbout,
+                            component: IconDonate,
                             side: 'left',
                         }}
                     />
@@ -120,26 +115,10 @@ const Facebook = 'https://www.facebook.com/kitajima2910'
                 </div>
             </div>
         </section>
-        <section
-            class="my-5 mb-15 w-10/12 mx-auto"
-            aria-label="Bài Viết Dành Cho Bạn"
-        >
-            <h2 class="text-5xl font-semibold mb-10 mt-10">
-                Bài Viết Dành Cho Bạn
-            </h2>
-            <div
-                class="custom-grid"
-                style={`max-width: ${length > 1 ? '100%' : '400px'}`}
-            >
-                {
-                    formattedPosts.map((post) => (
-                        <PostCard
-                            frontmatter={post.frontmatter}
-                            url={post.url}
-                            tagType="h3"
-                        />
-                    ))
-                }
+        <section class="my-5 mb-15 w-10/12 mx-auto" aria-label="Bài Viết Dành Cho Bạn">
+            <h2 class="text-5xl font-semibold mb-10 mt-10">Bài Viết Dành Cho Bạn</h2>
+            <div class="custom-grid" style={`max-width: ${length > 1 ? '100%' : '400px'}`}>
+                {formattedPosts.map((post) => <PostCard frontmatter={post.frontmatter} url={post.url} tagType="h3" />)}
             </div>
         </section>
     </div>
