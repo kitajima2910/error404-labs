@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Snake Game - Three.js</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+
+<body>
+
+    <div id="ui">
+        <div class="score-box">Điểm: <span id="score">0</span></div>
+        <div id="leaderboard">
+            <h3>BẢNG XẾP HẠNG</h3>
+            <div id="leader-list"></div>
+        </div>
+        <div class="controls-hint">
+            Dùng <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> hoặc <kbd>Phím mũi tên</kbd>
+        </div>
+    </div>
+
+    <div id="start-screen">
+        <h1>RẮN SĂN MỒI 3D</h1>
+        <p>Nhấn <kbd>Space</kbd> hoặc <kbd>Enter</kbd> để bắt đầu</p>
+        <div class="controls-hint" style="position: static; background: none; border: none; margin-top: 20px;">
+            <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> để di chuyển
+        </div>
+    </div>
+
+    <div id="game-over">
+        <h1>TRÒ CHƠI KẾT THÚC</h1>
+        <p>Bạn đã đâm vào chướng ngại vật hoặc chính mình!</p>
+        <div style="font-size: 24px; margin: 20px 0;">Điểm số cuối cùng: <span id="final-score">0</span></div>
+        <button onclick="window.location.reload()">Chơi lại</button>
+    </div>
+
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="main.js"></script>
+</body>
+
+</html>
