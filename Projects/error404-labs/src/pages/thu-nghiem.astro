@@ -4,6 +4,11 @@ import { TC_TITLE } from '../common/TextConst'
 
 const DATA_GAMES = [
     {
+        name: 'Create Sanke 3D',
+        link: '/thu-nghiem/game/CreateSanke3D/index.html',
+        image: '/thu-nghiem/game/CreateSanke3D/CreateSanke3D.avif',
+    },
+    {
         name: 'Space Ship',
         link: '/thu-nghiem/game/space-ship/index.html',
         image: '/thu-nghiem/game/space-ship/space-ship.avif',
@@ -73,7 +78,15 @@ const DATA = DATA_WEBSITES.concat(DATA_GAMES)
                 }
             </div>
 
-            <iframe src={DATA[0].link} frameborder="0" width="100%" height="90%" allow="demo" title="demo"> </iframe>
+            <iframe
+                src={DATA[Math.floor(Math.random() * DATA.length)].link}
+                frameborder="0"
+                width="100%"
+                height="90%"
+                allow="demo"
+                title="demo"
+            >
+            </iframe>
         </div>
     </section>
 </MainLayout>
