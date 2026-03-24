@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đổi Màu 3D | Trò Chơi Câu Đố</title>
+    <meta name="description" content="Hãy làm cho các đối tượng 3D khớp với màu mục tiêu trong trò chơi câu đố tương tác này.">
+    <link rel="icon" type="image/avif" href="avatar_v2.avif">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <canvas id="game-canvas"></canvas>
+
+    <div id="ui-layer">
+        <div class="header">
+            <div class="stats-panel">
+                <div class="level-text" id="level-display">Cấp độ 1</div>
+                <div class="target-container">
+                    <span class="target-label">Mục tiêu</span>
+                    <div id="target-color-box" class="target-color-box"></div>
+                </div>
+                <div class="target-container">
+                    <span class="target-label">Thời gian</span>
+                    <div id="timer-display" style="font-weight: 800; font-size: 1.125rem; color: #f43f5e;">30s</div>
+                </div>
+            </div>
+            <button class="btn" id="menu-btn" style="padding: 0.75rem 1.5rem; font-size: 0.875rem;">Menu</button>
+        </div>
+
+        <div class="help-text">Nhấn vào các khối để đổi màu</div>
+    </div>
+
+    <!-- Start Overlay -->
+    <div id="start-overlay" class="overlay">
+        <div class="overlay-content">
+            <h1 id="start-level-title">Cấp độ 1</h1>
+            <p class="message">Hãy làm cho các khối khớp với màu mục tiêu.</p>
+            <button class="btn" id="start-game-btn">Bắt đầu</button>
+        </div>
+    </div>
+
+    <!-- Win Overlay -->
+    <div id="win-overlay" class="overlay">
+        <div class="overlay-content">
+            <h1 id="win-title">Thành công!</h1>
+            <p class="message">Tất cả các đối tượng đã khớp với màu mục tiêu.</p>
+            <button class="btn" id="next-btn">Tiếp tục</button>
+        </div>
+    </div>
+
+    <!-- Fail Overlay -->
+    <div id="fail-overlay" class="overlay" style="background: rgba(244, 63, 94, 0.2);">
+        <div class="overlay-content">
+            <h1 style="color: #f43f5e;">Hết giờ!</h1>
+            <p class="message">Bạn đã không kịp hoàn thành thử thách.</p>
+            <button class="btn" id="retry-btn">Thử lại</button>
+        </div>
+    </div>
+
+    <!-- Level Select Overlay -->
+    <div id="menu-overlay" class="overlay">
+        <div class="overlay-content" style="width: 80%; max-width: 600px;">
+            <h1>Chọn Màn</h1>
+            <div id="level-grid" class="level-grid"></div>
+            <button class="btn" id="close-menu-btn" style="margin-top: 2rem;">Đóng</button>
+        </div>
+    </div>
+
+    <script async src="https://unpkg.com/es-module-shims@1.8.0/dist/es-module-shims.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.156.1/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.156.1/examples/jsm/"
+            }
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/20.0.0/tween.umd.js"></script>
+    <script type="module" src="js/game.js"></script>
+</body>
+</html>
