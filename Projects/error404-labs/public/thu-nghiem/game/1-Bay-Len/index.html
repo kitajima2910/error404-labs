@@ -348,6 +348,17 @@
             osc.start();
             osc.stop(audioCtx.currentTime + duration);
         }
+        
+        function playBGMStep(step) {
+            const sequence = [41, 41, 49, 41, 55, 41, 49, 41]; 
+            const bassFreq = sequence[step % 8] * 2; 
+            playSound(bassFreq, 'triangle', 0.2, 0.05); 
+            
+            if (step % 16 === 0) playSound(330, 'sine', 0.4, 0.03); 
+            if (step % 16 === 4) playSound(392, 'sine', 0.4, 0.03); 
+            if (step % 16 === 8) playSound(440, 'sine', 0.4, 0.03); 
+            if (step % 16 === 12) playSound(293, 'sine', 0.4, 0.03); 
+        }
 
         // --- Game Config & Constants ---
         const CONFIG = {
@@ -368,8 +379,8 @@
         let player, particles;
         let ghosts = [];
         let transformHistory = [];
-        let spikes = [], energies = [], blasts = [], decorations = [];
-        let spikePool = [], energyPool = [], blastPool = [], decorationPool = [];
+        let spikes = [], energies = [], blasts = [], decorations = [], healthPacks = [];
+        let spikePool = [], energyPool = [], blastPool = [], decorationPool = [], healthPackPool = [];
 
         let gameState = 'START'; // START, PLAYING, GAMEOVER
         let height = 0;
@@ -381,6 +392,7 @@
         let lastSpawnY = 0;
         let time = 0;
         let keys = { a: false, d: false, q: false, e: false };
+        let stunTimeLeft = 0;
 
         // Enemy Plane & Attack
         let enemyPlaneL, enemyPlaneR, searchlightL, searchlightR;
@@ -391,6 +403,7 @@
         let attackStartHeight = 0;
         let targetX = 0, lastFireTime = 0;
         let playerZ = 0, vZ = 0, isJumping = false;
+        let lastBGMBeat = -1;
 
         // --- Init Function ---
         function init() {
@@ -702,13 +715,20 @@
         }
 
         function spawnDecoration(y) {
-            const side = Math.random() > 0.5 ? 1 : -1;
-            const x = (25 + Math.random() * 40) * side;
-            const z = (Math.random() - 0.5) * 30 - 20;
-            
             let d;
-            const type = Math.floor(Math.random() * 3); // 0: Planet, 1: Asteroid, 2: Ship
+            const type = Math.floor(Math.random() * 6); 
+            const side = Math.random() > 0.5 ? 1 : -1;
+            // Pterosaurs (type 5) should start further out to avoid blocking view
+            const xOff = type === 5 ? 60 : 45;
+            const x = (xOff + Math.random() * 50) * side;
+            let dZ = (Math.random() - 0.5) * 60; 
             
+            if (type === 3 || type === 4) dZ = 5; 
+            if (type === 5) dZ = 12 + Math.random() * 6; // Keep below camera (30)
+            
+            const neonColors = [0xff0055, 0x00f2ff, 0x00ffaa, 0xffff00, 0xff00ff, 0xff8800];
+            const dColor = neonColors[Math.floor(Math.random() * neonColors.length)];
+
             if (decorationPool.length > 0) {
                 const pooledIdx = decorationPool.findIndex(item => item.dType === type);
                 if (pooledIdx !== -1) {
@@ -731,7 +751,7 @@
                     const geo = new THREE.IcosahedronGeometry(Math.random() * 1.5 + 1, 0);
                     const mat = new THREE.MeshStandardMaterial({ color: 0x888888, flatShading: true });
                     d = new THREE.Mesh(geo, mat);
-                } else { // Ship
+                } else if (type === 2) { // Ship
                     const group = new THREE.Group();
                     const body = new THREE.Mesh(new THREE.ConeGeometry(0.8, 3, 8), new THREE.MeshStandardMaterial({color: 0xaaaaaa}));
                     body.rotation.x = Math.PI;
@@ -739,21 +759,78 @@
                     const wing = new THREE.Mesh(new THREE.BoxGeometry(3, 0.2, 0.8), new THREE.MeshStandardMaterial({color: 0x00f2ff}));
                     group.add(wing);
                     d = group;
+                } else if (type === 3) { // T-Rex
+                    const group = new THREE.Group();
+                    const mat = new THREE.MeshStandardMaterial({color: dColor, emissive: dColor, emissiveIntensity: 0.3});
+                    const torso = new THREE.Mesh(new THREE.BoxGeometry(1.5, 2, 2.5), mat);
+                    torso.position.z = 3;
+                    const head = new THREE.Mesh(new THREE.BoxGeometry(1.2, 2, 1.5), mat);
+                    head.position.set(0, 1.5, 4.5);
+                    const tail = new THREE.Mesh(new THREE.ConeGeometry(0.5, 4, 8), mat);
+                    tail.rotation.x = -Math.PI/4; tail.position.set(0, -2, 2.5);
+                    const legL = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 2.5), mat); legL.position.set(-0.8, 0, 1.25);
+                    const legR = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 2.5), mat); legR.position.set(0.8, 0, 1.25);
+                    group.add(torso, head, tail, legL, legR);
+                    group.head = head; group.legL = legL; group.legR = legR; group.tail = tail;
+                    d = group;
+                } else if (type === 4) { // Long-neck
+                    const group = new THREE.Group();
+                    const mat = new THREE.MeshStandardMaterial({color: dColor, emissive: dColor, emissiveIntensity: 0.3});
+                    const body = new THREE.Mesh(new THREE.BoxGeometry(3, 6, 2.5), mat);
+                    body.position.z = 3;
+                    const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.8, 6, 8), mat);
+                    neck.rotation.x = Math.PI/4; neck.position.set(0, 3, 6);
+                    const head = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.5, 0.8), mat);
+                    head.position.set(0, 5, 8);
+                    group.add(body, neck, head);
+                    group.legs = [];
+                    for(let i=0; i<4; i++) {
+                        const leg = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 2.5), mat);
+                        leg.position.set(i%2==0?1.2:-1.2, i<2?2:-2, 1.25);
+                        group.add(leg);
+                        group.legs.push(leg);
+                    }
+                    group.head = head; group.neck = neck;
+                    d = group;
+                } else { // Pterosaur
+                    const group = new THREE.Group();
+                    const mat = new THREE.MeshStandardMaterial({color: dColor, emissive: dColor, emissiveIntensity: 0.3});
+                    // Align body along X-axis
+                    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 3), mat); 
+                    body.rotation.z = Math.PI/2; 
+                    const wingL = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.1, 5), mat); wingL.position.z = 2.5;
+                    const wingR = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.1, 5), mat); wingR.position.z = -2.5;
+                    group.add(body, wingL, wingR);
+                    group.wingL = wingL; group.wingR = wingR; // These will flap up/down (on X)
+                    d = group;
                 }
                 d.dType = type;
                 scene.add(d);
             }
 
-            d.position.set(x, y, z);
-            d.rotSpeed = {
-                x: (Math.random() - 0.5) * 0.02,
-                y: (Math.random() - 0.5) * 0.02,
-                z: (Math.random() - 0.5) * 0.02
-            };
-            d.drift = {
-                x: (Math.random() - 0.5) * 2,
-                z: (Math.random() - 0.5) * 2
-            };
+            d.position.set(x, y, dZ);
+            
+            if (type >= 3) {
+                d.moveDir = side > 0 ? -1 : 1;
+                // Facing Logic: types 3/4 face Y, type 5 faces X
+                if (type === 5) { // Pterosaur
+                    d.rotation.set(0, 0, d.moveDir > 0 ? 0 : Math.PI);
+                } else { // T-Rex, Long-neck
+                    d.rotation.set(0, 0, d.moveDir > 0 ? -Math.PI/2 : Math.PI/2);
+                }
+                d.rotSpeed = { x: 0, y: 0, z: 0 };
+                d.drift = { x: 0, z: 0 };
+            } else {
+                d.rotSpeed = {
+                    x: (Math.random() - 0.5) * 0.02,
+                    y: (Math.random() - 0.5) * 0.02,
+                    z: (Math.random() - 0.5) * 0.02
+                };
+                d.drift = {
+                    x: (Math.random() - 0.5) * 2,
+                    z: (Math.random() - 0.5) * 2
+                };
+            }
             decorations.push(d);
         }
 
@@ -778,20 +855,30 @@
 
                 // Smart Spawn: Divide into 6 lanes
                 const lanes = [-15, -9, -3, 3, 9, 15];
+                const occupiedLanes = new Set();
                 const safeLane = Math.floor(Math.random() * 6);
 
                 for (let i = 0; i < 6; i++) {
                     if (i === safeLane) continue;
-                    // Increase probability of spikes in other lanes as distance grows
-                    if (Math.random() > (0.6 - difficulty * 0.3)) { // Adjusted probability for 6 lanes
+                    if (Math.random() > (0.6 - difficulty * 0.3)) {
                         createSpike(lanes[i], height + 100);
+                        occupiedLanes.add(i);
                     }
                 }
 
-                // Spawn energy
-                if (Math.random() > 0.4) {
-                    const energyLane = Math.floor(Math.random() * 6);
-                    createEnergy(lanes[energyLane], height + 100 + 7.5);
+                // Available lanes for pickups
+                const freeLanes = [];
+                for (let i = 0; i < 6; i++) if (!occupiedLanes.has(i)) freeLanes.push(i);
+
+                if (Math.random() < 0.2 && freeLanes.length > 0) {
+                    const idx = Math.floor(Math.random() * freeLanes.length);
+                    const eLane = freeLanes[idx];
+                    createEnergy(lanes[eLane], height + 100);
+                    freeLanes.splice(idx, 1);
+                }
+                if (Math.random() < 0.05 && freeLanes.length > 0) {
+                    const hLane = freeLanes[Math.floor(Math.random() * freeLanes.length)];
+                    spawnHealthPack(lanes[hLane], height + 100);
                 }
             }
         }
@@ -847,6 +934,28 @@
             }
             e.position.set(x, y, 0);
             energies.push(e);
+        }
+
+        function spawnHealthPack(xIn, y) {
+            let hp;
+            if (healthPackPool.length > 0) {
+                hp = healthPackPool.pop();
+                hp.visible = true;
+            } else {
+                const group = new THREE.Group();
+                const mat = new THREE.MeshStandardMaterial({
+                    color: 0x00ff88, 
+                    emissive: 0x00ff88, 
+                    emissiveIntensity: 2
+                });
+                const b1 = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.4, 0.4), mat);
+                const b2 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.2, 0.4), mat);
+                group.add(b1, b2);
+                hp = group;
+                scene.add(hp);
+            }
+            hp.position.set(xIn, y, 0);
+            healthPacks.push(hp);
         }
 
         function updateUI() {
@@ -975,8 +1084,24 @@
 
                 time += effectiveDelta;
 
+                // Procedural BGM Sequencer
+                const currentBeat = Math.floor(time * 6); // ~90 BPM
+                if (currentBeat !== lastBGMBeat) {
+                    lastBGMBeat = currentBeat;
+                    playBGMStep(currentBeat);
+                }
+
                 // Movement
-                const speed = CONFIG.baseSpeed + (height * CONFIG.accByHeight);
+                let speedScale = 1.0;
+                if (stunTimeLeft > 0) {
+                    stunTimeLeft -= 1000 * effectiveDelta;
+                    speedScale = 0.1; // 90% slow down for more impact
+                    player.visible = Math.floor(time * 25) % 2 === 0; // Faster flicker
+                } else {
+                    player.visible = true;
+                }
+
+                const speed = (CONFIG.baseSpeed + (height * CONFIG.accByHeight)) * speedScale;
                 height += speed * effectiveDelta;
 
                 // Horizontal control
@@ -1227,16 +1352,65 @@
                 // Handle Decorations
                 for (let i = decorations.length - 1; i >= 0; i--) {
                     const d = decorations[i];
+                    if (d.dType === 5) { // Pterosaur flap on X-axis orientation
+                        d.wingL.rotation.x = Math.sin(time * 10) * 0.5;
+                        d.wingR.rotation.x = -Math.sin(time * 10) * 0.5;
+                    } else if (d.dType === 3) { // T-Rex walk
+                        const walkCycle = Math.sin(time * 10);
+                        d.legL.rotation.x = walkCycle * 0.5;
+                        d.legR.rotation.x = -walkCycle * 0.5;
+                        d.head.rotation.x = walkCycle * 0.1;
+                        d.tail.rotation.z = walkCycle * 0.2;
+                    } else if (d.dType === 4) { // Long-neck walk
+                        const walkCycle = Math.sin(time * 5);
+                        d.legs.forEach((l, i) => {
+                            l.rotation.x = (i % 2 === 0 ? walkCycle : -walkCycle) * 0.3;
+                        });
+                        d.head.position.z = 8 + Math.sin(time * 5) * 0.5;
+                    }
+
                     d.rotation.x += d.rotSpeed.x;
                     d.rotation.y += d.rotSpeed.y;
                     d.rotation.z += d.rotSpeed.z;
                     d.position.x += d.drift.x * effectiveDelta;
                     d.position.z += d.drift.z * effectiveDelta;
                     
+                    // Specific drift for dinosaurs to move across screen
+                    if (d.dType >= 3) {
+                        const sideMove = d.dType === 5 ? 18 : 8; // Pterosaurs slightly faster
+                        d.position.x += d.moveDir * sideMove * effectiveDelta;
+                    }
+                    
                     if (d.position.y < height - 50) {
                         d.visible = false;
                         decorationPool.push(d);
                         decorations.splice(i, 1);
+                    } else if (d.visible && d.dType >= 3 && stunTimeLeft <= 0) {
+                        // Collision with Dinosaurs
+                        const dist = player.position.distanceTo(d.position);
+                        if (dist < 4) {
+                            stunTimeLeft = 1000;
+                            playSound(50, 'square', 0.2, 0.2);
+                        }
+                    }
+                }
+
+                // Health Packs Collision
+                for (let i = healthPacks.length - 1; i >= 0; i--) {
+                    const hp = healthPacks[i];
+                    hp.rotation.z += 0.05;
+                    const d = player.position.distanceTo(hp.position);
+                    if (d < 2 && gameState === 'PLAYING') {
+                        health = Math.min(3, health + 1);
+                        hp.visible = false;
+                        healthPackPool.push(hp);
+                        healthPacks.splice(i, 1);
+                        playSound(880, 'sine', 0.2, 0.1);
+                        updateUI();
+                    } else if (hp.position.y < height - 10) {
+                        hp.visible = false;
+                        healthPackPool.push(hp);
+                        healthPacks.splice(i, 1);
                     }
                 }
 
