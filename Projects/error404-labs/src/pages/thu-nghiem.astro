@@ -4,7 +4,12 @@ import { TC_TITLE } from '../common/TextConst'
 
 const DATA_GAMES = [
     {
-        name: 'ChibiRunner',
+        name: 'Bay Lên',
+        link: '/thu-nghiem/game/1-Bay-Len/index.html',
+        image: '/thu-nghiem/game/1-Bay-Len/1-Bay-Len.avif',
+    },
+    {
+        name: 'Chibi Runner',
         link: '/thu-nghiem/game/ChibiRunner/build/web-desktop/index.html',
         image: '/thu-nghiem/game/ChibiRunner/ChibiRunner.avif',
     },
@@ -67,11 +72,11 @@ const DATA = DATA_GAMES.concat(DATA_WEBSITES)
         <div class="max-w-[1600px] mx-auto h-[85vh]">
             <div class="flex flex-col md:flex-row gap-6 h-full">
                 <!-- Sidebar: Demo List -->
-                <aside class="w-full md:w-[350px] flex flex-col gap-4">
+                <aside class="w-full md:w-[450px] flex flex-col gap-4">
                     <div class="flex items-center justify-between px-2">
-                        <h2 class="text-2xl font-black text-slate-800 tracking-tight">EXPERIMENTS</h2>
-                        <span class="px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-xs font-bold uppercase">
-                            {DATA.length} Items
+                        <h2 class="text-2xl font-black text-slate-800 tracking-tight text-gradient">THỬ NGHIỆM</h2>
+                        <span class="px-4 py-1.5 bg-blue-600 text-white rounded-full text-xs font-bold uppercase shadow-lg shadow-blue-200">
+                            {DATA.length} Dự án
                         </span>
                     </div>
 
@@ -82,24 +87,24 @@ const DATA = DATA_GAMES.concat(DATA_WEBSITES)
                         {
                             DATA.map((item, index) => (
                                 <div
-                                    class={`demo-card group relative overflow-hidden rounded-2xl bg-white border border-slate-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer ${index === 0 ? 'ring-2 ring-blue-500 active-card' : ''}`}
+                                    class={`demo-card group relative overflow-hidden rounded-2xl bg-white border border-slate-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer flex-shrink-0 ${index === 0 ? 'ring-2 ring-blue-500 active-card' : ''}`}
                                     data-link={item.link}
                                     title="Click to view. Ctrl + Click to open in new tab."
                                 >
-                                    <div class="aspect-video overflow-hidden">
+                                    <div class="aspect-video overflow-hidden bg-slate-100">
                                         <img
                                             src={item.image}
                                             alt={item.name}
-                                            class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+                                            class="w-full h-full object-cover transform [transition:transform_0.8s_cubic-bezier(0.4,0,0.2,1)] group-hover:scale-105"
                                         />
                                     </div>
-                                    <div class="p-4 bg-white/90 backdrop-blur-sm absolute bottom-0 left-0 right-0 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                                    <div class="p-4 bg-white/95 backdrop-blur-md absolute bottom-0 left-0 right-0 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300 border-t border-slate-100 z-10">
                                         <h3 class="font-bold text-slate-800 text-sm truncate">{item.name}</h3>
-                                        <p class="text-[10px] text-slate-500 font-medium">
-                                            Click to Load • Ctrl+Click for New Tab
+                                        <p class="text-[10px] text-blue-600 font-semibold mt-1">
+                                            NHẤN ĐỂ XEM • CTRL+CLICK MỞ TAB MỚI
                                         </p>
                                     </div>
-                                    <div class="absolute top-2 left-2 p-1.5 bg-white/80 backdrop-blur shadow-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div class="absolute top-2 left-2 p-1.5 bg-white/90 backdrop-blur shadow-sm rounded-lg z-10 opacity-100 group-hover:opacity-0 transition-opacity">
                                         <h3 class="font-bold text-slate-800 text-xs px-1">{item.name}</h3>
                                     </div>
                                 </div>
@@ -215,10 +220,21 @@ const DATA = DATA_GAMES.concat(DATA_WEBSITES)
     }
 
     .demo-list-container {
-        mask-image: linear-gradient(to bottom, transparent, black 20px, black calc(100% - 20px), transparent);
+        /* Đảm bảo container không bị dãn quá mức, sử dụng flex để thẻ con không bị bóp */
+        flex-basis: 0;
+        min-height: 0;
+        mask-image: linear-gradient(to bottom, black calc(100% - 40px), transparent);
+    }
+
+    .text-gradient {
+        background: linear-gradient(to right, #1e293b, #3b82f6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
 
     .active-card {
-        background-color: #f8fafc;
+        background-color: #f1f5f9;
+        border-color: #3b82f6;
+        box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.2);
     }
 </style>
