@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>Bay Lên - Ballloon Dodge</title>
+    <meta name="description" content="Một trò chơi bay lượn tránh gai đầy thử thách với bóng bay.">
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0c0c1e;
+            overflow: hidden;
+            font-family: 'Outfit', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #game-container {
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="game-container"></div>
+    <script>
+        // Game Constants
+        const WIDTH = 480;
+        const HEIGHT = 800;
+        const GRAVITY = 1200;
+        const JUMP_POWER = -450;
+        const SPIKE_SPEED_START = -180;
+        const SPAWN_INTERVAL_START = 2200;
+        const GAP_SIZE = 220;
+
+        class BootScene extends Phaser.Scene {
+            constructor() {
+                super('BootScene');
+            }
+
+            create() {
+                // Generate procedural textures
+                this.generateTextures();
+                this.scene.start('StartScene');
+            }
+
+            generateTextures() {
+                // Balloon Texture
+                let graphics = this.make.graphics({ x: 0, y: 0, add: false });
+
+                // Outer Glow
+                graphics.fillStyle(0xff5555, 0.3);
+                graphics.fillCircle(25, 25, 25);
+
+                // Balloon Body
+                const grad = graphics.fillGradientStyle(0xff3333, 0xff3333, 0x990000, 0x990000, 1);
+                graphics.fillCircle(25, 25, 20);
+
+                // Balloon Shine
+                graphics.fillStyle(0xffffff, 0.4);
+                graphics.fillCircle(20, 20, 8);
+
+                // Balloon Knot
+                graphics.fillStyle(0xcc0000, 1);
+                graphics.fillTriangle(25, 45, 22, 50, 28, 50);
+
+                // Balloon String
+                graphics.lineStyle(2, 0xffffff, 0.5);
+                graphics.beginPath();
+                graphics.moveTo(25, 50);
+                graphics.lineTo(25, 70);
+                graphics.strokePath();
+
+                graphics.generateTexture('balloon', 50, 80);
+                graphics.clear();
+
+                // Spike Texture
+                graphics.fillStyle(0x2d2d44, 1);
+                graphics.fillTriangle(0, 50, 25, 0, 50, 50);
+
+                // Spike Detail/Depth
+                graphics.fillStyle(0x1a1a2e, 1);
+                graphics.fillTriangle(25, 0, 35, 30, 15, 30);
+
+                // Spike Edge Highlight
+                graphics.lineStyle(2, 0x444466, 1);
+                graphics.beginPath();
+                graphics.moveTo(0, 50);
+                graphics.lineTo(25, 0);
+                graphics.lineTo(50, 50);
+                graphics.strokePath();
+
+                graphics.generateTexture('spike', 50, 50);
+                graphics.clear();
+
+                // Shaft Texture (Body of the obstacle)
+                graphics.fillStyle(0x23233b, 1);
+                graphics.fillRect(0, 0, 50, 50);
+                graphics.fillStyle(0x2d2d44, 1);
+                graphics.fillRect(5, 5, 40, 40);
+                graphics.generateTexture('shaft', 50, 50);
+                graphics.clear();
+
+                // Background Cloud
+                graphics.fillStyle(0xffffff, 0.2);
+                graphics.fillCircle(40, 40, 40);
+                graphics.fillCircle(70, 40, 30);
+                graphics.fillCircle(20, 40, 25);
+                graphics.generateTexture('cloud', 100, 80);
+            }
+        }
+
+        class StartScene extends Phaser.Scene {
+            constructor() {
+                super('StartScene');
+            }
+
+            create() {
+                // Sky Gradient
+                let bgGradient = this.add.graphics();
+                bgGradient.fillGradientStyle(0x4a90e2, 0x4a90e2, 0x1c3a63, 0x1c3a63, 1);
+                bgGradient.fillRect(0, 0, WIDTH, HEIGHT);
+
+                // Animated Clouds
+                for (let i = 0; i < 15; i++) {
+                    let size = Phaser.Math.Between(1, 3);
+                    let star = this.add.circle(Phaser.Math.Between(0, WIDTH), Phaser.Math.Between(0, HEIGHT), size, 0xffffff, size / 3);
+                    this.tweens.add({
+                        targets: star,
+                        alpha: 0.1,
+                        duration: Phaser.Math.Between(1000, 3000),
+                        yoyo: true,
+                        repeat: -1
+                    });
+                }
+
+                for (let i = 0; i < 5; i++) {
+                    let c = this.add.image(Phaser.Math.Between(0, WIDTH), Phaser.Math.Between(0, HEIGHT / 2), 'cloud');
+                    c.setScale(Phaser.Math.FloatBetween(0.5, 1.5));
+                    c.alpha = 0.3;
+                    this.tweens.add({
+                        targets: c,
+                        x: WIDTH + 100,
+                        duration: Phaser.Math.Between(20000, 40000),
+                        repeat: -1,
+                        onRepeat: () => {
+                            c.x = -100;
+                            c.y = Phaser.Math.Between(0, HEIGHT / 2);
+                        }
+                    });
+                }
+
+                // Title
+                this.add.text(WIDTH / 2, HEIGHT / 3, 'BAY LÊN', {
+                    fontSize: '72px',
+                    fontWeight: '700',
+                    color: '#ffffff',
+                    shadow: { offsetX: 0, offsetY: 0, color: '#4a90e2', blur: 20, fill: true }
+                }).setOrigin(0.5);
+
+                const startBtn = this.add.text(WIDTH / 2, HEIGHT / 2 + 100, 'CHẠM ĐỂ CHƠI', {
+                    fontSize: '28px',
+                    color: '#ffffff',
+                    backgroundColor: 'rgba(255,255,255,0.1)',
+                    padding: { x: 20, y: 10 }
+                }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+
+                this.tweens.add({
+                    targets: startBtn,
+                    scale: 1.1,
+                    alpha: 0.8,
+                    duration: 800,
+                    yoyo: true,
+                    repeat: -1
+                });
+
+                this.input.on('pointerdown', () => {
+                    this.scene.start('PlayScene');
+                });
+            }
+        }
+
+        class PlayScene extends Phaser.Scene {
+            constructor() {
+                super('PlayScene');
+            }
+
+            init() {
+                this.score = 0;
+                this.gameActive = true;
+                this.spikeSpeed = SPIKE_SPEED_START;
+                this.spawnRate = SPAWN_INTERVAL_START;
+                this.lastSpawn = 0;
+            }
+
+            create() {
+                // Background
+                let bgGradient = this.add.graphics();
+                bgGradient.fillGradientStyle(0x4a90e2, 0x4a90e2, 0x1c3a63, 0x1c3a63, 1);
+                bgGradient.fillRect(0, 0, WIDTH, HEIGHT);
+
+                // Moving Clouds
+                this.clouds = this.add.group();
+                for (let i = 0; i < 6; i++) {
+                    let cloud = this.add.image(Phaser.Math.Between(0, WIDTH), Phaser.Math.Between(0, HEIGHT / 2), 'cloud');
+                    cloud.setScale(Phaser.Math.FloatBetween(0.5, 2));
+                    cloud.alpha = 0.2;
+                    this.clouds.add(cloud);
+                }
+
+                // Player
+                this.player = this.physics.add.sprite(WIDTH * 0.25, HEIGHT / 2, 'balloon');
+                this.player.setCollideWorldBounds(true);
+                this.player.body.setGravityY(GRAVITY);
+                this.player.body.setCircle(18, 7, 7); // Adjusted hitbox
+
+                // Obstacles Group
+                this.spikes = this.physics.add.group();
+
+                // UI
+                this.scoreText = this.add.text(WIDTH / 2, 50, '0', {
+                    fontSize: '64px',
+                    fontWeight: '700',
+                    color: '#ffffff',
+                    shadow: { color: '#000000', blur: 10, fill: true }
+                }).setOrigin(0.5).setDepth(100);
+
+                // Controls
+                this.input.on('pointerdown', this.jump, this);
+                this.input.keyboard.on('keydown-SPACE', this.jump, this);
+
+                // Overlap detection
+                this.physics.add.overlap(this.player, this.spikes, this.gameOver, null, this);
+
+                // Trail
+                this.trail = this.add.particles(0, 0, 'cloud', {
+                    speed: 20,
+                    scale: { start: 0.2, end: 0 },
+                    alpha: { start: 0.3, end: 0 },
+                    lifespan: 600,
+                    blendMode: 'ADD',
+                    follow: this.player,
+                    followOffset: { x: -10, y: 10 }
+                });
+
+                // Bounds Collision check
+                this.player.onWorldBounds = true;
+                this.physics.world.on('worldbounds', (body) => {
+                    if (body.gameObject === this.player) {
+                        this.gameOver();
+                    }
+                });
+            }
+
+            jump() {
+                if (!this.gameActive) return;
+                this.player.setVelocityY(JUMP_POWER);
+
+                // Particle effect on jump
+                const emitter = this.add.particles(this.player.x, this.player.y + 20, 'cloud', {
+                    scale: { start: 0.1, end: 0 },
+                    alpha: { start: 0.5, end: 0 },
+                    speed: 50,
+                    lifespan: 300,
+                    blendMode: 'ADD'
+                });
+                this.time.delayedCall(300, () => emitter.destroy());
+
+                // Subtle animation
+                this.tweens.add({
+                    targets: this.player,
+                    scaleX: 0.9,
+                    scaleY: 1.1,
+                    duration: 100,
+                    yoyo: true
+                });
+            }
+
+            update(time, delta) {
+                if (!this.gameActive) return;
+
+                // Move clouds
+                this.clouds.children.iterate(cloud => {
+                    cloud.x -= 0.5;
+                    if (cloud.x < -100) cloud.x = WIDTH + 100;
+                });
+
+                // Spawn spikes
+                if (time > this.lastSpawn) {
+                    this.spawnSpikePair();
+                    this.lastSpawn = time + this.spawnRate;
+
+                    // Difficulty scaling
+                    this.spikeSpeed -= 1;
+                    this.spawnRate = Math.max(1000, this.spawnRate - 3);
+                }
+
+                // Cleanup spikes
+                this.spikes.children.iterate(spike => {
+                    if (spike && spike.x < -100) {
+                        spike.destroy();
+                    }
+                });
+
+                // Update score based on survival
+                this.score += delta * 0.01;
+                this.scoreText.setText(Math.floor(this.score));
+
+                // Dynamic Sky Color based on score
+                let scoreInt = Math.floor(this.score);
+                if (scoreInt % 100 === 0 && scoreInt > 0) {
+                    this.cameras.main.flash(500, 255, 255, 255, true);
+                }
+            }
+            spawnSpikePair() {
+                const minH = 100;
+                const maxH = HEIGHT - GAP_SIZE - 100;
+                const topSpikeHeight = Phaser.Math.Between(minH, maxH);
+
+                const tipSize = 40;
+                const overlap = 4; // Overlap to prevent gaps
+
+                // Top Obstacle
+                const topShaftHeight = topSpikeHeight - tipSize;
+                const topShaft = this.spikes.create(WIDTH + 50, topShaftHeight / 2, 'shaft');
+                topShaft.setDisplaySize(50, topShaftHeight + overlap);
+                topShaft.body.setAllowGravity(false);
+                topShaft.body.setVelocityX(this.spikeSpeed);
+
+                const topTip = this.spikes.create(WIDTH + 50, topShaftHeight + tipSize / 2, 'spike');
+                topTip.setDisplaySize(50, tipSize);
+                topTip.setFlipY(true);
+                topTip.body.setAllowGravity(false);
+                topTip.body.setVelocityX(this.spikeSpeed);
+
+                // Bottom Obstacle
+                const bottomY = topSpikeHeight + GAP_SIZE;
+                const bottomShaftY = bottomY + tipSize - overlap;
+                const bottomShaftHeight = (HEIGHT - bottomShaftY) + 100; // Extra height to cover bottom
+
+                const bottomShaft = this.spikes.create(WIDTH + 50, bottomShaftY + bottomShaftHeight / 2, 'shaft');
+                bottomShaft.setDisplaySize(50, bottomShaftHeight);
+                bottomShaft.body.setAllowGravity(false);
+                bottomShaft.body.setVelocityX(this.spikeSpeed);
+
+                const bottomTip = this.spikes.create(WIDTH + 50, bottomY + tipSize / 2, 'spike');
+                bottomTip.setDisplaySize(50, tipSize);
+                bottomTip.body.setAllowGravity(false);
+                bottomTip.body.setVelocityX(this.spikeSpeed);
+
+                // Refresh all bodies
+                this.spikes.children.iterate(child => child.body.updateFromGameObject());
+            }            gameOver() {
+                if (!this.gameActive) return;
+                this.gameActive = false;
+
+                this.physics.pause();
+                this.player.setTint(0xff0000);
+
+                // Shake effect
+                this.cameras.main.shake(300, 0.05);
+
+                this.time.delayedCall(800, () => {
+                    this.scene.start('GameOverScene', { score: Math.floor(this.score) });
+                });
+            }
+        }
+
+        class GameOverScene extends Phaser.Scene {
+            constructor() {
+                super('GameOverScene');
+            }
+
+            create(data) {
+                // Dim screen
+                let overlay = this.add.graphics();
+                overlay.fillStyle(0x000000, 0.7);
+                overlay.fillRect(0, 0, WIDTH, HEIGHT);
+
+                this.add.text(WIDTH / 2, HEIGHT / 3, 'KẾT THÚC', {
+                    fontSize: '64px',
+                    fontWeight: '700',
+                    color: '#ffffff'
+                }).setOrigin(0.5);
+
+                this.add.text(WIDTH / 2, HEIGHT / 2 - 50, `Điểm: ${data.score}`, {
+                    fontSize: '48px',
+                    color: '#4a90e2'
+                }).setOrigin(0.5);
+
+                const highScore = localStorage.getItem('bayLenHighScore') || 0;
+                if (data.score > highScore) {
+                    localStorage.setItem('bayLenHighScore', data.score);
+                }
+
+                this.add.text(WIDTH / 2, HEIGHT / 2 + 20, `Kỷ lục: ${Math.max(data.score, highScore)}`, {
+                    fontSize: '24px',
+                    color: '#ffffff',
+                    alpha: 0.7
+                }).setOrigin(0.5);
+
+                const restartBtn = this.add.text(WIDTH / 2, HEIGHT / 2 + 150, 'THỬ LẠI', {
+                    fontSize: '28px',
+                    color: '#ffffff',
+                    backgroundColor: 'rgba(255,255,255,0.1)',
+                    padding: { x: 30, y: 15 }
+                }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+
+                this.input.on('pointerdown', () => {
+                    this.scene.start('PlayScene');
+                });
+            }
+        }
+
+        // Config
+        const config = {
+            type: Phaser.AUTO,
+            parent: 'game-container',
+            width: WIDTH,
+            height: HEIGHT,
+            physics: {
+                default: 'arcade',
+                arcade: {
+                    gravity: { y: 0 },
+                    debug: false
+                }
+            },
+            scene: [BootScene, StartScene, PlayScene, GameOverScene],
+            scale: {
+                mode: Phaser.Scale.FIT,
+                autoCenter: Phaser.Scale.CENTER_BOTH
+            }
+        };
+
+        const game = new Phaser.Game(config);
+    </script>
+</body>
+
+</html>
