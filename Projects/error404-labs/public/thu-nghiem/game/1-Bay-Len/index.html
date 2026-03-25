@@ -282,6 +282,62 @@
         #slow-overlay.active {
             opacity: 1;
         }
+
+        /* Skin Selection Styles */
+        .skin-selection {
+            margin: 25px 0;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .skin-selection p {
+            font-size: 13px;
+            letter-spacing: 2px;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 12px;
+            font-weight: bold;
+        }
+        .skin-track {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        .skin-card {
+            width: 65px;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+        .skin-card:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-5px);
+        }
+        .skin-card.active {
+            background: rgba(255,255,255,0.15);
+            border-color: var(--skin-c);
+            box-shadow: 0 0 15px var(--skin-c);
+            transform: translateY(-5px) scale(1.05);
+        }
+        .skin-preview {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: var(--skin-c);
+            box-shadow: 0 0 10px var(--skin-c);
+        }
+        .skin-card span {
+            font-size: 9px;
+            font-weight: 900;
+            color: #fff;
+        }
     </style>
 </head>
 
@@ -322,12 +378,54 @@
                 <b>[J]</b> Slow-Mo (10) | <b>[K]</b> Phá vỡ (4) | <b>[L]</b> Khiên (6)<br>
                 <span style="color:var(--accent)">Cảnh báo: Né dấu đỏ của máy bay địch!</span>
             </p>
+            <div class="skin-selection">
+                <p>— CHỌN NHÂN VẬT —</p>
+                <div class="skin-track">
+                    <div class="skin-card active" data-color="0x00f2ff" style="--skin-c: #00f2ff">
+                        <div class="skin-preview"></div>
+                        <span>AQUA</span>
+                    </div>
+                    <div class="skin-card" data-color="0xff0055" style="--skin-c: #ff0055">
+                        <div class="skin-preview"></div>
+                        <span>RUBY</span>
+                    </div>
+                    <div class="skin-card" data-color="0x00ff88" style="--skin-c: #00ff88">
+                        <div class="skin-preview"></div>
+                        <span>EMERALD</span>
+                    </div>
+                    <div class="skin-card" data-color="0xffaa00" style="--skin-c: #ffaa00">
+                        <div class="skin-preview"></div>
+                        <span>AMBER</span>
+                    </div>
+                </div>
+            </div>
             <button class="btn" onclick="startGame()">Bắt đầu</button>
         </div>
 
         <div id="gameover-screen" class="screen">
             <h2>HẾT PHIM</h2>
             <p>Bạn đã bay được <strong id="final-score">0</strong> mét!</p>
+            <div class="skin-selection">
+                <p>— ĐỔI NHÂN VẬT —</p>
+                <div class="skin-track">
+                    <div class="skin-card active" data-color="0x00f2ff" style="--skin-c: #00f2ff">
+                        <div class="skin-preview"></div>
+                        <span>AQUA</span>
+                    </div>
+                    <div class="skin-card" data-color="0xff0055" style="--skin-c: #ff0055">
+                        <div class="skin-preview"></div>
+                        <span>RUBY</span>
+                    </div>
+                    <div class="skin-card" data-color="0x00ff88" style="--skin-c: #00ff88">
+                        <div class="skin-preview"></div>
+                        <span>EMERALD</span>
+                    </div>
+                    <div class="skin-card" data-color="0xffaa00" style="--skin-c: #ffaa00">
+                        <div class="skin-preview"></div>
+                        <span>AMBER</span>
+                    </div>
+                </div>
+            </div>
             <button class="btn" onclick="restartGame()">Chơi lại</button>
         </div>
     </div>
@@ -393,6 +491,7 @@
         let time = 0;
         let keys = { a: false, d: false, q: false, e: false };
         let stunTimeLeft = 0;
+        let selectedSkinColor = 0x00f2ff;
 
         // Enemy Plane & Attack
         let enemyPlaneL, enemyPlaneR, searchlightL, searchlightR;
@@ -445,8 +544,8 @@
             player = new THREE.Group();
             
             const limbMat = new THREE.MeshStandardMaterial({ 
-                color: 0x00f2ff, 
-                emissive: 0x00f2ff, 
+                color: selectedSkinColor, 
+                emissive: selectedSkinColor, 
                 emissiveIntensity: 0.8 
             });
 
@@ -870,7 +969,7 @@
                 const freeLanes = [];
                 for (let i = 0; i < 6; i++) if (!occupiedLanes.has(i)) freeLanes.push(i);
 
-                if (Math.random() < 0.2 && freeLanes.length > 0) {
+                if (Math.random() < 0.35 && freeLanes.length > 0) {
                     const idx = Math.floor(Math.random() * freeLanes.length);
                     const eLane = freeLanes[idx];
                     createEnergy(lanes[eLane], height + 100);
@@ -901,15 +1000,19 @@
 
         function createSpike(x, y) {
             let s;
+            const spikeColors = [0xff0055, 0xffaa00, 0x00ff88, 0xaa00ff, 0x00f2ff];
+            const color = spikeColors[Math.floor(Math.random() * spikeColors.length)];
+
             if (spikePool.length > 0) {
                 s = spikePool.pop();
                 s.visible = true;
-                // Randomize geometry each time it spawns from pool for variety
                 s.geometry = obstacleGeos[Math.floor(Math.random() * obstacleGeos.length)];
+                s.material.color.setHex(color);
+                s.material.emissive.setHex(color);
             } else {
                 const mat = new THREE.MeshStandardMaterial({
-                    color: 0xff0055,
-                    emissive: 0xff0000,
+                    color: color,
+                    emissive: color,
                     emissiveIntensity: 0.5
                 });
                 s = new THREE.Mesh(obstacleGeos[0], mat);
@@ -987,7 +1090,7 @@
         const clock = new THREE.Clock();
         function animate() {
             requestAnimationFrame(animate);
-            const rawDelta = clock.getDelta();
+            const rawDelta = Math.min(clock.getDelta(), 0.1); // Cap delta to prevent jumps on tab switch
 
             if (gameState === 'PLAYING') {
                 // Time Scaling for Slow-Mo
@@ -1094,9 +1197,9 @@
                 // Movement
                 let speedScale = 1.0;
                 if (stunTimeLeft > 0) {
-                    stunTimeLeft -= 1000 * effectiveDelta;
-                    speedScale = 0.1; // 90% slow down for more impact
-                    player.visible = Math.floor(time * 25) % 2 === 0; // Faster flicker
+                    stunTimeLeft -= 1000 * rawDelta; // Use raw delta to avoid slow-diminishing stun
+                    speedScale = 0.1; 
+                    player.visible = Math.floor(Date.now() / 40) % 2 === 0; // Robust flicker
                 } else {
                     player.visible = true;
                 }
@@ -1388,7 +1491,7 @@
                     } else if (d.visible && d.dType >= 3 && stunTimeLeft <= 0) {
                         // Collision with Dinosaurs
                         const dist = player.position.distanceTo(d.position);
-                        if (dist < 4) {
+                        if (dist < 6) { // Increased radius for better leg detection
                             stunTimeLeft = 1000;
                             playSound(50, 'square', 0.2, 0.2);
                         }
@@ -1419,6 +1522,44 @@
 
             renderer.render(scene, camera);
         } // End animate
+
+        // Skin Selection Logic
+        document.querySelectorAll('.skin-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const colorHex = card.dataset.color;
+                selectedSkinColor = parseInt(colorHex);
+
+                // Sync all cards across different screens
+                document.querySelectorAll('.skin-card').forEach(c => {
+                    if (c.dataset.color === colorHex) c.classList.add('active');
+                    else c.classList.remove('active');
+                });
+                
+                // Update player materials
+                if (player) {
+                    player.traverse(child => {
+                        if (child.isMesh && child.material) {
+                            child.material.color.setHex(selectedSkinColor);
+                            child.material.emissive.setHex(selectedSkinColor);
+                        }
+                    });
+                }
+                
+                // Update ghost materials
+                if (ghosts) {
+                    ghosts.forEach(g => {
+                        g.traverse(child => {
+                            if (child.isMesh && child.material) {
+                                child.material.color.setHex(selectedSkinColor);
+                                child.material.emissive.setHex(selectedSkinColor);
+                            }
+                        });
+                    });
+                }
+                
+                playSound(660, 'sine', 0.1, 0.05);
+            });
+        });
 
         init();
     </script>
