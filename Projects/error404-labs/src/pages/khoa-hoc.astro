@@ -215,68 +215,69 @@ import { TC_TITLE } from '../common/TextConst'
 
                     <!-- Info Grid -->
                     <div
-                        class="flex flex-col md:flex-row justify-between items-center mt-4 p-4 md:p-5 bg-white border border-[#ecf4f5] rounded-2xl shadow-[0_4px_20px_-4px_rgba(24,92,105,0.08)] gap-4 w-full shrink-0"
+                        class="flex flex-col md:flex-row justify-between items-center mt-4 p-5 md:p-6 bg-white border-2 border-[#ecf4f5] hover:border-[#c5e1e5] rounded-2xl shadow-[0_4px_20px_-4px_rgba(24,92,105,0.08)] hover:shadow-[0_8px_30px_-4px_rgba(24,92,105,0.15)] transition-all duration-300 gap-6 w-full shrink-0 relative overflow-hidden group"
                     >
-                        <!-- Fee -->
-                        <div class="flex flex-col text-center md:text-left flex-1 group">
-                            <div
-                                class="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em] mb-1 flex justify-center md:justify-start"
-                            >
-                                Học phí
-                            </div>
-                            <div
-                                class="flex flex-col items-center md:items-start transition-transform group-hover:scale-105"
-                            >
-                                <span class="text-[#e35d2d] font-black text-xl md:text-2xl leading-none drop-shadow-sm"
-                                    >120.000đ<span class="text-base font-bold text-gray-400 mx-1">/</span></span
-                                >
-                                <span
-                                    class="text-gray-600 font-extrabold text-sm md:text-base leading-none mt-1 uppercase"
-                                    >Buổi</span
-                                >
-                            </div>
+                        <!-- Ánh sáng mờ trang trí -->
+                        <div
+                            class="absolute -top-10 -right-10 w-32 h-32 bg-orange-50 rounded-full blur-2xl opacity-50 group-hover:opacity-100 transition-opacity duration-500"
+                        >
+                        </div>
+                        <div
+                            class="absolute -bottom-10 -left-10 w-32 h-32 bg-teal-50 rounded-full blur-2xl opacity-50 group-hover:opacity-100 transition-opacity duration-500"
+                        >
                         </div>
 
-                        <!-- Divider -->
-                        <div class="hidden md:block w-px h-10 bg-gray-200"></div>
-                        <div class="md:hidden h-px w-full bg-gray-100"></div>
-
                         <!-- Schedule -->
-                        <div class="flex flex-col text-center md:text-left flex-1 group">
+                        <div class="flex flex-col text-center md:text-left flex-1 relative z-10 w-full md:w-auto">
                             <div
-                                class="text-gray-400 text-[10px] font-black uppercase tracking-[0.2em] mb-1 flex justify-center md:justify-start"
+                                class="text-[#e35d2d] text-[11px] font-black uppercase tracking-[0.25em] mb-2 flex justify-center md:justify-start items-center gap-2"
                             >
+                                <span
+                                    class="w-2 h-2 rounded-full bg-[#e35d2d] shadow-[0_0_8px_rgba(227,93,45,0.6)] animate-pulse"
+                                ></span>
                                 Lịch học
                             </div>
                             <div
-                                class="flex flex-col items-center md:items-start group-hover:scale-105 transition-transform"
+                                class="flex flex-col md:flex-row items-center md:items-baseline gap-1 md:gap-2 group-hover:translate-x-1 transition-transform duration-300"
                             >
-                                <span class="font-black text-gray-800 text-xl md:text-2xl leading-none">2 Buổi</span>
-                                <span
-                                    class="text-gray-600 font-extrabold text-sm md:text-base leading-none mt-1 uppercase"
+                                <span class="font-black text-[#185c69] text-2xl md:text-3xl leading-none drop-shadow-sm"
+                                    >2 Buổi</span
+                                >
+                                <span class="text-gray-500 font-extrabold text-sm md:text-base uppercase tracking-wider"
                                     >/ Tuần</span
                                 >
                             </div>
                         </div>
 
                         <!-- Divider -->
-                        <div class="hidden md:block w-px h-10 bg-gray-200"></div>
-                        <div class="md:hidden h-px w-full bg-gray-100"></div>
+                        <div
+                            class="hidden md:block w-px h-14 bg-gradient-to-b from-transparent via-[#c5e1e5] to-transparent relative z-10"
+                        >
+                        </div>
+                        <div
+                            class="md:hidden h-px w-3/4 bg-gradient-to-r from-transparent via-[#c5e1e5] to-transparent relative z-10"
+                        >
+                        </div>
 
                         <!-- Contact -->
                         <div
-                            class="flex flex-col justify-center items-center md:items-end text-center md:text-right w-full md:w-auto mt-2 md:mt-0"
+                            class="flex flex-col justify-center items-center md:items-end text-center md:text-right flex-1 relative z-10 w-full md:w-auto mt-2 md:mt-0"
                         >
                             <div
-                                class="flex items-center gap-2 font-black text-[#185c69] text-lg md:text-xl drop-shadow-sm hover:text-[#e35d2d] transition-colors cursor-pointer"
+                                class="flex items-center gap-2.5 font-black text-[#185c69] text-xl md:text-2xl drop-shadow-sm hover:text-[#e35d2d] transition-colors cursor-pointer group-hover:-translate-x-1 duration-300"
                             >
-                                <span class="text-red-500 text-lg animate-pulse">📞</span> 0373.306.966
+                                <div class="bg-red-50 p-2 rounded-full shadow-inner">
+                                    <span class="text-red-500 text-lg md:text-xl drop-shadow-md">📞</span>
+                                </div>
+                                0373.306.966
                             </div>
                             <div
-                                class="text-gray-500 text-[11px] md:text-xs font-medium max-w-[180px] leading-relaxed mt-1 flex items-start justify-center md:justify-end gap-1.5"
+                                class="text-gray-500 text-xs md:text-sm font-medium mt-3 flex items-start justify-center md:justify-end gap-2 max-w-[220px]"
                             >
-                                <span class="text-red-500 shrink-0 text-xs">📍</span>
-                                <span class="text-left md:text-right">308 Đ. TX 25, Thạnh Xuân, Q.12, TP.HCM</span>
+                                <span class="text-red-500 shrink-0 text-sm mt-0.5 drop-shadow-sm">📍</span>
+                                <span class="text-left md:text-right leading-relaxed"
+                                    >308 Đ. TX 25, Thạnh Xuân, Q.12, TP.HCM</span
+                                >
                             </div>
                         </div>
                     </div>
