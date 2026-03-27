@@ -27,7 +27,7 @@ import { categories } from '../data/dataPromptsGame.js'
                                 <a
                                     href="#"
                                     class="flex items-center gap-2 text-slate-700 hover:text-blue-600 font-bold transition-all duration-200 group"
-                                    data-prompt={item.prompt}
+                                    data-title={item.text.split(':')[0].replace('+', '')}
                                 >
                                     <span class="text-slate-400 group-hover:text-blue-400 transition-colors">
                                         {item.id}.
@@ -50,27 +50,27 @@ import { categories } from '../data/dataPromptsGame.js'
         class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-900/90 backdrop-blur-md text-white px-8 py-3 rounded-2xl shadow-2xl border border-white/10 transition-all duration-500 translate-y-32 opacity-0 z-[100] pointer-events-none flex items-center gap-3"
     >
         <span class="text-xl">🚀</span>
-        <span class="font-bold tracking-wide">Đã copy câu lệnh prompt!</span>
+        <span class="font-bold tracking-wide">Đã copy tên trò chơi!</span>
     </div>
 </MainLayout>
 
 <script is:inline>
-    // Xử lý sự kiện click để copy prompt
-    const copyLinks = document.querySelectorAll('a[data-prompt]')
+    // Xử lý sự kiện click để copy tên game
+    const copyLinks = document.querySelectorAll('a[data-title]')
     const toast = document.getElementById('toast-copy')
     let toastTimeout
 
     copyLinks.forEach((link) => {
         link.addEventListener('click', (e) => {
             e.preventDefault()
-            const prompt = link.getAttribute('data-prompt')
+            const textToCopy = link.getAttribute('data-title')
 
             if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(prompt).then(showToast)
+                navigator.clipboard.writeText(textToCopy).then(showToast)
             } else {
                 // Fallback cho môi trường không hỗ trợ clipboard API trực tiếp
                 const textArea = document.createElement('textarea')
-                textArea.value = prompt
+                textArea.value = textToCopy
                 document.body.appendChild(textArea)
                 textArea.select()
                 try {
