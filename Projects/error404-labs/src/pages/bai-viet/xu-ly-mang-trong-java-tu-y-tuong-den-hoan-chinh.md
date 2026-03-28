@@ -246,3 +246,103 @@ Sau bài này, bạn nắm được:
 - Cấu trúc dữ liệu
 
 ---
+
+## 10. Code hoàn chỉnh
+
+<details>
+<summary>Xem code</summary>
+
+```java
+import java.util.Scanner;
+
+public class Main {
+    static Scanner sc = new Scanner(System.in);
+
+    // Nhập số nguyên an toàn
+    static int nhapSoNguyen(String label, String condition, int mode) {
+        while(true) {
+            try {
+                System.out.print(label);
+                int n = Integer.parseInt(sc.nextLine());
+
+                if(n < 1 && mode == 0) {
+                    System.out.println("\n" + condition);
+                    continue;
+                }
+
+                return n;
+
+            } catch (Exception e) {
+                System.out.println("\nVui lòng nhập đúng định dạng!");
+            }
+        }
+    }
+
+    // Nhập mảng
+    static void nhapMang(int a[]) {
+        for(int i = 0; i < a.length; i++) {
+            a[i] = nhapSoNguyen("a[" + i + "] = ", "", 1);
+        }
+    }
+
+    // Xuất mảng
+    static void xuatMang(int a[], String label) {
+        System.out.println("\n" + label);
+        for(int i = 0; i < a.length; i++) {
+            System.out.print(a[i] + " ");
+        }
+    }
+
+    // Sắp xếp tăng dần
+    static void sapXepTang(int a[]) {
+        for(int i = 0; i < a.length - 1; i++) {
+            for(int j = i + 1; j < a.length; j++) {
+                if(a[i] > a[j]) {
+                    int temp = a[i];
+                    a[i] = a[j];
+                    a[j] = temp;
+                }
+            }
+        }
+    }
+
+    // Tìm max
+    static int timMax(int a[]) {
+        int max = a[0];
+        for(int i = 1; i < a.length; i++) {
+            if(a[i] > max) {
+                max = a[i];
+            }
+        }
+        return max;
+    }
+
+    // Tìm min
+    static int timMin(int a[]) {
+        int min = a[0];
+        for(int i = 1; i < a.length; i++) {
+            if(a[i] < min) {
+                min = a[i];
+            }
+        }
+        return min;
+    }
+
+    public static void main(String[] args) {
+        int n = nhapSoNguyen("Nhập số nguyên: ", "Vui lòng nhập n > 0!", 0);
+
+        int a[] = new int[n];
+
+        nhapMang(a);
+        xuatMang(a, "Mảng đã nhập:");
+
+        sapXepTang(a);
+        xuatMang(a, "Mảng đã sắp xếp tăng:");
+
+        System.out.println("\nMax = " + timMax(a));
+        System.out.println("Min = " + timMin(a));
+    }
+}
+```
+
+</details>
