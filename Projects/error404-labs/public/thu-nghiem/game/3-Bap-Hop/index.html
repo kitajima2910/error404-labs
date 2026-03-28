@@ -1,0 +1,1334 @@
+<!doctype html>
+<html lang="vi">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <title>Bập Hộp+: Tu Tiên Lộ</title>
+
+        <link rel="shortcut icon" href="avatar_v2.avif" type="image/x-icon" />
+
+        <style>
+            :root {
+                --bg-color: #05050a;
+                --panel-bg: rgba(10, 15, 30, 0.95);
+                --text-main: #e0f2f1;
+                --text-muted: #81d4fa;
+                --accent: #ffea00; /* Linh Lực Kim Quang */
+                --ui-border: rgba(0, 188, 212, 0.3);
+                --error-color: #ff0055;
+                --jade: #2ecc71;
+            }
+
+            * {
+                box-sizing: border-box;
+                user-select: none;
+                -webkit-user-select: none;
+                touch-action: none;
+            }
+
+            body,
+            html {
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                height: 100%;
+                background-color: var(--bg-color);
+                font-family: 'Segoe UI', serif;
+                overflow: hidden;
+                color: var(--text-main);
+            }
+
+            #gameCanvas {
+                display: block;
+                width: 100%;
+                height: 100%;
+                position: absolute;
+                top: 0;
+                left: 0;
+                z-index: 1;
+            }
+
+            #ui-layer {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 10;
+                pointer-events: none;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+
+            #top-bar {
+                text-align: center;
+                padding: 10px;
+                pointer-events: auto;
+                background: linear-gradient(to bottom, rgba(0, 20, 40, 0.9) 0%, transparent 100%);
+                border-bottom: 1px solid var(--ui-border);
+            }
+
+            #points-display {
+                font-size: 2.5rem;
+                font-weight: 800;
+                color: var(--accent);
+                text-shadow: 0 0 20px rgba(255, 234, 0, 0.6);
+                margin: 0;
+                line-height: 1;
+            }
+
+            #points-label {
+                font-size: 0.8rem;
+                color: var(--text-muted);
+                text-transform: uppercase;
+                letter-spacing: 4px;
+            }
+
+            #rank-hud {
+                margin-top: 5px;
+                font-weight: bold;
+                color: var(--jade);
+                text-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
+                font-size: 1rem;
+            }
+
+            /* Player HP Bar */
+            #player-hp-container {
+                width: 200px;
+                height: 10px;
+                background: rgba(0, 0, 0, 0.5);
+                margin: 5px auto;
+                border-radius: 5px;
+                overflow: hidden;
+                border: 1px solid var(--ui-border);
+            }
+            #player-hp-fill {
+                height: 100%;
+                width: 100%;
+                background: #e74c3c;
+                transition: width 0.3s;
+            }
+
+            /* Inventory Display */
+            #inventory-bar {
+                position: absolute;
+                left: 10px;
+                top: 120px;
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+                background: var(--panel-bg);
+                padding: 10px;
+                border-radius: 4px;
+                border: 1px solid var(--ui-border);
+                pointer-events: auto;
+                max-width: 150px;
+            }
+
+            .inv-item {
+                font-size: 0.75rem;
+                color: var(--text-main);
+                display: flex;
+                justify-content: space-between;
+                padding: 2px 0;
+            }
+
+            /* Notes Display */
+            #notes-panel {
+                position: absolute;
+                left: 10px;
+                bottom: 200px;
+                width: 180px;
+                background: rgba(0, 10, 20, 0.8);
+                border: 1px solid var(--ui-border);
+                padding: 10px;
+                border-radius: 8px;
+                pointer-events: auto;
+                z-index: 10;
+            }
+            #notes-panel h5 {
+                margin: 0 0 5px 0;
+                color: var(--accent);
+                font-size: 0.8rem;
+                border-bottom: 1px solid var(--ui-border);
+            }
+            #notes-content {
+                font-size: 0.7rem;
+                color: #ddd;
+                max-height: 80px;
+                overflow-y: hidden;
+            }
+
+            /* Skill Bar */
+            #skill-bar {
+                position: absolute;
+                right: 10px;
+                top: 120px;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                pointer-events: auto;
+            }
+
+            .skill-btn {
+                width: 50px;
+                height: 50px;
+                background: var(--panel-bg);
+                border: 2px solid var(--ui-border);
+                border-radius: 50%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: all 0.3s;
+                position: relative;
+            }
+
+            .skill-btn:hover:not(.disabled) {
+                transform: scale(1.1);
+                border-color: var(--accent);
+            }
+            .skill-btn.disabled {
+                opacity: 0.3;
+                filter: grayscale(1);
+                cursor: not-allowed;
+            }
+            .skill-btn .cost {
+                position: absolute;
+                top: -5px;
+                right: -5px;
+                background: #c62828;
+                font-size: 0.6rem;
+                padding: 1px 4px;
+                border-radius: 8px;
+                border: 1px solid white;
+            }
+
+            /* Skill Tooltip */
+            #skill-info-panel {
+                position: absolute;
+                right: 70px;
+                top: 120px;
+                width: 180px;
+                background: var(--panel-bg);
+                border: 1px solid var(--accent);
+                padding: 10px;
+                border-radius: 8px;
+                pointer-events: none;
+                opacity: 0;
+                transition: opacity 0.3s;
+                z-index: 100;
+            }
+            #skill-info-panel h4 {
+                margin: 0;
+                color: var(--accent);
+                font-size: 0.9rem;
+            }
+            #skill-info-panel p {
+                margin: 5px 0;
+                font-size: 0.75rem;
+                color: var(--text-main);
+            }
+
+            #log-panel {
+                position: absolute;
+                right: 10px;
+                top: 10px;
+                width: 200px;
+                max-height: 100px;
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+                pointer-events: none;
+            }
+
+            .log-item {
+                background: rgba(0, 10, 20, 0.8);
+                border-left: 3px solid var(--accent);
+                color: var(--text-main);
+                padding: 5px 10px;
+                margin-bottom: 5px;
+                border-radius: 4px;
+                font-size: 0.7rem;
+                animation:
+                    slideIn 0.3s ease-out,
+                    fadeOut 0.5s ease-in 4.5s forwards;
+            }
+
+            /* Health Container */
+            #health-container {
+                position: absolute;
+                left: 50%;
+                top: 65%;
+                transform: translateX(-50%);
+                width: 280px;
+                height: 20px;
+                background: rgba(0, 5, 10, 0.7);
+                border: 2px solid var(--ui-border);
+                border-radius: 10px;
+                padding: 3px;
+                pointer-events: none;
+            }
+
+            #health-fill {
+                height: 100%;
+                width: 100%;
+                background: linear-gradient(90deg, #00acc1 0%, #1de9b6 100%);
+                border-radius: 8px;
+                transition: width 0.1s;
+            }
+
+            #level-display {
+                position: absolute;
+                top: -40px;
+                left: 50%;
+                transform: translateX(-50%);
+                color: var(--text-main);
+                font-weight: bold;
+                font-size: 1.1rem;
+                text-shadow: 0 0 10px var(--accent);
+                width: 100%;
+                text-align: center;
+            }
+
+            /* Upgrades (Scrolling container for Mobile) */
+            #upgrade-panel-container {
+                width: 100%;
+                max-height: 180px;
+                overflow-y: auto;
+                background: linear-gradient(to top, rgba(0, 10, 20, 1) 80%, transparent 100%);
+                pointer-events: auto;
+                padding: 10px;
+                scrollbar-width: thin;
+            }
+
+            #upgrade-panel {
+                display: flex;
+                justify-content: center;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+
+            .upgrade-btn {
+                background: var(--panel-bg);
+                border: 1px solid var(--ui-border);
+                border-radius: 6px;
+                padding: 10px;
+                color: var(--text-main);
+                cursor: pointer;
+                transition: all 0.2s;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                min-width: 140px;
+                font-size: 0.8rem;
+            }
+
+            .upgrade-btn:hover:not(.disabled) {
+                border-color: var(--accent);
+            }
+            .upgrade-btn.disabled {
+                opacity: 0.5;
+            }
+
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes fadeOut {
+                from {
+                    opacity: 1;
+                }
+                to {
+                    opacity: 0;
+                }
+            }
+
+            /* Mobile specific adjustments */
+            @media (max-width: 600px) {
+                #points-display {
+                    font-size: 2rem;
+                }
+                #inventory-bar {
+                    top: auto;
+                    bottom: 220px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    flex-direction: row;
+                    flex-wrap: wrap;
+                    max-width: 95%;
+                    width: 95%;
+                    justify-content: center;
+                    gap: 8px;
+                    padding: 5px;
+                }
+                #skill-bar {
+                    top: auto;
+                    bottom: 280px;
+                    left: 50%;
+                    right: auto;
+                    transform: translateX(-50%);
+                    flex-direction: row;
+                    width: 95%;
+                    justify-content: center;
+                    gap: 12px;
+                }
+                #health-container {
+                    top: 58%;
+                    width: 220px;
+                }
+                #level-display {
+                    top: -35px;
+                    font-size: 0.9rem;
+                }
+                #skill-info-panel {
+                    bottom: 340px;
+                    top: auto;
+                    right: 50%;
+                    transform: translateX(50%);
+                    width: 220px;
+                }
+                #player-hp-container {
+                    width: 150px;
+                }
+                #upgrade-panel-container {
+                    max-height: 150px;
+                }
+                .upgrade-btn {
+                    min-width: 120px;
+                    padding: 8px;
+                }
+                #notes-panel {
+                    bottom: auto;
+                    top: 80px;
+                    left: 10px;
+                    width: 140px;
+                    padding: 5px;
+                    background: rgba(0, 10, 20, 0.6);
+                }
+            }
+
+            #intro-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: radial-gradient(circle, #0a1a2f 0%, #000 100%);
+                z-index: 100;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                text-align: center;
+                overflow-y: auto;
+                padding: 20px;
+            }
+
+            #tutorial-box {
+                background: rgba(0, 0, 0, 0.6);
+                border: 1px solid var(--ui-border);
+                padding: 15px;
+                margin-top: 15px;
+                max-width: 450px;
+                border-radius: 8px;
+                text-align: left;
+                font-size: 0.85rem;
+            }
+
+            #start-btn {
+                margin-top: 20px;
+                padding: 15px 40px;
+                font-size: 1.5rem;
+                background: var(--accent);
+                color: #000;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="gameCanvas"></canvas>
+
+        <div id="ui-layer">
+            <div id="top-bar">
+                <div id="points-display">0</div>
+                <div id="points-label">Linh Lực</div>
+                <div id="rank-hud">Cảnh Giới: Luyện Khí</div>
+                <div id="player-hp-container"><div id="player-hp-fill"></div></div>
+            </div>
+
+            <div id="inventory-bar">
+                <div class="inv-item" style="color: #2ecc71">LinhThạch:<span id="inv-common">0</span></div>
+                <div class="inv-item" style="color: #74b9ff">TiênThảo:<span id="inv-rare">0</span></div>
+                <div class="inv-item" style="color: #a29bfe">BảoĐan:<span id="inv-epic">0</span></div>
+                <div class="inv-item" style="color: #fdcb6e">PhápBảo:<span id="inv-legendary">0</span></div>
+                <div class="inv-item" style="color: #ff0055">ThiênĐạo:<span id="inv-error">0</span></div>
+            </div>
+
+            <!-- Notes Panel -->
+            <div id="notes-panel">
+                <h5>📜 GHI CHÚ</h5>
+                <div id="notes-content">Chào mừng đạo hữu khởi đầu hành trình tu tiên.</div>
+            </div>
+
+            <div id="skill-info-panel">
+                <h4 id="skill-info-name">Thần Thông</h4>
+                <p id="skill-info-desc">Mô tả...</p>
+                <span id="skill-info-dmg" style="font-size: 0.75rem; color: #ff5252">Sát thương: 0</span>
+            </div>
+
+            <div id="skill-bar">
+                <div class="skill-btn" id="skill-1">
+                    <span style="font-size: 1rem">✨</span><span class="cost" id="cost-s1">x10</span>
+                </div>
+                <div class="skill-btn" id="skill-2">
+                    <span style="font-size: 1rem">🔥</span><span class="cost" id="cost-s2">x5</span>
+                </div>
+                <div class="skill-btn" id="skill-3">
+                    <span style="font-size: 1rem">⚡</span><span class="cost" id="cost-s3">x3</span>
+                </div>
+                <div class="skill-btn" id="skill-4">
+                    <span style="font-size: 1rem">🌀</span><span class="cost" id="cost-s4">x1</span>
+                </div>
+                <div class="skill-btn" id="skill-5">
+                    <span style="font-size: 1rem; color: var(--error-color)">🧿</span
+                    ><span class="cost" id="cost-s5">x10</span>
+                </div>
+            </div>
+
+            <div id="log-panel"></div>
+
+            <div id="health-container">
+                <div id="level-display">Linh Lò Cấp 1</div>
+                <div id="health-fill"></div>
+            </div>
+
+            <div id="upgrade-panel-container">
+                <div id="upgrade-panel">
+                    <button class="upgrade-btn" id="btn-upg-click">
+                        <span style="font-weight: bold">Tu Vi</span>
+                        <span>Cấp: <span id="lvl-click">1</span></span>
+                        <span style="color: var(--accent)">Giá: <span id="cost-click">10</span></span>
+                    </button>
+                    <button class="upgrade-btn" id="btn-upg-auto">
+                        <span style="font-weight: bold">Luyện Pháp</span>
+                        <span>Cấp: <span id="lvl-auto">0</span></span>
+                        <span style="color: var(--accent)">Giá: <span id="cost-auto">50</span></span>
+                    </button>
+                    <button class="upgrade-btn" id="btn-upg-disciple">
+                        <span style="font-weight: bold">Thuê Đệ Tử</span>
+                        <span>SL: <span id="lvl-disciple">0</span></span>
+                        <span style="color: var(--accent)">Giá: <span id="cost-disciple">100</span></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="intro-overlay">
+            <h1>BẬP HỘP+: TU TIÊN LỘ</h1>
+            <div id="tutorial-box">
+                <h3>BÍ KÍP TU LUYỆN</h3>
+                <ul>
+                    <li><b>Đập Linh Lò:</b> Click vào Lò luyện ở giữa màn hình.</li>
+                    <li><b>Đệ Tử:</b> Thuê đệ tử để tự động tấn công.</li>
+                    <li><b>Cảnh Giới:</b> Mỗi 10 cấp Linh Lò sẽ thăng một Cảnh Giới mới.</li>
+                    <li><b>Sinh Tồn:</b> Linh Lò sẽ tấn công bạn! Nâng cấp Tu Vi để chịu đựng tốt hơn.</li>
+                </ul>
+            </div>
+            <button id="start-btn">KHỞI ĐẦU</button>
+        </div>
+
+        <script>
+            // ==========================================
+            // 1. GAME STATE & DATA
+            // ==========================================
+            const CULTIVATION_RANKS = [
+                'Luyện Khí',
+                'Trúc Cơ',
+                'Kết Đan',
+                'Nguyên Anh',
+                'Hóa Thần',
+                'Luyện Hư',
+                'Hợp Thể',
+                'Đại Thừa',
+                'Độ Kiếp',
+            ]
+            const DISCIPLE_NAMES = [
+                'Tiêu Viêm',
+                'Lâm Động',
+                'Thạch Hạo',
+                'Diệp Phàm',
+                'Hàn Lập',
+                'Kỷ Ninh',
+                'Tần Vũ',
+                'Trần Phàm',
+                'Phương Nguyên',
+            ]
+            const DISCIPLE_SKILLS = [
+                { id: 'heal', name: 'Linh Vũ Quyết', desc: 'Hồi phục Linh Giáp' },
+                { id: 'crit', name: 'Trảm Tiên Kiếm', desc: 'Gây sát thương lớn' },
+                { id: 'loot', name: 'Tầm Bảo Thuật', desc: 'Tìm thấy Linh thạch' },
+            ]
+
+            const RARITIES = [
+                {
+                    id: 'common',
+                    name: 'Linh Thạch',
+                    color: [
+                        0.2,
+                        0.8,
+                        0.4,
+                        1.0,
+                    ],
+                    cssColor: '#2ecc71',
+                    prob: 0.55,
+                    pts: 1,
+                    shape: 'circle',
+                },
+                {
+                    id: 'rare',
+                    name: 'Tiên Thảo',
+                    color: [
+                        0.2,
+                        0.6,
+                        1.0,
+                        1.0,
+                    ],
+                    cssColor: '#74b9ff',
+                    prob: 0.25,
+                    pts: 5,
+                    shape: 'triangle',
+                },
+                {
+                    id: 'epic',
+                    name: 'Bảo Đan',
+                    color: [
+                        0.8,
+                        0.2,
+                        0.8,
+                        1.0,
+                    ],
+                    cssColor: '#a29bfe',
+                    prob: 0.1,
+                    pts: 25,
+                    shape: 'rhombus',
+                },
+                {
+                    id: 'legendary',
+                    name: 'Pháp Bảo',
+                    color: [
+                        1.0,
+                        0.8,
+                        0.0,
+                        1.0,
+                    ],
+                    cssColor: '#fdcb6e',
+                    prob: 0.05,
+                    pts: 150,
+                    shape: 'star',
+                },
+                {
+                    id: 'error',
+                    name: 'Thiên Đạo',
+                    color: [
+                        1.0,
+                        0.0,
+                        0.3,
+                        1.0,
+                    ],
+                    cssColor: '#ff0055',
+                    prob: 0.05,
+                    pts: 0,
+                    shape: 'rect',
+                },
+            ]
+
+            const SKILL_DATA = {
+                'skill-1': {
+                    name: 'Thanh Lực Chưởng',
+                    desc: 'Sát thương cơ bản.',
+                    type: 'common',
+                    count: 10,
+                    dmgMult: 10,
+                },
+                'skill-2': { name: 'Linh Hỏa Châm', desc: 'Thiêu đốt lò luyện.', type: 'rare', count: 5, dmgMult: 30 },
+                'skill-3': { name: 'Lôi Đình', desc: 'Giáng đòn chí mạng.', type: 'epic', count: 3, dmgMult: 80 },
+                'skill-4': {
+                    name: 'Vạn Kiếm',
+                    desc: 'Kiếm trận triệu hoán.',
+                    type: 'legendary',
+                    count: 1,
+                    dmgMult: 200,
+                },
+                'skill-5': { name: 'Nghịch Thiên', desc: 'Phá vỡ quy tắc.', type: 'error', count: 10, dmgMult: 0.8 },
+            }
+
+            const state = {
+                points: 0,
+                clickLevel: 1,
+                autoClicks: 0,
+                disciples: 0,
+                boxLevel: 1,
+                boxHp: 10,
+                boxMaxHp: 10,
+                playerHp: 100,
+                playerMaxHp: 100,
+                clickCost: 10,
+                autoCost: 50,
+                discipleCost: 100,
+                lastTime: performance.now(),
+                autoClickTimer: 0,
+                enemyAttackTimer: 0,
+                isChest: false,
+                inventory: { common: 0, rare: 0, epic: 0, legendary: 0, error: 0 },
+                cultivationRank: 0,
+                discipleList: [],
+            }
+
+            function calculateDamage() {
+                return Math.floor(state.clickLevel * (1 + state.clickLevel * 0.06))
+            }
+
+            try {
+                const saved = localStorage.getItem('baphop_plus_v6_save')
+                if (saved) {
+                    const p = JSON.parse(saved)
+                    Object.assign(state, p)
+                    state.boxHp = state.boxMaxHp
+                    state.playerHp = state.playerMaxHp
+                }
+            } catch (e) {}
+
+            function saveGame() {
+                localStorage.setItem('baphop_plus_v6_save', JSON.stringify(state))
+            }
+
+            // ==========================================
+            // 2. AUDIO & VISUALS
+            // ==========================================
+            let audioCtx
+            function initAudio() {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+                if (audioCtx.state === 'suspended') audioCtx.resume()
+            }
+            function playHitSound() {
+                if (!audioCtx) return
+                const osc = audioCtx.createOscillator()
+                const g = audioCtx.createGain()
+                osc.type = 'triangle'
+                osc.frequency.setValueAtTime(200, audioCtx.currentTime)
+                osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.1)
+                g.gain.setValueAtTime(0.05, audioCtx.currentTime)
+                g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1)
+                osc.connect(g)
+                g.connect(audioCtx.destination)
+                osc.start()
+                osc.stop(audioCtx.currentTime + 0.1)
+            }
+
+            // ==========================================
+            // 3. WEBGL ENGINE
+            // ==========================================
+            const canvas = document.getElementById('gameCanvas')
+            const gl = canvas.getContext('webgl', { alpha: false })
+            const vsSource = `attribute vec2 a_position; attribute vec4 a_color; uniform vec2 u_resolution; varying vec4 v_color; void main() { vec2 zeroToOne = a_position / u_resolution; vec2 clipSpace = (zeroToOne * 2.0) - 1.0; gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1); v_color = a_color; }`
+            const fsSource = `precision mediump float; varying vec4 v_color; void main() { gl_FragColor = v_color; }`
+            function compileShader(gl, type, src) {
+                const s = gl.createShader(type)
+                gl.shaderSource(s, src)
+                gl.compileShader(s)
+                return s
+            }
+            const program = gl.createProgram()
+            gl.attachShader(program, compileShader(gl, gl.VERTEX_SHADER, vsSource))
+            gl.attachShader(program, compileShader(gl, gl.FRAGMENT_SHADER, fsSource))
+            gl.linkProgram(program)
+            gl.useProgram(program)
+            const posAttr = gl.getAttribLocation(program, 'a_position')
+            const colAttr = gl.getAttribLocation(program, 'a_color')
+            const resUni = gl.getUniformLocation(program, 'u_resolution')
+            const vertexData = new Float32Array(80000 * 6)
+            let vertexCount = 0
+            const vBuffer = gl.createBuffer()
+            gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer)
+            gl.bufferData(gl.ARRAY_BUFFER, vertexData.byteLength, gl.DYNAMIC_DRAW)
+            gl.enableVertexAttribArray(posAttr)
+            gl.vertexAttribPointer(posAttr, 2, gl.FLOAT, false, 24, 0)
+            gl.enableVertexAttribArray(colAttr)
+            gl.vertexAttribPointer(colAttr, 4, gl.FLOAT, false, 24, 8)
+            gl.enable(gl.BLEND)
+            gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+            function resize() {
+                canvas.width = window.innerWidth
+                canvas.height = window.innerHeight
+                gl.viewport(0, 0, canvas.width, canvas.height)
+                gl.uniform2f(resUni, canvas.width, canvas.height)
+            }
+            window.onresize = resize
+            resize()
+            function pushV(x, y, c) {
+                if (vertexCount >= 80000) return
+                let i = vertexCount * 6
+                vertexData[i] = x
+                vertexData[i + 1] = y
+                vertexData[i + 2] = c[0]
+                vertexData[i + 3] = c[1]
+                vertexData[i + 4] = c[2]
+                vertexData[i + 5] = c[3]
+                vertexCount++
+            }
+            function drawRect(cx, cy, w, h, c, rot = 0) {
+                const cos = Math.cos(rot),
+                    sin = Math.sin(rot),
+                    hw = w / 2,
+                    hh = h / 2
+                const rx = (x, y) => cx + x * cos - y * sin,
+                    ry = (x, y) => cy + x * sin + y * cos
+                const p1x = rx(-hw, -hh),
+                    p1y = ry(-hw, -hh),
+                    p2x = rx(hw, -hh),
+                    p2y = ry(hw, -hh)
+                const p3x = rx(hw, hh),
+                    p3y = ry(hw, hh),
+                    p4x = rx(-hw, hh),
+                    p4y = ry(-hw, hh)
+                const pushT = (x1, y1, x2, y2, x3, y3) => {
+                    pushV(x1, y1, c)
+                    pushV(x2, y2, c)
+                    pushV(x3, y3, c)
+                }
+                pushT(p1x, p1y, p2x, p2y, p3x, p3y)
+                pushT(p1x, p1y, p3x, p3y, p4x, p4y)
+            }
+
+            // ==========================================
+            // 4. ENTITIES & RENDERING ASSETS
+            // ==========================================
+            let shake = 0,
+                flash = 0,
+                flashCol = [
+                    1,
+                    1,
+                    1,
+                    1,
+                ]
+            const particles = Array.from({ length: 1000 }, () => ({ active: false }))
+            function spawnP(x, y, c, shape, size, spd, life) {
+                const p = particles.find((p) => !p.active)
+                if (!p) return
+                p.active = true
+                p.x = x
+                p.y = y
+                p.c = [...c]
+                p.size = size
+                const a = Math.random() * Math.PI * 2,
+                    s = Math.random() * spd
+                p.vx = Math.cos(a) * s
+                p.vy = Math.sin(a) * s
+                p.life = p.max = life
+            }
+
+            function drawDisciple(cx, cy, scale, color, time, type) {
+                // Thân
+                drawRect(cx, cy, 12 * scale, 18 * scale, color, 0)
+                // Đầu
+                drawRect(
+                    cx,
+                    cy - 14 * scale,
+                    10 * scale,
+                    10 * scale,
+                    [
+                        0.9,
+                        0.8,
+                        0.7,
+                        1,
+                    ],
+                    0,
+                )
+                // Tay
+                const armRot = Math.sin(time * 5) * 0.5
+                drawRect(cx - 8 * scale, cy, 4 * scale, 12 * scale, color, armRot)
+                drawRect(cx + 8 * scale, cy, 4 * scale, 12 * scale, color, -armRot)
+
+                // Vũ khí
+                const weaponColor = [
+                    0.8,
+                    0.8,
+                    0.9,
+                    1,
+                ]
+                const wX = cx + 10 * scale
+                const wY = cy
+                const wRot = -armRot - 0.5
+
+                switch (type) {
+                    case 0: // Thanh Kiếm
+                        drawRect(wX, wY, 3 * scale, 25 * scale, weaponColor, wRot)
+                        drawRect(
+                            wX,
+                            wY + 6 * scale,
+                            8 * scale,
+                            2 * scale,
+                            [
+                                0.5,
+                                0.3,
+                                0.1,
+                                1,
+                            ],
+                            wRot,
+                        )
+                        break
+                    case 1: // Đại Đao
+                        drawRect(wX, wY, 6 * scale, 22 * scale, weaponColor, wRot)
+                        drawRect(
+                            wX,
+                            wY + 8 * scale,
+                            10 * scale,
+                            3 * scale,
+                            [
+                                0.4,
+                                0.2,
+                                0.1,
+                                1,
+                            ],
+                            wRot,
+                        )
+                        break
+                    case 2: // Trường Thương
+                        drawRect(
+                            wX,
+                            wY,
+                            2 * scale,
+                            35 * scale,
+                            [
+                                0.5,
+                                0.3,
+                                0.1,
+                                1,
+                            ],
+                            wRot,
+                        )
+                        drawRect(
+                            wX,
+                            wY - 16 * scale,
+                            5 * scale,
+                            8 * scale,
+                            [
+                                0.9,
+                                0.1,
+                                0.1,
+                                1,
+                            ],
+                            wRot,
+                        )
+                        break
+                    case 3: // Linh Cung
+                        drawRect(
+                            wX,
+                            wY,
+                            15 * scale,
+                            2 * scale,
+                            [
+                                0.6,
+                                0.4,
+                                0.2,
+                                1,
+                            ],
+                            wRot + 1.5,
+                        )
+                        drawRect(
+                            wX + 4 * scale,
+                            wY,
+                            2 * scale,
+                            15 * scale,
+                            [
+                                0.6,
+                                0.4,
+                                0.2,
+                                1,
+                            ],
+                            wRot,
+                        )
+                        break
+                }
+            }
+
+            const box = {
+                size: 200,
+                scale: 1,
+                hit(dmg = 0) {
+                    if (state.boxHp <= 0) return
+                    state.boxHp -= dmg || calculateDamage()
+                    this.scale = 0.88
+                    shake = Math.min(shake + 10, 25)
+                    // THÊM: Linh Lực khi đập (20% sát thương)
+                    state.points += Math.max(1, Math.floor((dmg || calculateDamage()) * 0.2))
+                    playHitSound()
+                    if (state.boxHp <= 0) this.break()
+                    updateUI()
+                },
+                break() {
+                    let r = Math.random(),
+                        cur = 0,
+                        sel = RARITIES[0]
+                    for (let i = 0; i < RARITIES.length; i++) {
+                        cur += RARITIES[i].prob
+                        if (r <= cur) {
+                            sel = RARITIES[i]
+                            break
+                        }
+                    }
+                    let amt = (Math.floor(Math.random() * 2) + 2) * (Math.random() < 0.2 ? 2 : 1)
+                    state.inventory[sel.id] += amt
+                    // SỬA: Gấp đôi Linh Lực nhận được (x2)
+                    state.points += sel.pts * amt * 2
+                    logEvent(`+${amt} ${sel.name}`, sel.cssColor)
+                    state.boxLevel++
+                    state.isChest = state.boxLevel % 10 === 0
+                    state.boxMaxHp = Math.floor((state.isChest ? 250 : 25) * Math.pow(1.2, state.boxLevel - 1))
+                    state.boxHp = state.boxMaxHp
+                    state.cultivationRank = Math.min(Math.floor((state.boxLevel - 1) / 10), 8)
+                    for (let i = 0; i < 50; i++)
+                        spawnP(canvas.width / 2, canvas.height / 2, sel.color, 'circle', 10, 400, 1)
+                    saveGame()
+                },
+                draw(cx, cy, time) {
+                    this.scale += (1 - this.scale) * 0.15
+                    const s = this.size * this.scale,
+                        x = canvas.width / 2 + cx,
+                        y = canvas.height / 2 + cy
+                    const baseColor = state.isChest
+                        ? [
+                              1,
+                              0.8,
+                              0,
+                              1,
+                          ]
+                        : [
+                              0.2,
+                              0.3,
+                              0.4,
+                              1,
+                          ]
+                    const detailColor = state.isChest
+                        ? [
+                              0.8,
+                              0.5,
+                              0,
+                              1,
+                          ]
+                        : [
+                              0.1,
+                              0.2,
+                              0.3,
+                              1,
+                          ]
+                    const glowColor = state.isChest
+                        ? [
+                              1,
+                              1,
+                              0.5,
+                              0.5,
+                          ]
+                        : [
+                              0.5,
+                              0.8,
+                              1,
+                              0.5,
+                          ]
+                    const pulse = Math.sin(time * 3) * 0.1
+                    drawRect(x - s * 0.3, y + s * 0.4, s * 0.1, s * 0.3, detailColor, 0.3)
+                    drawRect(x + s * 0.3, y + s * 0.4, s * 0.1, s * 0.3, detailColor, -0.3)
+                    drawRect(x, y, s * 0.8, s * 0.8, baseColor, Math.PI / 4)
+                    drawRect(x, y, s * 0.6, s * 0.6, detailColor, Math.PI / 4)
+                    drawRect(x, y - s * 0.4, s * 0.5, s * 0.15, detailColor, 0)
+                    drawRect(x, y - s * 0.5, s * 0.1, s * 0.1, baseColor, 0)
+                    drawRect(x, y, s * (0.3 + pulse), s * (0.3 + pulse), glowColor, time)
+                    drawRect(
+                        x,
+                        y,
+                        s * 0.2,
+                        s * 0.2,
+                        [
+                            1,
+                            1,
+                            1,
+                            0.8,
+                        ],
+                        -time,
+                    )
+                },
+            }
+
+            // ==========================================
+            // 5. UI & INPUT
+            // ==========================================
+            const skillPanel = document.getElementById('skill-info-panel')
+            const noteContent = document.getElementById('notes-content')
+
+            function addNote(msg) {
+                noteContent.innerText = msg
+            }
+
+            function logEvent(msg, color) {
+                const d = document.createElement('div')
+                d.className = 'log-item'
+                d.innerText = msg
+                d.style.borderLeftColor = color
+                document.getElementById('log-panel').prepend(d)
+                setTimeout(() => d.remove(), 4000)
+            }
+
+            function updateUI() {
+                document.getElementById('points-display').innerText = state.points.toLocaleString()
+                document.getElementById('rank-hud').innerText = `Cảnh Giới: ${CULTIVATION_RANKS[state.cultivationRank]}`
+                document.getElementById('level-display').innerText = `Linh Lò Cấp ${state.boxLevel}`
+                document.getElementById('health-fill').style.width = (state.boxHp / state.boxMaxHp) * 100 + '%'
+                document.getElementById('player-hp-fill').style.width = (state.playerHp / state.playerMaxHp) * 100 + '%'
+                document.getElementById('lvl-click').innerText = state.clickLevel
+                document.getElementById('cost-click').innerText = state.clickCost
+                document.getElementById('lvl-auto').innerText = state.autoClicks
+                document.getElementById('cost-auto').innerText = state.autoCost
+                document.getElementById('lvl-disciple').innerText = state.disciples
+                document.getElementById('cost-disciple').innerText = state.discipleCost
+                ;[
+                    'common',
+                    'rare',
+                    'epic',
+                    'legendary',
+                    'error',
+                ].forEach((id) => {
+                    const el = document.getElementById('inv-' + id)
+                    if (el) el.innerText = state.inventory[id]
+                })
+            }
+
+            document.querySelectorAll('.skill-btn').forEach((btn) => {
+                btn.onmouseenter = () => {
+                    const d = SKILL_DATA[btn.id]
+                    document.getElementById('skill-info-name').innerText = d.name
+                    document.getElementById('skill-info-desc').innerText = d.desc
+                    document.getElementById('skill-info-dmg').innerText =
+                        `Sát thương: ${btn.id === 'skill-5' ? '80%' : (calculateDamage() * d.dmgMult).toLocaleString()}`
+                    skillPanel.style.opacity = 1
+                }
+                btn.onmouseleave = () => (skillPanel.style.opacity = 0)
+                btn.onclick = () => {
+                    const d = SKILL_DATA[btn.id]
+                    if (state.inventory[d.type] >= d.count) {
+                        state.inventory[d.type] -= d.count
+                        box.hit(btn.id === 'skill-5' ? Math.floor(state.boxMaxHp * 0.8) : calculateDamage() * d.dmgMult)
+                        flash = 0.5
+                    }
+                }
+            })
+
+            document.getElementById('btn-upg-click').onclick = () => {
+                if (state.points >= state.clickCost) {
+                    state.points -= state.clickCost
+                    state.clickLevel++
+                    // SỬA: Hệ số giá Tu Vi giảm từ 1.5 -> 1.4
+                    state.clickCost = Math.floor(state.clickCost * 1.4)
+                    addNote(`Đột phá Tu Vi thành công lên cấp ${state.clickLevel}`)
+                    updateUI()
+                    saveGame()
+                }
+            }
+            document.getElementById('btn-upg-auto').onclick = () => {
+                if (state.points >= state.autoCost) {
+                    state.points -= state.autoCost
+                    state.autoClicks++
+                    // SỬA: Hệ số giá Luyện Pháp giảm từ 1.7 -> 1.55
+                    state.autoCost = Math.floor(state.autoCost * 1.55)
+                    addNote(`Trận pháp Luyện Pháp cấp ${state.autoClicks} đã được thiết lập`)
+                    updateUI()
+                    saveGame()
+                }
+            }
+            document.getElementById('btn-upg-disciple').onclick = () => {
+                if (state.points >= state.discipleCost) {
+                    state.points -= state.discipleCost
+                    state.disciples++
+                    // SỬA: Hệ số giá Đệ Tử giảm từ 2.0 -> 1.8
+                    state.discipleCost = Math.floor(state.discipleCost * 1.8)
+
+                    // New disciple data
+                    const newD = {
+                        name: DISCIPLE_NAMES[Math.floor(Math.random() * DISCIPLE_NAMES.length)],
+                        skill: DISCIPLE_SKILLS[Math.floor(Math.random() * DISCIPLE_SKILLS.length)],
+                        level: 1,
+                        nextSkill: Date.now() + 5000 + Math.random() * 10000,
+                        weaponType: Math.floor(Math.random() * 4),
+                    }
+                    state.discipleList.push(newD)
+                    addNote(`Đệ tử ${newD.name} đã gia nhập tông môn!`)
+                    updateUI()
+                    saveGame()
+                }
+            }
+            canvas.onmousedown = () => {
+                initAudio()
+                box.hit()
+            }
+            document.getElementById('start-btn').onclick = () => {
+                initAudio()
+                document.getElementById('intro-overlay').remove()
+            }
+
+            // ==========================================
+            // 6. LOOP
+            // ==========================================
+            let gameTime = 0
+            function loop(now) {
+                const dt = Math.min((now - state.lastTime) / 1000, 0.1)
+                state.lastTime = now
+                gameTime += dt
+                requestAnimationFrame(loop)
+                gl.clearColor(0.02, 0.04, 0.08, 1)
+                gl.clear(gl.COLOR_BUFFER_BIT)
+                vertexCount = 0
+                let cx = (Math.random() - 0.5) * shake,
+                    cy = (Math.random() - 0.5) * shake
+                shake *= 0.8
+                if (flash > 0) {
+                    drawRect(canvas.width / 2, canvas.height / 2, canvas.width * 2, canvas.height * 2, [
+                        1,
+                        1,
+                        1,
+                        flash,
+                    ])
+                    flash -= dt
+                }
+
+                // Mechanics
+                state.autoClickTimer += dt
+                if (state.autoClickTimer >= 1 && state.autoClicks > 0) {
+                    state.autoClickTimer = 0
+                    box.hit(state.autoClicks * Math.floor(calculateDamage() * 0.5))
+                }
+
+                // Disciple Skills & Individual Logic
+                const currentTime = Date.now()
+                state.discipleList.forEach((d) => {
+                    // Individual Attack
+                    state.discipleTimer += dt / state.discipleList.length // Shared timer logic fix
+                    if (state.discipleTimer >= 0.5) {
+                        state.discipleTimer = 0
+                        box.hit(Math.floor(calculateDamage() * 0.2))
+                    }
+
+                    // Skill triggers
+                    if (currentTime > d.nextSkill) {
+                        d.nextSkill = currentTime + 10000 + Math.random() * 15000
+                        d.level = state.cultivationRank + 1 // Sync outfit level with player rank for progression visual
+
+                        switch (d.skill.id) {
+                            case 'heal':
+                                state.playerHp = Math.min(state.playerMaxHp, state.playerHp + 20)
+                                addNote(`${d.name} thi triển ${d.skill.name}: Hồi 20 Linh Giáp!`)
+                                break
+                            case 'crit':
+                                box.hit(calculateDamage() * 5)
+                                addNote(`${d.name} bộc phát ${d.skill.name}: Bạo kích x5!`)
+                                flash = 0.2
+                                break
+                            case 'loot':
+                                state.inventory.common += 5
+                                addNote(`${d.name} thi triển ${d.skill.name}: Nhận 5 Linh thạch!`)
+                                break
+                        }
+                    }
+                })
+
+                state.enemyAttackTimer += dt
+                if (state.enemyAttackTimer >= 3) {
+                    state.enemyAttackTimer = 0
+                    const dmg = 5 + state.boxLevel
+                    state.playerHp = Math.max(0, state.playerHp - dmg)
+                    if (state.playerHp <= 0) {
+                        logEvent('Linh Giáp vỡ tan!', '#ff0055')
+                        addNote('Bạn đã bị Linh Lò áp đảo, tổn thất Linh lực!')
+                        state.playerHp = state.playerMaxHp
+                        state.points = Math.floor(state.points * 0.9)
+                    }
+                    updateUI()
+                }
+
+                particles.forEach((p) => {
+                    if (!p.active) return
+                    p.x += p.vx * dt
+                    p.y += p.vy * dt
+                    p.life -= dt
+                    if (p.life <= 0) p.active = false
+                    else
+                        drawRect(p.x, p.y, p.size, p.size, [
+                            ...p.c,
+                            p.life / p.max,
+                        ])
+                })
+
+                // Minions Visuals
+                const visualLimit = 15
+                for (let i = 0; i < Math.min(state.discipleList.length, visualLimit); i++) {
+                    const d = state.discipleList[i]
+                    const ang = gameTime + (i / visualLimit) * Math.PI * 2
+                    const radius = 200 + Math.sin(gameTime + i) * 10
+                    const mx = canvas.width / 2 + Math.cos(ang) * radius
+                    const my = canvas.height / 2 + Math.sin(ang) * radius
+
+                    // Cấp độ đổi màu pháp phục
+                    let pColor = [
+                        0.1,
+                        0.9,
+                        0.9,
+                        1,
+                    ] // Xanh (Cấp 1)
+                    if (d.level >= 7)
+                        pColor = [
+                            1,
+                            0.8,
+                            0.1,
+                            1,
+                        ]
+                    // Vàng (Đại Thừa)
+                    else if (d.level >= 5)
+                        pColor = [
+                            0.9,
+                            0.1,
+                            0.1,
+                            1,
+                        ]
+                    // Đỏ (Hóa Thần)
+                    else if (d.level >= 3)
+                        pColor = [
+                            0.6,
+                            0.2,
+                            0.9,
+                            1,
+                        ] // Tím (Kết Đan)
+
+                    drawDisciple(mx, my, 1.2, pColor, gameTime, d.weaponType)
+                }
+
+                box.draw(cx, cy, gameTime)
+                gl.bufferSubData(gl.ARRAY_BUFFER, 0, vertexData.subarray(0, vertexCount * 6))
+                gl.drawArrays(gl.TRIANGLES, 0, vertexCount)
+            }
+            updateUI()
+            requestAnimationFrame(loop)
+        </script>
+    </body>
+</html>

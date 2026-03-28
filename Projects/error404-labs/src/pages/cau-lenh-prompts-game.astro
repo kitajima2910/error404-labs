@@ -2,6 +2,7 @@
 import MainLayout from '../layouts/MainLayout.astro'
 import { TC_TITLE } from '../common/TextConst'
 import { categories } from '../data/dataPromptsGame.js'
+import { DATA_DEMO } from '../data/dataTestDemo.js'
 
 // Tự động load tất cả các file .txt trong thư mục prompts
 const promptFiles = import.meta.glob('../data/prompts/*.txt', {
@@ -15,7 +16,7 @@ const promptFiles = import.meta.glob('../data/prompts/*.txt', {
     <section aria-label="Giới thiệu" class="min-h-screen py-10 px-4 bg-[#F0F9FF]">
         <div class="max-w-6xl mx-auto text-center mb-10">
             <h1 class="text-4xl md:text-5xl font-black text-slate-800 mb-2">100 Ý TƯỞNG</h1>
-            <h2 class="text-5xl md:text-6xl font-black text-[#FF5722] mb-1 drop-shadow-sm">TRÒ CHƠI HTML5</h2>
+            <h2 class="text-5xl md:text-6xl font-black text-[#FF5722] mb-1 drop-shadow-sm">TRÒ CHƠI 2D HTML5</h2>
             <p class="text-2xl font-bold text-slate-600">(TỪ DỄ ĐẾN KHÓ)</p>
         </div>
 
@@ -40,6 +41,10 @@ const promptFiles = import.meta.glob('../data/prompts/*.txt', {
                                 // Nếu có file thì ghép với prompt_extends, nếu không thì để null
                                 const fullPrompt = fileContent ? `${fileContent}\n\n${item.prompt_extends}` : null
 
+                                // Tìm link demo từ DATA_DEMO
+                                const demoItem = DATA_DEMO.find((d) => d.name.startsWith(`${item.id}.`))
+                                const demoLink = demoItem ? demoItem.link : null
+
                                 return (
                                     <a
                                         href="#"
@@ -47,6 +52,7 @@ const promptFiles = import.meta.glob('../data/prompts/*.txt', {
                                         data-title={item.text.split(':')[0].replace('+', '')}
                                         data-prompt={fullPrompt}
                                         data-tooltip={item.prompt_extends}
+                                        data-demo-link={demoLink}
                                     >
                                         <span class="text-slate-400 group-hover:text-blue-400 transition-colors">
                                             {item.id}.
@@ -69,7 +75,9 @@ const promptFiles = import.meta.glob('../data/prompts/*.txt', {
         id="tooltip-game"
         class="fixed z-[120] pointer-events-none opacity-0 translate-y-2 transition-all duration-300 max-w-[280px] md:max-w-sm"
     >
-        <div class="relative bg-slate-900/95 backdrop-blur-md text-white p-4 rounded-2xl shadow-2xl border border-white/10 text-xs md:text-sm leading-relaxed overflow-hidden group">
+        <div
+            class="relative bg-slate-900/95 backdrop-blur-md text-white p-4 rounded-2xl shadow-2xl border border-white/10 text-xs md:text-sm leading-relaxed overflow-hidden group"
+        >
             <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
             <div id="tooltip-text" class="relative z-10 font-medium italic text-slate-200"></div>
             <!-- Glow effect -->
@@ -121,12 +129,21 @@ const promptFiles = import.meta.glob('../data/prompts/*.txt', {
                     class="bg-white border border-slate-200 rounded-2xl p-5 text-xs md:text-sm text-slate-600 font-mono leading-relaxed whitespace-pre-wrap shadow-inner break-words">
                 </pre>
             </div>
-            <div class="p-4 bg-white border-t border-gray-100 text-center">
+            <div class="p-4 bg-white border-t border-gray-100 flex items-center justify-center gap-3 shrink-0">
+                <a
+                    id="modal-demo-btn"
+                    href="#"
+                    target="_blank"
+                    class="hidden bg-blue-600 text-white font-black text-xs py-2.5 px-8 rounded-full hover:bg-blue-500 transition-all shadow-lg hover:shadow-blue-200 uppercase tracking-widest flex items-center gap-2"
+                >
+                    <span>🎮</span> XEM DEMO
+                </a>
                 <button
                     id="close-modal-btn"
-                    class="bg-slate-800 text-white font-bold text-xs py-2.5 px-10 rounded-full hover:bg-slate-700 transition-colors shadow-lg"
-                    >ĐÓNG</button
+                    class="bg-slate-800 text-white font-bold text-xs py-2.5 px-10 rounded-full hover:bg-slate-700 transition-colors shadow-lg uppercase tracking-widest"
                 >
+                    ĐÓNG
+                </button>
             </div>
         </div>
     </div>
@@ -135,7 +152,7 @@ const promptFiles = import.meta.glob('../data/prompts/*.txt', {
 <script is:inline>
     // Xử lý sự kiện click để copy và hiện modal
     const copyLinks = document.querySelectorAll('a[data-title]')
-    
+
     // Tooltip elements
     const tooltip = document.getElementById('tooltip-game')
     const tooltipText = document.getElementById('tooltip-text')
@@ -145,6 +162,7 @@ const promptFiles = import.meta.glob('../data/prompts/*.txt', {
     const modalContent = document.getElementById('modal-content')
     const modalText = document.getElementById('modal-text')
     const modalTitle = document.getElementById('modal-title')
+    const modalDemoBtn = document.getElementById('modal-demo-btn')
     const closeBtns = [
         document.getElementById('close-modal'),
         document.getElementById('close-modal-btn'),
@@ -168,9 +186,17 @@ const promptFiles = import.meta.glob('../data/prompts/*.txt', {
         }
     }
 
-    const openModal = (text, title) => {
+    const openModal = (text, title, demoLink) => {
         modalText.textContent = text
         modalTitle.textContent = `Prompt: ${title}`
+
+        if (demoLink && demoLink !== 'null') {
+            modalDemoBtn.href = demoLink
+            modalDemoBtn.classList.remove('hidden')
+        } else {
+            modalDemoBtn.classList.add('hidden')
+        }
+
         modal.classList.remove('opacity-0', 'pointer-events-none')
         modalContent.classList.remove('scale-90')
         modalContent.classList.add('scale-100')
@@ -208,7 +234,7 @@ const promptFiles = import.meta.glob('../data/prompts/*.txt', {
             const y = e.clientY
             const tooltipHeight = tooltip.offsetHeight
             const tooltipWidth = tooltip.offsetWidth
-            
+
             // Tối ưu vị trí: hiển thị bên trên cursor, nếu sát mép trên thì hiện bên dưới
             let top = y - tooltipHeight - 20
             if (top < 10) top = y + 20
@@ -234,10 +260,11 @@ const promptFiles = import.meta.glob('../data/prompts/*.txt', {
             e.preventDefault()
             const prompt = link.getAttribute('data-prompt')
             const title = link.getAttribute('data-title')
+            const demoLink = link.getAttribute('data-demo-link')
 
             if (prompt) {
                 copyToClipboard(prompt).then(() => {
-                    openModal(prompt, title)
+                    openModal(prompt, title, demoLink)
                 })
             }
         })
