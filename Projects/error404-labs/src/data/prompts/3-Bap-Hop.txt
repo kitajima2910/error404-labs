@@ -1,0 +1,124 @@
+1. VAI TRÒ
+Bạn là một Senior Game Engineer, Game Designer và Technical Lead chuyên nghiệp. Nhiệm vụ của bạn là lập trình toàn bộ một tựa game HTML5 chạy trên trình duyệt.
+
+2. MỤC TIÊU CHÍNH
+Tạo ra một tựa game hoàn chỉnh có tên "Bập Hộp+" (Loot box có rarity common đến legendary). Đây là một game thuộc thể loại Clicker/Unboxing. Người chơi sẽ liên tục đập các hộp quà để thu thập vật phẩm với các độ hiếm khác nhau, tích lũy điểm và nâng cấp.
+
+3. TỔNG QUAN GAME
+- Môi trường: 2D WebGL (Orthographic projection).
+- Nền tảng: Trình duyệt Web (Desktop và Mobile).
+- Phong cách đồ họa: Minimalist, Abstract, sử dụng các hình học cơ bản (primitives) và màu sắc phát sáng (neon/glow).
+- Ngôn ngữ: Chỉ sử dụng HTML, CSS và JavaScript thuần (Vanilla JS).
+- Tuyệt đối không sử dụng Game Engine (Unity, Godot, Phaser, v.v.).
+- Tuyệt đối không sử dụng thư viện bên ngoài (không PixiJS, không Three.js vì đây là game 2D thuần).
+
+4. CORE LOOP
+- Bước 1: Người chơi click/tap vào một cái hộp ở giữa màn hình.
+- Bước 2: Hộp rung lắc, thanh máu của hộp giảm.
+- Bước 3: Khi máu bằng 0, hộp vỡ tung, rơi ra vật phẩm ngẫu nhiên dựa trên tỷ lệ Rarity.
+- Bước 4: Thu thập vật phẩm, chuyển hóa thành Điểm (Currency).
+- Bước 5: Dùng Điểm để nâng cấp sát thương click hoặc mua Auto-click. Hộp mới xuất hiện và vòng lặp tiếp tục.
+
+5. GAMEPLAY MECHANICS
+- Click Damage: Mỗi lần click trừ đi X máu của hộp.
+- Box Health: Máu của hộp tăng dần theo từng cấp độ.
+- Rarity System: Vật phẩm rơi ra chia thành 4 cấp độ:
+  + Common (Màu xám/trắng): Tỷ lệ 60%, giá trị 1 điểm.
+  + Rare (Màu xanh dương): Tỷ lệ 25%, giá trị 5 điểm.
+  + Epic (Màu tím): Tỷ lệ 10%, giá trị 20 điểm.
+  + Legendary (Màu vàng/cam): Tỷ lệ 5%, giá trị 100 điểm.
+- Upgrade System: Có một menu bên dưới hoặc bên cạnh để mua nâng cấp: "+1 Sát thương Click", "+1 Auto Click mỗi giây".
+
+6. CONTROLS
+- Tương tác chính: Chuột trái (Desktop) hoặc Chạm (Mobile) vào đối tượng hộp trên màn hình canvas.
+- Nút UI: Click/Tap vào các nút trong giao diện HTML (được vẽ đè lên canvas qua CSS absolute positioning).
+
+7. AI
+- Auto-clicker: Các thực thể bay lượn xung quanh (những khối hình tam giác nhỏ) tự động lao vào hộp mỗi giây tương ứng với cấp độ Auto-click người chơi đã mua.
+
+8. UI/UX
+- Điểm số (Currency) hiển thị to, rõ ràng ở góc trên cùng.
+- Log hệ thống nhỏ ở góc phải hiển thị vật phẩm vừa rơi ra (ví dụ: "Nhận được: Cầu Gai [Rare] +5 điểm").
+- Thanh máu (Health bar) hiển thị ngay dưới chiếc hộp.
+- Phối màu UI: Tối (Dark mode), chữ màu sáng, nút bấm có hiệu ứng hover.
+
+9. AUDIO / SOUND / MUSIC
+- Tạo âm thanh hoàn toàn bằng Web Audio API (Procedural Audio), không dùng file .mp3, .wav.
+- Hit sound: Tiếng "bíp" ngắn, âm tần thấp (Square wave) khi đập hộp.
+- Break sound: Tiếng nổ nhiễu (White noise + Envelope) khi hộp vỡ.
+- Rarity reveal sound:
+  + Common/Rare: Sine wave vuốt pitch nhanh.
+  + Epic/Legendary: Tổ hợp hợp âm (Chord) bằng nhiều Oscillator chạy cùng lúc tạo cảm giác hoành tráng.
+- Background Music: Một chuỗi nốt lặp lại đơn giản tạo nhịp điệu thư giãn.
+
+10. VFX / PARTICLE / SHAKE / FLASH
+- Screen Shake: Màn hình (camera giả lập trong WebGL) rung nhẹ mỗi khi hộp bị đập, rung mạnh khi hộp vỡ.
+- Particle System:
+  + Khi đập: Bắn ra các hạt bụi nhỏ (hình vuông).
+  + Khi vỡ: Bắn ra lượng lớn hạt theo hình tròn (vận tốc ngẫu nhiên), màu sắc hạt phải trùng với màu của độ hiếm (Rarity) vật phẩm.
+- Flash: Nền chớp nháy màu tương ứng với Rarity khi mở ra Epic hoặc Legendary.
+
+11. VR
+- Bỏ qua VR cho dự án này, tập trung vào trải nghiệm 2D WebGL hoàn hảo.
+
+12. TOUCH / TAP / MOBILE CONTROLS
+- Hỗ trợ Touch Events (touchstart) song song với Mouse Events.
+- Ngăn chặn các hành vi mặc định của mobile như pull-to-refresh, double-tap zoom trên toàn bộ thẻ canvas (touch-action: none).
+
+13. DESKTOP CONTROLS
+- Lắng nghe sự kiện mousedown.
+- Hiển thị cursor dạng pointer khi hover vào hộp và các nút UI.
+
+14. MAP / CAMERA / WORLD
+- Môi trường là một màn hình cố định, không di chuyển camera (tọa độ 0,0 nằm ở tâm màn hình).
+- Hệ tọa độ: Chuyển đổi từ Pixel sang tọa độ WebGL (-1 đến 1).
+- Xử lý Resize: Canvas luôn tự động fill toàn bộ cửa sổ trình duyệt và giữ nguyên tỷ lệ hiển thị của hộp (không bị méo).
+
+15. PERFORMANCE / OPTIMIZATION
+- Sử dụng Object Pooling cho Particle System (không tạo mới mảng liên tục, tái sử dụng các hạt đã chết).
+- Batch Rendering trong WebGL: Vẽ tất cả các hạt (particles) và hộp bằng một lần gọi drawArrays với mảng instanced hoặc batching vertices để giữ 60 FPS.
+- Cập nhật logic trong requestAnimationFrame.
+
+16. TECHNICAL ARCHITECTURE
+- Cấu trúc: HTML chứa canvas và thẻ <style> cho UI. JavaScript chứa Game Loop.
+- Game Engine tự viết (Micro-engine):
+  + Lớp WebGL: Xử lý compile shader, buffer, draw.
+  + Lớp GameState: Lưu trữ điểm, nâng cấp.
+  + Lớp Entity: Cập nhật vị trí, vận tốc, vòng đời của vật thể.
+  + Lớp Input: Lắng nghe chuột/chạm.
+  + Lớp Audio: Quản lý Web Audio Context.
+
+17. DATA MODELS / SYSTEMS
+- Bảng tỷ lệ (Loot Table): Mảng các object chứa {tên, màu, tỷ lệ, điểm}.
+- Dữ liệu người chơi: object chứa {points, clickDamage, autoClickers}. Lưu trữ dữ liệu vào localStorage để không mất khi tải lại trang.
+
+18. MULTIPLAYER / MULTIPLE MODES
+- Bỏ qua Multiplayer. Đây là game Single-player clicker.
+
+19. ONLINE / OFFLINE MODES
+- Game chạy hoàn toàn ở phía client (offline), không cần server/API. Mở file là chơi.
+
+20. RÀNG BUỘC BẢN QUYỀN / IP
+- Tuyệt đối không sử dụng tên, hình ảnh, tài sản từ bất kỳ game thương mại nào (như CS:GO, Genshin, Overwatch).
+- Thiết kế hoàn toàn mang tính biểu tượng (abstract shapes).
+
+21. ASSET GENERATION / SILHOUETTE RULES
+- TOÀN BỘ đồ họa phải được sinh ra bằng code (Procedural/Vertex Math trong WebGL).
+- Tuyệt đối không dùng hình ảnh ngoài, không dùng sprite, không tải ảnh qua url.
+- Quy tắc hình dáng (Silhouette):
+  + Chiếc Hộp: Hình vuông lớn, ở giữa màn hình. Vẽ bằng 2 tam giác ghép lại, shader có vạch chéo chia hộp.
+  + Common Item: Hình Tròn nhỏ.
+  + Rare Item: Hình Tam giác đều.
+  + Epic Item: Hình Thoi (Rhombus) phát sáng mạnh.
+  + Legendary Item: Hình Ngôi sao 5 cánh (tính toán bằng toán học lượng giác trong shader hoặc sinh vertex).
+- Cần có hàm sinh vertex array cho từng loại hình dáng, gán màu bằng thuộc tính vertex color.
+
+22. OUTPUT REQUIREMENTS (QUAN TRỌNG NHẤT)
+- Chỉ được tạo DUY NHẤT 1 file: index.html.
+- KHÔNG tạo thêm file nào khác (.js, .css, .json).
+- Toàn bộ HTML, CSS và JavaScript phải gộp chung vào file này.
+- KHÔNG import bất kỳ file nào từ bên ngoài, KHÔNG dùng CDN.
+- KHÔNG viết markdown giải thích thêm bên ngoài code.
+- File phải copy và chạy được ngay trên trình duyệt, không gặp lỗi đen màn hình hay lỗi shader.
+- Mã nguồn đầy đủ, không được rút gọn (không dùng "/// ... code here ...").
+- Chỉ trả về block code HTML duy nhất.
