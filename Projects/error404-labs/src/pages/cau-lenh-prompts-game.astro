@@ -2,6 +2,13 @@
 import MainLayout from '../layouts/MainLayout.astro'
 import { TC_TITLE } from '../common/TextConst'
 import { categories } from '../data/dataPromptsGame.js'
+
+// Tự động load tất cả các file .txt trong thư mục prompts
+const promptFiles = import.meta.glob('../data/prompts/*.txt', {
+    query: '?raw',
+    import: 'default',
+    eager: true,
+})
 ---
 
 <MainLayout title={`Câu lệnh prompts Game HTML5 | ${TC_TITLE}`}>
@@ -23,20 +30,32 @@ import { categories } from '../data/dataPromptsGame.js'
                             </h3>
                         </div>
                         <div class="p-4 grid grid-cols-2 gap-x-4 gap-y-2">
-                            {cat.items.map((item) => (
-                                <a
-                                    href="#"
-                                    class="flex items-center gap-2 text-slate-700 hover:text-blue-600 font-bold transition-all duration-200 group"
-                                    data-title={item.text.split(':')[0].replace('+', '')}
-                                >
-                                    <span class="text-slate-400 group-hover:text-blue-400 transition-colors">
-                                        {item.id}.
-                                    </span>
-                                    <span class="text-sm md:text-base leading-tight hover:underline underline-offset-4">
-                                        {item.text}
-                                    </span>
-                                </a>
-                            ))}
+                            {cat.items.map((item) => {
+                                // Tìm file prompt tương ứng với ID (ví dụ: "2-Bat-Qua.txt")
+                                const fileKey = Object.keys(promptFiles).find((key) =>
+                                    key.split('/').pop()?.startsWith(`${item.id}-`),
+                                )
+                                const fileContent = fileKey ? promptFiles[fileKey] : null
+
+                                // Nếu có file thì ghép với prompt_extends, nếu không thì để null
+                                const fullPrompt = fileContent ? `${fileContent}\n\n${item.prompt_extends}` : null
+
+                                return (
+                                    <a
+                                        href="#"
+                                        class={`flex items-center gap-2 font-bold transition-all duration-200 group ${fullPrompt ? 'text-slate-700 hover:text-blue-600 cursor-pointer' : 'text-slate-400 cursor-default'}`}
+                                        data-title={item.text.split(':')[0].replace('+', '')}
+                                        data-prompt={fullPrompt}
+                                    >
+                                        <span class="text-slate-400 group-hover:text-blue-400 transition-colors">
+                                            {item.id}.
+                                        </span>
+                                        <span class="text-sm md:text-base leading-tight hover:underline underline-offset-4">
+                                            {item.text}
+                                        </span>
+                                    </a>
+                                )
+                            })}
                         </div>
                     </div>
                 ))
@@ -44,58 +63,142 @@ import { categories } from '../data/dataPromptsGame.js'
         </div>
     </section>
 
-    <!-- Thông báo Copy -->
+    <!-- Modal Prompt (Thay thế Toast) -->
     <div
-        id="toast-copy"
-        class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-900/90 backdrop-blur-md text-white px-8 py-3 rounded-2xl shadow-2xl border border-white/10 transition-all duration-500 translate-y-32 opacity-0 z-[100] pointer-events-none flex items-center gap-3"
+        id="modal-prompt"
+        class="fixed inset-0 z-[100] flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300 px-4"
     >
-        <span class="text-xl">🚀</span>
-        <span class="font-bold tracking-wide">Đã copy tên trò chơi!</span>
+        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-md"></div>
+        <div
+            class="relative bg-white w-full max-w-2xl max-h-[85vh] rounded-[2rem] shadow-2xl overflow-hidden flex flex-col scale-90 transition-all duration-300 border border-white/20"
+            id="modal-content"
+        >
+            <div
+                class="px-6 py-5 bg-gradient-to-r from-slate-50 to-white border-b border-gray-100 flex items-center justify-between shrink-0"
+            >
+                <div class="flex items-center gap-3">
+                    <div class="bg-blue-600 p-2 rounded-xl shadow-lg shadow-blue-200">
+                        <span class="text-white text-xl">📋</span>
+                    </div>
+                    <div>
+                        <h3
+                            class="font-black text-slate-800 text-base md:text-lg uppercase tracking-tight"
+                            id="modal-title"
+                        >
+                            Prompt Trò Chơi
+                        </h3>
+                        <p class="text-[10px] text-blue-600 font-bold uppercase tracking-wider">
+                            Đã sao chép vào bộ nhớ tạm!
+                        </p>
+                    </div>
+                </div>
+                <button
+                    id="close-modal"
+                    class="w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-800 transition-all"
+                >
+                    <span class="text-2xl font-light">&times;</span>
+                </button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4 md:p-6 bg-slate-50/30 custom-scrollbar">
+                <pre
+                    id="modal-text"
+                    class="bg-white border border-slate-200 rounded-2xl p-5 text-xs md:text-sm text-slate-600 font-mono leading-relaxed whitespace-pre-wrap shadow-inner break-words">
+                </pre>
+            </div>
+            <div class="p-4 bg-white border-t border-gray-100 text-center">
+                <button
+                    id="close-modal-btn"
+                    class="bg-slate-800 text-white font-bold text-xs py-2.5 px-10 rounded-full hover:bg-slate-700 transition-colors shadow-lg"
+                    >ĐÓNG</button
+                >
+            </div>
+        </div>
     </div>
 </MainLayout>
 
 <script is:inline>
-    // Xử lý sự kiện click để copy tên game
+    // Xử lý sự kiện click để copy và hiện modal
     const copyLinks = document.querySelectorAll('a[data-title]')
-    const toast = document.getElementById('toast-copy')
-    let toastTimeout
+
+    // Modal elements
+    const modal = document.getElementById('modal-prompt')
+    const modalContent = document.getElementById('modal-content')
+    const modalText = document.getElementById('modal-text')
+    const modalTitle = document.getElementById('modal-title')
+    const closeBtns = [
+        document.getElementById('close-modal'),
+        document.getElementById('close-modal-btn'),
+    ]
+
+    const copyToClipboard = (text) => {
+        if (navigator.clipboard && window.isSecureContext) {
+            return navigator.clipboard.writeText(text)
+        } else {
+            const textArea = document.createElement('textarea')
+            textArea.value = text
+            document.body.appendChild(textArea)
+            textArea.select()
+            try {
+                document.execCommand('copy')
+            } catch (err) {
+                console.error('Không thể copy', err)
+            }
+            document.body.removeChild(textArea)
+            return Promise.resolve()
+        }
+    }
+
+    const openModal = (text, title) => {
+        modalText.textContent = text
+        modalTitle.textContent = `Prompt: ${title}`
+        modal.classList.remove('opacity-0', 'pointer-events-none')
+        modalContent.classList.remove('scale-90')
+        modalContent.classList.add('scale-100')
+        document.body.style.overflow = 'hidden'
+    }
+
+    const closeModal = () => {
+        modal.classList.add('opacity-0', 'pointer-events-none')
+        modalContent.classList.remove('scale-100')
+        modalContent.classList.add('scale-90')
+        document.body.style.overflow = ''
+    }
+
+    closeBtns.forEach((btn) => {
+        btn?.addEventListener('click', closeModal)
+    })
+
+    modal?.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal()
+    })
 
     copyLinks.forEach((link) => {
         link.addEventListener('click', (e) => {
             e.preventDefault()
-            const textToCopy = link.getAttribute('data-title')
+            const prompt = link.getAttribute('data-prompt')
+            const title = link.getAttribute('data-title')
 
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(textToCopy).then(showToast)
-            } else {
-                // Fallback cho môi trường không hỗ trợ clipboard API trực tiếp
-                const textArea = document.createElement('textarea')
-                textArea.value = textToCopy
-                document.body.appendChild(textArea)
-                textArea.select()
-                try {
-                    document.execCommand('copy')
-                    showToast()
-                } catch (err) {
-                    console.error('Không thể copy prompt', err)
-                }
-                document.body.removeChild(textArea)
+            if (prompt) {
+                copyToClipboard(prompt).then(() => {
+                    openModal(prompt, title)
+                })
             }
         })
     })
-
-    function showToast() {
-        // Clear timeout cũ nếu đang hiện
-        if (toastTimeout) clearTimeout(toastTimeout)
-
-        // Hiện toast
-        toast.classList.remove('translate-y-32', 'opacity-0')
-        toast.classList.add('translate-y-0', 'opacity-100')
-
-        // Ẩn toast sau 2 giây
-        toastTimeout = setTimeout(() => {
-            toast.classList.add('translate-y-32', 'opacity-0')
-            toast.classList.remove('translate-y-0', 'opacity-100')
-        }, 2500)
-    }
 </script>
+
+<style>
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+</style>

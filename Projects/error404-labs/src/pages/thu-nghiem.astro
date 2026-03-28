@@ -1,70 +1,7 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro'
 import { TC_TITLE } from '../common/TextConst'
-
-const DATA_GAMES = [
-    {
-        name: 'Bay Lên',
-        link: '/thu-nghiem/game/1-Bay-Len/index.html',
-        image: '/thu-nghiem/game/1-Bay-Len/1-Bay-Len.avif',
-    },
-    {
-        name: 'Chibi Runner',
-        link: '/thu-nghiem/game/ChibiRunner/build/web-desktop/index.html',
-        image: '/thu-nghiem/game/ChibiRunner/ChibiRunner.avif',
-    },
-    {
-        name: 'Thay Đổi Màu Sắc',
-        link: '/thu-nghiem/game/1-Thay-Doi-Mau-Sac/index.html',
-        image: '/thu-nghiem/game/1-Thay-Doi-Mau-Sac/1-Thay-Doi-Mau-Sac.avif',
-    },
-    {
-        name: 'Create Sanke 3D',
-        link: '/thu-nghiem/game/CreateSanke3D/index.html',
-        image: '/thu-nghiem/game/CreateSanke3D/CreateSanke3D.avif',
-    },
-    {
-        name: 'Space Ship',
-        link: '/thu-nghiem/game/space-ship/index.html',
-        image: '/thu-nghiem/game/space-ship/space-ship.avif',
-    },
-    {
-        name: 'Test Phaser Game',
-        link: '/thu-nghiem/game/TestPhaserGame/index.html',
-        image: '/thu-nghiem/game/TestPhaserGame/TestPhaserGame.avif',
-    },
-]
-
-const DATA_WEBSITES = [
-    {
-        name: 'Pet404-Labs',
-        link: '/thu-nghiem/web/pet404-labs/index.html',
-        image: '/thu-nghiem/web/pet404-labs/pet404-labs.avif',
-    },
-    {
-        name: 'Hoai-Link-Bio',
-        link: '/thu-nghiem/web/hoai-link-bio/index.html',
-        image: '/thu-nghiem/web/hoai-link-bio/hoai-link-bio.avif',
-    },
-    {
-        name: 'Vibe Waitlist',
-        link: '/thu-nghiem/web/vibe-waitlist/index.html',
-        image: '/thu-nghiem/web/vibe-waitlist/vibe-waitlist.avif',
-    },
-    {
-        name: 'Saas Directory',
-        link: '/thu-nghiem/web/saas-directory/index.html',
-        image: '/thu-nghiem/web/saas-directory/saas-directory.avif',
-    },
-    {
-        name: 'Fox Robot Slider',
-        link: '/thu-nghiem/web/FoxRobotSlider/index.html',
-        image: '/thu-nghiem/web/FoxRobotSlider/FoxRobotSlider.avif',
-    },
-]
-
-// Gộp data lại
-const DATA = DATA_GAMES.concat(DATA_WEBSITES)
+import { DATA_DEMO as DATA } from '../data/dataTestDemo.js'
 ---
 
 <MainLayout title={`Thử nghiệm | ${TC_TITLE}`}>
@@ -75,7 +12,9 @@ const DATA = DATA_GAMES.concat(DATA_WEBSITES)
                 <aside class="w-full md:w-[450px] flex flex-col gap-4">
                     <div class="flex items-center justify-between px-2">
                         <h2 class="text-2xl font-black text-slate-800 tracking-tight text-gradient">THỬ NGHIỆM</h2>
-                        <span class="px-4 py-1.5 bg-blue-600 text-white rounded-full text-xs font-bold uppercase shadow-lg shadow-blue-200">
+                        <span
+                            class="px-4 py-1.5 bg-blue-600 text-white rounded-full text-xs font-bold uppercase shadow-lg shadow-blue-200"
+                        >
                             {DATA.length} Dự án
                         </span>
                     </div>

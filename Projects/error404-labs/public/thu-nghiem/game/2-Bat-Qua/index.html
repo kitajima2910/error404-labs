@@ -1,0 +1,1513 @@
+<!doctype html>
+<html lang="vi">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <title>Bắt Quả+</title>
+
+        <link rel="shortcut icon" href="avatar_v2.avif" type="image/x-icon" />
+
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                background-color: #2c3e50; /* Di chuyển màu nền từ canvas ra body */
+                overflow: hidden;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                touch-action: none; /* Ngăn chặn pull-to-refresh trên mobile */
+            }
+
+            #gameCanvas {
+                display: block;
+                width: 100vw;
+                height: 100vh;
+                position: absolute; /* Đặt tuyệt đối để quản lý z-index */
+                top: 0;
+                left: 0;
+                z-index: 25; /* Đặt Canvas trên cùng (pháo hoa > UI) */
+                pointer-events: none; /* Quan trọng: Cho phép click xuyên qua canvas vào nút UI */
+            }
+
+            #uiLayer {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+
+            .hud {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                padding: 20px;
+                color: white;
+                text-shadow:
+                    2px 2px 0 #000,
+                    -1px -1px 0 #000,
+                    1px -1px 0 #000,
+                    -1px 1px 0 #000,
+                    1px 1px 0 #000;
+                font-size: 24px;
+                font-weight: bold;
+                z-index: 10;
+                pointer-events: auto; /* Cho phép tương tác */
+            }
+
+            #scoreDisplay {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+            }
+
+            #highScoreHUD {
+                font-size: 16px;
+                color: #4caf50;
+                opacity: 0.9;
+                margin-top: 4px;
+            }
+
+            #comboContainer {
+                flex: 1;
+                text-align: center;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            #comboText {
+                font-size: 36px;
+                color: #ffd700;
+                opacity: 0;
+                transition:
+                    transform 0.1s,
+                    opacity 0.2s;
+            }
+
+            .combo-pulse {
+                transform: scale(1.5);
+            }
+
+            #livesDisplay {
+                flex: 1;
+                text-align: right;
+                color: #ff3333;
+            }
+
+            /* Collection UI - Chia làm 2 cột dọc đối xứng */
+            .collection-column {
+                position: absolute;
+                top: 100px;
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+                background: rgba(0, 0, 0, 0.4);
+                padding: 8px;
+                border-radius: 10px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                pointer-events: auto;
+                z-index: 10;
+            }
+
+            #collectionLeft {
+                left: 20px;
+            }
+            #collectionRight {
+                right: 20px;
+            }
+
+            .collection-item {
+                width: 36px;
+                height: 36px;
+                border-radius: 6px;
+                background-color: rgba(40, 40, 40, 0.8);
+                filter: grayscale(1) blur(2px);
+                opacity: 0.4;
+                transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                position: relative;
+            }
+
+            .collection-item.discovered {
+                filter: grayscale(0) blur(0);
+                opacity: 1;
+                background-color: rgba(70, 70, 70, 0.6);
+                box-shadow: 0 0 8px rgba(255, 255, 255, 0.1);
+            }
+
+            /* Tooltip */
+            .collection-item:hover::after {
+                content: attr(data-name);
+                position: absolute;
+                background: rgba(0, 0, 0, 0.9);
+                color: gold;
+                padding: 3px 7px;
+                border-radius: 4px;
+                white-space: nowrap;
+                font-size: 11px;
+                z-index: 20;
+                border: 1px solid gold;
+            }
+            #collectionLeft .collection-item:hover::after {
+                left: 115%;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+            #collectionRight .collection-item:hover::after {
+                right: 115%;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+
+            /* Screens */
+            .screen {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.85);
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                color: white;
+                z-index: 20; /* Thấp hơn Canvas (25) */
+                pointer-events: auto;
+                transition: opacity 0.3s;
+            }
+
+            .hidden {
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            h1 {
+                font-size: 4rem;
+                margin-bottom: 20px;
+                text-shadow:
+                    0 0 10px #ffd700,
+                    0 0 20px #ffd700;
+                color: #fff;
+                text-align: center;
+            }
+            h2 {
+                font-size: 2.5rem;
+                margin-bottom: 20px;
+                color: #ff6b6b;
+            }
+            #winTitle {
+                color: #ffd700;
+                text-shadow: 0 0 20px gold;
+            }
+            p {
+                font-size: 1.1rem;
+                margin-bottom: 20px;
+                text-align: center;
+                max-width: 85%;
+                line-height: 1.6;
+            }
+
+            /* Hướng dẫn UI */
+            .instruction-box {
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 15px;
+                padding: 20px;
+                margin-bottom: 30px;
+                width: 80%;
+                max-width: 500px;
+                text-align: left;
+            }
+
+            .instruction-title {
+                color: #ffd700;
+                font-size: 1.4rem;
+                margin-bottom: 10px;
+                font-weight: bold;
+                text-align: center;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+                padding-bottom: 10px;
+            }
+
+            .instruction-item {
+                margin-bottom: 12px;
+                display: flex;
+                align-items: flex-start;
+            }
+
+            .instruction-icon {
+                margin-right: 15px;
+                font-size: 1.5rem;
+                min-width: 30px;
+                text-align: center;
+            }
+
+            .btn {
+                padding: 15px 50px;
+                font-size: 1.6rem;
+                font-weight: bold;
+                color: white;
+                background: linear-gradient(45deg, #ff512f, #dd2476);
+                border: none;
+                border-radius: 40px;
+                cursor: pointer;
+                box-shadow: 0 5px 20px rgba(221, 36, 118, 0.4);
+                transition:
+                    transform 0.1s,
+                    box-shadow 0.1s;
+                outline: none;
+            }
+            .btn:active {
+                transform: translateY(2px);
+                box-shadow: 0 2px 10px rgba(221, 36, 118, 0.4);
+            }
+
+            #floatingTextContainer {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                z-index: 15;
+                overflow: hidden;
+            }
+            .floating-text {
+                position: absolute;
+                color: white;
+                font-weight: bold;
+                font-size: 20px;
+                text-shadow: 1px 1px 0 #000;
+                pointer-events: none;
+                animation: floatUp 1s ease-out forwards;
+            }
+            .floating-text.combo {
+                color: #ffd700;
+                font-size: 24px;
+                text-shadow:
+                    0 0 5px #ffd700,
+                    1px 1px 0 #000;
+            }
+            .floating-text.rare {
+                color: #00ffff;
+                font-size: 28px;
+                text-shadow:
+                    0 0 8px #00ffff,
+                    1px 1px 0 #000;
+            }
+            .floating-text.gold {
+                color: #ffd700;
+                font-size: 32px;
+                text-shadow:
+                    0 0 10px #fff,
+                    1px 1px 0 #000;
+            }
+            .floating-text.miss {
+                color: #ff5555;
+                font-size: 24px;
+            }
+
+            @keyframes floatUp {
+                0% {
+                    transform: translateY(0) scale(1);
+                    opacity: 1;
+                }
+                100% {
+                    transform: translateY(-50px) scale(1.2);
+                    opacity: 0;
+                }
+            }
+
+            .flash-screen {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: white;
+                opacity: 0;
+                pointer-events: none;
+                z-index: 30; /* Đặt flash trên cùng */
+                transition: opacity 0.1s;
+            }
+            .flash-miss {
+                background-color: red !important;
+            }
+            .flash-active {
+                opacity: 0.3;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="gameCanvas"></canvas>
+
+        <div id="flashScreen" class="flash-screen"></div>
+
+        <div id="uiLayer">
+            <div class="hud">
+                <div id="scoreDisplay">
+                    <div id="currentScore">Điểm: 0</div>
+                    <div id="highScoreHUD">Kỷ lục: 0</div>
+                </div>
+                <div id="comboContainer">
+                    <div id="comboText">Combo x1</div>
+                </div>
+                <div id="livesDisplay">♥♥♥</div>
+            </div>
+
+            <div id="collectionLeft" class="collection-column"></div>
+            <div id="collectionRight" class="collection-column"></div>
+        </div>
+
+        <div id="floatingTextContainer"></div>
+
+        <!-- Start Screen -->
+        <div id="startScreen" class="screen">
+            <h1>Bắt Quả+</h1>
+
+            <div class="instruction-box">
+                <div class="instruction-title">HƯỚNG DẪN CHƠI</div>
+
+                <div class="instruction-item">
+                    <div class="instruction-icon">🕹️</div>
+                    <div>
+                        <b>Di chuyển:</b> Dùng phím <b>A/D</b>, <b>Mũi tên</b> hoặc <b>Vuốt tay</b> trên màn hình để
+                        điều khiển giỏ.
+                    </div>
+                </div>
+
+                <div class="instruction-item">
+                    <div class="instruction-icon">🎯</div>
+                    <div>
+                        <b>Mục tiêu:</b> Hứng quả để đạt <b>10.000 điểm</b> và thu thập đủ <b>20 loại quả</b> nhiệt đới
+                        để THẮNG.
+                    </div>
+                </div>
+
+                <div class="instruction-item">
+                    <div class="instruction-icon">⚠️</div>
+                    <div>
+                        <b>Cảnh báo:</b> Tránh <b>Bom (đen)</b> và <b>Ma (trắng)</b> để không bị trừ máu hoặc mất điểm.
+                    </div>
+                </div>
+            </div>
+
+            <button id="startBtn" class="btn">Chơi Ngay</button>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="gameOverScreen" class="screen hidden">
+            <h2>HẾT LƯỢT</h2>
+            <p>
+                Điểm của bạn:
+                <span id="finalScore" style="font-weight: bold; color: #ffd700; font-size: 1.5rem">0</span>
+            </p>
+            <p>
+                Điểm Cao Nhất:
+                <span id="highScore" style="font-weight: bold; color: #4caf50; font-size: 1.5rem">0</span>
+            </p>
+            <button id="restartBtn" class="btn">Chơi Lại</button>
+        </div>
+
+        <!-- Win Screen -->
+        <div id="winScreen" class="screen hidden">
+            <h1 id="winTitle">CHIẾN THẮNG!</h1>
+            <p>Chúc mừng! Bạn đã thu thập đủ bộ sưu tập quả nhiệt đới và vượt qua thử thách 10.000 điểm!</p>
+            <p>
+                Tổng điểm:
+                <span id="winFinalScore" style="font-weight: bold; color: #ffd700; font-size: 1.5rem">10,000</span>
+            </p>
+            <button id="winRestartBtn" class="btn">Chơi Lại</button>
+        </div>
+
+        <script>
+            // --- CONFIG & CONSTANTS ---
+            const GAME_WIDTH = 800
+            const GAME_HEIGHT = 1200
+            const BASE_SPEED = 300
+            const MAX_LIVES = 3
+
+            const GAME_STATES = { MENU: 0, PLAYING: 1, GAMEOVER: 2, WIN: 3 }
+
+            const ITEM_TYPES = {
+                APPLE: 0,
+                ORANGE: 1,
+                PEAR: 2,
+                MANGO: 3,
+                BANANA: 4,
+                GUAVA: 5,
+                AVOCADO: 6,
+                DRAGON_FRUIT: 7,
+                WATERMELON: 8,
+                LYCHEE: 9,
+                LONGAN: 10,
+                DURIAN: 11,
+                MANGOSTEEN: 12,
+                RAMBUTAN: 13,
+                SAPOCHE: 14,
+                PINEAPPLE: 15,
+                ACEROLA: 16,
+                CUSTARD_APPLE: 17,
+                TANGERINE: 18,
+                POMELO: 19,
+                STAR: 100,
+                BOMB: 101,
+                GHOST: 102,
+                GOLDEN: 103,
+            }
+
+            const ITEM_NAMES = {
+                [ITEM_TYPES.APPLE]: 'Táo',
+                [ITEM_TYPES.ORANGE]: 'Cam',
+                [ITEM_TYPES.PEAR]: 'Lê',
+                [ITEM_TYPES.MANGO]: 'Xoài',
+                [ITEM_TYPES.BANANA]: 'Chuối',
+                [ITEM_TYPES.GUAVA]: 'Ổi',
+                [ITEM_TYPES.AVOCADO]: 'Bơ',
+                [ITEM_TYPES.DRAGON_FRUIT]: 'Thanh Long',
+                [ITEM_TYPES.WATERMELON]: 'Dưa Hấu',
+                [ITEM_TYPES.LYCHEE]: 'Vải',
+                [ITEM_TYPES.LONGAN]: 'Nhãn',
+                [ITEM_TYPES.DURIAN]: 'Sầu Riêng',
+                [ITEM_TYPES.MANGOSTEEN]: 'Măng Cụt',
+                [ITEM_TYPES.RAMBUTAN]: 'Chôm Chôm',
+                [ITEM_TYPES.SAPOCHE]: 'Sapoche',
+                [ITEM_TYPES.PINEAPPLE]: 'Dứa',
+                [ITEM_TYPES.ACEROLA]: 'Sơ Ri',
+                [ITEM_TYPES.CUSTARD_APPLE]: 'Na',
+                [ITEM_TYPES.TANGERINE]: 'Quýt',
+                [ITEM_TYPES.POMELO]: 'Bưởi',
+                [ITEM_TYPES.STAR]: 'Sao',
+                [ITEM_TYPES.BOMB]: 'Bom',
+                [ITEM_TYPES.GHOST]: 'Ma',
+                [ITEM_TYPES.GOLDEN]: 'Quả Vàng',
+            }
+
+            // --- AUDIO SYSTEM ---
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+            let bgmGainNode = null,
+                bgmInterval = null
+
+            const AudioSystem = {
+                init: function () {
+                    if (audioCtx.state === 'suspended') audioCtx.resume()
+                },
+                playCatch: function (freqOffset = 0) {
+                    if (!audioCtx) return
+                    const osc = audioCtx.createOscillator(),
+                        gain = audioCtx.createGain()
+                    osc.connect(gain)
+                    gain.connect(audioCtx.destination)
+                    osc.type = 'sine'
+                    osc.frequency.setValueAtTime(600 + freqOffset, audioCtx.currentTime)
+                    osc.frequency.exponentialRampToValueAtTime(1200 + freqOffset, audioCtx.currentTime + 0.1)
+                    gain.gain.setValueAtTime(0.3, audioCtx.currentTime)
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1)
+                    osc.start(audioCtx.currentTime)
+                    osc.stop(audioCtx.currentTime + 0.1)
+                },
+                playRareCatch: function () {
+                    if (!audioCtx) return
+                    ;[
+                        523.25,
+                        659.25,
+                        783.99,
+                    ].forEach((freq) => {
+                        const osc = audioCtx.createOscillator(),
+                            gain = audioCtx.createGain()
+                        osc.connect(gain)
+                        gain.connect(audioCtx.destination)
+                        osc.type = 'triangle'
+                        osc.frequency.setValueAtTime(freq, audioCtx.currentTime)
+                        gain.gain.setValueAtTime(0.2, audioCtx.currentTime)
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5)
+                        osc.start(audioCtx.currentTime)
+                        osc.stop(audioCtx.currentTime + 0.5)
+                    })
+                },
+                playFirework: function () {
+                    if (!audioCtx) return
+                    const osc = audioCtx.createOscillator(),
+                        gain = audioCtx.createGain()
+                    osc.connect(gain)
+                    gain.connect(audioCtx.destination)
+                    osc.type = 'square'
+                    osc.frequency.setValueAtTime(100 + Math.random() * 200, audioCtx.currentTime)
+                    osc.frequency.exponentialRampToValueAtTime(20, audioCtx.currentTime + 0.5)
+                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime)
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5)
+                    osc.start(audioCtx.currentTime)
+                    osc.stop(audioCtx.currentTime + 0.5)
+                },
+                playMiss: function () {
+                    if (!audioCtx) return
+                    const osc = audioCtx.createOscillator(),
+                        gain = audioCtx.createGain()
+                    osc.connect(gain)
+                    gain.connect(audioCtx.destination)
+                    osc.type = 'sawtooth'
+                    osc.frequency.setValueAtTime(150, audioCtx.currentTime)
+                    osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.3)
+                    gain.gain.setValueAtTime(0.3, audioCtx.currentTime)
+                    gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.3)
+                    osc.start(audioCtx.currentTime)
+                    osc.stop(audioCtx.currentTime + 0.3)
+                },
+                playBomb: function () {
+                    if (!audioCtx) return
+                    const osc = audioCtx.createOscillator(),
+                        gain = audioCtx.createGain()
+                    osc.connect(gain)
+                    gain.connect(audioCtx.destination)
+                    osc.type = 'square'
+                    osc.frequency.setValueAtTime(100, audioCtx.currentTime)
+                    osc.frequency.exponentialRampToValueAtTime(20, audioCtx.currentTime + 0.5)
+                    gain.gain.setValueAtTime(0.5, audioCtx.currentTime)
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5)
+                    osc.start(audioCtx.currentTime)
+                    osc.stop(audioCtx.currentTime + 0.5)
+                },
+                startBGM: function (speedMultiplier = 1) {
+                    if (!audioCtx) return
+                    this.stopBGM()
+                    bgmGainNode = audioCtx.createGain()
+                    bgmGainNode.gain.value = 0.05
+                    bgmGainNode.connect(audioCtx.destination)
+                    let noteIndex = 0
+                    const notes = [
+                        220,
+                        261.63,
+                        329.63,
+                        261.63,
+                    ]
+                    const baseTempo = 400,
+                        tempo = Math.max(150, baseTempo / speedMultiplier)
+                    bgmInterval = setInterval(() => {
+                        const osc = audioCtx.createOscillator()
+                        osc.type = 'triangle'
+                        osc.frequency.setValueAtTime(notes[noteIndex], audioCtx.currentTime)
+                        const env = audioCtx.createGain()
+                        env.gain.setValueAtTime(0.5, audioCtx.currentTime)
+                        env.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + (tempo / 1000) * 0.8)
+                        osc.connect(env)
+                        env.connect(bgmGainNode)
+                        osc.start(audioCtx.currentTime)
+                        osc.stop(audioCtx.currentTime + tempo / 1000)
+                        noteIndex = (noteIndex + 1) % notes.length
+                    }, tempo)
+                },
+                stopBGM: function () {
+                    if (bgmInterval) {
+                        clearInterval(bgmInterval)
+                        bgmInterval = null
+                    }
+                    if (bgmGainNode) {
+                        bgmGainNode.disconnect()
+                        bgmGainNode = null
+                    }
+                },
+            }
+
+            // --- CORE RENDERING FUNCTION ---
+            function renderFruitShape(ctx, type, r) {
+                switch (type) {
+                    case ITEM_TYPES.APPLE:
+                        ctx.fillStyle = '#FF3333'
+                        ctx.beginPath()
+                        ctx.arc(0, 5, r, 0, Math.PI * 2)
+                        ctx.fill()
+                        ctx.fillStyle = '#4CAF50'
+                        ctx.beginPath()
+                        ctx.ellipse(0, -r, r / 2, r / 4, 0, 0, Math.PI * 2)
+                        ctx.fill()
+                        break
+                    case ITEM_TYPES.ORANGE:
+                        ctx.fillStyle = '#FFA500'
+                        ctx.beginPath()
+                        ctx.arc(0, 0, r, 0, Math.PI * 2)
+                        ctx.fill()
+                        ctx.fillStyle = 'rgba(0,0,0,0.1)'
+                        ctx.beginPath()
+                        ctx.arc(0, 0, r, 0, Math.PI * 2, true)
+                        ctx.arc(0, 0, r * 0.8, 0, Math.PI * 2, false)
+                        ctx.fill()
+                        break
+                    case ITEM_TYPES.PEAR:
+                        ctx.fillStyle = '#D1E231'
+                        ctx.beginPath()
+                        ctx.arc(0, r * 0.4, r, 0, Math.PI * 2)
+                        ctx.arc(0, -r * 0.4, r * 0.6, 0, Math.PI * 2)
+                        ctx.fill()
+                        break
+                    case ITEM_TYPES.MANGO:
+                        ctx.fillStyle = '#FFCC33'
+                        ctx.beginPath()
+                        ctx.ellipse(0, 0, r * 1.2, r * 0.8, 0.2, 0, Math.PI * 2)
+                        ctx.fill()
+                        break
+                    case ITEM_TYPES.BANANA:
+                        ctx.strokeStyle = '#FFFF00'
+                        ctx.lineWidth = r * 0.6
+                        ctx.lineCap = 'round'
+                        ctx.beginPath()
+                        ctx.arc(r, 0, r, Math.PI * 0.8, Math.PI * 1.2)
+                        ctx.stroke()
+                        break
+                    case ITEM_TYPES.PINEAPPLE:
+                        ctx.fillStyle = '#FFD700'
+                        ctx.beginPath()
+                        ctx.ellipse(0, 5, r * 0.8, r, 0, 0, Math.PI * 2)
+                        ctx.fill()
+                        ctx.fillStyle = '#228B22'
+                        ctx.beginPath()
+                        for (let i = -2; i <= 2; i++) {
+                            ctx.moveTo(i * 5, -r)
+                            ctx.lineTo(i * 8, -r * 1.8)
+                            ctx.lineTo(i * 5 + 5, -r)
+                        }
+                        ctx.fill()
+                        break
+                    case ITEM_TYPES.DRAGON_FRUIT:
+                        ctx.fillStyle = '#FF1493'
+                        ctx.beginPath()
+                        ctx.arc(0, 0, r, 0, Math.PI * 2)
+                        ctx.fill()
+                        ctx.fillStyle = '#32CD32'
+                        for (let i = 0; i < 6; i++) {
+                            ctx.beginPath()
+                            ctx.rotate(Math.PI / 3)
+                            ctx.moveTo(r, 0)
+                            ctx.lineTo(r + 10, -5)
+                            ctx.lineTo(r + 10, 5)
+                            ctx.fill()
+                        }
+                        break
+                    case ITEM_TYPES.WATERMELON:
+                        ctx.fillStyle = '#2E8B57'
+                        ctx.beginPath()
+                        ctx.arc(0, 0, r, 0, Math.PI * 2)
+                        ctx.fill()
+                        ctx.strokeStyle = '#006400'
+                        ctx.lineWidth = 4
+                        for (let i = -2; i <= 2; i++) {
+                            ctx.beginPath()
+                            ctx.arc(0, 0, r, i * 0.4 - 0.2, i * 0.4 + 0.2)
+                            ctx.stroke()
+                        }
+                        break
+                    case ITEM_TYPES.DURIAN:
+                        ctx.fillStyle = '#9ACD32'
+                        ctx.beginPath()
+                        ctx.arc(0, 0, r, 0, Math.PI * 2)
+                        ctx.fill()
+                        ctx.fillStyle = '#6B8E23'
+                        for (let i = 0; i < 12; i++) {
+                            ctx.beginPath()
+                            ctx.rotate(Math.PI / 6)
+                            ctx.moveTo(r, 0)
+                            ctx.lineTo(r + 8, 0)
+                            ctx.lineTo(r + 4, 4)
+                            ctx.fill()
+                        }
+                        break
+                    case ITEM_TYPES.MANGOSTEEN:
+                        ctx.fillStyle = '#4B0082'
+                        ctx.beginPath()
+                        ctx.arc(0, 5, r, 0, Math.PI * 2)
+                        ctx.fill()
+                        ctx.fillStyle = '#228B22'
+                        ctx.beginPath()
+                        ctx.arc(0, -r + 5, r / 2, 0, Math.PI * 2)
+                        ctx.fill()
+                        break
+                    case ITEM_TYPES.RAMBUTAN:
+                        ctx.fillStyle = '#FF0000'
+                        ctx.beginPath()
+                        ctx.arc(0, 0, r, 0, Math.PI * 2)
+                        ctx.fill()
+                        ctx.strokeStyle = '#FF4500'
+                        ctx.lineWidth = 2
+                        for (let i = 0; i < 20; i++) {
+                            ctx.beginPath()
+                            ctx.rotate(Math.PI / 10)
+                            ctx.moveTo(r, 0)
+                            ctx.lineTo(r + 12, 5)
+                            ctx.stroke()
+                        }
+                        break
+                    case ITEM_TYPES.AVOCADO:
+                        ctx.fillStyle = '#006400'
+                        ctx.beginPath()
+                        ctx.ellipse(0, 0, r * 0.8, r * 1.1, 0, 0, Math.PI * 2)
+                        ctx.fill()
+                        ctx.fillStyle = '#ADFF2F'
+                        ctx.beginPath()
+                        ctx.ellipse(0, 0, r * 0.6, r * 0.9, 0, 0, Math.PI * 2)
+                        ctx.fill()
+                        ctx.fillStyle = '#8B4513'
+                        ctx.beginPath()
+                        ctx.arc(0, r * 0.3, r * 0.3, 0, Math.PI * 2)
+                        ctx.fill()
+                        break
+                    case ITEM_TYPES.LYCHEE:
+                        ctx.fillStyle = '#DC143C'
+                        ctx.beginPath()
+                        ctx.arc(0, 0, r, 0, Math.PI * 2)
+                        ctx.fill()
+                        ctx.fillStyle = 'rgba(255,255,255,0.2)'
+                        for (let i = 0; i < 10; i++) {
+                            ctx.beginPath()
+                            ctx.arc((Math.random() - 0.5) * r, (Math.random() - 0.5) * r, 2, 0, Math.PI * 2)
+                            ctx.fill()
+                        }
+                        break
+                    case ITEM_TYPES.GUAVA:
+                        ctx.fillStyle = '#90EE90'
+                        ctx.beginPath()
+                        ctx.arc(0, 0, r, 0, Math.PI * 2)
+                        ctx.fill()
+                        ctx.fillStyle = '#FFC0CB'
+                        ctx.beginPath()
+                        ctx.arc(0, 0, r * 0.8, 0, Math.PI * 2)
+                        ctx.fill()
+                        break
+                    case ITEM_TYPES.LONGAN:
+                        ctx.fillStyle = '#DEB887'
+                        ctx.beginPath()
+                        ctx.arc(0, 0, r, 0, Math.PI * 2)
+                        ctx.fill()
+                        break
+                    case ITEM_TYPES.SAPOCHE:
+                        ctx.fillStyle = '#8B4513'
+                        ctx.beginPath()
+                        ctx.ellipse(0, 0, r * 1.1, r * 0.8, 0, 0, Math.PI * 2)
+                        ctx.fill()
+                        break
+                    case ITEM_TYPES.ACEROLA:
+                        ctx.fillStyle = '#FF0000'
+                        ctx.beginPath()
+                        ctx.arc(-5, 0, r * 0.6, 0, Math.PI * 2)
+                        ctx.arc(5, 0, r * 0.6, 0, Math.PI * 2)
+                        ctx.fill()
+                        break
+                    case ITEM_TYPES.CUSTARD_APPLE:
+                        ctx.fillStyle = '#3CB371'
+                        ctx.beginPath()
+                        ctx.arc(0, 0, r, 0, Math.PI * 2)
+                        ctx.fill()
+                        ctx.fillStyle = '#2E8B57'
+                        for (let i = 0; i < 12; i++) {
+                            ctx.beginPath()
+                            ctx.arc(Math.cos(i) * r * 0.7, Math.sin(i) * r * 0.7, 6, 0, Math.PI * 2)
+                            ctx.fill()
+                        }
+                        break
+                    case ITEM_TYPES.POMELO:
+                        ctx.fillStyle = '#98FB98'
+                        ctx.beginPath()
+                        ctx.arc(0, 0, r * 1.3, 0, Math.PI * 2)
+                        ctx.fill()
+                        break
+                    case ITEM_TYPES.TANGERINE:
+                        ctx.fillStyle = '#FF8C00'
+                        ctx.beginPath()
+                        ctx.ellipse(0, 0, r, r * 0.8, 0, 0, Math.PI * 2)
+                        ctx.fill()
+                        break
+                    case ITEM_TYPES.GOLDEN:
+                        ctx.shadowBlur = 20
+                        ctx.shadowColor = 'gold'
+                        ctx.fillStyle = '#FFD700'
+                        ctx.beginPath()
+                        ctx.arc(0, 0, r * 1.2, 0, Math.PI * 2)
+                        ctx.fill()
+                        break
+                    case ITEM_TYPES.STAR:
+                        ctx.fillStyle = '#00FFFF'
+                        ctx.beginPath()
+                        for (let i = 0; i < 5; i++) {
+                            ctx.rotate((Math.PI * 2) / 5)
+                            ctx.lineTo(0, -r * 1.2)
+                            ctx.rotate((Math.PI * 2) / 10)
+                            ctx.lineTo(0, -r * 0.6)
+                            ctx.rotate((-Math.PI * 2) / 10)
+                        }
+                        ctx.fill()
+                        break
+                    case ITEM_TYPES.BOMB:
+                        ctx.fillStyle = '#111'
+                        ctx.beginPath()
+                        ctx.arc(0, 0, r, 0, Math.PI * 2)
+                        ctx.fill()
+                        ctx.strokeStyle = '#FF4500'
+                        ctx.lineWidth = 3
+                        ctx.beginPath()
+                        ctx.moveTo(0, -r)
+                        ctx.lineTo(5, -r - 10)
+                        ctx.stroke()
+                        break
+                    case ITEM_TYPES.GHOST:
+                        ctx.fillStyle = 'rgba(255,255,255,0.7)'
+                        ctx.beginPath()
+                        ctx.arc(0, 0, r, Math.PI, 0)
+                        ctx.lineTo(r, r)
+                        ctx.lineTo(-r, r)
+                        ctx.fill()
+                        ctx.fillStyle = '#000'
+                        ctx.beginPath()
+                        ctx.arc(-5, -5, 3, 0, Math.PI * 2)
+                        ctx.arc(5, -5, 3, 0, Math.PI * 2)
+                        ctx.fill()
+                        break
+                }
+            }
+
+            // --- CORE ENGINE ---
+            const canvas = document.getElementById('gameCanvas')
+            const ctx = canvas.getContext('2d') // Xóa alpha:false để cho phép canvas trong suốt, hiển thị UI phía sau
+            let scaleX = 1,
+                scaleY = 1,
+                screenShakeTime = 0,
+                lastTime = 0,
+                timeSlowMultiplier = 1,
+                timeSlowTimer = 0
+
+            function resize() {
+                canvas.width = window.innerWidth
+                canvas.height = window.innerHeight
+                scaleX = canvas.width / GAME_WIDTH
+                scaleY = canvas.height / GAME_HEIGHT
+            }
+            window.addEventListener('resize', resize)
+            resize()
+
+            const Input = {
+                keys: { left: false, right: false },
+                touchX: GAME_WIDTH / 2,
+                isTouching: false,
+                init: function () {
+                    window.addEventListener('keydown', (e) => {
+                        if (e.code === 'ArrowLeft' || e.code === 'KeyA') this.keys.left = true
+                        if (e.code === 'ArrowRight' || e.code === 'KeyD') this.keys.right = true
+                        if (e.code === 'Space') handleSpacebar()
+                    })
+                    window.addEventListener('keyup', (e) => {
+                        if (e.code === 'ArrowLeft' || e.code === 'KeyA') this.keys.left = false
+                        if (e.code === 'ArrowRight' || e.code === 'KeyD') this.keys.right = false
+                    })
+                    // Lắng nghe sự kiện trên document vì canvas đã bị set pointer-events: none
+                    document.addEventListener(
+                        'touchstart',
+                        (e) => {
+                            this.isTouching = true
+                            this.touchX = (e.touches[0].clientX - canvas.getBoundingClientRect().left) / scaleX
+                        },
+                        { passive: true },
+                    )
+                    document.addEventListener(
+                        'touchmove',
+                        (e) => {
+                            this.touchX = (e.touches[0].clientX - canvas.getBoundingClientRect().left) / scaleX
+                        },
+                        { passive: true },
+                    )
+                    document.addEventListener('touchend', () => {
+                        this.isTouching = false
+                    })
+                },
+            }
+
+            function handleSpacebar() {
+                if (GameState.currentState !== GAME_STATES.PLAYING) startGame()
+            }
+
+            const Player = {
+                x: GAME_WIDTH / 2,
+                y: GAME_HEIGHT - 100,
+                width: 120,
+                height: 60,
+                vx: 0,
+                maxSpeed: 1200,
+                friction: 0.82,
+                acceleration: 4500,
+                update: function (dt) {
+                    if (Input.isTouching) {
+                        this.vx = (Input.touchX - this.x) * 15
+                    } else {
+                        if (Input.keys.left) this.vx -= this.acceleration * dt
+                        if (Input.keys.right) this.vx += this.acceleration * dt
+                        this.vx *= Math.pow(this.friction, dt * 60)
+                    }
+                    this.x += this.vx * dt
+                    if (this.x < 120) {
+                        this.x = 120
+                        this.vx = 0
+                    }
+                    if (this.x > 680) {
+                        this.x = 680
+                        this.vx = 0
+                    }
+                },
+                draw: function (ctx) {
+                    ctx.save()
+                    ctx.translate(this.x, this.y)
+                    ctx.beginPath()
+                    ctx.arc(0, 0, this.width / 2, 0, Math.PI, false)
+                    ctx.fillStyle = '#8B4513'
+                    ctx.fill()
+                    ctx.lineWidth = 4
+                    ctx.strokeStyle = '#5C2E0B'
+                    ctx.stroke()
+                    ctx.fillStyle = '#D2B48C'
+                    ctx.fillRect(-this.width / 2 - 10, -10, this.width + 20, 20)
+                    ctx.strokeStyle = '#8B4513'
+                    ctx.strokeRect(-this.width / 2 - 10, -10, this.width + 20, 20)
+                    ctx.restore()
+                },
+            }
+
+            class Item {
+                constructor() {
+                    this.active = false
+                }
+                spawn(x, speedMultiplier) {
+                    this.active = true
+                    this.x = x
+                    this.y = -50
+                    this.rotation = 0
+                    this.rotSpeed = (Math.random() - 0.5) * 5
+                    this.zigzagTimer = Math.random() * Math.PI * 2
+                    const variation = 0.8 + Math.random() * 0.4,
+                        score = GameState.score,
+                        rand = Math.random()
+                    if (rand < 0.05) {
+                        this.type = ITEM_TYPES.GOLDEN
+                        this.radius = 35 * variation
+                        this.vy = BASE_SPEED * 1.6 * speedMultiplier
+                        return
+                    }
+                    if (rand < 0.1) {
+                        this.type = ITEM_TYPES.STAR
+                        this.radius = 30 * variation
+                        this.vy = BASE_SPEED * 1.5 * speedMultiplier
+                        return
+                    }
+                    if (rand < 0.25) {
+                        this.type = ITEM_TYPES.BOMB
+                        this.radius = 25 * variation
+                        this.vy = BASE_SPEED * 1.2 * speedMultiplier
+                        return
+                    }
+                    if (rand < 0.35 && score > 1000) {
+                        this.type = ITEM_TYPES.GHOST
+                        this.radius = 25 * variation
+                        this.vy = BASE_SPEED * 1.1 * speedMultiplier
+                        return
+                    }
+                    let pool = [
+                        ITEM_TYPES.APPLE,
+                        ITEM_TYPES.ORANGE,
+                        ITEM_TYPES.PEAR,
+                    ]
+                    if (score > 500)
+                        pool.push(ITEM_TYPES.MANGO, ITEM_TYPES.BANANA, ITEM_TYPES.GUAVA, ITEM_TYPES.AVOCADO)
+                    if (score > 1500)
+                        pool.push(
+                            ITEM_TYPES.DRAGON_FRUIT,
+                            ITEM_TYPES.WATERMELON,
+                            ITEM_TYPES.LYCHEE,
+                            ITEM_TYPES.LONGAN,
+                            ITEM_TYPES.PINEAPPLE,
+                        )
+                    if (score > 3000)
+                        pool.push(
+                            ITEM_TYPES.DURIAN,
+                            ITEM_TYPES.MANGOSTEEN,
+                            ITEM_TYPES.RAMBUTAN,
+                            ITEM_TYPES.SAPOCHE,
+                            ITEM_TYPES.ACEROLA,
+                            ITEM_TYPES.CUSTARD_APPLE,
+                            ITEM_TYPES.TANGERINE,
+                            ITEM_TYPES.POMELO,
+                        )
+                    this.type = pool[Math.floor(Math.random() * pool.length)]
+                    this.radius = 25 * variation
+                    this.vy = BASE_SPEED * speedMultiplier * (0.9 + Math.random() * 0.2)
+                    if (this.type < 20) GameState.discoverFruit(this.type)
+                }
+                update(dt) {
+                    if (!this.active) return
+                    const effectiveDt = dt * timeSlowMultiplier
+                    this.y += this.vy * effectiveDt
+                    this.rotation += this.rotSpeed * effectiveDt
+                    if (this.type === ITEM_TYPES.GHOST) {
+                        this.zigzagTimer += effectiveDt * 8
+                        this.x += Math.sin(this.zigzagTimer) * 5
+                    }
+                    if (
+                        this.y + this.radius > Player.y - 10 &&
+                        this.y - this.radius < Player.y + Player.height &&
+                        this.x + this.radius > Player.x - Player.width / 2 &&
+                        this.x - this.radius < Player.x + Player.width / 2
+                    ) {
+                        this.handleCatch()
+                        this.active = false
+                    }
+                    if (this.y > GAME_HEIGHT + 50) {
+                        this.handleMiss()
+                        this.active = false
+                    }
+                }
+                handleCatch() {
+                    if (GameState.currentState !== GAME_STATES.PLAYING) return
+                    if (this.type === ITEM_TYPES.BOMB) {
+                        GameState.takeDamage()
+                        AudioSystem.playBomb()
+                        spawnParticles(this.x, this.y, '#333', 20)
+                        createFloatingText('BÙM!', this.x, this.y, 'miss')
+                        return
+                    }
+                    if (this.type === ITEM_TYPES.GHOST) {
+                        GameState.score = Math.max(0, GameState.score - 50)
+                        GameState.resetCombo()
+                        AudioSystem.playMiss()
+                        spawnParticles(this.x, this.y, '#EEE', 15)
+                        createFloatingText('-50 ĐIỂM', this.x, this.y, 'miss')
+                        return
+                    }
+                    GameState.missedCount = 0
+                    let basePoints = 10,
+                        pColor = '#FF3333',
+                        textClass = 'normal',
+                        isRare = false
+                    switch (this.type) {
+                        case ITEM_TYPES.DURIAN:
+                            basePoints = 150
+                            pColor = '#9ACD32'
+                            break
+                        case ITEM_TYPES.MANGOSTEEN:
+                            basePoints = 120
+                            pColor = '#4B0082'
+                            break
+                        case ITEM_TYPES.GOLDEN:
+                            basePoints = 300
+                            pColor = '#FFD700'
+                            isRare = true
+                            textClass = 'gold'
+                            break
+                        case ITEM_TYPES.STAR:
+                            basePoints = 100
+                            pColor = '#00FFFF'
+                            isRare = true
+                            textClass = 'rare'
+                            break
+                        case ITEM_TYPES.WATERMELON:
+                            basePoints = 40
+                            pColor = '#228B22'
+                            break
+                        case ITEM_TYPES.DRAGON_FRUIT:
+                            basePoints = 50
+                            pColor = '#FF1493'
+                            break
+                        case ITEM_TYPES.PINEAPPLE:
+                            basePoints = 60
+                            pColor = '#FFD700'
+                            break
+                        case ITEM_TYPES.BANANA:
+                            basePoints = 15
+                            pColor = '#FFFF00'
+                            break
+                        case ITEM_TYPES.ORANGE:
+                            basePoints = 12
+                            pColor = '#FFA500'
+                            break
+                        default:
+                            basePoints = 10
+                            pColor = '#FF3333'
+                    }
+                    if (isRare && this.type === ITEM_TYPES.STAR) {
+                        if (Math.random() > 0.5 && GameState.lives < MAX_LIVES) {
+                            GameState.lives++
+                            updateHUD()
+                            createFloatingText('+1 MÁU', this.x, this.y - 30, 'rare')
+                        } else activateSlowMo()
+                    }
+                    GameState.addCombo()
+                    const pts = basePoints * GameState.comboMultiplier
+                    GameState.score += pts
+                    if (GameState.score > GameState.highScore) {
+                        GameState.highScore = GameState.score
+                        localStorage.setItem('catchFruit_highscore', GameState.highScore)
+                    }
+                    spawnParticles(this.x, this.y, pColor, isRare ? 25 : 12)
+                    createFloatingText(
+                        `+${pts}`,
+                        this.x,
+                        this.y,
+                        textClass === 'normal' && GameState.comboMultiplier > 1 ? 'combo' : textClass,
+                    )
+                    if (isRare) AudioSystem.playRareCatch()
+                    else AudioSystem.playCatch(GameState.comboMultiplier * 50)
+                    updateHUD()
+                    checkDifficultyIncrease()
+                    if (GameState.score >= 10000 && GameState.discoveredFruits.size >= 20) triggerWin()
+                }
+                handleMiss() {
+                    if (GameState.currentState !== GAME_STATES.PLAYING) return
+                    if (
+                        this.type !== ITEM_TYPES.BOMB &&
+                        this.type !== ITEM_TYPES.STAR &&
+                        this.type !== ITEM_TYPES.GHOST
+                    ) {
+                        GameState.resetCombo()
+                        GameState.missedCount++
+                        if (GameState.missedCount >= 3) {
+                            GameState.takeDamage()
+                            GameState.missedCount = 0
+                            createFloatingText('TRƯỢT x3!', this.x, GAME_HEIGHT - 50, 'miss')
+                        }
+                        AudioSystem.playMiss()
+                        screenShakeTime = 0.25
+                        triggerFlash(true)
+                    }
+                }
+                draw(ctx) {
+                    if (!this.active) return
+                    ctx.save()
+                    ctx.translate(this.x, this.y)
+                    ctx.font = 'bold 14px Segoe UI'
+                    ctx.textAlign = 'center'
+                    ctx.fillStyle = 'white'
+                    ctx.strokeStyle = 'rgba(0,0,0,0.8)'
+                    ctx.lineWidth = 3
+                    const name = ITEM_NAMES[this.type] || ''
+                    ctx.strokeText(name, 0, -this.radius - 12)
+                    ctx.fillText(name, 0, -this.radius - 12)
+                    ctx.rotate(this.rotation)
+                    renderFruitShape(ctx, this.type, this.radius)
+                    ctx.restore()
+                }
+            }
+
+            class Particle {
+                constructor() {
+                    this.active = false
+                }
+                spawn(x, y, color, speedScale = 1) {
+                    this.active = true
+                    this.x = x
+                    this.y = y
+                    this.color = color
+                    const angle = Math.random() * Math.PI * 2,
+                        speed = (Math.random() * 250 + 80) * speedScale
+                    this.vx = Math.cos(angle) * speed
+                    this.vy = Math.sin(angle) * speed - 150
+                    this.maxLife = Math.random() * 0.6 + 0.4
+                    this.life = this.maxLife
+                    this.size = Math.random() * 8 + 4
+                }
+                update(dt) {
+                    if (!this.active) return
+                    this.vy += 700 * dt
+                    this.x += this.vx * dt
+                    this.y += this.vy * dt
+                    this.life -= dt
+                    if (this.life <= 0) this.active = false
+                }
+                draw(ctx) {
+                    if (!this.active) return
+                    ctx.fillStyle = this.color
+                    ctx.globalAlpha = this.life / this.maxLife
+                    ctx.beginPath()
+                    ctx.arc(this.x, this.y, this.size / 2, 0, Math.PI * 2)
+                    ctx.fill()
+                    ctx.globalAlpha = 1.0
+                }
+            }
+
+            class Firework {
+                constructor() {
+                    this.active = false
+                }
+                spawn() {
+                    this.active = true
+                    this.x = Math.random() * GAME_WIDTH
+                    this.y = Math.random() * (GAME_HEIGHT / 2)
+                    this.color = `hsl(${Math.random() * 360}, 100%, 50%)`
+                    this.timer = 0.5
+                    AudioSystem.playFirework()
+                    spawnParticles(this.x, this.y, this.color, 30, 2)
+                }
+                update(dt) {
+                    if (!this.active) return
+                    this.timer -= dt
+                    if (this.timer <= 0) this.active = false
+                }
+            }
+
+            const itemPool = Array.from({ length: 40 }, () => new Item()),
+                particlePool = Array.from({ length: 300 }, () => new Particle()),
+                fireworkPool = Array.from({ length: 10 }, () => new Firework())
+
+            const GameState = {
+                currentState: 0,
+                score: 0,
+                highScore: 0,
+                lives: 3,
+                comboCount: 0,
+                comboMultiplier: 1,
+                timeAlive: 0,
+                speedMultiplier: 1,
+                spawnRate: 1.5,
+                spawnTimer: 0,
+                lastSpawnX: 0,
+                pointsToNextDiff: 500,
+                missedCount: 0,
+                discoveredFruits: new Set(),
+                init: function () {
+                    this.score = 0
+                    this.lives = 3
+                    this.comboCount = 0
+                    this.comboMultiplier = 1
+                    this.timeAlive = 0
+                    this.speedMultiplier = 1
+                    this.spawnRate = 1.5
+                    this.spawnTimer = 0
+                    this.missedCount = 0
+                    this.discoveredFruits = new Set()
+                    this.highScore = parseInt(localStorage.getItem('catchFruit_highscore')) || 0
+                    Player.x = GAME_WIDTH / 2
+                    Player.vx = 0
+                    itemPool.forEach((i) => (i.active = false))
+                    particlePool.forEach((p) => (p.active = false))
+                    fireworkPool.forEach((f) => (f.active = false))
+                    timeSlowMultiplier = 1
+                    timeSlowTimer = 0
+                    this.initCollectionUI()
+                    updateHUD()
+                },
+                initCollectionUI: function () {
+                    const left = document.getElementById('collectionLeft'),
+                        right = document.getElementById('collectionRight')
+                    left.innerHTML = ''
+                    right.innerHTML = ''
+                    for (let i = 0; i < 20; i++) {
+                        const item = document.createElement('div')
+                        item.className = 'collection-item'
+                        item.id = `fruit-${i}`
+                        item.setAttribute('data-name', ITEM_NAMES[i])
+                        const c = document.createElement('canvas')
+                        c.width = 30
+                        c.height = 30
+                        item.appendChild(c)
+                        const uctx = c.getContext('2d')
+                        uctx.translate(15, 15)
+                        uctx.font = 'bold 14px Arial'
+                        uctx.fillStyle = 'white'
+                        uctx.textAlign = 'center'
+                        uctx.textBaseline = 'middle'
+                        uctx.fillText('?', 0, 0)
+                        if (i < 10) left.appendChild(item)
+                        else right.appendChild(item)
+                    }
+                },
+                discoverFruit: function (type) {
+                    if (!this.discoveredFruits.has(type)) {
+                        this.discoveredFruits.add(type)
+                        const el = document.getElementById(`fruit-${type}`)
+                        if (el) {
+                            el.classList.add('discovered')
+                            const uctx = el.querySelector('canvas').getContext('2d')
+                            uctx.clearRect(-15, -15, 30, 30)
+                            renderFruitShape(uctx, type, 10)
+                        }
+                    }
+                },
+                addCombo: function () {
+                    this.comboCount++
+                    let oldMult = this.comboMultiplier
+                    if (this.comboCount >= 20) this.comboMultiplier = 5
+                    else if (this.comboCount >= 10) this.comboMultiplier = 3
+                    else if (this.comboCount >= 5) this.comboMultiplier = 2
+                    else this.comboMultiplier = 1
+                    if (this.comboMultiplier > oldMult) {
+                        triggerFlash()
+                        const ct = document.getElementById('comboText')
+                        ct.classList.remove('combo-pulse')
+                        void ct.offsetWidth
+                        ct.classList.add('combo-pulse')
+                    }
+                },
+                resetCombo: function () {
+                    this.comboCount = 0
+                    this.comboMultiplier = 1
+                    updateHUD()
+                },
+                takeDamage: function () {
+                    this.lives--
+                    this.resetCombo()
+                    this.missedCount = 0
+                    screenShakeTime = 0.35
+                    triggerFlash(true)
+                    updateHUD()
+                    if (this.lives <= 0) endGame()
+                },
+            }
+
+            function checkDifficultyIncrease() {
+                if (GameState.score >= GameState.pointsToNextDiff) {
+                    GameState.speedMultiplier += 0.08
+                    GameState.spawnRate = Math.max(0.35, GameState.spawnRate * 0.92)
+                    GameState.pointsToNextDiff += 500
+                    AudioSystem.startBGM(GameState.speedMultiplier)
+                }
+            }
+            function spawnParticles(x, y, color, count, speedScale = 1) {
+                let s = 0
+                for (let i = 0; i < particlePool.length; i++)
+                    if (!particlePool[i].active) {
+                        particlePool[i].spawn(x, y, color, speedScale)
+                        s++
+                        if (s >= count) break
+                    }
+            }
+            function updateHUD() {
+                document.getElementById('currentScore').innerText = `Điểm: ${GameState.score}`
+                document.getElementById('highScoreHUD').innerText = `Kỷ lục: ${GameState.highScore}`
+                let h = ''
+                for (let i = 0; i < GameState.lives; i++) h += '♥'
+                document.getElementById('livesDisplay').innerText = h
+                const ct = document.getElementById('comboText')
+                if (GameState.comboMultiplier > 1) {
+                    ct.innerText = `Combo x${GameState.comboMultiplier}`
+                    ct.style.opacity = 1
+                    ct.style.color =
+                        GameState.comboMultiplier === 5
+                            ? '#FF3333'
+                            : GameState.comboMultiplier === 3
+                              ? '#FFA500'
+                              : '#FFD700'
+                } else ct.style.opacity = 0
+            }
+            function createFloatingText(t, x, y, c) {
+                const el = document.createElement('div')
+                el.className = `floating-text ${c}`
+                el.innerText = t
+                el.style.left = `${x * scaleX}px`
+                el.style.top = `${y * scaleY}px`
+                el.style.transform = `translate(-50%, -50%)`
+                document.getElementById('floatingTextContainer').appendChild(el)
+                setTimeout(() => el.parentNode && el.parentNode.removeChild(el), 1000)
+            }
+            function triggerFlash(isMiss = false) {
+                const f = document.getElementById('flashScreen')
+                if (isMiss) f.classList.add('flash-miss')
+                else f.classList.remove('flash-miss')
+                f.classList.add('flash-active')
+                setTimeout(() => f.classList.remove('flash-active'), 120)
+            }
+            function activateSlowMo() {
+                timeSlowMultiplier = 0.3
+                timeSlowTimer = 3.0
+            }
+
+            function triggerWin() {
+                GameState.currentState = GAME_STATES.WIN
+                AudioSystem.stopBGM()
+                document.getElementById('winFinalScore').innerText = GameState.score
+                document.getElementById('winScreen').classList.remove('hidden')
+
+                // Clear all active fruits from the screen
+                itemPool.forEach((i) => (i.active = false))
+
+                winFireworksInterval = setInterval(() => {
+                    const fw = fireworkPool.find((f) => !f.active)
+                    if (fw) fw.spawn()
+                }, 300)
+            }
+
+            function loop(timestamp) {
+                if (!lastTime) lastTime = timestamp
+                let dt = (timestamp - lastTime) / 1000
+                lastTime = timestamp
+                if (dt > 0.1) dt = 0.1
+
+                if (GameState.currentState === GAME_STATES.PLAYING) {
+                    if (timeSlowTimer > 0) {
+                        timeSlowTimer -= dt
+                        if (timeSlowTimer <= 0) timeSlowMultiplier = 1.0
+                    }
+                    GameState.timeAlive += dt
+                    GameState.spawnTimer -= dt * timeSlowMultiplier
+                    if (GameState.spawnTimer <= 0) {
+                        const item = itemPool.find((i) => !i.active)
+                        if (item) {
+                            let x
+                            do {
+                                x = Math.random() * (GAME_WIDTH - 240) + 120
+                            } while (Math.abs(x - GameState.lastSpawnX) < 80)
+                            GameState.lastSpawnX = x
+                            item.spawn(x, GameState.speedMultiplier)
+                        }
+                        GameState.spawnTimer = GameState.spawnRate
+                    }
+                    Player.update(dt)
+                    itemPool.forEach((i) => i.update(dt))
+                }
+
+                // Particles and Fireworks always update to ensure smooth animation even in Win/GameOver state
+                particlePool.forEach((p) => p.update(dt))
+                fireworkPool.forEach((f) => f.update(dt))
+                if (screenShakeTime > 0) screenShakeTime -= dt
+
+                // Xóa canvas thay vì tô đè màu để cho phép nhìn xuyên qua Canvas tới UI phía sau
+                ctx.clearRect(0, 0, canvas.width, canvas.height)
+                ctx.save()
+                ctx.scale(scaleX, scaleY)
+                if (screenShakeTime > 0) ctx.translate((Math.random() - 0.5) * 15, (Math.random() - 0.5) * 15)
+                particlePool.forEach((p) => p.draw(ctx))
+
+                // Only draw items and player if not in WIN state (or keep them frozen if needed)
+                if (GameState.currentState === GAME_STATES.PLAYING || GameState.currentState === GAME_STATES.GAMEOVER) {
+                    itemPool.forEach((i) => i.draw(ctx))
+                    Player.draw(ctx)
+                }
+
+                ctx.restore()
+                requestAnimationFrame(loop)
+            }
+
+            let winFireworksInterval = null
+            function startGame() {
+                if (winFireworksInterval) clearInterval(winFireworksInterval)
+                AudioSystem.init()
+                GameState.init()
+                GameState.currentState = GAME_STATES.PLAYING
+                document.getElementById('startScreen').classList.add('hidden')
+                document.getElementById('gameOverScreen').classList.add('hidden')
+                document.getElementById('winScreen').classList.add('hidden')
+                AudioSystem.startBGM()
+            }
+            function endGame() {
+                GameState.currentState = GAME_STATES.GAMEOVER
+                AudioSystem.stopBGM()
+                AudioSystem.playBomb()
+                document.getElementById('finalScore').innerText = GameState.score
+                document.getElementById('highScore').innerText = GameState.highScore
+                document.getElementById('gameOverScreen').classList.remove('hidden')
+            }
+            document.getElementById('startBtn').addEventListener('click', startGame)
+            document.getElementById('restartBtn').addEventListener('click', startGame)
+            document.getElementById('winRestartBtn').addEventListener('click', startGame)
+            Input.init()
+            requestAnimationFrame(loop)
+        </script>
+    </body>
+</html>
