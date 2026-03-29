@@ -10,6 +10,19 @@ const promptFiles = import.meta.glob('../data/prompts/*.txt', {
     import: 'default',
     eager: true,
 })
+
+const titleTranslate: Record<string, string> = {
+    '1. BASIC GAMES (EASIEST → ADD HOOK)': 'TRÒ CHƠI CƠ BẢN',
+    '2. REFLEX GAMES (FAST + SKILL)': 'TRÒ CHƠI PHẢN XẠ',
+    '3. OBSTACLE (ENDLESS + CHAOS)': 'VƯỢT CHƯỚNG NGẠI VẬT',
+    '4. COLLECT (PROGRESSION LOOP)': 'TRÒ CHƠI THU THẬP',
+    '5. 2D SHOOTING (ACTION CORE)': 'TRÒ CHƠI BẮN SÚNG 2D',
+    '6. PLATFORM (SKILL EXPRESSION)': 'PHIÊU LƯU NỀN TẢNG',
+    '7. PUZZLE (BRAIN HOOK)': 'TRÒ CHƠI GIẢI ĐỐ',
+    '8. SIMPLE AI (SMART FEEL)': 'TRÒ CHƠI AI ĐƠN GIẢN',
+    '9. ADVANCED (SYSTEM DESIGN)': 'HỆ THỐNG NÂNG CAO',
+    '10. PRO LEVEL (GẦN GAME THẬT)': 'CẤP ĐỘ CHUYÊN NGHIỆP',
+}
 ---
 
 <MainLayout title={`Câu lệnh prompts Game HTML5 | ${TC_TITLE}`}>
@@ -24,11 +37,14 @@ const promptFiles = import.meta.glob('../data/prompts/*.txt', {
             {
                 categories.map((cat) => (
                     <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-200">
-                        <div class={`${cat.color} py-3 px-6 text-white text-center`}>
-                            <h3 class="text-xl font-extrabold uppercase tracking-wide flex items-center justify-center gap-2">
+                        <div class={`${cat.color} py-4 px-6 text-white text-center`}>
+                            <h3 class="text-xl font-black uppercase tracking-tight flex items-center justify-center gap-2">
                                 <span class="text-2xl">{cat.icon}</span>
                                 {cat.title}
                             </h3>
+                            <p class="text-[10px] md:text-xs font-bold opacity-90 uppercase tracking-[0.2em] mt-1">
+                                ({titleTranslate[cat.title] || 'Nâng cao'})
+                            </p>
                         </div>
                         <div class="p-4 grid grid-cols-2 gap-x-4 gap-y-2">
                             {cat.items.map((item) => {
@@ -38,8 +54,10 @@ const promptFiles = import.meta.glob('../data/prompts/*.txt', {
                                 )
                                 const fileContent = fileKey ? promptFiles[fileKey] : null
 
-                                // Nếu có file thì ghép với prompt_extends, nếu không thì để null
-                                const fullPrompt = fileContent ? `${fileContent}\n\n${item.prompt_extends}` : null
+                                // Nếu có file thì ghép với prompt_extends, nếu không thì dùng prompt_extends
+                                const fullPrompt = fileContent
+                                    ? `${item.prompt_extends}\n\n${fileContent}`
+                                    : item.prompt_extends
 
                                 // Tìm link demo từ DATA_DEMO
                                 const demoItem = DATA_DEMO.find((d) => d.name.startsWith(`${item.id}.`))
@@ -57,9 +75,14 @@ const promptFiles = import.meta.glob('../data/prompts/*.txt', {
                                         <span class="text-slate-400 group-hover:text-blue-400 transition-colors">
                                             {item.id}.
                                         </span>
-                                        <span class="text-sm md:text-base leading-tight hover:underline underline-offset-4">
+                                        <span class="text-sm md:text-base leading-tight hover:underline underline-offset-4 flex-1">
                                             {item.text}
                                         </span>
+                                        {fileContent && (
+                                            <span class="text-emerald-500 text-xs bg-emerald-50 px-1.5 py-0.5 rounded-md border border-emerald-100 shadow-sm animate-pulse">
+                                                ✔
+                                            </span>
+                                        )}
                                     </a>
                                 )
                             })}
@@ -140,7 +163,7 @@ const promptFiles = import.meta.glob('../data/prompts/*.txt', {
                 </a>
                 <button
                     id="close-modal-btn"
-                    class="bg-slate-800 text-white font-bold text-xs py-2.5 px-10 rounded-full hover:bg-slate-700 transition-colors shadow-lg uppercase tracking-widest"
+                    class="cursor-pointer bg-slate-800 text-white font-bold text-xs py-2.5 px-10 rounded-full hover:bg-slate-700 transition-colors shadow-lg uppercase tracking-widest"
                 >
                     ĐÓNG
                 </button>
