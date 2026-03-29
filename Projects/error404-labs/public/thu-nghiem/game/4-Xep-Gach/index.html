@@ -1,0 +1,1257 @@
+<!doctype html>
+<html lang="vi">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <title>Xếp Gạch+ | Perfect Placement</title>
+
+        <link rel="shortcut icon" href="avatar_v2.avif" type="image/x-icon" />
+
+        <style>
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+                user-select: none;
+                touch-action: none;
+            }
+            body {
+                background-color: #020208;
+                color: #fff;
+                font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                overflow: hidden;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+            }
+            #game-container {
+                position: relative;
+                width: 100%;
+                max-width: 600px;
+                aspect-ratio: 3 / 4;
+                display: flex;
+                justify-content: center;
+                background: radial-gradient(circle, #0a0a20 0%, #020208 100%);
+            }
+            canvas {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 1;
+            }
+            #grid-frame {
+                position: absolute;
+                top: 8.33%; /* 2/24 height */
+                left: 29.16%; /* 7/24 width */
+                width: 41.66%; /* 10/24 width */
+                height: 83.33%; /* 20/24 height */
+                border: 2px solid rgba(0, 255, 255, 0.7);
+                box-shadow:
+                    0 0 20px rgba(0, 255, 255, 0.3),
+                    inset 0 0 10px rgba(0, 255, 255, 0.1);
+                z-index: 20;
+                pointer-events: none;
+                border-radius: 4px;
+            }
+            #ui-layer {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 10;
+                pointer-events: none;
+            }
+            .panel {
+                position: absolute;
+                background: rgba(0, 0, 0, 0.5);
+                padding: 10px;
+                border-radius: 8px;
+                backdrop-filter: blur(5px);
+                border: 1px solid rgba(0, 255, 255, 0.15);
+            }
+            #hold-panel {
+                top: 5%;
+                left: 2%;
+                width: 24%;
+                min-height: 120px;
+            }
+            #next-panel {
+                top: 5%;
+                right: 2%;
+                width: 24%;
+            }
+            #score-panel {
+                bottom: 5%;
+                right: 2%;
+                width: 24%;
+                text-align: right;
+            }
+            #level-panel {
+                bottom: 22%;
+                right: 2%;
+                width: 24%;
+                text-align: right;
+            }
+
+            #skills-container {
+                position: absolute;
+                top: 30%;
+                left: 2%;
+                width: 24%;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                pointer-events: auto;
+            }
+            .skill-btn {
+                background: rgba(0, 255, 255, 0.1);
+                border: 1px solid rgba(0, 255, 255, 0.3);
+                color: #0ff;
+                padding: 8px 5px;
+                border-radius: 6px;
+                font-size: 0.65rem;
+                text-align: center;
+                cursor: pointer;
+                transition: all 0.2s;
+                position: relative;
+                overflow: hidden;
+            }
+            .skill-btn:hover:not(:disabled) {
+                background: rgba(0, 255, 255, 0.2);
+            }
+            .skill-btn:disabled {
+                opacity: 0.4;
+                cursor: not-allowed;
+                border-color: #555;
+                color: #888;
+            }
+            .skill-cost {
+                display: block;
+                font-size: 0.6rem;
+                color: #ff0;
+                margin-top: 2px;
+            }
+            .skill-cd {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                height: 3px;
+                background: #0ff;
+                width: 0%;
+                transition: width 0.1s linear;
+            }
+
+            .label {
+                font-size: 0.65rem;
+                color: #0ff;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                opacity: 0.9;
+            }
+            .value {
+                font-size: 1.1rem;
+                font-weight: bold;
+                color: #fff;
+                text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+            }
+
+            #overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.85);
+                z-index: 100;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                pointer-events: auto;
+            }
+            #overlay h1 {
+                font-size: 3rem;
+                color: #0ff;
+                text-shadow: 0 0 20px #0ff;
+                margin-bottom: 20px;
+                text-transform: uppercase;
+                font-style: italic;
+                text-align: center;
+            }
+            #start-btn {
+                padding: 15px 50px;
+                font-size: 1.3rem;
+                font-weight: bold;
+                background: #0ff;
+                color: #000;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                text-transform: uppercase;
+                box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+                transition: transform 0.1s;
+            }
+            #start-btn:active {
+                transform: scale(0.95);
+            }
+
+            #danger-tint {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                box-shadow: inset 0 0 120px rgba(255, 0, 0, 0);
+                z-index: 5;
+                pointer-events: none;
+                transition: none;
+            }
+            .danger {
+                box-shadow: inset 0 0 120px rgba(255, 0, 0, 0.7) !important;
+            }
+
+            .perfect-msg {
+                position: absolute;
+                top: 40%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 2.2rem;
+                font-weight: 900;
+                color: #fff;
+                text-shadow:
+                    0 0 10px #0ff,
+                    0 0 30px #00f;
+                opacity: 0;
+                z-index: 50;
+                pointer-events: none;
+                transition: opacity 0.3s;
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="game-container">
+            <canvas id="glcanvas"></canvas>
+            <div id="grid-frame"></div>
+            <div id="danger-tint"></div>
+            <div id="ui-layer">
+                <div id="hold-panel" class="panel">
+                    <div class="label">Giữ (C)</div>
+                </div>
+
+                <div id="skills-container">
+                    <button class="skill-btn" id="skill-1">
+                        PHÁ 1 HÀNG [1]
+                        <span class="skill-cost">200 ĐIỂM</span>
+                        <div class="skill-cd" id="cd-1"></div>
+                    </button>
+                    <button class="skill-btn" id="skill-2">
+                        PHÁ 2 HÀNG [2]
+                        <span class="skill-cost">500 ĐIỂM</span>
+                        <div class="skill-cd" id="cd-2"></div>
+                    </button>
+                    <button class="skill-btn" id="skill-3">
+                        PHÁ 3 HÀNG [3]
+                        <span class="skill-cost">1000 ĐIỂM</span>
+                        <div class="skill-cd" id="cd-3"></div>
+                    </button>
+                </div>
+
+                <div id="next-panel" class="panel">
+                    <div class="label">Gạch tiếp theo</div>
+                </div>
+                <div id="score-panel" class="panel">
+                    <div class="label">Điểm số / Kỷ lục</div>
+                    <div class="value" id="score-val">0</div>
+                    <div class="value" style="font-size: 0.85rem; color: #0ff; opacity: 0.6" id="hi-score-val">0</div>
+                </div>
+                <div id="level-panel" class="panel">
+                    <div class="label">Cấp độ</div>
+                    <div class="value" id="level-val">1</div>
+                    <div class="label" style="margin-top: 8px">Số hàng</div>
+                    <div class="value" id="lines-val">0</div>
+                </div>
+                <div id="perfect-msg" class="perfect-msg">LIÊN HOÀN!</div>
+            </div>
+            <div id="overlay">
+                <h1 id="overlay-title">Xếp Gạch+</h1>
+                <button id="start-btn">Chơi ngay</button>
+                <p
+                    style="
+                        margin-top: 25px;
+                        color: #8cf;
+                        font-size: 0.85rem;
+                        text-align: center;
+                        line-height: 1.6;
+                        opacity: 0.8;
+                    "
+                >
+                    <b>PC:</b> Mũi tên để di chuyển/Xoay<br />Space: Thả cứng | C: Giữ khối | 1,2,3: Kỹ năng<br />
+                </p>
+            </div>
+        </div>
+
+        <script>
+            class AudioSynth {
+                constructor() {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)()
+                    this.masterGain = this.ctx.createGain()
+                    this.masterGain.gain.value = 0.3
+                    this.masterGain.connect(this.ctx.destination)
+                    this.bgmLoop = null
+                }
+                init() {
+                    if (this.ctx.state === 'suspended') this.ctx.resume()
+                }
+
+                startBGM() {
+                    this.stopBGM()
+                    const sequence = [
+                        261.63,
+                        329.63,
+                        392.0,
+                        523.25,
+                    ]
+                    let step = 0
+                    this.bgmLoop = setInterval(() => {
+                        this.playTone(sequence[step % 4], 'sine', 0.2, 0.08)
+                        step++
+                    }, 250)
+                }
+                stopBGM() {
+                    if (this.bgmLoop) {
+                        clearInterval(this.bgmLoop)
+                        this.bgmLoop = null
+                    }
+                }
+
+                playTone(freq, type, duration, vol = 1) {
+                    if (!this.ctx) return
+                    const osc = this.ctx.createOscillator()
+                    const gain = this.ctx.createGain()
+                    osc.type = type
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime)
+                    gain.gain.setValueAtTime(vol, this.ctx.currentTime)
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration)
+                    osc.connect(gain)
+                    gain.connect(this.masterGain)
+                    osc.start()
+                    osc.stop(this.ctx.currentTime + duration)
+                }
+                playMove() {
+                    this.playTone(350, 'sine', 0.04, 0.2)
+                }
+                playRotate() {
+                    this.playTone(500, 'triangle', 0.06, 0.3)
+                }
+                playHardDrop() {
+                    const osc = this.ctx.createOscillator()
+                    const gain = this.ctx.createGain()
+                    osc.type = 'square'
+                    osc.frequency.setValueAtTime(80, this.ctx.currentTime)
+                    osc.frequency.exponentialRampToValueAtTime(30, this.ctx.currentTime + 0.1)
+                    gain.gain.setValueAtTime(0.6, this.ctx.currentTime)
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.12)
+                    osc.connect(gain)
+                    gain.connect(this.masterGain)
+                    osc.start()
+                    osc.stop(this.ctx.currentTime + 0.12)
+                }
+                playSkill() {
+                    this.playTone(150, 'sawtooth', 0.2, 0.4)
+                    setTimeout(() => this.playTone(400, 'sine', 0.3, 0.3), 100)
+                }
+                playClear(lines) {
+                    const freq = 440 + lines * 110
+                    this.playTone(freq, 'sine', 0.1, 0.4)
+                    setTimeout(() => this.playTone(freq * 1.5, 'sine', 0.2, 0.3), 60)
+                }
+                playGameOver() {
+                    this.stopBGM()
+                    this.playTone(200, 'sawtooth', 0.3)
+                    setTimeout(() => this.playTone(150, 'sawtooth', 0.6), 250)
+                }
+            }
+            const audio = new AudioSynth()
+
+            // ==========================================
+            // WEBGL RENDERER
+            // ==========================================
+            const VS_SOURCE = `
+    attribute vec2 a_pos;
+    attribute vec2 a_uv;
+    attribute float a_type;
+    attribute float a_alpha;
+    varying vec2 v_uv;
+    varying float v_type;
+    varying float v_alpha;
+    void main() {
+        float nx = (a_pos.x / 12.0) - 1.0;
+        float ny = 1.0 - (a_pos.y / 12.0);
+        gl_Position = vec4(nx, ny, 0.0, 1.0);
+        v_uv = a_uv;
+        v_type = a_type;
+        v_alpha = a_alpha;
+    }
+`
+
+            const FS_SOURCE = `
+    precision mediump float;
+    varying vec2 v_uv;
+    varying float v_type;
+    varying float v_alpha;
+
+    vec3 getColor(int type) {
+        if(type == 1) return vec3(0.0, 0.9, 1.0);
+        if(type == 2) return vec3(0.1, 0.3, 1.0);
+        if(type == 3) return vec3(1.0, 0.6, 0.0);
+        if(type == 4) return vec3(1.0, 0.9, 0.0);
+        if(type == 5) return vec3(0.1, 1.0, 0.3);
+        if(type == 6) return vec3(0.7, 0.1, 1.0);
+        if(type == 7) return vec3(1.0, 0.1, 0.2);
+        if(type == 8) return vec3(0.4, 0.4, 0.4);
+        if(type == 9) return vec3(1.0, 1.0, 1.0);
+        if(type == 10) return vec3(0.02, 0.02, 0.06);
+        return vec3(0.0);
+    }
+
+    void main() {
+        int type = int(v_type);
+        if (type == 0) { discard; }
+        vec3 baseCol = getColor(type);
+        
+        if (type == 10) {
+            float edge = 0.025;
+            if(v_uv.x < edge || v_uv.x > 1.0-edge || v_uv.y < edge || v_uv.y > 1.0-edge) {
+                gl_FragColor = vec4(vec3(0.08), 1.0);
+            } else {
+                gl_FragColor = vec4(baseCol, 0.6);
+            }
+            return;
+        }
+
+        if (type == 8) {
+            float edge = 0.08;
+            bool isEdge = v_uv.x < edge || v_uv.x > 1.0-edge || v_uv.y < edge || v_uv.y > 1.0-edge;
+            if(isEdge) { gl_FragColor = vec4(baseCol, 0.4); } else { discard; }
+            return;
+        }
+
+        if (type == 9) {
+            float dist = distance(v_uv, vec2(0.5));
+            if(dist > 0.5) discard;
+            gl_FragColor = vec4(baseCol, v_alpha * (1.0 - dist*2.0));
+            return;
+        }
+
+        float borderSize = 0.04;
+        float bevelSize = 0.12;
+        vec3 col = baseCol;
+
+        if (v_uv.x < borderSize || v_uv.x > 1.0-borderSize || v_uv.y < borderSize || v_uv.y > 1.0-borderSize) {
+            col *= 0.1;
+        } else {
+            if (v_uv.y < bevelSize) col += 0.25;
+            if (v_uv.x < bevelSize) col += 0.15;
+            if (v_uv.y > 1.0-bevelSize) col -= 0.25;
+            if (v_uv.x > 1.0-bevelSize) col -= 0.15;
+            float centerGlow = 1.0 - distance(v_uv, vec2(0.5)) * 1.2;
+            col += baseCol * max(0.0, centerGlow) * 0.3;
+        }
+
+        if(v_alpha > 1.0) col += vec3(v_alpha - 1.0);
+        gl_FragColor = vec4(col, min(v_alpha, 1.0));
+    }
+`
+
+            class Renderer {
+                constructor(canvasId) {
+                    this.canvas = document.getElementById(canvasId)
+                    this.gl = this.canvas.getContext('webgl', { alpha: false, antialias: true })
+                    this.resize()
+                    window.addEventListener('resize', () => this.resize())
+                    this.program = this.createProgram(VS_SOURCE, FS_SOURCE)
+                    this.gl.useProgram(this.program)
+                    this.MAX_QUADS = 1000
+                    this.VERTEX_SIZE = 6
+                    this.vboData = new Float32Array(this.MAX_QUADS * 6 * this.VERTEX_SIZE)
+                    this.vbo = this.gl.createBuffer()
+                    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vbo)
+                    this.gl.bufferData(this.gl.ARRAY_BUFFER, this.vboData, this.gl.DYNAMIC_DRAW)
+                    const FSIZE = this.vboData.BYTES_PER_ELEMENT
+                    const stride = this.VERTEX_SIZE * FSIZE
+                    const locs = [
+                        'a_pos',
+                        'a_uv',
+                        'a_type',
+                        'a_alpha',
+                    ]
+                    const sizes = [
+                        2,
+                        2,
+                        1,
+                        1,
+                    ]
+                    let offset = 0
+                    locs.forEach((name, i) => {
+                        const loc = this.gl.getAttribLocation(this.program, name)
+                        this.gl.vertexAttribPointer(loc, sizes[i], this.gl.FLOAT, false, stride, offset * FSIZE)
+                        this.gl.enableVertexAttribArray(loc)
+                        offset += sizes[i]
+                    })
+                    this.gl.enable(this.gl.BLEND)
+                    this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA)
+                    this.quadCount = 0
+                    this.shakeX = 0
+                    this.shakeY = 0
+                }
+                resize() {
+                    const cw = this.canvas.parentElement.clientWidth
+                    const ch = this.canvas.parentElement.clientHeight
+                    this.canvas.width = cw
+                    this.canvas.height = ch
+                    this.gl.viewport(0, 0, cw, ch)
+                }
+                createProgram(vs, fs) {
+                    const s = (t, src) => {
+                        const sh = this.gl.createShader(t)
+                        this.gl.shaderSource(sh, src)
+                        this.gl.compileShader(sh)
+                        return sh
+                    }
+                    const p = this.gl.createProgram()
+                    this.gl.attachShader(p, s(this.gl.VERTEX_SHADER, vs))
+                    this.gl.attachShader(p, s(this.gl.FRAGMENT_SHADER, fs))
+                    this.gl.linkProgram(p)
+                    return p
+                }
+                begin() {
+                    this.quadCount = 0
+                    this.gl.clearColor(0.0, 0.0, 0.0, 1.0)
+                    this.gl.clear(this.gl.COLOR_BUFFER_BIT)
+                }
+                drawQuad(x, y, w, h, type, alpha = 1.0) {
+                    if (this.quadCount >= this.MAX_QUADS) return
+                    const sx = x + this.shakeX,
+                        sy = y + this.shakeY
+                    const i = this.quadCount * 36,
+                        v = this.vboData
+                    const pts = [
+                        [
+                            sx,
+                            sy,
+                            0,
+                            0,
+                        ],
+                        [
+                            sx,
+                            sy + h,
+                            0,
+                            1,
+                        ],
+                        [
+                            sx + w,
+                            sy,
+                            1,
+                            0,
+                        ],
+                        [
+                            sx + w,
+                            sy,
+                            1,
+                            0,
+                        ],
+                        [
+                            sx,
+                            sy + h,
+                            0,
+                            1,
+                        ],
+                        [
+                            sx + w,
+                            sy + h,
+                            1,
+                            1,
+                        ],
+                    ]
+                    for (let idx = 0; idx < 6; idx++) {
+                        const start = i + idx * 6
+                        const p = pts[idx]
+                        v[start] = p[0]
+                        v[start + 1] = p[1]
+                        v[start + 2] = p[2]
+                        v[start + 3] = p[3]
+                        v[start + 4] = type
+                        v[start + 5] = alpha
+                    }
+                    this.quadCount++
+                }
+                end() {
+                    if (this.quadCount === 0) return
+                    this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.vboData.subarray(0, this.quadCount * 36))
+                    this.gl.drawArrays(this.gl.TRIANGLES, 0, this.quadCount * 6)
+                }
+                setShake(amount) {
+                    this.shakeX = (Math.random() - 0.5) * amount
+                    this.shakeY = (Math.random() - 0.5) * amount
+                }
+            }
+
+            // ==========================================
+            // GAME CORE
+            // ==========================================
+            const SHAPES = [
+                null,
+                [
+                    [
+                        0,
+                        1,
+                        0,
+                        0,
+                    ],
+                    [
+                        0,
+                        1,
+                        0,
+                        0,
+                    ],
+                    [
+                        0,
+                        1,
+                        0,
+                        0,
+                    ],
+                    [
+                        0,
+                        1,
+                        0,
+                        0,
+                    ],
+                ],
+                [
+                    [
+                        1,
+                        0,
+                        0,
+                    ],
+                    [
+                        1,
+                        1,
+                        1,
+                    ],
+                    [
+                        0,
+                        0,
+                        0,
+                    ],
+                ],
+                [
+                    [
+                        0,
+                        0,
+                        1,
+                    ],
+                    [
+                        1,
+                        1,
+                        1,
+                    ],
+                    [
+                        0,
+                        0,
+                        0,
+                    ],
+                ],
+                [
+                    [
+                        1,
+                        1,
+                    ],
+                    [
+                        1,
+                        1,
+                    ],
+                ],
+                [
+                    [
+                        0,
+                        1,
+                        1,
+                    ],
+                    [
+                        1,
+                        1,
+                        0,
+                    ],
+                    [
+                        0,
+                        0,
+                        0,
+                    ],
+                ],
+                [
+                    [
+                        0,
+                        1,
+                        0,
+                    ],
+                    [
+                        1,
+                        1,
+                        1,
+                    ],
+                    [
+                        0,
+                        0,
+                        0,
+                    ],
+                ],
+                [
+                    [
+                        1,
+                        1,
+                        0,
+                    ],
+                    [
+                        0,
+                        1,
+                        1,
+                    ],
+                    [
+                        0,
+                        0,
+                        0,
+                    ],
+                ],
+            ]
+            const SIZES = [
+                0,
+                4,
+                3,
+                3,
+                2,
+                3,
+                3,
+                3,
+            ]
+
+            class Tetromino {
+                constructor(type) {
+                    this.type = type
+                    this.size = SIZES[type]
+                    if (type === 1)
+                        this.matrix = [
+                            [
+                                0,
+                                0,
+                                0,
+                                0,
+                            ],
+                            [
+                                1,
+                                1,
+                                1,
+                                1,
+                            ],
+                            [
+                                0,
+                                0,
+                                0,
+                                0,
+                            ],
+                            [
+                                0,
+                                0,
+                                0,
+                                0,
+                            ],
+                        ]
+                    else this.matrix = SHAPES[type]
+                    this.x = 3
+                    this.y = 0
+                }
+                rotate(dir) {
+                    const newMatrix = Array(this.size)
+                        .fill()
+                        .map(() => Array(this.size).fill(0))
+                    for (let y = 0; y < this.size; ++y) {
+                        for (let x = 0; x < this.size; ++x) {
+                            if (dir > 0) newMatrix[x][this.size - 1 - y] = this.matrix[y][x] ? this.type : 0
+                            else newMatrix[this.size - 1 - x][y] = this.matrix[y][x] ? this.type : 0
+                        }
+                    }
+                    this.matrix = newMatrix
+                }
+            }
+
+            class Game {
+                constructor() {
+                    this.cols = 10
+                    this.rows = 20
+                    this.ox = 7
+                    this.oy = 2
+                    this.board = Array(20)
+                        .fill()
+                        .map(() => Array(10).fill(0))
+                    this.score = 0
+                    this.hiScore = parseInt(localStorage.getItem('tetris_hi')) || 0
+                    this.level = 1
+                    this.lines = 0
+                    this.state = 'MENU'
+                    this.bag = []
+                    this.nextQueue = []
+                    this.holdPiece = null
+                    this.canHold = true
+                    this.active = null
+                    this.dropTimer = 0
+                    this.dropInterval = 1000
+                    this.particles = []
+                    this.shakeTime = 0
+                    this.keys = { left: false, right: false, down: false }
+                    this.dasTimer = 0
+                    this.DAS = 0.15
+                    this.ARR = 0.03
+
+                    this.skills = [
+                        { cost: 200, cooldown: 5, timer: 0 },
+                        { cost: 500, cooldown: 10, timer: 0 },
+                        { cost: 1000, cooldown: 20, timer: 0 },
+                    ]
+                }
+                init() {
+                    this.board = Array(20)
+                        .fill()
+                        .map(() => Array(10).fill(0))
+                    this.score = 0
+                    this.level = 1
+                    this.lines = 0
+                    this.updateSpeed()
+                    this.bag = []
+                    this.nextQueue = [
+                        new Tetromino(this.getBag()),
+                        new Tetromino(this.getBag()),
+                        new Tetromino(this.getBag()),
+                    ]
+                    this.holdPiece = null
+                    this.spawn()
+                    this.state = 'PLAYING'
+                    this.skills.forEach((s) => (s.timer = 0))
+                    this.updateUI()
+                    document.getElementById('overlay-title').innerText = 'Xếp Gạch+'
+                    audio.startBGM()
+                }
+                getBag() {
+                    if (!this.bag.length) {
+                        this.bag = [
+                            1,
+                            2,
+                            3,
+                            4,
+                            5,
+                            6,
+                            7,
+                        ]
+                        for (let i = 6; i > 0; i--) {
+                            const j = Math.floor(Math.random() * (i + 1))
+                            ;[
+                                this.bag[i],
+                                this.bag[j],
+                            ] = [
+                                this.bag[j],
+                                this.bag[i],
+                            ]
+                        }
+                    }
+                    return this.bag.pop()
+                }
+                spawn() {
+                    this.active = this.nextQueue.shift()
+                    this.nextQueue.push(new Tetromino(this.getBag()))
+                    this.canHold = true
+                    this.dropTimer = 0
+                    if (this.collide(this.active)) {
+                        this.state = 'GAMEOVER'
+                        audio.playGameOver()
+                        document.getElementById('overlay-title').innerText = 'Trò chơi kết thúc'
+                        document.getElementById('overlay').style.display = 'flex'
+                    }
+                }
+                hold() {
+                    if (!this.canHold) return
+                    const currentType = this.active.type
+                    if (!this.holdPiece) {
+                        this.holdPiece = currentType
+                        this.spawn()
+                    } else {
+                        const prevHold = this.holdPiece
+                        this.holdPiece = currentType
+                        this.active = new Tetromino(prevHold)
+                    }
+                    this.canHold = false
+                    audio.playMove()
+                }
+
+                useSkill(index) {
+                    if (this.state !== 'PLAYING') return
+                    const s = this.skills[index]
+                    if (this.score >= s.cost && s.timer <= 0) {
+                        this.score -= s.cost
+                        s.timer = s.cooldown
+
+                        let rowsDestroyed = index + 1
+                        let count = 0
+                        for (let y = 19; y >= 0 && count < rowsDestroyed; y--) {
+                            this.board.splice(y, 1)
+                            this.board.unshift(Array(10).fill(0))
+                            count++
+                            y++
+
+                            for (let x = 0; x < 10; x++) {
+                                this.particles.push({
+                                    x: this.ox + x + 0.5,
+                                    y: this.oy + y - 1,
+                                    vx: (Math.random() - 0.5) * 15,
+                                    vy: (Math.random() - 1) * 10,
+                                    life: 0.8,
+                                    color: 9,
+                                })
+                            }
+                        }
+
+                        audio.playSkill()
+                        this.msg(`KỸ NĂNG: -${rowsDestroyed} HÀNG`)
+                        this.updateUI()
+                    }
+                }
+
+                collide(p, dx = 0, dy = 0) {
+                    for (let y = 0; y < p.size; y++)
+                        for (let x = 0; x < p.size; x++)
+                            if (p.matrix[y][x]) {
+                                let nx = p.x + x + dx,
+                                    ny = p.y + y + dy
+                                if (nx < 0 || nx >= this.cols || ny >= this.rows || (ny >= 0 && this.board[ny][nx]))
+                                    return true
+                            }
+                    return false
+                }
+                move(dx) {
+                    if (!this.collide(this.active, dx, 0)) {
+                        this.active.x += dx
+                        audio.playMove()
+                        return true
+                    }
+                    return false
+                }
+                rotate(dir) {
+                    const oldMatrix = this.active.matrix
+                    this.active.rotate(dir)
+                    const offs = [
+                        0,
+                        -1,
+                        1,
+                        -2,
+                        2,
+                    ]
+                    for (let o of offs)
+                        if (!this.collide(this.active, o, 0)) {
+                            this.active.x += o
+                            audio.playRotate()
+                            return
+                        }
+                    this.active.matrix = oldMatrix
+                }
+                drop() {
+                    if (!this.collide(this.active, 0, 1)) {
+                        this.active.y++
+                        this.score++
+                        this.dropTimer = 0
+                        return true
+                    }
+                    return false
+                }
+                hardDrop() {
+                    let d = 0
+                    while (!this.collide(this.active, 0, 1)) {
+                        this.active.y++
+                        d++
+                    }
+                    this.score += d * 2
+                    this.lock(true)
+                }
+                lock(hard) {
+                    let blocks = 0,
+                        contacts = 0
+                    for (let y = 0; y < this.active.size; y++)
+                        for (let x = 0; x < this.active.size; x++)
+                            if (this.active.matrix[y][x]) {
+                                let px = this.active.x + x,
+                                    py = this.active.y + y
+                                if (py >= 0) this.board[py][px] = this.active.type
+                                blocks++
+                                if (px == 0 || this.board[py][px - 1]) contacts++
+                                if (px == 9 || this.board[py][px + 1]) contacts++
+                                if (py == 19 || this.board[py + 1][px]) contacts++
+                            }
+                    audio.playHardDrop()
+                    this.clear(hard, contacts >= blocks * 2)
+                    this.spawn()
+                }
+                clear(hard, tight) {
+                    let lines = 0
+                    for (let y = 19; y >= 0; y--)
+                        if (this.board[y].every((v) => v)) {
+                            this.board.splice(y, 1)
+                            this.board.unshift(Array(10).fill(0))
+                            lines++
+                            y++
+                            for (let x = 0; x < 10; x++) {
+                                this.particles.push({
+                                    x: this.ox + x + 0.5,
+                                    y: this.oy + y,
+                                    vx: (Math.random() - 0.5) * 10,
+                                    vy: (Math.random() - 0.5) * 10,
+                                    life: 0.5,
+                                    color: 9,
+                                })
+                            }
+                        }
+                    if (lines) {
+                        this.lines += lines
+                        this.level = Math.floor(this.lines / 10) + 1
+                        this.updateSpeed()
+                        let perf = hard && (lines == 4 || tight)
+                        let comboText =
+                            [
+                                '',
+                                '',
+                                'LIÊN HOÀN x2',
+                                'LIÊN HOÀN x3',
+                                'TETRIS!',
+                            ][lines] || 'LIÊN HOÀN!'
+                        let basePoints =
+                            [
+                                0,
+                                100,
+                                300,
+                                500,
+                                800,
+                            ][lines] * this.level
+                        if (perf) {
+                            basePoints *= 2
+                            this.msg('HOÀN HẢO!')
+                        } else if (lines > 1) {
+                            this.msg(comboText)
+                        }
+                        this.score += basePoints
+                        if (this.score > this.hiScore) {
+                            this.hiScore = this.score
+                            localStorage.setItem('tetris_hi', this.hiScore)
+                        }
+                        audio.playClear(lines)
+                    }
+                    document.getElementById('danger-tint').className = this.board[4].some((v) => v) ? 'danger' : ''
+                    this.updateUI()
+                }
+                msg(txt) {
+                    const m = document.getElementById('perfect-msg')
+                    m.innerText = txt
+                    m.style.opacity = 1
+                    setTimeout(() => {
+                        m.style.opacity = 0
+                    }, 800)
+                }
+                updateSpeed() {
+                    this.dropInterval = Math.max(80, 1000 - (this.level - 1) * 90)
+                }
+                updateUI() {
+                    document.getElementById('score-val').innerText = this.score
+                    document.getElementById('hi-score-val').innerText = this.hiScore
+                    document.getElementById('level-val').innerText = this.level
+                    document.getElementById('lines-val').innerText = this.lines
+
+                    this.skills.forEach((s, i) => {
+                        const btn = document.getElementById(`skill-${i + 1}`)
+                        const cd = document.getElementById(`cd-${i + 1}`)
+                        if (this.score < s.cost || s.timer > 0) {
+                            btn.disabled = true
+                        } else {
+                            btn.disabled = false
+                        }
+                        if (s.timer > 0) {
+                            cd.style.width = (s.timer / s.cooldown) * 100 + '%'
+                        } else {
+                            cd.style.width = '0%'
+                        }
+                    })
+                }
+                update(dt) {
+                    if (this.state !== 'PLAYING') return
+
+                    this.skills.forEach((s) => {
+                        if (s.timer > 0) s.timer = Math.max(0, s.timer - dt)
+                    })
+
+                    if (this.keys.left || this.keys.right) {
+                        const d = this.keys.left ? -1 : 1
+                        if (this.dasTimer == 0) this.move(d)
+                        this.dasTimer += dt
+                        if (this.dasTimer >= this.DAS) {
+                            this.move(d)
+                            this.dasTimer -= this.ARR
+                        }
+                    } else this.dasTimer = 0
+                    if (this.keys.down) this.drop()
+                    this.dropTimer += dt * 1000
+                    if (this.dropTimer >= this.dropInterval) {
+                        if (!this.drop()) this.lock(false)
+                    }
+
+                    for (let i = this.particles.length - 1; i >= 0; i--) {
+                        let p = this.particles[i]
+                        p.x += p.vx * dt
+                        p.y += p.vy * dt
+                        p.life -= dt
+                        if (p.life <= 0) this.particles.splice(i, 1)
+                    }
+                    this.updateUI()
+                }
+                getGhost() {
+                    let g = this.active.y
+                    while (!this.collide(this.active, 0, g - this.active.y + 1)) g++
+                    return g
+                }
+            }
+
+            const gl = new Renderer('glcanvas')
+            const game = new Game()
+            let last = performance.now()
+
+            document.addEventListener('keydown', (e) => {
+                if (game.state !== 'PLAYING') return
+                switch (e.code) {
+                    case 'ArrowLeft':
+                        game.keys.left = true
+                        break
+                    case 'ArrowRight':
+                        game.keys.right = true
+                        break
+                    case 'ArrowDown':
+                        game.keys.down = true
+                        break
+                    case 'ArrowUp':
+                    case 'KeyX':
+                        game.rotate(1)
+                        break
+                    case 'KeyZ':
+                        game.rotate(-1)
+                        break
+                    case 'Space':
+                        game.hardDrop()
+                        break
+                    case 'KeyC':
+                        game.hold()
+                        break
+                    case 'Digit1':
+                        game.useSkill(0)
+                        break
+                    case 'Digit2':
+                        game.useSkill(1)
+                        break
+                    case 'Digit3':
+                        game.useSkill(2)
+                        break
+                }
+                if (
+                    [
+                        'Space',
+                        'ArrowUp',
+                        'ArrowDown',
+                        'ArrowLeft',
+                        'ArrowRight',
+                    ].includes(e.code)
+                )
+                    e.preventDefault()
+            })
+            document.addEventListener('keyup', (e) => {
+                switch (e.code) {
+                    case 'ArrowLeft':
+                        game.keys.left = false
+                        break
+                    case 'ArrowRight':
+                        game.keys.right = false
+                        break
+                    case 'ArrowDown':
+                        game.keys.down = false
+                        break
+                }
+            })
+
+            document.getElementById('start-btn').onclick = () => {
+                audio.init()
+                document.getElementById('overlay').style.display = 'none'
+                game.init()
+            }
+            ;[
+                1,
+                2,
+                3,
+            ].forEach((i) => {
+                document.getElementById(`skill-${i}`).onclick = () => game.useSkill(i - 1)
+            })
+
+            function loop(t) {
+                const dt = (t - last) / 1000
+                last = t
+                game.update(dt)
+                gl.begin()
+                for (let y = 0; y < 20; y++)
+                    for (let x = 0; x < 10; x++) gl.drawQuad(game.ox + x, game.oy + y, 1, 1, 10)
+                for (let y = 0; y < 20; y++)
+                    for (let x = 0; x < 10; x++)
+                        if (game.board[y][x]) gl.drawQuad(game.ox + x, game.oy + y, 1, 1, game.board[y][x])
+                if (game.state === 'PLAYING') {
+                    const gy = game.getGhost(),
+                        m = game.active.matrix,
+                        s = game.active.size
+                    for (let y = 0; y < s; y++)
+                        for (let x = 0; x < s; x++)
+                            if (m[y][x]) {
+                                gl.drawQuad(game.ox + game.active.x + x, game.oy + gy + y, 1, 1, 8)
+                                gl.drawQuad(
+                                    game.ox + game.active.x + x,
+                                    game.oy + game.active.y + y,
+                                    1,
+                                    1,
+                                    game.active.type,
+                                )
+                            }
+                }
+                if (game.holdPiece) {
+                    const hMat = SHAPES[game.holdPiece]
+                    let ox = game.holdPiece == 1 ? -3.5 : -3
+                    for (let y = 0; y < hMat.length; y++)
+                        for (let x = 0; x < hMat[y].length; x++)
+                            if (hMat[y][x]) gl.drawQuad(ox + x, 3 + y, 1, 1, game.holdPiece)
+                }
+                for (let i = 0; i < game.nextQueue.length; i++) {
+                    const p = game.nextQueue[i]
+                    const nMat = SHAPES[p.type]
+                    let ox = p.type == 1 ? 17.5 : 18
+                    for (let y = 0; y < nMat.length; y++)
+                        for (let x = 0; x < nMat[y].length; x++)
+                            if (nMat[y][x]) gl.drawQuad(ox + x, 3 + y + i * 4, 1, 1, p.type)
+                }
+                for (let p of game.particles) gl.drawQuad(p.x, p.y, 0.2, 0.2, 9, p.life)
+                gl.end()
+                requestAnimationFrame(loop)
+            }
+            document.getElementById('hi-score-val').innerText = parseInt(localStorage.getItem('tetris_hi')) || 0
+            requestAnimationFrame(loop)
+        </script>
+    </body>
+</html>
