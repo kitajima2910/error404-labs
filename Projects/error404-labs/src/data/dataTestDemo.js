@@ -1,5 +1,10 @@
 export const DATA_DEMO = [
     {
+        name: '5. Bắn Vịt',
+        link: '/thu-nghiem/game/5-Ban-Vit/index.html',
+        image: '/thu-nghiem/game/5-Ban-Vit/5-Ban-Vit.avif',
+    },
+    {
         name: '4. Xếp Gạch',
         link: '/thu-nghiem/game/4-Xep-Gach/index.html',
         image: '/thu-nghiem/game/4-Xep-Gach/4-Xep-Gach.avif',

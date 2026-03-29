@@ -152,6 +152,16 @@ const BALLOON_FALL_ASSETS = [
     'bong/fall/sprite8.png',
 ]
 
+const STAR_ASSETS = [
+    'ngoi-sao/sprite1.png',
+    'ngoi-sao/sprite2.png',
+    'ngoi-sao/sprite3.png',
+    'ngoi-sao/sprite4.png',
+    'ngoi-sao/sprite5.png',
+    'ngoi-sao/sprite6.png',
+    'ngoi-sao/sprite7.png',
+]
+
 function initAssets() {
     loadTextures(DUCK_ASSETS, STATE.duckTextures, 'duckAssetLoaded')
     loadTextures(DECOY_ASSETS, STATE.decoyTextures, 'decoyAssetLoaded')
@@ -164,4 +174,5 @@ function initAssets() {
     loadTextures(CLOUD_TYPE2_ASSETS, STATE.cloudType2Textures, 'cloudType2AssetLoaded')
     loadTextures(BALLOON_FLY_ASSETS, STATE.balloonTextures, 'balloonAssetLoaded')
     loadTextures(BALLOON_FALL_ASSETS, STATE.balloonFallTextures, 'balloonFallAssetLoaded')
+    loadTextures(STAR_ASSETS, STATE.starTextures, 'starAssetLoaded')
 }

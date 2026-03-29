@@ -69,12 +69,13 @@ class Particle {
     constructor() {
         this.active = false
     }
-    spawn(x, y, isRed, isBlood = false) {
+    spawn(x, y, isRed, isBlood = false, customColor = null) {
         this.active = true
         this.x = x
         this.y = y
         this.isRed = isRed
         this.isBlood = isBlood
+        this.customColor = customColor
         this.life = 1.0
         if (isBlood) {
             this.vx = 0
@@ -83,7 +84,7 @@ class Particle {
             this.vrot = 0
         } else {
             let a = Math.random() * Math.PI * 2,
-                s = Math.random() * 400
+                s = 100 + Math.random() * 400
             this.vx = Math.cos(a) * s
             this.vy = Math.sin(a) * s
             this.rot = Math.random() * Math.PI * 2
@@ -96,9 +97,9 @@ class Particle {
         } else {
             this.x += this.vx * dt
             this.y += this.vy * dt
-            this.vy += 800 * dt
+            this.vy += (this.customColor ? 200 : 800) * dt
             this.rot += this.vrot * dt
-            this.life -= dt * 1.5
+            this.life -= dt * (this.customColor ? 0.7 : 1.5)
         }
         if (this.life <= 0) this.active = false
     }
@@ -118,11 +119,24 @@ function spawnParticles(x, y, count, isRed, isBlood = false) {
 }
 
 function spawnFireworks() {
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 10; i++) {
         setTimeout(() => {
+            if (STATE.phase !== 'GAMEOVER') return
             let fx = Math.random() * canvas.width,
                 fy = Math.random() * (canvas.height * 0.5)
-            spawnParticles(fx, fy, 40, false)
-        }, i * 300)
+            const hue = Math.random(),
+                sat = 0.8 + Math.random() * 0.2,
+                lit = 0.5 + Math.random() * 0.2
+            const r = lit * (1 + sat * Math.cos(6.28 * (hue + 0 / 3))),
+                g = lit * (1 + sat * Math.cos(6.28 * (hue + 1 / 3))),
+                b = lit * (1 + sat * Math.cos(6.28 * (hue + 2 / 3)))
+            const color = [r, g, b]
+            
+            AudioSys.playFirework()
+            for (let j = 0; j < 50; j++) {
+                let p = particles.find((pd) => !pd.active)
+                if (p) p.spawn(fx, fy, false, false, color)
+            }
+        }, i * 400)
     }
 }

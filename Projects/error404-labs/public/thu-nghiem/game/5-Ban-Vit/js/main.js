@@ -50,7 +50,28 @@ function handleShoot() {
             }
         })
     }
-
+ 
+    // Kiểm tra va chạm với ngôi sao
+    if (!hitAnything) {
+        STATE.stars.forEach((s) => {
+            if (!s.dead) {
+                let dx = s.x - STATE.mouseX,
+                    dy = s.y - STATE.mouseY
+                if (Math.abs(dx) < 30 && Math.abs(dy) < 30) {
+                    hitAnything = true
+                    s.dead = true
+                    STATE.timeLeft += 20
+                    if (Math.random() < 0.1) {
+                        STATE.lives = Math.min(CONFIG.MAX_LIVES, STATE.lives + 1)
+                    }
+                    AudioSys.playHitReal()
+                    spawnParticles(s.x, s.y, 15, false)
+                    updateHUD()
+                }
+            }
+        })
+    }
+ 
     if (!hitAnything) {
         for (let i = targets.length - 1; i >= 0; i--) {
             let t = targets[i]
@@ -174,16 +195,18 @@ function render() {
         dt = Math.min((now - lastTime) / 1000, 0.1)
     lastTime = now
 
-    if (STATE.phase === 'PLAYING') {
+    if (STATE.phase === 'PLAYING' || STATE.phase === 'GAMEOVER') {
         STATE.globalTime += dt
-        STATE.timeLeft -= dt
-        AudioSys.updateBGM()
-        STATE.timeSinceLastReload += dt
-        if (STATE.timeSinceLastReload >= CONFIG.RELOAD_TIME && STATE.ammo < CONFIG.MAX_AMMO) {
-            STATE.ammo++
-            STATE.timeSinceLastReload = 0
-            updateHUD()
+        if (STATE.phase === 'PLAYING') {
+            STATE.timeLeft -= dt
+            STATE.timeSinceLastReload += dt
+            if (STATE.timeSinceLastReload >= CONFIG.RELOAD_TIME && STATE.ammo < CONFIG.MAX_AMMO) {
+                STATE.ammo++
+                STATE.timeSinceLastReload = 0
+                updateHUD()
+            }
         }
+        AudioSys.updateBGM()
         STATE.level = 1 + Math.floor(STATE.globalTime / 20)
         STATE.timeSinceLastSpawn += dt
         if (STATE.timeSinceLastSpawn >= Math.max(0.3, CONFIG.SPAWN_RATE_BASE - STATE.level * 0.1)) {
@@ -258,9 +281,22 @@ function render() {
             if (b.y < -150 || b.y > canvas.height + 150) STATE.balloons.splice(i, 1)
         })
 
+        if (Math.random() < 0.005 && STATE.stars.filter((s) => !s.dead).length < 2) {
+            STATE.stars.push({
+                x: 50 + Math.random() * (canvas.width - 100),
+                y: 50 + Math.random() * (canvas.height * 0.4),
+                rot: 0,
+                dead: false,
+            })
+        }
+
         updateHUD()
-        if (STATE.lives <= 0 || STATE.timeLeft <= 0) endTurn()
-    } else if (STATE.phase === 'GAMEOVER' || STATE.phase === 'TRANSITION') {
+        if (STATE.phase === 'PLAYING') {
+            if (STATE.lives <= 0 || STATE.timeLeft <= 0) endTurn()
+        } else {
+            if (Math.random() < 0.04) spawnFireworks()
+        }
+    } else if (STATE.phase === 'TRANSITION') {
         particles.forEach((p) => {
             if (p.active) p.update(dt)
         })
@@ -288,9 +324,15 @@ function render() {
     gl.uniformMatrix3fv(uMatrixLoc, false, sunMat)
     gl.drawArrays(gl.TRIANGLES, OFFSETS.SUN_START, OFFSETS.SUN_COUNT)
 
-    // Vẽ Dãy núi
-    let mountMat = M3.translate(proj, 0, canvas.height * 0.75)
+    // Vẽ Dãy núi với hiệu ứng di chuyển chậm và nhấp nhô
+    let mountScroll = (STATE.globalTime * 30) % 2000
+    let bobbing = Math.sin(STATE.globalTime * 0.45) * 15
+    let mountMat = M3.translate(proj, -mountScroll, canvas.height * 0.75 + bobbing)
     gl.uniformMatrix3fv(uMatrixLoc, false, mountMat)
+    gl.drawArrays(gl.TRIANGLES, OFFSETS.MOUNTAINS_START, OFFSETS.MOUNTAINS_COUNT)
+    // Vẽ lần 2 để nối đuôi
+    let mountMat2 = M3.translate(proj, -mountScroll + 2000, canvas.height * 0.75 + bobbing)
+    gl.uniformMatrix3fv(uMatrixLoc, false, mountMat2)
     gl.drawArrays(gl.TRIANGLES, OFFSETS.MOUNTAINS_START, OFFSETS.MOUNTAINS_COUNT)
 
     STATE.clouds.forEach((c) => {
@@ -380,6 +422,30 @@ function render() {
         }
     })
 
+    STATE.stars.forEach((s, idx) => {
+        if (!s.dead) {
+            s.rot += dt * 3
+            let m = M3.translate(proj, s.x, s.y)
+            if (STATE.starAssetLoaded) {
+                let frame = Math.floor(STATE.globalTime * 12 + idx) % STAR_ASSETS.length
+                gl.bindTexture(gl.TEXTURE_2D, STATE.starTextures[frame])
+                m = M3.scale(m, 0.7, 0.7)
+                gl.uniformMatrix3fv(uMatrixLoc, false, m)
+                gl.uniform2f(uUvScaleLoc, 1, 1)
+                gl.uniform1i(uUseTextureLoc, 1)
+                gl.drawArrays(gl.TRIANGLES, OFFSETS.SPRITE_QUAD_START, OFFSETS.SPRITE_QUAD_COUNT)
+                gl.uniform1i(uUseTextureLoc, 0)
+            } else {
+                let scaleX = Math.cos(s.rot)
+                m = M3.scale(m, scaleX * 0.7, 0.7)
+                gl.uniformMatrix3fv(uMatrixLoc, false, m)
+                gl.drawArrays(gl.TRIANGLES, OFFSETS.STAR_START, OFFSETS.STAR_COUNT)
+            }
+        } else {
+            STATE.stars.splice(idx, 1)
+        }
+    })
+
     targets.forEach((t) => {
         if (!t.active) return
         let matrix = M3.translate(proj, t.x, t.y),
@@ -455,7 +521,14 @@ function render() {
             let m = M3.scale(M3.rotate(M3.translate(proj, p.x, p.y), p.rot), p.life, p.life)
             gl.uniformMatrix3fv(uMatrixLoc, false, m)
             gl.uniform1i(uUseTextureLoc, 0)
-            gl.drawArrays(gl.TRIANGLES, p.isRed ? OFFSETS.BLOOD_DEMO_START : OFFSETS.PARTICLE_START, 6)
+            if (p.customColor) {
+                gl.disableVertexAttribArray(aColorLoc)
+                gl.vertexAttrib3f(aColorLoc, p.customColor[0], p.customColor[1], p.customColor[2])
+                gl.drawArrays(gl.TRIANGLES, OFFSETS.PARTICLE_START, OFFSETS.PARTICLE_COUNT)
+                gl.enableVertexAttribArray(aColorLoc)
+            } else {
+                gl.drawArrays(gl.TRIANGLES, p.isRed ? OFFSETS.BLOOD_DEMO_START : OFFSETS.PARTICLE_START, p.isRed ? OFFSETS.BLOOD_DEMO_COUNT : OFFSETS.PARTICLE_COUNT)
+            }
         }
     })
 

@@ -77,9 +77,12 @@ const STATE = {
         fallTime: 0,
     },
     balloons: [],
+    stars: [],
     balloonAssetLoaded: false,
     balloonTextures: [],
     balloonFallAssetLoaded: false,
     balloonFallTextures: [],
+    starAssetLoaded: false,
+    starTextures: [],
     clouds: [],
 }

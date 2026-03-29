@@ -122,7 +122,7 @@ function initGeometries() {
     OFFSETS.DECOY_BODY_COUNT = vData.length / 7 - OFFSETS.DECOY_BODY_START
 
     OFFSETS.PARTICLE_START = vData.length / 7
-    pushQuad(-4, -4, 8, 8, 1, 1, 1)
+    pushOval(0, 0, 5, 5, 12, 1, 1, 1)
     OFFSETS.PARTICLE_COUNT = vData.length / 7 - OFFSETS.PARTICLE_START
 
     OFFSETS.BLOOD_DEMO_START = vData.length / 7
@@ -159,6 +159,18 @@ function initGeometries() {
     pushOval(0, 0, 20, 25, 16, 1.0, 0.3, 0.3)
     pushTri(-2, 25, 2, 25, 0, 30, 1.0, 0.3, 0.3)
     OFFSETS.BALLOON_COUNT = vData.length / 7 - OFFSETS.BALLOON_START
+
+    OFFSETS.STAR_START = vData.length / 7
+    const outerR = 30,
+        innerR = 12
+    for (let i = 0; i < 5; i++) {
+        let a1 = (i / 5) * Math.PI * 2 - Math.PI / 2
+        let a2 = ((i + 0.5) / 5) * Math.PI * 2 - Math.PI / 2
+        let a3 = ((i + 1) / 5) * Math.PI * 2 - Math.PI / 2
+        pushTri(0, 0, Math.cos(a1) * outerR, Math.sin(a1) * outerR, Math.cos(a2) * innerR, Math.sin(a2) * innerR, 1.0, 0.9, 0.2)
+        pushTri(0, 0, Math.cos(a2) * innerR, Math.sin(a2) * innerR, Math.cos(a3) * outerR, Math.sin(a3) * outerR, 1.0, 0.9, 0.2)
+    }
+    OFFSETS.STAR_COUNT = vData.length / 7 - OFFSETS.STAR_START
 
     const buffer = gl.createBuffer()
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer)

@@ -140,6 +140,11 @@
                 z-index: 50;
                 backdrop-filter: blur(5px);
             }
+            #game-over-screen {
+                background: rgba(0, 0, 0, 0) !important;
+                backdrop-filter: none !important;
+                text-shadow: 2px 2px 4px #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+            }
             .hidden {
                 display: none !important;
             }
@@ -251,12 +256,17 @@
             <div id="start-screen" class="screen">
                 <h1>Bắn Vịt+</h1>
                 <h2>Vịt Fake (Decoy) Đánh Lừa Người Chơi</h2>
-                <p>
-                    <b>Luật chơi:</b><br />
-                    Bắn trúng vịt thật để ghi điểm. Nhịp độ cao, chỉ có 2 phút!<br />
-                    Cẩn thận với vịt giả xuất hiện rất nhiều (không bị trừ điểm).<br />
-                    <i>Hỗ trợ 2 người chơi luân phiên.</i>
-                </p>
+                <div style="background: rgba(0,0,0,0.5); padding: 15px; border-radius: 10px; margin: 10px 0; font-size: 14px; text-align: left; display: inline-block;">
+                    <b style="color: #4caf50;">✓ Vịt Thật:</b> +100 điểm, tăng Combo. <br />
+                    <b style="color: #ff5252;">✗ Vịt Giả:</b> -1 mạng, mất Combo. <br />
+                    <b style="color: #ff9800;">⚠ Máy Bay:</b> -100 điểm, -10 giây thời gian. <br />
+                    <b style="color: #2196f3;">🎈 Bóng Bay:</b> +50 điểm. <br />
+                    <b style="color: #ffeb3b;">⭐ Ngôi Sao:</b> +20 giây, 10% cơ hội thêm 1 mạng. <br />
+                    <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.2); margin: 5px 0;">
+                    <b style="color: #fff;">⌨ Phím R / Click giữa:</b> Nạp đạn khi hết bia. <br />
+                    <i>Hỗ trợ 2 người chơi so tài cao thấp!</i>
+                </div>
+                <br />
                 <button onclick="startGame()">Chơi Ngay (P1)</button>
             </div>
 
@@ -358,10 +368,13 @@
                     fallTime: 0,
                 },
                 balloons: [],
+                stars: [],
                 balloonAssetLoaded: false,
                 balloonTextures: [],
                 balloonFallAssetLoaded: false,
                 balloonFallTextures: [],
+                starAssetLoaded: false,
+                starTextures: [],
                 clouds: [],
             }
 
@@ -422,6 +435,30 @@
                     gain.connect(ctx.destination)
                     osc.start(t)
                     osc.stop(t + 0.2)
+                },
+                playFirework: function () {
+                    if (!STATE.audioCtx) return
+                    const ctx = STATE.audioCtx,
+                        t = ctx.currentTime
+                    if (ctx.state === 'suspended') ctx.resume()
+                    const bufferSize = Math.floor(ctx.sampleRate * 0.5),
+                        buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate),
+                        data = buffer.getChannelData(0)
+                    for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1
+                    const noise = ctx.createBufferSource()
+                    noise.buffer = buffer
+                    const filter = ctx.createBiquadFilter()
+                    filter.type = 'lowpass'
+                    filter.frequency.setValueAtTime(1000, t)
+                    filter.frequency.exponentialRampToValueAtTime(40, t + 0.5)
+                    const gain = ctx.createGain()
+                    gain.gain.setValueAtTime(0.4, t)
+                    gain.gain.exponentialRampToValueAtTime(0.01, t + 0.5)
+                    noise.connect(filter)
+                    filter.connect(gain)
+                    gain.connect(ctx.destination)
+                    noise.start(t)
+                    noise.stop(t + 0.5)
                 },
                 playHitDecoy: function () {
                     if (!STATE.audioCtx) return
@@ -709,6 +746,16 @@
                 'bong/fall/sprite8.png',
             ]
 
+            const STAR_ASSETS = [
+                'ngoi-sao/sprite1.png',
+                'ngoi-sao/sprite2.png',
+                'ngoi-sao/sprite3.png',
+                'ngoi-sao/sprite4.png',
+                'ngoi-sao/sprite5.png',
+                'ngoi-sao/sprite6.png',
+                'ngoi-sao/sprite7.png',
+            ]
+
             loadTextures(DUCK_ASSETS, STATE.duckTextures, 'duckAssetLoaded')
             loadTextures(DECOY_ASSETS, STATE.decoyTextures, 'decoyAssetLoaded')
             loadTextures(GRASS_ASSETS, STATE.grassTextures, 'grassAssetLoaded')
@@ -720,6 +767,7 @@
             loadTextures(CLOUD_TYPE2_ASSETS, STATE.cloudType2Textures, 'cloudType2AssetLoaded')
             loadTextures(BALLOON_FLY_ASSETS, STATE.balloonTextures, 'balloonAssetLoaded')
             loadTextures(BALLOON_FALL_ASSETS, STATE.balloonFallTextures, 'balloonFallAssetLoaded')
+            loadTextures(STAR_ASSETS, STATE.starTextures, 'starAssetLoaded')
 
             const vData = []
             const OFFSETS = {}
@@ -794,7 +842,7 @@
                 OFFSETS.DECOY_BODY_COUNT = vData.length / 7 - OFFSETS.DECOY_BODY_START
 
                 OFFSETS.PARTICLE_START = vData.length / 7
-                pushQuad(-4, -4, 8, 8, 1, 1, 1)
+                pushOval(0, 0, 5, 5, 12, 1, 1, 1) // Hạt tròn mượt mà
                 OFFSETS.PARTICLE_COUNT = vData.length / 7 - OFFSETS.PARTICLE_START
 
                 OFFSETS.BLOOD_DEMO_START = vData.length / 7
@@ -831,6 +879,18 @@
                 pushOval(0, 0, 20, 25, 16, 1.0, 0.3, 0.3)
                 pushTri(-2, 25, 2, 25, 0, 30, 1.0, 0.3, 0.3)
                 OFFSETS.BALLOON_COUNT = vData.length / 7 - OFFSETS.BALLOON_START
+
+                OFFSETS.STAR_START = vData.length / 7
+                const outerR = 30,
+                    innerR = 12
+                for (let i = 0; i < 5; i++) {
+                    let a1 = (i / 5) * Math.PI * 2 - Math.PI / 2
+                    let a2 = ((i + 0.5) / 5) * Math.PI * 2 - Math.PI / 2
+                    let a3 = ((i + 1) / 5) * Math.PI * 2 - Math.PI / 2
+                    pushTri(0, 0, Math.cos(a1) * outerR, Math.sin(a1) * outerR, Math.cos(a2) * innerR, Math.sin(a2) * innerR, 1.0, 0.9, 0.2)
+                    pushTri(0, 0, Math.cos(a2) * innerR, Math.sin(a2) * innerR, Math.cos(a3) * outerR, Math.sin(a3) * outerR, 1.0, 0.9, 0.2)
+                }
+                OFFSETS.STAR_COUNT = vData.length / 7 - OFFSETS.STAR_START
 
                 const buffer = gl.createBuffer()
                 gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
@@ -991,6 +1051,8 @@
                     this.y = y
                     this.isRed = isRed
                     this.isBlood = isBlood
+                    this.isFirework = false
+                    this.r = 1.0; this.g = 1.0; this.b = 1.0;
                     this.life = 1.0
                     if (isBlood) {
                         this.vx = 0
@@ -1009,10 +1071,10 @@
                         this.life -= dt * 2.0
                     } else {
                         this.x += this.vx * dt
-                        this.vy += 800 * dt
+                        this.vy += (this.isFirework ? 200 : 800) * dt
                         this.y += this.vy * dt
                         this.rot += this.vrot * dt
-                        this.life -= dt * 1.5
+                        this.life -= dt * (this.isFirework ? 0.7 : 1.5)
                     }
                     if (this.life <= 0) this.active = false
                 }
@@ -1032,12 +1094,29 @@
             }
 
             function spawnFireworks() {
-                for (let i = 0; i < 5; i++) {
+                for (let i = 0; i < 10; i++) {
                     setTimeout(() => {
+                        if (STATE.phase !== 'GAMEOVER') return
                         let fx = Math.random() * canvas.width
                         let fy = Math.random() * (canvas.height * 0.5)
-                        spawnParticles(fx, fy, 40, false)
-                    }, i * 300)
+                        const hue = Math.random(),
+                            sat = 0.8 + Math.random() * 0.2,
+                            lit = 0.5 + Math.random() * 0.2
+                        const r = lit * (1 + sat * Math.cos(6.28 * (hue + 0 / 3))),
+                            g = lit * (1 + sat * Math.cos(6.28 * (hue + 1 / 3))),
+                            b = lit * (1 + sat * Math.cos(6.28 * (hue + 2 / 3)))
+
+                        AudioSys.playFirework()
+                        for (let j = 0; j < 50; j++) {
+                            let p = particles.find((pd) => !pd.active)
+                            if (p) {
+                                p.spawn(fx, fy, false, false)
+                                p.isFirework = true
+                                p.r = r; p.g = g; p.b = b
+                                p.life = 1.3 + Math.random() * 0.7
+                            }
+                        }
+                    }, i * 350)
                 }
             }
 
@@ -1083,6 +1162,27 @@
                                 STATE.score += 50
                                 AudioSys.playHitReal()
                                 spawnParticles(b.x, b.y, 20, false)
+                                updateHUD()
+                            }
+                        }
+                    })
+                }
+
+                // Kiểm tra va chạm với ngôi sao
+                if (!hitAnything) {
+                    STATE.stars.forEach((s) => {
+                        if (!s.dead) {
+                            let dx = s.x - STATE.mouseX,
+                                dy = s.y - STATE.mouseY
+                            if (Math.abs(dx) < 30 && Math.abs(dy) < 30) {
+                                hitAnything = true
+                                s.dead = true
+                                STATE.timeLeft += 20
+                                if (Math.random() < 0.1) {
+                                    STATE.lives = Math.min(CONFIG.MAX_LIVES, STATE.lives + 1)
+                                }
+                                AudioSys.playHitReal()
+                                spawnParticles(s.x, s.y, 15, false)
                                 updateHUD()
                             }
                         }
@@ -1252,7 +1352,7 @@
                 let now = performance.now(),
                     dt = Math.min((now - lastTime) / 1000, 0.1)
                 lastTime = now
-                if (STATE.phase === 'PLAYING') {
+                if (STATE.phase === 'PLAYING' || STATE.phase === 'GAMEOVER') {
                     STATE.globalTime += dt
                     STATE.timeLeft -= dt
                     AudioSys.updateBGM()
@@ -1339,9 +1439,23 @@
                         if (b.y < -150 || b.y > canvas.height + 150) STATE.balloons.splice(i, 1)
                     })
 
+                    // Xác suất sinh ngôi sao 0.5% mỗi frame (~0.3s)
+                    if (Math.random() < 0.005 && STATE.stars.filter((s) => !s.dead).length < 2) {
+                        STATE.stars.push({
+                            x: 100 + Math.random() * (canvas.width - 200),
+                            y: 50 + Math.random() * (canvas.height * 0.4),
+                            rot: 0,
+                            dead: false,
+                        })
+                    }
+
                     updateHUD()
-                    if (STATE.lives <= 0 || STATE.timeLeft <= 0) endTurn()
-                } else if (STATE.phase === 'GAMEOVER' || STATE.phase === 'TRANSITION') {
+                    if (STATE.phase === 'PLAYING') {
+                        if (STATE.lives <= 0 || STATE.timeLeft <= 0) endTurn()
+                    } else {
+                        if (Math.random() < 0.04) spawnFireworks()
+                    }
+                } else if (STATE.phase === 'TRANSITION') {
                     particles.forEach((p) => {
                         if (p.active) p.update(dt)
                     })
@@ -1369,9 +1483,15 @@
                 gl.uniformMatrix3fv(uMatrixLoc, false, sunMat)
                 gl.drawArrays(gl.TRIANGLES, OFFSETS.SUN_START, OFFSETS.SUN_COUNT)
 
-                // Vẽ Dãy núi
-                let mountMat = M3.translate(proj, 0, canvas.height * 0.75)
+                // Vẽ Dãy núi với hiệu ứng di chuyển chậm và nhấp nhô
+                let mountScroll = (STATE.globalTime * 30) % 2000
+                let bobbing = Math.sin(STATE.globalTime * 0.45) * 15
+                let mountMat = M3.translate(proj, -mountScroll, canvas.height * 0.75 + bobbing)
                 gl.uniformMatrix3fv(uMatrixLoc, false, mountMat)
+                gl.drawArrays(gl.TRIANGLES, OFFSETS.MOUNTAINS_START, OFFSETS.MOUNTAINS_COUNT)
+                // Vẽ lần 2 để nối đuôi (cuộn vô tận)
+                let mountMat2 = M3.translate(proj, -mountScroll + 2000, canvas.height * 0.75 + bobbing)
+                gl.uniformMatrix3fv(uMatrixLoc, false, mountMat2)
                 gl.drawArrays(gl.TRIANGLES, OFFSETS.MOUNTAINS_START, OFFSETS.MOUNTAINS_COUNT)
 
                 STATE.clouds.forEach((c) => {
@@ -1466,6 +1586,30 @@
                     }
                 })
 
+                STATE.stars.forEach((s, idx) => {
+                    if (!s.dead) {
+                        s.rot += dt * 3
+                        let m = M3.translate(proj, s.x, s.y)
+                        if (STATE.starAssetLoaded) {
+                            let frame = Math.floor(STATE.globalTime * 12 + idx) % STAR_ASSETS.length
+                            gl.bindTexture(gl.TEXTURE_2D, STATE.starTextures[frame])
+                            m = M3.scale(m, 0.7, 0.7)
+                            gl.uniformMatrix3fv(uMatrixLoc, false, m)
+                            gl.uniform2f(uUvScaleLoc, 1, 1)
+                            gl.uniform1i(uUseTextureLoc, 1)
+                            gl.drawArrays(gl.TRIANGLES, OFFSETS.SPRITE_QUAD_START, OFFSETS.SPRITE_QUAD_COUNT)
+                            gl.uniform1i(uUseTextureLoc, 0)
+                        } else {
+                            let scaleX = Math.cos(s.rot)
+                            m = M3.scale(m, scaleX * 0.7, 0.7)
+                            gl.uniformMatrix3fv(uMatrixLoc, false, m)
+                            gl.drawArrays(gl.TRIANGLES, OFFSETS.STAR_START, OFFSETS.STAR_COUNT)
+                        }
+                    } else {
+                        STATE.stars.splice(idx, 1)
+                    }
+                })
+
                 targets.forEach((t) => {
                     if (!t.active) return
                     let matrix = M3.translate(proj, t.x, t.y),
@@ -1551,7 +1695,14 @@
                         let m = M3.scale(M3.rotate(M3.translate(proj, p.x, p.y), p.rot), p.life, p.life)
                         gl.uniformMatrix3fv(uMatrixLoc, false, m)
                         gl.uniform1i(uUseTextureLoc, 0)
-                        gl.drawArrays(gl.TRIANGLES, p.isRed ? OFFSETS.BLOOD_DEMO_START : OFFSETS.PARTICLE_START, 6)
+                        if (p.isFirework) {
+                            gl.disableVertexAttribArray(aColorLoc)
+                            gl.vertexAttrib3f(aColorLoc, p.r, p.g, p.b)
+                            gl.drawArrays(gl.TRIANGLES, OFFSETS.PARTICLE_START, OFFSETS.PARTICLE_COUNT)
+                            gl.enableVertexAttribArray(aColorLoc)
+                        } else {
+                            gl.drawArrays(gl.TRIANGLES, p.isRed ? OFFSETS.BLOOD_DEMO_START : OFFSETS.PARTICLE_START, p.isRed ? OFFSETS.BLOOD_DEMO_COUNT : OFFSETS.PARTICLE_COUNT)
+                        }
                     }
                 })
 

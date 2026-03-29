@@ -42,6 +42,30 @@ const AudioSys = {
         osc.start(t)
         osc.stop(t + 0.2)
     },
+    playFirework: function () {
+        if (!STATE.audioCtx) return
+        const ctx = STATE.audioCtx,
+            t = ctx.currentTime
+        if (ctx.state === 'suspended') ctx.resume()
+        const bufferSize = Math.floor(ctx.sampleRate * 0.5),
+            buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate),
+            data = buffer.getChannelData(0)
+        for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1
+        const noise = ctx.createBufferSource()
+        noise.buffer = buffer
+        const filter = ctx.createBiquadFilter()
+        filter.type = 'lowpass'
+        filter.frequency.setValueAtTime(1000, t)
+        filter.frequency.exponentialRampToValueAtTime(40, t + 0.5)
+        const gain = ctx.createGain()
+        gain.gain.setValueAtTime(0.4, t)
+        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.5)
+        noise.connect(filter)
+        filter.connect(gain)
+        gain.connect(ctx.destination)
+        noise.start(t)
+        noise.stop(t + 0.5)
+    },
     playHitDecoy: function () {
         if (!STATE.audioCtx) return
         const ctx = STATE.audioCtx,
