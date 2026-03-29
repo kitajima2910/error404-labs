@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="vi">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <title>Bắn Vịt+: Thử Thách Xạ Thủ</title>
+        <link rel="shortcut icon" href="avatar_v2.avif" type="image/x-icon" />
+        <link rel="stylesheet" href="css/style.css" />
+    </head>
+    <body>
+        <!-- Game Canvas -->
+        <canvas id="gameCanvas"></canvas>
+        <div id="flash-overlay"></div>
+
+        <!-- UI Overlay -->
+        <div id="ui-layer">
+            <div id="crosshair"><div class="circle"></div></div>
+            
+            <!-- Heads-Up Display (HUD) -->
+            <div id="hud" class="hidden">
+                <div class="hud-left">
+                    <div id="hud-player">Người chơi 1</div>
+                    <div id="hud-score">Điểm: 0</div>
+                    <div id="hud-combo" class="combo-text">Combo: x1</div>
+                </div>
+                <div class="hud-right">
+                    <div id="hud-lives">Mạng: 3</div>
+                    <div id="hud-ammo">Đạn: 10/10</div>
+                    <div id="hud-timer">Thời gian: 120s</div>
+                </div>
+            </div>
+
+            <!-- Start Screen -->
+            <div id="start-screen" class="screen">
+                <h1>BẮN VỊT+</h1>
+                <h2>Thử Thách Xạ Thủ - Tránh Vịt Giả</h2>
+                <p>
+                    <b>Cách chơi:</b><br />
+                    - Bắn trúng <b>vịt thật</b> để ghi điểm và tăng Combo.<br />
+                    - <b>Vịt giả (màu vàng)</b> sẽ xuất hiện để đánh lừa bạn (bắn trúng sẽ mất mạng).<br />
+                    - <b>Máy bay</b>: Tuyệt đối không bắn (phạt 100 điểm & 10 giây).<br />
+                    - Hỗ trợ 2 người chơi luân phiên cực vui!
+                </p>
+                <button onclick="startGame()">BẮT ĐẦU (P1)</button>
+            </div>
+
+            <!-- Transition Screen (for 2P mode) -->
+            <div id="transition-screen" class="screen hidden">
+                <div class="player-turn-banner" id="transition-title">Lượt Người Chơi 2</div>
+                <p>Sẵn sàng chưa? Đến lượt bạn rồi đấy!</p>
+                <button onclick="startTurn()">TIẾP TỤC</button>
+            </div>
+
+            <!-- Game Over Screen -->
+            <div id="game-over-screen" class="screen hidden">
+                <h1>KẾT THÚC</h1>
+                <div class="score-board">
+                    <div><span>Người chơi 1:</span> <strong id="go-score-p1">0</strong></div>
+                    <div><span>Người chơi 2:</span> <strong id="go-score-p2">0</strong></div>
+                    <div class="winner-text" id="go-winner">HÒA!</div>
+                </div>
+                <button onclick="resetGame()">CHƠI LẠI</button>
+            </div>
+        </div>
+
+        <!-- Scripts Modules -->
+        <script src="js/utils.js"></script>
+        <script src="js/state.js"></script>
+        <script src="js/audio.js"></script>
+        <script src="js/ui.js"></script>
+        <script src="js/engine.js"></script>
+        <script src="js/assets.js"></script>
+        <script src="js/logic.js"></script>
+        <script src="js/main.js"></script>
+    </body>
+</html>
