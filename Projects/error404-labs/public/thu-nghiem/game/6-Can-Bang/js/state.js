@@ -60,9 +60,11 @@ export const state = {
   flash: 0,
   pulse: 0,
   lastActionLabel: "tap-start",
+  audioMuted: false,
   ui: {
     startButton: { x: VIEW_W * 0.5 - 164, y: 504, w: 328, h: 76 },
     restartButton: { x: VIEW_W * 0.5 - 164, y: 470, w: 328, h: 76 },
+    audioButton: { x: VIEW_W - 132, y: 34, w: 88, h: 46 },
   },
   particles: new Array(PARTICLE_COUNT).fill(0).map(() => ({
     active: false,

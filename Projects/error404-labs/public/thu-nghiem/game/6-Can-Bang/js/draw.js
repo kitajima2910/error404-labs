@@ -178,6 +178,7 @@ export function drawUi(uiCtx) {
     return cursorY;
   };
 
+
   uiCtx.fillStyle = "rgba(5, 12, 20, 0.18)";
   uiCtx.fillRect(0, 0, VIEW_W, VIEW_H);
 
@@ -311,7 +312,7 @@ export function drawUi(uiCtx) {
     uiCtx.fillStyle = "#d7edf8";
     uiCtx.font = `600 18px ${fontStack}`;
     drawWrappedText("1. Điều chỉnh góc khối gỗ với độ trễ nhẹ.", VIEW_W * 0.5 - 252, 348, 520, 25);
-    drawWrappedText("2. Gió đổi hướng sau mỗi 1–3 giây, càng mạnh càng rung camera.", VIEW_W * 0.5 - 252, 386, 520, 25);
+    drawWrappedText("2. Gió đổi hướng sau mỗi 1-3 giây, càng mạnh càng rung camera.", VIEW_W * 0.5 - 252, 386, 520, 25);
     drawWrappedText("3. Trọng lượng quả cầu dao động liên tục, khiến mô-men xoắn thay đổi.", VIEW_W * 0.5 - 252, 446, 520, 25);
     drawWrappedText("4. Mép đỏ + nhịp phồng báo hiệu sắp rơi. Giữ càng lâu điểm càng cao.", VIEW_W * 0.5 - 252, 508, 520, 25);
 
@@ -434,3 +435,4 @@ export function render_game_to_text() {
     prompt: state.lastActionLabel,
   });
 }
+

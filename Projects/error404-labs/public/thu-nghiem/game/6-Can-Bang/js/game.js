@@ -1,4 +1,4 @@
-"use strict";
+﻿"use strict";
 
 import { VIEW_W, VIEW_H, FIXED_DT, containsPoint } from './constants.js';
 import { state, input, updateInput } from './state.js';
@@ -8,6 +8,7 @@ import { startGame, step } from './physics.js';
 import { render, render_game_to_text } from './draw.js';
 
 const canvas = document.getElementById("game");
+const audioToggleButton = document.getElementById("audio-toggle");
 const gl = canvas.getContext("webgl2", {
   alpha: false,
   antialias: true,
@@ -25,6 +26,14 @@ uiCanvas.height = VIEW_H;
 const uiCtx = uiCanvas.getContext("2d");
 const renderer = new Renderer(gl, canvas);
 const audio = new AudioSystem();
+
+function syncAudioButton() {
+  if (!audioToggleButton) {
+    return;
+  }
+  audioToggleButton.textContent = state.audioMuted ? "NH\u1ea0C: T\u1eaeT" : "NH\u1ea0C: B\u1eacT";
+  audioToggleButton.classList.toggle("is-muted", state.audioMuted);
+}
 
 let lastTime = 0;
 let frameId = null;
@@ -92,6 +101,10 @@ function handleKeyDown(e) {
       document.exitFullscreen();
     }
   }
+  if (e.code === "KeyM") {
+    state.audioMuted = audio.toggleMute();
+    syncAudioButton();
+  }
 }
 
 function handleKeyUp(e) {
@@ -119,6 +132,14 @@ window.render_game_to_text = () => render_game_to_text();
 // Initialization
 async function init() {
   renderer.resize();
+  syncAudioButton();
+  if (audioToggleButton) {
+    audioToggleButton.addEventListener("click", () => {
+      audio.resume();
+      state.audioMuted = audio.toggleMute();
+      syncAudioButton();
+    });
+  }
   window.addEventListener("pointerdown", handlePointer);
   window.addEventListener("pointermove", handlePointer);
   window.addEventListener("pointerup", handlePointer);

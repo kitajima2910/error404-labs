@@ -14,7 +14,11 @@ export class AudioSystem {
     this.musicLfo = null;
     this.musicVoices = [];
     this.musicLastStep = -1;
+    this.musicElement = null;
+    this.musicElementSource = null;
+    this.musicElementGain = null;
     this.ready = false;
+    this.isMuted = false;
   }
 
   ensure() {
@@ -93,6 +97,16 @@ export class AudioSystem {
       this.musicVoices.push({ osc: voice, gain: voiceGain });
     }
 
+    this.musicElement = new Audio(new URL("../Terminal_Reset.mp3", import.meta.url).href);
+    this.musicElement.loop = true;
+    this.musicElement.preload = "auto";
+    this.musicElement.crossOrigin = "anonymous";
+    this.musicElementGain = this.ctx.createGain();
+    this.musicElementGain.gain.value = 0.0001;
+    this.musicElementSource = this.ctx.createMediaElementSource(this.musicElement);
+    this.musicElementSource.connect(this.musicElementGain);
+    this.musicElementGain.connect(this.master);
+
     this.ready = true;
   }
 
@@ -101,6 +115,30 @@ export class AudioSystem {
     if (this.ctx && this.ctx.state !== "running") {
       this.ctx.resume();
     }
+    if (!this.isMuted && this.musicElement && this.musicElement.paused) {
+      this.musicElement.play().catch(() => { });
+    }
+  }
+
+  setMuted(muted) {
+    this.ensure();
+    this.isMuted = muted;
+    if (!this.master || !this.ctx) {
+      return;
+    }
+    const now = this.ctx.currentTime;
+    this.master.gain.cancelScheduledValues(now);
+    this.master.gain.linearRampToValueAtTime(muted ? 0.0001 : 0.3, now + 0.12);
+    if (muted && this.musicElement && !this.musicElement.paused) {
+      this.musicElement.pause();
+    } else if (!muted && this.musicElement && this.ctx.state === "running" && this.musicElement.paused) {
+      this.musicElement.play().catch(() => {});
+    }
+  }
+
+  toggleMute() {
+    this.setMuted(!this.isMuted);
+    return this.isMuted;
   }
 
   update(currentState) {
@@ -128,7 +166,11 @@ export class AudioSystem {
     );
 
     this.musicGain.gain.cancelScheduledValues(now);
-    this.musicGain.gain.linearRampToValueAtTime(0.04 * musicAmount, now + 0.15);
+    this.musicGain.gain.linearRampToValueAtTime(0.01 * musicAmount, now + 0.15);
+    if (this.musicElementGain) {
+      this.musicElementGain.gain.cancelScheduledValues(now);
+      this.musicElementGain.gain.linearRampToValueAtTime(5 * musicAmount, now + 0.2);
+    }
 
     const chordStep = Math.floor(currentState.time * 0.5) % 4;
     if (chordStep !== this.musicLastStep && this.musicVoices.length === 3) {
