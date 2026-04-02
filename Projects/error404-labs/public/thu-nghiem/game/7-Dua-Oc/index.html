@@ -15,6 +15,7 @@
                 padding: 0;
                 box-sizing: border-box;
             }
+
             html,
             body {
                 width: 100%;
@@ -26,16 +27,19 @@
                 user-select: none;
                 -webkit-user-select: none;
             }
+
             canvas {
                 display: block;
                 position: absolute;
                 top: 0;
                 left: 0;
             }
+
             #overlay {
                 z-index: 5;
                 pointer-events: none;
             }
+
             #ui {
                 position: absolute;
                 top: 0;
@@ -45,9 +49,11 @@
                 pointer-events: none;
                 z-index: 10;
             }
+
             #ui * {
                 pointer-events: auto;
             }
+
             #menu {
                 position: absolute;
                 top: 0;
@@ -61,6 +67,7 @@
                 background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
                 z-index: 100;
             }
+
             #menu h1 {
                 font-size: clamp(2rem, 8vw, 5rem);
                 color: #4ecca3;
@@ -70,11 +77,13 @@
                 margin-bottom: 10px;
                 letter-spacing: 4px;
             }
+
             #menu .subtitle {
                 font-size: clamp(0.8rem, 3vw, 1.5rem);
                 color: #a8a8a8;
                 margin-bottom: 40px;
             }
+
             #menu .start-btn {
                 padding: 15px 50px;
                 font-size: clamp(1rem, 4vw, 1.8rem);
@@ -89,13 +98,16 @@
                     box-shadow 0.2s;
                 box-shadow: 0 5px 20px rgba(78, 204, 163, 0.4);
             }
+
             #menu .start-btn:hover {
                 transform: scale(1.05);
                 box-shadow: 0 8px 30px rgba(78, 204, 163, 0.6);
             }
+
             #menu .start-btn:active {
                 transform: scale(0.95);
             }
+
             #menu .instructions {
                 margin-top: 30px;
                 color: #888;
@@ -103,22 +115,26 @@
                 text-align: center;
                 line-height: 1.6;
             }
+
             .selection-section {
                 margin: 12px 0;
                 text-align: center;
             }
+
             .section-title {
                 color: #4ecca3;
                 font-size: clamp(0.8rem, 3vw, 1.1rem);
                 margin-bottom: 8px;
                 font-weight: bold;
             }
+
             .selection-row {
                 display: flex;
                 justify-content: center;
                 gap: 8px;
                 flex-wrap: wrap;
             }
+
             .sel-btn {
                 padding: 8px 16px;
                 font-size: clamp(0.7rem, 2.5vw, 0.95rem);
@@ -129,16 +145,19 @@
                 cursor: pointer;
                 transition: all 0.2s;
             }
+
             .sel-btn:hover {
                 background: rgba(78, 204, 163, 0.15);
                 border-color: rgba(78, 204, 163, 0.4);
             }
+
             .sel-btn.active {
                 background: rgba(78, 204, 163, 0.25);
                 border-color: #4ecca3;
                 color: #4ecca3;
                 font-weight: bold;
             }
+
             .name-input {
                 padding: 8px 16px;
                 font-size: clamp(0.8rem, 3vw, 1rem);
@@ -150,12 +169,15 @@
                 outline: none;
                 width: 200px;
             }
+
             .name-input:focus {
                 border-color: #4ecca3;
             }
+
             .name-input::placeholder {
                 color: #666;
             }
+
             #finish {
                 position: absolute;
                 top: 0;
@@ -169,10 +191,12 @@
                 background: rgba(26, 26, 46, 0.95);
                 z-index: 100;
             }
+
             #finish h2 {
                 font-size: clamp(1.5rem, 6vw, 3rem);
                 margin-bottom: 20px;
             }
+
             #finish .stats {
                 background: rgba(255, 255, 255, 0.05);
                 padding: 20px 40px;
@@ -180,16 +204,19 @@
                 margin-bottom: 30px;
                 text-align: center;
             }
+
             #finish .stats p {
                 font-size: clamp(0.9rem, 3vw, 1.3rem);
                 color: #ccc;
                 margin: 8px 0;
             }
+
             #finish .stats .rank {
                 font-size: clamp(1.2rem, 5vw, 2rem);
                 font-weight: bold;
                 margin: 15px 0;
             }
+
             #finish .restart-btn {
                 padding: 12px 40px;
                 font-size: clamp(0.9rem, 3.5vw, 1.5rem);
@@ -201,9 +228,11 @@
                 font-weight: bold;
                 transition: transform 0.2s;
             }
+
             #finish .restart-btn:hover {
                 transform: scale(1.05);
             }
+
             #hud {
                 position: absolute;
                 top: 10px;
@@ -212,6 +241,7 @@
                 display: none;
                 z-index: 20;
             }
+
             #progress-container {
                 width: 100%;
                 height: 20px;
@@ -220,12 +250,14 @@
                 overflow: hidden;
                 margin-bottom: 8px;
             }
+
             #progress-bar {
                 height: 100%;
                 background: linear-gradient(90deg, #4ecca3, #45b7aa);
                 border-radius: 10px;
                 transition: width 0.1s;
             }
+
             #progress-ai {
                 position: absolute;
                 top: 0;
@@ -234,6 +266,7 @@
                 background: #e94560;
                 border-radius: 2px;
             }
+
             #stats-row {
                 display: flex;
                 justify-content: space-between;
@@ -241,6 +274,7 @@
                 flex-wrap: wrap;
                 gap: 10px;
             }
+
             .stat-box {
                 background: rgba(0, 0, 0, 0.5);
                 padding: 5px 12px;
@@ -248,19 +282,24 @@
                 font-size: clamp(0.7rem, 2.5vw, 1rem);
                 color: #fff;
             }
+
             .stat-box .label {
                 color: #888;
                 font-size: 0.8em;
             }
+
             .stat-box .value {
                 font-weight: bold;
             }
+
             #combo-display {
                 color: #ffd700;
             }
+
             #velocity-display {
                 color: #4ecca3;
             }
+
             #skill-bar-container {
                 position: absolute;
                 left: 50%;
@@ -275,18 +314,21 @@
                 z-index: 30;
                 border: 2px solid rgba(255, 255, 255, 0.3);
             }
+
             #skill-good-zone {
                 position: absolute;
                 height: 100%;
                 background: rgba(78, 204, 163, 0.3);
                 border-radius: 20px;
             }
+
             #skill-perfect-zone {
                 position: absolute;
                 height: 100%;
                 background: rgba(78, 204, 163, 0.7);
                 border-radius: 20px;
             }
+
             #skill-marker {
                 position: absolute;
                 top: 5px;
@@ -296,6 +338,7 @@
                 border-radius: 2px;
                 box-shadow: 0 0 10px #fff;
             }
+
             #skill-label {
                 position: absolute;
                 width: 100%;
@@ -306,6 +349,7 @@
                 text-shadow: 0 0 5px #000;
                 z-index: 1;
             }
+
             #countdown {
                 position: absolute;
                 top: 50%;
@@ -318,6 +362,7 @@
                 z-index: 50;
                 pointer-events: none;
             }
+
             #boost-indicator {
                 position: absolute;
                 bottom: 10px;
@@ -332,8 +377,39 @@
                 display: none;
                 z-index: 20;
             }
+
+            #skill-notification {
+                position: absolute;
+                top: 40px;
+                left: 50%;
+                transform: translateX(-50%);
+                padding: 8px 20px;
+                background: rgba(0, 0, 0, 0.8);
+                border: 2px solid #4ecca3;
+                border-radius: 12px;
+                color: #fff;
+                font-size: clamp(0.9rem, 3vw, 1.2rem);
+                font-weight: bold;
+                text-align: center;
+                display: none;
+                z-index: 30;
+                box-shadow: 0 4px 20px rgba(78, 204, 163, 0.4);
+                animation: slideDown 0.3s ease-out;
+            }
+
+            @keyframes slideDown {
+                from {
+                    opacity: 0;
+                    transform: translateX(-50%) translateY(-20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(-50%) translateY(0);
+                }
+            }
         </style>
     </head>
+
     <body>
         <canvas id="gl"></canvas>
         <canvas id="overlay"></canvas>
@@ -370,10 +446,9 @@
 
                 <button class="start-btn" id="startBtn">BẮT ĐẦU</button>
                 <div class="instructions">
-                    <p>🐌 Ốc sên tự động chạy - Tất cả bám sát nhau!</p>
-                    <p>⚡ Thanh Skill luôn hiện - Nhấn M đúng vùng xanh để boost!</p>
+                    <p>🐌 Ốc sên tự động chạy - Click liên tục để tăng tốc!</p>
                     <p>🎁 Nhặt hộp quà trên đường - Nhấn K để dùng skill!</p>
-                    <p>🔥 Combo tăng mỗi lần hit chuẩn - Miss = reset combo!</p>
+                    <p>⚡ Skill ngẫu nhiên từ hộp quà - Xem danh sách bên phải màn hình</p>
                 </div>
             </div>
             <div id="finish">
@@ -394,9 +469,6 @@
                     <div class="stat-box" id="velocity-display">
                         <span class="label">Tốc độ: </span><span class="value" id="velocity-val">0</span>
                     </div>
-                    <div class="stat-box" id="combo-display">
-                        <span class="label">Combo: </span><span class="value" id="combo-val">0</span>
-                    </div>
                     <div class="stat-box" id="skill-slot">
                         <span class="label">Skill (K): </span><span class="value" id="skill-val">-</span>
                     </div>
@@ -413,19 +485,107 @@
             </div>
             <div id="countdown"></div>
             <div id="boost-indicator">⚡ BOOST ⚡</div>
+            <div id="skill-notification"></div>
         </div>
 
         <script>
             ;(function () {
                 'use strict'
 
+                // Show skill notification at top of screen
+                function showSkillNotification(snailName, skillName, skillIcon) {
+                    const notification = document.getElementById('skill-notification')
+                    const text = skillIcon ? `${skillIcon} ${snailName}: ${skillName}` : `${snailName}: ${skillName}`
+                    notification.textContent = text
+                    notification.style.display = 'block'
+
+                    // Hide after 2 seconds
+                    setTimeout(() => {
+                        notification.style.display = 'none'
+                    }, 2000)
+                }
+
+                // Global gift apply (early defined for reliability)
+                window.applyGiftSkill = function (skill) {
+                    if (!skill) return
+                    const now = performance.now()
+                    showSkillNotification(playerName, skill.name, skill.icon)
+
+                    switch (skill.id) {
+                        case 'speed':
+                        case 'turbo':
+                            player.velocity = Math.min(player.velocity + (skill.id === 'turbo' ? 15 : 8), MAX_VELOCITY)
+                            player.boostEnd = now + (skill.duration || 3000)
+                            skillEffectEnd[skill.id] = now + (skill.duration || 3000)
+                            screenShake.intensity = 5
+                            break
+                        case 'slow_enemy':
+                            for (const ai of aiList) {
+                                if (!ai.finished) {
+                                    ai.velocity *= 0.5
+                                    ai.slowEnd = now + 3000
+                                }
+                            }
+                            if (!playerFinished && !playerShieldEnd && now > playerGhostEnd) {
+                                player.velocity *= 0.5
+                                player.slowEnd = now + 3000
+                                showSkillNotification(playerName, 'Bị Làm Chậm!', '🐌')
+                            }
+                            skillEffectEnd.slow_enemy = now + 3000
+                            flashAlpha = 0.2
+                            break
+                        case 'stun':
+                            for (const ai of aiList) {
+                                if (!ai.finished) {
+                                    ai.stumble = true
+                                    ai.stumbleEnd = now + 2000
+                                    ai.velocity = 0
+                                }
+                            }
+                            skillEffectEnd.stun = now + 2000
+                            flashAlpha = 0.4
+                            screenShake.intensity = 8
+                            break
+                        case 'shield':
+                            playerShieldEnd = now + 5000
+                            skillEffectEnd.shield = now + 5000
+                            break
+                        case 'teleport':
+                            player.pos += 500
+                            createParticles(playerSX || W / 2, playerSY || H / 2, 30, 0.5, 0.8, 1, 1)
+                            break
+                        case 'reverse':
+                            for (const ai of aiList) {
+                                if (!ai.finished) ai.pos = Math.max(0, ai.pos - 300)
+                            }
+                            createParticles(W / 2, H / 2, 20, 0.9, 0.6, 0.2, 1)
+                            break
+                        case 'magnet':
+                            for (const ai of aiList) {
+                                if (!ai.finished) ai.pos = Math.max(0, ai.pos - 50)
+                            }
+                            createParticles(W / 2, H / 2, 25, 0.1, 0.6, 0.8, 1)
+                            break
+                        case 'ghost':
+                            playerGhostEnd = now + 4000
+                            skillEffectEnd.ghost = now + 4000
+                            break
+                        case 'bomb':
+                            for (const ai of aiList) {
+                                if (!ai.finished) ai.velocity *= 0.7
+                            }
+                            skillEffectEnd.bomb = now + 4000
+                            flashAlpha = 0.5
+                            screenShake.intensity = 12
+                            break
+                    }
+                }
+
                 const DISTANCE = 20000
-                const LAP_COUNT = 3
-                const LAP_DISTANCE = DISTANCE / LAP_COUNT
                 const FRICTION = 0.996
-                const CLICK_POWER = 0.6
-                const MAX_VELOCITY = 30
-                const TARGET_VELOCITY = 12.5
+                const CLICK_POWER = 0.4
+                const MAX_VELOCITY = 15
+                const TARGET_VELOCITY = 6
                 const SKILL_INTERVAL = 4000
                 const SKILL_DURATION = 999999
                 const PERFECT_ZONE = 0.12
@@ -435,6 +595,7 @@
                 const MISS_PENALTY = 0.6
                 const BOOST_DURATION = 1200
                 const COMBO_TIMEOUT = 1000
+                const SKILL_BAR_ENABLED = false
 
                 // Skill definitions
                 const SKILLS = [
@@ -504,6 +665,24 @@
                         duration: 4000,
                     },
                     { id: 'bomb', name: 'Bom', icon: '💣', desc: 'AI giảm 70% 4s', color: '#2c3e50', duration: 4000 },
+                    {
+                        id: 'coastal',
+                        name: 'Coastal Rush',
+                        desc: 'Đường ven biển với gió biển',
+                        type: 'straight',
+                        bg: [
+                            0.15,
+                            0.25,
+                            0.4,
+                        ],
+                        track: [
+                            0.3,
+                            0.4,
+                            0.5,
+                        ],
+                        hillAmp: 60,
+                        treeDensity: 0.7,
+                    },
                 ]
 
                 // Game Data
@@ -687,8 +866,6 @@
 
                     const lapSel = document.getElementById('lapSelection')
                     ;[
-                        1,
-                        2,
                         3,
                         5,
                     ].forEach((n) => {
@@ -1012,6 +1189,10 @@
                     stumble: false,
                     stumbleEnd: 0,
                     lap: 0,
+                    lane: 3,
+                    currentSkillName: '',
+                    currentSkillIcon: '',
+                    skillLabelEnd: 0,
                 }
                 let aiList = []
                 function createAI() {
@@ -1021,6 +1202,7 @@
                         { r: 0.9, g: 0.6, b: 0.2 },
                         { r: 0.6, g: 0.3, b: 0.9 },
                         { r: 0.9, g: 0.4, b: 0.4 },
+                        { r: 0.2, g: 0.8, b: 0.7 },
                     ]
                     const names = [
                         'Tím',
@@ -1028,23 +1210,55 @@
                         'Vàng',
                         'Tím Đậm',
                         'Đỏ',
+                        'Lục',
+                    ]
+                    const skillLevels = [
+                        0.7,
+                        0.85,
+                        1.0,
+                        1.0,
+                        1.15,
+                        0.95,
+                    ]
+                    const clickRates = [
+                        200,
+                        170,
+                        150,
+                        150,
+                        130,
+                        160,
+                    ]
+                    const accuracies = [
+                        0.1,
+                        0.15,
+                        0.2,
+                        0.2,
+                        0.25,
+                        0.18,
                     ]
                     return colors.map((c, i) => ({
                         pos: 0,
-                        velocity: 0,
-                        nextClick: performance.now() + 300 + i * 100,
+                        velocity: TARGET_VELOCITY,
+                        nextClick: performance.now() + 200 + Math.random() * 300,
                         boostMult: 1,
                         boostEnd: 0,
-                        accuracy: 0.1 + Math.random() * 0.2,
-                        clickRate: 160 + Math.random() * 100,
+                        accuracy: accuracies[i],
+                        clickRate: clickRates[i],
                         stumble: false,
                         stumbleEnd: 0,
                         finished: false,
                         finishTime: 0,
                         color: c,
                         name: names[i],
+                        lane: i >= 3 ? i + 1 : i,
                         laneOffset: (i + 1) * 32,
                         lap: 0,
+                        currentSkillName: '',
+                        currentSkillIcon: '',
+                        skillLabelEnd: 0,
+                        slowEnd: 0,
+                        skillLevel: skillLevels[i],
+                        difficulty: (i % 3) + 1,
                     }))
                 }
                 aiList = createAI()
@@ -1066,10 +1280,14 @@
 
                 // Gift boxes
                 let giftBoxes = []
+                let obstacles = []
                 let playerSkill = null
                 let playerSkillCooldown = 0
                 let playerShieldEnd = 0
                 let playerGhostEnd = 0
+                let skillEffectEnd = { speed: 0, turbo: 0, shield: 0, ghost: 0, slow_enemy: 0, stun: 0, bomb: 0 }
+                // Last time a gift was collected by the player (for combo scoring)
+                let lastGiftTime = 0
 
                 // Particle pool
                 function getPlayerScreenPos() {
@@ -1078,7 +1296,120 @@
                     const off = getStraightTrackY(player.pos)
                     return {
                         x: player.pos - cameraX,
-                        y: groundY + off - trackW / 2 + 12 + 32,
+                        y: groundY + off - trackW / 2 + 12,
+                    }
+                }
+
+                // Audio helpers for UI feedback
+                function playTone(freq, duration) {
+                    try {
+                        if (!window.audioContext) {
+                            const Ctx = window.AudioContext || window.webkitAudioContext
+                            window.audioContext = new Ctx()
+                        }
+                        const ctx = window.audioContext
+                        const osc = ctx.createOscillator()
+                        const gain = ctx.createGain()
+                        osc.frequency.value = freq
+                        osc.type = 'sine'
+                        osc.connect(gain)
+                        gain.connect(ctx.destination)
+                        osc.start()
+                        gain.gain.value = 0.12
+                        setTimeout(() => {
+                            osc.stop()
+                        }, duration)
+                    } catch (e) {
+                        // ignore audio errors in environments without audio support
+                    }
+                }
+
+                function getSkillIconById(id) {
+                    switch (id) {
+                        case 'speed':
+                            return '⚡'
+                        case 'turbo':
+                            return '🚀'
+                        case 'slow_enemy':
+                            return '🐌'
+                        case 'stun':
+                            return '💫'
+                        case 'shield':
+                            return '🛡️'
+                        case 'teleport':
+                            return '✨'
+                        case 'reverse':
+                            return '🔁'
+                        case 'magnet':
+                            return '🧲'
+                        case 'ghost':
+                            return '👻'
+                        case 'bomb':
+                            return '💣'
+                        default:
+                            return ''
+                    }
+                }
+
+                function playGiftSoundForSkill(id) {
+                    if (!id) return
+                    switch (id) {
+                        case 'speed':
+                        case 'turbo':
+                            playTone(600, 120)
+                            break
+                        case 'slow_enemy':
+                            playTone(400, 180)
+                            break
+                        case 'stun':
+                            playTone(900, 120)
+                            break
+                        case 'shield':
+                            playTone(700, 180)
+                            break
+                        case 'teleport':
+                            playTone(1200, 100)
+                            break
+                        case 'reverse':
+                            playTone(800, 140)
+                            break
+                        case 'magnet':
+                            playTone(1000, 120)
+                            break
+                        case 'ghost':
+                            playTone(500, 150)
+                            break
+                        case 'bomb':
+                            playTone(350, 200)
+                            break
+                    }
+                }
+
+                // Skill icon mapper: map skill id to emoji/icon for UI
+                function getSkillIconById(id) {
+                    switch (id) {
+                        case 'speed':
+                            return '⚡'
+                        case 'turbo':
+                            return '🚀'
+                        case 'slow_enemy':
+                            return '🐌'
+                        case 'stun':
+                            return '💫'
+                        case 'shield':
+                            return '🛡️'
+                        case 'teleport':
+                            return '✨'
+                        case 'reverse':
+                            return '🔁'
+                        case 'magnet':
+                            return '🧲'
+                        case 'ghost':
+                            return '👻'
+                        case 'bomb':
+                            return '💣'
+                        default:
+                            return ''
                     }
                 }
 
@@ -1092,6 +1423,36 @@
                         return
                     }
                     particles.push({ x, y, vx, vy, life, maxLife: life, r, g, b, size, active: true })
+                }
+
+                function createParticles(x, y, count, r, g, b, a) {
+                    for (let i = 0; i < count; i++) {
+                        const angle = Math.random() * Math.PI * 2
+                        const speed = 2 + Math.random() * 4
+                        const vx = Math.cos(angle) * speed
+                        const vy = Math.sin(angle) * speed
+                        const life = 20 + Math.random() * 20
+                        const size = 3 + Math.random() * 4
+                        spawnParticle(x, y, vx, vy, life, r, g, b, size)
+                    }
+                }
+
+                function createMagnetEffect(targetPos, targetLane) {
+                    const groundY = H * 0.6
+                    const trackW = 220
+                    const targetOff = getStraightTrackY(targetPos)
+                    const targetX = targetPos - cameraX
+                    const targetY = groundY + targetOff - trackW / 2 + 20 + targetLane * 32
+
+                    for (let i = 0; i < 25; i++) {
+                        const angle = Math.random() * Math.PI * 2
+                        const dist = 80 + Math.random() * 100
+                        const startX = targetX + Math.cos(angle) * dist
+                        const startY = targetY + Math.sin(angle) * dist
+                        const vx = (targetX - startX) * 0.08 + (Math.random() - 0.5) * 2
+                        const vy = (targetY - startY) * 0.08 + (Math.random() - 0.5) * 2
+                        spawnParticle(startX, startY, vx, vy, 40, 0.1, 0.6, 0.8, 4 + Math.random() * 3)
+                    }
                 }
 
                 function spawnRipple(x, y) {
@@ -1128,9 +1489,12 @@
 
                 function activateSkill(skill) {
                     const now = performance.now()
+                    // Show notification for player skill
+                    showSkillNotification(playerName, skill.name, skill.icon)
+
                     switch (skill.id) {
                         case 'speed':
-                            player.boostMult = 2.0
+                            player.velocity = Math.min(player.velocity + 8, MAX_VELOCITY)
                             player.boostEnd = now + skill.duration
                             break
                         case 'slow_enemy':
@@ -1159,14 +1523,13 @@
                             }
                             break
                         case 'turbo':
-                            player.boostMult = 3.0
+                            player.velocity = Math.min(player.velocity + 15, MAX_VELOCITY)
                             player.boostEnd = now + skill.duration
                             break
                         case 'magnet':
-                            const avgAiPos = aiList.reduce((s, a) => s + a.pos, 0) / aiList.length
                             for (const ai of aiList) {
                                 if (!ai.finished && ai.pos > player.pos) {
-                                    ai.pos = player.pos + 50 + Math.random() * 100
+                                    ai.pos = Math.max(0, ai.pos - 150)
                                 }
                             }
                             break
@@ -1179,6 +1542,8 @@
                             }
                             break
                     }
+                    // Hard cap after skill activation
+                    player.velocity = Math.min(player.velocity, MAX_VELOCITY)
                     playerSkillCooldown = now + 2000
                     screenShake.intensity = 4
                     for (let i = 0; i < 20; i++) {
@@ -1212,8 +1577,7 @@
 
                     if (marker >= perfectStart && marker <= perfectEnd) {
                         const comboBonus = 1 + player.combo * 0.08
-                        const burst = 3 * comboBonus
-                        player.velocity = Math.min(player.velocity + burst, MAX_VELOCITY * comboBonus)
+                        player.boostMult = BOOST_PERFECT_MULT * comboBonus
                         player.boostEnd = now + BOOST_DURATION
                         player.combo++
                         playBoost(true)
@@ -1234,8 +1598,7 @@
                         }
                     } else if (marker >= goodStart && marker <= goodEnd) {
                         const comboBonus = 1 + player.combo * 0.05
-                        const burst = 1.5 * comboBonus
-                        player.velocity = Math.min(player.velocity + burst, MAX_VELOCITY * comboBonus)
+                        player.boostMult = BOOST_GOOD_MULT * comboBonus
                         player.boostEnd = now + BOOST_DURATION
                         player.combo++
                         playBoost(false)
@@ -1262,6 +1625,9 @@
                         playMiss()
                         flashAlpha = 0.3
                     }
+                    // ALWAYS cap velocity to MAX_VELOCITY after any modification
+                    player.velocity = Math.min(player.velocity, MAX_VELOCITY)
+                    if (player.velocity < 0) player.velocity = 0
                     skillBar.active = false
                     document.getElementById('skill-bar-container').style.display = 'none'
                     // Re-show after short delay
@@ -1279,15 +1645,17 @@
                 let mPressed = false
                 let kPressed = false
                 document.addEventListener('keydown', (e) => {
-                    if (e.code === 'Space' && !spacePressed) {
-                        e.preventDefault()
-                        spacePressed = true
-                        handleInput(e)
-                    }
-                    if (e.code === 'KeyM' && !mPressed) {
-                        e.preventDefault()
-                        mPressed = true
-                        handleSkillKey(e)
+                    if (SKILL_BAR_ENABLED) {
+                        if (e.code === 'Space' && !spacePressed) {
+                            e.preventDefault()
+                            spacePressed = true
+                            handleInput(e)
+                        }
+                        if (e.code === 'KeyM' && !mPressed) {
+                            e.preventDefault()
+                            mPressed = true
+                            handleSkillKey(e)
+                        }
                     }
                     if (e.code === 'KeyK' && !kPressed) {
                         e.preventDefault()
@@ -1296,8 +1664,10 @@
                     }
                 })
                 document.addEventListener('keyup', (e) => {
-                    if (e.code === 'Space') spacePressed = false
-                    if (e.code === 'KeyM') mPressed = false
+                    if (SKILL_BAR_ENABLED) {
+                        if (e.code === 'Space') spacePressed = false
+                        if (e.code === 'KeyM') mPressed = false
+                    }
                     if (e.code === 'KeyK') kPressed = false
                 })
 
@@ -1308,11 +1678,13 @@
 
                 document.getElementById('restartBtn').addEventListener('click', () => {
                     initAudio()
-                    resetGame()
-                    startCountdown()
+                    document.getElementById('finish').style.display = 'none'
+                    document.getElementById('menu').style.display = 'flex'
                 })
 
                 function startCountdown() {
+                    // Initialize race state including gift boxes
+                    resetGame()
                     playerName = document.getElementById('snailNameInput').value.trim() || 'Ốc Sên'
                     gameState = 'COUNTDOWN'
                     document.getElementById('menu').style.display = 'none'
@@ -1353,7 +1725,7 @@
                 }
 
                 function resetGame() {
-                    const initVel = 20 + Math.random() * 10
+                    const initVel = TARGET_VELOCITY + (Math.random() - 0.5) * 2
                     player = {
                         pos: 0,
                         velocity: initVel,
@@ -1364,10 +1736,12 @@
                         stumble: false,
                         stumbleEnd: 0,
                         lap: 0,
+                        lane: 3,
                     }
                     aiList = createAI()
                     for (const ai of aiList) {
-                        ai.velocity = 20 + Math.random() * 10
+                        ai.pos = (Math.random() - 0.5) * 10
+                        ai.velocity = TARGET_VELOCITY * ai.skillLevel
                     }
                     raceTime = 0
                     cameraX = 0
@@ -1384,20 +1758,58 @@
                     playerSkillCooldown = 0
                     playerShieldEnd = 0
                     playerGhostEnd = 0
+                    skillEffectEnd = { speed: 0, turbo: 0, shield: 0, ghost: 0, slow_enemy: 0, stun: 0, bomb: 0 }
 
                     // Generate gift boxes along track
                     giftBoxes = []
-                    const boxSpacing = DISTANCE / 15
-                    for (let i = 0; i < 15; i++) {
-                        const bx = boxSpacing * (i + 1) + Math.random() * boxSpacing * 0.5
-                        const lane = Math.floor(Math.random() * 6)
-                        const skillIdx = Math.floor(Math.random() * SKILLS.length)
-                        giftBoxes.push({
-                            x: bx,
-                            lane: lane,
-                            skill: SKILLS[skillIdx],
-                            collected: false,
-                            bobPhase: Math.random() * Math.PI * 2,
+                    const GIFT_ROWS = selectedLaps === 5 ? 7 : 5
+                    const LANES = 7
+                    const START_X = 600
+                    const END_X = DISTANCE - 600
+                    const GAP = (END_X - START_X) / (GIFT_ROWS - 1)
+                    for (let row = 0; row < GIFT_ROWS; row++) {
+                        const rowX = START_X + GAP * row
+                        for (let lane = 0; lane < LANES; lane++) {
+                            const skillIdx = Math.floor(Math.random() * SKILLS.length)
+                            giftBoxes.push({
+                                x: rowX,
+                                lane,
+                                skill: SKILLS[skillIdx],
+                                collected: false,
+                                bobPhase: Math.random() * Math.PI * 2,
+                            })
+                        }
+                    }
+
+                    // Generate obstacles along track
+                    obstacles = []
+                    const OBSTACLE_TYPES = [
+                        {
+                            name: 'Đá',
+                            color: [
+                                0.45,
+                                0.4,
+                                0.35,
+                            ],
+                            size: 14,
+                        },
+                        {
+                            name: 'Gỗ',
+                            color: [
+                                0.35,
+                                0.22,
+                                0.1,
+                            ],
+                            size: 12,
+                        },
+                    ]
+                    const OBSTACLE_COUNT = 14
+                    for (let i = 0; i < OBSTACLE_COUNT; i++) {
+                        const type = OBSTACLE_TYPES[i % OBSTACLE_TYPES.length]
+                        obstacles.push({
+                            x: 800 + Math.random() * (DISTANCE - 1600),
+                            lane: i % LANES,
+                            type,
                         })
                     }
 
@@ -1424,7 +1836,7 @@
 
                     document.getElementById('finish-title').textContent = won
                         ? '🏆 CHIẾN THẮNG!'
-                        : 'Hạng ' + playerRank + '/6'
+                        : 'Hạng ' + playerRank + '/7'
                     document.getElementById('finish-title').style.color = won ? '#4ecca3' : '#e94560'
                     document.getElementById('finish-time').textContent = playerFinished
                         ? (playerFinishTime / 1000).toFixed(2) + 's'
@@ -1457,36 +1869,14 @@
                 let aiSkillBar = { active: false, markerPos: 0, markerDir: 1, cooldown: 0 }
 
                 function updateAI(now, dt) {
-                    const playerPos = player.pos
                     for (let i = 0; i < aiList.length; i++) {
                         const ai = aiList[i]
                         if (ai.finished) continue
 
-                        // Aggressive rubber band: AI chases hard from behind, can overtake
-                        const distToPlayer = ai.pos - playerPos
-                        let rubberBand = 1.0
-                        if (distToPlayer < -400) {
-                            // Far behind - very aggressive chase
-                            rubberBand = 1.2 + Math.min(Math.abs(distToPlayer) / 1000, 0.3)
-                        } else if (distToPlayer < -100) {
-                            // Behind - moderate chase, can overtake
-                            rubberBand = 1.08 + Math.sin(now * 0.003 + i) * 0.05
-                        } else if (distToPlayer < 0) {
-                            // Slightly behind - small boost
-                            rubberBand = 1.03
-                        } else if (distToPlayer > 500) {
-                            // Way ahead - slow down to keep race close
-                            rubberBand = 0.88
-                        } else if (distToPlayer > 100) {
-                            // Ahead - maintain lead but not runaway
-                            rubberBand = 0.95 + Math.sin(now * 0.004 + i * 2) * 0.06
-                        } else {
-                            // Neck and neck - random fluctuations
-                            rubberBand = 0.97 + Math.sin(now * 0.005 + i * 1.5) * 0.1
-                        }
+                        const aiBaseSpeed = TARGET_VELOCITY * ai.skillLevel
 
                         if (now >= ai.nextClick) {
-                            ai.nextClick = now + ai.clickRate + Math.random() * 100 - 50
+                            ai.nextClick = now + ai.clickRate + Math.random() * 60 - 30
 
                             if (skillBar.active) {
                                 const marker = skillBar.markerPos
@@ -1496,7 +1886,7 @@
                                 const goodStart = zc - GOOD_ZONE / 2
                                 const goodEnd = zc + GOOD_ZONE / 2
 
-                                const hitChance = ai.accuracy
+                                const hitChance = ai.accuracy * ai.skillLevel
                                 const perfectChance = hitChance * 0.3
 
                                 if (
@@ -1520,53 +1910,70 @@
                                 }
                             }
 
-                            let power = CLICK_POWER * 0.85 * rubberBand
+                            let power = CLICK_POWER * 0.3
                             if (ai.boostMult > 1) power *= ai.boostMult
-                            ai.velocity = Math.min(ai.velocity + power, MAX_VELOCITY * (ai.boostMult > 1 ? 1.5 : 1))
-
-                            const aiLapP = (ai.pos % LAP_DISTANCE) / LAP_DISTANCE
-                            const aiA = aiLapP * Math.PI * 2 - Math.PI / 2
-                            const aiSX = W * 0.5 + Math.cos(aiA) * W * 0.42
-                            const aiSY = H * 0.55 + Math.sin(aiA) * H * 0.35
-                            for (let i = 0; i < 2; i++) {
-                                spawnParticle(
-                                    aiSX - 20 + Math.random() * 10,
-                                    aiSY + ai.laneOffset - 30 + Math.random() * 10,
-                                    -2 - Math.random() * 2,
-                                    -1 - Math.random() * 1,
-                                    0.5 + Math.random() * 0.3,
-                                    ai.color.r,
-                                    ai.color.g,
-                                    ai.color.b,
-                                    0.5,
-                                    3 + Math.random() * 3,
-                                )
-                            }
+                            ai.velocity += power
+                            // Light adaptive: only nudge when VERY far behind (skill effects should be visible)
+                            const distToPlayer = ai.pos - player.pos
+                            if (distToPlayer < -600) ai.velocity += 0.1
                         }
 
-                        if (ai.boostMult > 1 && now > ai.boostEnd) ai.boostMult = 1
+                        // Reset boost multiplier
+                        if (ai.boostMult > 1 && now > ai.boostEnd) {
+                            ai.boostMult = 1
+                        }
                         if (ai.stumble && now > ai.stumbleEnd) ai.stumble = false
+                        // AI slow-down handling from gifts
+                        if (ai.slowEnd && now < ai.slowEnd) {
+                            ai.velocity *= 0.7
+                        } else if (ai.slowEnd && now >= ai.slowEnd) {
+                            ai.slowEnd = 0
+                        }
+                        // Skill label timer
+                        if (ai.skillLabelEnd && now > ai.skillLabelEnd) {
+                            ai.currentSkillName = ''
+                            ai.currentSkillIcon = ''
+                            ai.skillLabelEnd = 0
+                        }
 
+                        // Apply friction
                         ai.velocity *= FRICTION
 
-                        // Stabilize AI velocity toward 10-15 range
-                        if (ai.velocity > TARGET_VELOCITY + 2) {
-                            ai.velocity *= 0.995
-                        } else if (ai.velocity < TARGET_VELOCITY - 2) {
-                            ai.velocity += 0.02
+                        // Stumble reduces speed
+                        if (ai.stumble) ai.velocity *= 0.5
+
+                        // Smoothly adjust toward AI's base speed
+                        const diff = aiBaseSpeed - ai.velocity
+                        ai.velocity += diff * 0.04
+
+                        // Apply boost multiplier to target
+                        if (ai.boostMult > 1) {
+                            const boostedTarget = aiBaseSpeed * ai.boostMult
+                            ai.velocity += (boostedTarget - ai.velocity) * 0.03
                         }
 
-                        // Hard cap at MAX_VELOCITY (30)
+                        // Cap velocity
                         if (ai.velocity > MAX_VELOCITY) ai.velocity = MAX_VELOCITY
+                        if (ai.velocity < 0) ai.velocity = 0
 
                         ai.pos += ai.velocity
 
-                        const newLap = Math.floor(ai.pos / LAP_DISTANCE)
+                        // Soft rubber band - only when EXTREMELY far (let skills have real effect)
+                        const rbDist = ai.pos - player.pos
+                        if (rbDist < -800) {
+                            ai.velocity += 0.2
+                        } else if (rbDist > 600) {
+                            ai.velocity -= 0.15
+                        }
+
+                        const newLap = Math.floor(ai.pos / (DISTANCE / selectedLaps))
                         if (newLap > ai.lap && ai.lap < selectedLaps) {
                             ai.lap = newLap
                             if (ai.lap >= selectedLaps) {
                                 ai.finished = true
                                 ai.finishTime = raceTime
+                                ai.pos = DISTANCE
+                                ai.velocity = 0
                                 aiFinishedCount++
                             }
                         }
@@ -1605,7 +2012,7 @@
 
                     // Update skill bar - appears based on proximity to AI
                     skillCooldownTimer += dt
-                    if (!skillBar.active && skillCooldownTimer >= 2000) {
+                    if (SKILL_BAR_ENABLED && !skillBar.active && skillCooldownTimer >= 2000) {
                         // Calculate average AI position
                         let aiAvgPos = 0
                         let aiCount = 0
@@ -1641,7 +2048,7 @@
                         }
                     }
 
-                    if (skillBar.active) {
+                    if (SKILL_BAR_ENABLED && skillBar.active) {
                         const elapsed = timestamp - skillBar.startTime
                         skillBar.markerPos = Math.sin(elapsed * 0.0004 * Math.PI * 2) * 0.5 + 0.5
 
@@ -1664,33 +2071,79 @@
                     if (player.stumble && timestamp > player.stumbleEnd) {
                         player.stumble = false
                     }
-
-                    // Auto baseline speed - stabilize to 10-15 range
-                    const baseSpeed = CLICK_POWER * 0.85
-                    player.velocity = Math.min(player.velocity + baseSpeed * 0.016, MAX_VELOCITY)
-
-                    // Stabilize velocity toward TARGET_VELOCITY (12.5)
-                    if (player.velocity > TARGET_VELOCITY + 2) {
-                        player.velocity *= 0.995
-                    } else if (player.velocity < TARGET_VELOCITY - 2) {
-                        player.velocity += 0.02
+                    if (player.slowEnd && timestamp > player.slowEnd) {
+                        player.slowEnd = 0
+                    }
+                    if (player.boostMult > 1 && timestamp > player.boostEnd) {
+                        player.boostMult = 1
+                    }
+                    if (player.skillLabelEnd && timestamp > player.skillLabelEnd) {
+                        player.currentSkillName = ''
+                        player.currentSkillIcon = ''
+                        player.skillLabelEnd = 0
                     }
 
-                    // Hard cap at MAX_VELOCITY (30)
-                    if (player.velocity > MAX_VELOCITY) {
-                        player.velocity = MAX_VELOCITY
-                    }
+                    // Player auto-run: base velocity with boost/stumble modifiers
+                    let baseVel = TARGET_VELOCITY
+                    if (player.stumble) baseVel *= 0.5
+                    if (player.slowEnd && timestamp < player.slowEnd) baseVel *= 0.5
+                    if (player.boostMult > 1) baseVel *= player.boostMult
 
+                    // Smooth transition to target velocity
+                    const velDiff = baseVel - player.velocity
+                    player.velocity += velDiff * 0.05
+
+                    // Apply friction
                     player.velocity *= FRICTION
+
+                    // Cap velocity
+                    if (player.velocity > MAX_VELOCITY) player.velocity = MAX_VELOCITY
+                    if (player.velocity < 0) player.velocity = 0
+
                     player.pos += player.velocity
 
-                    // Check gift box collection
+                    // Check gift box collection (any snail can collect)
                     for (const box of giftBoxes) {
                         if (box.collected) continue
-                        const dist = Math.abs(player.pos - box.x)
-                        if (dist < 50) {
+                        let recipient = null
+                        let minDist = Number.POSITIVE_INFINITY
+                        const distP = Math.abs(player.pos - box.x)
+                        if (distP <= 50 && player.lane === box.lane) {
+                            recipient = player
+                            minDist = distP
+                        }
+                        for (const ai of aiList) {
+                            if (ai.finished) continue
+                            const d = Math.abs(ai.pos - box.x)
+                            if (d < minDist && d <= 50 && ai.lane === box.lane) {
+                                recipient = ai
+                                minDist = d
+                            }
+                        }
+                        if (recipient) {
                             box.collected = true
-                            playerSkill = box.skill
+                            // Update combo only for player pickups
+                            if (recipient === player) {
+                                const delta = timestamp - lastGiftTime
+                                if (delta <= 1500) {
+                                    player.combo++
+                                } else {
+                                    player.combo = 1
+                                }
+                                lastGiftTime = timestamp
+                            }
+                            if (box.skill && box.skill.id) {
+                                if (recipient === player) {
+                                    playerSkill = box.skill
+                                    showSkillNotification(playerName, 'Nhận Skill: ' + box.skill.name, box.skill.icon)
+                                    document.getElementById('skill-val').textContent =
+                                        box.skill.icon + ' ' + box.skill.name
+                                    document.getElementById('skill-val').style.color = box.skill.color
+                                } else {
+                                    applyGiftSkill(box.skill, recipient)
+                                }
+                                playGiftSoundForSkill(box.skill.id)
+                            }
                             screenShake.intensity = 2
                             for (let i = 0; i < 10; i++) {
                                 const pPos = getPlayerScreenPos()
@@ -1709,9 +2162,50 @@
                         }
                     }
 
+                    // Check obstacle collision - slows down snails only in same lane
+                    for (const obs of obstacles) {
+                        const obsLane = obs.lane
+                        // Player collision - check if player is in same lane as obstacle
+                        if (player.lane === obsLane) {
+                            const distP = Math.abs(player.pos - obs.x)
+                            if (distP < 30 && !player.stumble) {
+                                player.velocity *= 0.4
+                                player.stumble = true
+                                player.stumbleEnd = timestamp + 500
+                                player.combo = 0
+                                screenShake.intensity = 4
+                                playMiss()
+                                for (let i = 0; i < 6; i++) {
+                                    spawnParticle(
+                                        player.pos - cameraX,
+                                        getPlayerScreenPos().y,
+                                        (Math.random() - 0.5) * 5,
+                                        -1 - Math.random() * 3,
+                                        0.4 + Math.random() * 0.3,
+                                        obs.type.color[0],
+                                        obs.type.color[1],
+                                        obs.type.color[2],
+                                        2 + Math.random() * 4,
+                                    )
+                                }
+                            }
+                        }
+                        for (const ai of aiList) {
+                            if (ai.finished) continue
+                            if (ai.lane !== obsLane) continue
+                            const d = Math.abs(ai.pos - obs.x)
+                            if (d < 30 && !ai.stumble) {
+                                ai.velocity *= 0.4
+                                ai.stumble = true
+                                ai.stumbleEnd = timestamp + 500
+                            }
+                        }
+                    }
+
                     // Check lap completion
-                    const playerLapPos = player.pos % LAP_DISTANCE
-                    const newPlayerLap = Math.floor(player.pos / LAP_DISTANCE)
+                    const lapDist = DISTANCE / selectedLaps
+                    const playerLapPos = player.pos % lapDist
+                    const newPlayerLap = Math.floor(player.pos / lapDist)
                     if (newPlayerLap > player.lap && player.lap < selectedLaps) {
                         player.lap = newPlayerLap
                         if (player.lap >= selectedLaps) {
@@ -1725,8 +2219,8 @@
 
                     // Decelerate after finish
                     if (playerFinished) {
-                        player.velocity *= 0.95
-                        if (player.velocity < 0.1) player.velocity = 0
+                        player.velocity = 0
+                        player.pos = DISTANCE
                         skillBar.active = false
                         document.getElementById('skill-bar-container').style.display = 'none'
                     }
@@ -1741,8 +2235,8 @@
                     updateAI(timestamp, dt)
 
                     // Camera follow
-                    const targetCam = player.pos - W * 0.3
-                    cameraX += (targetCam - cameraX) * 0.08
+                    const targetCam = player.pos - W * 0.4
+                    cameraX += (targetCam - cameraX) * 0.05
 
                     // Screen shake
                     if (screenShake.intensity > 0) {
@@ -1782,8 +2276,7 @@
                     // Update HUD
                     const progress = Math.min((player.pos / DISTANCE) * 100, 100)
                     document.getElementById('progress-bar').style.width = progress + '%'
-                    document.getElementById('velocity-val').textContent = Math.round(player.velocity * 10)
-                    document.getElementById('combo-val').textContent = player.combo
+                    document.getElementById('velocity-val').textContent = Math.round(player.velocity)
                     document.getElementById('time-val').textContent = (raceTime / 1000).toFixed(1) + 's'
                     if (playerSkill) {
                         document.getElementById('skill-val').textContent = playerSkill.icon + ' ' + playerSkill.name
@@ -1851,12 +2344,15 @@
                     // Draw text overlay
                     ctx.clearRect(0, 0, W, H)
 
-                    // Draw minimap
-                    drawMinimap()
-
                     if (map.type === 'straight') {
                         drawStraightOverlay(map, skin)
                     }
+
+                    // Draw minimap
+                    drawMinimap()
+
+                    // Draw skill list
+                    drawSkillList()
                 }
 
                 // ===== STRAIGHT TRACK RENDERING =====
@@ -1970,8 +2466,8 @@
                         const wx = i * segLen
                         const off = getStraightTrackY(wx)
                         const sx = wx - cameraX
-                        for (let lane = 0; lane < 5; lane++) {
-                            const ly = groundY + off - trackW / 2 + 32 + lane * 32
+                        for (let lane = 0; lane < 7; lane++) {
+                            const ly = groundY + off - trackW / 2 + lane * 32
                             addQuad(sx, ly, segLen * 2 + 1, 1, 0.5, 0.45, 0.3, 0.25)
                         }
                     }
@@ -2019,11 +2515,35 @@
                         addCircle(boxSX, boxSY, 15, 8, 1, 0.8, 0.2, 0.15 + Math.sin(bobT * 2 + box.bobPhase) * 0.1)
                     }
 
+                    // Draw obstacles
+                    for (const obs of obstacles) {
+                        const obsSX = obs.x - cameraX
+                        if (obsSX < -50 || obsSX > W + 50) continue
+                        const obsOff = getStraightTrackY(obs.x)
+                        const obsSY = groundY + obsOff - trackW / 2 + 16 + obs.lane * 32
+                        const sz = obs.type.size
+                        const c = obs.type.color
+                        // Body
+                        addCircle(obsSX, obsSY, sz, 8, c[0], c[1], c[2], 0.85)
+                        addCircle(obsSX - 2, obsSY - 2, sz * 0.6, 6, c[0] + 0.1, c[1] + 0.1, c[2] + 0.1, 0.6)
+                        // Warning glow
+                        addCircle(
+                            obsSX,
+                            obsSY,
+                            sz + 4,
+                            8,
+                            1,
+                            0.3,
+                            0.1,
+                            0.12 + Math.sin(performance.now() * 0.005 + obs.x) * 0.08,
+                        )
+                    }
+
                     // Draw AI snails
                     for (const ai of aiList) {
                         const aiOff = getStraightTrackY(ai.pos)
                         const aiSX = ai.pos - cameraX
-                        const aiSY = groundY + aiOff - trackW / 2 + 12 + ai.laneOffset
+                        const aiSY = groundY + aiOff - trackW / 2 + 12 + ai.lane * 32
                         drawSnail(
                             aiSX,
                             aiSY,
@@ -2036,12 +2556,21 @@
                             'normal',
                             ai.name,
                         )
+                        // Skill name label above AI snail, if any
+                        if (ai.currentSkillName) {
+                            const aiLabel =
+                                (ai.currentSkillIcon ? ai.currentSkillIcon + ' ' : '') + (ai.currentSkillName || '')
+                            ctx.font = '13px Arial'
+                            ctx.textAlign = 'center'
+                            ctx.fillStyle = '#fff'
+                            ctx.fillText(aiLabel, aiSX, aiSY - 22)
+                        }
                     }
 
                     // Draw player snail
                     const playerOff = getStraightTrackY(player.pos)
                     const playerSX = player.pos - cameraX
-                    const playerSY = groundY + playerOff - trackW / 2 + 12 + 32
+                    const playerSY = groundY + playerOff - trackW / 2 + 12 + player.lane * 32
                     drawSnail(
                         playerSX,
                         playerSY,
@@ -2054,17 +2583,74 @@
                         SKINS[selectedSkin].shape,
                         playerName,
                     )
+                    // Player skill name label if any
+                    if (player.currentSkillName) {
+                        const pLabel =
+                            (player.currentSkillIcon ? player.currentSkillIcon + ' ' : '') +
+                            (player.currentSkillName || '')
+                        ctx.font = '13px Arial'
+                        ctx.textAlign = 'center'
+                        ctx.fillStyle = '#fff'
+                        ctx.fillText(pLabel, playerSX, playerSY - 22)
+                    }
+                    // Combo display for player
+                    if (player.combo > 1) {
+                        ctx.font = '18px Arial'
+                        ctx.textAlign = 'center'
+                        ctx.fillStyle = '#ffd700'
+                        ctx.fillText('Combo x' + player.combo, playerSX, playerSY - 40)
+                    }
                 }
 
                 // ===== OVERLAY DRAWING =====
+
+                // Get 10 unique random skills for display
+                function getDisplaySkills() {
+                    const shuffled = [...SKILLS].sort(() => Math.random() - 0.5)
+                    return shuffled.slice(0, 10)
+                }
+
+                let displaySkills = getDisplaySkills()
+
+                function drawSkillList() {
+                    const panelH = 160
+                    const panelW = 180
+                    const panelX = 10
+                    const panelY = 90
+
+                    ctx.fillStyle = 'rgba(0,0,0,0.85)'
+                    ctx.strokeStyle = 'rgba(255,255,255,0.4)'
+                    ctx.lineWidth = 2
+                    ctx.beginPath()
+                    ctx.roundRect(panelX - 4, panelY - 4, panelW + 8, panelH + 8, 8)
+                    ctx.fill()
+                    ctx.stroke()
+
+                    ctx.font = 'bold 14px Arial'
+                    ctx.fillStyle = '#aaa'
+                    ctx.textAlign = 'left'
+                    ctx.fillText('SKILLS', panelX + 6, panelY + 16)
+
+                    displaySkills.slice(0, 6).forEach((skill, i) => {
+                        const cx = panelX + 6
+                        const cy = panelY + 38 + i * 22
+                        const icon = getSkillIconById(skill.id) || skill.icon || ''
+
+                        ctx.font = 'bold 13px Arial'
+                        ctx.fillStyle = skill.color || '#fff'
+                        ctx.textAlign = 'left'
+                        ctx.fillText(icon + ' ' + skill.name, cx, cy)
+                    })
+                }
+
                 function drawMinimap() {
                     const mmW = 300,
-                        mmH = 100
-                    const mmX = W - mmW - 10,
-                        mmY = 35
+                        mmH = 120
+                    const mmX = W - mmW - 10
+                    const mmY = 90
                     const map = MAPS[selectedMap]
 
-                    ctx.fillStyle = 'rgba(0,0,0,0.7)'
+                    ctx.fillStyle = 'rgba(0,0,0,0.8)'
                     ctx.strokeStyle = 'rgba(255,255,255,0.3)'
                     ctx.lineWidth = 2
                     ctx.beginPath()
@@ -2072,45 +2658,200 @@
                     ctx.fill()
                     ctx.stroke()
 
-                    // Leaderboard
-                    const allSnails = [
-                        {
-                            name: playerName || 'Bạn',
-                            pos: player.pos,
-                            color: { r: 0.3, g: 0.8, b: 0.3 },
-                            isPlayer: true,
-                        },
-                        ...aiList.map((ai) => ({
-                            name: ai.name,
-                            pos: ai.pos,
-                            color: ai.color,
-                            isPlayer: false,
-                        })),
-                    ].sort((a, b) => b.pos - a.pos)
-
-                    ctx.font = 'bold 9px Arial'
+                    ctx.font = 'bold 12px Arial'
+                    ctx.fillStyle = '#aaa'
                     ctx.textAlign = 'left'
-                    for (let i = 0; i < allSnails.length; i++) {
-                        const s = allSnails[i]
-                        const y = mmY + 10 + i * 14
-                        ctx.fillStyle = s.isPlayer
-                            ? '#4ecca3'
-                            : `rgb(${s.color.r * 255},${s.color.g * 255},${s.color.b * 255})`
-                        ctx.fillText(i + 1 + '. ' + s.name, mmX + 5, y)
-                        ctx.textAlign = 'right'
-                        ctx.fillText(Math.round(s.pos), mmX + mmW - 5, y)
-                        ctx.textAlign = 'left'
+                    ctx.fillText('MINIMAP', mmX + 6, mmY + 14)
+
+                    ctx.save()
+                    ctx.beginPath()
+                    ctx.roundRect(mmX, mmY + 20, mmW, mmH - 24, 4)
+                    ctx.clip()
+
+                    const mmTrackLeft = mmX + 10
+                    const mmTrackRight = mmX + mmW - 10
+                    const mmTrackW = mmTrackRight - mmTrackLeft
+                    const mmCenterY = mmY + mmH / 2 + 4
+                    const mmTrackHalfH = 30
+                    const hillAmp = map.hillAmp || 60
+
+                    // Draw track using actual track shape
+                    ctx.beginPath()
+                    for (let i = 0; i <= 100; i++) {
+                        const t = i / 100
+                        const worldX = t * DISTANCE
+                        const off = getStraightTrackY(worldX)
+                        const offNorm = (off / hillAmp) * mmTrackHalfH * 0.6
+                        const px = mmTrackLeft + t * mmTrackW
+                        const py = mmCenterY + offNorm
+                        if (i === 0) ctx.moveTo(px, py - mmTrackHalfH)
+                        else ctx.lineTo(px, py - mmTrackHalfH)
                     }
+                    for (let i = 100; i >= 0; i--) {
+                        const t = i / 100
+                        const worldX = t * DISTANCE
+                        const off = getStraightTrackY(worldX)
+                        const offNorm = (off / hillAmp) * mmTrackHalfH * 0.6
+                        const px = mmTrackLeft + t * mmTrackW
+                        const py = mmCenterY + offNorm
+                        ctx.lineTo(px, py + mmTrackHalfH)
+                    }
+                    ctx.closePath()
+                    ctx.fillStyle = 'rgba(78,204,163,0.4)'
+                    ctx.fill()
+                    ctx.strokeStyle = '#4ecca3'
+                    ctx.lineWidth = 1
+                    ctx.stroke()
+
+                    // Draw racers using actual track shape
+                    const totalDist = DISTANCE
+                    const allRacers = [
+                        { pos: player.pos, color: '#4ecca3', size: 6 },
+                        ...aiList.map((ai) => ({
+                            pos: ai.pos,
+                            color: `rgb(${ai.color.r * 255},${ai.color.g * 255},${ai.color.b * 255})`,
+                            size: 5,
+                        })),
+                    ]
+                    allRacers.forEach((r) => {
+                        const t = (r.pos % totalDist) / totalDist
+                        const worldX = t * DISTANCE
+                        const off = getStraightTrackY(worldX)
+                        const offNorm = (off / hillAmp) * mmTrackHalfH * 0.6
+                        const rx = mmTrackLeft + t * mmTrackW
+                        const ry = mmCenterY + offNorm
+                        ctx.fillStyle = r.color
+                        ctx.beginPath()
+                        ctx.arc(rx, ry, r.size, 0, Math.PI * 2)
+                        ctx.fill()
+                    })
+
+                    ctx.restore()
+                }
+
+                function drawStraightOverlay(map, skin) {
+                    const waveSteps = 40
+                    for (let s = 0; s <= waveSteps; s++) {
+                        const t = s / waveSteps
+                        const worldX = t * DISTANCE
+                        const off = getStraightTrackY(worldX)
+                        const offNorm = (off / (map.hillAmp || 60)) * mmTrackHalfH
+                        const px = mmTrackLeft + t * mmTrackW
+                        const py = mmCenterY + offNorm
+                        if (s === 0) ctx.moveTo(px, py)
+                        else ctx.lineTo(px, py)
+                    }
+                    // Trace back for bottom edge
+                    for (let s = waveSteps; s >= 0; s--) {
+                        const t = s / waveSteps
+                        const worldX = t * DISTANCE
+                        const off = getStraightTrackY(worldX)
+                        const offNorm = (off / (map.hillAmp || 60)) * mmTrackHalfH
+                        const px = mmTrackLeft + t * mmTrackW
+                        const py = mmCenterY + offNorm + 10
+                        ctx.lineTo(px, py)
+                    }
+                    ctx.closePath()
+                    ctx.fillStyle = 'rgba(255,255,255,0.15)'
+                    ctx.fill()
+
+                    // Draw lane dividers on minimap
+                    ctx.strokeStyle = 'rgba(255,255,255,0.12)'
+                    ctx.lineWidth = 1
+                    for (let lane = 0; lane < 4; lane++) {
+                        ctx.beginPath()
+                        for (let s = 0; s <= waveSteps; s++) {
+                            const t = s / waveSteps
+                            const worldX = t * DISTANCE
+                            const off = getStraightTrackY(worldX)
+                            const offNorm = (off / (map.hillAmp || 60)) * mmTrackHalfH
+                            const laneY = mmCenterY + offNorm + (lane + 1) * mmLaneScale
+                            const px = mmTrackLeft + t * mmTrackW
+                            if (s === 0) ctx.moveTo(px, laneY)
+                            else ctx.lineTo(px, laneY)
+                        }
+                        ctx.stroke()
+                    }
+
+                    // Finish line marker
+                    const finishX = mmTrackRight
+                    ctx.fillStyle = 'rgba(255,255,255,0.4)'
+                    ctx.fillRect(finishX - 1, mmCenterY - mmTrackHalfH, 2, mmTrackHalfH + 10)
+
+                    // Lap markers on minimap
+                    for (let lap = 1; lap < selectedLaps; lap++) {
+                        const lapPos = (lap * DISTANCE) / selectedLaps
+                        const lapT = lapPos / DISTANCE
+                        const lapWorldX = lapPos
+                        const lapOff = getStraightTrackY(lapWorldX)
+                        const lapOffNorm = (lapOff / (map.hillAmp || 60)) * mmTrackHalfH
+                        const lapPx = mmTrackLeft + lapT * mmTrackW
+                        const lapPy = mmCenterY + lapOffNorm - 3
+                        ctx.fillStyle = 'rgba(255,200,50,0.5)'
+                        ctx.beginPath()
+                        ctx.arc(lapPx, lapPy, 3, 0, Math.PI * 2)
+                        ctx.fill()
+                    }
+
+                    // Helper to get minimap Y for a snail position
+                    function mmSnailY(worldPos, laneOff) {
+                        const t = Math.min(worldPos / DISTANCE, 1)
+                        const off = getStraightTrackY(worldPos)
+                        const offNorm = (off / (map.hillAmp || 60)) * mmTrackHalfH
+                        const laneY = (laneOff / 32) * mmLaneScale
+                        const raw = mmCenterY + offNorm + laneY
+                        return Math.max(mmY + 20, Math.min(raw, mmY + mmH - 4))
+                    }
+
+                    // Draw player dot
+                    const playerProgress = Math.min(player.pos / DISTANCE, 1)
+                    const playerDotX = mmTrackLeft + playerProgress * mmTrackW
+                    const playerDotY = mmSnailY(player.pos, 0)
+                    ctx.fillStyle = '#4ecca3'
+                    ctx.beginPath()
+                    ctx.arc(playerDotX, playerDotY, 7, 0, Math.PI * 2)
+                    ctx.fill()
+                    ctx.strokeStyle = '#fff'
+                    ctx.lineWidth = 1.5
+                    ctx.stroke()
+
+                    // AI dots
+                    for (const ai of aiList) {
+                        const aiProgress = Math.min(ai.pos / DISTANCE, 1)
+                        const aiDotX = mmTrackLeft + aiProgress * mmTrackW
+                        const aiDotY = mmSnailY(ai.pos, ai.lane * 32)
+                        ctx.fillStyle = `rgb(${ai.color.r * 255},${ai.color.g * 255},${ai.color.b * 255})`
+                        ctx.beginPath()
+                        ctx.arc(aiDotX, aiDotY, 6, 0, Math.PI * 2)
+                        ctx.fill()
+                    }
+
+                    // Legend at bottom
+                    ctx.font = '10px Arial'
+                    ctx.textAlign = 'left'
+                    const legendY = mmY + mmH - 4
+                    ctx.fillStyle = '#4ecca3'
+                    ctx.beginPath()
+                    ctx.arc(mmX + 12, legendY, 3, 0, Math.PI * 2)
+                    ctx.fill()
+                    ctx.fillStyle = '#ccc'
+                    ctx.fillText(playerName || 'Bạn', mmX + 20, legendY + 4)
+
+                    ctx.textAlign = 'right'
+                    ctx.fillStyle = '#888'
+                    ctx.fillText('Speed:' + Math.round(player.velocity), mmX + mmW - 8, legendY + 4)
+
+                    ctx.restore()
                 }
 
                 function drawStraightOverlay(map, skin) {
                     const groundY = H * 0.6
                     const trackW = 220
 
-                    // Leaderboard panel at top-left
-                    const panelX = 10,
-                        panelY = 55,
-                        panelW = 260
+                    // Leaderboard panel at top-center
+                    const panelW = 360
+                    const panelX = (W - panelW) / 2
+                    const panelY = 90
                     const allSnails = [
                         {
                             name: playerName || 'Bạn',
@@ -2118,6 +2859,8 @@
                             vel: player.velocity,
                             color: { r: 0.3, g: 0.8, b: 0.3 },
                             isPlayer: true,
+                            currentSkillName: player.currentSkillName,
+                            currentSkillIcon: player.currentSkillIcon,
                         },
                         ...aiList.map((ai) => ({
                             name: ai.name,
@@ -2125,48 +2868,76 @@
                             vel: ai.velocity,
                             color: ai.color,
                             isPlayer: false,
+                            currentSkillName: ai.currentSkillName,
+                            currentSkillIcon: ai.currentSkillIcon,
                         })),
                     ].sort((a, b) => b.pos - a.pos)
 
-                    // Panel background
-                    ctx.fillStyle = 'rgba(0,0,0,0.7)'
-                    ctx.strokeStyle = 'rgba(255,255,255,0.3)'
+                    // Panel background - show all snails
+                    const displayCount = allSnails.length
+                    const panelH = displayCount * 26 + 20
+                    ctx.fillStyle = 'rgba(0,0,0,0.85)'
+                    ctx.strokeStyle = 'rgba(255,255,255,0.4)'
                     ctx.lineWidth = 2
                     ctx.beginPath()
-                    ctx.roundRect(panelX - 8, panelY - 8, panelW + 16, allSnails.length * 28 + 16, 8)
+                    ctx.roundRect(panelX - 8, panelY - 8, panelW + 16, panelH, 8)
                     ctx.fill()
                     ctx.stroke()
 
                     // Title
-                    ctx.font = 'bold 14px Arial'
+                    ctx.font = 'bold 16px Arial'
                     ctx.textAlign = 'left'
                     ctx.fillStyle = '#aaa'
-                    ctx.fillText('BẢNG XẾP HẠNG', panelX + 8, panelY + 14)
+                    ctx.fillText('BẢNG XẾP HẠNG', panelX + 8, panelY + 12)
 
-                    // Snail list
-                    for (let i = 0; i < allSnails.length; i++) {
+                    // Snail list - show all
+                    for (let i = 0; i < displayCount; i++) {
                         const s = allSnails[i]
-                        const y = panelY + 34 + i * 28
-                        const speed = Math.round(s.vel * 10)
+                        const y = panelY + 32 + i * 26
+                        const speed = Math.round(s.vel)
+                        const skillLabel =
+                            (s.currentSkillIcon ? s.currentSkillIcon + ' ' : '') + (s.currentSkillName || '')
 
                         // Rank number
-                        ctx.font = 'bold 14px Arial'
+                        ctx.font = 'bold 16px Arial'
                         ctx.fillStyle = i === 0 ? '#ffd700' : '#888'
                         ctx.textAlign = 'left'
-                        ctx.fillText(i + 1 + '.', panelX + 5, y)
+                        ctx.fillText(i + 1 + '.', panelX + 8, y)
 
                         // Name
                         ctx.font = '14px Arial'
                         ctx.fillStyle = s.isPlayer
                             ? '#4ecca3'
                             : `rgb(${s.color.r * 255},${s.color.g * 255},${s.color.b * 255})`
-                        ctx.fillText(s.name, panelX + 30, y)
+                        // Display name with current skill label if any
+                        const nameWithSkill = s.name + (skillLabel ? ' ' + skillLabel : '')
+                        ctx.fillText(nameWithSkill, panelX + 35, y)
 
                         // Speed
                         ctx.textAlign = 'right'
                         ctx.font = 'bold 14px Arial'
                         ctx.fillStyle = '#ddd'
                         ctx.fillText(speed, panelX + panelW - 8, y)
+                    }
+                    // Best time feature: display and store best time in localStorage
+                    let bestVal = localStorage.getItem('DuaOc_bestTime')
+                    if (playerFinished && playerFinishTime != null) {
+                        const thisTime = playerFinishTime
+                        if (!bestVal || thisTime < Number(bestVal)) {
+                            localStorage.setItem('DuaOc_bestTime', thisTime)
+                            bestVal = thisTime
+                        }
+                    }
+                    let bestEl = document.getElementById('finish-best-time')
+                    if (!bestEl) {
+                        bestEl = document.createElement('div')
+                        bestEl.id = 'finish-best-time'
+                        document.getElementById('finish').appendChild(bestEl)
+                    }
+                    if (bestVal) {
+                        bestEl.textContent = 'Best Time: ' + (Number(bestVal) / 1000).toFixed(2) + 's'
+                    } else {
+                        bestEl.textContent = ''
                     }
                 }
 
@@ -2224,9 +2995,36 @@
                     addCircle(sx + 21.5 * s, sy - 18 * s, 3 * s, 6, 0, 0, 0, 0.9)
                     addCircle(sx + 29.5 * s, sy - 18 * s, 3 * s, 6, 0, 0, 0, 0.9)
 
+                    // Miệng nhỏ
+                    addCircle(sx + 25 * s, sy + 2 * s, 2 * s, 8, 0.2, 0.2, 0.2, 0.9)
+
                     // Boost glow
                     if (isBoosted) {
                         addCircle(sx, sy, 30 * s, 16, 0.3, 1, 0.6, 0.2 + Math.sin(performance.now() * 0.01) * 0.1)
+                    }
+
+                    // Shield effect
+                    if (skillEffectEnd.shield > performance.now()) {
+                        const shieldPulse = 0.15 + Math.sin(performance.now() * 0.008) * 0.1
+                        addCircle(sx, sy, 35 * s, 20, 0.9, 0.9, 0.95, shieldPulse)
+                        addCircle(sx, sy, 28 * s, 16, 1, 1, 1, shieldPulse * 0.6)
+                    }
+
+                    // Ghost effect
+                    if (skillEffectEnd.ghost > performance.now()) {
+                        const ghostPulse = 0.2 + Math.sin(performance.now() * 0.012) * 0.15
+                        addCircle(sx, sy, 32 * s, 16, 0.8, 0.8, 0.9, ghostPulse)
+                    }
+
+                    // Stun effect - spinning stars above head
+                    if (skillEffectEnd.stun > performance.now()) {
+                        const stunTime = performance.now() * 0.01
+                        for (let i = 0; i < 3; i++) {
+                            const angle = stunTime + (i * Math.PI * 2) / 3
+                            const starX = sx + Math.cos(angle) * 15 * s
+                            const starY = sy - 35 * s + Math.sin(angle) * 8 * s
+                            addCircle(starX, starY, 4 * s, 8, 1, 0.9, 0.2, 0.9)
+                        }
                     }
 
                     // Name label
@@ -2248,9 +3046,288 @@
                     gl.uniform2f(uRes, W, H)
                 })
 
+                // Gift logic: apply skill effects immediately inside script
+                // Expose a global wrapper in case the outer scope doesn't see inner function
+                window.applyGiftSkill =
+                    window.applyGiftSkill ||
+                    function (skill) {
+                        if (!skill) return
+                        const now = performance.now()
+                        switch (skill.id) {
+                            case 'speed':
+                            case 'turbo':
+                                player.velocity = Math.min(
+                                    player.velocity + (skill.id === 'turbo' ? 15 : 8),
+                                    MAX_VELOCITY,
+                                )
+                                player.boostEnd = now + (skill.duration || 3000)
+                                break
+                            case 'slow_enemy':
+                                for (const ai of aiList) {
+                                    if (!ai.finished) {
+                                        ai.velocity *= 0.5
+                                        ai.slowEnd = now + 3000
+                                    }
+                                }
+                                break
+                            case 'stun':
+                                for (const ai of aiList) {
+                                    if (!ai.finished) {
+                                        ai.stumble = true
+                                        ai.stumbleEnd = now + 2000
+                                        ai.velocity = 0
+                                    }
+                                }
+                                break
+                            case 'shield':
+                                playerShieldEnd = now + 5000
+                                break
+                            case 'teleport':
+                                player.pos += 250
+                                break
+                            case 'reverse':
+                                for (const ai of aiList) {
+                                    if (!ai.finished) ai.pos = Math.max(0, ai.pos - 150)
+                                }
+                                break
+                            case 'magnet':
+                                for (const ai of aiList) {
+                                    if (!ai.finished && ai.pos > player.pos) {
+                                        ai.pos = Math.max(0, ai.pos - 150)
+                                    }
+                                }
+                                break
+                            case 'ghost':
+                                playerGhostEnd = now + 4000
+                                break
+                            case 'bomb':
+                                for (const ai of aiList) {
+                                    if (!ai.finished) ai.velocity *= 0.7
+                                }
+                                break
+                        }
+                    }
+                function applyGiftSkill(skill, recipient) {
+                    if (!skill) return
+                    const now = performance.now()
+                    // Identify recipient: player object means player, otherwise AI object
+                    const isPlayer = recipient === player
+                    if (isPlayer) {
+                        // Show notification for player skill
+                        showSkillNotification(playerName, skill.name, skill.icon)
+
+                        // Apply combo-enhanced effects for the player
+                        const comboFactor = Math.min(2.5, 1 + (player.combo || 0) * 0.25)
+                        const skillDur = skill.duration || 3000
+                        player.skillLabelEnd = now + skillDur
+                        player.currentSkillName = skill.name
+                        player.currentSkillIcon = getSkillIconById(skill.id)
+                        switch (skill.id) {
+                            case 'speed':
+                                player.velocity = Math.min(player.velocity + 4 * comboFactor, MAX_VELOCITY)
+                                player.boostEnd = now + skillDur
+                                skillEffectEnd.speed = now + skillDur
+                                screenShake.intensity = 5
+                                break
+                            case 'turbo':
+                                player.velocity = Math.min(player.velocity + 8 * comboFactor, MAX_VELOCITY)
+                                player.boostEnd = now + skillDur
+                                skillEffectEnd.turbo = now + skillDur
+                                screenShake.intensity = 7
+                                break
+                            case 'slow_enemy':
+                                for (const ai of aiList) {
+                                    if (!ai.finished) {
+                                        ai.velocity *= 0.5
+                                        ai.slowEnd = now + 3000
+                                        ai.currentSkillName = skill.name
+                                        ai.currentSkillIcon = getSkillIconById(skill.id)
+                                        ai.skillLabelEnd = now + 3000
+                                    }
+                                }
+                                if (!playerFinished && !playerShieldEnd && now > playerGhostEnd) {
+                                    player.velocity *= 0.5
+                                    player.slowEnd = now + 3000
+                                    showSkillNotification(playerName, 'Bị Làm Chậm!', '🐌')
+                                }
+                                skillEffectEnd.slow_enemy = now + 3000
+                                flashAlpha = 0.2
+                                break
+                            case 'stun':
+                                for (const ai of aiList) {
+                                    if (!ai.finished) {
+                                        ai.stumble = true
+                                        ai.stumbleEnd = now + 2000
+                                        ai.velocity = 0
+                                        ai.currentSkillName = skill.name
+                                        ai.currentSkillIcon = getSkillIconById(skill.id)
+                                        ai.skillLabelEnd = now + 2000
+                                    }
+                                }
+                                if (!playerFinished && !playerShieldEnd && now > playerGhostEnd) {
+                                    player.stumble = true
+                                    player.stumbleEnd = now + 2000
+                                    player.velocity = 0
+                                    showSkillNotification(playerName, 'Bị Choáng!', '💫')
+                                }
+                                skillEffectEnd.stun = now + 2000
+                                flashAlpha = 0.4
+                                screenShake.intensity = 8
+                                break
+                            case 'shield':
+                                playerShieldEnd = now + 5000
+                                skillEffectEnd.shield = now + 5000
+                                break
+                            case 'teleport':
+                                player.pos += 500
+                                const pPos = getPlayerScreenPos()
+                                createParticles(pPos.x, pPos.y, 30, 0.5, 0.8, 1, 1)
+                                break
+                            case 'reverse':
+                                for (const ai of aiList) {
+                                    if (!ai.finished) ai.pos = Math.max(0, ai.pos - 150)
+                                }
+                                createParticles(W / 2, H / 2, 20, 0.9, 0.6, 0.2, 1)
+                                break
+                            case 'magnet':
+                                for (const ai of aiList) {
+                                    if (!ai.finished && ai.pos > player.pos) {
+                                        ai.pos = Math.max(0, ai.pos - 150)
+                                        createMagnetEffect(ai.pos, ai.laneOffset / 32)
+                                    }
+                                }
+                                if (!playerFinished && !playerShieldEnd && now > playerGhostEnd) {
+                                    player.pos = Math.max(0, player.pos - 100)
+                                    createMagnetEffect(player.pos, 0)
+                                    showSkillNotification(playerName, 'Bị Hút Lại!', '🧲')
+                                }
+                                createParticles(W / 2, H / 2, 25, 0.1, 0.6, 0.8, 1)
+                                break
+                            case 'ghost':
+                                playerGhostEnd = now + 4000
+                                skillEffectEnd.ghost = now + 4000
+                                break
+                            case 'bomb':
+                                for (const ai of aiList) {
+                                    if (!ai.finished) ai.velocity *= 0.7
+                                }
+                                if (!playerFinished && !playerShieldEnd && now > playerGhostEnd) {
+                                    player.velocity *= 0.5
+                                    player.slowEnd = now + 4000
+                                    showSkillNotification(playerName, 'Bị Bom!', '💣')
+                                }
+                                skillEffectEnd.bomb = now + 4000
+                                flashAlpha = 0.5
+                                screenShake.intensity = 12
+                                break
+                        }
+                        // end of player actions
+                    } else {
+                        // recipient is AI object
+                        const ai = recipient
+                        // Show notification for AI skill
+                        showSkillNotification(ai.name, skill.name, skill.icon)
+
+                        const skillDur = skill.duration || 3000
+                        ai.skillLabelEnd = now + skillDur
+                        ai.currentSkillName = skill.name
+                        ai.currentSkillIcon = getSkillIconById(skill.id)
+                        switch (skill.id) {
+                            case 'speed':
+                                ai.velocity = Math.min(ai.velocity + 4, MAX_VELOCITY)
+                                ai.boostEnd = now + skillDur
+                                break
+                            case 'turbo':
+                                ai.velocity = Math.min(ai.velocity + 8, MAX_VELOCITY)
+                                ai.boostEnd = now + skillDur
+                                break
+                            case 'slow_enemy':
+                                for (const a of aiList) {
+                                    if (!a.finished) {
+                                        a.velocity *= 0.5
+                                        a.slowEnd = now + 3000
+                                        a.currentSkillName = skill.name
+                                        a.currentSkillIcon = getSkillIconById(skill.id)
+                                        a.skillLabelEnd = now + 3000
+                                    }
+                                }
+                                if (!playerFinished) {
+                                    player.velocity *= 0.5
+                                    player.slowEnd = now + 3000
+                                    showSkillNotification(playerName, 'Bị Làm Chậm!', '🐌')
+                                }
+                                skillEffectEnd.slow_enemy = now + 3000
+                                flashAlpha = 0.2
+                                break
+                            case 'stun':
+                                for (const a of aiList) {
+                                    if (!a.finished) {
+                                        a.stumble = true
+                                        a.stumbleEnd = now + 2000
+                                        a.velocity = 0
+                                        a.currentSkillName = skill.name
+                                        a.currentSkillIcon = getSkillIconById(skill.id)
+                                        a.skillLabelEnd = now + 2000
+                                    }
+                                }
+                                if (!playerFinished) {
+                                    player.stumble = true
+                                    player.stumbleEnd = now + 2000
+                                    player.velocity = 0
+                                    showSkillNotification(playerName, 'Bị Choáng!', '💫')
+                                }
+                                skillEffectEnd.stun = now + 2000
+                                flashAlpha = 0.4
+                                screenShake.intensity = 8
+                                break
+                            case 'shield':
+                                ai.shieldEnd = now + 5000
+                                break
+                            case 'teleport':
+                                ai.pos += 250
+                                break
+                            case 'reverse':
+                                ai.pos = Math.max(0, ai.pos - 150)
+                                if (!playerFinished) {
+                                    player.pos = Math.max(0, player.pos - 150)
+                                    showSkillNotification(playerName, 'Bị Đảo Ngược!', '🔄')
+                                }
+                                createParticles(W / 2, H / 2, 20, 0.9, 0.6, 0.2, 1)
+                                break
+                            case 'magnet':
+                                ai.pos = Math.max(0, ai.pos - 150)
+                                createMagnetEffect(ai.pos, ai.laneOffset / 32)
+                                if (!playerFinished && !playerShieldEnd && now > playerGhostEnd) {
+                                    player.pos = Math.max(0, player.pos - 100)
+                                    createMagnetEffect(player.pos, 0)
+                                    showSkillNotification(playerName, 'Bị Hút Lại!', '🧲')
+                                }
+                                createParticles(W / 2, H / 2, 25, 0.1, 0.6, 0.8, 1)
+                                break
+                            case 'ghost':
+                                ai.ghostEnd = now + 4000
+                                ai.currentSkillName = skill.name
+                                ai.currentSkillIcon = getSkillIconById(skill.id)
+                                break
+                            case 'bomb':
+                                ai.velocity *= 0.7
+                                ai.currentSkillName = skill.name
+                                if (!playerFinished) {
+                                    player.velocity *= 0.5
+                                    player.slowEnd = now + 4000
+                                    showSkillNotification(playerName, 'Bị Bom!', '💣')
+                                }
+                                skillEffectEnd.bomb = now + 4000
+                                flashAlpha = 0.5
+                                screenShake.intensity = 12
+                                break
+                        }
+                    }
+                }
                 // Start
                 requestAnimationFrame(gameLoop)
             })()
         </script>
     </body>
 </html>
+(no content)
