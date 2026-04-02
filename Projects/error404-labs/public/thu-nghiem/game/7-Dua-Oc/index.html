@@ -1,0 +1,2256 @@
+<!doctype html>
+<html lang="vi">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+        <title>Đua Ốc+</title>
+        <link
+            rel="icon"
+            type="image/svg+xml"
+            href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%234ecca3'/%3E%3Cstop offset='1' stop-color='%232d8a6e'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='%231a1a2e'/%3E%3Cellipse cx='32' cy='38' rx='18' ry='10' fill='url(%23g)'/%3E%3Ccircle cx='24' cy='34' r='10' fill='%238B6914'/%3E%3Ccircle cx='24' cy='34' r='7' fill='%23A0782C'/%3E%3Ccircle cx='24' cy='34' r='4' fill='%23C49A3C'/%3E%3Ccircle cx='42' cy='32' r='7' fill='url(%23g)'/%3E%3Crect x='38' y='22' width='2.5' height='8' rx='1' fill='%234ecca3'/%3E%3Crect x='44' y='22' width='2.5' height='8' rx='1' fill='%234ecca3'/%3E%3Ccircle cx='39.2' cy='22' r='2.5' fill='%231a1a2e'/%3E%3Ccircle cx='45.2' cy='22' r='2.5' fill='%231a1a2e'/%3E%3C/svg%3E"
+        />
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            html,
+            body {
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+                background: #1a1a2e;
+                font-family: 'Segoe UI', Arial, sans-serif;
+                touch-action: none;
+                user-select: none;
+                -webkit-user-select: none;
+            }
+            canvas {
+                display: block;
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+            #overlay {
+                z-index: 5;
+                pointer-events: none;
+            }
+            #ui {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                z-index: 10;
+            }
+            #ui * {
+                pointer-events: auto;
+            }
+            #menu {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+                z-index: 100;
+            }
+            #menu h1 {
+                font-size: clamp(2rem, 8vw, 5rem);
+                color: #4ecca3;
+                text-shadow:
+                    0 0 20px #4ecca3,
+                    0 0 40px #4ecca3;
+                margin-bottom: 10px;
+                letter-spacing: 4px;
+            }
+            #menu .subtitle {
+                font-size: clamp(0.8rem, 3vw, 1.5rem);
+                color: #a8a8a8;
+                margin-bottom: 40px;
+            }
+            #menu .start-btn {
+                padding: 15px 50px;
+                font-size: clamp(1rem, 4vw, 1.8rem);
+                background: linear-gradient(135deg, #4ecca3, #45b7aa);
+                color: #1a1a2e;
+                border: none;
+                border-radius: 50px;
+                cursor: pointer;
+                font-weight: bold;
+                transition:
+                    transform 0.2s,
+                    box-shadow 0.2s;
+                box-shadow: 0 5px 20px rgba(78, 204, 163, 0.4);
+            }
+            #menu .start-btn:hover {
+                transform: scale(1.05);
+                box-shadow: 0 8px 30px rgba(78, 204, 163, 0.6);
+            }
+            #menu .start-btn:active {
+                transform: scale(0.95);
+            }
+            #menu .instructions {
+                margin-top: 30px;
+                color: #888;
+                font-size: clamp(0.7rem, 2.5vw, 1rem);
+                text-align: center;
+                line-height: 1.6;
+            }
+            .selection-section {
+                margin: 12px 0;
+                text-align: center;
+            }
+            .section-title {
+                color: #4ecca3;
+                font-size: clamp(0.8rem, 3vw, 1.1rem);
+                margin-bottom: 8px;
+                font-weight: bold;
+            }
+            .selection-row {
+                display: flex;
+                justify-content: center;
+                gap: 8px;
+                flex-wrap: wrap;
+            }
+            .sel-btn {
+                padding: 8px 16px;
+                font-size: clamp(0.7rem, 2.5vw, 0.95rem);
+                background: rgba(255, 255, 255, 0.08);
+                color: #ccc;
+                border: 2px solid rgba(255, 255, 255, 0.15);
+                border-radius: 12px;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+            .sel-btn:hover {
+                background: rgba(78, 204, 163, 0.15);
+                border-color: rgba(78, 204, 163, 0.4);
+            }
+            .sel-btn.active {
+                background: rgba(78, 204, 163, 0.25);
+                border-color: #4ecca3;
+                color: #4ecca3;
+                font-weight: bold;
+            }
+            .name-input {
+                padding: 8px 16px;
+                font-size: clamp(0.8rem, 3vw, 1rem);
+                background: rgba(255, 255, 255, 0.08);
+                color: #fff;
+                border: 2px solid rgba(255, 255, 255, 0.15);
+                border-radius: 12px;
+                text-align: center;
+                outline: none;
+                width: 200px;
+            }
+            .name-input:focus {
+                border-color: #4ecca3;
+            }
+            .name-input::placeholder {
+                color: #666;
+            }
+            #finish {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                display: none;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                background: rgba(26, 26, 46, 0.95);
+                z-index: 100;
+            }
+            #finish h2 {
+                font-size: clamp(1.5rem, 6vw, 3rem);
+                margin-bottom: 20px;
+            }
+            #finish .stats {
+                background: rgba(255, 255, 255, 0.05);
+                padding: 20px 40px;
+                border-radius: 15px;
+                margin-bottom: 30px;
+                text-align: center;
+            }
+            #finish .stats p {
+                font-size: clamp(0.9rem, 3vw, 1.3rem);
+                color: #ccc;
+                margin: 8px 0;
+            }
+            #finish .stats .rank {
+                font-size: clamp(1.2rem, 5vw, 2rem);
+                font-weight: bold;
+                margin: 15px 0;
+            }
+            #finish .restart-btn {
+                padding: 12px 40px;
+                font-size: clamp(0.9rem, 3.5vw, 1.5rem);
+                background: linear-gradient(135deg, #4ecca3, #45b7aa);
+                color: #1a1a2e;
+                border: none;
+                border-radius: 50px;
+                cursor: pointer;
+                font-weight: bold;
+                transition: transform 0.2s;
+            }
+            #finish .restart-btn:hover {
+                transform: scale(1.05);
+            }
+            #hud {
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                right: 10px;
+                display: none;
+                z-index: 20;
+            }
+            #progress-container {
+                width: 100%;
+                height: 20px;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 10px;
+                overflow: hidden;
+                margin-bottom: 8px;
+            }
+            #progress-bar {
+                height: 100%;
+                background: linear-gradient(90deg, #4ecca3, #45b7aa);
+                border-radius: 10px;
+                transition: width 0.1s;
+            }
+            #progress-ai {
+                position: absolute;
+                top: 0;
+                height: 100%;
+                width: 4px;
+                background: #e94560;
+                border-radius: 2px;
+            }
+            #stats-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            .stat-box {
+                background: rgba(0, 0, 0, 0.5);
+                padding: 5px 12px;
+                border-radius: 8px;
+                font-size: clamp(0.7rem, 2.5vw, 1rem);
+                color: #fff;
+            }
+            .stat-box .label {
+                color: #888;
+                font-size: 0.8em;
+            }
+            .stat-box .value {
+                font-weight: bold;
+            }
+            #combo-display {
+                color: #ffd700;
+            }
+            #velocity-display {
+                color: #4ecca3;
+            }
+            #skill-bar-container {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                width: clamp(200px, 60vw, 400px);
+                height: 40px;
+                background: rgba(0, 0, 0, 0.7);
+                border-radius: 20px;
+                overflow: hidden;
+                display: none;
+                z-index: 30;
+                border: 2px solid rgba(255, 255, 255, 0.3);
+            }
+            #skill-good-zone {
+                position: absolute;
+                height: 100%;
+                background: rgba(78, 204, 163, 0.3);
+                border-radius: 20px;
+            }
+            #skill-perfect-zone {
+                position: absolute;
+                height: 100%;
+                background: rgba(78, 204, 163, 0.7);
+                border-radius: 20px;
+            }
+            #skill-marker {
+                position: absolute;
+                top: 5px;
+                width: 4px;
+                height: 30px;
+                background: #fff;
+                border-radius: 2px;
+                box-shadow: 0 0 10px #fff;
+            }
+            #skill-label {
+                position: absolute;
+                width: 100%;
+                text-align: center;
+                color: #fff;
+                font-size: clamp(0.8rem, 2.5vw, 1rem);
+                line-height: 40px;
+                text-shadow: 0 0 5px #000;
+                z-index: 1;
+            }
+            #countdown {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: clamp(4rem, 15vw, 10rem);
+                color: #4ecca3;
+                text-shadow: 0 0 30px #4ecca3;
+                display: none;
+                z-index: 50;
+                pointer-events: none;
+            }
+            #boost-indicator {
+                position: absolute;
+                bottom: 10px;
+                left: 50%;
+                transform: translateX(-50%);
+                padding: 5px 15px;
+                background: rgba(78, 204, 163, 0.3);
+                border: 1px solid #4ecca3;
+                border-radius: 10px;
+                color: #4ecca3;
+                font-size: clamp(0.7rem, 2.5vw, 1rem);
+                display: none;
+                z-index: 20;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="gl"></canvas>
+        <canvas id="overlay"></canvas>
+        <div id="ui">
+            <div id="menu">
+                <h1>ĐUA ỐC+</h1>
+                <div class="subtitle">Click để đua - Timing để thắng!</div>
+
+                <div class="selection-section">
+                    <div class="section-title">Chọn Map</div>
+                    <div class="selection-row" id="mapSelection"></div>
+                </div>
+
+                <div class="selection-section">
+                    <div class="section-title">Chọn Skin Ốc Sên</div>
+                    <div class="selection-row" id="skinSelection"></div>
+                </div>
+
+                <div class="selection-section">
+                    <div class="section-title">Đặt Tên Ốc Sên</div>
+                    <input
+                        type="text"
+                        id="snailNameInput"
+                        placeholder="Nhập tên..."
+                        maxlength="15"
+                        class="name-input"
+                    />
+                </div>
+
+                <div class="selection-section">
+                    <div class="section-title">Số Vòng Đua</div>
+                    <div class="selection-row" id="lapSelection"></div>
+                </div>
+
+                <button class="start-btn" id="startBtn">BẮT ĐẦU</button>
+                <div class="instructions">
+                    <p>🐌 Ốc sên tự động chạy - Tất cả bám sát nhau!</p>
+                    <p>⚡ Thanh Skill luôn hiện - Nhấn M đúng vùng xanh để boost!</p>
+                    <p>🎁 Nhặt hộp quà trên đường - Nhấn K để dùng skill!</p>
+                    <p>🔥 Combo tăng mỗi lần hit chuẩn - Miss = reset combo!</p>
+                </div>
+            </div>
+            <div id="finish">
+                <h2 id="finish-title"></h2>
+                <div class="stats">
+                    <p>Thời gian: <span id="finish-time"></span></p>
+                    <p id="finish-ai-time"></p>
+                    <div class="rank" id="finish-rank"></div>
+                </div>
+                <button class="restart-btn" id="restartBtn">CHƠI LẠI</button>
+            </div>
+            <div id="hud">
+                <div id="progress-container">
+                    <div id="progress-bar" style="width: 0%"></div>
+                    <div id="progress-ai" style="left: 0%"></div>
+                </div>
+                <div id="stats-row">
+                    <div class="stat-box" id="velocity-display">
+                        <span class="label">Tốc độ: </span><span class="value" id="velocity-val">0</span>
+                    </div>
+                    <div class="stat-box" id="combo-display">
+                        <span class="label">Combo: </span><span class="value" id="combo-val">0</span>
+                    </div>
+                    <div class="stat-box" id="skill-slot">
+                        <span class="label">Skill (K): </span><span class="value" id="skill-val">-</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="label">Thời gian: </span><span class="value" id="time-val">0.0s</span>
+                    </div>
+                </div>
+            </div>
+            <div id="skill-bar-container">
+                <div id="skill-label">SKILL BOOST - Nhấn M!</div>
+                <div id="skill-good-zone"></div>
+                <div id="skill-perfect-zone"></div>
+                <div id="skill-marker"></div>
+            </div>
+            <div id="countdown"></div>
+            <div id="boost-indicator">⚡ BOOST ⚡</div>
+        </div>
+
+        <script>
+            ;(function () {
+                'use strict'
+
+                const DISTANCE = 20000
+                const LAP_COUNT = 3
+                const LAP_DISTANCE = DISTANCE / LAP_COUNT
+                const FRICTION = 0.996
+                const CLICK_POWER = 0.6
+                const MAX_VELOCITY = 30
+                const TARGET_VELOCITY = 12.5
+                const SKILL_INTERVAL = 4000
+                const SKILL_DURATION = 999999
+                const PERFECT_ZONE = 0.12
+                const GOOD_ZONE = 0.28
+                const BOOST_PERFECT_MULT = 1.8
+                const BOOST_GOOD_MULT = 1.4
+                const MISS_PENALTY = 0.6
+                const BOOST_DURATION = 1200
+                const COMBO_TIMEOUT = 1000
+
+                // Skill definitions
+                const SKILLS = [
+                    {
+                        id: 'speed',
+                        name: 'Tăng Tốc',
+                        icon: '⚡',
+                        desc: 'x2 tốc độ 3s',
+                        color: '#ffd700',
+                        duration: 3000,
+                    },
+                    {
+                        id: 'slow_enemy',
+                        name: 'Làm Chậm',
+                        icon: '🐌',
+                        desc: 'Giảm tốc AI 50% 3s',
+                        color: '#4a90d9',
+                        duration: 3000,
+                    },
+                    {
+                        id: 'stun',
+                        name: 'Choáng',
+                        icon: '💫',
+                        desc: 'AI đứng yên 2s',
+                        color: '#ff6b6b',
+                        duration: 2000,
+                    },
+                    {
+                        id: 'shield',
+                        name: 'Khiên',
+                        icon: '🛡️',
+                        desc: 'Miễn nhiễm 5s',
+                        color: '#50c878',
+                        duration: 5000,
+                    },
+                    {
+                        id: 'teleport',
+                        name: 'Dịch Chuyển',
+                        icon: '✨',
+                        desc: 'Nhảy lên 500px',
+                        color: '#9b59b6',
+                        duration: 0,
+                    },
+                    {
+                        id: 'reverse',
+                        name: 'Đảo Ngược',
+                        icon: '🔄',
+                        desc: 'AI lùi 300px',
+                        color: '#e67e22',
+                        duration: 0,
+                    },
+                    { id: 'turbo', name: 'Turbo', icon: '🔥', desc: 'x3 tốc độ 2s', color: '#ff4500', duration: 2000 },
+                    {
+                        id: 'magnet',
+                        name: 'Nam Châm',
+                        icon: '🧲',
+                        desc: 'Kéo AI lại gần',
+                        color: '#1abc9c',
+                        duration: 0,
+                    },
+                    {
+                        id: 'ghost',
+                        name: 'Bóng Ma',
+                        icon: '👻',
+                        desc: 'Xuyên qua AI 4s',
+                        color: '#bdc3c7',
+                        duration: 4000,
+                    },
+                    { id: 'bomb', name: 'Bom', icon: '💣', desc: 'AI giảm 70% 4s', color: '#2c3e50', duration: 4000 },
+                ]
+
+                // Game Data
+                const MAPS = [
+                    {
+                        id: 'mountain',
+                        name: 'Đèo Hải Vân',
+                        desc: 'Đèo cao dốc đứng, vực sâu',
+                        type: 'straight',
+                        bg: [
+                            0.08,
+                            0.15,
+                            0.1,
+                        ],
+                        track: [
+                            0.28,
+                            0.2,
+                            0.1,
+                        ],
+                        hillAmp: 80,
+                        treeDensity: 1.2,
+                    },
+                    {
+                        id: 'valley',
+                        name: 'Thung Lũng Sương',
+                        desc: 'Đường quanh co qua thung lũng',
+                        type: 'straight',
+                        bg: [
+                            0.12,
+                            0.1,
+                            0.18,
+                        ],
+                        track: [
+                            0.25,
+                            0.22,
+                            0.18,
+                        ],
+                        hillAmp: 50,
+                        treeDensity: 0.8,
+                    },
+                    {
+                        id: 'volcano',
+                        name: 'Núi Lửa',
+                        desc: 'Đường dốc lên đỉnh núi lửa',
+                        type: 'straight',
+                        bg: [
+                            0.18,
+                            0.08,
+                            0.05,
+                        ],
+                        track: [
+                            0.3,
+                            0.18,
+                            0.12,
+                        ],
+                        hillAmp: 100,
+                        treeDensity: 0.5,
+                    },
+                    {
+                        id: 'forest',
+                        name: 'Rừng Già',
+                        desc: 'Đường xuyên rừng rậm',
+                        type: 'straight',
+                        bg: [
+                            0.05,
+                            0.12,
+                            0.05,
+                        ],
+                        track: [
+                            0.22,
+                            0.28,
+                            0.12,
+                        ],
+                        hillAmp: 40,
+                        treeDensity: 1.8,
+                    },
+                ]
+
+                const SKINS = [
+                    {
+                        id: 'classic',
+                        name: 'Classic',
+                        bodyR: 0.3,
+                        bodyG: 0.8,
+                        bodyB: 0.3,
+                        shellR: 0.6,
+                        shellG: 0.5,
+                        shellB: 0.3,
+                        shape: 'normal',
+                    },
+                    {
+                        id: 'fire',
+                        name: 'Lửa',
+                        bodyR: 0.9,
+                        bodyG: 0.4,
+                        bodyB: 0.1,
+                        shellR: 0.8,
+                        shellG: 0.2,
+                        shellB: 0.1,
+                        shape: 'spiky',
+                    },
+                    {
+                        id: 'ice',
+                        name: 'Băng',
+                        bodyR: 0.2,
+                        bodyG: 0.6,
+                        bodyB: 0.9,
+                        shellR: 0.3,
+                        shellG: 0.4,
+                        shellB: 0.8,
+                        shape: 'round',
+                    },
+                    {
+                        id: 'gold',
+                        name: 'Vàng',
+                        bodyR: 0.9,
+                        bodyG: 0.8,
+                        bodyB: 0.2,
+                        shellR: 0.7,
+                        shellG: 0.6,
+                        shellB: 0.1,
+                        shape: 'diamond',
+                    },
+                    {
+                        id: 'shadow',
+                        name: 'Bóng Đêm',
+                        bodyR: 0.3,
+                        bodyG: 0.2,
+                        bodyB: 0.5,
+                        shellR: 0.2,
+                        shellG: 0.1,
+                        shellB: 0.4,
+                        shape: 'normal',
+                    },
+                    {
+                        id: 'rainbow',
+                        name: 'Cầu Vồng',
+                        bodyR: 0.8,
+                        bodyG: 0.3,
+                        bodyB: 0.6,
+                        shellR: 0.3,
+                        shellG: 0.8,
+                        shellB: 0.5,
+                        shape: 'round',
+                    },
+                ]
+
+                let selectedMap = 0
+                let selectedSkin = 0
+                let selectedLaps = 3
+                let playerName = ''
+
+                // Menu Setup
+                function initMenu() {
+                    const mapSel = document.getElementById('mapSelection')
+                    MAPS.forEach((m, i) => {
+                        const btn = document.createElement('button')
+                        btn.className = 'sel-btn' + (i === 0 ? ' active' : '')
+                        btn.textContent = m.name
+                        btn.onclick = () => {
+                            selectedMap = i
+                            mapSel.querySelectorAll('.sel-btn').forEach((b) => b.classList.remove('active'))
+                            btn.classList.add('active')
+                        }
+                        mapSel.appendChild(btn)
+                    })
+
+                    const skinSel = document.getElementById('skinSelection')
+                    SKINS.forEach((s, i) => {
+                        const btn = document.createElement('button')
+                        btn.className = 'sel-btn' + (i === 0 ? ' active' : '')
+                        btn.style.borderColor = `rgb(${s.bodyR * 255},${s.bodyG * 255},${s.bodyB * 255})`
+                        btn.textContent = s.name
+                        btn.onclick = () => {
+                            selectedSkin = i
+                            skinSel.querySelectorAll('.sel-btn').forEach((b) => b.classList.remove('active'))
+                            btn.classList.add('active')
+                        }
+                        skinSel.appendChild(btn)
+                    })
+
+                    const lapSel = document.getElementById('lapSelection')
+                    ;[
+                        1,
+                        2,
+                        3,
+                        5,
+                    ].forEach((n) => {
+                        const btn = document.createElement('button')
+                        btn.className = 'sel-btn' + (n === 3 ? ' active' : '')
+                        btn.textContent = n + ' vòng'
+                        btn.onclick = () => {
+                            selectedLaps = n
+                            lapSel.querySelectorAll('.sel-btn').forEach((b) => b.classList.remove('active'))
+                            btn.classList.add('active')
+                        }
+                        lapSel.appendChild(btn)
+                    })
+                }
+                initMenu()
+
+                const canvas = document.getElementById('gl')
+                const overlay = document.getElementById('overlay')
+                const ctx = overlay.getContext('2d')
+                const gl = canvas.getContext('webgl2', {
+                    alpha: false,
+                    antialias: false,
+                    depth: false,
+                    stencil: false,
+                    preserveDrawingBuffer: false,
+                })
+                if (!gl) {
+                    document.body.innerHTML =
+                        '<h1 style="color:white;text-align:center;margin-top:40vh">Trình duyệt không hỗ trợ WebGL2</h1>'
+                    return
+                }
+
+                let W = window.innerWidth,
+                    H = window.innerHeight
+                canvas.width = W
+                canvas.height = H
+                overlay.width = W
+                overlay.height = H
+                gl.viewport(0, 0, W, H)
+
+                const vsSource = `#version 300 es
+            in vec2 a_pos;
+            in vec4 a_color;
+            uniform vec2 u_resolution;
+            uniform vec2 u_offset;
+            uniform float u_scale;
+            out vec4 v_color;
+            void main(){
+              vec2 pos=(a_pos*u_scale+u_offset)/u_resolution*2.0-1.0;
+              gl_Position=vec4(pos.x,-pos.y,0.0,1.0);
+              v_color=a_color;
+            }`
+
+                const fsSource = `#version 300 es
+            precision mediump float;
+            in vec4 v_color;
+            out vec4 fragColor;
+            void main(){
+              fragColor=v_color;
+            }`
+
+                function compileShader(src, type) {
+                    const s = gl.createShader(type)
+                    gl.shaderSource(s, src)
+                    gl.compileShader(s)
+                    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+                        console.error(gl.getShaderInfoLog(s))
+                        return null
+                    }
+                    return s
+                }
+
+                const vs = compileShader(vsSource, gl.VERTEX_SHADER)
+                const fs = compileShader(fsSource, gl.FRAGMENT_SHADER)
+                const prog = gl.createProgram()
+                gl.attachShader(prog, vs)
+                gl.attachShader(prog, fs)
+                gl.linkProgram(prog)
+                gl.useProgram(prog)
+
+                const aPos = gl.getAttribLocation(prog, 'a_pos')
+                const aColor = gl.getAttribLocation(prog, 'a_color')
+                const uRes = gl.getUniformLocation(prog, 'u_resolution')
+                const uOff = gl.getUniformLocation(prog, 'u_offset')
+                const uScale = gl.getUniformLocation(prog, 'u_scale')
+
+                gl.uniform2f(uRes, W, H)
+                gl.uniform2f(uOff, 0, 0)
+                gl.uniform1f(uScale, 1)
+
+                const MAX_VERTS = 100000
+                const vertData = new Float32Array(MAX_VERTS * 6)
+                let vertCount = 0
+
+                const vao = gl.createVertexArray()
+                gl.bindVertexArray(vao)
+                const vbo = gl.createBuffer()
+                gl.bindBuffer(gl.ARRAY_BUFFER, vbo)
+                gl.bufferData(gl.ARRAY_BUFFER, vertData.byteLength, gl.DYNAMIC_DRAW)
+                gl.enableVertexAttribArray(aPos)
+                gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 24, 0)
+                gl.enableVertexAttribArray(aColor)
+                gl.vertexAttribPointer(aColor, 4, gl.FLOAT, false, 24, 8)
+
+                function addQuad(x, y, w, h, r, g, b, a) {
+                    if (vertCount + 6 > MAX_VERTS) return
+                    const i = vertCount * 6
+                    vertData[i] = x
+                    vertData[i + 1] = y
+                    vertData[i + 2] = r
+                    vertData[i + 3] = g
+                    vertData[i + 4] = b
+                    vertData[i + 5] = a
+                    vertData[i + 6] = x + w
+                    vertData[i + 7] = y
+                    vertData[i + 8] = r
+                    vertData[i + 9] = g
+                    vertData[i + 10] = b
+                    vertData[i + 11] = a
+                    vertData[i + 12] = x + w
+                    vertData[i + 13] = y + h
+                    vertData[i + 14] = r
+                    vertData[i + 15] = g
+                    vertData[i + 16] = b
+                    vertData[i + 17] = a
+                    vertData[i + 18] = x
+                    vertData[i + 19] = y
+                    vertData[i + 20] = r
+                    vertData[i + 21] = g
+                    vertData[i + 22] = b
+                    vertData[i + 23] = a
+                    vertData[i + 24] = x + w
+                    vertData[i + 25] = y + h
+                    vertData[i + 26] = r
+                    vertData[i + 27] = g
+                    vertData[i + 28] = b
+                    vertData[i + 29] = a
+                    vertData[i + 30] = x
+                    vertData[i + 31] = y + h
+                    vertData[i + 32] = r
+                    vertData[i + 33] = g
+                    vertData[i + 34] = b
+                    vertData[i + 35] = a
+                    vertCount += 6
+                }
+
+                function addCircle(cx, cy, radius, seg, r, g, b, a) {
+                    if (vertCount + seg * 3 > MAX_VERTS) return
+                    for (let i = 0; i < seg; i++) {
+                        const a1 = (Math.PI * 2 * i) / seg
+                        const a2 = (Math.PI * 2 * (i + 1)) / seg
+                        const idx = vertCount * 6
+                        vertData[idx] = cx
+                        vertData[idx + 1] = cy
+                        vertData[idx + 2] = r
+                        vertData[idx + 3] = g
+                        vertData[idx + 4] = b
+                        vertData[idx + 5] = a
+                        vertData[idx + 6] = cx + Math.cos(a1) * radius
+                        vertData[idx + 7] = cy + Math.sin(a1) * radius
+                        vertData[idx + 8] = r
+                        vertData[idx + 9] = g
+                        vertData[idx + 10] = b
+                        vertData[idx + 11] = a
+                        vertData[idx + 12] = cx + Math.cos(a2) * radius
+                        vertData[idx + 13] = cy + Math.sin(a2) * radius
+                        vertData[idx + 14] = r
+                        vertData[idx + 15] = g
+                        vertData[idx + 16] = b
+                        vertData[idx + 17] = a
+                        vertCount += 3
+                    }
+                }
+
+                function flush() {
+                    if (vertCount === 0) return
+                    gl.bindBuffer(gl.ARRAY_BUFFER, vbo)
+                    gl.bufferSubData(gl.ARRAY_BUFFER, 0, vertData.subarray(0, vertCount * 6))
+                    gl.drawArrays(gl.TRIANGLES, 0, vertCount)
+                    vertCount = 0
+                }
+
+                gl.enable(gl.BLEND)
+                gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+
+                // Audio
+                let audioCtx = null
+                function initAudio() {
+                    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+                    if (audioCtx.state === 'suspended') audioCtx.resume()
+                }
+
+                function playClick() {
+                    if (!audioCtx) return
+                    const o = audioCtx.createOscillator()
+                    const g = audioCtx.createGain()
+                    o.connect(g)
+                    g.connect(audioCtx.destination)
+                    o.frequency.value = 800 + Math.random() * 400
+                    o.type = 'sine'
+                    g.gain.setValueAtTime(0.15, audioCtx.currentTime)
+                    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08)
+                    o.start()
+                    o.stop(audioCtx.currentTime + 0.08)
+                }
+
+                function playBoost(perfect) {
+                    if (!audioCtx) return
+                    const o = audioCtx.createOscillator()
+                    const g = audioCtx.createGain()
+                    o.connect(g)
+                    g.connect(audioCtx.destination)
+                    o.frequency.setValueAtTime(400, audioCtx.currentTime)
+                    o.frequency.exponentialRampToValueAtTime(perfect ? 1200 : 800, audioCtx.currentTime + 0.15)
+                    o.type = 'sine'
+                    g.gain.setValueAtTime(0.2, audioCtx.currentTime)
+                    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2)
+                    o.start()
+                    o.stop(audioCtx.currentTime + 0.2)
+                    if (perfect) {
+                        const o2 = audioCtx.createOscillator()
+                        const g2 = audioCtx.createGain()
+                        o2.connect(g2)
+                        g2.connect(audioCtx.destination)
+                        o2.frequency.setValueAtTime(600, audioCtx.currentTime + 0.05)
+                        o2.frequency.exponentialRampToValueAtTime(1600, audioCtx.currentTime + 0.2)
+                        o2.type = 'triangle'
+                        g2.gain.setValueAtTime(0.15, audioCtx.currentTime + 0.05)
+                        g2.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.25)
+                        o2.start(audioCtx.currentTime + 0.05)
+                        o2.stop(audioCtx.currentTime + 0.25)
+                    }
+                }
+
+                function playMiss() {
+                    if (!audioCtx) return
+                    const o = audioCtx.createOscillator()
+                    const g = audioCtx.createGain()
+                    o.connect(g)
+                    g.connect(audioCtx.destination)
+                    o.frequency.value = 150
+                    o.type = 'sawtooth'
+                    g.gain.setValueAtTime(0.15, audioCtx.currentTime)
+                    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3)
+                    o.start()
+                    o.stop(audioCtx.currentTime + 0.3)
+                }
+
+                function playFinish() {
+                    if (!audioCtx) return
+                    const notes = [
+                        523,
+                        659,
+                        784,
+                        1047,
+                    ]
+                    notes.forEach((f, i) => {
+                        const o = audioCtx.createOscillator()
+                        const g = audioCtx.createGain()
+                        o.connect(g)
+                        g.connect(audioCtx.destination)
+                        o.frequency.value = f
+                        o.type = 'sine'
+                        const t = audioCtx.currentTime + i * 0.15
+                        g.gain.setValueAtTime(0.2, t)
+                        g.gain.exponentialRampToValueAtTime(0.001, t + 0.4)
+                        o.start(t)
+                        o.stop(t + 0.4)
+                    })
+                }
+
+                let bgMusicInterval = null
+                function startBGMusic() {
+                    if (!audioCtx || bgMusicInterval) return
+                    const notes = [
+                        262,
+                        294,
+                        330,
+                        349,
+                        392,
+                        349,
+                        330,
+                        294,
+                    ]
+                    let idx = 0
+                    bgMusicInterval = setInterval(() => {
+                        if (gameState !== 'PLAYING') {
+                            stopBGMusic()
+                            return
+                        }
+                        const o = audioCtx.createOscillator()
+                        const g = audioCtx.createGain()
+                        o.connect(g)
+                        g.connect(audioCtx.destination)
+                        o.frequency.value = notes[idx % notes.length]
+                        o.type = 'triangle'
+                        g.gain.setValueAtTime(0.04, audioCtx.currentTime)
+                        g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3)
+                        o.start()
+                        o.stop(audioCtx.currentTime + 0.3)
+                        idx++
+                    }, 400)
+                }
+
+                function stopBGMusic() {
+                    if (bgMusicInterval) {
+                        clearInterval(bgMusicInterval)
+                        bgMusicInterval = null
+                    }
+                }
+
+                // Game State
+                let gameState = 'MENU'
+                let player = {
+                    pos: 0,
+                    velocity: 0,
+                    combo: 0,
+                    lastClickTime: 0,
+                    boostMult: 1,
+                    boostEnd: 0,
+                    stumble: false,
+                    stumbleEnd: 0,
+                    lap: 0,
+                }
+                let aiList = []
+                function createAI() {
+                    const colors = [
+                        { r: 0.8, g: 0.3, b: 0.6 },
+                        { r: 0.3, g: 0.5, b: 0.9 },
+                        { r: 0.9, g: 0.6, b: 0.2 },
+                        { r: 0.6, g: 0.3, b: 0.9 },
+                        { r: 0.9, g: 0.4, b: 0.4 },
+                    ]
+                    const names = [
+                        'Tím',
+                        'Xanh Dương',
+                        'Vàng',
+                        'Tím Đậm',
+                        'Đỏ',
+                    ]
+                    return colors.map((c, i) => ({
+                        pos: 0,
+                        velocity: 0,
+                        nextClick: performance.now() + 300 + i * 100,
+                        boostMult: 1,
+                        boostEnd: 0,
+                        accuracy: 0.1 + Math.random() * 0.2,
+                        clickRate: 160 + Math.random() * 100,
+                        stumble: false,
+                        stumbleEnd: 0,
+                        finished: false,
+                        finishTime: 0,
+                        color: c,
+                        name: names[i],
+                        laneOffset: (i + 1) * 32,
+                        lap: 0,
+                    }))
+                }
+                aiList = createAI()
+                let raceTime = 0
+                let cameraX = 0
+                let skillBar = { active: false, startTime: 0, markerPos: 0, markerDir: 1, cooldown: 0, zoneCenter: 0.5 }
+                let particles = []
+                const MAX_PARTICLES = 200
+                let ripples = []
+                let screenShake = { x: 0, y: 0, intensity: 0 }
+                let flashAlpha = 0
+                let countdownValue = 3
+                let countdownTimer = 0
+                let countdownPhase = 'counting'
+                let aiFinishedCount = 0
+                let playerFinished = false
+                let playerFinishTime = 0
+                let lapFlashTimer = 0
+
+                // Gift boxes
+                let giftBoxes = []
+                let playerSkill = null
+                let playerSkillCooldown = 0
+                let playerShieldEnd = 0
+                let playerGhostEnd = 0
+
+                // Particle pool
+                function getPlayerScreenPos() {
+                    const groundY = H * 0.6
+                    const trackW = 220
+                    const off = getStraightTrackY(player.pos)
+                    return {
+                        x: player.pos - cameraX,
+                        y: groundY + off - trackW / 2 + 12 + 32,
+                    }
+                }
+
+                function spawnParticle(x, y, vx, vy, life, r, g, b, size) {
+                    if (particles.length >= MAX_PARTICLES) {
+                        const idx = particles.findIndex((p) => !p.active)
+                        if (idx >= 0) {
+                            particles[idx] = { x, y, vx, vy, life, maxLife: life, r, g, b, size, active: true }
+                            return
+                        }
+                        return
+                    }
+                    particles.push({ x, y, vx, vy, life, maxLife: life, r, g, b, size, active: true })
+                }
+
+                function spawnRipple(x, y) {
+                    ripples.push({ x, y, radius: 0, maxRadius: 40, alpha: 0.6 })
+                }
+
+                // Input
+                function handleInput(e) {
+                    e.preventDefault()
+                    initAudio()
+                    if (gameState === 'PLAYING') {
+                        const now = performance.now()
+                        handlePlayerClick(now)
+                    }
+                }
+
+                function handleSkillKey(e) {
+                    e.preventDefault()
+                    initAudio()
+                    if (gameState === 'PLAYING' && skillBar.active) {
+                        const now = performance.now()
+                        handleSkillCheck(now)
+                    }
+                }
+
+                function handleUseSkill(e) {
+                    e.preventDefault()
+                    initAudio()
+                    if (gameState === 'PLAYING' && playerSkill && performance.now() > playerSkillCooldown) {
+                        activateSkill(playerSkill)
+                        playerSkill = null
+                    }
+                }
+
+                function activateSkill(skill) {
+                    const now = performance.now()
+                    switch (skill.id) {
+                        case 'speed':
+                            player.boostMult = 2.0
+                            player.boostEnd = now + skill.duration
+                            break
+                        case 'slow_enemy':
+                            for (const ai of aiList) {
+                                if (!ai.finished) ai.velocity *= 0.5
+                            }
+                            break
+                        case 'stun':
+                            for (const ai of aiList) {
+                                if (!ai.finished) {
+                                    ai.stumble = true
+                                    ai.stumbleEnd = now + skill.duration
+                                    ai.velocity = 0
+                                }
+                            }
+                            break
+                        case 'shield':
+                            playerShieldEnd = now + skill.duration
+                            break
+                        case 'teleport':
+                            player.pos += 500
+                            break
+                        case 'reverse':
+                            for (const ai of aiList) {
+                                if (!ai.finished) ai.pos = Math.max(0, ai.pos - 300)
+                            }
+                            break
+                        case 'turbo':
+                            player.boostMult = 3.0
+                            player.boostEnd = now + skill.duration
+                            break
+                        case 'magnet':
+                            const avgAiPos = aiList.reduce((s, a) => s + a.pos, 0) / aiList.length
+                            for (const ai of aiList) {
+                                if (!ai.finished && ai.pos > player.pos) {
+                                    ai.pos = player.pos + 50 + Math.random() * 100
+                                }
+                            }
+                            break
+                        case 'ghost':
+                            playerGhostEnd = now + skill.duration
+                            break
+                        case 'bomb':
+                            for (const ai of aiList) {
+                                if (!ai.finished) ai.velocity *= 0.3
+                            }
+                            break
+                    }
+                    playerSkillCooldown = now + 2000
+                    screenShake.intensity = 4
+                    for (let i = 0; i < 20; i++) {
+                        const pPos = getPlayerScreenPos()
+                        spawnParticle(
+                            pPos.x + (Math.random() - 0.5) * 40,
+                            pPos.y + (Math.random() - 0.5) * 40,
+                            (Math.random() - 0.5) * 6,
+                            (Math.random() - 0.5) * 6,
+                            0.5 + Math.random() * 0.5,
+                            1,
+                            1,
+                            1,
+                            3 + Math.random() * 5,
+                        )
+                    }
+                }
+
+                function handlePlayerClick(now) {
+                    // Click/space does nothing - snails auto-run
+                    // Only skill boost timing matters
+                }
+
+                function handleSkillCheck(now) {
+                    const marker = skillBar.markerPos
+                    const zc = skillBar.zoneCenter
+                    const goodStart = zc - GOOD_ZONE / 2
+                    const goodEnd = zc + GOOD_ZONE / 2
+                    const perfectStart = zc - PERFECT_ZONE / 2
+                    const perfectEnd = zc + PERFECT_ZONE / 2
+
+                    if (marker >= perfectStart && marker <= perfectEnd) {
+                        const comboBonus = 1 + player.combo * 0.08
+                        const burst = 3 * comboBonus
+                        player.velocity = Math.min(player.velocity + burst, MAX_VELOCITY * comboBonus)
+                        player.boostEnd = now + BOOST_DURATION
+                        player.combo++
+                        playBoost(true)
+                        screenShake.intensity = 5
+                        const pPos = getPlayerScreenPos()
+                        for (let i = 0; i < 15; i++) {
+                            spawnParticle(
+                                pPos.x,
+                                pPos.y,
+                                -5 + Math.random() * 10,
+                                -3 + Math.random() * 6,
+                                0.8 + Math.random() * 0.5,
+                                0.3 + Math.random() * 0.4,
+                                0.8 + Math.random() * 0.2,
+                                1,
+                                5 + Math.random() * 8,
+                            )
+                        }
+                    } else if (marker >= goodStart && marker <= goodEnd) {
+                        const comboBonus = 1 + player.combo * 0.05
+                        const burst = 1.5 * comboBonus
+                        player.velocity = Math.min(player.velocity + burst, MAX_VELOCITY * comboBonus)
+                        player.boostEnd = now + BOOST_DURATION
+                        player.combo++
+                        playBoost(false)
+                        screenShake.intensity = 3
+                        const pPos = getPlayerScreenPos()
+                        for (let i = 0; i < 8; i++) {
+                            spawnParticle(
+                                pPos.x,
+                                pPos.y,
+                                -3 + Math.random() * 6,
+                                -2 + Math.random() * 4,
+                                0.6 + Math.random() * 0.4,
+                                0.3 + Math.random() * 0.3,
+                                0.8 + Math.random() * 0.2,
+                                0.8,
+                                4 + Math.random() * 6,
+                            )
+                        }
+                    } else {
+                        player.velocity *= MISS_PENALTY
+                        player.combo = 0
+                        player.stumble = true
+                        player.stumbleEnd = now + 300
+                        playMiss()
+                        flashAlpha = 0.3
+                    }
+                    skillBar.active = false
+                    document.getElementById('skill-bar-container').style.display = 'none'
+                    // Re-show after short delay
+                    setTimeout(() => {
+                        skillBar.active = true
+                        skillBar.startTime = performance.now()
+                        skillBar.markerPos = 0
+                        document.getElementById('skill-bar-container').style.display = 'block'
+                    }, 1500)
+                }
+
+                canvas.addEventListener('mousedown', handleInput)
+                canvas.addEventListener('touchstart', handleInput, { passive: false })
+                let spacePressed = false
+                let mPressed = false
+                let kPressed = false
+                document.addEventListener('keydown', (e) => {
+                    if (e.code === 'Space' && !spacePressed) {
+                        e.preventDefault()
+                        spacePressed = true
+                        handleInput(e)
+                    }
+                    if (e.code === 'KeyM' && !mPressed) {
+                        e.preventDefault()
+                        mPressed = true
+                        handleSkillKey(e)
+                    }
+                    if (e.code === 'KeyK' && !kPressed) {
+                        e.preventDefault()
+                        kPressed = true
+                        handleUseSkill(e)
+                    }
+                })
+                document.addEventListener('keyup', (e) => {
+                    if (e.code === 'Space') spacePressed = false
+                    if (e.code === 'KeyM') mPressed = false
+                    if (e.code === 'KeyK') kPressed = false
+                })
+
+                document.getElementById('startBtn').addEventListener('click', () => {
+                    initAudio()
+                    startCountdown()
+                })
+
+                document.getElementById('restartBtn').addEventListener('click', () => {
+                    initAudio()
+                    resetGame()
+                    startCountdown()
+                })
+
+                function startCountdown() {
+                    playerName = document.getElementById('snailNameInput').value.trim() || 'Ốc Sên'
+                    gameState = 'COUNTDOWN'
+                    document.getElementById('menu').style.display = 'none'
+                    document.getElementById('finish').style.display = 'none'
+                    document.getElementById('hud').style.display = 'block'
+                    document.getElementById('countdown').style.display = 'block'
+                    countdownValue = 3
+                    countdownTimer = performance.now()
+                    countdownPhase = 'counting'
+                    updateCountdownDisplay()
+                }
+
+                function updateCountdownDisplay() {
+                    const el = document.getElementById('countdown')
+                    if (countdownPhase === 'counting') {
+                        if (countdownValue > 0) {
+                            el.textContent = countdownValue
+                            el.style.transform = 'translate(-50%,-50%) scale(1)'
+                            el.style.opacity = '1'
+                        } else {
+                            el.textContent = 'ĐI!'
+                            el.style.transform = 'translate(-50%,-50%) scale(1.5)'
+                            el.style.opacity = '1'
+                            countdownPhase = 'go'
+                            countdownTimer = performance.now()
+                        }
+                    } else if (countdownPhase === 'go') {
+                        const elapsed = performance.now() - countdownTimer
+                        if (elapsed >= 500) {
+                            el.style.display = 'none'
+                            gameState = 'PLAYING'
+                            raceTime = 0
+                            skillCooldownTimer = 0
+                            countdownPhase = 'done'
+                            startBGMusic()
+                        }
+                    }
+                }
+
+                function resetGame() {
+                    const initVel = 20 + Math.random() * 10
+                    player = {
+                        pos: 0,
+                        velocity: initVel,
+                        combo: 0,
+                        lastClickTime: 0,
+                        boostMult: 1,
+                        boostEnd: 0,
+                        stumble: false,
+                        stumbleEnd: 0,
+                        lap: 0,
+                    }
+                    aiList = createAI()
+                    for (const ai of aiList) {
+                        ai.velocity = 20 + Math.random() * 10
+                    }
+                    raceTime = 0
+                    cameraX = 0
+                    skillBar = { active: false, startTime: 0, markerPos: 0, markerDir: 1, cooldown: 0, zoneCenter: 0.5 }
+                    particles = []
+                    ripples = []
+                    screenShake = { x: 0, y: 0, intensity: 0 }
+                    flashAlpha = 0
+                    aiFinishedCount = 0
+                    playerFinished = false
+                    playerFinishTime = 0
+                    lapFlashTimer = 0
+                    playerSkill = null
+                    playerSkillCooldown = 0
+                    playerShieldEnd = 0
+                    playerGhostEnd = 0
+
+                    // Generate gift boxes along track
+                    giftBoxes = []
+                    const boxSpacing = DISTANCE / 15
+                    for (let i = 0; i < 15; i++) {
+                        const bx = boxSpacing * (i + 1) + Math.random() * boxSpacing * 0.5
+                        const lane = Math.floor(Math.random() * 6)
+                        const skillIdx = Math.floor(Math.random() * SKILLS.length)
+                        giftBoxes.push({
+                            x: bx,
+                            lane: lane,
+                            skill: SKILLS[skillIdx],
+                            collected: false,
+                            bobPhase: Math.random() * Math.PI * 2,
+                        })
+                    }
+
+                    document.getElementById('hud').style.display = 'none'
+                    document.getElementById('finish').style.display = 'none'
+                    document.getElementById('skill-bar-container').style.display = 'none'
+                    document.getElementById('boost-indicator').style.display = 'none'
+                }
+
+                function showFinish() {
+                    gameState = 'FINISH'
+                    stopBGMusic()
+                    playFinish()
+                    document.getElementById('hud').style.display = 'none'
+                    document.getElementById('skill-bar-container').style.display = 'none'
+                    document.getElementById('boost-indicator').style.display = 'none'
+                    document.getElementById('finish').style.display = 'flex'
+
+                    const sorted = [...aiList].filter((a) => a.finished).sort((a, b) => a.finishTime - b.finishTime)
+                    const playerRank = playerFinished
+                        ? sorted.filter((a) => a.finishTime < playerFinishTime).length + 1
+                        : sorted.length + 1
+                    const won = playerRank === 1
+
+                    document.getElementById('finish-title').textContent = won
+                        ? '🏆 CHIẾN THẮNG!'
+                        : 'Hạng ' + playerRank + '/6'
+                    document.getElementById('finish-title').style.color = won ? '#4ecca3' : '#e94560'
+                    document.getElementById('finish-time').textContent = playerFinished
+                        ? (playerFinishTime / 1000).toFixed(2) + 's'
+                        : 'DNF'
+
+                    let aiTimesHTML = ''
+                    sorted.forEach((a, i) => {
+                        aiTimesHTML += `<p style="color:rgb(${a.color.r * 255},${a.color.g * 255},${a.color.b * 255})">Ốc ${a.name}: ${(a.finishTime / 1000).toFixed(2)}s</p>`
+                    })
+                    document.getElementById('finish-ai-time').innerHTML = aiTimesHTML
+
+                    let rank
+                    if (won) {
+                        const bestAI = sorted.length > 0 ? sorted[0].finishTime : Infinity
+                        const diff = bestAI - playerFinishTime
+                        if (diff < 1000) rank = 'S+ - Huyền Thoại Ốc Sên!'
+                        else if (diff < 3000) rank = 'S - Bậc Thầy Đua Ốc'
+                        else if (diff < 5000) rank = 'A - Tay Đua Cừ Khôi'
+                        else rank = 'B - Khá Ổn'
+                    } else {
+                        if (playerRank <= 2) rank = 'C - Sát Nút'
+                        else if (playerRank <= 4) rank = 'D - Cần Luyện Tập'
+                        else rank = 'E - Ốc Leo...'
+                    }
+                    document.getElementById('finish-rank').textContent = rank
+                    document.getElementById('finish-rank').style.color = won ? '#ffd700' : '#e94560'
+                }
+
+                // AI Logic
+                let aiSkillBar = { active: false, markerPos: 0, markerDir: 1, cooldown: 0 }
+
+                function updateAI(now, dt) {
+                    const playerPos = player.pos
+                    for (let i = 0; i < aiList.length; i++) {
+                        const ai = aiList[i]
+                        if (ai.finished) continue
+
+                        // Aggressive rubber band: AI chases hard from behind, can overtake
+                        const distToPlayer = ai.pos - playerPos
+                        let rubberBand = 1.0
+                        if (distToPlayer < -400) {
+                            // Far behind - very aggressive chase
+                            rubberBand = 1.2 + Math.min(Math.abs(distToPlayer) / 1000, 0.3)
+                        } else if (distToPlayer < -100) {
+                            // Behind - moderate chase, can overtake
+                            rubberBand = 1.08 + Math.sin(now * 0.003 + i) * 0.05
+                        } else if (distToPlayer < 0) {
+                            // Slightly behind - small boost
+                            rubberBand = 1.03
+                        } else if (distToPlayer > 500) {
+                            // Way ahead - slow down to keep race close
+                            rubberBand = 0.88
+                        } else if (distToPlayer > 100) {
+                            // Ahead - maintain lead but not runaway
+                            rubberBand = 0.95 + Math.sin(now * 0.004 + i * 2) * 0.06
+                        } else {
+                            // Neck and neck - random fluctuations
+                            rubberBand = 0.97 + Math.sin(now * 0.005 + i * 1.5) * 0.1
+                        }
+
+                        if (now >= ai.nextClick) {
+                            ai.nextClick = now + ai.clickRate + Math.random() * 100 - 50
+
+                            if (skillBar.active) {
+                                const marker = skillBar.markerPos
+                                const zc = skillBar.zoneCenter
+                                const perfectStart = zc - PERFECT_ZONE / 2
+                                const perfectEnd = zc + PERFECT_ZONE / 2
+                                const goodStart = zc - GOOD_ZONE / 2
+                                const goodEnd = zc + GOOD_ZONE / 2
+
+                                const hitChance = ai.accuracy
+                                const perfectChance = hitChance * 0.3
+
+                                if (
+                                    Math.random() < perfectChance &&
+                                    marker >= perfectStart - 0.05 &&
+                                    marker <= perfectEnd + 0.05
+                                ) {
+                                    ai.boostMult = BOOST_PERFECT_MULT
+                                    ai.boostEnd = now + BOOST_DURATION
+                                } else if (
+                                    Math.random() < hitChance * 0.7 &&
+                                    marker >= goodStart - 0.05 &&
+                                    marker <= goodEnd + 0.05
+                                ) {
+                                    ai.boostMult = BOOST_GOOD_MULT
+                                    ai.boostEnd = now + BOOST_DURATION
+                                } else {
+                                    ai.velocity *= MISS_PENALTY
+                                    ai.stumble = true
+                                    ai.stumbleEnd = now + 300
+                                }
+                            }
+
+                            let power = CLICK_POWER * 0.85 * rubberBand
+                            if (ai.boostMult > 1) power *= ai.boostMult
+                            ai.velocity = Math.min(ai.velocity + power, MAX_VELOCITY * (ai.boostMult > 1 ? 1.5 : 1))
+
+                            const aiLapP = (ai.pos % LAP_DISTANCE) / LAP_DISTANCE
+                            const aiA = aiLapP * Math.PI * 2 - Math.PI / 2
+                            const aiSX = W * 0.5 + Math.cos(aiA) * W * 0.42
+                            const aiSY = H * 0.55 + Math.sin(aiA) * H * 0.35
+                            for (let i = 0; i < 2; i++) {
+                                spawnParticle(
+                                    aiSX - 20 + Math.random() * 10,
+                                    aiSY + ai.laneOffset - 30 + Math.random() * 10,
+                                    -2 - Math.random() * 2,
+                                    -1 - Math.random() * 1,
+                                    0.5 + Math.random() * 0.3,
+                                    ai.color.r,
+                                    ai.color.g,
+                                    ai.color.b,
+                                    0.5,
+                                    3 + Math.random() * 3,
+                                )
+                            }
+                        }
+
+                        if (ai.boostMult > 1 && now > ai.boostEnd) ai.boostMult = 1
+                        if (ai.stumble && now > ai.stumbleEnd) ai.stumble = false
+
+                        ai.velocity *= FRICTION
+
+                        // Stabilize AI velocity toward 10-15 range
+                        if (ai.velocity > TARGET_VELOCITY + 2) {
+                            ai.velocity *= 0.995
+                        } else if (ai.velocity < TARGET_VELOCITY - 2) {
+                            ai.velocity += 0.02
+                        }
+
+                        // Hard cap at MAX_VELOCITY (30)
+                        if (ai.velocity > MAX_VELOCITY) ai.velocity = MAX_VELOCITY
+
+                        ai.pos += ai.velocity
+
+                        const newLap = Math.floor(ai.pos / LAP_DISTANCE)
+                        if (newLap > ai.lap && ai.lap < selectedLaps) {
+                            ai.lap = newLap
+                            if (ai.lap >= selectedLaps) {
+                                ai.finished = true
+                                ai.finishTime = raceTime
+                                aiFinishedCount++
+                            }
+                        }
+                    }
+                }
+
+                // Game Loop
+                let lastTime = 0
+                let skillCooldownTimer = 0
+
+                function gameLoop(timestamp) {
+                    requestAnimationFrame(gameLoop)
+
+                    const dt = Math.min(timestamp - lastTime, 50)
+                    lastTime = timestamp
+
+                    gl.clearColor(0.1, 0.1, 0.18, 1)
+                    gl.clear(gl.COLOR_BUFFER_BIT)
+
+                    if (gameState === 'COUNTDOWN') {
+                        const elapsed = timestamp - countdownTimer
+                        if (elapsed >= 1000 && countdownPhase === 'counting') {
+                            countdownTimer = timestamp
+                            countdownValue--
+                            updateCountdownDisplay()
+                        } else if (countdownPhase === 'go' || countdownPhase === 'done') {
+                            updateCountdownDisplay()
+                        }
+                        render()
+                        return
+                    }
+
+                    if (gameState !== 'PLAYING') return
+
+                    raceTime += dt
+
+                    // Update skill bar - appears based on proximity to AI
+                    skillCooldownTimer += dt
+                    if (!skillBar.active && skillCooldownTimer >= 2000) {
+                        // Calculate average AI position
+                        let aiAvgPos = 0
+                        let aiCount = 0
+                        for (const ai of aiList) {
+                            if (!ai.finished) {
+                                aiAvgPos += ai.pos
+                                aiCount++
+                            }
+                        }
+                        if (aiCount > 0) aiAvgPos /= aiCount
+
+                        // Probability based on distance to AI average
+                        const distToAI = player.pos - aiAvgPos
+                        let appearChance = 0.3
+                        if (distToAI < -200) {
+                            appearChance = 0.7
+                        } else if (distToAI < 0) {
+                            appearChance = 0.5
+                        } else if (distToAI < 300) {
+                            appearChance = 0.2
+                        } else {
+                            appearChance = 0.05
+                        }
+
+                        if (Math.random() < appearChance) {
+                            skillBar.active = true
+                            skillBar.startTime = timestamp
+                            skillBar.markerPos = 0
+                            skillBar.markerDir = 1
+                            skillBar.zoneCenter = 0.15 + Math.random() * 0.7
+                            skillCooldownTimer = 0
+                            document.getElementById('skill-bar-container').style.display = 'block'
+                        }
+                    }
+
+                    if (skillBar.active) {
+                        const elapsed = timestamp - skillBar.startTime
+                        skillBar.markerPos = Math.sin(elapsed * 0.0004 * Math.PI * 2) * 0.5 + 0.5
+
+                        const zc = skillBar.zoneCenter
+                        const goodStart = (zc - GOOD_ZONE / 2) * 100
+                        const goodWidth = GOOD_ZONE * 100
+                        const perfectStart = (zc - PERFECT_ZONE / 2) * 100
+                        const perfectWidth = PERFECT_ZONE * 100
+
+                        document.getElementById('skill-good-zone').style.left = goodStart + '%'
+                        document.getElementById('skill-good-zone').style.width = goodWidth + '%'
+                        document.getElementById('skill-perfect-zone').style.left = perfectStart + '%'
+                        document.getElementById('skill-perfect-zone').style.width = perfectWidth + '%'
+                        document.getElementById('skill-marker').style.left = skillBar.markerPos * 100 + '%'
+                        document.getElementById('skill-label').textContent =
+                            'SKILL BOOST - Nhấn M! (Combo: ' + player.combo + ')'
+                    }
+
+                    // Update player physics
+                    if (player.stumble && timestamp > player.stumbleEnd) {
+                        player.stumble = false
+                    }
+
+                    // Auto baseline speed - stabilize to 10-15 range
+                    const baseSpeed = CLICK_POWER * 0.85
+                    player.velocity = Math.min(player.velocity + baseSpeed * 0.016, MAX_VELOCITY)
+
+                    // Stabilize velocity toward TARGET_VELOCITY (12.5)
+                    if (player.velocity > TARGET_VELOCITY + 2) {
+                        player.velocity *= 0.995
+                    } else if (player.velocity < TARGET_VELOCITY - 2) {
+                        player.velocity += 0.02
+                    }
+
+                    // Hard cap at MAX_VELOCITY (30)
+                    if (player.velocity > MAX_VELOCITY) {
+                        player.velocity = MAX_VELOCITY
+                    }
+
+                    player.velocity *= FRICTION
+                    player.pos += player.velocity
+
+                    // Check gift box collection
+                    for (const box of giftBoxes) {
+                        if (box.collected) continue
+                        const dist = Math.abs(player.pos - box.x)
+                        if (dist < 50) {
+                            box.collected = true
+                            playerSkill = box.skill
+                            screenShake.intensity = 2
+                            for (let i = 0; i < 10; i++) {
+                                const pPos = getPlayerScreenPos()
+                                spawnParticle(
+                                    pPos.x,
+                                    pPos.y,
+                                    (Math.random() - 0.5) * 4,
+                                    (Math.random() - 0.5) * 4,
+                                    0.5,
+                                    1,
+                                    0.8,
+                                    0.2,
+                                    3 + Math.random() * 3,
+                                )
+                            }
+                        }
+                    }
+
+                    // Check lap completion
+                    const playerLapPos = player.pos % LAP_DISTANCE
+                    const newPlayerLap = Math.floor(player.pos / LAP_DISTANCE)
+                    if (newPlayerLap > player.lap && player.lap < selectedLaps) {
+                        player.lap = newPlayerLap
+                        if (player.lap >= selectedLaps) {
+                            playerFinished = true
+                            playerFinishTime = raceTime
+                        } else {
+                            lapFlashTimer = 1.0
+                            screenShake.intensity = 3
+                        }
+                    }
+
+                    // Decelerate after finish
+                    if (playerFinished) {
+                        player.velocity *= 0.95
+                        if (player.velocity < 0.1) player.velocity = 0
+                        skillBar.active = false
+                        document.getElementById('skill-bar-container').style.display = 'none'
+                    }
+
+                    // Check if player finished and all AI finished
+                    if (playerFinished && aiFinishedCount >= aiList.length) {
+                        showFinish()
+                        return
+                    }
+
+                    // Update AI
+                    updateAI(timestamp, dt)
+
+                    // Camera follow
+                    const targetCam = player.pos - W * 0.3
+                    cameraX += (targetCam - cameraX) * 0.08
+
+                    // Screen shake
+                    if (screenShake.intensity > 0) {
+                        screenShake.x = (Math.random() - 0.5) * screenShake.intensity
+                        screenShake.y = (Math.random() - 0.5) * screenShake.intensity
+                        screenShake.intensity *= 0.9
+                        if (screenShake.intensity < 0.5) screenShake.intensity = 0
+                    } else {
+                        screenShake.x = 0
+                        screenShake.y = 0
+                    }
+
+                    // Flash decay
+                    if (flashAlpha > 0) flashAlpha *= 0.92
+                    if (lapFlashTimer > 0) lapFlashTimer -= dt / 1000
+
+                    // Update particles
+                    for (let i = particles.length - 1; i >= 0; i--) {
+                        const p = particles[i]
+                        p.x += p.vx
+                        p.y += p.vy
+                        p.life -= dt / 1000
+                        if (p.life <= 0) particles.splice(i, 1)
+                    }
+
+                    // Update ripples
+                    for (let i = ripples.length - 1; i >= 0; i--) {
+                        const r = ripples[i]
+                        r.radius += 2
+                        r.alpha -= 0.03
+                        if (r.alpha <= 0) ripples.splice(i, 1)
+                    }
+
+                    // Boost indicator
+                    document.getElementById('boost-indicator').style.display = player.boostMult > 1 ? 'block' : 'none'
+
+                    // Update HUD
+                    const progress = Math.min((player.pos / DISTANCE) * 100, 100)
+                    document.getElementById('progress-bar').style.width = progress + '%'
+                    document.getElementById('velocity-val').textContent = Math.round(player.velocity * 10)
+                    document.getElementById('combo-val').textContent = player.combo
+                    document.getElementById('time-val').textContent = (raceTime / 1000).toFixed(1) + 's'
+                    if (playerSkill) {
+                        document.getElementById('skill-val').textContent = playerSkill.icon + ' ' + playerSkill.name
+                        document.getElementById('skill-val').style.color = playerSkill.color
+                    } else {
+                        document.getElementById('skill-val').textContent = '-'
+                        document.getElementById('skill-val').style.color = '#888'
+                    }
+
+                    // Render
+                    render()
+                }
+
+                function render() {
+                    gl.uniform2f(uOff, screenShake.x, screenShake.y)
+
+                    const map = MAPS[selectedMap]
+                    const skin = SKINS[selectedSkin]
+
+                    // Sky gradient
+                    const skyH = H
+                    for (let i = 0; i < 10; i++) {
+                        const y = i * (skyH / 10)
+                        const t = i / 10
+                        const r = map.bg[0] + t * 0.15
+                        const g = map.bg[1] + t * 0.2
+                        const b = map.bg[2] + t * 0.25
+                        addQuad(0, y, W, skyH / 10, r, g, b, 1)
+                    }
+
+                    // Stars
+                    for (let i = 0; i < 30; i++) {
+                        const sx = (i * 137.5 + 50) % W
+                        const sy = (i * 97.3 + 20) % (H * 0.5)
+                        addCircle(sx, sy, 1.5, 8, 1, 1, 1, 0.5 + Math.sin(performance.now() * 0.001 + i) * 0.3)
+                    }
+
+                    if (map.type === 'straight') {
+                        renderStraightTrack(map)
+                    }
+
+                    // Draw particles
+                    for (const p of particles) {
+                        const alpha = p.life / p.maxLife
+                        addCircle(p.x, p.y, p.size * alpha, 8, p.r, p.g, p.b, alpha * 0.7)
+                    }
+
+                    // Draw ripples
+                    for (const r of ripples) {
+                        addCircle(r.x, r.y, r.radius, 16, 0.3, 0.8, 0.3, r.alpha * 0.3)
+                    }
+
+                    // Flash overlay
+                    if (flashAlpha > 0.01) {
+                        addQuad(0, 0, W, H, 1, 0, 0, flashAlpha)
+                    }
+
+                    // Lap completion flash
+                    if (lapFlashTimer > 0) {
+                        addQuad(0, 0, W, H, 0.3, 1, 0.6, lapFlashTimer * 0.3)
+                    }
+
+                    flush()
+
+                    // Draw text overlay
+                    ctx.clearRect(0, 0, W, H)
+
+                    // Draw minimap
+                    drawMinimap()
+
+                    if (map.type === 'straight') {
+                        drawStraightOverlay(map, skin)
+                    }
+                }
+
+                // ===== STRAIGHT TRACK RENDERING =====
+                function getStraightTrackY(worldX) {
+                    const map = MAPS[selectedMap]
+                    const amp = map.hillAmp || 60
+                    return (
+                        Math.sin(worldX * 0.0008) * amp +
+                        Math.sin(worldX * 0.002) * amp * 0.5 +
+                        Math.sin(worldX * 0.0003) * amp * 0.7
+                    )
+                }
+
+                function renderStraightTrack(map) {
+                    const groundY = H * 0.6
+                    const trackW = 220
+                    const segLen = 30
+                    const startSeg = Math.floor((cameraX - 200) / segLen)
+                    const endSeg = Math.ceil((cameraX + W + 200) / segLen)
+                    const treeDens = map.treeDensity || 1.0
+                    const amp = map.hillAmp || 60
+
+                    // Far mountains background
+                    for (let i = 0; i < 8; i++) {
+                        const hx = i * 350 - ((cameraX * 0.08) % 350) - 350
+                        const hh = 100 + Math.sin(i * 1.7 + map.hillAmp * 0.01) * 50
+                        addQuad(hx, groundY - hh - 30, 350, hh + 30, 0.1, 0.18, 0.08, 0.6)
+                    }
+
+                    // Mid hills
+                    for (let i = 0; i < 12; i++) {
+                        const hx = i * 250 - ((cameraX * 0.15) % 250) - 250
+                        const hh = 60 + Math.sin(i * 1.3) * 35
+                        addQuad(hx, groundY - hh - 20, 250, hh + 20, 0.15, 0.28, 0.12, 0.7)
+                    }
+
+                    // Trees, bushes, rocks
+                    for (let i = startSeg; i < endSeg; i++) {
+                        const wx = i * segLen
+                        const off = getStraightTrackY(wx)
+                        const sx = wx - cameraX
+                        if (Math.abs(sx - W / 2) < W / 2 + 100) {
+                            // Trees on top
+                            if (i % Math.max(2, Math.round(5 / treeDens)) === 0) {
+                                const treeX = sx + (i % 2 === 0 ? 80 : -80)
+                                const treeY = groundY + off - trackW / 2 - 20
+                                addQuad(treeX - 3, treeY - 30, 6, 30, 0.35, 0.2, 0.1, 0.9)
+                                addCircle(treeX, treeY - 35, 18, 10, 0.15, 0.45, 0.15, 0.9)
+                                addCircle(treeX - 8, treeY - 28, 12, 8, 0.2, 0.5, 0.18, 0.8)
+                                addCircle(treeX + 8, treeY - 28, 12, 8, 0.18, 0.48, 0.16, 0.8)
+                            }
+                            // Trees on bottom
+                            if (i % Math.max(3, Math.round(7 / treeDens)) === 0) {
+                                const treeX = sx + (i % 3 === 0 ? 90 : -90)
+                                const treeY = groundY + off + trackW / 2 + 20
+                                addQuad(treeX - 3, treeY - 30, 6, 30, 0.35, 0.2, 0.1, 0.9)
+                                addCircle(treeX, treeY - 35, 18, 10, 0.12, 0.42, 0.12, 0.9)
+                                addCircle(treeX - 8, treeY - 28, 12, 8, 0.18, 0.48, 0.16, 0.8)
+                                addCircle(treeX + 8, treeY - 28, 12, 8, 0.16, 0.46, 0.14, 0.8)
+                            }
+                            // Bushes
+                            if (i % Math.max(2, Math.round(4 / treeDens)) === 0) {
+                                const bushX = sx + (i % 2 === 0 ? 65 : -65)
+                                const bushY = groundY + off + (i % 2 === 0 ? -trackW / 2 - 5 : trackW / 2 + 5)
+                                addCircle(bushX, bushY, 8, 8, 0.2, 0.55, 0.2, 0.7)
+                                addCircle(bushX + 5, bushY + 2, 6, 6, 0.25, 0.5, 0.22, 0.6)
+                            }
+                            // Rocks on steep slopes (volcano/mountain maps)
+                            if (amp > 70 && i % 6 === 0) {
+                                const rockX = sx + (i % 4 === 0 ? 75 : -75)
+                                const rockY = groundY + off + (i % 2 === 0 ? -trackW / 2 - 8 : trackW / 2 + 8)
+                                addQuad(rockX - 6, rockY - 4, 12, 8, 0.4, 0.35, 0.3, 0.7)
+                                addQuad(rockX - 3, rockY - 6, 6, 10, 0.35, 0.3, 0.25, 0.6)
+                            }
+                        }
+                    }
+
+                    // Track segments with slope
+                    for (let i = startSeg; i < endSeg; i++) {
+                        const wx = i * segLen
+                        const nextWx = (i + 1) * segLen
+                        const off1 = getStraightTrackY(wx)
+                        const off2 = getStraightTrackY(nextWx)
+                        const sx1 = wx - cameraX
+                        const sx2 = nextWx - cameraX
+                        const minY = Math.min(off1, off2) - trackW / 2
+                        const maxY = Math.max(off1, off2) + trackW / 2
+                        addQuad(
+                            Math.min(sx1, sx2),
+                            groundY + minY,
+                            Math.abs(sx2 - sx1) + 1,
+                            maxY - minY,
+                            map.track[0],
+                            map.track[1],
+                            map.track[2],
+                            1,
+                        )
+                    }
+
+                    // Track borders
+                    for (let i = startSeg; i < endSeg; i++) {
+                        const wx = i * segLen
+                        const off = getStraightTrackY(wx)
+                        const sx = wx - cameraX
+                        addQuad(sx, groundY + off - trackW / 2 - 2, segLen + 1, 3, 0.5, 0.4, 0.2, 0.5)
+                        addQuad(sx, groundY + off + trackW / 2, segLen + 1, 3, 0.5, 0.4, 0.2, 0.5)
+                    }
+
+                    // Lane dividers
+                    for (let i = startSeg; i < endSeg; i += 2) {
+                        const wx = i * segLen
+                        const off = getStraightTrackY(wx)
+                        const sx = wx - cameraX
+                        for (let lane = 0; lane < 5; lane++) {
+                            const ly = groundY + off - trackW / 2 + 32 + lane * 32
+                            addQuad(sx, ly, segLen * 2 + 1, 1, 0.5, 0.45, 0.3, 0.25)
+                        }
+                    }
+
+                    // Finish line
+                    const finishOff = getStraightTrackY(DISTANCE)
+                    const finishX = DISTANCE - cameraX
+                    for (let i = 0; i < 10; i++) {
+                        addQuad(
+                            finishX - 4,
+                            groundY + finishOff - trackW / 2 + i * (trackW / 10),
+                            8,
+                            trackW / 10,
+                            i % 2 === 0 ? 1 : 0,
+                            i % 2 === 0 ? 1 : 0,
+                            i % 2 === 0 ? 1 : 0,
+                            0.9,
+                        )
+                    }
+
+                    // Lap markers
+                    for (let lap = 1; lap < selectedLaps; lap++) {
+                        const wx = (lap * DISTANCE) / selectedLaps
+                        const off = getStraightTrackY(wx)
+                        const mx = wx - cameraX
+                        addCircle(mx, groundY + off - trackW / 2 - 10, 4, 8, 1, 0.8, 0.2, 0.5)
+                    }
+
+                    // Draw gift boxes
+                    const bobT = performance.now() * 0.003
+                    for (const box of giftBoxes) {
+                        if (box.collected) continue
+                        const boxSX = box.x - cameraX
+                        if (boxSX < -50 || boxSX > W + 50) continue
+                        const boxOff = getStraightTrackY(box.x)
+                        const boxSY =
+                            groundY + boxOff - trackW / 2 + 20 + box.lane * 32 + Math.sin(bobT + box.bobPhase) * 5
+                        // Box body
+                        addQuad(boxSX - 10, boxSY - 10, 20, 20, 0.9, 0.7, 0.2, 0.8)
+                        addQuad(boxSX - 8, boxSY - 8, 16, 16, 0.95, 0.85, 0.3, 0.9)
+                        // Ribbon
+                        addQuad(boxSX - 1, boxSY - 10, 2, 20, 0.8, 0.2, 0.2, 0.8)
+                        addQuad(boxSX - 10, boxSY - 1, 20, 2, 0.8, 0.2, 0.2, 0.8)
+                        // Glow
+                        addCircle(boxSX, boxSY, 15, 8, 1, 0.8, 0.2, 0.15 + Math.sin(bobT * 2 + box.bobPhase) * 0.1)
+                    }
+
+                    // Draw AI snails
+                    for (const ai of aiList) {
+                        const aiOff = getStraightTrackY(ai.pos)
+                        const aiSX = ai.pos - cameraX
+                        const aiSY = groundY + aiOff - trackW / 2 + 12 + ai.laneOffset
+                        drawSnail(
+                            aiSX,
+                            aiSY,
+                            1.2,
+                            ai.color.r,
+                            ai.color.g,
+                            ai.color.b,
+                            ai.boostMult > 1,
+                            ai.stumble,
+                            'normal',
+                            ai.name,
+                        )
+                    }
+
+                    // Draw player snail
+                    const playerOff = getStraightTrackY(player.pos)
+                    const playerSX = player.pos - cameraX
+                    const playerSY = groundY + playerOff - trackW / 2 + 12 + 32
+                    drawSnail(
+                        playerSX,
+                        playerSY,
+                        1.2,
+                        SKINS[selectedSkin].bodyR,
+                        SKINS[selectedSkin].bodyG,
+                        SKINS[selectedSkin].bodyB,
+                        player.boostMult > 1,
+                        player.stumble,
+                        SKINS[selectedSkin].shape,
+                        playerName,
+                    )
+                }
+
+                // ===== OVERLAY DRAWING =====
+                function drawMinimap() {
+                    const mmW = 300,
+                        mmH = 100
+                    const mmX = W - mmW - 10,
+                        mmY = 35
+                    const map = MAPS[selectedMap]
+
+                    ctx.fillStyle = 'rgba(0,0,0,0.7)'
+                    ctx.strokeStyle = 'rgba(255,255,255,0.3)'
+                    ctx.lineWidth = 2
+                    ctx.beginPath()
+                    ctx.roundRect(mmX - 4, mmY - 4, mmW + 8, mmH + 8, 8)
+                    ctx.fill()
+                    ctx.stroke()
+
+                    // Leaderboard
+                    const allSnails = [
+                        {
+                            name: playerName || 'Bạn',
+                            pos: player.pos,
+                            color: { r: 0.3, g: 0.8, b: 0.3 },
+                            isPlayer: true,
+                        },
+                        ...aiList.map((ai) => ({
+                            name: ai.name,
+                            pos: ai.pos,
+                            color: ai.color,
+                            isPlayer: false,
+                        })),
+                    ].sort((a, b) => b.pos - a.pos)
+
+                    ctx.font = 'bold 9px Arial'
+                    ctx.textAlign = 'left'
+                    for (let i = 0; i < allSnails.length; i++) {
+                        const s = allSnails[i]
+                        const y = mmY + 10 + i * 14
+                        ctx.fillStyle = s.isPlayer
+                            ? '#4ecca3'
+                            : `rgb(${s.color.r * 255},${s.color.g * 255},${s.color.b * 255})`
+                        ctx.fillText(i + 1 + '. ' + s.name, mmX + 5, y)
+                        ctx.textAlign = 'right'
+                        ctx.fillText(Math.round(s.pos), mmX + mmW - 5, y)
+                        ctx.textAlign = 'left'
+                    }
+                }
+
+                function drawStraightOverlay(map, skin) {
+                    const groundY = H * 0.6
+                    const trackW = 220
+
+                    // Leaderboard panel at top-left
+                    const panelX = 10,
+                        panelY = 55,
+                        panelW = 260
+                    const allSnails = [
+                        {
+                            name: playerName || 'Bạn',
+                            pos: player.pos,
+                            vel: player.velocity,
+                            color: { r: 0.3, g: 0.8, b: 0.3 },
+                            isPlayer: true,
+                        },
+                        ...aiList.map((ai) => ({
+                            name: ai.name,
+                            pos: ai.pos,
+                            vel: ai.velocity,
+                            color: ai.color,
+                            isPlayer: false,
+                        })),
+                    ].sort((a, b) => b.pos - a.pos)
+
+                    // Panel background
+                    ctx.fillStyle = 'rgba(0,0,0,0.7)'
+                    ctx.strokeStyle = 'rgba(255,255,255,0.3)'
+                    ctx.lineWidth = 2
+                    ctx.beginPath()
+                    ctx.roundRect(panelX - 8, panelY - 8, panelW + 16, allSnails.length * 28 + 16, 8)
+                    ctx.fill()
+                    ctx.stroke()
+
+                    // Title
+                    ctx.font = 'bold 14px Arial'
+                    ctx.textAlign = 'left'
+                    ctx.fillStyle = '#aaa'
+                    ctx.fillText('BẢNG XẾP HẠNG', panelX + 8, panelY + 14)
+
+                    // Snail list
+                    for (let i = 0; i < allSnails.length; i++) {
+                        const s = allSnails[i]
+                        const y = panelY + 34 + i * 28
+                        const speed = Math.round(s.vel * 10)
+
+                        // Rank number
+                        ctx.font = 'bold 14px Arial'
+                        ctx.fillStyle = i === 0 ? '#ffd700' : '#888'
+                        ctx.textAlign = 'left'
+                        ctx.fillText(i + 1 + '.', panelX + 5, y)
+
+                        // Name
+                        ctx.font = '14px Arial'
+                        ctx.fillStyle = s.isPlayer
+                            ? '#4ecca3'
+                            : `rgb(${s.color.r * 255},${s.color.g * 255},${s.color.b * 255})`
+                        ctx.fillText(s.name, panelX + 30, y)
+
+                        // Speed
+                        ctx.textAlign = 'right'
+                        ctx.font = 'bold 14px Arial'
+                        ctx.fillStyle = '#ddd'
+                        ctx.fillText(speed, panelX + panelW - 8, y)
+                    }
+                }
+
+                function drawSnail(x, y, scale, r, g, b, isBoosted, isStumbling, shape, name) {
+                    const s = scale * (isBoosted ? 1.15 : 1) * (isStumbling ? 0.9 : 1)
+                    const shake = isStumbling ? (Math.random() - 0.5) * 4 : 0
+                    const sx = x + shake
+                    const sy = y + shake * 0.5
+
+                    // Body
+                    addQuad(sx - 25 * s, sy - 8 * s, 50 * s, 16 * s, r * 0.8, g * 0.9, b * 0.7, 0.9)
+
+                    if (shape === 'spiky') {
+                        // Spiky shell
+                        for (let i = 0; i < 8; i++) {
+                            const a = (Math.PI * 2 * i) / 8
+                            const spikeR = 18 * s + Math.sin(i * 3) * 5 * s
+                            addCircle(
+                                sx - 5 * s + Math.cos(a) * spikeR * 0.5,
+                                sy - 5 * s + Math.sin(a) * spikeR * 0.5,
+                                5 * s,
+                                6,
+                                r * 0.6,
+                                g * 0.5,
+                                b * 0.3,
+                                0.9,
+                            )
+                        }
+                        addCircle(sx - 5 * s, sy - 5 * s, 12 * s, 12, r * 0.5, g * 0.4, b * 0.2, 0.9)
+                    } else if (shape === 'round') {
+                        // Extra round shell
+                        addCircle(sx - 5 * s, sy - 5 * s, 22 * s, 16, r * 0.6, g * 0.5, b * 0.3, 0.95)
+                        addCircle(sx - 5 * s, sy - 5 * s, 15 * s, 12, r * 0.5, g * 0.4, b * 0.2, 0.9)
+                        addCircle(sx - 5 * s, sy - 5 * s, 8 * s, 8, r * 0.4, g * 0.3, b * 0.15, 0.85)
+                    } else if (shape === 'diamond') {
+                        // Diamond shell
+                        addQuad(sx - 18 * s, sy - 18 * s, 26 * s, 26 * s, r * 0.5, g * 0.4, b * 0.2, 0.9)
+                        addQuad(sx - 12 * s, sy - 12 * s, 14 * s, 14 * s, r * 0.4, g * 0.3, b * 0.15, 0.85)
+                        addQuad(sx - 6 * s, sy - 6 * s, 2 * s, 2 * s, 1, 1, 0.5, 0.6)
+                    } else {
+                        // Normal spiral shell
+                        addCircle(sx - 5 * s, sy - 5 * s, 18 * s, 16, r * 0.6, g * 0.5, b * 0.3, 0.95)
+                        addCircle(sx - 5 * s, sy - 5 * s, 12 * s, 12, r * 0.5, g * 0.4, b * 0.2, 0.9)
+                        addCircle(sx - 5 * s, sy - 5 * s, 6 * s, 8, r * 0.4, g * 0.3, b * 0.15, 0.85)
+                    }
+
+                    // Head
+                    addCircle(sx + 25 * s, sy - 2 * s, 12 * s, 12, r, g, b, 0.9)
+
+                    // Eyes
+                    addQuad(sx + 20 * s, sy - 18 * s, 3 * s, 10 * s, r * 0.7, g * 0.7, b * 0.6, 0.9)
+                    addQuad(sx + 28 * s, sy - 18 * s, 3 * s, 10 * s, r * 0.7, g * 0.7, b * 0.6, 0.9)
+
+                    // Eye pupils
+                    addCircle(sx + 21.5 * s, sy - 18 * s, 3 * s, 6, 0, 0, 0, 0.9)
+                    addCircle(sx + 29.5 * s, sy - 18 * s, 3 * s, 6, 0, 0, 0, 0.9)
+
+                    // Boost glow
+                    if (isBoosted) {
+                        addCircle(sx, sy, 30 * s, 16, 0.3, 1, 0.6, 0.2 + Math.sin(performance.now() * 0.01) * 0.1)
+                    }
+
+                    // Name label
+                    if (name) {
+                        const nameW = name.length * 6 * s
+                        addQuad(sx - nameW / 2, sy - 30 * s, nameW, 10 * s, 0, 0, 0, 0)
+                    }
+                }
+
+                // Handle resize
+                window.addEventListener('resize', () => {
+                    W = window.innerWidth
+                    H = window.innerHeight
+                    canvas.width = W
+                    canvas.height = H
+                    overlay.width = W
+                    overlay.height = H
+                    gl.viewport(0, 0, W, H)
+                    gl.uniform2f(uRes, W, H)
+                })
+
+                // Start
+                requestAnimationFrame(gameLoop)
+            })()
+        </script>
+    </body>
+</html>

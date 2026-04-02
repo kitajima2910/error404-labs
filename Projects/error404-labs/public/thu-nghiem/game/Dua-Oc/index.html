@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Đua Ốc+ Ultimate</title>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #1a1a2e;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            user-select: none;
+            touch-action: none;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #4facfe 0%, #00f2fe 100%);
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        #gameCanvas {
+            z-index: 1;
+        }
+
+        #labelCanvas {
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            box-sizing: border-box;
+            z-index: 10;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* HUD Style */
+        #hud {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+        }
+
+        .hud-top {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            align-items: center;
+            text-align: center;
+        }
+
+        .bar-container {
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 15px;
+            padding: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(4px);
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 24px;
+            background: #222;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .marker {
+            position: absolute;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            background: white;
+            border-radius: 2px;
+            transition: left 0.1s linear;
+        }
+
+        #marker-p1 {
+            background: #00ff00;
+            width: 8px;
+            box-shadow: 0 0 15px #00ff00;
+            z-index: 5;
+            border-radius: 4px;
+        }
+
+        .stat-card {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px 15px;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        #rank-display {
+            color: #ffeb3b;
+            font-size: 1.4rem;
+            text-shadow: 0 0 10px rgba(255, 235, 59, 0.5);
+        }
+
+        #speed-display {
+            color: #00e5ff;
+            font-size: 1.4rem;
+        }
+
+        #gift-slot {
+            color: #ff9100;
+            border-color: #ff9100;
+            min-width: 160px;
+            transition: all 0.3s;
+        }
+
+        .has-gift {
+            background: #ff9100 !important;
+            color: white !important;
+            animation: bounce 0.5s infinite alternate;
+        }
+
+        @keyframes bounce {
+            from {
+                transform: scale(1);
+            }
+
+            to {
+                transform: scale(1.05);
+            }
+        }
+
+        /* Mini Map */
+        #mini-map {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 240px;
+            height: 100px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #555;
+            border-radius: 12px;
+            padding: 10px;
+            pointer-events: none;
+            backdrop-filter: blur(5px);
+        }
+
+        #mini-map-track {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+        }
+
+        .mini-dot {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Screens */
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 30, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            z-index: 100;
+            pointer-events: auto;
+        }
+
+        h1 {
+            font-size: 5rem;
+            margin: 0;
+            background: linear-gradient(#4caf50, #81c784);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 5px 0 #1b5e20);
+        }
+
+        .btn-main {
+            padding: 18px 60px;
+            font-size: 2rem;
+            font-weight: 900;
+            background: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 0 #1b5e20;
+            transition: 0.1s;
+            margin-top: 30px;
+        }
+
+        .btn-main:active {
+            transform: translateY(6px);
+            box-shadow: 0 2px 0 #1b5e20;
+        }
+
+        .slider-box {
+            margin: 25px 0;
+            width: 350px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        input[type=range] {
+            width: 100%;
+            accent-color: #4caf50;
+            cursor: pointer;
+            height: 10px;
+            border-radius: 5px;
+        }
+
+        #countdown {
+            font-size: 12rem;
+            font-weight: 900;
+            color: white;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 50;
+            text-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        #flash {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 20;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <canvas id="labelCanvas"></canvas>
+        <div id="flash"></div>
+
+        <div id="ui-layer">
+            <div id="hud" class="hidden">
+                <div class="hud-top">
+                    <div class="stat-card" id="rank-display">HẠNG <span id="rank-text">1</span>/7</div>
+                    <div class="stat-card" id="gift-slot">TRỐNG</div>
+                    <div class="stat-card" id="speed-display"><span id="speed-text">0</span> km/h</div>
+                </div>
+                <div class="bar-container">
+                    <div id="progress-container" class="progress-track">
+                        <div id="marker-p1" class="marker" style="left: 0%"></div>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: space-between; color: white; font-weight: bold;">
+                    <span id="combo-status">Duy trì tốc độ...</span>
+                    <span id="skill-msg" style="text-transform: uppercase; font-size: 1.2rem;"></span>
+                </div>
+            </div>
+            <div id="mini-map" class="hidden">
+                <div id="mini-map-track">
+                    <div id="dot-p1" class="mini-dot"></div>
+                </div>
+            </div>
+            <div id="countdown" class="hidden">3</div>
+        </div>
+
+        <div id="menu-screen" class="screen">
+            <h1>ĐUA ỐC+</h1>
+            <p style="font-size: 1.4rem; color: #aaa;">Bản Ultimate: Tự động chạy | M: Skill | K: Quà</p>
+            <div class="slider-box">
+                <label style="color:#ffeb3b; font-weight: bold; margin-bottom: 10px; display: block;">Độ khó AI: <span
+                        id="diff-val">50</span>%</label>
+                <input type="range" id="diff-slider" min="10" max="100" value="50">
+            </div>
+            <button class="btn-main" id="btn-start">ĐUA NGAY</button>
+        </div>
+
+        <div id="finish-screen" class="screen hidden">
+            <h1 id="result-title">CHIẾN THẮNG</h1>
+            <h2 id="result-rank" style="font-size: 3rem; color: #ffeb3b;">Hạng: 1</h2>
+            <p id="result-time" style="font-size: 1.5rem; opacity: 0.7;">00:00.00</p>
+            <button class="btn-main" id="btn-restart">CHƠI LẠI</button>
+        </div>
+    </div>
+
+    <script>
+        /** 20 SKILLS */
+        const SKILLS = [
+            { id: 'nitro', name: 'Nitro', color: [1, 0.5, 0, 1] },
+            { id: 'turbo', name: 'Turbo Thần Tốc', color: [1, 0.2, 0, 1] },
+            { id: 'rocket', name: 'Tên Lửa Đẩy', color: [1, 0, 0, 1] },
+            { id: 'spring', name: 'Lò Xo Nhảy', color: [0, 1, 1, 1] },
+            { id: 'coffee', name: 'Cà Phê Siêu Mạnh', color: [0.4, 0.2, 0, 1] },
+            { id: 'magnet', name: 'Nam Châm', color: [0.5, 0, 1, 1] },
+            { id: 'shield', name: 'Vỏ Kim Cương', color: [1, 1, 1, 1] },
+            { id: 'chili', name: 'Ớt Hiểm', color: [1, 0, 0.2, 1] },
+            { id: 'lightning', name: 'Sấm Sét', color: [1, 1, 0, 1] },
+            { id: 'glider', name: 'Lướt Gió', color: [0.7, 0.9, 1, 1] },
+            { id: 'super', name: 'Siêu Khổng Lồ', color: [1, 0, 1, 1] },
+            { id: 'rainbow', name: 'Hào Quang', color: [1, 0.5, 0.5, 1] },
+            { id: 'wind', name: 'Gió Lốc', color: [0.8, 0.8, 0.8, 1] },
+            { id: 'battery', name: 'Siêu Pin', color: [0, 1, 0, 1] },
+            { id: 'engine', name: 'Phản Lực', color: [0.3, 0.3, 0.3, 1] },
+            { id: 'ghost', name: 'Bóng Ma', color: [0.5, 0.5, 0.5, 0.5] },
+            { id: 'energy', name: 'Tăng Lực', color: [0.2, 0.6, 1, 1] },
+            { id: 'teleport', name: 'Dịch Chuyển', color: [0, 0, 1, 1] },
+            { id: 'double', name: 'X2 Sức Mạnh', color: [1, 0.8, 0, 1] },
+            { id: 'fire', name: 'Lửa Phun Đuôi', color: [1, 0.3, 0, 1] }
+        ];
+
+        const AI_NAMES = ["Ốc Xoáy", "Vua Nhớt", "Siêu Tốc", "Lù Đù", "Tên Lửa", "Sét Đánh"];
+
+        /** AUDIO PROCEDURAL */
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const AudioSfx = {
+            play: (type) => {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                const now = audioCtx.currentTime;
+                if (type === 'boost') { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(300, now); osc.frequency.exponentialRampToValueAtTime(1200, now + 0.4); gain.gain.setValueAtTime(0.1, now); osc.start(now); osc.stop(now + 0.4); }
+                else if (type === 'gift') { osc.type = 'sine'; osc.frequency.setValueAtTime(800, now); gain.gain.setValueAtTime(0.2, now); osc.start(now); osc.stop(now + 0.2); }
+                else if (type === 'miss') { osc.type = 'square'; osc.frequency.setValueAtTime(100, now); gain.gain.setValueAtTime(0.1, now); osc.start(now); osc.stop(now + 0.2); }
+            }
+        };
+
+        /** RENDERING DATA & LOGIC */
+        const Render = {
+            cameraX: 0,
+            cameraY: 0,
+            shakeX: 0,
+            shakeY: 0
+        };
+
+        /** WEBGL CORE SETUP */
+        const canvas = document.getElementById('gameCanvas');
+        const labelCanvas = document.getElementById('labelCanvas');
+        const ctx2d = labelCanvas.getContext('2d');
+        const gl = canvas.getContext('webgl', { antialias: true, alpha: false });
+
+        const vsSource = `attribute vec2 a_pos; attribute vec4 a_col; uniform vec2 u_res; uniform vec2 u_cam; varying vec4 v_col; void main() { vec2 p = (a_pos - u_cam) / u_res * 2.0 - 1.0; gl_Position = vec4(p * vec2(1, -1), 0, 1); v_col = a_col; }`;
+        const fsSource = `precision mediump float; varying vec4 v_col; void main() { gl_FragColor = v_col; }`;
+        function createShader(gl, type, src) { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s; }
+        const prog = gl.createProgram();
+        gl.attachShader(prog, createShader(gl, gl.VERTEX_SHADER, vsSource));
+        gl.attachShader(prog, createShader(gl, gl.FRAGMENT_SHADER, fsSource));
+        gl.linkProgram(prog);
+        const posAt = gl.getAttribLocation(prog, "a_pos"), colAt = gl.getAttribLocation(prog, "a_col"), resUn = gl.getUniformLocation(prog, "u_res"), camUn = gl.getUniformLocation(prog, "u_cam");
+        const vData = new Float32Array(100000); let vIdx = 0;
+        const vBuffer = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer); gl.enableVertexAttribArray(posAt); gl.vertexAttribPointer(posAt, 2, gl.FLOAT, false, 24, 0); gl.enableVertexAttribArray(colAt); gl.vertexAttribPointer(colAt, 4, gl.FLOAT, false, 24, 8);
+        gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+        let BASE_Y = 0;
+        function resize() { canvas.width = labelCanvas.width = window.innerWidth; canvas.height = labelCanvas.height = window.innerHeight; gl.viewport(0, 0, canvas.width, canvas.height); BASE_Y = canvas.height * 0.8; }
+        window.addEventListener('resize', resize); resize();
+
+        const Draw = {
+            rect: (x, y, w, h, c) => {
+                const [r, g, b, a] = c;
+                const push = (px, py) => { vData[vIdx++] = px; vData[vIdx++] = py; vData[vIdx++] = r; vData[vIdx++] = g; vData[vIdx++] = b; vData[vIdx++] = a; };
+                push(x, y); push(x + w, y); push(x, y + h); push(x, y + h); push(x + w, y); push(x + w, y + h);
+            },
+            circle: (cx, cy, rx, ry, c, segs = 16) => {
+                const [r, g, b, a] = c;
+                for (let i = 0; i < segs; i++) {
+                    let t1 = i / segs * Math.PI * 2, t2 = (i + 1) / segs * Math.PI * 2;
+                    const push = (px, py) => { vData[vIdx++] = px; vData[vIdx++] = py; vData[vIdx++] = r; vData[vIdx++] = g; vData[vIdx++] = b; vData[vIdx++] = a; };
+                    push(cx, cy); push(cx + Math.cos(t1) * rx, cy + Math.sin(t1) * ry); push(cx + Math.cos(t2) * rx, cy + Math.sin(t2) * ry);
+                }
+            },
+            flush: (camX, camY) => {
+                if (vIdx === 0) return;
+                gl.useProgram(prog); gl.uniform2f(resUn, canvas.width, canvas.height); gl.uniform2f(camUn, camX, camY);
+                gl.bufferData(gl.ARRAY_BUFFER, vData.subarray(0, vIdx), gl.DYNAMIC_DRAW); gl.drawArrays(gl.TRIANGLES, 0, vIdx / 6); vIdx = 0;
+            }
+        };
+
+        /** GAME ENGINE */
+        const TRACK_LENGTH = 15000;
+        class Particle {
+            constructor() { this.active = false; }
+            spawn(x, y, vx, vy, life, color, size) { this.x = x; this.y = y; this.vx = vx; this.vy = vy; this.life = this.max = life; this.color = color; this.size = size; this.active = true; }
+            update(dt) { if (!this.active) return; this.x += this.vx * dt; this.y += this.vy * dt; this.life -= dt; if (this.life <= 0) this.active = false; }
+            draw() { if (!this.active) return; Draw.rect(this.x, this.y, this.size, this.size, [this.color[0], this.color[1], this.color[2], this.life / this.max]); }
+        }
+        const pool = Array.from({ length: 600 }, () => new Particle());
+        function emit(x, y, count, col, spd, sz) {
+            for (let i = 0; i < count; i++) { let p = pool.find(p => !p.active); if (p) p.spawn(x, y, (Math.random() - 0.5) * spd, (Math.random() - 0.5) * spd, 0.5 + Math.random(), col, sz); }
+        }
+
+        class Snail {
+            constructor(id, name, isPlayer, yOff, bodyCol, shellCol) {
+                this.id = id; this.name = name; this.isPlayer = isPlayer; this.x = 200; this.yOff = yOff;
+                this.vx = 0; this.baseMax = 200 + Math.random() * 20; this.friction = 0.965;
+                this.bodyCol = bodyCol; this.shellCol = shellCol;
+                this.skillBar = { active: false, pos: 0, dir: 1, timer: Math.random() * 2, interval: 3.5 };
+                this.boostDuration = 0; this.gift = null; this.effect = { type: null, dur: 0, name: "" };
+                this.stumble = 0; this.moveTimer = 0; this.aiWait = 0; this.trailTimer = 0; this.finished = false;
+            }
+            get y() { return BASE_Y + this.yOff; }
+            applyMove() {
+                if (Game.state !== 'PLAY' || this.stumble > 0) return;
+                let p = (this.effect.type === 'coffee') ? 50 : 32;
+                this.vx += p;
+                let cap = (this.effect.dur > 0 || this.boostDuration > 0) ? 1500 : this.baseMax;
+                if (this.vx > cap) this.vx = cap;
+            }
+            useGift() {
+                if (!this.gift || Game.state !== 'PLAY' || this.stumble > 0) return;
+                const g = this.gift; this.gift = null;
+                this.effect.type = g.id; this.effect.name = g.name; this.effect.dur = 2.0;
+                AudioSfx.play('boost');
+                if (this.isPlayer) { Game.shake = 0.4; showMsg(g.name, "#ff9100"); updateUI(); }
+                switch (g.id) {
+                    case 'nitro': this.vx = 900; break;
+                    case 'turbo': this.vx = 1200; this.effect.dur = 1.0; break;
+                    case 'rocket': this.vx = 1600; this.effect.dur = 0.8; break;
+                    case 'lightning': this.x += 1000; break;
+                    case 'teleport': this.x += 1500; break;
+                    case 'super': this.vx = 750; break;
+                    default: this.vx = 700; break;
+                }
+                emit(this.x, this.y, 40, g.color, 300, 10);
+            }
+            update(dt) {
+                if (this.finished) return;
+                if (this.stumble > 0) this.stumble -= dt;
+                else { this.moveTimer -= dt; if (this.moveTimer <= 0) { this.applyMove(); this.moveTimer = 0.22; } }
+
+                if (this.effect.dur > 0) { this.effect.dur -= dt; if (this.effect.dur <= 0) { this.effect.type = null; this.effectName = ""; } }
+                let inMud = (this.effect.type !== 'shield' && this.effect.type !== 'rainbow');
+                if (inMud) { for (let o of Game.muds) { if (Math.abs(this.x - o.x) < o.w && Math.abs(this.yOff - o.yOff) < 20) { this.vx *= 0.9; break; } } }
+
+                for (let g of Game.gifts) { if (!g.collected && Math.abs(this.x - g.x) < 50 && Math.abs(this.yOff - g.yOff) < 30) { g.collected = true; this.gift = g.skill; AudioSfx.play('gift'); if (this.isPlayer) updateUI(); } }
+
+                this.x += this.vx * dt; this.vx *= Math.pow(this.friction, dt * 60);
+                if (this.x >= TRACK_LENGTH) { this.finished = true; Game.onFinish(this); }
+
+                if (this.vx > 400) { this.trailTimer -= dt; if (this.trailTimer <= 0) { emit(this.x - 30, this.y, 1, this.bodyCol, 50, 4); this.trailTimer = 0.05; } }
+
+                this.skillBar.timer += dt;
+                if (this.skillBar.timer >= this.skillBar.interval && !this.skillBar.active) { this.skillBar.active = true; this.skillBar.pos = 0; if (!this.isPlayer) this.aiWait = 0.4 + Math.random(); }
+                if (this.skillBar.active) {
+                    this.skillBar.pos += this.skillBar.dir * dt * 1.5;
+                    if (this.skillBar.pos >= 1) { this.skillBar.pos = 1; this.skillBar.dir = -1; }
+                    if (this.skillBar.pos <= 0) { this.skillBar.pos = 0; this.skillBar.dir = 1; }
+                }
+
+                if (!this.isPlayer) {
+                    if (this.skillBar.active && (this.aiWait -= dt) <= 0) {
+                        let acc = Game.diff; let r = Math.random();
+                        this.applyResult(r < acc * 0.35 ? 'perfect' : (r < acc ? 'good' : 'miss'));
+                    }
+                    if (this.gift && Math.random() < 0.01) this.useGift();
+                }
+            }
+            applyResult(res) {
+                this.skillBar.active = false; this.skillBar.timer = 0;
+                if (res === 'perfect') { this.vx = 800; this.boostDuration = 1.0; if (this.isPlayer) { AudioSfx.play('boost'); showMsg("HOÀN HẢO!", "#00ff00"); Game.shake = 0.3; } }
+                else if (res === 'good') { this.vx = 550; this.boostDuration = 0.5; if (this.isPlayer) { AudioSfx.play('boost'); showMsg("TỐT!", "#8bc34a"); } }
+                else { this.vx = 0; this.stumble = 0.6; if (this.isPlayer) { AudioSfx.play('miss'); Game.flash(); showMsg("TRƯỢT!", "#ff0000"); } }
+            }
+            draw() {
+                let s = 1 + (this.vx / 1200) * 0.4; if (this.effect.type === 'super') s *= 1.6;
+                let c = (this.effect.type === 'rainbow') ? [Math.sin(Date.now() * 0.01) * 0.5 + 0.5, 0.8, 1, 1] : this.bodyCol;
+                if (this.stumble > 0) c = [0.8, 0.2, 0.2, 1];
+
+                // Snail body
+                Draw.circle(this.x, this.y, 38 * s, 20 * s, c);
+                Draw.circle(this.x + 32 * s, this.y - 14 * s, 20 * s, 16 * s, c);
+                // Mouth
+                Draw.rect(this.x + 46 * s, this.y - 8 * s, 4 * s, 2 * s, [0, 0, 0, 1]);
+                // Eyes
+                Draw.rect(this.x + 32 * s, this.y - 40 * s, 4 * s, 22 * s, c); Draw.rect(this.x + 44 * s, this.y - 40 * s, 4 * s, 22 * s, c);
+                Draw.circle(this.x + 34 * s, this.y - 42 * s, 6 * s, 6 * s, [1, 1, 1, 1]); Draw.circle(this.x + 46 * s, this.y - 42 * s, 6 * s, 6 * s, [1, 1, 1, 1]);
+                Draw.circle(this.x + 34 * s, this.y - 42 * s, 3 * s, 3 * s, [0, 0, 0, 1]); Draw.circle(this.x + 46 * s, this.y - 42 * s, 3 * s, 3 * s, [0, 0, 0, 1]);
+
+                // Spiral Shell
+                Draw.circle(this.x - 5 * s, this.y - 20 * s, 30 * s, 30 * s, this.shellCol);
+                let sc = [this.shellCol[0] * 0.7, this.shellCol[1] * 0.7, this.shellCol[2] * 0.7, 1];
+                Draw.circle(this.x - 5 * s, this.y - 20 * s, 22 * s, 22 * s, sc);
+                Draw.circle(this.x - 5 * s, this.y - 20 * s, 18 * s, 18 * s, this.shellCol);
+                Draw.circle(this.x - 5 * s, this.y - 20 * s, 12 * s, 12 * s, sc);
+                Draw.circle(this.x - 5 * s, this.y - 20 * s, 8 * s, 8 * s, this.shellCol);
+
+                if (this.skillBar.active && this.isPlayer) {
+                    let bx = this.x - 50, by = this.y - 120;
+                    Draw.rect(bx, by, 100, 14, [0, 0, 0, 0.6]);
+                    Draw.rect(bx + 25, by, 50, 14, [0.5, 0.8, 0.3, 1]);
+                    Draw.rect(bx + 40, by, 20, 14, [0, 1, 0, 1]);
+                    Draw.rect(bx + 100 * this.skillBar.pos - 3, by - 4, 6, 22, [1, 1, 1, 1]);
+                }
+
+                const sx = this.x - Render.cameraX - Render.shakeX, sy = this.y - Render.cameraY - Render.shakeY;
+                ctx2d.textAlign = "center"; ctx2d.strokeStyle = "black"; ctx2d.lineWidth = 4;
+                ctx2d.font = "bold 16px Arial"; ctx2d.fillStyle = this.isPlayer ? "#00ff00" : "white";
+                ctx2d.strokeText(this.name, sx, sy - 65); ctx2d.fillText(this.name, sx, sy - 65);
+                if (this.effect.type) { ctx2d.font = "bold 13px Arial"; ctx2d.fillStyle = "#ffeb3b"; ctx2d.strokeText("⭐ " + this.effect.name, sx, sy - 85); ctx2d.fillText("⭐ " + this.effect.name, sx, sy - 85); }
+            }
+        }
+
+        const Game = {
+            state: 'MENU', snails: [], muds: [], gifts: [], player: null, shake: 0, finishCount: 0, diff: 0.5, last: 0,
+            deco: { clouds: [], trees: [], birds: [] },
+            init: () => {
+                Game.snails = []; Game.muds = []; Game.gifts = []; Game.finishCount = 0;
+                Game.player = new Snail('p1', "BẠN", true, 60, [0.4, 0.8, 0.2, 1], [0.6, 0.4, 0.2, 1]);
+                Game.snails.push(Game.player);
+                const lanes = [-130, -90, -50, -10, 30, 70, 110];
+                const cols = [[[1, 0.3, 0.3, 1], [0.6, 0.1, 0.1, 1]], [[0.3, 1, 1, 1], [0.1, 0.6, 0.6, 1]], [[1, 1, 0.3, 1], [0.6, 0.6, 0.1, 1]], [[0.3, 0.3, 1, 1], [0.1, 0.1, 0.6, 1]], [[1, 0.5, 1, 1], [0.6, 0.1, 0.6, 1]], [[0.8, 0.8, 0.8, 1], [0.4, 0.4, 0.4, 1]]];
+                for (let i = 0; i < 6; i++) { let ai = new Snail('ai' + i, AI_NAMES[i], false, lanes[i], cols[i][0], cols[i][1]); ai.diff = Game.diff; if (i < 3) ai.isRival = true; Game.snails.push(ai); }
+
+                const container = document.getElementById('progress-container'), mapTrack = document.getElementById('mini-map-track');
+                container.querySelectorAll('.ai-m').forEach(m => m.remove()); mapTrack.querySelectorAll('.ai-dot').forEach(d => d.remove());
+                Game.snails.forEach(s => {
+                    if (!s.isPlayer) {
+                        let m = document.createElement('div'); m.className = 'marker ai-m'; m.id = 'marker-' + s.id; m.style.background = `rgb(${s.bodyCol[0] * 255},${s.bodyCol[1] * 255},${s.bodyCol[2] * 255})`; container.appendChild(m);
+                        let d = document.createElement('div'); d.className = 'mini-dot ai-dot'; d.id = 'dot-' + s.id; d.style.background = `rgb(${s.bodyCol[0] * 255},${s.bodyCol[1] * 255},${s.bodyCol[2] * 255})`; d.style.top = (15 + Math.random() * 70) + '%'; mapTrack.appendChild(d);
+                    }
+                });
+                document.getElementById('dot-p1').style.top = '85%';
+
+                // Multi-type Obstacles
+                for (let i = 0; i < 50; i++) {
+                    let type = Math.random() < 0.6 ? 'mud' : (Math.random() < 0.5 ? 'rock' : 'puddle');
+                    let col = type === 'mud' ? [0.2, 0.1, 0, 0.8] : (type === 'rock' ? [0.5, 0.5, 0.5, 1] : [0.2, 0.5, 0.8, 0.6]);
+                    Game.muds.push({ x: 1500 + Math.random() * 13000, yOff: lanes[Math.floor(Math.random() * 7)], w: 60 + Math.random() * 40, type, col });
+                }
+                for (let l of lanes) { for (let i = 0; i < 6; i++) Game.gifts.push({ x: 1200 + i * 2300 + Math.random() * 400, yOff: l, collected: false, skill: SKILLS[Math.floor(Math.random() * SKILLS.length)] }); }
+
+                // Deco Initialization
+                Game.deco.clouds = Array.from({ length: 20 }, () => ({ x: Math.random() * TRACK_LENGTH, y: 50 + Math.random() * 150, sz: 40 + Math.random() * 40 }));
+                Game.deco.trees = Array.from({ length: 40 }, () => ({ x: 200 + Math.random() * TRACK_LENGTH, ySide: Math.random() < 0.5 ? -220 : 180, sz: 30 + Math.random() * 20 }));
+                Game.deco.birds = Array.from({ length: 10 }, () => ({ x: Math.random() * TRACK_LENGTH, y: 80 + Math.random() * 100 }));
+
+                Render.cameraX = 0;
+            },
+            startCountdown: () => {
+                Game.diff = document.getElementById('diff-slider').value / 100;
+                document.getElementById('menu-screen').classList.add('hidden'); document.getElementById('finish-screen').classList.add('hidden');
+                document.getElementById('hud').classList.remove('hidden'); document.getElementById('mini-map').classList.remove('hidden');
+                Game.init(); Game.state = 'COUNTDOWN';
+                let count = 3; const cd = document.getElementById('countdown'); cd.classList.remove('hidden'); cd.innerText = count;
+                let itv = setInterval(() => { AudioSfx.play('gift'); count--; if (count > 0) cd.innerText = count; else if (count === 0) cd.innerText = "ĐUA!"; else { clearInterval(itv); cd.classList.add('hidden'); Game.state = 'PLAY'; Game.startTime = performance.now(); } }, 800);
+            },
+            onFinish: (s) => { Game.finishCount++; s.rank = Game.finishCount; if (s.isPlayer) { Game.state = 'FINISH'; setTimeout(() => { document.getElementById('hud').classList.add('hidden'); document.getElementById('mini-map').classList.add('hidden'); const fs = document.getElementById('finish-screen'); fs.classList.remove('hidden'); document.getElementById('result-time').innerText = ((performance.now() - Game.startTime) / 1000).toFixed(2) + " giây"; document.getElementById('result-rank').innerText = "HẠNG: " + s.rank; document.getElementById('result-title').innerText = s.rank === 1 ? "VÔ ĐỊCH!" : "HOÀN THÀNH"; }, 1000); } },
+            flash: () => { let f = document.getElementById('flash'); f.style.opacity = 0.6; setTimeout(() => f.style.opacity = 0, 100); },
+            loop: (t) => {
+                let dt = Math.min(0.1, (t - Game.last) / 1000); Game.last = t;
+                if (Game.state === 'PLAY' || Game.state === 'FINISH') {
+                    Game.snails.forEach(s => s.update(dt));
+                    if (Game.player) { Render.cameraX += (Math.max(0, Game.player.x - canvas.width * 0.4) - Render.cameraX) * 10 * dt; }
+                    if (Game.shake > 0) { Game.shake -= dt; Render.shakeX = (Math.random() - 0.5) * 40 * Game.shake; Render.shakeY = (Math.random() - 0.5) * 40 * Game.shake; } else { Render.shakeX = Render.shakeY = 0; }
+                    updateUI();
+                }
+                pool.forEach(p => p.update(dt));
+                gl.clearColor(0.2, 0.6, 1, 1); gl.clear(gl.COLOR_BUFFER_BIT); ctx2d.clearRect(0, 0, labelCanvas.width, labelCanvas.height);
+
+                // Environment
+                Draw.circle(Render.cameraX + 100, 80, 50, 50, [1, 1, 0, 1]); // Sun
+                Game.deco.clouds.forEach(c => { Draw.circle(c.x, c.y, c.sz, c.sz * 0.6, [1, 1, 1, 0.8]); Draw.circle(c.x + c.sz * 0.5, c.y, c.sz * 0.8, c.sz * 0.5, [1, 1, 1, 0.8]); });
+                Game.deco.birds.forEach(b => { Draw.rect(b.x, b.y, 10, 2, [0, 0, 0, 1]); Draw.rect(b.x - 5, b.y - 2, 5, 2, [0, 0, 0, 1]); });
+
+                // Ground & Path
+                Draw.rect(Render.cameraX, BASE_Y - 150, canvas.width, 300, [0.4, 0.3, 0.2, 1]);
+                Game.deco.trees.forEach(tr => { Draw.rect(tr.x - 5, BASE_Y + tr.ySide - 10, 10, 30, [0.3, 0.2, 0.1, 1]); Draw.circle(tr.x, BASE_Y + tr.ySide - 30, tr.sz, tr.sz, [0.1, 0.5, 0.1, 1]); });
+
+                // Obstacles & Gifts
+                Game.muds.forEach(m => {
+                    if (m.type === 'rock') Draw.circle(m.x, BASE_Y + m.yOff, m.w * 0.5, m.w * 0.4, m.col);
+                    else Draw.circle(m.x, BASE_Y + m.yOff, m.w, 15, m.col);
+                });
+                Game.gifts.forEach(g => { if (!g.collected) { let bx = BASE_Y + g.yOff - 25; Draw.rect(g.x - 15, bx, 30, 30, [1, 0.8, 0, 1]); Draw.rect(g.x - 3, bx, 6, 30, [1, 0, 0, 1]); } });
+
+                if (Game.player && Game.player.vx > 600) { for (let i = 0; i < 10; i++) Draw.rect(Render.cameraX + Math.random() * canvas.width, Math.random() * canvas.height, 100, 2, [1, 1, 1, 0.2]); }
+
+                pool.forEach(p => p.draw());
+                [...Game.snails].sort((a, b) => a.yOff - b.yOff).forEach(s => s.draw());
+                if (Render.cameraX + canvas.width > TRACK_LENGTH) Draw.rect(TRACK_LENGTH, BASE_Y - 200, 30, 400, [1, 1, 1, 1]);
+                Draw.flush(Render.cameraX + Render.shakeX, Render.cameraY + Render.shakeY);
+                requestAnimationFrame(Game.loop);
+            }
+        };
+
+        function updateUI() {
+            if (!Game.player) return;
+            document.getElementById('speed-text').innerText = Math.floor(Game.player.vx);
+            document.getElementById('rank-text').innerText = [...Game.snails].sort((a, b) => b.x - a.x).findIndex(s => s.isPlayer) + 1;
+            const gs = document.getElementById('gift-slot');
+            if (Game.player.gift) { gs.innerText = Game.player.gift.name + " (K)"; gs.classList.add('has-gift'); }
+            else { gs.innerText = "TRỐNG"; gs.classList.remove('has-gift'); }
+            let pP = (Game.player.x / TRACK_LENGTH * 100) + '%';
+            document.getElementById('marker-p1').style.left = pP; document.getElementById('dot-p1').style.left = pP;
+            Game.snails.forEach(s => { if (!s.isPlayer) { let p = (s.x / TRACK_LENGTH * 100) + '%'; let m = document.getElementById('marker-' + s.id); if (m) m.style.left = p; let d = document.getElementById('dot-' + s.id); if (d) d.style.left = p; } });
+        }
+        function showMsg(t, c) { const el = document.getElementById('skill-msg'); el.innerText = t; el.style.color = c; setTimeout(() => { if (el.innerText === t) el.innerText = ''; }, 2000); }
+
+        window.onload = () => {
+            document.getElementById('diff-slider').oninput = function () { document.getElementById('diff-val').innerText = this.value; };
+            document.getElementById('btn-start').onclick = Game.startCountdown;
+            document.getElementById('btn-restart').onclick = Game.startCountdown;
+            window.addEventListener('keydown', (e) => {
+                if (e.repeat) return;
+                if (e.code === 'KeyM') {
+                    if (Game.state === 'PLAY' && Game.player && Game.player.skillBar.active) {
+                        const pos = Game.player.skillBar.pos;
+                        let res = 'miss';
+                        if (pos >= 0.4 && pos <= 0.6) res = 'perfect';
+                        else if (pos >= 0.25 && pos <= 0.75) res = 'good';
+                        Game.player.applyResult(res);
+                    }
+                }
+                if (e.code === 'KeyK') { if (Game.state === 'PLAY' && Game.player) Game.player.useGift(); }
+            });
+            Game.init();
+            requestAnimationFrame((t) => { Game.last = t; Game.loop(t); });
+        };
+    </script>
+</body>
+
+</html>
