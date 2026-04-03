@@ -446,9 +446,9 @@
 
                 <button class="start-btn" id="startBtn">BẮT ĐẦU</button>
                 <div class="instructions">
-                    <p>🐌 Ốc sên tự động chạy - Click liên tục để tăng tốc!</p>
+                    <p>🐌 Ốc sên tự động chạy!</p>
                     <p>🎁 Nhặt hộp quà trên đường - Nhấn K để dùng skill!</p>
-                    <p>⚡ Skill ngẫu nhiên từ hộp quà - Xem danh sách bên phải màn hình</p>
+                    <p>⚡ Skill ngẫu nhiên từ hộp quà - Xem danh sách bên trái màn hình</p>
                 </div>
             </div>
             <div id="finish">
@@ -469,12 +469,16 @@
                     <div class="stat-box" id="velocity-display">
                         <span class="label">Tốc độ: </span><span class="value" id="velocity-val">0</span>
                     </div>
-                    <div class="stat-box" id="skill-slot">
-                        <span class="label">Skill (K): </span><span class="value" id="skill-val">-</span>
-                    </div>
                     <div class="stat-box">
                         <span class="label">Thời gian: </span><span class="value" id="time-val">0.0s</span>
                     </div>
+                </div>
+                <div
+                    class="stat-box"
+                    id="skill-slot"
+                    style="margin-top: 30px; text-align: center; background: none; border: none; padding: 0"
+                >
+                    <span class="label">Skill (K): </span><span class="value" id="skill-val">-</span>
                 </div>
             </div>
             <div id="skill-bar-container">
@@ -522,17 +526,67 @@
                         case 'slow_enemy':
                             for (const ai of aiList) {
                                 if (!ai.finished) {
-                                    ai.velocity *= 0.5
+                                    ai.velocity *= 0.4
                                     ai.slowEnd = now + 3000
+                                    ai.currentSkillName = 'Bị Chậm'
+                                    ai.currentSkillIcon = '🐌'
+                                    ai.skillLabelEnd = now + 3000
                                 }
-                            }
-                            if (!playerFinished && !playerShieldEnd && now > playerGhostEnd) {
-                                player.velocity *= 0.5
-                                player.slowEnd = now + 3000
-                                showSkillNotification(playerName, 'Bị Làm Chậm!', '🐌')
                             }
                             skillEffectEnd.slow_enemy = now + 3000
                             flashAlpha = 0.2
+                            break
+                        case 'stun':
+                            for (const ai of aiList) {
+                                if (!ai.finished) {
+                                    ai.stumble = true
+                                    ai.stumbleEnd = now + 2000
+                                    ai.velocity = 0
+                                    ai.currentSkillName = 'Choáng'
+                                    ai.currentSkillIcon = '💫'
+                                    ai.skillLabelEnd = now + 2000
+                                }
+                            }
+                            skillEffectEnd.stun = now + 2000
+                            flashAlpha = 0.4
+                            screenShake.intensity = 8
+                            break
+                        case 'reverse':
+                            for (const ai of aiList) {
+                                if (!ai.finished) {
+                                    ai.pos = Math.max(0, ai.pos - 300)
+                                    ai.currentSkillName = 'Lùi'
+                                    ai.currentSkillIcon = '🔄'
+                                    ai.skillLabelEnd = now + 1000
+                                }
+                            }
+                            createParticles(W / 2, H / 2, 20, 0.9, 0.6, 0.2, 1)
+                            break
+                        case 'magnet':
+                            for (const ai of aiList) {
+                                if (!ai.finished) {
+                                    ai.pos = Math.max(0, ai.pos - 50)
+                                    ai.currentSkillName = 'Bị Kéo'
+                                    ai.currentSkillIcon = '🧲'
+                                    ai.skillLabelEnd = now + 1000
+                                }
+                            }
+                            createParticles(W / 2, H / 2, 25, 0.1, 0.6, 0.8, 1)
+                            break
+                        case 'bomb':
+                            // Hiệu ứng ném bom
+                            createParticles(player.pos - cameraX, getPlayerScreenPos().y, 50, 0.5, 0.2, 0.2, 1)
+                            for (const ai of aiList) {
+                                if (!ai.finished) {
+                                    ai.velocity *= 0.7
+                                    ai.currentSkillName = 'Bị Bom'
+                                    ai.currentSkillIcon = '💣'
+                                    ai.skillLabelEnd = now + 1000
+                                }
+                            }
+                            skillEffectEnd.bomb = now + 4000
+                            flashAlpha = 0.5
+                            screenShake.intensity = 15
                             break
                         case 'stun':
                             for (const ai of aiList) {
@@ -551,8 +605,13 @@
                             skillEffectEnd.shield = now + 5000
                             break
                         case 'teleport':
-                            player.pos += 500
-                            createParticles(playerSX || W / 2, playerSY || H / 2, 30, 0.5, 0.8, 1, 1)
+                            // Hiệu ứng cổng không gian
+                            const pPos = getPlayerScreenPos()
+                            createParticles(pPos.x, pPos.y, 50, 0.5, 0.2, 0.8, 1) // Cổng vào
+                            setTimeout(() => {
+                                player.pos += 500
+                                createParticles(player.pos - cameraX, getPlayerScreenPos().y, 50, 0.5, 0.2, 0.8, 1) // Cổng ra
+                            }, 300)
                             break
                         case 'reverse':
                             for (const ai of aiList) {
@@ -571,12 +630,14 @@
                             skillEffectEnd.ghost = now + 4000
                             break
                         case 'bomb':
+                            // Hiệu ứng ném bom
+                            createParticles(player.pos - cameraX, getPlayerScreenPos().y, 50, 0.5, 0.2, 0.2, 1)
                             for (const ai of aiList) {
                                 if (!ai.finished) ai.velocity *= 0.7
                             }
                             skillEffectEnd.bomb = now + 4000
                             flashAlpha = 0.5
-                            screenShake.intensity = 12
+                            screenShake.intensity = 15
                             break
                     }
                 }
@@ -665,24 +726,6 @@
                         duration: 4000,
                     },
                     { id: 'bomb', name: 'Bom', icon: '💣', desc: 'AI giảm 70% 4s', color: '#2c3e50', duration: 4000 },
-                    {
-                        id: 'coastal',
-                        name: 'Coastal Rush',
-                        desc: 'Đường ven biển với gió biển',
-                        type: 'straight',
-                        bg: [
-                            0.15,
-                            0.25,
-                            0.4,
-                        ],
-                        track: [
-                            0.3,
-                            0.4,
-                            0.5,
-                        ],
-                        hillAmp: 60,
-                        treeDensity: 0.7,
-                    },
                 ]
 
                 // Game Data
@@ -1213,20 +1256,20 @@
                         'Lục',
                     ]
                     const skillLevels = [
-                        0.7,
-                        0.85,
-                        1.0,
-                        1.0,
-                        1.15,
+                        0.9,
+                        0.9,
                         0.95,
+                        0.95,
+                        1.0,
+                        1.0,
                     ]
                     const clickRates = [
-                        200,
-                        170,
-                        150,
-                        150,
-                        130,
+                        180,
+                        180,
                         160,
+                        160,
+                        150,
+                        150,
                     ]
                     const accuracies = [
                         0.1,
@@ -1515,7 +1558,17 @@
                             playerShieldEnd = now + skill.duration
                             break
                         case 'teleport':
-                            player.pos += 500
+                            const pPos = getPlayerScreenPos()
+                            // Cổng vào
+                            createParticles(pPos.x, pPos.y, 60, 0.5, 0.2, 0.8, 1)
+
+                            // Delay dịch chuyển để nhìn rõ cổng
+                            setTimeout(() => {
+                                player.pos += 500
+                                // Cổng ra
+                                const newPPos = getPlayerScreenPos()
+                                createParticles(newPPos.x, newPPos.y, 60, 0.5, 0.2, 0.8, 1)
+                            }, 400)
                             break
                         case 'reverse':
                             for (const ai of aiList) {
@@ -1960,10 +2013,10 @@
 
                         // Soft rubber band - only when EXTREMELY far (let skills have real effect)
                         const rbDist = ai.pos - player.pos
-                        if (rbDist < -800) {
-                            ai.velocity += 0.2
-                        } else if (rbDist > 600) {
-                            ai.velocity -= 0.15
+                        if (rbDist < -1200) {
+                            ai.velocity += 0.25
+                        } else if (rbDist > 800) {
+                            ai.velocity -= 0.1
                         }
 
                         const newLap = Math.floor(ai.pos / (DISTANCE / selectedLaps))
@@ -2169,9 +2222,9 @@
                         if (player.lane === obsLane) {
                             const distP = Math.abs(player.pos - obs.x)
                             if (distP < 30 && !player.stumble) {
-                                player.velocity *= 0.4
+                                player.velocity *= 0.6
                                 player.stumble = true
-                                player.stumbleEnd = timestamp + 500
+                                player.stumbleEnd = timestamp + 300
                                 player.combo = 0
                                 screenShake.intensity = 4
                                 playMiss()
@@ -2560,11 +2613,22 @@
                         if (ai.currentSkillName) {
                             const aiLabel =
                                 (ai.currentSkillIcon ? ai.currentSkillIcon + ' ' : '') + (ai.currentSkillName || '')
-                            ctx.font = '13px Arial'
+                            ctx.font = 'bold 11px Arial'
                             ctx.textAlign = 'center'
+                            const tw = ctx.measureText(aiLabel).width
+                            ctx.fillStyle = 'rgba(0,0,0,0.6)'
+                            ctx.fillRect(aiSX - tw / 2 - 3, aiSY - 33, tw + 6, 14)
                             ctx.fillStyle = '#fff'
                             ctx.fillText(aiLabel, aiSX, aiSY - 22)
                         }
+                        // Name label
+                        ctx.font = 'bold 10px Arial'
+                        ctx.textAlign = 'center'
+                        const nw = ctx.measureText(ai.name).width
+                        ctx.fillStyle = 'rgba(0,0,0,0.6)'
+                        ctx.fillRect(aiSX - nw / 2 - 3, aiSY - 20, nw + 6, 13)
+                        ctx.fillStyle = '#fff'
+                        ctx.fillText(ai.name, aiSX, aiSY - 10)
                     }
 
                     // Draw player snail
@@ -2588,17 +2652,31 @@
                         const pLabel =
                             (player.currentSkillIcon ? player.currentSkillIcon + ' ' : '') +
                             (player.currentSkillName || '')
-                        ctx.font = '13px Arial'
+                        ctx.font = 'bold 11px Arial'
                         ctx.textAlign = 'center'
+                        const tw = ctx.measureText(pLabel).width
+                        ctx.fillStyle = 'rgba(0,0,0,0.6)'
+                        ctx.fillRect(playerSX - tw / 2 - 3, playerSY - 33, tw + 6, 14)
                         ctx.fillStyle = '#fff'
                         ctx.fillText(pLabel, playerSX, playerSY - 22)
                     }
+                    // Name label
+                    ctx.font = 'bold 10px Arial'
+                    ctx.textAlign = 'center'
+                    const pw = ctx.measureText(playerName).width
+                    ctx.fillStyle = 'rgba(0,0,0,0.6)'
+                    ctx.fillRect(playerSX - pw / 2 - 3, playerSY - 20, pw + 6, 13)
+                    ctx.fillStyle = '#fff'
+                    ctx.fillText(playerName, playerSX, playerSY - 10)
                     // Combo display for player
                     if (player.combo > 1) {
-                        ctx.font = '18px Arial'
+                        ctx.font = '14px Arial'
                         ctx.textAlign = 'center'
+                        const cw = ctx.measureText('Combo x' + player.combo).width
+                        ctx.fillStyle = 'rgba(0,0,0,0.6)'
+                        ctx.fillRect(playerSX - cw / 2 - 3, playerSY - 50, cw + 6, 16)
                         ctx.fillStyle = '#ffd700'
-                        ctx.fillText('Combo x' + player.combo, playerSX, playerSY - 40)
+                        ctx.fillText('Combo x' + player.combo, playerSX, playerSY - 38)
                     }
                 }
 
@@ -2613,10 +2691,15 @@
                 let displaySkills = getDisplaySkills()
 
                 function drawSkillList() {
-                    const panelH = 160
-                    const panelW = 180
-                    const panelX = 10
-                    const panelY = 90
+                    const panelW = Math.min(W - 40, 600)
+                    const panelH = 220
+                    const panelX = (W - panelW) / 2
+                    const panelY = 150
+                    const skillCount = Math.min(displaySkills.length, 10)
+                    const cols = 5
+                    const rows = 2
+                    const itemWidth = panelW / cols
+                    const itemHeight = 80
 
                     ctx.fillStyle = 'rgba(0,0,0,0.85)'
                     ctx.strokeStyle = 'rgba(255,255,255,0.4)'
@@ -2626,28 +2709,38 @@
                     ctx.fill()
                     ctx.stroke()
 
-                    ctx.font = 'bold 14px Arial'
+                    ctx.font = 'bold 20px Arial'
                     ctx.fillStyle = '#aaa'
-                    ctx.textAlign = 'left'
-                    ctx.fillText('SKILLS', panelX + 6, panelY + 16)
+                    ctx.textAlign = 'center'
+                    ctx.fillText('KỸ NĂNG', panelX + panelW / 2, panelY + 25)
 
-                    displaySkills.slice(0, 6).forEach((skill, i) => {
-                        const cx = panelX + 6
-                        const cy = panelY + 38 + i * 22
+                    for (let i = 0; i < skillCount; i++) {
+                        const skill = displaySkills[i]
                         const icon = getSkillIconById(skill.id) || skill.icon || ''
+                        const col = i % cols
+                        const row = Math.floor(i / cols)
+                        const xOffset = panelX + col * itemWidth + itemWidth / 2
+                        const yOffset = panelY + 50 + row * itemHeight
 
-                        ctx.font = 'bold 13px Arial'
+                        // Skill Name
+                        ctx.font = 'bold 16px Arial'
                         ctx.fillStyle = skill.color || '#fff'
-                        ctx.textAlign = 'left'
-                        ctx.fillText(icon + ' ' + skill.name, cx, cy)
-                    })
+                        ctx.textAlign = 'center'
+                        ctx.fillText(icon + ' ' + skill.name, xOffset, yOffset)
+
+                        // Skill Desc
+                        ctx.font = '13px Arial'
+                        ctx.fillStyle = '#eee'
+                        ctx.textAlign = 'center'
+                        ctx.fillText(skill.desc || '', xOffset, yOffset + 20)
+                    }
                 }
 
                 function drawMinimap() {
-                    const mmW = 300,
-                        mmH = 120
+                    const mmW = 280,
+                        mmH = 150
                     const mmX = W - mmW - 10
-                    const mmY = 90
+                    const mmY = 110
                     const map = MAPS[selectedMap]
 
                     ctx.fillStyle = 'rgba(0,0,0,0.8)'
@@ -2658,21 +2751,21 @@
                     ctx.fill()
                     ctx.stroke()
 
-                    ctx.font = 'bold 12px Arial'
+                    ctx.font = 'bold 24px Arial'
                     ctx.fillStyle = '#aaa'
                     ctx.textAlign = 'left'
-                    ctx.fillText('MINIMAP', mmX + 6, mmY + 14)
+                    ctx.fillText('BẢN ĐỒ', mmX + 6, mmY + 20)
 
                     ctx.save()
                     ctx.beginPath()
-                    ctx.roundRect(mmX, mmY + 20, mmW, mmH - 24, 4)
+                    ctx.roundRect(mmX, mmY + 28, mmW, mmH - 32, 4)
                     ctx.clip()
 
                     const mmTrackLeft = mmX + 10
                     const mmTrackRight = mmX + mmW - 10
                     const mmTrackW = mmTrackRight - mmTrackLeft
-                    const mmCenterY = mmY + mmH / 2 + 4
-                    const mmTrackHalfH = 30
+                    const mmCenterY = mmY + mmH / 2 + 8
+                    const mmTrackHalfH = 35
                     const hillAmp = map.hillAmp || 60
 
                     // Draw track using actual track shape
@@ -2848,10 +2941,10 @@
                     const groundY = H * 0.6
                     const trackW = 220
 
-                    // Leaderboard panel at top-center
-                    const panelW = 360
-                    const panelX = (W - panelW) / 2
-                    const panelY = 90
+                    // Leaderboard panel at left
+                    const panelW = 300
+                    const panelX = 20
+                    const panelY = 110
                     const allSnails = [
                         {
                             name: playerName || 'Bạn',
@@ -2875,7 +2968,7 @@
 
                     // Panel background - show all snails
                     const displayCount = allSnails.length
-                    const panelH = displayCount * 26 + 20
+                    const panelH = displayCount * 36 + 30
                     ctx.fillStyle = 'rgba(0,0,0,0.85)'
                     ctx.strokeStyle = 'rgba(255,255,255,0.4)'
                     ctx.lineWidth = 2
@@ -2885,37 +2978,37 @@
                     ctx.stroke()
 
                     // Title
-                    ctx.font = 'bold 16px Arial'
+                    ctx.font = 'bold 24px Arial'
                     ctx.textAlign = 'left'
                     ctx.fillStyle = '#aaa'
-                    ctx.fillText('BẢNG XẾP HẠNG', panelX + 8, panelY + 12)
+                    ctx.fillText('BẢNG XẾP HẠNG', panelX + 8, panelY + 18)
 
                     // Snail list - show all
                     for (let i = 0; i < displayCount; i++) {
                         const s = allSnails[i]
-                        const y = panelY + 32 + i * 26
+                        const y = panelY + 45 + i * 36
                         const speed = Math.round(s.vel)
                         const skillLabel =
                             (s.currentSkillIcon ? s.currentSkillIcon + ' ' : '') + (s.currentSkillName || '')
 
                         // Rank number
-                        ctx.font = 'bold 16px Arial'
+                        ctx.font = 'bold 24px Arial'
                         ctx.fillStyle = i === 0 ? '#ffd700' : '#888'
                         ctx.textAlign = 'left'
                         ctx.fillText(i + 1 + '.', panelX + 8, y)
 
                         // Name
-                        ctx.font = '14px Arial'
+                        ctx.font = '18px Arial'
                         ctx.fillStyle = s.isPlayer
                             ? '#4ecca3'
                             : `rgb(${s.color.r * 255},${s.color.g * 255},${s.color.b * 255})`
                         // Display name with current skill label if any
                         const nameWithSkill = s.name + (skillLabel ? ' ' + skillLabel : '')
-                        ctx.fillText(nameWithSkill, panelX + 35, y)
+                        ctx.fillText(nameWithSkill, panelX + 45, y)
 
                         // Speed
                         ctx.textAlign = 'right'
-                        ctx.font = 'bold 14px Arial'
+                        ctx.font = 'bold 18px Arial'
                         ctx.fillStyle = '#ddd'
                         ctx.fillText(speed, panelX + panelW - 8, y)
                     }
@@ -3003,11 +3096,16 @@
                         addCircle(sx, sy, 30 * s, 16, 0.3, 1, 0.6, 0.2 + Math.sin(performance.now() * 0.01) * 0.1)
                     }
 
-                    // Shield effect
+                    // Shield effect - vòng tròn màu trắng xung quanh
                     if (skillEffectEnd.shield > performance.now()) {
-                        const shieldPulse = 0.15 + Math.sin(performance.now() * 0.008) * 0.1
-                        addCircle(sx, sy, 35 * s, 20, 0.9, 0.9, 0.95, shieldPulse)
-                        addCircle(sx, sy, 28 * s, 16, 1, 1, 1, shieldPulse * 0.6)
+                        const shieldPulse = 0.3 + Math.sin(performance.now() * 0.008) * 0.15
+                        // Vòng tròn trắng bên ngoài
+                        addCircle(sx, sy, 40 * s, 20, 1, 1, 1, shieldPulse)
+                        // Vòng tròn trắng bên trong
+                        addCircle(sx, sy, 32 * s, 16, 0.95, 0.95, 1, shieldPulse * 0.8)
+                        // Hiệu ứng lấp lánh
+                        addCircle(sx + 10 * s, sy - 10 * s, 4 * s, 6, 1, 1, 1, shieldPulse * 0.9)
+                        addCircle(sx - 8 * s, sy + 8 * s, 3 * s, 6, 1, 1, 1, shieldPulse * 0.7)
                     }
 
                     // Ghost effect
@@ -3017,7 +3115,7 @@
                     }
 
                     // Stun effect - spinning stars above head
-                    if (skillEffectEnd.stun > performance.now()) {
+                    if (isStumbling) {
                         const stunTime = performance.now() * 0.01
                         for (let i = 0; i < 3; i++) {
                             const angle = stunTime + (i * Math.PI * 2) / 3
