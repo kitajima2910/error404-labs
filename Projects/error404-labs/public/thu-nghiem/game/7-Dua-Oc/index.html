@@ -496,6 +496,9 @@
             ;(function () {
                 'use strict'
 
+                // ============================================================
+                // NOTIFICATION SYSTEM
+                // ============================================================
                 // Show skill notification at top of screen
                 function showSkillNotification(snailName, skillName, skillIcon) {
                     const notification = document.getElementById('skill-notification')
@@ -509,6 +512,9 @@
                     }, 2000)
                 }
 
+                // ============================================================
+                // SKILL SYSTEM - Apply Effects from Gifts
+                // ============================================================
                 // Global gift apply (early defined for reliability)
                 window.applyGiftSkill = function (skill) {
                     if (!skill) return
@@ -642,23 +648,28 @@
                     }
                 }
 
-                const DISTANCE = 20000
-                const FRICTION = 0.996
-                const CLICK_POWER = 0.4
-                const MAX_VELOCITY = 15
-                const TARGET_VELOCITY = 6
-                const SKILL_INTERVAL = 4000
-                const SKILL_DURATION = 999999
-                const PERFECT_ZONE = 0.12
-                const GOOD_ZONE = 0.28
-                const BOOST_PERFECT_MULT = 1.8
-                const BOOST_GOOD_MULT = 1.4
-                const MISS_PENALTY = 0.6
-                const BOOST_DURATION = 1200
-                const COMBO_TIMEOUT = 1000
-                const SKILL_BAR_ENABLED = false
+                // ============================================================
+                // CONSTANTS - Game Configuration
+                // ============================================================
+                const DISTANCE = 20000 // Total race distance in pixels
+                const FRICTION = 0.996 // Velocity decay factor
+                const CLICK_POWER = 0.4 // Speed increase per click
+                const MAX_VELOCITY = 15 // Maximum speed cap
+                const TARGET_VELOCITY = 6 // Base AI speed
+                const SKILL_INTERVAL = 4000 // Time between skill spawns
+                const SKILL_DURATION = 999999 // Max skill effect duration
+                const PERFECT_ZONE = 0.12 // Perfect timing zone size
+                const GOOD_ZONE = 0.28 // Good timing zone size
+                const BOOST_PERFECT_MULT = 1.8 // Speed multiplier for perfect
+                const BOOST_GOOD_MULT = 1.4 // Speed multiplier for good
+                const MISS_PENALTY = 0.6 // Speed penalty for miss
+                const BOOST_DURATION = 1200 // Boost effect duration (ms)
+                const COMBO_TIMEOUT = 1000 // Combo timeout (ms)
+                const SKILL_BAR_ENABLED = false // Enable skill timing bar
 
-                // Skill definitions
+                // ============================================================
+                // SKILL DEFINITIONS
+                // ============================================================
                 const SKILLS = [
                     {
                         id: 'speed',
@@ -728,7 +739,9 @@
                     { id: 'bomb', name: 'Bom', icon: '💣', desc: 'AI giảm 70% 4s', color: '#2c3e50', duration: 4000 },
                 ]
 
-                // Game Data
+                // ============================================================
+                // MAP DEFINITIONS
+                // ============================================================
                 const MAPS = [
                     {
                         id: 'mountain',
@@ -1094,7 +1107,9 @@
                 gl.enable(gl.BLEND)
                 gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 
-                // Audio
+                // ============================================================
+                // AUDIO SYSTEM
+                // ============================================================
                 let audioCtx = null
                 function initAudio() {
                     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)()
@@ -1238,6 +1253,10 @@
                     skillLabelEnd: 0,
                 }
                 let aiList = []
+
+                // ============================================================
+                // AI CREATION
+                // ============================================================
                 function createAI() {
                     const colors = [
                         { r: 0.8, g: 0.3, b: 0.6 },
@@ -1530,6 +1549,9 @@
                     }
                 }
 
+                // ============================================================
+                // PLAYER SKILL ACTIVATION (Keyboard Press)
+                // ============================================================
                 function activateSkill(skill) {
                     const now = performance.now()
                     // Show notification for player skill
@@ -1872,6 +1894,9 @@
                     document.getElementById('boost-indicator').style.display = 'none'
                 }
 
+                // ============================================================
+                // UI FUNCTIONS
+                // ============================================================
                 function showFinish() {
                     gameState = 'FINISH'
                     stopBGMusic()
@@ -1918,7 +1943,9 @@
                     document.getElementById('finish-rank').style.color = won ? '#ffd700' : '#e94560'
                 }
 
-                // AI Logic
+                // ============================================================
+                // AI LOGIC
+                // ============================================================
                 let aiSkillBar = { active: false, markerPos: 0, markerDir: 1, cooldown: 0 }
 
                 function updateAI(now, dt) {
@@ -2037,6 +2064,9 @@
                 let lastTime = 0
                 let skillCooldownTimer = 0
 
+                // ============================================================
+                // GAME LOOP
+                // ============================================================
                 function gameLoop(timestamp) {
                     requestAnimationFrame(gameLoop)
 
@@ -2343,6 +2373,9 @@
                     render()
                 }
 
+                // ============================================================
+                // RENDER FUNCTION
+                // ============================================================
                 function render() {
                     gl.uniform2f(uOff, screenShake.x, screenShake.y)
 
@@ -2690,6 +2723,9 @@
 
                 let displaySkills = getDisplaySkills()
 
+                // ============================================================
+                // UI DRAWING FUNCTIONS
+                // ============================================================
                 function drawSkillList() {
                     const panelW = Math.min(W - 40, 600)
                     const panelH = 220
@@ -3034,6 +3070,9 @@
                     }
                 }
 
+                // ============================================================
+                // RENDERING FUNCTIONS
+                // ============================================================
                 function drawSnail(x, y, scale, r, g, b, isBoosted, isStumbling, shape, name) {
                     const s = scale * (isBoosted ? 1.15 : 1) * (isStumbling ? 0.9 : 1)
                     const shake = isStumbling ? (Math.random() - 0.5) * 4 : 0

@@ -1,0 +1,192 @@
+Bạn là Senior Game Engineer + Game Designer + Technical Lead
+
+1. Mục tiêu chính
+Tạo game browser tên "Đua Ốc+" với gameplay click tốc độ cao kết hợp mini skill check "Skill Boost Timing". Game phải chạy mượt trên mọi trình duyệt, không dùng engine, không dùng thư viện ngoài. Toàn bộ code nằm trong 1 file index.html sử dụng HTML + CSS + JavaScript thuần và WebGL 2D (orthographic projection).
+
+2. Tổng quan game
+- Thể loại: Arcade Reaction + Timing
+- Góc nhìn: Side view 2D
+- Người chơi điều khiển một con ốc sên đua với AI
+- Cơ chế chính:
+  + Click liên tục để di chuyển
+  + Thanh skill timing xuất hiện định kỳ
+  + Click đúng vùng xanh → tăng tốc mạnh
+  + Click sai → bị khựng lại hoặc giảm tốc
+- Mục tiêu: Về đích nhanh nhất
+
+3. Core loop
+- Player click → tăng velocity
+- Velocity giảm dần theo friction
+- Thanh Skill Boost xuất hiện theo chu kỳ
+- Player timing click:
+  + Perfect (vùng xanh nhỏ) → boost lớn
+  + Good (vùng xanh nhạt) → boost vừa
+  + Miss (ngoài vùng) → giảm tốc
+- Di chuyển theo velocity
+- Kiểm tra về đích → kết thúc
+
+4. Gameplay mechanics
+4.1 Movement
+- Velocity tăng theo mỗi click: +v
+- Velocity decay: v *= 0.98 mỗi frame
+- Max velocity cap
+- Acceleration stack theo combo click nhanh
+
+4.2 Skill Boost Timing
+- Thanh ngang xuất hiện giữa màn hình
+- Một con trỏ (marker) chạy qua lại (sin wave hoặc linear loop)
+- Vùng xanh:
+  + Perfect zone: 10% chiều dài thanh
+  + Good zone: 25%
+- Click trong vùng:
+  + Perfect: x2 velocity trong 1s
+  + Good: x1.5 velocity
+- Miss:
+  + velocity *= 0.6
+  + hiệu ứng stumble
+
+4.3 Combo system
+- Click liên tục không miss → combo tăng
+- Combo tăng hiệu quả click
+
+4.4 AI opponent
+- AI có logic timing:
+  + Random accuracy
+  + Có khả năng hit perfect 10–20%
+
+5. Controls
+- Click chuột trái / tap màn hình để:
+  + Tăng tốc
+  + Kích hoạt skill timing
+
+6. AI
+- AI có:
+  + Click interval giả lập
+  + Reaction delay
+  + Accuracy skill check
+- AI không gian lận, dùng cùng hệ thống physics
+
+7. UI/UX
+- Thanh tiến trình cuộc đua (progress bar)
+- Thanh Skill Boost:
+  + nền xám
+  + vùng xanh đậm (perfect)
+  + vùng xanh nhạt (good)
+- Velocity meter
+- Combo counter
+- Countdown start (3-2-1)
+- Finish screen:
+  + Thời gian
+  + Rank
+
+8. Audio / Sound / Music
+- Procedural audio bằng Web Audio API:
+  + Click: short tick
+  + Boost: pitch up burst
+  + Miss: low dull sound
+  + Finish: chime
+- Nhạc nền loop nhẹ:
+  + sine + triangle waves
+
+9. VFX / particle / shake / flash
+- Boost:
+  + Particle trail phía sau ốc
+  + Scale up nhẹ
+  + Screen shake nhỏ
+- Miss:
+  + Flash đỏ
+  + Ốc bị giật lùi
+- Click spam:
+  + ripple effect quanh ốc
+
+10. VR nếu phù hợp
+- Không áp dụng
+
+11. Touch / Tap / Mobile controls
+- Tap toàn màn hình
+- Haptic nhẹ (nếu hỗ trợ)
+- UI scale responsive
+
+12. Desktop controls
+- Mouse click
+- Optional: Space key
+
+13. Map / camera / world
+- Side scrolling
+- Camera follow player (lerp)
+- Background parallax:
+  + Layer 1: trời gradient
+  + Layer 2: đồi đơn giản
+  + Layer 3: ground
+
+14. Performance / optimization
+- Sử dụng requestAnimationFrame
+- Batch draw WebGL
+- Object pooling cho particle
+- Tránh tạo object mới mỗi frame
+
+15. Technical architecture
+- Single file index.html
+- Modules logic:
+  + Game loop
+  + Input handler
+  + Physics system
+  + Rendering WebGL
+  + UI overlay canvas
+- State machine:
+  + MENU → PLAYING → FINISH
+
+16. Data models / systems
+- Player:
+  + position
+  + velocity
+  + combo
+  + boostState
+- SkillBar:
+  + active
+  + markerPosition
+  + zones
+- AI:
+  + skillAccuracy
+  + clickRate
+
+17. Multiplayer / multiple modes nếu phù hợp
+- Local:
+  + Player vs AI
+- Optional:
+  + 2-player split input (same screen)
+
+18. Online / offline modes nếu phù hợp
+- Offline hoàn toàn
+- Không cần server
+
+19. Ràng buộc bản quyền/IP
+- Không sử dụng bất kỳ tài sản, nhân vật, âm thanh, thiết kế nào từ game thương mại
+- Tất cả thiết kế phải nguyên bản
+
+20. Asset generation / silhouette rules
+- Ốc sên player:
+  + Thân: ellipse dài màu xanh lá nhạt
+  + Vỏ: spiral (vòng tròn xoáy) màu nâu
+  + Mắt: 2 cột nhỏ + chấm đen
+- Ốc AI:
+  + Màu khác (cam hoặc tím)
+  + Vỏ khác pattern
+- Ground:
+  + Rectangle dài màu nâu
+- Boost bar:
+  + Rect dài
+  + vùng xanh rõ ràng
+- Particle:
+  + Circle nhỏ fade out
+- Tất cả vẽ bằng WebGL primitive
+
+21. Output requirements
+- Chỉ 1 file index.html
+- Không CDN
+- Không thư viện ngoài
+- Dùng WebGL 2D với orthographic projection
+- HTML + CSS + JS trong cùng file
+- Code chạy ngay khi mở trình duyệt
+- Toàn bộ asset vẽ bằng code
+- Gameplay hoàn chỉnh, không demo
