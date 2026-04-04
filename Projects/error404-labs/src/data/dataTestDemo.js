@@ -30,12 +30,12 @@ export const DATA_DEMO = [
         image: '/thu-nghiem/game/3-Bap-Hop/3-Bap-Hop.avif',
     },
     {
-        name: '1. Bắt Quả',
+        name: '2. Bắt Quả',
         link: '/thu-nghiem/game/2-Bat-Qua/index.html',
         image: '/thu-nghiem/game/2-Bat-Qua/2-Bat-Qua.avif',
     },
     {
-        name: '2. Bay Lên',
+        name: '1. Bay Lên',
         link: '/thu-nghiem/game/1-Bay-Len/index.html',
         image: '/thu-nghiem/game/1-Bay-Len/1-Bay-Len.avif',
     },
