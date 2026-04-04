@@ -1,0 +1,210 @@
+1. Bạn là Senior Game Engineer + Game Designer + Technical Lead
+
+Thiết kế và triển khai một game HTML5 hoàn chỉnh chạy trực tiếp trên browser với 1 file duy nhất index.html. Không sử dụng game engine. Không sử dụng thư viện ngoài cho 2D. Chỉ dùng HTML + CSS + JavaScript thuần. Rendering bắt buộc bằng WebGL 2D với orthographic projection.
+
+2. Mục tiêu chính
+
+Tạo game "Xoay Vòng+":
+- Người chơi click đúng thời điểm khi mũi tên đang quay trỏ vào vùng mục tiêu.
+- Tốc độ quay tăng dần theo thời gian.
+- Thỉnh thoảng đảo chiều quay đột ngột để gây khó.
+- Gameplay đơn giản nhưng gây nghiện, phản xạ nhanh.
+
+3. Tổng quan game
+
+- Góc nhìn top-down 2D.
+- Một vòng tròn ở trung tâm.
+- Một mũi tên quay quanh tâm.
+- Một hoặc nhiều vùng mục tiêu (arc segment) trên vòng tròn.
+- Người chơi click/tap để "chốt" khi mũi tên nằm trong vùng mục tiêu.
+
+4. Core loop
+
+- Spawn vòng tròn + target.
+- Mũi tên quay liên tục.
+- Player click:
+  - Nếu trúng target → + điểm, tăng độ khó.
+  - Nếu trượt → game over hoặc mất máu.
+- Sau mỗi lần trúng:
+  - Tăng tốc độ quay.
+  - Có xác suất đảo chiều.
+  - Thay đổi vị trí target.
+- Lặp lại.
+
+5. Gameplay mechanics
+
+- Rotation:
+  - Góc quay θ cập nhật theo thời gian: θ += speed * deltaTime
+  - speed tăng dần theo score.
+- Direction:
+  - direction = 1 hoặc -1
+  - Random đảo chiều sau mỗi 2–5 lần hit.
+- Target:
+  - Là một arc segment (ví dụ 20–60 độ).
+  - Vị trí random trên vòng.
+  - Có thể thu nhỏ dần để tăng độ khó.
+- Hit detection:
+  - So sánh góc mũi tên với khoảng góc của target.
+- Combo:
+  - Hit liên tiếp → tăng multiplier.
+- Miss:
+  - Reset combo hoặc giảm HP.
+
+6. Controls
+
+- Click chuột hoặc tap màn hình.
+- Không cần phím phức tạp.
+
+7. AI
+
+- Không có AI đối thủ.
+- Hệ thống điều chỉnh độ khó:
+  - Speed scaling.
+  - Target size scaling.
+  - Direction change probability.
+
+8. UI/UX
+
+- HUD:
+  - Score
+  - Combo
+  - Speed level
+- Feedback:
+  - Hit: flash xanh + scale pulse
+  - Miss: flash đỏ + screen shake
+- Menu:
+  - Start
+  - Restart
+- Typography dùng font system, không import.
+
+9. Audio / Sound / Music
+
+- Tạo âm thanh bằng Web Audio API:
+  - Click đúng: tone cao, ngắn.
+  - Click trượt: tone trầm.
+  - Combo: pitch tăng dần.
+- Nhạc nền:
+  - Loop đơn giản bằng oscillator.
+- Không dùng file audio ngoài.
+
+10. VFX / particle / shake / flash
+
+- Hit:
+  - Particle radial burst (circle nhỏ bay ra).
+  - Scale vòng tròn nhẹ.
+- Miss:
+  - Screen shake (translate canvas).
+  - Flash overlay đỏ.
+- Direction change:
+  - Flash vàng + ripple effect.
+
+11. VR nếu phù hợp
+
+- Không áp dụng.
+
+12. Touch / Tap / Mobile controls
+
+- Tap toàn màn hình để click.
+- Responsive canvas theo tỷ lệ màn hình.
+- Tránh delay 300ms.
+
+13. Desktop controls
+
+- Mouse click.
+- Có thể thêm Space để click.
+
+14. Map / camera / world
+
+- Single screen.
+- Camera cố định.
+- Orthographic projection WebGL.
+
+15. Performance / optimization
+
+- Sử dụng requestAnimationFrame.
+- Batch draw với WebGL.
+- Tránh object allocation trong loop.
+- Dùng typed arrays.
+
+16. Technical architecture
+
+- index.html gồm:
+  - Canvas WebGL
+  - Shader vertex + fragment inline
+- Modules logic:
+  - GameState
+  - Renderer
+  - InputHandler
+  - AudioSystem
+  - ParticleSystem
+- Game loop:
+  - update(deltaTime)
+  - render()
+
+17. Data models / systems
+
+- Arrow:
+  - angle
+  - speed
+  - direction
+- Target:
+  - startAngle
+  - endAngle
+  - size
+- GameState:
+  - score
+  - combo
+  - level
+  - isGameOver
+
+18. Multiplayer / multiple modes nếu phù hợp
+
+- Local mode:
+  - Classic (1 target)
+  - Hard (multiple targets)
+- Không cần online.
+
+19. Online / offline modes nếu phù hợp
+
+- Offline hoàn toàn.
+- Có thể lưu high score bằng localStorage.
+
+20. Ràng buộc bản quyền/IP
+
+- Không tham chiếu bất kỳ game thương mại nào.
+- Không dùng asset, âm thanh, thiết kế từ nguồn ngoài.
+- Tất cả phải tự tạo.
+
+21. Asset generation / silhouette rules
+
+- Vòng tròn:
+  - Ring (2 circle: outer radius và inner radius).
+  - Màu gradient xanh → tím.
+- Mũi tên:
+  - Shape tam giác dài + đuôi nhỏ.
+  - Màu trắng hoặc vàng.
+  - Luôn rõ hướng.
+- Target:
+  - Arc segment màu xanh lá.
+  - Có outline sáng.
+- Miss zone:
+  - Phần còn lại màu tối.
+- Particle:
+  - Circle nhỏ, fade out.
+- Tất cả vẽ bằng WebGL primitive (triangle fan, triangle strip).
+- Không dùng hình ảnh ngoài.
+
+22. Output requirements
+
+- Chỉ 1 file duy nhất: index.html.
+- Tất cả code nằm trong:
+  - HTML
+  - <style>
+  - <script>
+- Không CDN.
+- Không thư viện ngoài.
+- Chạy ngay khi mở file.
+- Code phải đầy đủ, playable.
+- Sử dụng WebGL 2D (orthographic).
+- Không được thiếu shader code.
+- Không được tách file.
