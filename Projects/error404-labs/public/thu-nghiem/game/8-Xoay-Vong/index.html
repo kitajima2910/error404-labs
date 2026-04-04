@@ -1,1 +1,778 @@
+<!doctype html>
+<html lang="vi">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <title>Xoay Vòng+ Ultimate Neon (Eye-Care Edition)</title>
+        <style>
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+                user-select: none;
+                -webkit-user-select: none;
+            }
+            body {
+                background-color: #000;
+                color: #fff;
+                font-family: 'Segoe UI', system-ui, sans-serif;
+                overflow: hidden;
+                width: 100vw;
+                height: 100vh;
+                touch-action: none;
+            }
+            canvas {
+                display: block;
+                width: 100%;
+                height: 100%;
+            }
+            #ui-layer {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                display: flex;
+                flex-direction: column;
+            }
+            .hud {
+                padding: 40px;
+                display: flex;
+                justify-content: space-between;
+                font-size: 20px;
+                font-weight: 900;
+                letter-spacing: 3px;
+                opacity: 0;
+                transition: opacity 0.5s;
+            }
+            .fever-wrap {
+                width: 200px;
+                height: 4px;
+                background: rgba(255, 255, 255, 0.05);
+                margin-top: 10px;
+                position: relative;
+            }
+            #fever-fill {
+                width: 0%;
+                height: 100%;
+                background: #94a3b8;
+                box-shadow: 0 0 15px rgba(148, 163, 184, 0.4);
+                transition: width 0.1s;
+            }
+            #ui-score {
+                font-size: 56px;
+                color: #cbd5e1;
+                text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+            }
+            #ui-combo {
+                font-size: 32px;
+                font-style: italic;
+                color: #38bdf8;
+                text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+            }
 
+            .screen {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: radial-gradient(circle, rgba(0, 10, 20, 0.8) 0%, #000 100%);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                pointer-events: auto;
+                transition: 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+                z-index: 100;
+            }
+            .hidden {
+                opacity: 0;
+                pointer-events: none;
+                transform: scale(1.05);
+            }
+
+            h1 {
+                font-size: 80px;
+                margin-bottom: 0;
+                letter-spacing: -2px;
+                background: linear-gradient(to bottom, #cbd5e1 40%, #38bdf8 100%);
+                -webkit-background-clip: text;
+                color: transparent;
+                filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.2));
+            }
+            .btn {
+                background: none;
+                color: #94a3b8;
+                border: 1.5px solid #475569;
+                padding: 14px 60px;
+                font-size: 18px;
+                font-weight: 900;
+                cursor: pointer;
+                transition: 0.3s;
+                letter-spacing: 6px;
+                margin-top: 50px;
+            }
+            .btn:hover {
+                background: #1e293b;
+                color: #fff;
+                border-color: #fff;
+            }
+
+            .floating-text {
+                position: absolute;
+                color: #cbd5e1;
+                font-weight: 900;
+                pointer-events: none;
+                font-size: 40px;
+                text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+                animation: floatUp 0.8s ease-out forwards;
+            }
+            @keyframes floatUp {
+                0% {
+                    transform: scale(0.5) translateY(0);
+                    opacity: 0;
+                }
+                30% {
+                    transform: scale(1.1) translateY(-30px);
+                    opacity: 0.8;
+                }
+                100% {
+                    transform: scale(1.3) translateY(-120px);
+                    opacity: 0;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="gameCanvas"></canvas>
+        <div id="ui-layer">
+            <div class="hud" id="hud">
+                <div>
+                    <div id="ui-score">0</div>
+                    <div class="fever-wrap"><div id="fever-fill"></div></div>
+                </div>
+                <div style="text-align: right">
+                    <div id="ui-combo"></div>
+                    <div style="font-size: 14px; color: #334155; letter-spacing: 1px">
+                        BEST: <span id="ui-best">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="screen" id="menu-screen">
+            <p
+                style="
+                    letter-spacing: 12px;
+                    color: #38bdf8;
+                    font-size: 14px;
+                    margin-bottom: -10px;
+                    font-weight: bold;
+                    opacity: 0.7;
+                "
+            >
+                DIMMED NEON
+            </p>
+            <h1>ULTIMATE+</h1>
+            <button class="btn" id="start-btn">START</button>
+        </div>
+
+        <div class="screen hidden" id="game-over-screen">
+            <h2 style="font-size: 18px; letter-spacing: 6px; color: #991b1b">SYSTEM OFFLINE</h2>
+            <div id="score-display" style="font-size: 100px; font-weight: 900; color: #cbd5e1">0</div>
+            <button class="btn" id="restart-btn" style="border-color: #7f1d1d; color: #ef4444">REBOOT</button>
+        </div>
+
+        <script>
+            const PI = Math.PI,
+                TWO_PI = PI * 2
+            const rand = (min, max) => Math.random() * (max - min) + min
+            const normA = (a) => {
+                let r = a % TWO_PI
+                return r < 0 ? r + TWO_PI : r
+            }
+
+            const state = {
+                mode: 'MENU',
+                score: 0,
+                best: localStorage.getItem('xv_ult_best') || 0,
+                combo: 0,
+                fever: 0,
+                isFever: false,
+                feverT: 0,
+                angle: -PI / 2,
+                speed: 2.5,
+                dir: 1,
+                tStart: 0,
+                tArc: PI / 3,
+                shake: 0,
+                pulse: 1,
+                flash: 0,
+                fCol: [
+                    0,
+                    0,
+                    0,
+                    0,
+                ],
+                radius: 0,
+                time: 0,
+                trail: [],
+                camZoom: 1,
+                lvl: 0,
+                themeCol: [
+                    0.2,
+                    0.5,
+                    0.7,
+                ],
+            }
+
+            const themes = [
+                [
+                    0.2,
+                    0.5,
+                    0.7,
+                ], // Dimmed Cyan
+                [
+                    0.5,
+                    0.2,
+                    0.7,
+                ], // Dimmed Purple
+                [
+                    0.7,
+                    0.5,
+                    0.2,
+                ], // Dimmed Gold
+                [
+                    0.2,
+                    0.6,
+                    0.4,
+                ], // Dimmed Emerald
+            ]
+
+            const canvas = document.getElementById('gameCanvas')
+            const gl = canvas.getContext('webgl2', { antialias: true })
+
+            function resize() {
+                canvas.width = window.innerWidth
+                canvas.height = window.innerHeight
+                gl.viewport(0, 0, canvas.width, canvas.height)
+                state.radius = Math.min(canvas.width, canvas.height) * 0.28
+            }
+            window.onresize = resize
+            resize()
+
+            const vs = `#version 300 es
+        in vec2 pos; in vec4 col;
+        uniform vec2 res; uniform vec2 off; uniform float zoom;
+        out vec4 vCol;
+        void main() {
+            vec2 center = res * 0.5;
+            vec2 p = (pos - center) * zoom + center + off;
+            p = p / res * 2.0 - 1.0;
+            gl_Position = vec4(p * vec2(1, -1), 0, 1);
+            vCol = col;
+        }`
+            const fs = `#version 300 es
+        precision highp float; in vec4 vCol; out vec4 fCol;
+        uniform float shift;
+        void main() { 
+            fCol = vCol;
+            if(shift > 0.01) { fCol.rgb = mix(fCol.rgb, fCol.gbr, shift * 0.2); }
+        }`
+
+            const prog = (function (gl, vs, fs) {
+                const s = (t, src) => {
+                    const sh = gl.createShader(t)
+                    gl.shaderSource(sh, src)
+                    gl.compileShader(sh)
+                    return sh
+                }
+                const p = gl.createProgram()
+                gl.attachShader(p, s(gl.VERTEX_SHADER, vs))
+                gl.attachShader(p, s(gl.FRAGMENT_SHADER, fs))
+                gl.linkProgram(p)
+                return p
+            })(gl, vs, fs)
+            gl.useProgram(prog)
+
+            const vData = new Float32Array(100000 * 6)
+            let vIdx = 0
+            const vbo = gl.createBuffer()
+            gl.bindBuffer(gl.ARRAY_BUFFER, vbo)
+            gl.enableVertexAttribArray(gl.getAttribLocation(prog, 'pos'))
+            gl.vertexAttribPointer(gl.getAttribLocation(prog, 'pos'), 2, gl.FLOAT, false, 24, 0)
+            gl.enableVertexAttribArray(gl.getAttribLocation(prog, 'col'))
+            gl.vertexAttribPointer(gl.getAttribLocation(prog, 'col'), 4, gl.FLOAT, false, 24, 8)
+
+            const Audio = {
+                ctx: null,
+                init() {
+                    if (!this.ctx) this.ctx = new AudioContext()
+                },
+                play(f, t, d, v = 0.2) {
+                    if (!this.ctx) return
+                    const o = this.ctx.createOscillator()
+                    const g = this.ctx.createGain()
+                    o.type = t
+                    o.frequency.setValueAtTime(f, this.ctx.currentTime)
+                    g.gain.setValueAtTime(v, this.ctx.currentTime)
+                    g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + d)
+                    o.connect(g)
+                    g.connect(this.ctx.destination)
+                    o.start()
+                    o.stop(this.ctx.currentTime + d)
+                },
+                hit(p) {
+                    this.play(60, 'sine', 0.15, 0.4)
+                    this.play(p ? 1200 : 800 + state.combo * 4, 'sine', 0.1, 0.15)
+                },
+            }
+
+            function addV(x, y, r, g, b, a) {
+                vData[vIdx++] = x
+                vData[vIdx++] = y
+                vData[vIdx++] = r
+                vData[vIdx++] = g
+                vData[vIdx++] = b
+                vData[vIdx++] = a
+            }
+
+            function drawRect(x, y, w, h, c) {
+                addV(x, y, ...c)
+                addV(x + w, y, ...c)
+                addV(x, y + h, ...c)
+                addV(x + w, y, ...c)
+                addV(x + w, y + h, ...c)
+                addV(x, y + h, ...c)
+            }
+
+            function drawArc(x, y, r1, r2, s, e, c, segs = 45) {
+                const d = (e - s) / segs
+                for (let i = 0; i < segs; i++) {
+                    let a1 = s + i * d,
+                        a2 = s + (i + 1) * d
+                    let c1 = Math.cos(a1),
+                        sin1 = Math.sin(a1),
+                        c2 = Math.cos(a2),
+                        sin2 = Math.sin(a2)
+                    addV(x + c1 * r1, y + sin1 * r1, ...c)
+                    addV(x + c1 * r2, y + sin1 * r2, ...c)
+                    addV(x + c2 * r1, y + sin2 * r1, ...c)
+                    addV(x + c1 * r2, y + sin1 * r2, ...c)
+                    addV(x + c2 * r2, y + sin2 * r2, ...c)
+                    addV(x + c2 * r1, y + sin2 * r1, ...c)
+                }
+            }
+
+            function drawArrow(cx, cy, radius, angle, color) {
+                const size = 16
+                const dist = radius + 20
+                const ax = cx + Math.cos(angle) * dist
+                const ay = cy + Math.sin(angle) * dist
+                const cosA = Math.cos(angle),
+                    sinA = Math.sin(angle)
+                const cosP = Math.cos(angle + PI * 0.5),
+                    sinP = Math.sin(angle + PI * 0.5)
+                const p1x = ax - cosA * size,
+                    p1y = ay - sinA * size
+                const p2x = ax + cosA * size * 0.4 + cosP * size * 0.5,
+                    p2y = ay + sinA * size * 0.4 + sinP * size * 0.5
+                const p3x = ax + cosA * size * 0.4 - cosP * size * 0.5,
+                    p3y = ay + sinA * size * 0.4 - sinP * size * 0.5
+                addV(p1x, p1y, ...color)
+                addV(p2x, p2y, ...color)
+                addV(p3x, p3y, ...color)
+            }
+
+            let parts = []
+            function spawnParts(x, y, n, col, sM = 1) {
+                for (let i = 0; i < n; i++) {
+                    const a = rand(0, TWO_PI),
+                        s = rand(100, 500) * sM
+                    parts.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, l: 1, c: col })
+                }
+            }
+
+            function spawnText(txt) {
+                const el = document.createElement('div')
+                el.className = 'floating-text'
+                el.innerText = txt
+                el.style.left = '50%'
+                el.style.top = '45%'
+                document.body.appendChild(el)
+                setTimeout(() => el.remove(), 800)
+            }
+
+            function handleInput() {
+                if (state.mode !== 'PLAY') {
+                    if (
+                        state.mode === 'MENU' ||
+                        (state.mode === 'OVER' &&
+                            !document.getElementById('game-over-screen').classList.contains('hidden'))
+                    )
+                        startGame()
+                    return
+                }
+
+                const a = normA(state.angle)
+                const s = normA(state.tStart)
+                const e = normA(state.tStart + state.tArc)
+                const m = normA(state.tStart + state.tArc / 2)
+                const hit = s < e ? a >= s && a <= e : a >= s || a <= e
+
+                if (hit) {
+                    const diff = Math.min(Math.abs(a - m), TWO_PI - Math.abs(a - m))
+                    const perf = diff < 0.08
+                    state.score += (perf ? 10 : 2) * (state.isFever ? 2 : 1)
+                    state.combo++
+                    state.pulse = 1.25
+                    state.shake = perf ? 0.4 : 0.15
+                    state.camZoom = 1.03
+                    state.fever = Math.min(10, state.fever + (perf ? 3 : 1))
+
+                    if (state.fever >= 10 && !state.isFever) {
+                        state.isFever = true
+                        state.feverT = 6
+                        state.flash = 0.6
+                        state.fCol = [
+                            1,
+                            1,
+                            1,
+                            0.2,
+                        ]
+                        spawnText('FEVER')
+                    }
+
+                    if (perf) spawnText('PERFECT')
+
+                    Audio.hit(perf)
+                    state.speed = Math.min(9.5, state.speed + 0.1)
+                    state.tArc = Math.max(0.15, state.tArc - 0.035)
+
+                    const newLvl = Math.floor(state.score / 80) % themes.length
+                    if (newLvl !== state.lvl) {
+                        state.lvl = newLvl
+                        state.themeCol = themes[newLvl]
+                    }
+
+                    if (Math.random() < 0.2) {
+                        state.dir *= -1
+                        state.flash = 0.2
+                        state.fCol = [
+                            1,
+                            1,
+                            1,
+                            0.1,
+                        ]
+                    }
+
+                    document.getElementById('ui-score').innerText = state.score
+                    document.getElementById('ui-combo').innerText = state.combo > 1 ? state.combo + 'x' : ''
+                    state.tStart = normA(state.angle + rand(PI / 2, 1.5 * PI) * state.dir)
+                    spawnParts(
+                        canvas.width / 2 + Math.cos(a) * state.radius,
+                        canvas.height / 2 + Math.sin(a) * state.radius,
+                        perf ? 40 : 15,
+                        perf
+                            ? [
+                                  0.8,
+                                  0.8,
+                                  0.8,
+                                  0.8,
+                              ]
+                            : [
+                                  ...state.themeCol,
+                                  0.8,
+                              ],
+                    )
+                } else {
+                    gameOver()
+                }
+            }
+
+            function startGame() {
+                Audio.init()
+                Object.assign(state, {
+                    mode: 'PLAY',
+                    score: 0,
+                    combo: 0,
+                    fever: 0,
+                    isFever: false,
+                    feverT: 0,
+                    speed: 2.5,
+                    dir: 1,
+                    angle: -PI / 2,
+                    tArc: PI / 3,
+                    trail: [],
+                    camZoom: 1,
+                    lvl: 0,
+                    themeCol: themes[0],
+                })
+                document.querySelectorAll('.screen').forEach((s) => s.classList.add('hidden'))
+                document.getElementById('hud').style.opacity = '1'
+                document.getElementById('ui-best').innerText = state.best
+                state.lastTime = performance.now()
+            }
+
+            function gameOver() {
+                state.mode = 'OVER'
+                state.shake = 1
+                state.flash = 0.8
+                state.fCol = [
+                    0.5,
+                    0,
+                    0,
+                    0.3,
+                ]
+                Audio.play(40, 'sawtooth', 1, 0.3)
+                if (state.score > state.best) {
+                    state.best = state.score
+                    localStorage.setItem('xv_ult_best', state.best)
+                }
+                document.getElementById('score-display').innerText = state.score
+                setTimeout(() => document.getElementById('game-over-screen').classList.remove('hidden'), 600)
+            }
+
+            window.onmousedown = handleInput
+            window.ontouchstart = (e) => {
+                e.preventDefault()
+                handleInput()
+            }
+            window.onkeydown = (e) => {
+                if (e.code === 'Space') handleInput()
+            }
+
+            function loop(t) {
+                const dt = Math.min((t - state.lastTime) / 1000, 0.1)
+                state.lastTime = t
+                state.time += dt
+                vIdx = 0
+                const cx = canvas.width / 2,
+                    cy = canvas.height / 2
+
+                if (state.mode === 'PLAY') {
+                    state.angle += state.speed * state.dir * dt * (state.isFever ? 1.3 : 1)
+                    if (state.isFever) {
+                        state.feverT -= dt
+                        state.fever = (state.feverT / 6) * 10
+                        if (state.feverT <= 0) state.isFever = false
+                    }
+                    document.getElementById('fever-fill').style.width = `${state.fever * 10}%`
+                    state.trail.push({ a: state.angle, r: state.pulse })
+                    if (state.trail.length > 15) state.trail.shift()
+                }
+
+                if (state.shake > 0) state.shake -= dt * 3
+                if (state.pulse > 1) state.pulse -= dt * 2.5
+                if (state.flash > 0) state.flash -= dt * 2
+                state.camZoom += (1 - state.camZoom) * 0.1
+
+                const ox = state.shake > 0 ? rand(-25, 25) * state.shake : 0
+                const oy = state.shake > 0 ? rand(-25, 25) * state.shake : 0
+
+                gl.clearColor(0.005, 0.005, 0.01, 1)
+                gl.clear(gl.COLOR_BUFFER_BIT)
+
+                // --- GRID (Dimmed) ---
+                const gS = 120,
+                    gO = (state.time * 30) % gS
+                for (let x = -gS; x < canvas.width + gS; x += gS)
+                    drawRect(x + gO, 0, 1, canvas.height, [
+                        ...state.themeCol,
+                        0.04,
+                    ])
+                for (let y = -gS; y < canvas.height + gS; y += gS)
+                    drawRect(0, y + gO, canvas.width, 1, [
+                        ...state.themeCol,
+                        0.04,
+                    ])
+
+                // --- LASER (Dimmed) ---
+                if (state.mode === 'PLAY') {
+                    const laserCol = state.isFever
+                        ? [
+                              0.6,
+                              0.4,
+                              0.6,
+                              0.06,
+                          ]
+                        : [
+                              ...state.themeCol,
+                              0.06,
+                          ]
+                    drawArc(
+                        cx,
+                        cy,
+                        0,
+                        state.radius * state.pulse + 20,
+                        state.angle - 0.004,
+                        state.angle + 0.004,
+                        laserCol,
+                        1,
+                    )
+                }
+
+                // --- TRAIL (Dimmed) ---
+                state.trail.forEach((h, i) => {
+                    const alpha = (i / state.trail.length) * 0.3
+                    const r = state.radius * h.r + 20
+                    const tx = cx + Math.cos(h.a) * r,
+                        ty = cy + Math.sin(h.a) * r
+                    drawRect(
+                        tx - 6,
+                        ty - 6,
+                        12,
+                        12,
+                        state.isFever
+                            ? [
+                                  0.7,
+                                  0.2,
+                                  0.5,
+                                  alpha,
+                              ]
+                            : [
+                                  ...state.themeCol,
+                                  alpha,
+                              ],
+                    )
+                })
+
+                // --- BASE TRACK (Dimmed) ---
+                const r = state.radius * state.pulse
+                drawArc(
+                    cx,
+                    cy,
+                    r - 12,
+                    r + 12,
+                    0,
+                    TWO_PI,
+                    [
+                        1,
+                        1,
+                        1,
+                        0.03,
+                    ],
+                    60,
+                )
+
+                // --- RING ---
+                const coreC = state.isFever
+                    ? [
+                          0.8,
+                          0.8,
+                          0.8,
+                          0.8,
+                      ]
+                    : [
+                          ...state.themeCol,
+                          0.8,
+                      ]
+                drawArc(
+                    cx,
+                    cy,
+                    r - 20,
+                    r + 20,
+                    0,
+                    TWO_PI,
+                    [
+                        ...coreC.slice(0, 3),
+                        0.04,
+                    ],
+                    60,
+                ) // Glow cực mờ
+                drawArc(cx, cy, r - 4, r + 4, 0, TWO_PI, coreC, 100)
+
+                // --- TARGET ---
+                if (state.mode === 'PLAY') {
+                    const tC = [
+                        0.9,
+                        0.9,
+                        0.9,
+                        0.9,
+                    ]
+                    drawArc(cx, cy, r - 14, r + 14, state.tStart, state.tStart + state.tArc, tC, 40)
+                    drawArc(
+                        cx,
+                        cy,
+                        r - 30,
+                        r + 30,
+                        state.tStart,
+                        state.tStart + state.tArc,
+                        [
+                            ...state.themeCol,
+                            0.12,
+                        ],
+                        30,
+                    )
+                    const mid = state.tStart + state.tArc / 2
+                    drawArc(
+                        cx,
+                        cy,
+                        r - 40,
+                        r + 40,
+                        mid - 0.012,
+                        mid + 0.012,
+                        [
+                            0.8,
+                            0.8,
+                            0.8,
+                            0.8,
+                        ],
+                        2,
+                    )
+                }
+
+                // --- ARROW ---
+                drawArrow(
+                    cx,
+                    cy,
+                    r,
+                    state.angle,
+                    [
+                        0.9,
+                        0.9,
+                        0.9,
+                        0.9,
+                    ],
+                )
+
+                // --- PARTICLES ---
+                for (let i = parts.length - 1; i >= 0; i--) {
+                    let p = parts[i]
+                    p.x += p.vx * dt
+                    p.y += p.vy * dt
+                    p.l -= dt * 1.6
+                    if (p.l <= 0) parts.splice(i, 1)
+                    else
+                        drawRect(p.x, p.y, 3, 3, [
+                            ...p.c.slice(0, 3),
+                            p.l * 0.6,
+                        ])
+                }
+
+                // --- OVERLAYS ---
+                if (state.flash > 0)
+                    drawRect(0, 0, canvas.width, canvas.height, [
+                        ...state.fCol.slice(0, 3),
+                        state.fCol[3] * state.flash,
+                    ])
+
+                gl.uniform2f(gl.getUniformLocation(prog, 'res'), canvas.width, canvas.height)
+                gl.uniform2f(gl.getUniformLocation(prog, 'off'), ox, oy)
+                gl.uniform1f(gl.getUniformLocation(prog, 'zoom'), state.camZoom)
+                gl.uniform1f(gl.getUniformLocation(prog, 'shift'), state.isFever ? 0.15 : state.shake > 0 ? 0.05 : 0)
+
+                gl.bindBuffer(gl.ARRAY_BUFFER, vbo)
+                gl.bufferData(gl.ARRAY_BUFFER, vData.subarray(0, vIdx), gl.DYNAMIC_DRAW)
+                gl.enable(gl.BLEND)
+                gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
+                gl.drawArrays(gl.TRIANGLES, 0, vIdx / 6)
+
+                requestAnimationFrame(loop)
+            }
+            requestAnimationFrame(loop)
+        </script>
+    </body>
+</html>
