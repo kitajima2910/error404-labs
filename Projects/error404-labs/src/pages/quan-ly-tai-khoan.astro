@@ -6,37 +6,63 @@ export const prerender = false
 
 const token = Astro.cookies.get('auth_token')?.value
 let user = null
+let dbUser = null
 
 try {
     if (token) {
+        const neon = (await import('@neondatabase/serverless')).neon;
+        const sql = neon(import.meta.env.DATABASE_URL);
+        
         user = jwt.verify(token, import.meta.env.JWT_SECRET) as any
+        
+        if (user) {
+            const results = await sql`SELECT member, display_name, roles FROM error404labs.members WHERE id = ${user.id}`;
+            dbUser = results[0];
+        }
     }
 } catch (e) {}
 
-if (!user || user.roles !== 'admin') {
+if (!dbUser || dbUser.roles !== 'admin') {
     return Astro.redirect('/')
 }
+
+const displayName = dbUser.display_name || dbUser.member;
 ---
 
-<MainLayout title="Quản lý tài khoản | Error404-Labs" description="Trang quản trị tài khoản dành cho Admin">
+<MainLayout 
+    title="Quản lý tài khoản | Error404-Labs" 
+    description="Trang quản trị tài khoản dành cho Admin"
+    searchable={false}
+>
     <section class="h-[calc(100vh-168px)] max-w-6xl mx-auto px-4 py-12">
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
             <div>
                 <h1 class="text-3xl font-bold text-slate-800">Quản Lý Tài Khoản</h1>
-                <p class="text-slate-500 mt-1">Danh sách thành viên trong hệ thống Error404-Labs</p>
+                <p class="text-slate-500 mt-1">Chào, <span class="font-bold text-indigo-600 underline decoration-indigo-200 underline-offset-4">{displayName}</span> ! Bạn đang quản lý các thành viên Error404-Labs</p>
             </div>
-            <button
-                id="addMemberBtn"
-                class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-indigo-200 flex items-center gap-2 w-fit"
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path
-                        fill-rule="evenodd"
-                        d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                        clip-rule="evenodd"></path>
-                </svg>
-                Thêm tài khoản
-            </button>
+            <div class="flex flex-col sm:flex-row items-center gap-3">
+                <div class="relative w-full sm:w-64">
+                    <input 
+                        type="text" 
+                        id="memberSearch" 
+                        placeholder="Tìm kiếm..." 
+                        class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all text-sm"
+                    />
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <button
+                    id="addMemberBtn"
+                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-indigo-200 flex items-center gap-2 w-full sm:w-auto cursor-pointer"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
+                    </svg>
+                    Thêm tài khoản
+                </button>
+            </div>
+
         </div>
 
         <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
@@ -44,22 +70,46 @@ if (!user || user.roles !== 'admin') {
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-slate-50 border-b border-slate-100">
-                            <th class="px-6 py-4 text-sm font-bold text-slate-600 uppercase tracking-wider">ID</th>
-                            <th class="px-6 py-4 text-sm font-bold text-slate-600 uppercase tracking-wider"
-                                >Tài khoản</th
-                            >
-                            <th class="px-6 py-4 text-sm font-bold text-slate-600 uppercase tracking-wider">Vai trò</th>
-                            <th class="px-6 py-4 text-sm font-bold text-slate-600 uppercase tracking-wider text-right"
-                                >Thao tác</th
-                            >
+                            <th class="sortable px-6 py-4 text-xs font-black text-slate-600 uppercase tracking-widest cursor-pointer hover:bg-slate-100 transition-colors group" data-sort="id">
+                                ID <span class="sort-icon ml-1 opacity-20 group-hover:opacity-100">⇅</span>
+                            </th>
+                            <th class="sortable px-6 py-4 text-xs font-black text-slate-600 uppercase tracking-widest cursor-pointer hover:bg-slate-100 transition-colors group" data-sort="member">
+                                Tài khoản <span class="sort-icon ml-1 opacity-20 group-hover:opacity-100">⇅</span>
+                            </th>
+                            <th class="sortable px-6 py-4 text-xs font-black text-slate-600 uppercase tracking-widest cursor-pointer hover:bg-slate-100 transition-colors group" data-sort="display_name">
+                                Tên hiển thị <span class="sort-icon ml-1 opacity-20 group-hover:opacity-100">⇅</span>
+                            </th>
+                            <th class="sortable px-6 py-4 text-xs font-black text-slate-600 uppercase tracking-widest cursor-pointer hover:bg-slate-100 transition-colors group text-center" data-sort="roles">
+                                Vai trò <span class="sort-icon ml-1 opacity-20 group-hover:opacity-100">⇅</span>
+                            </th>
+                            <th class="sortable px-6 py-4 text-xs font-black text-slate-600 uppercase tracking-widest cursor-pointer hover:bg-slate-100 transition-colors group text-center" data-sort="created_at">
+                                Ngày tham gia <span class="sort-icon ml-1 opacity-20 group-hover:opacity-100">⇅</span>
+                            </th>
+                            <th class="px-6 py-4 text-xs font-black text-slate-600 uppercase tracking-widest text-right">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody id="memberTableBody" class="divide-y divide-slate-100">
                         <tr>
-                            <td colspan="4" class="px-6 py-12 text-center text-slate-400">Đang tải dữ liệu...</td>
+                            <td colspan="6" class="px-6 py-12 text-center text-slate-400">Đang tải dữ liệu...</td>
                         </tr>
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Phân trang -->
+            <div class="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between flex-wrap gap-4">
+                <p class="text-sm text-slate-500">
+                    Hiển thị <span id="showingStart" class="font-bold text-slate-700">0</span> - <span id="showingEnd" class="font-bold text-slate-700">0</span> trong <span id="totalMembers" class="font-bold text-slate-700">0</span> tài khoản
+                </p>
+                <div class="flex items-center gap-2">
+                    <button id="prevPage" class="p-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-white hover:shadow-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                    </button>
+                    <div id="pageNumbers" class="flex items-center gap-1"></div>
+                    <button id="nextPage" class="p-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-white hover:shadow-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
+                    </button>
+                </div>
             </div>
         </div>
     </section>
@@ -77,7 +127,7 @@ if (!user || user.roles !== 'admin') {
                 <h3 id="modalTitle" class="text-xl font-bold text-slate-800">Thêm tài khoản mới</h3>
                 <button
                     type="button"
-                    class="closeModalBtn text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition-colors"
+                    class="closeModalBtn text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -93,7 +143,7 @@ if (!user || user.roles !== 'admin') {
             </div>
             <form id="memberForm" class="p-6 space-y-4">
                 <input type="hidden" id="memberId" name="id" />
-                <div>
+                <div id="usernameWrapper">
                     <label for="mUsername" class="block text-sm font-bold text-slate-700 mb-1.5">Tên tài khoản</label>
                     <input
                         type="text"
@@ -105,6 +155,16 @@ if (!user || user.roles !== 'admin') {
                     />
                 </div>
                 <div>
+                    <label for="mDisplayName" class="block text-sm font-bold text-slate-700 mb-1.5">Tên hiển thị</label>
+                    <input
+                        type="text"
+                        id="mDisplayName"
+                        name="display_name"
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-300"
+                        placeholder="Tên thường gọi"
+                    />
+                </div>
+                <div id="passwordWrapper">
                     <label for="mPassword" class="block text-sm font-bold text-slate-700 mb-1.5"
                         >Mật khẩu (Mã truy cập)</label
                     >
@@ -119,12 +179,12 @@ if (!user || user.roles !== 'admin') {
                         * Bắt buộc cho tài khoản mới
                     </p>
                 </div>
-                <div>
+                <div id="roleWrapper">
                     <label for="mRole" class="block text-sm font-bold text-slate-700 mb-1.5">Vai trò</label>
                     <select
                         id="mRole"
                         name="roles"
-                        class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all appearance-none bg-no-repeat bg-[right_1rem_center]"
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all appearance-none bg-no-repeat bg-[right_1rem_center] cursor-pointer"
                         style="background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 fill=%27none%27 viewBox=%270 0 20 20%27%3E%3Cpath stroke=%27%236B7280%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%271.5%27 d=%27M6 8l4 4 4-4%27/%3E%3C/svg%3E');"
                     >
                         <option value="member">Thành viên (Member)</option>
@@ -134,17 +194,42 @@ if (!user || user.roles !== 'admin') {
                 <div class="flex gap-3 mt-8">
                     <button
                         type="button"
-                        class="closeModalBtn flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-all"
+                        class="closeModalBtn flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-all cursor-pointer"
                         >Hủy</button
                     >
                     <button
                         type="submit"
                         id="submitBtn"
-                        class="flex-[2] px-4 py-2.5 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100"
+                        class="flex-[2] px-4 py-2.5 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 cursor-pointer"
                         >Lưu thông tin</button
                     >
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal Xác nhận xóa (Premium) -->
+    <div id="deleteModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm transition-all duration-300">
+        <div id="deleteModalContent" class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden transform scale-95 opacity-0 transition-all duration-300 border border-red-50">
+            <div class="bg-red-50 p-6 flex flex-col items-center">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-black text-red-600 uppercase tracking-tight">Xóa tài khoản?</h3>
+                <p class="text-slate-500 mt-2 text-center text-sm leading-relaxed">
+                    Hành động này <span class="font-bold text-red-600 italic">không thể hoàn tác</span>. Tài khoản này sẽ bị xóa vĩnh viễn khỏi hệ thống Error404-Labs.
+                </p>
+            </div>
+            <div class="p-6 flex flex-col gap-3">
+                <button id="confirmDeleteBtn" class="w-full py-3.5 bg-red-600 text-white font-black rounded-2xl hover:bg-red-700 transition-all shadow-lg shadow-red-200 active:scale-95 cursor-pointer">
+                    Xác nhận xóa ngay
+                </button>
+                <button id="cancelDeleteBtn" class="w-full py-3.5 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all cursor-pointer">
+                    Hủy bỏ
+                </button>
+            </div>
         </div>
     </div>
 
@@ -158,52 +243,176 @@ if (!user || user.roles !== 'admin') {
         const addMemberBtn = document.getElementById('addMemberBtn')
         const closeModalBtns = document.querySelectorAll('.closeModalBtn')
 
+        const deleteModal = document.getElementById('deleteModal')
+        const deleteModalContent = document.getElementById('deleteModalContent')
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn')
+        const cancelDeleteBtn = document.getElementById('cancelDeleteBtn')
+        let memberToDelete = null
+
+        const memberSearch = document.getElementById('memberSearch')
+        const showingStart = document.getElementById('showingStart')
+        const showingEnd = document.getElementById('showingEnd')
+        const totalMembers = document.getElementById('totalMembers')
+        const prevPageBtn = document.getElementById('prevPage')
+        const nextPageBtn = document.getElementById('nextPage')
+        const pageNumbers = document.getElementById('pageNumbers')
+        const sortHeaders = document.querySelectorAll('.sortable')
+
         let members = []
+        let currentUser = ''
+        let total = 0
+        let currentPage = 1
+        const limit = 5
+        let search = ''
+        let sortBy = 'id'
+        let sortOrder = 'ASC'
 
         async function fetchMembers() {
+            const offset = (currentPage - 1) * limit
             try {
-                const res = await fetch('/api/admin/members')
+                const url = `/api/admin/members?search=${encodeURIComponent(search)}&sortBy=${sortBy}&sortOrder=${sortOrder}&limit=${limit}&offset=${offset}`
+                const res = await fetch(url)
                 if (!res.ok) throw new Error('Không có quyền hoặc lỗi DB')
-                members = await res.json()
+                const data = await res.json()
+                members = data.members
+                total = data.total
+                currentUser = data.currentUser
+                
                 renderMembers()
+                renderPagination()
             } catch (err) {
-                tableBody.innerHTML = `<tr><td colspan="4" class="px-6 py-12 text-center text-red-500">${err.message}</td></tr>`
+                tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-red-500">${err.message}</td></tr>`
             }
         }
 
         function renderMembers() {
             if (members.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="4" class="px-6 py-12 text-center text-slate-400">Chưa có tài khoản nào.</td></tr>`
+                tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-slate-400 italic">Không tìm thấy tài khoản nào phù hợp yêu cầu.</td></tr>`
                 return
             }
 
             tableBody.innerHTML = members
-                .map(
-                    (m) => `
+                .map((m) => {
+                    const isSuper = currentUser === 'pxh2910'
+                    const isSelf = m.member === currentUser
+                    const targetIsAdmin = m.roles === 'admin'
+                    const targetIsSuper = m.member === 'pxh2910'
+
+                    const canEdit = isSuper || !targetIsAdmin || isSelf
+                    const canDelete = !isSelf && !targetIsSuper && (isSuper || !targetIsAdmin)
+
+                    return `
                 <tr class="hover:bg-slate-50/50 transition-colors">
                     <td class="px-6 py-4 text-sm font-medium text-slate-500">#${m.id}</td>
-                    <td class="px-6 py-4 text-sm font-bold text-slate-700">${m.member}</td>
-                    <td class="px-6 py-4">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${m.roles === 'admin' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}">
-                            ${m.roles === 'admin' ? 'Admin' : 'Member'}
+                    <td class="px-6 py-4 text-sm font-bold text-slate-700">
+                        ${m.member} ${isSelf ? '<span class="text-[10px] text-indigo-400 font-normal ml-1 lowercase bg-indigo-50 px-1.5 py-0.5 rounded-md italic">bạn</span>' : ''}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-slate-600">
+                        ${m.display_name || '<span class="text-slate-300 italic">chưa đặt</span>'}
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-tighter ${m.roles === 'admin' ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-blue-100 text-blue-700 border border-blue-200'}">
+                            ${m.roles === 'admin' ? (targetIsSuper ? 'Super Admin' : 'Admin') : 'Member'}
                         </span>
                     </td>
-                    <td class="px-6 py-4 text-right flex items-center justify-end gap-2">
-                        <button onclick="editMember(${m.id})" class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="Chỉnh sửa">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                            </svg>
-                        </button>
-                        <button onclick="deleteMember(${m.id})" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Xóa">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                            </svg>
-                        </button>
+                    <td class="px-6 py-4 text-center text-sm text-slate-500">
+                        ${new Date(m.created_at).toLocaleDateString('vi-VN')}
                     </td>
-                </tr>
-            `,
-                )
+                    <td class="px-6 py-4 text-right">
+                        <div class="flex items-center justify-end gap-1">
+                            ${canEdit ? `
+                            <button onclick="editMember(${m.id})" class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all cursor-pointer" title="Chỉnh sửa">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                </svg>
+                            </button>` : ''}
+                            ${canDelete ? `
+                            <button onclick="deleteMember(${m.id})" class="p-2 text-red-600 hover:bg-red-50 rounded-xl transition-all cursor-pointer" title="Xóa">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                </svg>
+                            </button>` : ''}
+                        </div>
+                    </td>
+                </tr>`
+                })
                 .join('')
+        }
+
+        function renderPagination() {
+            const totalPages = Math.ceil(total / limit)
+            showingStart.textContent = total === 0 ? 0 : (currentPage - 1) * limit + 1
+            showingEnd.textContent = Math.min(currentPage * limit, total)
+            totalMembers.textContent = total
+
+            prevPageBtn.disabled = currentPage === 1
+            nextPageBtn.disabled = currentPage === totalPages || totalPages === 0
+
+            pageNumbers.innerHTML = ''
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement('button')
+                btn.textContent = i
+                btn.className = `w-8 h-8 rounded-lg text-sm font-bold transition-all cursor-pointer ${
+                    currentPage === i 
+                        ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100' 
+                        : 'text-slate-500 hover:bg-white hover:shadow-sm'
+                }`
+                btn.onclick = () => {
+                    currentPage = i
+                    fetchMembers()
+                }
+                pageNumbers.appendChild(btn)
+            }
+        }
+
+        // --- NHÀ MÁY XỬ LÝ SỰ KIỆN ---
+        let searchTimeout
+        memberSearch.oninput = (e) => {
+            clearTimeout(searchTimeout)
+            searchTimeout = setTimeout(() => {
+                search = e.target.value
+                currentPage = 1
+                fetchMembers()
+            }, 300)
+        }
+
+        sortHeaders.forEach(header => {
+            header.onclick = () => {
+                const newSortBy = header.dataset.sort
+                if (sortBy === newSortBy) {
+                    sortOrder = sortOrder === 'ASC' ? 'DESC' : 'ASC'
+                } else {
+                    sortBy = newSortBy
+                    sortOrder = 'ASC'
+                }
+                
+                sortHeaders.forEach(h => {
+                    const icon = h.querySelector('.sort-icon')
+                    if (h === header) {
+                        icon.textContent = sortOrder === 'ASC' ? '↑' : '↓'
+                        icon.classList.remove('opacity-20')
+                    } else {
+                        icon.textContent = '⇅'
+                        icon.classList.add('opacity-20')
+                    }
+                })
+                
+                fetchMembers()
+            }
+        })
+
+        prevPageBtn.onclick = () => {
+            if (currentPage > 1) {
+                currentPage--
+                fetchMembers()
+            }
+        }
+
+        nextPageBtn.onclick = () => {
+            if (currentPage < Math.ceil(total / limit)) {
+                currentPage++
+                fetchMembers()
+            }
         }
 
         function openModal(isEdit = false, data = null) {
@@ -211,14 +420,42 @@ if (!user || user.roles !== 'admin') {
             passwordHint.classList.toggle('hidden', isEdit)
             document.getElementById('mPassword').required = !isEdit
 
+            const isTargetAdmin = data && data.roles === 'admin'
+            const isTargetSuper = data && data.member === 'pxh2910'
+            const isSuperAdmin = currentUser === 'pxh2910'
+            const isRegularAdmin = !isSuperAdmin
+            
+            const usernameWrapper = document.getElementById('usernameWrapper')
+            const passwordWrapper = document.getElementById('passwordWrapper')
+            const roleWrapper = document.getElementById('roleWrapper')
+
+            let shouldHideAll = false;
+            if (isEdit) {
+                if (isTargetSuper) shouldHideAll = true;
+                else if (isTargetAdmin && isRegularAdmin) shouldHideAll = true;
+            }
+
+            if (shouldHideAll) {
+                usernameWrapper.classList.add('hidden')
+                passwordWrapper.classList.add('hidden')
+                roleWrapper.classList.add('hidden')
+                modalTitle.textContent = isTargetSuper ? 'Cập nhật thông tin cá nhân (Super Admin)' : 'Cập nhật Tên hiển thị'
+            } else {
+                usernameWrapper.classList.remove('hidden')
+                passwordWrapper.classList.remove('hidden')
+                roleWrapper.classList.remove('hidden')
+            }
+
             if (isEdit && data) {
                 document.getElementById('memberId').value = data.id
                 document.getElementById('mUsername').value = data.member
+                document.getElementById('mDisplayName').value = data.display_name || ''
                 document.getElementById('mRole').value = data.roles
                 document.getElementById('mPassword').value = ''
             } else {
                 memberForm.reset()
                 document.getElementById('memberId').value = ''
+                document.getElementById('mRole').value = 'member'
             }
 
             modal.classList.remove('hidden')
@@ -240,22 +477,51 @@ if (!user || user.roles !== 'admin') {
             }, 200)
         }
 
+        // --- NHÀ MÁY XỬ LÝ XÓA ---
+        function openDeleteModal(id) {
+            memberToDelete = id
+            deleteModal.classList.remove('hidden')
+            deleteModal.classList.add('flex')
+            setTimeout(() => {
+                deleteModalContent.classList.remove('scale-95', 'opacity-0')
+                deleteModalContent.classList.add('scale-100', 'opacity-100')
+            }, 10)
+            document.body.style.overflow = 'hidden'
+        }
+
+        function closeDeleteModal() {
+            deleteModalContent.classList.add('scale-95', 'opacity-0')
+            deleteModalContent.classList.remove('scale-100', 'opacity-100')
+            setTimeout(() => {
+                deleteModal.classList.add('hidden')
+                deleteModal.classList.remove('flex')
+                document.body.style.overflow = ''
+                memberToDelete = null
+            }, 200)
+        }
+
         window.editMember = (id) => {
             const member = members.find((m) => m.id === id)
             if (member) openModal(true, member)
         }
 
-        window.deleteMember = async (id) => {
-            if (!confirm('Bạn có chắc chắn muốn xóa tài khoản này?')) return
+        window.deleteMember = (id) => openDeleteModal(id)
+
+        confirmDeleteBtn.onclick = async () => {
+            if (!memberToDelete) return
+            confirmDeleteBtn.disabled = true
+            confirmDeleteBtn.textContent = 'Đang xóa...'
+            confirmDeleteBtn.classList.add('opacity-50')
 
             try {
                 const res = await fetch('/api/admin/members', {
                     method: 'DELETE',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id }),
+                    body: JSON.stringify({ id: memberToDelete }),
                 })
                 if (res.ok) {
-                    showToast('Xóa tài khoản thành công', 'success')
+                    showToast('Xóa thành công', 'success')
+                    closeDeleteModal()
                     fetchMembers()
                 } else {
                     const data = await res.json()
@@ -263,14 +529,20 @@ if (!user || user.roles !== 'admin') {
                 }
             } catch {
                 showToast('Lỗi kết nối', 'error')
+            } finally {
+                confirmDeleteBtn.disabled = false
+                confirmDeleteBtn.textContent = 'Xác nhận xóa ngay'
+                confirmDeleteBtn.classList.remove('opacity-50')
             }
         }
 
+        cancelDeleteBtn.onclick = closeDeleteModal
+        deleteModal.onclick = (e) => { if (e.target === deleteModal) closeDeleteModal() }
+        // -------------------------
+
         addMemberBtn.onclick = () => openModal(false)
         closeModalBtns.forEach((btn) => (btn.onclick = closeModal))
-        modal.onclick = (e) => {
-            if (e.target === modal) closeModal()
-        }
+        modal.onclick = (e) => { if (e.target === modal) closeModal() }
 
         memberForm.onsubmit = async (e) => {
             e.preventDefault()
@@ -287,6 +559,10 @@ if (!user || user.roles !== 'admin') {
 
                 if (res.ok) {
                     showToast(isEdit ? 'Cập nhật thành công' : 'Thêm mới thành công', 'success')
+                    if (isEdit && data.username === currentUser) {
+                        localStorage.setItem('user_displayName', data.display_name)
+                        window.dispatchEvent(new Event('user-config-update'))
+                    }
                     closeModal()
                     fetchMembers()
                 } else {
@@ -297,6 +573,11 @@ if (!user || user.roles !== 'admin') {
                 showToast('Lỗi kết nối', 'error')
             }
         }
+
+        // Redirect về trang chủ nếu logout
+        window.addEventListener('user-logout', () => {
+            window.location.href = '/'
+        })
 
         fetchMembers()
     </script>

@@ -18,20 +18,18 @@ export const GET: APIRoute = async ({ cookies }) => {
         
         const { neon } = await import('@neondatabase/serverless');
         const sql = neon(import.meta.env.DATABASE_URL);
-        const user = (await sql`SELECT points, created_at FROM error404labs.members WHERE id = ${decoded.id}`)[0];
+        const user = (await sql`SELECT points, created_at, display_name FROM error404labs.members WHERE id = ${decoded.id}`)[0];
 
         return new Response(JSON.stringify({ 
             authenticated: true, 
             user: { 
                 member: decoded.member, 
                 roles: decoded.roles,
+                display_name: user?.display_name || decoded.member,
                 points: user?.points || 0,
                 created_at: user?.created_at
             } 
-        }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' }
-        });
+        }), { status: 200, headers: { 'Content-Type': 'application/json' } });
     } catch (error) {
         return new Response(JSON.stringify({ authenticated: false }), {
             status: 200,

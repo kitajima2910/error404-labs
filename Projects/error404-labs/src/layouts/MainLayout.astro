@@ -13,11 +13,13 @@ import 'katex/dist/katex.min.css'
 interface Props {
     title?: string
     description?: string
+    searchable?: boolean
 }
 
 const {
     title = 'Error404-Labs | Học lập trình C/C++, Web, Game, Mobile & AI - R&D Programmer',
     description = 'Error404-Labs là nơi học lập trình C/C++, C#, Java, Python, HTML, CSS, JS, JavaScript, Web, Game, Mobile và AI. Chia sẻ dự án, hướng dẫn và nghiên cứu phát triển công nghệ thực tế.',
+    searchable = true,
 } = Astro.props as Props
 ---
 
@@ -29,7 +31,7 @@ const {
         <!-- <div class="max-w-3xl mx-auto">
             <Marquee />
         </div> -->
-        <main data-pagefind-body>
+        <main data-pagefind-body={searchable ? true : undefined} data-pagefind-ignore={searchable ? undefined : true}>
             <slot />
         </main>
         <Footer />

@@ -476,6 +476,7 @@ const isPost = pathname.startsWith('/bai-viet/')
 
         const checkSession = () => {
             const user = localStorage.getItem('user_session')
+            const displayName = localStorage.getItem('user_displayName')
             const roles = localStorage.getItem('user_roles')
             const points = localStorage.getItem('user_points')
             const joinDate = localStorage.getItem('user_join_date')
@@ -490,8 +491,8 @@ const isPost = pathname.startsWith('/bai-viet/')
                 if (userProfileStatus) {
                     userProfileStatus.classList.remove('hidden')
                     userProfileStatus.classList.add('flex')
-                    if (memberName) memberName.textContent = user
-                    if (popoverName) popoverName.textContent = user
+                    if (memberName) memberName.textContent = displayName || user
+                    if (popoverName) popoverName.textContent = displayName || user
                 }
                 
                 if (userPoints) userPoints.textContent = points || '0'
@@ -511,6 +512,9 @@ const isPost = pathname.startsWith('/bai-viet/')
                     userProfileStatus.classList.remove('flex')
                 }
             }
+        
+        // Expose to window for external updates
+        window.refreshUserSession = checkSession;
         }
 
         // Toggle user info popover
@@ -534,12 +538,14 @@ const isPost = pathname.startsWith('/bai-viet/')
         fetch('/api/verify').then(r => r.json()).then(data => {
             if (data.authenticated) {
                 localStorage.setItem('user_session', data.user.member)
+                localStorage.setItem('user_displayName', data.user.display_name)
                 localStorage.setItem('user_roles', data.user.roles)
                 localStorage.setItem('user_points', data.user.points)
                 localStorage.setItem('user_join_date', data.user.created_at)
                 checkSession()
             } else {
                 localStorage.removeItem('user_session')
+                localStorage.removeItem('user_displayName')
                 localStorage.removeItem('user_roles')
                 localStorage.removeItem('user_points')
                 localStorage.removeItem('user_join_date')
@@ -551,6 +557,7 @@ const isPost = pathname.startsWith('/bai-viet/')
         if (logoutBtn) {
             logoutBtn.onclick = async () => {
                 localStorage.removeItem('user_session')
+                localStorage.removeItem('user_displayName')
                 localStorage.removeItem('user_roles')
                 localStorage.removeItem('user_points')
                 localStorage.removeItem('user_join_date')
@@ -593,6 +600,7 @@ const isPost = pathname.startsWith('/bai-viet/')
                         window.showToast('Đăng nhập thành công!', 'success')
                         
                         localStorage.setItem('user_session', data.user.member)
+                        localStorage.setItem('user_displayName', data.user.display_name)
                         localStorage.setItem('user_roles', data.user.roles)
                         localStorage.setItem('user_points', data.user.points)
                         localStorage.setItem('user_join_date', data.user.created_at)
@@ -622,6 +630,47 @@ const isPost = pathname.startsWith('/bai-viet/')
                 }
             }
         }
+        // Heartbeat logic: Gửi ping mỗi 60 giây để tích lũy điểm online
+        let heartbeatInterval = null
+        const startHeartbeat = () => {
+            if (heartbeatInterval) return
+            
+            // Ping lần đầu ngay lập tức khi load trang
+            fetch('/api/user/heartbeat', { method: 'POST' }).catch(() => {})
+
+            heartbeatInterval = setInterval(async () => {
+                // Chỉ gửi ping nếu tab đang active (giảm tải và chống "treo" ảo)
+                if (document.visibilityState === 'visible') {
+                    try {
+                        const res = await fetch('/api/user/heartbeat', { method: 'POST' })
+                        const data = await res.json()
+                        if (data.points_added > 0) {
+                            window.showToast(`Tuyệt vời! +${data.points_added} điểm online bền bỉ! 🏆`, 'success')
+                            // Cập nhật lại điểm trên UI ngay lập tức
+                            const points = parseInt(localStorage.getItem('user_points') || '0')
+                            localStorage.setItem('user_points', (points + data.points_added).toString())
+                            checkSession()
+                        }
+                    } catch (e) {}
+                }
+            }, 60000)
+        }
+
+        const stopHeartbeat = () => {
+            if (heartbeatInterval) {
+                clearInterval(heartbeatInterval)
+                heartbeatInterval = null
+            }
+        }
+
+        // Tự động start/stop heartbeat dựa trên login status
+        if (localStorage.getItem('user_session')) startHeartbeat()
+        
+        window.addEventListener('user-login', startHeartbeat)
+        window.addEventListener('user-logout', stopHeartbeat)
+        window.addEventListener('user-config-update', checkSession)
+
+        checkSession()
     } catch (error) {
         console.error(error)
     }

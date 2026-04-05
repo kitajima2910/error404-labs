@@ -91,23 +91,30 @@ export const POST: APIRoute = async ({ request, cookies }) => {
             });
         }
 
-        // Daily login points logic
-        const today = new Date().toISOString().split('T')[0];
+        // Daily login points logic (GMT+7 - Vietnam Timezone)
+        const vnDate = new Date(new Date().getTime() + (7 * 60 * 60 * 1000));
+        const today = vnDate.toISOString().split('T')[0];
+
         let currentPoints = user.points || 0;
         let pointsAdded = 0;
 
-        const lastLoginDate = user.last_login_at 
-            ? new Date(user.last_login_at).toISOString().split('T')[0] 
-            : null;
+        // Kiểm tra trực tiếp từ DB xem hôm nay đã nhận điểm chưa
+        const loginCheck = await sql`
+            SELECT id FROM error404labs.members 
+            WHERE id = ${user.id} AND last_login_at = ${today}
+        `;
 
-        if (lastLoginDate !== today) {
-            pointsAdded = 10; // Tặng 10 điểm mỗi ngày login
+        if (loginCheck.length === 0) {
+            pointsAdded = 10;
             currentPoints += pointsAdded;
             await sql`
                 UPDATE error404labs.members 
                 SET points = points + ${pointsAdded}, last_login_at = ${today} 
                 WHERE id = ${user.id}
             `;
+            console.log(`[Points] Awarded to ${user.member} for ${today}`);
+        } else {
+            console.log(`[Points] Already claimed by ${user.member} for ${today}`);
         }
 
         // Tạo JWT token (include points and created_at in payload or just return them)
@@ -131,6 +138,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
             success: true, 
             user: { 
                 member: user.member, 
+                display_name: user.display_name || user.member,
                 roles: user.roles,
                 points: currentPoints,
                 created_at: user.created_at,
