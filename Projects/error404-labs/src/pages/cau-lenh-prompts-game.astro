@@ -281,6 +281,20 @@ const titleTranslate: Record<string, string> = {
         // Click for modal
         link.addEventListener('click', (e) => {
             e.preventDefault()
+
+            // Yêu cầu đăng nhập
+            const user = localStorage.getItem('user_session')
+            if (!user) {
+                if (window.showToast) {
+                    window.showToast('Vui lòng đăng nhập để xem và sao chép prompt này!', 'info')
+                } else {
+                    alert('Vui lòng đăng nhập để xem và sao chép prompt này!')
+                }
+                const openLoginBtn = document.getElementById('openLoginModal')
+                if (openLoginBtn) openLoginBtn.click()
+                return
+            }
+
             const prompt = link.getAttribute('data-prompt')
             const title = link.getAttribute('data-title')
             const demoLink = link.getAttribute('data-demo-link')

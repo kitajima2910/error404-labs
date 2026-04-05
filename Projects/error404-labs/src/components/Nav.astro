@@ -1,6 +1,4 @@
 ---
-import { Image } from 'astro:assets'
-import logomark from '../icons/logomark.svg'
 import navData from '../data/navData'
 import Link from './Link.astro'
 import IconBlog from '../icons/IconBlog.astro'
@@ -92,10 +90,29 @@ const isPost = pathname.startsWith('/bai-viet/')
                         </div>
                     </button>
 
-                    <!-- Login button -->
-                    <button id="openLoginModal">
-                        <Link text="Đăng Nhập" href="#/login" style="primary" isFilled={true} borderVisible={true} />
-                    </button>
+                    <!-- Login Component -->
+                    <div id="authContainer" class="flex items-center">
+                        <button id="openLoginModal" class="block">
+                            <Link
+                                text="Đăng Nhập"
+                                href="#/login"
+                                style="primary"
+                                isFilled={true}
+                                borderVisible={true}
+                            />
+                        </button>
+                        <div
+                            id="userProfileStatus"
+                            class="hidden text-sm md:text-base font-bold text-blue-600 items-center gap-2"
+                        >
+                            <span>Xin chào, <span id="memberName" class="text-red-600"></span>!</span>
+                            <button
+                                id="logoutBtn"
+                                class="text-xs text-red-500 hover:text-red-600 underline cursor-pointer font-medium ml-1"
+                                >(Thoát)</button
+                            >
+                        </div>
+                    </div>
 
                     <!-- Mobile Hamburger -->
                     <button
@@ -157,6 +174,20 @@ const isPost = pathname.startsWith('/bai-viet/')
         </div>
     </div>
 </nav>
+
+<!-- Toast Notification -->
+<div id="toastNotification" class="fixed top-5 right-5 z-[120] transform transition-all duration-300 translate-x-full opacity-0 flex items-center gap-3 bg-white px-4 py-3 rounded-xl shadow-2xl border-l-[6px] border-emerald-500">
+    <div id="toastIcon" class="text-emerald-500">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+    </div>
+    <div class="flex flex-col">
+        <span id="toastTitle" class="font-bold text-gray-800 text-sm">Thành công!</span>
+        <span id="toastMessage" class="text-xs text-gray-500 font-medium">Đăng nhập thành công.</span>
+    </div>
+    <button id="toastClose" class="ml-4 text-gray-400 hover:text-gray-600 outline-none pxhCursorPointer">
+        ✕
+    </button>
+</div>
 
 <!-- Overlay -->
 <div id="modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50">
@@ -225,13 +256,13 @@ const isPost = pathname.startsWith('/bai-viet/')
                 />
             </div>
             <div>
-                <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Mật khẩu</label>
+                <label for="code" class="block text-sm font-medium text-gray-700 mb-1">Mã xác nhận</label>
                 <input
                     type="password"
-                    id="password"
-                    name="password"
+                    id="code"
+                    name="code"
                     class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3 border"
-                    placeholder="Nhập mật khẩu"
+                    placeholder="Nhập mã truy cập"
                 />
             </div>
             <div class="mt-8">
@@ -244,6 +275,57 @@ const isPost = pathname.startsWith('/bai-viet/')
         </form>
     </div>
 </div>
+
+<script is:inline>
+    // Config Toast Notification
+    const toast = document.getElementById('toastNotification')
+    const toastMessage = document.getElementById('toastMessage')
+    const toastTitle = document.getElementById('toastTitle')
+    const toastIcon = document.getElementById('toastIcon')
+    const toastClose = document.getElementById('toastClose')
+    let toastTimeout;
+
+    const showToast = (msg, type = 'success') => {
+        if (toast) {
+            toastMessage.textContent = msg
+            
+            if (type === 'success') {
+                toast.classList.remove('border-red-500', 'border-blue-500')
+                toast.classList.add('border-emerald-500')
+                toastIcon.className = 'text-emerald-500'
+                toastIcon.innerHTML = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>'
+                toastTitle.textContent = 'Thành công!'
+            } else if (type === 'error') {
+                toast.classList.remove('border-emerald-500', 'border-blue-500')
+                toast.classList.add('border-red-500')
+                toastIcon.className = 'text-red-500'
+                toastIcon.innerHTML = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>'
+                toastTitle.textContent = 'Lỗi!'
+            } else if (type === 'info') {
+                toast.classList.remove('border-emerald-500', 'border-red-500')
+                toast.classList.add('border-blue-500')
+                toastIcon.className = 'text-blue-500'
+                toastIcon.innerHTML = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'
+                toastTitle.textContent = 'Thông báo'
+            }
+
+            toast.classList.remove('translate-x-full', 'opacity-0')
+            
+            if (toastTimeout) clearTimeout(toastTimeout)
+            toastTimeout = setTimeout(() => {
+                toast.classList.add('translate-x-full', 'opacity-0')
+            }, 3000)
+        } else {
+            alert(msg)
+        }
+    }
+
+    if (toastClose) {
+        toastClose.onclick = () => toast.classList.add('translate-x-full', 'opacity-0')
+    }
+    
+    window.showToast = showToast
+</script>
 
 <script>
     const btn = document.getElementById('menuBtn')
@@ -341,5 +423,75 @@ const isPost = pathname.startsWith('/bai-viet/')
                 if (e.target === loginModal) closeLogin()
             }
         }
-    } catch (error) {}
+
+        const loginForm = document.getElementById('loginForm')
+        const userProfileStatus = document.getElementById('userProfileStatus')
+        const memberName = document.getElementById('memberName')
+        const logoutBtn = document.getElementById('logoutBtn')
+
+        const checkSession = () => {
+            const user = localStorage.getItem('user_session')
+            if (user) {
+                if (openLoginBtn) openLoginBtn.classList.add('hidden')
+                if (userProfileStatus) {
+                    userProfileStatus.classList.remove('hidden')
+                    userProfileStatus.classList.add('flex')
+                    if (memberName) memberName.textContent = user
+                }
+            } else {
+                if (openLoginBtn) openLoginBtn.classList.remove('hidden')
+                if (userProfileStatus) {
+                    userProfileStatus.classList.add('hidden')
+                    userProfileStatus.classList.remove('flex')
+                }
+            }
+        }
+
+        // Khởi tạo kiểm tra session khi load trang
+        checkSession()
+
+        if (logoutBtn) {
+            logoutBtn.onclick = () => {
+                localStorage.removeItem('user_session')
+                checkSession()
+            }
+        }
+
+        if (loginForm) {
+            loginForm.onsubmit = async (e) => {
+                e.preventDefault()
+                const username = document.getElementById('username').value
+                const code = document.getElementById('code').value
+
+                if (!username || !code) {
+                    window.showToast('Vui lòng nhập đầy đủ Tài khoản và Mã!', 'info')
+                    return
+                }
+
+                try {
+                    const response = await fetch('/api/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, code }),
+                    })
+
+                    const data = await response.json()
+
+                    if (response.ok) {
+                        window.showToast('Đăng nhập thành công!', 'success')
+                        localStorage.setItem('user_session', data.user.member)
+                        closeLogin()
+                        checkSession()
+                        loginForm.reset()
+                    } else {
+                        window.showToast(data.error || 'Đăng nhập thất bại!', 'error')
+                    }
+                } catch (error) {
+                    window.showToast('Lỗi hệ thống. Vui lòng thử lại sau.', 'error')
+                }
+            }
+        }
+    } catch (error) {
+        console.error(error)
+    }
 </script>
