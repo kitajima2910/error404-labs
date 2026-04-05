@@ -177,7 +177,12 @@ const titleTranslate: Record<string, string> = {
     const tooltipText = document.getElementById('tooltip-text')
 
     // Tooltip cache
-    const tooltipCache = {}
+    let tooltipCache = {}
+
+    // Listen for logout event to clear cache
+    window.addEventListener('user-logout', () => {
+        tooltipCache = {}
+    })
 
     // Modal elements
     const modal = document.getElementById('modal-prompt')
@@ -247,6 +252,11 @@ const titleTranslate: Record<string, string> = {
         link.addEventListener('mouseenter', async (e) => {
             const hasPrompt = link.getAttribute('data-has-prompt')
             if (hasPrompt !== 'true') return
+
+            // Check session to ensure cache is still valid
+            if (!localStorage.getItem('user_session')) {
+                tooltipCache = {}
+            }
 
             tooltip.setAttribute('data-current-hover', itemId);
 

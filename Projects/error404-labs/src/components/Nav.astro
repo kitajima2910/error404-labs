@@ -456,6 +456,7 @@ const isPost = pathname.startsWith('/bai-viet/')
         fetch('/api/verify').then(r => r.json()).then(data => {
             if (!data.authenticated) {
                 localStorage.removeItem('user_session')
+                window.dispatchEvent(new Event('user-logout'))
                 checkSession()
             }
         }).catch(() => {})
@@ -463,6 +464,7 @@ const isPost = pathname.startsWith('/bai-viet/')
         if (logoutBtn) {
             logoutBtn.onclick = async () => {
                 localStorage.removeItem('user_session')
+                window.dispatchEvent(new Event('user-logout'))
                 await fetch('/api/logout', { method: 'POST' })
                 checkSession()
             }
@@ -500,6 +502,7 @@ const isPost = pathname.startsWith('/bai-viet/')
                     if (response.ok) {
                         window.showToast('Đăng nhập thành công!', 'success')
                         localStorage.setItem('user_session', data.user.member)
+                        window.dispatchEvent(new Event('user-login'))
                         closeLogin()
                         checkSession()
                         loginForm.reset()
