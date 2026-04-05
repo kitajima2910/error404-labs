@@ -96,7 +96,7 @@ const titleTranslate: Record<string, string> = {
     <!-- Tooltip -->
     <div
         id="tooltip-game"
-        class="fixed z-[120] pointer-events-none opacity-0 translate-y-2 transition-all duration-300 max-w-[280px] md:max-w-sm"
+        class="fixed z-[40] pointer-events-none opacity-0 translate-y-2 transition-all duration-300 max-w-[280px] md:max-w-sm"
     >
         <div
             class="relative bg-slate-900/95 backdrop-blur-md text-white p-4 rounded-2xl shadow-2xl border border-white/10 text-xs md:text-sm leading-relaxed overflow-hidden group"
@@ -281,6 +281,10 @@ const titleTranslate: Record<string, string> = {
         // Click for modal
         link.addEventListener('click', (e) => {
             e.preventDefault()
+
+            // Ẩn tooltip ngay lập tức khi click
+            tooltip.classList.add('opacity-0', 'translate-y-2', 'pointer-events-none')
+            tooltip.classList.remove('opacity-100', 'translate-y-0')
 
             // Yêu cầu đăng nhập
             const user = localStorage.getItem('user_session')
