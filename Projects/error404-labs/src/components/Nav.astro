@@ -30,74 +30,114 @@ const isPost = pathname.startsWith('/bai-viet/')
     py-5">
     {isPost && <ScrollProgress />}
 
-    <div class="mx-auto w-10/12 px-0 sm:px-0 lg:px-0">
+    <div class="mx-auto w-[95%] md:w-10/12 px-0 sm:px-0 lg:px-0">
         <div class="flex h-16 items-center justify-between">
             <!-- Logo -->
-            <div class="flex items-center">
+            <div class="flex items-center flex-shrink-0">
                 <a href="/" class="logomark" arial-label="Go Home">
-                    <!-- <Image
-                        src={logomark}
-                        alt="logomark"
-                        class="rounded-full w-20"
-                    /> -->
-                    <img src="/avatar_v2.avif" alt="Avatar" class="rounded-full w-20" />
+                    <img src="/avatar_v2.avif" alt="Avatar" class="rounded-full w-12 lg:w-20" />
                 </a>
-
-                <!-- Open button -->
-                <button id="openModal" class="ml-5">
-                    <Link
-                        text="Tìm"
-                        href="#/tim"
-                        style="primary"
-                        isFilled={false}
-                        borderVisible={true}
-                        icon={{
-                            component: IconSearch,
-                            side: 'left',
-                        }}
-                    />
-                </button>
             </div>
 
-            <!-- Desktop Menu -->
-            <div class="hidden md:flex items-center space-x-8">
-                <ul class="flex">
-                    {
-                        navData.map((item) => (
-                            <li class="ml-5">
-                                <Link
-                                    text={item.name}
-                                    href={item.path}
-                                    style="primary"
-                                    isFilled={false}
-                                    borderVisible={true}
-                                    data-navLink
-                                    icon={{
-                                        component: onIcons(item.name)?.component,
-                                        side: 'left',
-                                    }}
-                                    target={item.name === 'RSS' ? '_blank' : '_self'}
-                                />
-                            </li>
-                        ))
-                    }
-                </ul>
-            </div>
+            <!-- Right side Navigation & Actions -->
+            <div class="flex items-center gap-2 md:gap-4 ml-4">
+                <!-- Desktop Menu -->
+                <div class="hidden lg:flex items-center">
+                    <ul class="flex">
+                        {
+                            navData.map((item) => (
+                                <li class="ml-4">
+                                    <Link
+                                        text={item.name}
+                                        href={item.path}
+                                        style="primary"
+                                        isFilled={false}
+                                        borderVisible={true}
+                                        data-navLink
+                                        icon={{
+                                            component: onIcons(item.name)?.component,
+                                            side: 'left',
+                                        }}
+                                        target={item.name === 'RSS' ? '_blank' : '_self'}
+                                    />
+                                </li>
+                            ))
+                        }
+                    </ul>
+                </div>
 
-            <!-- Mobile button -->
-            <button
-                id="menuBtn"
-                class="md:hidden inline-flex items-center justify-center rounded-md p-3 text-blue-700 hover:bg-gray-100 focus:outline-none"
-            >
-                <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
-                </svg>
-            </button>
+                <!-- Action Buttons -->
+                <div class="flex items-center gap-2">
+                    <!-- Search button -->
+                    <button id="openModal">
+                        <!-- Desktop/Tablet Text + Icon -->
+                        <div class="hidden sm:block">
+                            <Link
+                                text="Tìm"
+                                href="#/tim"
+                                style="primary"
+                                isFilled={false}
+                                borderVisible={true}
+                                icon={{
+                                    component: IconSearch,
+                                    side: 'left',
+                                }}
+                            />
+                        </div>
+                        <!-- Mobile Icon Only -->
+                        <div
+                            class="sm:hidden text-blue-600 border border-blue-600 rounded-lg p-1.5 hover:bg-blue-50 transition-colors"
+                        >
+                            <IconSearch class="w-5 h-5" />
+                        </div>
+                    </button>
+
+                    <!-- Login button -->
+                    <button id="openLoginModal">
+                        <Link
+                            text="Đăng Nhập"
+                            href="#/login"
+                            style="primary"
+                            isFilled={true}
+                            borderVisible={true}
+                        />
+                    </button>
+
+                    <!-- Mobile Hamburger -->
+                    <button
+                        id="menuBtn"
+                        class="cursor-pointer lg:hidden inline-flex items-center justify-center rounded-md p-1.5 text-blue-700 hover:bg-gray-100 focus:outline-none transition-transform duration-200"
+                    >
+                        <!-- Menu Icon (Hamburger) -->
+                        <svg
+                            id="menuIcon"
+                            class="h-6 w-6 block transition-transform duration-300"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            viewBox="0 0 24 24"
+                        >
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                        <!-- Close Icon (X) -->
+                        <svg
+                            id="closeIcon"
+                            class="h-6 w-6 hidden transition-transform duration-300 transform rotate-90"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            viewBox="0 0 24 24"
+                        >
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Mobile Menu -->
-    <div id="mobileMenu" class="md:hidden hidden border-t border-gray-200 mt-3.75">
+    <div id="mobileMenu" class="lg:hidden hidden border-t border-gray-200 mt-3.75">
         <div class="space-y-1 px-4 py-4">
             <ul class="flex flex-col">
                 {
@@ -167,13 +207,76 @@ const isPost = pathname.startsWith('/bai-viet/')
     </div>
 </div>
 
+<!-- Login Overlay -->
+<div id="loginModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50">
+    <div class="w-full max-w-md m-10 rounded-2xl bg-white p-6 shadow-xl animate-in fade-in zoom-in duration-200">
+        <!-- Header -->
+        <div class="flex items-center justify-between">
+            <h2 class="text-xl font-bold">Đăng Nhập</h2>
+            <button id="closeLoginModal" class="text-gray-400 hover:text-gray-600 pxhCursorPointer text-lg font-bold">
+                ✕
+            </button>
+        </div>
+
+        <!-- Content -->
+        <form id="loginForm" class="mt-6 space-y-4" onsubmit="event.preventDefault();">
+            <div>
+                <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Tài khoản</label>
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3 border"
+                    placeholder="Nhập tài khoản của bạn"
+                />
+            </div>
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Mật khẩu</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3 border"
+                    placeholder="Nhập mật khẩu"
+                />
+            </div>
+            <div class="mt-8">
+                <button
+                    type="submit"
+                    class="capitalize cursor-pointer w-full rounded-lg bg-indigo-600 px-4 py-3 text-white hover:bg-indigo-700 font-medium transition-colors"
+                    >Đăng nhập ngay</button
+                >
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
     const btn = document.getElementById('menuBtn')
     const menu = document.getElementById('mobileMenu')
+    const menuIcon = document.getElementById('menuIcon')
+    const closeIcon = document.getElementById('closeIcon')
 
     if (btn && menu) {
         btn.addEventListener('click', () => {
             menu.classList.toggle('hidden')
+            btn.classList.toggle('rotate-90')
+
+            if (menuIcon && closeIcon) {
+                if (menu.classList.contains('hidden')) {
+                    menuIcon.classList.remove('hidden')
+                    menuIcon.classList.add('block')
+                    closeIcon.classList.remove('block')
+                    closeIcon.classList.add('hidden')
+                    closeIcon.classList.add('rotate-90')
+                } else {
+                    menuIcon.classList.remove('block')
+                    menuIcon.classList.add('hidden')
+                    closeIcon.classList.remove('hidden')
+                    closeIcon.classList.remove('rotate-90')
+                    closeIcon.classList.add('block')
+                }
+            }
         })
     }
 </script>
@@ -214,6 +317,35 @@ const isPost = pathname.startsWith('/bai-viet/')
 
         modal.onclick = (e) => {
             if (e.target === modal) closeModal()
+        }
+
+        const loginModal = document.getElementById('loginModal')
+        const openLoginBtn = document.getElementById('openLoginModal')
+        const closeLoginBtn = document.getElementById('closeLoginModal')
+
+        const openLogin = () => {
+            if (loginModal) {
+                loginModal.classList.remove('hidden')
+                loginModal.classList.add('flex')
+                document.body.classList.add('overflow-hidden')
+            }
+        }
+
+        const closeLogin = () => {
+            if (loginModal) {
+                loginModal.classList.add('hidden')
+                loginModal.classList.remove('flex')
+                document.body.classList.remove('overflow-hidden')
+            }
+        }
+
+        if (openLoginBtn) openLoginBtn.onclick = openLogin
+        if (closeLoginBtn) closeLoginBtn.onclick = closeLogin
+
+        if (loginModal) {
+            loginModal.onclick = (e) => {
+                if (e.target === loginModal) closeLogin()
+            }
         }
     } catch (error) {}
 </script>
