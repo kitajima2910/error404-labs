@@ -61,9 +61,13 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
         const sql = neon(import.meta.env.DATABASE_URL);
         
+        // Ensure columns exist (Migration)
+        await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS points INT DEFAULT 0;`;
+        await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS last_login_at DATE DEFAULT NULL;`;
+
         // Lấy user theo username (không so sánh code trong SQL nữa)
         const result = await sql`
-            SELECT id, member, code, roles 
+            SELECT id, member, code, roles, points, last_login_at, created_at
             FROM error404labs.members 
             WHERE member = ${username}
         `;
@@ -87,7 +91,26 @@ export const POST: APIRoute = async ({ request, cookies }) => {
             });
         }
 
-        // Tạo JWT token
+        // Daily login points logic
+        const today = new Date().toISOString().split('T')[0];
+        let currentPoints = user.points || 0;
+        let pointsAdded = 0;
+
+        const lastLoginDate = user.last_login_at 
+            ? new Date(user.last_login_at).toISOString().split('T')[0] 
+            : null;
+
+        if (lastLoginDate !== today) {
+            pointsAdded = 10; // Tặng 10 điểm mỗi ngày login
+            currentPoints += pointsAdded;
+            await sql`
+                UPDATE error404labs.members 
+                SET points = points + ${pointsAdded}, last_login_at = ${today} 
+                WHERE id = ${user.id}
+            `;
+        }
+
+        // Tạo JWT token (include points and created_at in payload or just return them)
         const token = jwt.sign(
             { id: user.id, member: user.member, roles: user.roles },
             import.meta.env.JWT_SECRET,
@@ -103,10 +126,16 @@ export const POST: APIRoute = async ({ request, cookies }) => {
             maxAge: 60 * 60 * 24 * 7 // 7 ngày
         });
 
-        // Chỉ trả về thông tin cần thiết (KHÔNG trả code/roles)
+        // Chỉ trả về thông tin cần thiết (KHÔNG trả code)
         return new Response(JSON.stringify({ 
             success: true, 
-            user: { member: user.member } 
+            user: { 
+                member: user.member, 
+                roles: user.roles,
+                points: currentPoints,
+                created_at: user.created_at,
+                pointsAdded
+            } 
         }), {
             status: 200,
             headers: { 'Content-Type': 'application/json' }

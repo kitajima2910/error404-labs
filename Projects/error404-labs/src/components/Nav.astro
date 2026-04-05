@@ -103,14 +103,57 @@ const isPost = pathname.startsWith('/bai-viet/')
                         </button>
                         <div
                             id="userProfileStatus"
-                            class="hidden text-sm md:text-base font-bold text-blue-600 items-center gap-2"
+                            class="hidden text-sm md:text-base font-bold text-blue-600 items-center gap-4 relative"
                         >
-                            <span>Xin chào, <span id="memberName" class="text-red-600"></span>!</span>
-                            <button
-                                id="logoutBtn"
-                                class="text-xs text-red-500 hover:text-red-600 underline cursor-pointer font-medium ml-1"
-                                >(Thoát)</button
-                            >
+                            <div class="flex items-center gap-1 cursor-pointer group" id="userProfileTrigger">
+                                <span>Xin chào, <span id="memberName" class="text-red-600 hover:underline"></span>!</span>
+                            </div>
+
+                            <!-- User Info Popover -->
+                            <div id="userInfoPopover" class="absolute top-full right-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-slate-100 p-4 hidden z-[110] animate-in fade-in slide-in-from-top-2 duration-200">
+                                <div class="flex flex-col gap-3">
+                                    <div class="flex items-center justify-between border-b border-slate-50 pb-2">
+                                        <span class="text-xs text-slate-500 font-medium">Tài khoản:</span>
+                                        <span id="popoverName" class="text-xs font-bold text-slate-800"></span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <div class="p-1.5 bg-amber-100 rounded-lg text-amber-600">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05l-3.293 3.293a1 1 0 01-1.414 0l-3.293-3.293a1 1 0 01-.285-1.05l1.738-5.42-1.233-.616a1 1 0 01.894-1.79l1.599.8L9 4.323V3a1 1 0 011-1z" clip-rule="evenodd" />
+                                                </svg>
+                                            </div>
+                                            <span class="text-sm text-slate-600 font-medium">Điểm cộng:</span>
+                                        </div>
+                                        <span id="userPoints" class="text-sm font-bold text-amber-600">0</span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <div class="p-1.5 bg-blue-100 rounded-lg text-blue-600">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                </svg>
+                                            </div>
+                                            <span class="text-sm text-slate-600 font-medium">Tham gia:</span>
+                                        </div>
+                                        <span id="userJoinDate" class="text-xs font-bold text-slate-800">--/--/----</span>
+                                    </div>
+                                    <div class="pt-2 border-t border-slate-50 space-y-2">
+                                        <a id="popoverAdminLink" href="/quan-ly-tai-khoan" class="hidden flex items-center gap-2 p-2 rounded-xl hover:bg-slate-50 text-indigo-600 transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                                            </svg>
+                                            <span class="text-sm font-bold">Quản lý tài khoản</span>
+                                        </a>
+                                        <button id="logoutBtn" class="flex items-center gap-2 w-full p-2 rounded-xl hover:bg-red-50 text-red-500 transition-colors text-left cursor-pointer">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                            </svg>
+                                            <span class="text-sm font-bold">Đăng xuất</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -433,12 +476,33 @@ const isPost = pathname.startsWith('/bai-viet/')
 
         const checkSession = () => {
             const user = localStorage.getItem('user_session')
+            const roles = localStorage.getItem('user_roles')
+            const points = localStorage.getItem('user_points')
+            const joinDate = localStorage.getItem('user_join_date')
+            
+            const popoverAdminLink = document.getElementById('popoverAdminLink')
+            const userPoints = document.getElementById('userPoints')
+            const userJoinDate = document.getElementById('userJoinDate')
+            const popoverName = document.getElementById('popoverName')
+
             if (user) {
                 if (openLoginBtn) openLoginBtn.classList.add('hidden')
                 if (userProfileStatus) {
                     userProfileStatus.classList.remove('hidden')
                     userProfileStatus.classList.add('flex')
                     if (memberName) memberName.textContent = user
+                    if (popoverName) popoverName.textContent = user
+                }
+                
+                if (userPoints) userPoints.textContent = points || '0'
+                if (userJoinDate && joinDate) {
+                    const date = new Date(joinDate)
+                    userJoinDate.textContent = date.toLocaleDateString('vi-VN')
+                }
+
+                if (popoverAdminLink) {
+                    if (roles === 'admin') popoverAdminLink.classList.remove('hidden')
+                    else popoverAdminLink.classList.add('hidden')
                 }
             } else {
                 if (openLoginBtn) openLoginBtn.classList.remove('hidden')
@@ -449,13 +513,36 @@ const isPost = pathname.startsWith('/bai-viet/')
             }
         }
 
+        // Toggle user info popover
+        const trigger = document.getElementById('userProfileTrigger')
+        const popover = document.getElementById('userInfoPopover')
+
+        if (trigger && popover) {
+            trigger.onclick = (e) => {
+                e.stopPropagation()
+                popover.classList.toggle('hidden')
+            }
+            document.addEventListener('click', (e) => {
+                if (!popover.contains(e.target)) popover.classList.add('hidden')
+            })
+        }
+
         // Khởi tạo kiểm tra session khi load trang
         checkSession()
 
         // Xác thực session với server (đồng bộ cookie với localStorage)
         fetch('/api/verify').then(r => r.json()).then(data => {
-            if (!data.authenticated) {
+            if (data.authenticated) {
+                localStorage.setItem('user_session', data.user.member)
+                localStorage.setItem('user_roles', data.user.roles)
+                localStorage.setItem('user_points', data.user.points)
+                localStorage.setItem('user_join_date', data.user.created_at)
+                checkSession()
+            } else {
                 localStorage.removeItem('user_session')
+                localStorage.removeItem('user_roles')
+                localStorage.removeItem('user_points')
+                localStorage.removeItem('user_join_date')
                 window.dispatchEvent(new Event('user-logout'))
                 checkSession()
             }
@@ -464,6 +551,9 @@ const isPost = pathname.startsWith('/bai-viet/')
         if (logoutBtn) {
             logoutBtn.onclick = async () => {
                 localStorage.removeItem('user_session')
+                localStorage.removeItem('user_roles')
+                localStorage.removeItem('user_points')
+                localStorage.removeItem('user_join_date')
                 window.dispatchEvent(new Event('user-logout'))
                 await fetch('/api/logout', { method: 'POST' })
                 checkSession()
@@ -501,7 +591,18 @@ const isPost = pathname.startsWith('/bai-viet/')
 
                     if (response.ok) {
                         window.showToast('Đăng nhập thành công!', 'success')
+                        
                         localStorage.setItem('user_session', data.user.member)
+                        localStorage.setItem('user_roles', data.user.roles)
+                        localStorage.setItem('user_points', data.user.points)
+                        localStorage.setItem('user_join_date', data.user.created_at)
+
+                        if (data.user.pointsAdded > 0) {
+                            setTimeout(() => {
+                                window.showToast(`Chúc mừng! +${data.user.pointsAdded} điểm login ngày mới! 🎁`, 'success')
+                            }, 1000)
+                        }
+
                         window.dispatchEvent(new Event('user-login'))
                         closeLogin()
                         checkSession()
