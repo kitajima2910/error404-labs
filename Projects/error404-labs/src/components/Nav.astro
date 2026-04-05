@@ -267,10 +267,10 @@ const isPost = pathname.startsWith('/bai-viet/')
             </div>
             <div class="mt-8">
                 <button
+                    id="submitLoginBtn"
                     type="submit"
                     class="capitalize cursor-pointer w-full rounded-lg bg-indigo-600 px-4 py-3 text-white hover:bg-indigo-700 font-medium transition-colors"
-                    >Đăng nhập ngay</button
-                >
+                >Đăng nhập ngay</button>
             </div>
         </form>
     </div>
@@ -289,23 +289,25 @@ const isPost = pathname.startsWith('/bai-viet/')
         if (toast) {
             toastMessage.textContent = msg
             
+            const svgPath = toastIcon.querySelector('path')
+            
             if (type === 'success') {
                 toast.classList.remove('border-red-500', 'border-blue-500')
                 toast.classList.add('border-emerald-500')
                 toastIcon.className = 'text-emerald-500'
-                toastIcon.innerHTML = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>'
+                if (svgPath) svgPath.setAttribute('d', 'M5 13l4 4L19 7')
                 toastTitle.textContent = 'Thành công!'
             } else if (type === 'error') {
                 toast.classList.remove('border-emerald-500', 'border-blue-500')
                 toast.classList.add('border-red-500')
                 toastIcon.className = 'text-red-500'
-                toastIcon.innerHTML = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>'
+                if (svgPath) svgPath.setAttribute('d', 'M6 18L18 6M6 6l12 12')
                 toastTitle.textContent = 'Lỗi!'
             } else if (type === 'info') {
                 toast.classList.remove('border-emerald-500', 'border-red-500')
                 toast.classList.add('border-blue-500')
                 toastIcon.className = 'text-blue-500'
-                toastIcon.innerHTML = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'
+                if (svgPath) svgPath.setAttribute('d', 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z')
                 toastTitle.textContent = 'Thông báo'
             }
 
@@ -450,14 +452,25 @@ const isPost = pathname.startsWith('/bai-viet/')
         // Khởi tạo kiểm tra session khi load trang
         checkSession()
 
-        if (logoutBtn) {
-            logoutBtn.onclick = () => {
+        // Xác thực session với server (đồng bộ cookie với localStorage)
+        fetch('/api/verify').then(r => r.json()).then(data => {
+            if (!data.authenticated) {
                 localStorage.removeItem('user_session')
+                checkSession()
+            }
+        }).catch(() => {})
+
+        if (logoutBtn) {
+            logoutBtn.onclick = async () => {
+                localStorage.removeItem('user_session')
+                await fetch('/api/logout', { method: 'POST' })
                 checkSession()
             }
         }
 
         if (loginForm) {
+            const submitBtn = document.getElementById('submitLoginBtn')
+
             loginForm.onsubmit = async (e) => {
                 e.preventDefault()
                 const username = document.getElementById('username').value
@@ -466,6 +479,13 @@ const isPost = pathname.startsWith('/bai-viet/')
                 if (!username || !code) {
                     window.showToast('Vui lòng nhập đầy đủ Tài khoản và Mã!', 'info')
                     return
+                }
+
+                if (submitBtn) {
+                    submitBtn.disabled = true
+                    submitBtn.textContent = 'Đang xử lý...'
+                    submitBtn.classList.add('opacity-50', 'cursor-not-allowed')
+                    submitBtn.classList.remove('hover:bg-indigo-700', 'cursor-pointer')
                 }
 
                 try {
@@ -488,6 +508,13 @@ const isPost = pathname.startsWith('/bai-viet/')
                     }
                 } catch (error) {
                     window.showToast('Lỗi hệ thống. Vui lòng thử lại sau.', 'error')
+                } finally {
+                    if (submitBtn) {
+                        submitBtn.disabled = false
+                        submitBtn.textContent = 'Đăng nhập ngay'
+                        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed')
+                        submitBtn.classList.add('hover:bg-indigo-700', 'cursor-pointer')
+                    }
                 }
             }
         }

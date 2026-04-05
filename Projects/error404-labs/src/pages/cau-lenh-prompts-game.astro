@@ -53,11 +53,7 @@ const titleTranslate: Record<string, string> = {
                                     key.split('/').pop()?.startsWith(`${item.id}-`),
                                 )
                                 const fileContent = fileKey ? promptFiles[fileKey] : null
-
-                                // Nếu có file thì ghép với prompt_extends, nếu không thì dùng prompt_extends
-                                const fullPrompt = fileContent
-                                    ? `${item.prompt_extends}\n\n${fileContent}`
-                                    : item.prompt_extends
+                                const hasPrompt = !!(fileContent || item.prompt_extends)
 
                                 // Tìm link demo từ DATA_DEMO
                                 const demoItem = DATA_DEMO.find((d) => d.name.startsWith(`${item.id}.`))
@@ -66,10 +62,10 @@ const titleTranslate: Record<string, string> = {
                                 return (
                                     <a
                                         href="#"
-                                        class={`flex items-center gap-2 font-bold transition-all duration-200 group ${fullPrompt ? 'text-slate-700 hover:text-blue-600 cursor-pointer' : 'text-slate-400 cursor-default'}`}
+                                        class={`flex items-center gap-2 font-bold transition-all duration-200 group ${hasPrompt ? 'text-slate-700 hover:text-blue-600 cursor-pointer' : 'text-slate-400 cursor-default'}`}
                                         data-title={item.text.split(':')[0].replace('+', '')}
-                                        data-prompt={fullPrompt}
-                                        data-tooltip={item.prompt_extends}
+                                        data-item-id={item.id}
+                                        data-has-prompt={hasPrompt ? 'true' : 'false'}
                                         data-demo-link={demoLink}
                                     >
                                         <span class="text-slate-400 group-hover:text-blue-400 transition-colors">
@@ -180,6 +176,9 @@ const titleTranslate: Record<string, string> = {
     const tooltip = document.getElementById('tooltip-game')
     const tooltipText = document.getElementById('tooltip-text')
 
+    // Tooltip cache
+    const tooltipCache = {}
+
     // Modal elements
     const modal = document.getElementById('modal-prompt')
     const modalContent = document.getElementById('modal-content')
@@ -242,13 +241,47 @@ const titleTranslate: Record<string, string> = {
     })
 
     copyLinks.forEach((link) => {
+        const itemId = link.getAttribute('data-item-id');
+
         // Hover for tooltip
-        link.addEventListener('mouseenter', (e) => {
-            const tooltipContent = link.getAttribute('data-tooltip')
-            if (tooltipContent) {
-                tooltipText.textContent = tooltipContent
+        link.addEventListener('mouseenter', async (e) => {
+            const hasPrompt = link.getAttribute('data-has-prompt')
+            if (hasPrompt !== 'true') return
+
+            tooltip.setAttribute('data-current-hover', itemId);
+
+            if (tooltipCache[itemId]) {
+                tooltipText.textContent = tooltipCache[itemId]
                 tooltip.classList.remove('opacity-0', 'translate-y-2', 'pointer-events-none')
                 tooltip.classList.add('opacity-100', 'translate-y-0')
+            } else {
+                tooltipText.textContent = "Đang lấy dữ liệu..."
+                tooltip.classList.remove('opacity-0', 'translate-y-2', 'pointer-events-none')
+                tooltip.classList.add('opacity-100', 'translate-y-0')
+
+                try {
+                    const res = await fetch(`/api/get-prompt?id=${itemId}&type=tooltip`)
+                    const data = await res.json()
+                    
+                    if (res.ok && data.tooltip) {
+                        tooltipCache[itemId] = data.tooltip
+                        if (tooltip.getAttribute('data-current-hover') === itemId) {
+                            tooltipText.textContent = data.tooltip
+                        }
+                    } else if (res.status === 401) {
+                        if (tooltip.getAttribute('data-current-hover') === itemId) {
+                            tooltipText.textContent = "Vui lòng đăng nhập để xem thông tin."
+                        }
+                    } else {
+                        if (tooltip.getAttribute('data-current-hover') === itemId) {
+                            tooltipText.textContent = "Không có thông tin mô tả."
+                        }
+                    }
+                } catch {
+                    if (tooltip.getAttribute('data-current-hover') === itemId) {
+                        tooltipText.textContent = "Không thể lấy thông tin."
+                    }
+                }
             }
         })
 
@@ -279,34 +312,46 @@ const titleTranslate: Record<string, string> = {
         })
 
         // Click for modal
-        link.addEventListener('click', (e) => {
+        link.addEventListener('click', async (e) => {
             e.preventDefault()
 
             // Ẩn tooltip ngay lập tức khi click
             tooltip.classList.add('opacity-0', 'translate-y-2', 'pointer-events-none')
             tooltip.classList.remove('opacity-100', 'translate-y-0')
 
-            // Yêu cầu đăng nhập
-            const user = localStorage.getItem('user_session')
-            if (!user) {
-                if (window.showToast) {
-                    window.showToast('Vui lòng đăng nhập để xem và sao chép prompt này!', 'info')
-                } else {
-                    alert('Vui lòng đăng nhập để xem và sao chép prompt này!')
-                }
-                const openLoginBtn = document.getElementById('openLoginModal')
-                if (openLoginBtn) openLoginBtn.click()
-                return
-            }
+            const hasPrompt = link.getAttribute('data-has-prompt')
+            if (hasPrompt !== 'true') return
 
-            const prompt = link.getAttribute('data-prompt')
+            const itemId = link.getAttribute('data-item-id')
             const title = link.getAttribute('data-title')
             const demoLink = link.getAttribute('data-demo-link')
 
-            if (prompt) {
-                copyToClipboard(prompt).then(() => {
-                    openModal(prompt, title, demoLink)
-                })
+            // Fetch prompt từ API có xác thực (JWT cookie tự gửi kèm)
+            try {
+                const res = await fetch(`/api/get-prompt?id=${itemId}`)
+                const data = await res.json()
+
+                if (res.status === 401) {
+                    localStorage.removeItem('user_session')
+                    if (window.showToast) {
+                        window.showToast('Vui lòng đăng nhập để xem và sao chép prompt này!', 'info')
+                    } else {
+                        alert('Vui lòng đăng nhập để xem và sao chép prompt này!')
+                    }
+                    const openLoginBtn = document.getElementById('openLoginModal')
+                    if (openLoginBtn) openLoginBtn.click()
+                    return
+                }
+
+                if (data.prompt) {
+                    copyToClipboard(data.prompt).then(() => {
+                        openModal(data.prompt, title, demoLink)
+                    })
+                }
+            } catch {
+                if (window.showToast) {
+                    window.showToast('Không thể tải prompt. Vui lòng thử lại!', 'error')
+                }
             }
         })
     })
