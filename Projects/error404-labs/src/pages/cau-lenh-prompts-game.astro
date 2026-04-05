@@ -141,7 +141,7 @@ const titleTranslate: Record<string, string> = {
                 </div>
                 <button
                     id="close-modal"
-                    class="w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-800 transition-all"
+                    class="cursor-pointer w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-800 transition-all"
                 >
                     <span class="text-2xl font-light">&times;</span>
                 </button>
@@ -238,7 +238,7 @@ const titleTranslate: Record<string, string> = {
     })
 
     modal?.addEventListener('click', (e) => {
-        if (e.target === modal) closeModal()
+        if (!modalContent.contains(e.target)) closeModal()
     })
 
     copyLinks.forEach((link) => {
