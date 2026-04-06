@@ -59,15 +59,44 @@ export const POST: APIRoute = async ({ request, cookies }) => {
             });
         }
 
-        const sql = neon(import.meta.env.DATABASE_URL);
+        const isDev = import.meta.env.DEV;
+        const dbUrl = import.meta.env.DATABASE_URL;
+        const jwtSecret = import.meta.env.JWT_SECRET;
         
-        // Ensure columns exist (Migration)
-        await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS points INT DEFAULT 0;`;
-        await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS last_login_at DATE DEFAULT NULL;`;
+        // Debug: Log missing env variables (only on local)
+        if (isDev && (!dbUrl || !jwtSecret)) {
+             console.warn('[DEV] Missing environment variables:', { 
+                DATABASE_URL: dbUrl ? 'Present' : 'MISSING', 
+                JWT_SECRET: jwtSecret ? 'Present' : 'MISSING' 
+            });
+            return new Response(JSON.stringify({ 
+                error: 'Thiếu biến môi trường cục bộ (.env)',
+                details: { 
+                    db: !!dbUrl, 
+                    jwt: !!jwtSecret,
+                    message: 'Hãy tạo file .env với DATABASE_URL và JWT_SECRET' 
+                }
+            }), {
+                status: 500,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
+        const sql = neon(dbUrl);
+        
+        // Ensure columns exist (Migration) - Cho phép lỗi ở local nếu DB chưa sẵn sàng
+        try {
+            await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS points INT DEFAULT 0;`;
+            await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS last_login_at DATE DEFAULT NULL;`;
+            await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS display_name VARCHAR(255);`;
+        } catch (mErr) {
+            console.error('Migration failed:', mErr);
+            if (!isDev) throw mErr;
+        }
 
         // Lấy user theo username (không so sánh code trong SQL nữa)
         const result = await sql`
-            SELECT id, member, code, roles, points, last_login_at, created_at
+            SELECT id, member, display_name, code, roles, points, last_login_at, created_at
             FROM error404labs.members 
             WHERE member = ${username}
         `;
@@ -120,17 +149,29 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         // Tạo JWT token (include points and created_at in payload or just return them)
         const token = jwt.sign(
             { id: user.id, member: user.member, roles: user.roles },
-            import.meta.env.JWT_SECRET,
+            jwtSecret,
             { expiresIn: '7d' }
         );
 
-        // Set httpOnly cookie — không thể truy cập từ JavaScript
+        const isLocal = request.url.includes('localhost') || request.url.includes('127.0.0.1');
+        const isSecure = request.url.startsWith('https');
+
+        // Set httpOnly cookie
         cookies.set('auth_token', token, {
             httpOnly: true,
-            secure: true,
+            secure: isSecure && !isLocal, 
             sameSite: 'lax',
             path: '/',
             maxAge: 60 * 60 * 24 * 7 // 7 ngày
+        });
+
+        // Thêm cookie không httpOnly để nhận diện trạng thái login nhanh ở UI
+        cookies.set('auth_active', 'true', {
+            httpOnly: false,
+            secure: isSecure && !isLocal,
+            sameSite: 'lax',
+            path: '/',
+            maxAge: 60 * 60 * 24 * 7
         });
 
         // Chỉ trả về thông tin cần thiết (KHÔNG trả code)
@@ -150,7 +191,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         });
     } catch (error: any) {
         console.error('Login error:', error);
-        return new Response(JSON.stringify({ error: 'Lỗi hệ thống' }), {
+        return new Response(JSON.stringify({ 
+            error: 'Lỗi hệ thống',
+            details: import.meta.env.DEV ? error.message : undefined
+        }), {
             status: 500,
             headers: { 'Content-Type': 'application/json' }
         });

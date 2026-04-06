@@ -335,23 +335,29 @@ const isPost = pathname.startsWith('/bai-viet/')
             const svgPath = toastIcon.querySelector('path')
             
             if (type === 'success') {
-                toast.classList.remove('border-red-500', 'border-blue-500')
+                toast.classList.remove('border-red-500', 'border-blue-500', 'border-amber-500')
                 toast.classList.add('border-emerald-500')
                 toastIcon.className = 'text-emerald-500'
                 if (svgPath) svgPath.setAttribute('d', 'M5 13l4 4L19 7')
                 toastTitle.textContent = 'Thành công!'
             } else if (type === 'error') {
-                toast.classList.remove('border-emerald-500', 'border-blue-500')
+                toast.classList.remove('border-emerald-500', 'border-blue-500', 'border-amber-500')
                 toast.classList.add('border-red-500')
                 toastIcon.className = 'text-red-500'
                 if (svgPath) svgPath.setAttribute('d', 'M6 18L18 6M6 6l12 12')
                 toastTitle.textContent = 'Lỗi!'
             } else if (type === 'info') {
-                toast.classList.remove('border-emerald-500', 'border-red-500')
+                toast.classList.remove('border-emerald-500', 'border-red-500', 'border-amber-500')
                 toast.classList.add('border-blue-500')
                 toastIcon.className = 'text-blue-500'
                 if (svgPath) svgPath.setAttribute('d', 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z')
                 toastTitle.textContent = 'Thông báo'
+            } else if (type === 'warning') {
+                toast.classList.remove('border-emerald-500', 'border-red-500', 'border-blue-500')
+                toast.classList.add('border-amber-500')
+                toastIcon.className = 'text-amber-500'
+                if (svgPath) svgPath.setAttribute('d', 'M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z')
+                toastTitle.textContent = 'Chú ý!'
             }
 
             toast.classList.remove('translate-x-full', 'opacity-0')
@@ -487,16 +493,17 @@ const isPost = pathname.startsWith('/bai-viet/')
             const popoverName = document.getElementById('popoverName')
 
             if (user) {
+                const shownName = (displayName && displayName !== 'null') ? displayName : user;
                 if (openLoginBtn) openLoginBtn.classList.add('hidden')
                 if (userProfileStatus) {
                     userProfileStatus.classList.remove('hidden')
                     userProfileStatus.classList.add('flex')
-                    if (memberName) memberName.textContent = displayName || user
-                    if (popoverName) popoverName.textContent = displayName || user
+                    if (memberName) memberName.textContent = shownName
+                    if (popoverName) popoverName.textContent = shownName
                 }
                 
                 if (userPoints) userPoints.textContent = points || '0'
-                if (userJoinDate && joinDate) {
+                if (userJoinDate && joinDate && joinDate !== 'null') {
                     const date = new Date(joinDate)
                     userJoinDate.textContent = date.toLocaleDateString('vi-VN')
                 }
@@ -534,11 +541,21 @@ const isPost = pathname.startsWith('/bai-viet/')
         // Khởi tạo kiểm tra session khi load trang
         checkSession()
 
+        // Kiểm tra xem có bị đá ra từ trang bảo mật không
+        if (window.location.search.includes('auth=required')) {
+            window.showToast('Vui lòng đăng nhập để truy cập trang này!', 'warning')
+            setTimeout(() => {
+                const loginModal = document.querySelector('#login-modal')
+                if (loginModal) loginModal.classList.remove('hidden')
+            }, 600)
+            window.history.replaceState({}, document.title, window.location.pathname)
+        }
+
         // Xác thực session với server (đồng bộ cookie với localStorage)
         fetch('/api/verify').then(r => r.json()).then(data => {
             if (data.authenticated) {
                 localStorage.setItem('user_session', data.user.member)
-                localStorage.setItem('user_displayName', data.user.display_name)
+                localStorage.setItem('user_displayName', data.user.display_name || data.user.member)
                 localStorage.setItem('user_roles', data.user.roles)
                 localStorage.setItem('user_points', data.user.points)
                 localStorage.setItem('user_join_date', data.user.created_at)
@@ -563,7 +580,9 @@ const isPost = pathname.startsWith('/bai-viet/')
                 localStorage.removeItem('user_join_date')
                 window.dispatchEvent(new Event('user-logout'))
                 await fetch('/api/logout', { method: 'POST' })
-                checkSession()
+                
+                // Chuyển hướng về trang chủ sau khi logout
+                window.location.href = '/'
             }
         }
 
@@ -600,7 +619,7 @@ const isPost = pathname.startsWith('/bai-viet/')
                         window.showToast('Đăng nhập thành công!', 'success')
                         
                         localStorage.setItem('user_session', data.user.member)
-                        localStorage.setItem('user_displayName', data.user.display_name)
+                        localStorage.setItem('user_displayName', data.user.display_name || data.user.member)
                         localStorage.setItem('user_roles', data.user.roles)
                         localStorage.setItem('user_points', data.user.points)
                         localStorage.setItem('user_join_date', data.user.created_at)

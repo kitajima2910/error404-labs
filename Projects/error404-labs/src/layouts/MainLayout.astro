@@ -118,7 +118,20 @@ const {
             {
                 label: 'Prompts Game H5',
                 icon: '<i class="fa fa-gamepad" aria-hidden="true"></i>',
-                action: () => (window.location.href = '/cau-lenh-prompts-game'),
+                action: () => {
+                    if (localStorage.getItem('user_session')) {
+                        window.location.href = '/cau-lenh-prompts-game'
+                    } else {
+                        // @ts-ignore
+                        if (window.showToast) {
+                            // @ts-ignore
+                            window.showToast('Vui lòng đăng nhập để truy cập!', 'warning')
+                        } else {
+                            alert('Vui lòng đăng nhập để truy cập!')
+                        }
+                        document.getElementById('openLoginModal')?.click()
+                    }
+                },
             },
             {
                 label: 'Khóa Học',

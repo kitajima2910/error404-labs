@@ -38,7 +38,7 @@ const displayName = dbUser.display_name || dbUser.member;
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
             <div>
                 <h1 class="text-3xl font-bold text-slate-800">Quản Lý Tài Khoản</h1>
-                <p class="text-slate-500 mt-1">Chào, <span class="font-bold text-indigo-600 underline decoration-indigo-200 underline-offset-4">{displayName}</span> ! Bạn đang quản lý các thành viên Error404-Labs</p>
+                <p class="text-slate-500 mt-1">Chào, <span id="adminGreetingName" class="font-bold text-indigo-600 underline decoration-indigo-200 underline-offset-4">{displayName}</span> ! Bạn đang quản lý các thành viên Error404-Labs</p>
             </div>
             <div class="flex flex-col sm:flex-row items-center gap-3">
                 <div class="relative w-full sm:w-64">
@@ -559,10 +559,27 @@ const displayName = dbUser.display_name || dbUser.member;
 
                 if (res.ok) {
                     showToast(isEdit ? 'Cập nhật thành công' : 'Thêm mới thành công', 'success')
-                    if (isEdit && data.username === currentUser) {
-                        localStorage.setItem('user_displayName', data.display_name)
-                        window.dispatchEvent(new Event('user-config-update'))
+                    
+                    // Kiểm tra xem có đang tự cập nhật bản thân không?
+                    const originalMember = members.find(m => m.id == data.id);
+                    const isSelf = originalMember && originalMember.member === currentUser;
+
+                    if (isEdit && isSelf) {
+                        const newDisplayName = data.display_name || data.username;
+                        
+                        // Cập nhật Local Storage & Session State
+                        localStorage.setItem('user_session', data.username); // Update if username changed
+                        localStorage.setItem('user_displayName', newDisplayName);
+                        currentUser = data.username; // Cập nhật biến để các lần edit sau vẫn đúng check
+                        
+                        // Cập nhật UI Greeting ngay tại trang này
+                        const adminGreetingName = document.getElementById('adminGreetingName');
+                        if (adminGreetingName) adminGreetingName.textContent = newDisplayName;
+                        
+                        // Phát sự kiện để Nav.astro nhận biết và cập nhật
+                        window.dispatchEvent(new Event('user-config-update'));
                     }
+
                     closeModal()
                     fetchMembers()
                 } else {

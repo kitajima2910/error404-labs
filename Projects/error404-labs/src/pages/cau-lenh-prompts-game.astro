@@ -1,4 +1,11 @@
 ---
+export const prerender = false;
+
+// Redirect if not logged in
+if (!Astro.cookies.has('auth_token')) {
+    return Astro.redirect('/?auth=required');
+}
+
 import MainLayout from '../layouts/MainLayout.astro'
 import { TC_TITLE } from '../common/TextConst'
 import { categories } from '../data/dataPromptsGame.js'
@@ -265,6 +272,13 @@ const titleTranslate: Record<string, string> = {
                 tooltip.classList.remove('opacity-0', 'translate-y-2', 'pointer-events-none')
                 tooltip.classList.add('opacity-100', 'translate-y-0')
             } else {
+                if (!localStorage.getItem('user_session')) {
+                    tooltipText.textContent = "Vui lòng đăng nhập để xem thông tin."
+                    tooltip.classList.remove('opacity-0', 'translate-y-2', 'pointer-events-none')
+                    tooltip.classList.add('opacity-100', 'translate-y-0')
+                    return
+                }
+
                 tooltipText.textContent = "Đang lấy dữ liệu..."
                 tooltip.classList.remove('opacity-0', 'translate-y-2', 'pointer-events-none')
                 tooltip.classList.add('opacity-100', 'translate-y-0')
