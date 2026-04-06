@@ -91,7 +91,7 @@ export const GET: APIRoute = async ({ request, url }) => {
         return new Response(JSON.stringify({
             members,
             total: totalResult[0].count,
-            currentUser: admin.username
+            currentUser: admin.member // Đồng bộ với decoded.member
         }), { status: 200 });
     } catch (error) {
         console.error('API Error:', error);
@@ -111,7 +111,7 @@ export const POST: APIRoute = async ({ request }) => {
         if (!username || !password) return new Response(JSON.stringify({ error: 'Missing data' }), { status: 400 });
 
         // Quyền bảo mật: Chỉ pxh2910 mới được tạo Admin
-        if (roles === 'admin' && admin.username !== 'pxh2910') {
+        if (roles === 'admin' && admin.member !== 'pxh2910') {
             return new Response(JSON.stringify({ error: 'Chỉ Super Admin mới được tạo quản trị viên.' }), { status: 403 });
         }
 
@@ -142,17 +142,17 @@ export const PUT: APIRoute = async ({ request }) => {
         if (!target) return new Response(JSON.stringify({ error: 'User not found' }), { status: 404 });
 
         // Bảo vệ Super Admin
-        if (target.member === 'pxh2910' && admin.username !== 'pxh2910') {
+        if (target.member === 'pxh2910' && admin.member !== 'pxh2910') {
             return new Response(JSON.stringify({ error: 'Không thể chỉnh sửa Super Admin.' }), { status: 403 });
         }
 
         // Admin thường không được sửa Admin khác
-        if (target.roles === 'admin' && admin.username !== 'pxh2910' && target.member !== admin.username) {
+        if (target.roles === 'admin' && admin.member !== 'pxh2910' && target.member !== admin.member) {
             return new Response(JSON.stringify({ error: 'Bạn không có quyền chỉnh sửa Admin khác.' }), { status: 403 });
         }
 
         // Admin thường không được nâng quyền lên admin
-        if (roles === 'admin' && admin.username !== 'pxh2910') {
+        if (roles === 'admin' && admin.member !== 'pxh2910') {
              // Chỉ cho phép giữ nguyên nếu họ vốn đã là admin (tự sửa mình)
              if (target.roles !== 'admin') {
                 return new Response(JSON.stringify({ error: 'Bạn không có quyền cấp quyền Admin.' }), { status: 403 });
@@ -195,7 +195,7 @@ export const DELETE: APIRoute = async ({ request }) => {
         if (!target) return new Response(JSON.stringify({ error: 'User not found' }), { status: 404 });
 
         // Không được tự xóa chính mình
-        if (target.member === admin.username) {
+        if (target.member === admin.member) {
             return new Response(JSON.stringify({ error: 'Bạn không thể tự xóa tài khoản của chính mình.' }), { status: 403 });
         }
 
@@ -205,7 +205,7 @@ export const DELETE: APIRoute = async ({ request }) => {
         }
 
         // Admin thường không được xóa Admin khác
-        if (target.roles === 'admin' && admin.username !== 'pxh2910') {
+        if (target.roles === 'admin' && admin.member !== 'pxh2910') {
             return new Response(JSON.stringify({ error: 'Bạn không có quyền xóa Admin khác.' }), { status: 403 });
         }
 
