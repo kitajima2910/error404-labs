@@ -1,8 +1,29 @@
 ---
+import MainLayout from '../layouts/MainLayout.astro'
+import { TC_TITLE } from '../common/TextConst'
+import { categories } from '../data/dataPromptsGame.js'
+import { DATA_DEMO } from '../data/dataTestDemo.js'
+
 export const prerender = false;
 
-// Redirect if not logged in
-if (!Astro.cookies.has('auth_token')) {
+// Redirect if not logged in or session invalid
+const token = Astro.cookies.get('auth_token')?.value;
+if (!token) {
+    return Astro.redirect('/?auth=required');
+}
+
+try {
+    const jwt = (await import('jsonwebtoken')).default;
+    const decoded = jwt.verify(token, import.meta.env.JWT_SECRET) as any;
+    const { neon } = await import('@neondatabase/serverless');
+    const sql = neon(import.meta.env.DATABASE_URL);
+    const dbUser = (await sql`SELECT session_token FROM error404labs.members WHERE id = ${decoded.id}`)[0];
+    
+    if (!dbUser || dbUser.session_token !== decoded.session_token) {
+        Astro.cookies.delete('auth_token', { path: '/' });
+        return Astro.redirect('/?auth=required');
+    }
+} catch (e) {
     return Astro.redirect('/?auth=required');
 }
 
@@ -10,11 +31,6 @@ if (!Astro.cookies.has('auth_token')) {
 Astro.response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
 Astro.response.headers.set('Pragma', 'no-cache');
 Astro.response.headers.set('Expires', '0');
-
-import MainLayout from '../layouts/MainLayout.astro'
-import { TC_TITLE } from '../common/TextConst'
-import { categories } from '../data/dataPromptsGame.js'
-import { DATA_DEMO } from '../data/dataTestDemo.js'
 
 // Tự động load tất cả các file .txt trong thư mục prompts
 const promptFiles = import.meta.glob('../data/prompts/*.txt', {

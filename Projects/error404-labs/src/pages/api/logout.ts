@@ -16,6 +16,22 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     const isLocal = request.url.includes('localhost') || request.url.includes('127.0.0.1');
     const isSecure = request.url.startsWith('https') || request.headers.get('x-forwarded-proto') === 'https';
 
+    // Clear session_token in DB
+    const token = cookies.get('auth_token')?.value;
+    if (token) {
+        try {
+            const jwt = (await import('jsonwebtoken')).default;
+            const decoded = jwt.verify(token, import.meta.env.JWT_SECRET) as { id: number };
+            if (decoded?.id) {
+                const { neon } = await import('@neondatabase/serverless');
+                const sql = neon(import.meta.env.DATABASE_URL);
+                await sql`UPDATE error404labs.members SET session_token = NULL WHERE id = ${decoded.id}`;
+            }
+        } catch (e) {
+            console.error('Logout DB clear failed:', e);
+        }
+    }
+
     // Headers để xóa sạch dấu vết và chặn cache
     const headers = new Headers({
         'Content-Type': 'application/json',

@@ -29,11 +29,22 @@ export const GET: APIRoute = async ({ cookies }) => {
             throw new Error('Missing environment variables');
         }
 
-        const decoded = jwt.verify(token, jwtSecret) as { id: number; member: string; roles: string };
+        const decoded = jwt.verify(token, jwtSecret) as { id: number; member: string; roles: string; session_token?: string };
         
         const { neon } = await import('@neondatabase/serverless');
         const sql = neon(dbUrl);
-        const user = (await sql`SELECT points, created_at, display_name FROM error404labs.members WHERE id = ${decoded.id}`)[0];
+        const user = (await sql`SELECT points, created_at, display_name, session_token FROM error404labs.members WHERE id = ${decoded.id}`)[0];
+
+        // Kiểm tra session_token (Server-side validation)
+        if (!user || user.session_token !== decoded.session_token) {
+            return new Response(JSON.stringify({ authenticated: false, error: 'Session expired or logged in elsewhere' }), {
+                status: 200,
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate'
+                }
+            });
+        }
 
         return new Response(JSON.stringify({ 
             authenticated: true, 
