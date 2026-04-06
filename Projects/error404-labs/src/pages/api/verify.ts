@@ -44,7 +44,13 @@ export const GET: APIRoute = async ({ cookies }) => {
                 points: user?.points || 0,
                 created_at: user?.created_at
             } 
-        }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+        }), { 
+            status: 200, 
+            headers: { 
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate'
+            } 
+        });
     } catch (error: any) {
         console.error('Verify error:', error);
         return new Response(JSON.stringify({ 
@@ -52,7 +58,10 @@ export const GET: APIRoute = async ({ cookies }) => {
             details: isDev ? error.message : undefined
         }), {
             status: 200,
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate'
+            }
         });
     }
 };

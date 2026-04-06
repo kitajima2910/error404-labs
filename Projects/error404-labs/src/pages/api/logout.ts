@@ -19,10 +19,28 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         });
     }
 
-    cookies.delete('auth_token', { path: '/' });
+    const isLocal = request.url.includes('localhost') || request.url.includes('127.0.0.1');
+    const isSecure = request.url.startsWith('https');
+
+    cookies.delete('auth_token', { 
+        path: '/', 
+        secure: isSecure && !isLocal, 
+        sameSite: 'lax' 
+    });
+    
+    cookies.delete('auth_active', { 
+        path: '/',
+        secure: isSecure && !isLocal, 
+        sameSite: 'lax' 
+    });
     
     return new Response(JSON.stringify({ success: true }), {
         status: 200,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+        }
     });
 };
