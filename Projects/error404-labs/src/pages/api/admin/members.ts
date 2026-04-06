@@ -5,24 +5,32 @@ import bcrypt from 'bcryptjs';
 
 export const prerender = false;
 
+const sql = neon(import.meta.env.DATABASE_URL);
+
 // Helpers to verify admin role and permissions
-const checkAdmin = (cookies: any) => {
-    const token = cookies.get('auth_token')?.value;
+const checkAdmin = async (request: Request) => {
+    const authHeader = request.headers.get('Authorization');
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null;
+    
     if (!token) return null;
     try {
         const decoded = jwt.verify(token, import.meta.env.JWT_SECRET) as any;
-        if (decoded.roles === 'admin') return decoded;
-        return null;
+        
+        // Kiểm tra logined và roles từ DB (Authority)
+        const dbUser = (await sql`SELECT roles, logined FROM error404labs.members WHERE id = ${decoded.id}`)[0];
+        if (!dbUser || dbUser.logined !== 1 || dbUser.roles !== 'admin') {
+            return null;
+        }
+        
+        return decoded;
     } catch {
         return null;
     }
 };
 
-const sql = neon(import.meta.env.DATABASE_URL);
-
 // GET: List members with Search, Sort, Pagination
-export const GET: APIRoute = async ({ cookies, url }) => {
-    const admin = checkAdmin(cookies);
+export const GET: APIRoute = async ({ request, url }) => {
+    const admin = await checkAdmin(request);
     if (!admin) {
         return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
     }
@@ -70,7 +78,7 @@ export const GET: APIRoute = async ({ cookies, url }) => {
         return new Response(JSON.stringify({
             members,
             total: totalResult[0].count,
-            currentUser: admin.member
+            currentUser: admin.username
         }), { status: 200 });
     } catch (error) {
         console.error('API Error:', error);
@@ -79,8 +87,8 @@ export const GET: APIRoute = async ({ cookies, url }) => {
 };
 
 // POST: Create member
-export const POST: APIRoute = async ({ cookies, request }) => {
-    const admin = checkAdmin(cookies);
+export const POST: APIRoute = async ({ request }) => {
+    const admin = await checkAdmin(request);
     if (!admin) {
         return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
     }
@@ -90,7 +98,7 @@ export const POST: APIRoute = async ({ cookies, request }) => {
         if (!username || !password) return new Response(JSON.stringify({ error: 'Missing data' }), { status: 400 });
 
         // Quyền bảo mật: Chỉ pxh2910 mới được tạo Admin
-        if (roles === 'admin' && admin.member !== 'pxh2910') {
+        if (roles === 'admin' && admin.username !== 'pxh2910') {
             return new Response(JSON.stringify({ error: 'Chỉ Super Admin mới được tạo quản trị viên.' }), { status: 403 });
         }
 
@@ -106,8 +114,8 @@ export const POST: APIRoute = async ({ cookies, request }) => {
 };
 
 // PUT: Update member
-export const PUT: APIRoute = async ({ cookies, request }) => {
-    const admin = checkAdmin(cookies);
+export const PUT: APIRoute = async ({ request }) => {
+    const admin = await checkAdmin(request);
     if (!admin) {
         return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
     }
@@ -121,17 +129,17 @@ export const PUT: APIRoute = async ({ cookies, request }) => {
         if (!target) return new Response(JSON.stringify({ error: 'User not found' }), { status: 404 });
 
         // Bảo vệ Super Admin
-        if (target.member === 'pxh2910' && admin.member !== 'pxh2910') {
+        if (target.member === 'pxh2910' && admin.username !== 'pxh2910') {
             return new Response(JSON.stringify({ error: 'Không thể chỉnh sửa Super Admin.' }), { status: 403 });
         }
 
         // Admin thường không được sửa Admin khác
-        if (target.roles === 'admin' && admin.member !== 'pxh2910' && target.member !== admin.member) {
+        if (target.roles === 'admin' && admin.username !== 'pxh2910' && target.member !== admin.username) {
             return new Response(JSON.stringify({ error: 'Bạn không có quyền chỉnh sửa Admin khác.' }), { status: 403 });
         }
 
         // Admin thường không được nâng quyền lên admin
-        if (roles === 'admin' && admin.member !== 'pxh2910') {
+        if (roles === 'admin' && admin.username !== 'pxh2910') {
              // Chỉ cho phép giữ nguyên nếu họ vốn đã là admin (tự sửa mình)
              if (target.roles !== 'admin') {
                 return new Response(JSON.stringify({ error: 'Bạn không có quyền cấp quyền Admin.' }), { status: 403 });
@@ -159,8 +167,8 @@ export const PUT: APIRoute = async ({ cookies, request }) => {
 };
 
 // DELETE: Remove member
-export const DELETE: APIRoute = async ({ cookies, request }) => {
-    const admin = checkAdmin(cookies);
+export const DELETE: APIRoute = async ({ request }) => {
+    const admin = await checkAdmin(request);
     if (!admin) {
         return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
     }
@@ -174,7 +182,7 @@ export const DELETE: APIRoute = async ({ cookies, request }) => {
         if (!target) return new Response(JSON.stringify({ error: 'User not found' }), { status: 404 });
 
         // Không được tự xóa chính mình
-        if (target.member === admin.member) {
+        if (target.member === admin.username) {
             return new Response(JSON.stringify({ error: 'Bạn không thể tự xóa tài khoản của chính mình.' }), { status: 403 });
         }
 
@@ -184,7 +192,7 @@ export const DELETE: APIRoute = async ({ cookies, request }) => {
         }
 
         // Admin thường không được xóa Admin khác
-        if (target.roles === 'admin' && admin.member !== 'pxh2910') {
+        if (target.roles === 'admin' && admin.username !== 'pxh2910') {
             return new Response(JSON.stringify({ error: 'Bạn không có quyền xóa Admin khác.' }), { status: 403 });
         }
 

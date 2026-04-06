@@ -1,55 +1,7 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro'
-import jwt from 'jsonwebtoken'
 
 export const prerender = false
-
-const token = Astro.cookies.get('auth_token')?.value
-
-if (!token) {
-    return Astro.redirect('/?auth=required');
-}
-
-// Chặn cache cho trang quản lý tài khoản
-Astro.response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-Astro.response.headers.set('Pragma', 'no-cache');
-Astro.response.headers.set('Expires', '0');
-
-let user = null
-let dbUser = null
-
-try {
-    const decoded = jwt.verify(token, import.meta.env.JWT_SECRET) as any;
-    const neon = (await import('@neondatabase/serverless')).neon;
-    const sql = neon(import.meta.env.DATABASE_URL);
-    
-    // Lấy thông tin user, session_token và trạng thái logined từ DB
-    const results = await sql`
-        SELECT id, member, roles, points, display_name, created_at, session_token, logined 
-        FROM error404labs.members 
-        WHERE id = ${decoded.id}
-    `;
-    
-    dbUser = results[0];
-    
-    // Kiểm tra session_token và logined (Authority)
-    if (!dbUser || dbUser.logined !== 1 || dbUser.session_token !== decoded.session_token) {
-        Astro.cookies.delete('auth_token', { path: '/' });
-        return Astro.redirect('/?auth=required');
-    }
-
-    // Kiểm tra quyền admin (Giữ logic hiện tại)
-    if (dbUser.roles !== 'admin') {
-        return Astro.redirect('/');
-    }
-    
-    user = dbUser;
-} catch (e) {
-    console.error('Auth error in Account Management:', e);
-    return Astro.redirect('/?auth=required');
-}
-
-const displayName = dbUser.display_name || dbUser.member;
 ---
 
 <MainLayout 
@@ -57,13 +9,18 @@ const displayName = dbUser.display_name || dbUser.member;
     description="Trang quản trị tài khoản dành cho Admin"
     searchable={false}
 >
-    <section class="h-[calc(100vh-168px)] max-w-6xl mx-auto px-4 py-12">
-        <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-            <div>
-                <h1 class="text-3xl font-bold text-slate-800">Quản Lý Tài Khoản</h1>
-                <p class="text-slate-500 mt-1">Chào, <span id="adminGreetingName" class="font-bold text-indigo-600 underline decoration-indigo-200 underline-offset-4">{displayName}</span> ! Bạn đang quản lý các thành viên Error404-Labs</p>
-            </div>
-            <div class="flex flex-col sm:flex-row items-center gap-3">
+    <!-- Auth Guard -->
+    <div id="auth-guard" class="hidden">
+        <section class="h-[calc(100vh-168px)] max-w-6xl mx-auto px-4 py-12">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                <div>
+                    <h1 class="text-3xl font-bold text-slate-800 tracking-tight">QUẢN LÝ TÀI KHOẢN</h1>
+                    <p class="text-slate-500 mt-1">
+                        Chào, <span id="adminGreetingName" class="font-bold text-indigo-600 underline decoration-indigo-200 underline-offset-4">Admin</span>!
+                        Bạn đang quản lý các thành viên Error404-Labs.
+                    </p>
+                </div>
+                <div class="flex flex-col sm:flex-row items-center gap-3">
                 <div class="relative w-full sm:w-64">
                     <input 
                         type="text" 
@@ -255,8 +212,44 @@ const displayName = dbUser.display_name || dbUser.member;
             </div>
         </div>
     </div>
+</div> <!-- Close auth-guard -->
 
     <script is:inline>
+        // Proactive Client-side Guard
+        (async function() {
+            const token = localStorage.getItem('auth_token');
+            const guard = document.getElementById('auth-guard');
+            
+            if (!token) {
+                window.location.href = '/?auth=required';
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/verify', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (!res.ok || data.roles !== 'admin') {
+                    window.location.href = '/';
+                    return;
+                }
+
+                // Show content if verified
+                guard.classList.remove('hidden');
+                
+                // Initialize Admin Name
+                const adminGreetingName = document.getElementById('adminGreetingName');
+                if (adminGreetingName) {
+                    adminGreetingName.textContent = data.display_name || data.username;
+                }
+            } catch (err) {
+                console.error('Guard Error:', err);
+                window.location.href = '/';
+            }
+        })();
+
         const tableBody = document.getElementById('memberTableBody')
         const modal = document.getElementById('memberModal')
         const modalContent = document.getElementById('memberModalContent')
@@ -294,7 +287,9 @@ const displayName = dbUser.display_name || dbUser.member;
             const offset = (currentPage - 1) * limit
             try {
                 const url = `/api/admin/members?search=${encodeURIComponent(search)}&sortBy=${sortBy}&sortOrder=${sortOrder}&limit=${limit}&offset=${offset}`
-                const res = await fetch(url)
+                const res = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                })
                 if (!res.ok) throw new Error('Không có quyền hoặc lỗi DB')
                 const data = await res.json()
                 members = data.members
@@ -539,7 +534,10 @@ const displayName = dbUser.display_name || dbUser.member;
             try {
                 const res = await fetch('/api/admin/members', {
                     method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+                    },
                     body: JSON.stringify({ id: memberToDelete }),
                 })
                 if (res.ok) {
@@ -576,7 +574,10 @@ const displayName = dbUser.display_name || dbUser.member;
             try {
                 const res = await fetch('/api/admin/members', {
                     method: isEdit ? 'PUT' : 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+                    },
                     body: JSON.stringify(data),
                 })
 

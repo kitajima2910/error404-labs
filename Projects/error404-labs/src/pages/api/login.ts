@@ -146,44 +146,20 @@ export const POST: APIRoute = async ({ request, cookies }) => {
             console.log(`[Points] Already claimed by ${user.member} for ${today}`);
         }
 
-        // Tạo session_token ngẫu nhiên để quản lý đăng nhập duy nhất
-        const sessionToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
-        
-        // Cập nhật session_token và trạng thái logined vào DB
-        await sql`UPDATE error404labs.members SET session_token = ${sessionToken}, logined = 1 WHERE id = ${user.id}`;
+        // Cập nhật trạng thái logined vào DB
+        await sql`UPDATE error404labs.members SET logined = 1 WHERE id = ${user.id}`;
 
-        // Tạo JWT token (include session_token in payload)
+        // Tạo JWT token
         const token = jwt.sign(
-            { id: user.id, member: user.member, roles: user.roles, session_token: sessionToken },
+            { id: user.id, member: user.member, roles: user.roles },
             jwtSecret,
             { expiresIn: '7d' }
         );
 
         const host = request.headers.get('host') || '';
-        const isLocal = host.includes('localhost') || host.includes('127.0.0.1');
-        const isSecure = request.headers.get('x-forwarded-proto') === 'https' || (!isLocal && request.url.startsWith('https'));
-
-        const cookieOptions = {
-            httpOnly: true,
-            secure: isSecure, 
-            sameSite: 'lax' as const,
-            path: '/',
-            domain: isLocal ? undefined : '.error404-labs.info.vn',
-            maxAge: 60 * 60 * 24 * 7 // 7 ngày
-        };
-
-        // Set httpOnly cookie
-        cookies.set('auth_token', token, cookieOptions);
-
-        // Thêm cookie không httpOnly để nhận diện trạng thái login nhanh ở UI
-        cookies.set('auth_active', 'true', {
-            ...cookieOptions,
-            httpOnly: false
-        });
-
-        // Chỉ trả về thông tin cần thiết (KHÔNG trả code)
         return new Response(JSON.stringify({ 
             success: true, 
+            token,
             user: { 
                 member: user.member, 
                 display_name: user.display_name || user.member,
@@ -192,9 +168,12 @@ export const POST: APIRoute = async ({ request, cookies }) => {
                 created_at: user.created_at,
                 pointsAdded
             } 
-        }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' }
+        }), { 
+            status: 200, 
+            headers: { 
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-store, no-cache, must-revalidate'
+            } 
         });
     } catch (error: any) {
         console.error('Login error:', error);

@@ -6,33 +6,6 @@ import { DATA_DEMO } from '../data/dataTestDemo.js'
 
 export const prerender = false;
 
-// Redirect if not logged in or session invalid
-const token = Astro.cookies.get('auth_token')?.value;
-if (!token) {
-    return Astro.redirect('/?auth=required');
-}
-
-try {
-    const jwt = (await import('jsonwebtoken')).default;
-    const decoded = jwt.verify(token, import.meta.env.JWT_SECRET) as any;
-    const { neon } = await import('@neondatabase/serverless');
-    const sql = neon(import.meta.env.DATABASE_URL);
-    const dbUser = (await sql`SELECT session_token, logined FROM error404labs.members WHERE id = ${decoded.id}`)[0];
-    
-    // Kiểm tra session_token và trạng thái logined từ DB (Authority)
-    if (!dbUser || dbUser.logined !== 1 || dbUser.session_token !== decoded.session_token) {
-        Astro.cookies.delete('auth_token', { path: '/' });
-        return Astro.redirect('/?auth=required');
-    }
-} catch (e) {
-    return Astro.redirect('/?auth=required');
-}
-
-// Chặn cache cho các trang bảo mật
-Astro.response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-Astro.response.headers.set('Pragma', 'no-cache');
-Astro.response.headers.set('Expires', '0');
-
 // Tự động load tất cả các file .txt trong thư mục prompts
 const promptFiles = import.meta.glob('../data/prompts/*.txt', {
     query: '?raw',
@@ -55,12 +28,13 @@ const titleTranslate: Record<string, string> = {
 ---
 
 <MainLayout title={`Câu lệnh prompts Game HTML5 | ${TC_TITLE}`}>
-    <section aria-label="Giới thiệu" class="min-h-screen py-10 px-4 bg-[#F0F9FF]">
-        <div class="max-w-6xl mx-auto text-center mb-10">
-            <h1 class="text-4xl md:text-5xl font-black text-slate-800 mb-2">100 Ý TƯỞNG</h1>
-            <h2 class="text-5xl md:text-6xl font-black text-[#FF5722] mb-1 drop-shadow-sm">TRÒ CHƠI 2D HTML5</h2>
-            <p class="text-2xl font-bold text-slate-600">(TỪ DỄ ĐẾN KHÓ)</p>
-        </div>
+    <div id="auth-guard" class="hidden">
+        <section aria-label="Giới thiệu" class="min-h-screen py-10 px-4 bg-[#F0F9FF]">
+            <div class="max-w-6xl mx-auto text-center mb-10">
+                <h1 class="text-4xl md:text-5xl font-black text-slate-800 mb-2">100 Ý TƯỞNG</h1>
+                <h2 class="text-5xl md:text-6xl font-black text-[#FF5722] mb-1 drop-shadow-sm">TRÒ CHƠI 2D HTML5</h2>
+                <p class="text-2xl font-bold text-slate-600">(TỪ DỄ ĐẾN KHÓ)</p>
+            </div>
 
         <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 pb-20">
             {
@@ -195,7 +169,37 @@ const titleTranslate: Record<string, string> = {
             </div>
         </div>
     </div>
+    </div>
 </MainLayout>
+
+<script is:inline>
+    // Client-side Authentication Guard
+    (async () => {
+        const token = localStorage.getItem('auth_token');
+        const authGuard = document.getElementById('auth-guard');
+        
+        if (!token) {
+            window.location.href = '/?auth=required';
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/verify', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            
+            if (data.authenticated) {
+                authGuard.classList.remove('hidden');
+            } else {
+                localStorage.removeItem('auth_token');
+                window.location.href = '/?auth=required';
+            }
+        } catch (e) {
+            window.location.href = '/?auth=required';
+        }
+    })();
+</script>
 
 <script is:inline>
     // Xử lý sự kiện click để copy và hiện modal
@@ -306,7 +310,10 @@ const titleTranslate: Record<string, string> = {
                 tooltip.classList.add('opacity-100', 'translate-y-0')
 
                 try {
-                    const res = await fetch(`/api/get-prompt?id=${itemId}&type=tooltip`)
+                    const authToken = localStorage.getItem('auth_token')
+                    const res = await fetch(`/api/get-prompt?id=${itemId}&type=tooltip`, {
+                        headers: { 'Authorization': `Bearer ${authToken}` }
+                    })
                     const data = await res.json()
                     
                     if (res.ok && data.tooltip) {
@@ -374,7 +381,10 @@ const titleTranslate: Record<string, string> = {
 
             // Fetch prompt từ API có xác thực (JWT cookie tự gửi kèm)
             try {
-                const res = await fetch(`/api/get-prompt?id=${itemId}`)
+                const authToken = localStorage.getItem('auth_token')
+                const res = await fetch(`/api/get-prompt?id=${itemId}`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                })
                 const data = await res.json()
 
                 if (res.status === 401) {

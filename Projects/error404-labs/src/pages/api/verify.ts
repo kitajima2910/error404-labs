@@ -3,10 +3,11 @@ import jwt from 'jsonwebtoken';
 
 export const prerender = false;
 
-export const GET: APIRoute = async ({ cookies }) => {
+export const GET: APIRoute = async ({ request }) => {
     const isDev = import.meta.env.DEV;
     try {
-        const token = cookies.get('auth_token')?.value;
+        const authHeader = request.headers.get('Authorization');
+        const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null;
 
         if (!token) {
             return new Response(JSON.stringify({ authenticated: false }), {
@@ -29,20 +30,19 @@ export const GET: APIRoute = async ({ cookies }) => {
             throw new Error('Missing environment variables');
         }
 
-        const decoded = jwt.verify(token, jwtSecret) as { id: number; member: string; roles: string; session_token?: string };
+        const decoded = jwt.verify(token, jwtSecret) as { id: number; member: string; roles: string };
         
         const { neon } = await import('@neondatabase/serverless');
         const sql = neon(dbUrl);
-        const user = (await sql`SELECT points, created_at, display_name, session_token, logined FROM error404labs.members WHERE id = ${decoded.id}`)[0];
+        const user = (await sql`SELECT points, created_at, display_name, logined FROM error404labs.members WHERE id = ${decoded.id}`)[0];
 
-        // Kiểm tra session_token và trạng thái logined
-        // Nếu logined = 0 hoặc session_token không khớp thì coi là không hợp lệ
-        if (!user || user.logined !== 1 || user.session_token !== decoded.session_token) {
-            return new Response(JSON.stringify({ authenticated: false, error: 'Session expired or logged in elsewhere' }), {
+        // Kiểm tra trạng thái logined
+        if (!user || user.logined !== 1) {
+            return new Response(JSON.stringify({ authenticated: false, error: 'Session expired' }), {
                 status: 200,
                 headers: { 
                     'Content-Type': 'application/json',
-                    'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate'
+                    'Cache-Control': 'no-store, no-cache, must-revalidate'
                 }
             });
         }

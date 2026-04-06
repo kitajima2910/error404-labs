@@ -11,10 +11,12 @@ const promptFiles = import.meta.glob('../../data/prompts/*.txt', {
     eager: true,
 });
 
-export const GET: APIRoute = async ({ cookies, url }) => {
+export const GET: APIRoute = async ({ request, url }) => {
     try {
-        // Xác thực JWT
-        const token = cookies.get('auth_token')?.value;
+        // Xác thực JWT từ Authorization header
+        const authHeader = request.headers.get('Authorization');
+        const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null;
+        
         if (!token) {
             return new Response(JSON.stringify({ error: 'Unauthorized' }), {
                 status: 401,
@@ -25,6 +27,18 @@ export const GET: APIRoute = async ({ cookies, url }) => {
         let decodedToken: any;
         try {
             decodedToken = jwt.verify(token, import.meta.env.JWT_SECRET);
+            
+            // Kiểm tra trạng thái logined từ DB (Authority)
+            const { neon } = await import('@neondatabase/serverless');
+            const sql = neon(import.meta.env.DATABASE_URL);
+            const dbUser = (await sql`SELECT logined FROM error404labs.members WHERE id = ${decodedToken.id}`)[0];
+            
+            if (!dbUser || dbUser.logined !== 1) {
+                return new Response(JSON.stringify({ error: 'Session expired' }), {
+                    status: 401,
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            }
         } catch {
             return new Response(JSON.stringify({ error: 'Invalid token' }), {
                 status: 401,

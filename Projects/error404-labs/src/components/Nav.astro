@@ -551,10 +551,15 @@ const isPost = pathname.startsWith('/bai-viet/')
             window.history.replaceState({}, document.title, window.location.pathname)
         }
 
-        // Xác thực session với server (đồng bộ cookie với localStorage)
-        // Chỉ verify nếu không đang trong quá trình logout
-        if (!localStorage.getItem('logout_in_progress')) {
-            fetch(`/api/verify?t=${Date.now()}`, { cache: 'no-store' })
+        // Xác định token từ localStorage
+        const authToken = localStorage.getItem('auth_token')
+
+        // Xác thực session với server bằng Authorization header
+        if (authToken && !localStorage.getItem('logout_in_progress')) {
+            fetch(`/api/verify?t=${Date.now()}`, { 
+                cache: 'no-store',
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            })
                 .then(r => r.json())
                 .then(data => {
                     if (data.authenticated) {
@@ -564,6 +569,7 @@ const isPost = pathname.startsWith('/bai-viet/')
                         localStorage.setItem('user_points', data.user.points)
                         localStorage.setItem('user_join_date', data.user.created_at)
                     } else {
+                        localStorage.removeItem('auth_token')
                         localStorage.removeItem('user_session')
                         localStorage.removeItem('user_displayName')
                         localStorage.removeItem('user_roles')
@@ -582,7 +588,9 @@ const isPost = pathname.startsWith('/bai-viet/')
 
         if (logoutBtn) {
             logoutBtn.onclick = async () => {
+                const currentToken = localStorage.getItem('auth_token')
                 // Clear localStorage ngay lập tức để UI update nhanh
+                localStorage.removeItem('auth_token')
                 localStorage.removeItem('user_session')
                 localStorage.removeItem('user_displayName')
                 localStorage.removeItem('user_roles')
@@ -591,7 +599,10 @@ const isPost = pathname.startsWith('/bai-viet/')
                 localStorage.setItem('logout_in_progress', 'true')
                 
                 try {
-                    await fetch('/api/logout', { method: 'POST', credentials: 'include' })
+                    await fetch('/api/logout', { 
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${currentToken}` }
+                    })
                 } catch (e) {
                     console.error('Logout error:', e)
                 }
@@ -635,6 +646,7 @@ const isPost = pathname.startsWith('/bai-viet/')
                     if (response.ok) {
                         window.showToast('Đăng nhập thành công!', 'success')
                         
+                        localStorage.setItem('auth_token', data.token)
                         localStorage.setItem('user_session', data.user.member)
                         localStorage.setItem('user_displayName', data.user.display_name || data.user.member)
                         localStorage.setItem('user_roles', data.user.roles)
@@ -672,13 +684,21 @@ const isPost = pathname.startsWith('/bai-viet/')
             if (heartbeatInterval) return
             
             // Ping lần đầu ngay lập tức khi load trang
-            fetch('/api/user/heartbeat', { method: 'POST' }).catch(() => {})
+            const authToken = localStorage.getItem('auth_token')
+            fetch('/api/user/heartbeat', { 
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            }).catch(() => {})
 
             heartbeatInterval = setInterval(async () => {
                 // Chỉ gửi ping nếu tab đang active (giảm tải và chống "treo" ảo)
                 if (document.visibilityState === 'visible') {
                     try {
-                        const res = await fetch('/api/user/heartbeat', { method: 'POST' })
+                        const authToken = localStorage.getItem('auth_token')
+                        const res = await fetch('/api/user/heartbeat', { 
+                            method: 'POST',
+                            headers: { 'Authorization': `Bearer ${authToken}` }
+                        })
                         const data = await res.json()
                         if (data.points_added > 0) {
                             window.showToast(`Tuyệt vời! +${data.points_added} điểm online bền bỉ! 🏆`, 'success')
