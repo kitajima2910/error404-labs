@@ -154,24 +154,23 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         );
 
         const isLocal = request.url.includes('localhost') || request.url.includes('127.0.0.1');
-        const isSecure = request.url.startsWith('https');
+        const isSecure = request.url.startsWith('https') || request.headers.get('x-forwarded-proto') === 'https';
 
-        // Set httpOnly cookie
-        cookies.set('auth_token', token, {
+        const cookieOptions = {
             httpOnly: true,
             secure: isSecure && !isLocal, 
-            sameSite: 'lax',
+            sameSite: 'lax' as const,
             path: '/',
             maxAge: 60 * 60 * 24 * 7 // 7 ngày
-        });
+        };
+
+        // Set httpOnly cookie
+        cookies.set('auth_token', token, cookieOptions);
 
         // Thêm cookie không httpOnly để nhận diện trạng thái login nhanh ở UI
         cookies.set('auth_active', 'true', {
-            httpOnly: false,
-            secure: isSecure && !isLocal,
-            sameSite: 'lax',
-            path: '/',
-            maxAge: 60 * 60 * 24 * 7
+            ...cookieOptions,
+            httpOnly: false
         });
 
         // Chỉ trả về thông tin cần thiết (KHÔNG trả code)

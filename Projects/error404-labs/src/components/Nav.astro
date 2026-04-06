@@ -552,36 +552,50 @@ const isPost = pathname.startsWith('/bai-viet/')
         }
 
         // Xác thực session với server (đồng bộ cookie với localStorage)
-        fetch('/api/verify').then(r => r.json()).then(data => {
-            if (data.authenticated) {
-                localStorage.setItem('user_session', data.user.member)
-                localStorage.setItem('user_displayName', data.user.display_name || data.user.member)
-                localStorage.setItem('user_roles', data.user.roles)
-                localStorage.setItem('user_points', data.user.points)
-                localStorage.setItem('user_join_date', data.user.created_at)
-                checkSession()
-            } else {
-                localStorage.removeItem('user_session')
-                localStorage.removeItem('user_displayName')
-                localStorage.removeItem('user_roles')
-                localStorage.removeItem('user_points')
-                localStorage.removeItem('user_join_date')
-                window.dispatchEvent(new Event('user-logout'))
-                checkSession()
-            }
-        }).catch(() => {})
+        // Chỉ verify nếu không đang trong quá trình logout
+        if (!localStorage.getItem('logout_in_progress')) {
+            fetch(`/api/verify?t=${Date.now()}`, { cache: 'no-store' })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.authenticated) {
+                        localStorage.setItem('user_session', data.user.member)
+                        localStorage.setItem('user_displayName', data.user.display_name || data.user.member)
+                        localStorage.setItem('user_roles', data.user.roles)
+                        localStorage.setItem('user_points', data.user.points)
+                        localStorage.setItem('user_join_date', data.user.created_at)
+                    } else {
+                        localStorage.removeItem('user_session')
+                        localStorage.removeItem('user_displayName')
+                        localStorage.removeItem('user_roles')
+                        localStorage.removeItem('user_points')
+                        localStorage.removeItem('user_join_date')
+                        window.dispatchEvent(new Event('user-logout'))
+                    }
+                    checkSession()
+                })
+                .catch(() => {
+                    // Xử lý lỗi network nếu cần
+                })
+        } else {
+            localStorage.removeItem('logout_in_progress')
+        }
 
         if (logoutBtn) {
             logoutBtn.onclick = async () => {
+                // Clear localStorage ngay lập tức để UI update nhanh
                 localStorage.removeItem('user_session')
                 localStorage.removeItem('user_displayName')
                 localStorage.removeItem('user_roles')
                 localStorage.removeItem('user_points')
                 localStorage.removeItem('user_join_date')
-                window.dispatchEvent(new Event('user-logout'))
-                await fetch('/api/logout', { method: 'POST' })
+                localStorage.setItem('logout_in_progress', 'true')
                 
-                // Chuyển hướng về trang chủ sau khi logout
+                try {
+                    await fetch('/api/logout', { method: 'POST' })
+                } catch (e) {
+                    console.error('Logout error:', e)
+                }
+                
                 window.location.href = '/'
             }
         }

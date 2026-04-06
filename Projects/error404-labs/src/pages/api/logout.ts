@@ -12,27 +12,18 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         'http://127.0.0.1:4321'
     ];
     
-    if (!origin || !allowedOrigins.includes(origin)) {
-        return new Response(JSON.stringify({ error: 'Forbidden: Invalid Origin (CSRF Protection)' }), {
-            status: 403,
-            headers: { 'Content-Type': 'application/json' }
-        });
-    }
-
+    // Bỏ qua origin check nghiêm ngặt cho logout để đảm bảo user luôn có thể đăng xuất
     const isLocal = request.url.includes('localhost') || request.url.includes('127.0.0.1');
-    const isSecure = request.url.startsWith('https');
+    const isSecure = request.url.startsWith('https') || request.headers.get('x-forwarded-proto') === 'https';
 
-    cookies.delete('auth_token', { 
+    const cookieOptions = { 
         path: '/', 
         secure: isSecure && !isLocal, 
-        sameSite: 'lax' 
-    });
-    
-    cookies.delete('auth_active', { 
-        path: '/',
-        secure: isSecure && !isLocal, 
-        sameSite: 'lax' 
-    });
+        sameSite: 'lax' as const
+    };
+
+    cookies.delete('auth_token', cookieOptions);
+    cookies.delete('auth_active', cookieOptions);
     
     return new Response(JSON.stringify({ success: true }), {
         status: 200,
