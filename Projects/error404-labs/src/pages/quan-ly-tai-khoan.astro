@@ -5,6 +5,16 @@ import jwt from 'jsonwebtoken'
 export const prerender = false
 
 const token = Astro.cookies.get('auth_token')?.value
+
+if (!token) {
+    return Astro.redirect('/?auth=required');
+}
+
+// Chặn cache cho trang quản lý tài khoản
+Astro.response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+Astro.response.headers.set('Pragma', 'no-cache');
+Astro.response.headers.set('Expires', '0');
+
 let user = null
 let dbUser = null
 

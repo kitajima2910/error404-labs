@@ -6,6 +6,11 @@ if (!Astro.cookies.has('auth_token')) {
     return Astro.redirect('/?auth=required');
 }
 
+// Chặn cache cho các trang bảo mật
+Astro.response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+Astro.response.headers.set('Pragma', 'no-cache');
+Astro.response.headers.set('Expires', '0');
+
 import MainLayout from '../layouts/MainLayout.astro'
 import { TC_TITLE } from '../common/TextConst'
 import { categories } from '../data/dataPromptsGame.js'
