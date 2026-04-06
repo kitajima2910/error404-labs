@@ -161,6 +161,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
             secure: isSecure && !isLocal, 
             sameSite: 'lax' as const,
             path: '/',
+            domain: isLocal ? undefined : '.error404-labs.info.vn',
             maxAge: 60 * 60 * 24 * 7 // 7 ngày
         };
 

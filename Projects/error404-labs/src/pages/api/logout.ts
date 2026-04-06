@@ -25,10 +25,15 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     });
 
     const cookieBase = `path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax; ${isSecure && !isLocal ? 'Secure;' : ''}`;
+    const domain = isLocal ? '' : 'domain=.error404-labs.info.vn;';
     
-    // Xóa auth_token (HttpOnly)
+    // Xóa auth_token (HttpOnly) cho domain chính (bao gồm các subdomains)
+    headers.append('Set-Cookie', `auth_token=; ${cookieBase} ${domain} HttpOnly`);
+    // Xóa auth_active cho domain chính
+    headers.append('Set-Cookie', `auth_active=; ${cookieBase} ${domain}`);
+    
+    // Xóa thêm bản không chỉ định domain (host-only) để bao phủ mọi khả năng
     headers.append('Set-Cookie', `auth_token=; ${cookieBase} HttpOnly`);
-    // Xóa auth_active (biến phụ ở UI)
     headers.append('Set-Cookie', `auth_active=; ${cookieBase}`);
 
     return new Response(JSON.stringify({ success: true }), {
