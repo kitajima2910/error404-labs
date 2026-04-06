@@ -86,9 +86,12 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         
         // Ensure columns exist (Migration) - Cho phép lỗi ở local nếu DB chưa sẵn sàng
         try {
-            await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS points INT DEFAULT 0;`;
-            await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS last_login_at DATE DEFAULT NULL;`;
-            await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS display_name VARCHAR(255);`;
+            await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS points INT DEFAULT 0;`
+            await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS last_login_at DATE DEFAULT NULL;`
+            await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS display_name VARCHAR(255);`
+            await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS session_token TEXT;`
+            await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS session_fingerprint TEXT;`
+            await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS logined INT DEFAULT 0;`
         } catch (mErr) {
             console.error('Migration failed:', mErr);
             if (!isDev) throw mErr;
@@ -146,12 +149,24 @@ export const POST: APIRoute = async ({ request, cookies }) => {
             console.log(`[Points] Already claimed by ${user.member} for ${today}`);
         }
 
-        // Cập nhật trạng thái logined vào DB
-        await sql`UPDATE error404labs.members SET logined = 1 WHERE id = ${user.id}`;
+        // Cập nhật trạng thái logined và session identifiers
+        const sessionToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
+        const fingerprint = request.headers.get('user-agent') || 'unknown';
 
-        // Tạo JWT token
+        await sql`
+            UPDATE error404labs.members 
+            SET logined = 1, session_token = ${sessionToken}, session_fingerprint = ${fingerprint} 
+            WHERE id = ${user.id}
+        `;
+
+        // Tạo JWT token bao gồm session identifier
         const token = jwt.sign(
-            { id: user.id, member: user.member, roles: user.roles },
+            { 
+                id: user.id, 
+                member: user.member, 
+                roles: user.roles,
+                sessionToken // Key để verify trong DB
+            },
             jwtSecret,
             { expiresIn: '7d' }
         );

@@ -22,8 +22,12 @@ export const POST: APIRoute = async ({ request, cookies }) => {
             if (decoded?.id) {
                 const { neon } = await import('@neondatabase/serverless');
                 const sql = neon(import.meta.env.DATABASE_URL);
-                // Đánh dấu logout trong DB (logined = 0)
-                await sql`UPDATE error404labs.members SET logined = 0 WHERE id = ${decoded.id}`;
+                // Đánh dấu logout và xóa sạch session metadata trong DB
+                await sql`
+                    UPDATE error404labs.members 
+                    SET logined = 0, session_token = NULL, session_fingerprint = NULL 
+                    WHERE id = ${decoded.id}
+                `;
             }
         }
     } catch (e) {

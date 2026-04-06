@@ -26,15 +26,26 @@ export const GET: APIRoute = async ({ request, url }) => {
 
         let decodedToken: any;
         try {
-            decodedToken = jwt.verify(token, import.meta.env.JWT_SECRET);
+            decodedToken = jwt.verify(token, import.meta.env.JWT_SECRET) as any;
             
-            // Kiểm tra trạng thái logined từ DB (Authority)
+            // 1. Kiểm tra trạng thái logined và session_token từ DB
             const { neon } = await import('@neondatabase/serverless');
             const sql = neon(import.meta.env.DATABASE_URL);
-            const dbUser = (await sql`SELECT logined FROM error404labs.members WHERE id = ${decodedToken.id}`)[0];
+            const user = (await sql`
+                SELECT logined, session_token, session_fingerprint 
+                FROM error404labs.members 
+                WHERE id = ${decodedToken.id}
+            `)[0];
             
-            if (!dbUser || dbUser.logined !== 1) {
-                return new Response(JSON.stringify({ error: 'Session expired' }), {
+            const currentFingerprint = request.headers.get('user-agent') || 'unknown';
+
+            if (
+                !user || 
+                user.logined !== 1 || 
+                user.session_token !== decodedToken.sessionToken ||
+                user.session_fingerprint !== currentFingerprint
+            ) {
+                return new Response(JSON.stringify({ error: 'Session invalid or expired' }), {
                     status: 401,
                     headers: { 'Content-Type': 'application/json' }
                 });

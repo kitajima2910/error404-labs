@@ -16,10 +16,21 @@ export const POST: APIRoute = async ({ request }) => {
         const decoded = jwt.verify(token, import.meta.env.JWT_SECRET) as any;
         const userId = decoded.id;
 
-        const user = (await sql`SELECT logined FROM error404labs.members WHERE id = ${userId}`)[0];
+        const user = (await sql`
+            SELECT logined, session_token, session_fingerprint 
+            FROM error404labs.members 
+            WHERE id = ${userId}
+        `)[0];
         
-        if (!user || user.logined !== 1) {
-            return new Response(JSON.stringify({ error: 'Session expired' }), { status: 401 });
+        const currentFingerprint = request.headers.get('user-agent') || 'unknown';
+
+        if (
+            !user || 
+            user.logined !== 1 || 
+            user.session_token !== decoded.sessionToken ||
+            user.session_fingerprint !== currentFingerprint
+        ) {
+            return new Response(JSON.stringify({ error: 'Session invalid or expired' }), { status: 401 });
         }
 
         // Cập nhật last_heartbeat_at (GMT+7 is default in DB NOW())

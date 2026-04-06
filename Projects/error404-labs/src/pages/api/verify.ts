@@ -30,15 +30,33 @@ export const GET: APIRoute = async ({ request }) => {
             throw new Error('Missing environment variables');
         }
 
-        const decoded = jwt.verify(token, jwtSecret) as { id: number; member: string; roles: string };
+        const decoded = jwt.verify(token, jwtSecret) as { 
+            id: number; 
+            member: string; 
+            roles: string;
+            sessionToken: string;
+        };
         
         const { neon } = await import('@neondatabase/serverless');
         const sql = neon(dbUrl);
-        const user = (await sql`SELECT points, created_at, display_name, logined FROM error404labs.members WHERE id = ${decoded.id}`)[0];
+        const user = (await sql`
+            SELECT points, created_at, display_name, logined, session_token, session_fingerprint 
+            FROM error404labs.members 
+            WHERE id = ${decoded.id}
+        `)[0];
 
-        // Kiểm tra trạng thái logined
-        if (!user || user.logined !== 1) {
-            return new Response(JSON.stringify({ authenticated: false, error: 'Session expired' }), {
+        // 1. Kiểm tra trạng thái logined
+        // 2. Kiểm tra session_token (Single Session)
+        // 3. Kiểm tra fingerprint (Browser identity)
+        const currentFingerprint = request.headers.get('user-agent') || 'unknown';
+        
+        if (
+            !user || 
+            user.logined !== 1 || 
+            user.session_token !== decoded.sessionToken ||
+            user.session_fingerprint !== currentFingerprint
+        ) {
+            return new Response(JSON.stringify({ authenticated: false, error: 'Session invalid or expired' }), {
                 status: 200,
                 headers: { 
                     'Content-Type': 'application/json',

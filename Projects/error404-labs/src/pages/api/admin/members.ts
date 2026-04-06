@@ -16,9 +16,22 @@ const checkAdmin = async (request: Request) => {
     try {
         const decoded = jwt.verify(token, import.meta.env.JWT_SECRET) as any;
         
-        // Kiểm tra logined và roles từ DB (Authority)
-        const dbUser = (await sql`SELECT roles, logined FROM error404labs.members WHERE id = ${decoded.id}`)[0];
-        if (!dbUser || dbUser.logined !== 1 || dbUser.roles !== 'admin') {
+        // Kiểm tra logined, roles, session_token và fingerprint từ DB (Authority)
+        const dbUser = (await sql`
+            SELECT roles, logined, session_token, session_fingerprint 
+            FROM error404labs.members 
+            WHERE id = ${decoded.id}
+        `)[0];
+
+        const currentFingerprint = request.headers.get('user-agent') || 'unknown';
+
+        if (
+            !dbUser || 
+            dbUser.logined !== 1 || 
+            dbUser.roles !== 'admin' ||
+            dbUser.session_token !== decoded.sessionToken ||
+            dbUser.session_fingerprint !== currentFingerprint
+        ) {
             return null;
         }
         
