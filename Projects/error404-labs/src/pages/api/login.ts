@@ -159,12 +159,13 @@ export const POST: APIRoute = async ({ request, cookies }) => {
             { expiresIn: '7d' }
         );
 
-        const isLocal = request.url.includes('localhost') || request.url.includes('127.0.0.1');
-        const isSecure = request.url.startsWith('https') || request.headers.get('x-forwarded-proto') === 'https';
+        const host = request.headers.get('host') || '';
+        const isLocal = host.includes('localhost') || host.includes('127.0.0.1');
+        const isSecure = request.headers.get('x-forwarded-proto') === 'https' || (!isLocal && request.url.startsWith('https'));
 
         const cookieOptions = {
             httpOnly: true,
-            secure: isSecure && !isLocal, 
+            secure: isSecure, 
             sameSite: 'lax' as const,
             path: '/',
             domain: isLocal ? undefined : '.error404-labs.info.vn',

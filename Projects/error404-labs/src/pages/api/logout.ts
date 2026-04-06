@@ -12,9 +12,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         'http://127.0.0.1:4321'
     ];
     
-    // Bỏ qua origin check nghiêm ngặt cho logout để đảm bảo user luôn có thể đăng xuất
-    const isLocal = request.url.includes('localhost') || request.url.includes('127.0.0.1');
-    const isSecure = request.url.startsWith('https') || request.headers.get('x-forwarded-proto') === 'https';
+    // Xác định môi trường dựa trên header host (quan trọng cho serverless như Vercel)
+    const host = request.headers.get('host') || '';
+    const isLocal = host.includes('localhost') || host.includes('127.0.0.1');
+    const isSecure = request.headers.get('x-forwarded-proto') === 'https' || (!isLocal && request.url.startsWith('https'));
 
     // Clear session_token in DB
     const token = cookies.get('auth_token')?.value;
@@ -41,16 +42,23 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     });
 
     const cookieBase = `path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax; ${isSecure && !isLocal ? 'Secure;' : ''}`;
-    const domain = isLocal ? '' : 'domain=.error404-labs.info.vn;';
     
-    // Xóa auth_token (HttpOnly) cho domain chính (bao gồm các subdomains)
-    headers.append('Set-Cookie', `auth_token=; ${cookieBase} ${domain} HttpOnly`);
-    // Xóa auth_active cho domain chính
-    headers.append('Set-Cookie', `auth_active=; ${cookieBase} ${domain}`);
+    // Xóa auth_token (HttpOnly) cho tất cả các biến thể domain
+    headers.append('Set-Cookie', `auth_token=; ${cookieBase} HttpOnly`); // Host-only
     
-    // Xóa thêm bản không chỉ định domain (host-only) để bao phủ mọi khả năng
-    headers.append('Set-Cookie', `auth_token=; ${cookieBase} HttpOnly`);
-    headers.append('Set-Cookie', `auth_active=; ${cookieBase}`);
+    if (!isLocal) {
+        headers.append('Set-Cookie', `auth_token=; ${cookieBase} domain=.error404-labs.info.vn; HttpOnly`);
+        headers.append('Set-Cookie', `auth_token=; ${cookieBase} domain=error404-labs.info.vn; HttpOnly`);
+        headers.append('Set-Cookie', `auth_token=; ${cookieBase} domain=www.error404-labs.info.vn; HttpOnly`);
+    }
+
+    // Xóa auth_active (Non-HttpOnly)
+    headers.append('Set-Cookie', `auth_active=; ${cookieBase}`); // Host-only
+    if (!isLocal) {
+        headers.append('Set-Cookie', `auth_active=; ${cookieBase} domain=.error404-labs.info.vn;`);
+        headers.append('Set-Cookie', `auth_active=; ${cookieBase} domain=error404-labs.info.vn;`);
+        headers.append('Set-Cookie', `auth_active=; ${cookieBase} domain=www.error404-labs.info.vn;`);
+    }
 
     return new Response(JSON.stringify({ success: true }), {
         status: 200,
