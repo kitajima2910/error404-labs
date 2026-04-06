@@ -231,8 +231,14 @@ export const prerender = false
                 });
                 const data = await res.json();
 
-                if (!res.ok || data.roles !== 'admin') {
-                    window.location.href = '/';
+                if (!res.ok || !data.authenticated || data.user?.roles !== 'admin') {
+                    // Nếu là token cũ hoặc không hợp lệ, xóa sạch để yêu cầu login lại
+                    if (data.error === 'Session invalid or expired') {
+                        localStorage.removeItem('auth_token');
+                        localStorage.removeItem('user_session');
+                        localStorage.removeItem('user_roles');
+                    }
+                    window.location.href = '/?auth=required';
                     return;
                 }
 
@@ -242,11 +248,11 @@ export const prerender = false
                 // Initialize Admin Name
                 const adminGreetingName = document.getElementById('adminGreetingName');
                 if (adminGreetingName) {
-                    adminGreetingName.textContent = data.display_name || data.username;
+                    adminGreetingName.textContent = data.user?.display_name || data.user?.member || 'Admin';
                 }
             } catch (err) {
                 console.error('Guard Error:', err);
-                window.location.href = '/';
+                window.location.href = '/?error=connection';
             }
         })();
 
