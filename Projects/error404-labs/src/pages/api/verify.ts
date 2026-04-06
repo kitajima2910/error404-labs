@@ -33,10 +33,11 @@ export const GET: APIRoute = async ({ cookies }) => {
         
         const { neon } = await import('@neondatabase/serverless');
         const sql = neon(dbUrl);
-        const user = (await sql`SELECT points, created_at, display_name, session_token FROM error404labs.members WHERE id = ${decoded.id}`)[0];
+        const user = (await sql`SELECT points, created_at, display_name, session_token, logined FROM error404labs.members WHERE id = ${decoded.id}`)[0];
 
-        // Kiểm tra session_token (Server-side validation)
-        if (!user || user.session_token !== decoded.session_token) {
+        // Kiểm tra session_token và trạng thái logined
+        // Nếu logined = 0 hoặc session_token không khớp thì coi là không hợp lệ
+        if (!user || user.logined !== 1 || user.session_token !== decoded.session_token) {
             return new Response(JSON.stringify({ authenticated: false, error: 'Session expired or logged in elsewhere' }), {
                 status: 200,
                 headers: { 

@@ -149,8 +149,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         // Tạo session_token ngẫu nhiên để quản lý đăng nhập duy nhất
         const sessionToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
         
-        // Cập nhật session_token vào DB (Sử dụng đối tượng sql đã có)
-        await sql`UPDATE error404labs.members SET session_token = ${sessionToken} WHERE id = ${user.id}`;
+        // Cập nhật session_token và trạng thái logined vào DB
+        await sql`UPDATE error404labs.members SET session_token = ${sessionToken}, logined = 1 WHERE id = ${user.id}`;
 
         // Tạo JWT token (include session_token in payload)
         const token = jwt.sign(

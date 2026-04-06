@@ -23,17 +23,17 @@ try {
     const neon = (await import('@neondatabase/serverless')).neon;
     const sql = neon(import.meta.env.DATABASE_URL);
     
-    // Lấy thông tin user và session_token từ DB
+    // Lấy thông tin user, session_token và trạng thái logined từ DB
     const results = await sql`
-        SELECT id, member, roles, points, display_name, created_at, session_token 
+        SELECT id, member, roles, points, display_name, created_at, session_token, logined 
         FROM error404labs.members 
         WHERE id = ${decoded.id}
     `;
     
     dbUser = results[0];
     
-    // Kiểm tra session_token (Server-side validation)
-    if (!dbUser || dbUser.session_token !== decoded.session_token) {
+    // Kiểm tra session_token và logined (Authority)
+    if (!dbUser || dbUser.logined !== 1 || dbUser.session_token !== decoded.session_token) {
         Astro.cookies.delete('auth_token', { path: '/' });
         return Astro.redirect('/?auth=required');
     }

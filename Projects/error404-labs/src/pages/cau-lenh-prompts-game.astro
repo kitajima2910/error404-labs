@@ -17,9 +17,10 @@ try {
     const decoded = jwt.verify(token, import.meta.env.JWT_SECRET) as any;
     const { neon } = await import('@neondatabase/serverless');
     const sql = neon(import.meta.env.DATABASE_URL);
-    const dbUser = (await sql`SELECT session_token FROM error404labs.members WHERE id = ${decoded.id}`)[0];
+    const dbUser = (await sql`SELECT session_token, logined FROM error404labs.members WHERE id = ${decoded.id}`)[0];
     
-    if (!dbUser || dbUser.session_token !== decoded.session_token) {
+    // Kiểm tra session_token và trạng thái logined từ DB (Authority)
+    if (!dbUser || dbUser.logined !== 1 || dbUser.session_token !== decoded.session_token) {
         Astro.cookies.delete('auth_token', { path: '/' });
         return Astro.redirect('/?auth=required');
     }
