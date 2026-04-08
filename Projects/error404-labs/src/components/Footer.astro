@@ -9,20 +9,75 @@ const blog = formatBlogPost(allPosts, {
     sortByDate: !true,
 })
 
-const titles = blog.map((post: any) => post.frontmatter.title)
-
 const titles_and_urls = blog.map((post: any) => ({
     title: post.frontmatter.title,
     url: post.url,
 }))
-
-// console.log('titles_and_urls: ', titles_and_urls)
 ---
 
-<footer class="bg-[#FBFBFB] py-5 min-h-15 flex justify-center items-center shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
-    <p>
-        Phạm Xuân Hoài &copy; 2023 - {new Date().getFullYear()}
-    </p>
+<footer class="bg-gradient-to-b from-slate-900 to-slate-950 text-slate-300">
+    <div class="max-w-7xl mx-auto px-4 py-16">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+            <!-- About -->
+            <div class="lg:col-span-2">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+                        <span class="text-white text-xl">🚀</span>
+                    </div>
+                    <span class="text-xl font-black text-white tracking-tight">Error404 Labs</span>
+                </div>
+                <p class="text-slate-400 text-sm leading-relaxed mb-6 max-w-md">
+                    Nền tảng học lập trình miễn phí dành cho người Việt. Học qua dự án thực tế, 
+                    phát triển kỹ năng từ cơ bản đến nâng cao cùng cộng đồng.
+                </p>
+                <div class="flex gap-4">
+                    <a href="https://www.facebook.com/kitajima2910" target="_blank" class="w-9 h-9 bg-slate-800 hover:bg-slate-700 rounded-lg flex items-center justify-center transition-all hover:scale-110">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                    </a>
+                    <a href="https://www.facebook.com/error404labs" target="_blank" class="w-9 h-9 bg-slate-800 hover:bg-slate-700 rounded-lg flex items-center justify-center transition-all hover:scale-110">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.77,7.46H14.5v-1.9c0-.9.6-1.1,1-1.1h3V.5h-4.33C10.24.5,9.5,3.44,9.5,5.32v2.15h-3v4h3v12h5v-12h3.85l.42-4Z"/></svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div>
+                <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4">Liên kết nhanh</h4>
+                <ul class="space-y-3">
+                    <li><a href="/" class="text-slate-400 hover:text-indigo-400 transition-colors text-sm">Trang chủ</a></li>
+                    <li><a href="/bai-viet" class="text-slate-400 hover:text-indigo-400 transition-colors text-sm">Bài viết</a></li>
+                    <li><a href="/khoa-hoc" class="text-slate-400 hover:text-indigo-400 transition-colors text-sm">Khóa học</a></li>
+                    <li><a href="/thu-nghiem" class="text-slate-400 hover:text-indigo-400 transition-colors text-sm">Thử nghiệm</a></li>
+                    <li><a href="/cau-lenh-prompts-game" class="text-slate-400 hover:text-indigo-400 transition-colors text-sm">Prompts</a></li>
+                </ul>
+            </div>
+
+            <!-- Recent Posts -->
+            <div>
+                <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4">Bài viết mới</h4>
+                <ul class="space-y-3">
+                    {titles_and_urls.slice(0, 5).map((item: any) => (
+                        <li>
+                            <a href={item.url} class="text-slate-400 hover:text-indigo-400 transition-colors text-sm line-clamp-1">
+                                {item.title}
+                            </a>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Bottom -->
+        <div class="border-t border-slate-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p class="text-slate-500 text-sm">
+                © {new Date().getFullYear()} <span class="text-white font-bold">Phạm Xuân Hoài</span>. All rights reserved.
+            </p>
+            <div class="flex items-center gap-2 text-slate-500 text-sm">
+                <span class="text-emerald-500">●</span>
+                <span>Hệ thống đang hoạt động</span>
+            </div>
+        </div>
+    </div>
 </footer>
 
 <div id="notifyBox"></div>
@@ -66,8 +121,6 @@ const titles_and_urls = blog.map((post: any) => ({
         transform: translateY(0) scale(1);
     }
 
-    /* nút tắt */
-
     .notify-close {
         position: absolute;
         top: 8px;
@@ -88,22 +141,16 @@ const titles_and_urls = blog.map((post: any) => ({
         background: #eee;
     }
 
-    /* title */
-
     .notify-title {
         margin-top: 4px;
         font-weight: 600;
     }
-
-    /* time */
 
     .notify-time {
         margin-top: 4px;
         font-size: 12px;
         color: #777;
     }
-
-    /* progress bar */
 
     .notify-progress {
         height: 3px;
@@ -135,129 +182,29 @@ const titles_and_urls = blog.map((post: any) => ({
     }
 </style>
 
-<script define:vars={{ titles, titles_and_urls }}>
+<script define:vars={{ titles_and_urls }}>
     const names = [
-        'Minh',
-        'Lan',
-        'Hải',
-        'Tuấn',
-        'Thảo',
-        'Phúc',
-        'Quang',
-        'Linh',
-        'Hùng',
-        'Nam',
-        'Đức',
-        'Dũng',
-        'Tú',
-        'Hiếu',
-        'Khang',
-        'Khánh',
-        'Long',
-        'Phương',
-        'Trang',
-        'Vy',
-        'Ngọc',
-        'Hương',
-        'Tâm',
-        'Tùng',
-        'Bảo',
-        'Sơn',
-        'Hà',
-        'Yến',
-        'Thành',
-        'Tiến',
-        'Quỳnh',
-        'Mai',
-        'Thu',
-        'Giang',
-        'Kiên',
-        'Trung',
-        'An',
-        'Nhung',
-        'Vân',
-        'Lộc',
-        'Phú',
-        'Hòa',
-        'Bình',
-        'Tấn',
-        'Nghĩa',
-        'Thanh',
-        'Trí',
-        'Thiện',
-        'Duy',
+        'Minh', 'Lan', 'Hải', 'Tuấn', 'Thảo', 'Phúc', 'Quang', 'Linh', 'Hùng', 'Nam',
+        'Đức', 'Dũng', 'Tú', 'Hiếu', 'Khang', 'Khánh', 'Long', 'Phương', 'Trang', 'Vy',
+        'Ngọc', 'Hương', 'Tâm', 'Tùng', 'Bảo', 'Sơn', 'Hà', 'Yến', 'Thành', 'Tiến',
+        'Quỳnh', 'Mai', 'Thu', 'Giang', 'Kiên', 'Trung', 'An', 'Nhung', 'Vân', 'Lộc',
+        'Phú', 'Hòa', 'Bình', 'Tấn', 'Nghĩa', 'Thanh', 'Trí', 'Thiện', 'Duy',
     ]
 
     const cities = [
-        'Hà Nội',
-        'TP.HCM',
-        'Đà Nẵng',
-        'Cần Thơ',
-        'Huế',
-        'Hải Phòng',
-        'Quảng Ninh',
-        'Bắc Ninh',
-        'Bắc Giang',
-        'Thái Nguyên',
-        'Nam Định',
-        'Ninh Bình',
-        'Thanh Hóa',
-        'Nghệ An',
-        'Hà Tĩnh',
-        'Quảng Bình',
-        'Quảng Trị',
-        'Quảng Nam',
-        'Quảng Ngãi',
-        'Bình Định',
-        'Phú Yên',
-        'Khánh Hòa',
-        'Ninh Thuận',
-        'Bình Thuận',
-        'Kon Tum',
-        'Gia Lai',
-        'Đắk Lắk',
-        'Đắk Nông',
-        'Lâm Đồng',
-        'Bình Phước',
-        'Bình Dương',
-        'Đồng Nai',
-        'Tây Ninh',
-        'Bà Rịa - Vũng Tàu',
-        'Long An',
-        'Tiền Giang',
-        'Bến Tre',
-        'Trà Vinh',
-        'Vĩnh Long',
-        'Đồng Tháp',
-        'An Giang',
-        'Kiên Giang',
-        'Hậu Giang',
-        'Sóc Trăng',
-        'Bạc Liêu',
-        'Cà Mau',
+        'Hà Nội', 'TP.HCM', 'Đà Nẵng', 'Cần Thơ', 'Huế', 'Hải Phòng', 'Quảng Ninh',
+        'Bắc Ninh', 'Bắc Giang', 'Thái Nguyên', 'Nam Định', 'Ninh Bình', 'Thanh Hóa',
+        'Nghệ An', 'Hà Tĩnh', 'Quảng Bình', 'Quảng Trị', 'Quảng Nam', 'Quảng Ngãi',
+        'Bình Định', 'Phú Yên', 'Khánh Hòa', 'Ninh Thuận', 'Bình Thuận', 'Kon Tum',
+        'Gia Lai', 'Đắk Lắk', 'Đắk Nông', 'Lâm Đồng', 'Bình Phước', 'Bình Dương',
+        'Đồng Nai', 'Tây Ninh', 'Bà Rịa - Vũng Tàu', 'Long An', 'Tiền Giang', 'Bến Tre',
+        'Trà Vinh', 'Vĩnh Long', 'Đồng Tháp', 'An Giang', 'Kiên Giang', 'Hậu Giang',
+        'Sóc Trăng', 'Bạc Liêu', 'Cà Mau',
     ]
 
-    const icons = [
-        '👨‍💻',
-        '🧑‍💻',
-        '👩‍💻',
-        '📚',
-        '💻',
-        '🧠',
-    ]
-
-    const actions = [
-        'đang học',
-        'đang đọc',
-        'vừa xem',
-        'vừa truy cập',
-        'đang tìm hiểu',
-    ]
-
-    const devices = [
-        '💻',
-        '📱',
-    ]
+    const icons = ['👨‍💻', '🧑‍💻', '👩‍💻', '📚', '💻', '🧠']
+    const actions = ['đang học', 'đang đọc', 'vừa xem', 'vừa truy cập', 'đang tìm hiểu']
+    const devices = ['💻', '📱']
 
     let lastTitle = null
     let disabled = false
@@ -271,13 +218,11 @@ const titles_and_urls = blog.map((post: any) => ({
     }
 
     function getRandomTitle() {
-        let lesson = randomItem(titles)
-
-        while (lesson === lastTitle) {
-            lesson = randomItem(titles)
+        let lesson = randomItem(titles_and_urls)
+        while (lesson && lesson.title === lastTitle) {
+            lesson = randomItem(titles_and_urls)
         }
-
-        lastTitle = lesson
+        if (lesson) lastTitle = lesson.title
         return lesson
     }
 
@@ -304,15 +249,11 @@ const titles_and_urls = blog.map((post: any) => ({
                         ${device} ${icon} <b>${name}</b> (${city}) ${action}
                     </div>
                     <div class="notify-close" title="Tắt thông báo" style="margin-left: 6px; cursor: pointer;">✕</div>
-
                 </div>
-
                 <div class="notify-title" style="margin-top: 6px;">
-                    <a href="${titles_and_urls.find((p) => lesson.includes(p.title))?.url}">${lesson}</a>
+                    <a href="${lesson?.url || '#'}">${lesson?.title || ''}</a>
                 </div>
-
                 <div class="notify-time" style="margin-top: 6px;">${time} phút trước</div>
-
                 <div class="notify-progress"></div>
             `
 
@@ -327,7 +268,6 @@ const titles_and_urls = blog.map((post: any) => ({
 
     document.addEventListener('DOMContentLoaded', () => {
         setTimeout(showNotify, 3000)
-
         setInterval(showNotify, 9000)
     })
 </script>

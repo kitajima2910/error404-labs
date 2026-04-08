@@ -106,8 +106,7 @@ const isPost = pathname.startsWith('/bai-viet/')
                             class="hidden text-sm md:text-base font-bold text-blue-600 items-center gap-4 relative"
                         >
                             <div class="flex items-center gap-1 cursor-pointer group" id="userProfileTrigger">
-                                <span
-                                    >Xin chào, <span id="memberName" class="text-red-600 hover:underline"></span>!</span
+                                <span>Xin chào, <span id="memberName" class="text-red-600 hover:underline"></span></span
                                 >
                             </div>
 
@@ -650,7 +649,7 @@ const isPost = pathname.startsWith('/bai-viet/')
                 const currentToken = localStorage.getItem('auth_token')
                 const logoutSpan = logoutBtn.querySelector('span')
                 const originalText = logoutSpan ? logoutSpan.textContent : 'Đăng xuất'
-                
+
                 if (logoutSpan) {
                     logoutSpan.textContent = 'Đang đăng xuất...'
                     logoutBtn.classList.add('opacity-50', 'pointer-events-none')
@@ -668,9 +667,9 @@ const isPost = pathname.startsWith('/bai-viet/')
                 try {
                     const response = await fetch('/api/logout', {
                         method: 'POST',
-                        headers: { 
+                        headers: {
                             'Content-Type': 'application/json',
-                            Authorization: `Bearer ${currentToken}` 
+                            Authorization: `Bearer ${currentToken}`,
                         },
                         keepalive: true,
                     })
@@ -766,9 +765,9 @@ const isPost = pathname.startsWith('/bai-viet/')
             const authToken = localStorage.getItem('auth_token')
             fetch('/api/user/heartbeat', {
                 method: 'POST',
-                headers: { 
+                headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${authToken}` 
+                    Authorization: `Bearer ${authToken}`,
                 },
             }).catch(() => {})
 
@@ -779,9 +778,9 @@ const isPost = pathname.startsWith('/bai-viet/')
                         const authToken = localStorage.getItem('auth_token')
                         const res = await fetch('/api/user/heartbeat', {
                             method: 'POST',
-                            headers: { 
+                            headers: {
                                 'Content-Type': 'application/json',
-                                Authorization: `Bearer ${authToken}` 
+                                Authorization: `Bearer ${authToken}`,
                             },
                         })
                         const data = await res.json()
