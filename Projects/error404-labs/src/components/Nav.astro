@@ -599,19 +599,19 @@ const isPost = pathname.startsWith('/bai-viet/')
                 localStorage.setItem('logout_in_progress', 'true')
                 
                 try {
-                    await fetch('/api/logout', { 
+                    const response = await fetch('/api/logout', { 
                         method: 'POST',
                         headers: { 'Authorization': `Bearer ${currentToken}` },
                         keepalive: true
                     })
+                    const result = await response.json()
+                    console.log('Logout API Result:', result)
                 } catch (e) {
                     console.error('Logout error:', e)
                 }
                 
-                // Delay nhỏ để browser cập nhật cookie chính xác trước khi reload
-                setTimeout(() => {
-                    window.location.href = '/'
-                }, 150)
+                // Redirect về home và reload trang sau khi API đã hoàn tất
+                window.location.href = '/'
             }
         }
 

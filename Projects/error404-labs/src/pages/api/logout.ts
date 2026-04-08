@@ -21,7 +21,8 @@ export const POST: APIRoute = async ({ request }) => {
             headers: { 'Content-Type': 'application/json' }
         });
     }
-    
+
+    let dbVerified = false;
     try {
         const authHeader = request.headers.get('Authorization');
         const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null;
@@ -49,7 +50,19 @@ export const POST: APIRoute = async ({ request }) => {
                         SET logined = 0, session_token = NULL, session_fingerprint = NULL 
                         WHERE id = ${decoded.id}
                     `;
-                    console.log(`Logout successful for user ID: ${decoded.id}`);
+
+                    // Kiểm tra lại từ DB để đảm bảo đã cập nhật thành công
+                    const verifyResult = await sql`
+                        SELECT logined FROM error404labs.members WHERE id = ${decoded.id}
+                    `;
+                    const isLogoutSuccessful = verifyResult.length > 0 && verifyResult[0].logined === 0;
+
+                    if (isLogoutSuccessful) {
+                        console.log(`Logout verified for user ID: ${decoded.id}`);
+                        dbVerified = true;
+                    } else {
+                        console.error(`Logout verification failed for user ID: ${decoded.id}. Value is still: ${verifyResult[0]?.logined}`);
+                    }
                 }
             } catch (jwtErr) {
                 console.warn('Logout JWT verify failed (token might be expired):', jwtErr);
@@ -60,7 +73,7 @@ export const POST: APIRoute = async ({ request }) => {
         console.error('Logout DB clear failed:', e);
     }
 
-    return new Response(JSON.stringify({ success: true }), {
+    return new Response(JSON.stringify({ success: true, verified: dbVerified }), {
         status: 200,
         headers: { 
             'Content-Type': 'application/json',
