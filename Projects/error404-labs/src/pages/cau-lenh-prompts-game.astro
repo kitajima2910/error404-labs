@@ -398,6 +398,10 @@ const titleTranslate: Record<string, string> = {
             const title = link.getAttribute('data-title')
             const demoLink = link.getAttribute('data-demo-link')
 
+            // Show loading state
+            link.classList.add('opacity-50', 'pointer-events-none')
+            const originalText = link.querySelector('span:last-child')?.textContent || ''
+
             // Fetch prompt từ API có xác thực (JWT cookie tự gửi kèm)
             try {
                 const authToken = localStorage.getItem('auth_token')
@@ -405,6 +409,9 @@ const titleTranslate: Record<string, string> = {
                     headers: { 'Authorization': `Bearer ${authToken}` }
                 })
                 const data = await res.json()
+
+                // Remove loading state
+                link.classList.remove('opacity-50', 'pointer-events-none')
 
                 if (res.status === 401) {
                     localStorage.removeItem('user_session')
