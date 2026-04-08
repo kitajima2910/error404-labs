@@ -418,6 +418,15 @@ const titleTranslate: Record<string, string> = {
                     return
                 }
 
+                if (data.requiresAccess) {
+                    if (window.showToast) {
+                        window.showToast('🔒 ' + data.error, 'warning')
+                    } else {
+                        alert(data.error)
+                    }
+                    return
+                }
+
                 if (data.prompt) {
                     copyToClipboard(data.prompt).then(() => {
                         openModal(data.prompt, title, demoLink)

@@ -88,12 +88,13 @@ export const prerender = false
                             <th class="sortable px-6 py-4 text-xs font-black text-slate-600 uppercase tracking-widest cursor-pointer hover:bg-slate-100 transition-colors group text-center" data-sort="created_at">
                                 Ngày tham gia <span class="sort-icon ml-1 opacity-20 group-hover:opacity-100">⇅</span>
                             </th>
+                            <th class="px-6 py-4 text-xs font-black text-slate-600 uppercase tracking-widest text-center">Truy cập</th>
                             <th class="px-6 py-4 text-xs font-black text-slate-600 uppercase tracking-widest text-right">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody id="memberTableBody" class="divide-y divide-slate-100">
                         <tr>
-                            <td colspan="6" class="px-6 py-12 text-center text-slate-400">Đang tải dữ liệu...</td>
+                            <td colspan="7" class="px-6 py-12 text-center text-slate-400">Đang tải dữ liệu...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -208,6 +209,51 @@ export const prerender = false
                     >
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal Quản lý Prompt Access -->
+    <div id="promptAccessModal" class="fixed inset-0 z-[160] hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 transition-all duration-300">
+        <div id="promptAccessModalContent" class="bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[85vh] overflow-hidden transform scale-95 opacity-0 transition-all duration-300 border border-slate-100 flex flex-col">
+            <div class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-emerald-50 to-white shrink-0">
+                <div>
+                    <h3 class="text-xl font-black text-slate-800 uppercase tracking-tight flex items-center gap-2">
+                        <span class="text-emerald-600">🔗</span> Quản lý Prompt Access
+                    </h3>
+                    <p class="text-sm text-slate-500 mt-1">
+                        Member: <span id="promptAccessMemberName" class="font-bold text-emerald-600"></span>
+                    </p>
+                </div>
+                <button type="button" id="closePromptAccessModal" class="text-slate-400 hover:text-slate-600 p-2 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="flex-1 overflow-hidden flex flex-col">
+                <div class="px-6 py-4 bg-slate-50/50 border-b border-slate-100 flex items-center justify-between gap-4 shrink-0">
+                    <div class="flex items-center gap-3">
+                        <button id="selectAllPrompts" class="text-xs font-bold px-3 py-1.5 rounded-lg bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100 transition-all cursor-pointer">
+                            Chọn tất cả
+                        </button>
+                        <button id="deselectAllPrompts" class="text-xs font-bold px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200 transition-all cursor-pointer">
+                            Bỏ chọn tất cả
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <input type="text" id="promptAccessSearch" placeholder="Tìm kiếm prompt..." class="px-3 py-1.5 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none" />
+                        <button id="savePromptAccess" class="text-xs font-bold px-4 py-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100 cursor-pointer flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Lưu thay đổi
+                        </button>
+                    </div>
+                </div>
+                <div id="promptAccessList" class="flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar">
+                    <!-- Prompt list will be rendered here -->
+                </div>
+            </div>
         </div>
     </div>
 
@@ -329,7 +375,7 @@ export const prerender = false
                 renderMembers()
                 renderPagination()
             } catch (err) {
-                tableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-red-500">${err.message}</td></tr>`
+                tableBody.innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center text-red-500">${err.message}</td></tr>`
             }
         }
 
@@ -338,20 +384,12 @@ export const prerender = false
 
             if (members.length === 0) {
                 const tr = document.createElement('tr')
-                tr.innerHTML = '<td colspan="6" class="px-6 py-12 text-center text-slate-400 italic">Không tìm thấy tài khoản nào phù hợp yêu cầu.</td>'
+                tr.innerHTML = '<td colspan="7" class="px-6 py-12 text-center text-slate-400 italic">Không tìm thấy tài khoản nào phù hợp yêu cầu.</td>'
                 tableBody.appendChild(tr)
                 return
             }
 
             members.forEach((m) => {
-                const isSuper = currentUser === 'pxh2910'
-                const isSelf = m.member === currentUser
-                const targetIsAdmin = m.roles === 'admin'
-                const targetIsSuper = m.member === 'pxh2910'
-
-                const canEdit = isSuper || !targetIsAdmin || isSelf
-                const canDelete = !isSelf && !targetIsSuper && (isSuper || !targetIsAdmin)
-
                 const tr = document.createElement('tr')
                 tr.className = "hover:bg-slate-50/50 transition-colors"
 
@@ -365,28 +403,19 @@ export const prerender = false
                 const tdMember = document.createElement('td')
                 tdMember.className = "px-6 py-4 text-sm font-bold text-slate-700"
                 tdMember.textContent = m.member
-                if (isSelf) {
-                    const span = document.createElement('span')
-                    span.className = "text-[10px] text-indigo-400 font-normal ml-1 lowercase bg-indigo-50 px-1.5 py-0.5 rounded-md italic"
-                    span.textContent = 'bạn'
-                    tdMember.appendChild(span)
-                }
                 tr.appendChild(tdMember)
 
                 // Display Name cell
-                const tdName = document.createElement('td')
-                tdName.className = "px-6 py-4 text-sm text-slate-600"
-                if (m.display_name) {
-                    tdName.textContent = m.display_name
-                } else {
-                    tdName.innerHTML = '<span class="text-slate-300 italic">chưa đặt</span>'
-                }
-                tr.appendChild(tdName)
+                const tdDisplayName = document.createElement('td')
+                tdDisplayName.className = "px-6 py-4 text-sm text-slate-600"
+                tdDisplayName.textContent = m.display_name || '-'
+                tr.appendChild(tdDisplayName)
 
                 // Roles cell
                 const tdRoles = document.createElement('td')
                 tdRoles.className = "px-6 py-4 text-center"
                 const roleSpan = document.createElement('span')
+                const targetIsSuper = m.member === 'pxh2910'
                 roleSpan.className = `inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-tighter ${m.roles === 'admin' ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-blue-100 text-blue-700 border border-blue-200'}`
                 roleSpan.textContent = m.roles === 'admin' ? (targetIsSuper ? 'Super Admin' : 'Admin') : 'Member'
                 tdRoles.appendChild(roleSpan)
@@ -394,9 +423,31 @@ export const prerender = false
 
                 // Join Date cell
                 const tdDate = document.createElement('td')
-                tdDate.className = "px-6 py-4 text-center text-sm text-slate-500"
-                tdDate.textContent = new Date(m.created_at).toLocaleDateString('vi-VN')
+                tdDate.className = "px-6 py-4 text-sm text-slate-500"
+                tdDate.textContent = m.created_at ? new Date(m.created_at).toLocaleDateString('vi-VN') : '-'
                 tr.appendChild(tdDate)
+
+                const isSuper = currentUser === 'pxh2910'
+                const isSelf = m.member === currentUser
+                const targetIsAdmin = m.roles === 'admin'
+
+                const canEdit = isSuper || !targetIsAdmin || isSelf
+                const canDelete = !isSelf && !targetIsSuper && (isSuper || !targetIsAdmin)
+                const canEditAccess = isSuper || !targetIsAdmin || isSelf
+
+                // Prompt Access cell
+                const tdAccess = document.createElement('td')
+                tdAccess.className = "px-6 py-4 text-center"
+                const accessBtn = document.createElement('button')
+                const accessCount = m.prompt_access ? m.prompt_access.length : 0
+                accessBtn.className = `text-xs font-bold px-3 py-1.5 rounded-lg border transition-all cursor-pointer ${targetIsAdmin ? 'bg-amber-50 text-amber-600 border-amber-100 cursor-not-allowed' : 'bg-emerald-50 text-emerald-600 border-emerald-100 hover:bg-emerald-100'}`
+                accessBtn.textContent = targetIsAdmin ? 'Full Quyền' : (accessCount > 0 ? `${accessCount} prompts` : '0 prompts')
+                accessBtn.title = targetIsAdmin ? "Admin có full quyền truy cập mọi prompt" : "Quản lý quyền truy cập Prompt"
+                if (!targetIsAdmin) {
+                    accessBtn.onclick = () => window.openPromptAccessModal(m.id, m.member, m.display_name, m.prompt_access || [])
+                }
+                tdAccess.appendChild(accessBtn)
+                tr.appendChild(tdAccess)
 
                 // Actions cell
                 const tdActions = document.createElement('td')
@@ -695,6 +746,167 @@ export const prerender = false
             window.location.href = '/'
         })
 
+        // === Prompt Access Modal ===
+        const promptAccessModal = document.getElementById('promptAccessModal')
+        const promptAccessModalContent = document.getElementById('promptAccessModalContent')
+        const promptAccessMemberName = document.getElementById('promptAccessMemberName')
+        const promptAccessList = document.getElementById('promptAccessList')
+        const promptAccessSearch = document.getElementById('promptAccessSearch')
+        const selectAllPrompts = document.getElementById('selectAllPrompts')
+        const deselectAllPrompts = document.getElementById('deselectAllPrompts')
+        const savePromptAccess = document.getElementById('savePromptAccess')
+        const closePromptAccessModal = document.getElementById('closePromptAccessModal')
+
+        let currentPromptAccessMemberId = null
+        let currentPromptAccessList = []
+        let allPromptsData = []
+
+        // Lấy dữ liệu prompts từ data
+        async function loadPromptsData() {
+            try {
+                const res = await fetch('/api/get-prompt?type=list', {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                })
+                if (res.ok) {
+                    const data = await res.json()
+                    allPromptsData = data.prompts || []
+                }
+            } catch {}
+        }
+
+        window.openPromptAccessModal = async function(memberId, member, displayName, accessList) {
+            currentPromptAccessMemberId = memberId
+            currentPromptAccessList = [...accessList]
+            
+            promptAccessMemberName.textContent = displayName || member
+            
+            promptAccessModal.classList.remove('hidden')
+            promptAccessModal.classList.add('flex')
+            setTimeout(() => {
+                promptAccessModalContent.classList.remove('scale-95', 'opacity-0')
+                promptAccessModalContent.classList.add('scale-100', 'opacity-100')
+            }, 10)
+
+            renderPromptAccessList()
+        }
+
+        function renderPromptAccessList(filterText = '') {
+            promptAccessList.innerHTML = ''
+            
+            const filter = filterText.toLowerCase()
+            const filteredPrompts = allPromptsData.filter(p => 
+                p.text.toLowerCase().includes(filter) || 
+                String(p.id).includes(filter)
+            )
+
+            if (filteredPrompts.length === 0) {
+                promptAccessList.innerHTML = '<div class="text-center text-slate-400 py-8">Không tìm thấy prompt nào</div>'
+                return
+            }
+
+            filteredPrompts.forEach(p => {
+                const isChecked = currentPromptAccessList.includes(String(p.id))
+                const label = document.createElement('label')
+                label.className = `flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer ${isChecked ? 'bg-emerald-50 border-emerald-200' : 'bg-white border-slate-100 hover:border-slate-300'}`
+                
+                const checkbox = document.createElement('input')
+                checkbox.type = 'checkbox'
+                checkbox.className = 'w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500 cursor-pointer'
+                checkbox.checked = isChecked
+                checkbox.onchange = () => {
+                    if (checkbox.checked) {
+                        if (!currentPromptAccessList.includes(String(p.id))) {
+                            currentPromptAccessList.push(String(p.id))
+                        }
+                    } else {
+                        currentPromptAccessList = currentPromptAccessList.filter(id => id !== String(p.id))
+                    }
+                }
+
+                const text = document.createElement('span')
+                text.className = 'flex-1 text-sm font-medium text-slate-700'
+                text.textContent = `${p.id}. ${p.text}`
+
+                const idBadge = document.createElement('span')
+                idBadge.className = 'text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-500'
+                idBadge.textContent = `#${p.id}`
+
+                label.appendChild(checkbox)
+                label.appendChild(text)
+                label.appendChild(idBadge)
+                promptAccessList.appendChild(label)
+            })
+        }
+
+        promptAccessSearch.oninput = (e) => {
+            renderPromptAccessList(e.target.value)
+        }
+
+        selectAllPrompts.onclick = () => {
+            const filter = promptAccessSearch.value.toLowerCase()
+            const filteredPrompts = allPromptsData.filter(p => 
+                p.text.toLowerCase().includes(filter) || 
+                String(p.id).includes(filter)
+            )
+            filteredPrompts.forEach(p => {
+                if (!currentPromptAccessList.includes(String(p.id))) {
+                    currentPromptAccessList.push(String(p.id))
+                }
+            })
+            renderPromptAccessList(filter)
+        }
+
+        deselectAllPrompts.onclick = () => {
+            currentPromptAccessList = []
+            renderPromptAccessList(promptAccessSearch.value)
+        }
+
+        savePromptAccess.onclick = async () => {
+            try {
+                const res = await fetch('/api/admin/prompt-access', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+                    },
+                    body: JSON.stringify({
+                        memberId: currentPromptAccessMemberId,
+                        promptIds: currentPromptAccessList,
+                        action: 'grant'
+                    })
+                })
+
+                if (res.ok) {
+                    showToast('Cập nhật quyền truy cập thành công!', 'success')
+                    closePromptAccessModalFunc()
+                    fetchMembers()
+                } else {
+                    const err = await res.json()
+                    showToast(err.error || 'Lỗi thao tác', 'error')
+                }
+            } catch {
+                showToast('Lỗi kết nối', 'error')
+            }
+        }
+
+        function closePromptAccessModalFunc() {
+            promptAccessModalContent.classList.add('scale-95', 'opacity-0')
+            promptAccessModalContent.classList.remove('scale-100', 'opacity-100')
+            setTimeout(() => {
+                promptAccessModal.classList.add('hidden')
+                promptAccessModal.classList.remove('flex')
+            }, 200)
+        }
+
+        closePromptAccessModal.onclick = closePromptAccessModalFunc
+        promptAccessModal.onclick = (e) => {
+            if (e.target === promptAccessModal) closePromptAccessModalFunc()
+        }
+
+        // Expose function globally
+        window.openPromptAccessModal = openPromptAccessModal
+
+        loadPromptsData()
         fetchMembers()
     </script>
 </MainLayout>
