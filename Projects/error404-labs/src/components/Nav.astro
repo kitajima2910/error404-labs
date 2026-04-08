@@ -660,7 +660,10 @@ const isPost = pathname.startsWith('/bai-viet/')
                 try {
                     const response = await fetch('/api/logout', {
                         method: 'POST',
-                        headers: { Authorization: `Bearer ${currentToken}` },
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${currentToken}` 
+                        },
                         keepalive: true,
                     })
                     const result = await response.json()
@@ -754,7 +757,10 @@ const isPost = pathname.startsWith('/bai-viet/')
             const authToken = localStorage.getItem('auth_token')
             fetch('/api/user/heartbeat', {
                 method: 'POST',
-                headers: { Authorization: `Bearer ${authToken}` },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${authToken}` 
+                },
             }).catch(() => {})
 
             heartbeatInterval = setInterval(async () => {
@@ -764,7 +770,10 @@ const isPost = pathname.startsWith('/bai-viet/')
                         const authToken = localStorage.getItem('auth_token')
                         const res = await fetch('/api/user/heartbeat', {
                             method: 'POST',
-                            headers: { Authorization: `Bearer ${authToken}` },
+                            headers: { 
+                                'Content-Type': 'application/json',
+                                Authorization: `Bearer ${authToken}` 
+                            },
                         })
                         const data = await res.json()
                         if (data.points_added > 0) {
