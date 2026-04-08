@@ -601,7 +601,8 @@ const isPost = pathname.startsWith('/bai-viet/')
                 try {
                     await fetch('/api/logout', { 
                         method: 'POST',
-                        headers: { 'Authorization': `Bearer ${currentToken}` }
+                        headers: { 'Authorization': `Bearer ${currentToken}` },
+                        keepalive: true
                     })
                 } catch (e) {
                     console.error('Logout error:', e)
