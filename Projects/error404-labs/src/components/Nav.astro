@@ -106,11 +106,16 @@ const isPost = pathname.startsWith('/bai-viet/')
                             class="hidden text-sm md:text-base font-bold text-blue-600 items-center gap-4 relative"
                         >
                             <div class="flex items-center gap-1 cursor-pointer group" id="userProfileTrigger">
-                                <span>Xin chào, <span id="memberName" class="text-red-600 hover:underline"></span>!</span>
+                                <span
+                                    >Xin chào, <span id="memberName" class="text-red-600 hover:underline"></span>!</span
+                                >
                             </div>
 
                             <!-- User Info Popover -->
-                            <div id="userInfoPopover" class="absolute top-full right-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-slate-100 p-4 hidden z-[110] animate-in fade-in slide-in-from-top-2 duration-200">
+                            <div
+                                id="userInfoPopover"
+                                class="absolute top-full right-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-slate-100 p-4 hidden z-[110] animate-in fade-in slide-in-from-top-2 duration-200"
+                            >
                                 <div class="flex flex-col gap-3">
                                     <div class="flex items-center justify-between border-b border-slate-50 pb-2">
                                         <span class="text-xs text-slate-500 font-medium">Tài khoản:</span>
@@ -119,8 +124,16 @@ const isPost = pathname.startsWith('/bai-viet/')
                                     <div class="flex items-center justify-between">
                                         <div class="flex items-center gap-2">
                                             <div class="p-1.5 bg-amber-100 rounded-lg text-amber-600">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                                    <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05l-3.293 3.293a1 1 0 01-1.414 0l-3.293-3.293a1 1 0 01-.285-1.05l1.738-5.42-1.233-.616a1 1 0 01.894-1.79l1.599.8L9 4.323V3a1 1 0 011-1z" clip-rule="evenodd" />
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    class="h-4 w-4"
+                                                    viewBox="0 0 20 20"
+                                                    fill="currentColor"
+                                                >
+                                                    <path
+                                                        fill-rule="evenodd"
+                                                        d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05l-3.293 3.293a1 1 0 01-1.414 0l-3.293-3.293a1 1 0 01-.285-1.05l1.738-5.42-1.233-.616a1 1 0 01.894-1.79l1.599.8L9 4.323V3a1 1 0 011-1z"
+                                                        clip-rule="evenodd"></path>
                                                 </svg>
                                             </div>
                                             <span class="text-sm text-slate-600 font-medium">Điểm cộng:</span>
@@ -130,24 +143,66 @@ const isPost = pathname.startsWith('/bai-viet/')
                                     <div class="flex items-center justify-between">
                                         <div class="flex items-center gap-2">
                                             <div class="p-1.5 bg-blue-100 rounded-lg text-blue-600">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    class="h-4 w-4"
+                                                    fill="none"
+                                                    viewBox="0 0 24 24"
+                                                    stroke="currentColor"
+                                                >
+                                                    <path
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                                    ></path>
                                                 </svg>
                                             </div>
                                             <span class="text-sm text-slate-600 font-medium">Tham gia:</span>
                                         </div>
-                                        <span id="userJoinDate" class="text-xs font-bold text-slate-800">--/--/----</span>
+                                        <span id="userJoinDate" class="text-xs font-bold text-slate-800"
+                                            >--/--/----</span
+                                        >
                                     </div>
                                     <div class="pt-2 border-t border-slate-50 space-y-2">
-                                        <a id="popoverAdminLink" href="/quan-ly-tai-khoan" class="hidden flex items-center gap-2 p-2 rounded-xl hover:bg-slate-50 text-indigo-600 transition-colors">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                                        <a
+                                            id="popoverAdminLink"
+                                            href="/quan-ly-tai-khoan"
+                                            class="hidden flex items-center gap-2 p-2 rounded-xl hover:bg-slate-50 text-indigo-600 transition-colors"
+                                        >
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                class="h-4 w-4"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
+                                                ></path>
                                             </svg>
                                             <span class="text-sm font-bold">Quản lý tài khoản</span>
                                         </a>
-                                        <button id="logoutBtn" class="flex items-center gap-2 w-full p-2 rounded-xl hover:bg-red-50 text-red-500 transition-colors text-left cursor-pointer">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                        <button
+                                            id="logoutBtn"
+                                            class="flex items-center gap-2 w-full p-2 rounded-xl hover:bg-red-50 text-red-500 transition-colors text-left cursor-pointer"
+                                        >
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                class="h-4 w-4"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                                                ></path>
                                             </svg>
                                             <span class="text-sm font-bold">Đăng xuất</span>
                                         </button>
@@ -219,17 +274,20 @@ const isPost = pathname.startsWith('/bai-viet/')
 </nav>
 
 <!-- Toast Notification -->
-<div id="toastNotification" class="fixed top-5 right-5 z-[120] transform transition-all duration-300 translate-x-full opacity-0 flex items-center gap-3 bg-white px-4 py-3 rounded-xl shadow-2xl border-l-[6px] border-emerald-500">
+<div
+    id="toastNotification"
+    class="fixed top-5 right-5 z-[120] transform transition-all duration-300 translate-x-full opacity-0 flex items-center gap-3 bg-white px-4 py-3 rounded-xl shadow-2xl border-l-[6px] border-emerald-500"
+>
     <div id="toastIcon" class="text-emerald-500">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+            ><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg
+        >
     </div>
     <div class="flex flex-col">
         <span id="toastTitle" class="font-bold text-gray-800 text-sm">Thành công!</span>
         <span id="toastMessage" class="text-xs text-gray-500 font-medium">Đăng nhập thành công.</span>
     </div>
-    <button id="toastClose" class="ml-4 text-gray-400 hover:text-gray-600 outline-none pxhCursorPointer">
-        ✕
-    </button>
+    <button id="toastClose" class="ml-4 text-gray-400 hover:text-gray-600 outline-none pxhCursorPointer"> ✕ </button>
 </div>
 
 <!-- Overlay -->
@@ -313,7 +371,8 @@ const isPost = pathname.startsWith('/bai-viet/')
                     id="submitLoginBtn"
                     type="submit"
                     class="capitalize cursor-pointer w-full rounded-lg bg-indigo-600 px-4 py-3 text-white hover:bg-indigo-700 font-medium transition-colors"
-                >Đăng nhập ngay</button>
+                    >Đăng nhập ngay</button
+                >
             </div>
         </form>
     </div>
@@ -326,14 +385,14 @@ const isPost = pathname.startsWith('/bai-viet/')
     const toastTitle = document.getElementById('toastTitle')
     const toastIcon = document.getElementById('toastIcon')
     const toastClose = document.getElementById('toastClose')
-    let toastTimeout;
+    let toastTimeout
 
     const showToast = (msg, type = 'success') => {
         if (toast) {
             toastMessage.textContent = msg
-            
+
             const svgPath = toastIcon.querySelector('path')
-            
+
             if (type === 'success') {
                 toast.classList.remove('border-red-500', 'border-blue-500', 'border-amber-500')
                 toast.classList.add('border-emerald-500')
@@ -361,7 +420,7 @@ const isPost = pathname.startsWith('/bai-viet/')
             }
 
             toast.classList.remove('translate-x-full', 'opacity-0')
-            
+
             if (toastTimeout) clearTimeout(toastTimeout)
             toastTimeout = setTimeout(() => {
                 toast.classList.add('translate-x-full', 'opacity-0')
@@ -374,7 +433,7 @@ const isPost = pathname.startsWith('/bai-viet/')
     if (toastClose) {
         toastClose.onclick = () => toast.classList.add('translate-x-full', 'opacity-0')
     }
-    
+
     window.showToast = showToast
 </script>
 
@@ -486,14 +545,14 @@ const isPost = pathname.startsWith('/bai-viet/')
             const roles = localStorage.getItem('user_roles')
             const points = localStorage.getItem('user_points')
             const joinDate = localStorage.getItem('user_join_date')
-            
+
             const popoverAdminLink = document.getElementById('popoverAdminLink')
             const userPoints = document.getElementById('userPoints')
             const userJoinDate = document.getElementById('userJoinDate')
             const popoverName = document.getElementById('popoverName')
 
             if (user) {
-                const shownName = (displayName && displayName !== 'null') ? displayName : user;
+                const shownName = displayName && displayName !== 'null' ? displayName : user
                 if (openLoginBtn) openLoginBtn.classList.add('hidden')
                 if (userProfileStatus) {
                     userProfileStatus.classList.remove('hidden')
@@ -501,7 +560,7 @@ const isPost = pathname.startsWith('/bai-viet/')
                     if (memberName) memberName.textContent = shownName
                     if (popoverName) popoverName.textContent = shownName
                 }
-                
+
                 if (userPoints) userPoints.textContent = points || '0'
                 if (userJoinDate && joinDate && joinDate !== 'null') {
                     const date = new Date(joinDate)
@@ -519,9 +578,9 @@ const isPost = pathname.startsWith('/bai-viet/')
                     userProfileStatus.classList.remove('flex')
                 }
             }
-        
-        // Expose to window for external updates
-        window.refreshUserSession = checkSession;
+
+            // Expose to window for external updates
+            window.refreshUserSession = checkSession
         }
 
         // Toggle user info popover
@@ -556,12 +615,12 @@ const isPost = pathname.startsWith('/bai-viet/')
 
         // Xác thực session với server bằng Authorization header
         if (authToken && !localStorage.getItem('logout_in_progress')) {
-            fetch(`/api/verify?t=${Date.now()}`, { 
+            fetch(`/api/verify?t=${Date.now()}`, {
                 cache: 'no-store',
-                headers: { 'Authorization': `Bearer ${authToken}` }
+                headers: { Authorization: `Bearer ${authToken}` },
             })
-                .then(r => r.json())
-                .then(data => {
+                .then((r) => r.json())
+                .then((data) => {
                     if (data.authenticated) {
                         localStorage.setItem('user_session', data.user.member)
                         localStorage.setItem('user_displayName', data.user.display_name || data.user.member)
@@ -597,21 +656,25 @@ const isPost = pathname.startsWith('/bai-viet/')
                 localStorage.removeItem('user_points')
                 localStorage.removeItem('user_join_date')
                 localStorage.setItem('logout_in_progress', 'true')
-                
+
                 try {
-                    const response = await fetch('/api/logout', { 
+                    const response = await fetch('/api/logout', {
                         method: 'POST',
-                        headers: { 'Authorization': `Bearer ${currentToken}` },
-                        keepalive: true
+                        headers: { Authorization: `Bearer ${currentToken}` },
+                        keepalive: true,
                     })
                     const result = await response.json()
-                    console.log('Logout API Result:', result)
+                    console.log('PXH2910: Logout API Result:', result)
+
+                    if (result.success && result.verified) {
+                        window.location.href = '/'
+                    }
                 } catch (e) {
                     console.error('Logout error:', e)
                 }
-                
+
                 // Redirect về home và reload trang sau khi API đã hoàn tất
-                window.location.href = '/'
+                // window.location.href = '/'
             }
         }
 
@@ -646,7 +709,7 @@ const isPost = pathname.startsWith('/bai-viet/')
 
                     if (response.ok) {
                         window.showToast('Đăng nhập thành công!', 'success')
-                        
+
                         localStorage.setItem('auth_token', data.token)
                         localStorage.setItem('user_session', data.user.member)
                         localStorage.setItem('user_displayName', data.user.display_name || data.user.member)
@@ -656,7 +719,10 @@ const isPost = pathname.startsWith('/bai-viet/')
 
                         if (data.user.pointsAdded > 0) {
                             setTimeout(() => {
-                                window.showToast(`Chúc mừng! +${data.user.pointsAdded} điểm login ngày mới! 🎁`, 'success')
+                                window.showToast(
+                                    `Chúc mừng! +${data.user.pointsAdded} điểm login ngày mới! 🎁`,
+                                    'success',
+                                )
                             }, 1000)
                         }
 
@@ -683,12 +749,12 @@ const isPost = pathname.startsWith('/bai-viet/')
         let heartbeatInterval = null
         const startHeartbeat = () => {
             if (heartbeatInterval) return
-            
+
             // Ping lần đầu ngay lập tức khi load trang
             const authToken = localStorage.getItem('auth_token')
-            fetch('/api/user/heartbeat', { 
+            fetch('/api/user/heartbeat', {
                 method: 'POST',
-                headers: { 'Authorization': `Bearer ${authToken}` }
+                headers: { Authorization: `Bearer ${authToken}` },
             }).catch(() => {})
 
             heartbeatInterval = setInterval(async () => {
@@ -696,9 +762,9 @@ const isPost = pathname.startsWith('/bai-viet/')
                 if (document.visibilityState === 'visible') {
                     try {
                         const authToken = localStorage.getItem('auth_token')
-                        const res = await fetch('/api/user/heartbeat', { 
+                        const res = await fetch('/api/user/heartbeat', {
                             method: 'POST',
-                            headers: { 'Authorization': `Bearer ${authToken}` }
+                            headers: { Authorization: `Bearer ${authToken}` },
                         })
                         const data = await res.json()
                         if (data.points_added > 0) {
@@ -722,7 +788,7 @@ const isPost = pathname.startsWith('/bai-viet/')
 
         // Tự động start/stop heartbeat dựa trên login status
         if (localStorage.getItem('user_session')) startHeartbeat()
-        
+
         window.addEventListener('user-login', startHeartbeat)
         window.addEventListener('user-logout', stopHeartbeat)
         window.addEventListener('user-config-update', checkSession)
