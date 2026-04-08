@@ -648,6 +648,14 @@ const isPost = pathname.startsWith('/bai-viet/')
         if (logoutBtn) {
             logoutBtn.onclick = async () => {
                 const currentToken = localStorage.getItem('auth_token')
+                const logoutSpan = logoutBtn.querySelector('span')
+                const originalText = logoutSpan ? logoutSpan.textContent : 'Đăng xuất'
+                
+                if (logoutSpan) {
+                    logoutSpan.textContent = 'Đang đăng xuất...'
+                    logoutBtn.classList.add('opacity-50', 'pointer-events-none')
+                }
+
                 // Clear localStorage ngay lập tức để UI update nhanh
                 localStorage.removeItem('auth_token')
                 localStorage.removeItem('user_session')
@@ -671,13 +679,14 @@ const isPost = pathname.startsWith('/bai-viet/')
 
                     if (result.success && result.verified) {
                         window.location.href = '/'
+                    } else {
+                        // Nếu verify fail, vẫn redirect nhưng có thể log lại
+                        window.location.href = '/'
                     }
                 } catch (e) {
                     console.error('Logout error:', e)
+                    window.location.href = '/'
                 }
-
-                // Redirect về home và reload trang sau khi API đã hoàn tất
-                // window.location.href = '/'
             }
         }
 
