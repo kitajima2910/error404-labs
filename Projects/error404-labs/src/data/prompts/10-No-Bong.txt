@@ -1,0 +1,174 @@
+Create a complete HTML5 game in a SINGLE FILE named index.html.
+
+GAME CONCEPT:
+A 2.5D isometric chain-reaction shooter. The player fires a limited number of energy shots to trigger explosions in a field of floating energy orbs. Each orb explodes and sends out chain pulses that can trigger nearby orbs, creating massive combo chains.
+
+CORE LOOP:
+- Aim → Shoot → Trigger explosion → Chain reaction spreads → Score based on combo → Clear level
+- Limited shots per level → encourage strategic targeting
+
+GRAPHICS:
+- 2.5D fake depth using scale + y-sorting
+- Isometric layout
+- Cartoon style, vibrant colors
+- Soft glow, additive blending for explosions
+
+CAMERA:
+- Isometric fixed base
+- Cinematic effects:
+  - screen shake on explosion
+  - slight zoom-in during big chain combos
+  - combo highlight slow-motion (0.8x time briefly)
+
+CONTROLS:
+- Mouse / touch to aim and shoot
+- Click / tap to fire
+- Hold for aiming preview line
+
+PLAYER MECHANIC:
+- Static shooter at screen center or bottom
+- Fires energy projectile
+- Limited ammo per level
+
+ORB SYSTEM:
+- Orbs float slightly (sin wave movement)
+- Each orb has:
+  - trigger radius
+  - explosion radius
+  - delay before explosion (for chain timing)
+
+CHAIN REACTION:
+- Explosion emits radial pulses
+- Nearby orbs enter "armed" state
+- After delay → explode → propagate further
+- Combo counter increases per chain step
+
+SCORING:
+- Combo multiplier system:
+  score += base * comboMultiplier
+- Bonus for:
+  - full clear
+  - long chains
+  - last-shot chain
+
+ENEMIES / BOSSES:
+- Boss orb:
+  - requires multiple hits or large chain
+  - has phases:
+    - shield phase
+    - vulnerable phase
+  - emits counter pulses or blocks chain
+
+LEVEL SYSTEM:
+- Progressive difficulty:
+  - more orbs
+  - moving orbs
+  - special orbs (split, shielded, explosive)
+- Level goals:
+  - destroy all
+  - reach score threshold
+
+MULTIPLAYER (BASIC):
+- Local leaderboard (top scores)
+- Optional ghost replay (simulate previous best chain)
+
+SHOP / UPGRADE:
+- Upgrade:
+  - explosion radius
+  - chain distance
+  - extra ammo
+  - chain multiplier boost
+
+UI / HUD:
+- Ammo counter
+- Combo counter (animated, scaling text)
+- Score display
+- Level indicator
+- Boss health bar
+- Start / Pause / Game Over screens
+
+GAME STATES:
+- Boot
+- Preload
+- Menu
+- Playing
+- Pause
+- Game Over
+
+SOUND SYSTEM:
+- Background music (loop)
+- SFX:
+  - shoot
+  - explosion (layered, varies by chain size)
+  - combo escalation sound
+  - UI click
+- Volume control + mute
+- Limit simultaneous sounds to avoid overload
+
+EFFECT SYSTEM:
+- Explosion particles (pooled)
+- Glow effect
+- Screen shake
+- Hit flash
+- Trail for projectiles
+- Chain lightning / pulse visual
+
+PERFORMANCE STRATEGY:
+- Use requestAnimationFrame
+- Delta time update
+- Object pooling:
+  - projectiles
+  - particles
+  - orbs
+- Limit max particles
+- Frustum culling (skip off-screen)
+- Avoid creating objects in loop
+- Adaptive quality:
+  - reduce particles if FPS drops
+
+RENDERING:
+- Use Canvas 2D
+- Batch draw where possible
+- Use sprite atlas or simple shapes fallback
+
+ASSET PIPELINE:
+- Define assets in a single JS object:
+  - sprites
+  - sounds
+- Allow easy replacement
+- Use placeholder shapes if assets missing
+
+CODE ARCHITECTURE:
+Organize inside one HTML file using modules/classes:
+
+- Game
+- Config
+- SceneManager
+- InputManager
+- EntityManager
+- Player
+- Orb
+- Projectile
+- ParticleSystem
+- UIManager
+- AudioManager
+- EffectManager
+- SaveSystem
+
+GAME LOOP:
+- update(dt)
+- render(ctx)
+
+SAVE SYSTEM:
+- Save high score
+- Save upgrades
+
+FALLBACK:
+- If assets fail → use colored circles + basic sound
+
+ACCEPTANCE CRITERIA:
+- Runs smoothly on low-end devices
+- Handles 100+ orbs with chain reactions
+- No major FPS drops during large explosions
+- Clear visual feedback for chain reactions
+- Fully playable with mouse and touch

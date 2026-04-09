@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Phản Ứng Neon - Neon Chain Reaction</title>
+    <style>
+        :root {
+            --primary: #0ff;
+            --secondary: #f0f;
+            --bg: #050510;
+            --text: #fff;
+            --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        body,
+        html {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg);
+            overflow: hidden;
+            font-family: var(--font);
+            color: var(--text);
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: block;
+            width: 100vw;
+            height: 100vh;
+            touch-action: none;
+            z-index: 1;
+        }
+
+        .ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 15px;
+            z-index: 10;
+        }
+
+        .hud {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-shadow: 0 0 5px var(--primary);
+            pointer-events: none;
+            align-items: flex-start;
+        }
+
+        .hud>div {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 8px 12px;
+            border-radius: 10px;
+            min-width: 90px;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            pointer-events: auto;
+        }
+
+        .hud-btns {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: auto;
+        }
+
+        .btn-mini {
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            font-size: 0.75rem;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .btn-mini:hover {
+            background: var(--primary);
+            color: var(--bg);
+        }
+
+        .hud-center {
+            text-align: center;
+            font-size: 1.5rem;
+            color: #ff0;
+            text-shadow: 0 0 10px #ff0;
+            transform: scale(1);
+            transition: transform 0.1s;
+            pointer-events: none;
+        }
+
+        .combo-active {
+            transform: scale(1.5);
+        }
+
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 5, 16, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            pointer-events: auto;
+            transition: opacity 0.3s;
+        }
+
+        .hidden {
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+            text-shadow: 0 0 20px var(--primary);
+            text-align: center;
+            line-height: 1;
+        }
+
+        h2 {
+            font-size: 2.2rem;
+            color: var(--secondary);
+            text-shadow: 0 0 15px var(--secondary);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        p {
+            font-size: 1rem;
+            margin-bottom: 25px;
+            text-align: center;
+            max-width: 500px;
+            line-height: 1.4;
+            color: #ccc;
+            padding: 0 15px;
+        }
+
+        button {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            font-size: 1.3rem;
+            padding: 10px 30px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-shadow: 0 0 5px var(--primary);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.2) inset;
+            font-family: var(--font);
+            font-weight: bold;
+            margin: 8px;
+            display: inline-block;
+        }
+
+        button:hover {
+            background: var(--primary);
+            color: var(--bg);
+            box-shadow: 0 0 20px var(--primary);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .level-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            max-width: 90vw;
+            margin-bottom: 20px;
+        }
+
+        .btn-level {
+            width: 50px;
+            height: 50px;
+            padding: 0;
+            font-size: 1rem;
+            margin: 0;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-level.locked {
+            opacity: 0.3;
+            border-color: #555;
+            color: #555;
+            pointer-events: none;
+        }
+
+        .shop-container {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 800px;
+            margin-bottom: 25px;
+        }
+
+        .shop-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--secondary);
+            border-radius: 15px;
+            padding: 12px;
+            text-align: center;
+            width: 160px;
+        }
+
+        .shop-item h3 {
+            margin-bottom: 5px;
+            color: var(--primary);
+            font-size: 1rem;
+        }
+
+        .shop-item span {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 0.75rem;
+            color: #aaa;
+            min-height: 35px;
+        }
+
+        .shop-item button {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            width: 100%;
+            border-color: var(--secondary);
+            color: var(--secondary);
+            text-shadow: none;
+            box-shadow: none;
+            margin: 0;
+        }
+
+        .boss-bar-container {
+            position: absolute;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 250px;
+            height: 10px;
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #f00;
+            border-radius: 10px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .boss-bar-fill {
+            width: 100%;
+            height: 100%;
+            background: #f00;
+            transition: width 0.2s;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+
+            h2 {
+                font-size: 1.6rem;
+            }
+
+            .shop-item {
+                width: 130px;
+            }
+
+            button {
+                font-size: 1.1rem;
+                padding: 10px 20px;
+            }
+
+            .level-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="gameCanvas"></canvas>
+
+    <div class="ui-layer hidden" id="hud">
+        <div class="hud">
+            <div>
+                CẤP: <span id="ui-level">1</span><br>
+                <small style="opacity: 0.7">KỶ LỤC: <span id="ui-highscore">0</span></small>
+            </div>
+            <div style="text-align: center;">
+                ĐIỂM: <span id="ui-score">0</span><br>
+                <small style="color:#ff0">MỤC TIÊU: <span id="ui-target">0</span></small>
+            </div>
+            <div class="hud-btns">
+                <div class="btn-mini" id="btn-hud-shop">NÂNG CẤP</div>
+                <div class="btn-mini" id="btn-hud-menu">CHỌN MÀN</div>
+            </div>
+        </div>
+        <div
+            style="text-align: right; color: #0ff; font-weight: bold; margin-top: 10px; font-size: 1.2rem; text-shadow: 0 0 5px #0ff; padding-right: 15px;">
+            ĐẠN: <span id="ui-ammo">3</span>
+        </div>
+        <div class="boss-bar-container" id="boss-bar-ui">
+            <div class="boss-bar-fill" id="boss-bar-fill"></div>
+        </div>
+        <div class="hud-center hidden" id="ui-combo-container">
+            COMBO X<span id="ui-combo">2</span>!
+        </div>
+    </div>
+
+    <div class="screen" id="menu-screen">
+        <h1>NEON CHAIN</h1>
+        <p>Kích hoạt chuỗi phản ứng nổ để đạt mục tiêu điểm số.</p>
+        <button id="btn-start">CHƠI NGAY</button>
+        <button id="btn-level-menu">CHỌN MÀN</button>
+        <button id="btn-main-upgrades">NÂNG CẤP</button>
+    </div>
+
+    <div class="screen hidden" id="level-select-screen">
+        <h2>CHỌN MÀN CHƠI</h2>
+        <div class="level-grid" id="level-grid"></div>
+        <button id="btn-level-back" style="border-color: #fff; color: #fff; font-size: 1rem;">QUAY LẠI</button>
+    </div>
+
+    <div class="screen hidden" id="shop-screen">
+        <h2>NÂNG CẤP</h2>
+        <p>Điểm hiện có: <span id="shop-score" style="color: #ff0; font-weight: bold;">0</span></p>
+        <div class="shop-container">
+            <div class="shop-item">
+                <h3>Bán Kính</h3>
+                <span id="desc-radius">Cấp 1</span>
+                <button id="btn-buy-radius">Giá: 500</button>
+            </div>
+            <div class="shop-item">
+                <h3>Kho Đạn</h3>
+                <span id="desc-ammo">Cấp 1</span>
+                <button id="btn-buy-ammo">Giá: 1000</button>
+            </div>
+            <div class="shop-item">
+                <h3>Hệ Số</h3>
+                <span id="desc-multi">Cấp 1</span>
+                <button id="btn-buy-multi">Giá: 1500</button>
+            </div>
+        </div>
+        <button id="btn-shop-back" style="border-color: #fff; color: #fff; font-size: 1rem;">QUAY LẠI</button>
+    </div>
+
+    <div class="screen hidden" id="gameover-screen">
+        <h1>THẤT BẠI!</h1>
+        <h2>Điểm: <span id="go-score">0</span></h2>
+        <p id="go-reason">Bạn chưa đạt mục tiêu điểm số.</p>
+        <button id="btn-restart">THỬ LẠI</button>
+        <button id="btn-go-shop">NÂNG CẤP</button>
+    </div>
+
+    <div class="screen hidden" id="levelclear-screen">
+        <h1 style="color: #0f0; text-shadow: 0 0 20px #0f0;">VƯỢT MÀN!</h1>
+        <h2>Thưởng: +<span id="lc-bonus">0</span></h2>
+        <button id="btn-next-level">TIẾP TỤC</button>
+    </div>
+
+    <script>
+        class AudioSys {
+            constructor() { this.ctx = null; this.enabled = true; }
+            init() {
+                if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+            }
+            playTone(freq, type, duration, vol = 0.1) {
+                if (!this.ctx || !this.enabled) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(freq * 0.1, this.ctx.currentTime + duration);
+                gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(); osc.stop(this.ctx.currentTime + duration);
+            }
+            playNoise(duration, vol = 0.2) {
+                if (!this.ctx || !this.enabled) return;
+                const bufferSize = this.ctx.sampleRate * duration;
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+                const noise = this.ctx.createBufferSource();
+                noise.buffer = buffer;
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(1000, this.ctx.currentTime);
+                filter.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + duration);
+                const gain = this.ctx.createGain();
+                gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+                noise.connect(filter); filter.connect(gain); gain.connect(this.ctx.destination);
+                noise.start();
+            }
+            shoot() { this.playTone(600, 'square', 0.2, 0.05); }
+            explode(size = 1) { this.playNoise(0.3 * size, 0.2 * Math.min(size, 2)); }
+            combo(count) { this.playTone(200 + count * 50, 'sine', 0.1, 0.1); }
+            click() { this.playTone(800, 'sine', 0.05, 0.05); }
+            error() { this.playTone(150, 'sawtooth', 0.2, 0.1); }
+        }
+        const audio = new AudioSys();
+
+        const MathUtils = {
+            lerp: (a, b, t) => a + (b - a) * t,
+            dist: (x1, y1, x2, y2) => Math.hypot(x2 - x1, y2 - y1),
+            random: (min, max) => Math.random() * (max - min) + min,
+            randomColor: () => `hsl(${Math.random() * 360}, 100%, 60%)`
+        };
+
+        const SaveSys = {
+            data: { highscore: 0, score: 0, maxLevel: 1, upgrades: { radius: 1, ammo: 1, multi: 1 } },
+            load() {
+                try {
+                    const saved = localStorage.getItem('neonChainSave');
+                    if (saved) this.data = { ...this.data, ...JSON.parse(saved) };
+                } catch (e) { }
+            },
+            save() { localStorage.setItem('neonChainSave', JSON.stringify(this.data)); }
+        };
+        SaveSys.load();
+
+        const Config = {
+            colors: { bg: '#050510', player: '#fff', orb: '#0ff', boss: '#f00' },
+            upgradeCosts: { radius: [0, 500, 1500, 3000, 5000, 8000], ammo: [0, 1000, 2500, 5000, 10000, 15000], multi: [0, 1500, 3000, 6000, 12000, 20000] },
+            getStat: (type) => {
+                const lvl = SaveSys.data.upgrades[type] || 1;
+                if (type === 'radius') return 80 + (lvl - 1) * 20;
+                if (type === 'ammo') return 3 + (lvl - 1);
+                if (type === 'multi') return 1 + (lvl - 1) * 0.5;
+            }
+        };
+
+        const State = {
+            current: 'MENU', level: 1, score: 0, targetScore: 0, ammo: 0, combo: 0, time: 0, timeScale: 1.0,
+            camShake: 0, camScale: 1, width: window.innerWidth, height: window.innerHeight,
+            previousState: 'MENU'
+        };
+
+        const Input = {
+            x: State.width / 2, y: State.height / 2, isDown: false, justPressed: false, justReleased: false,
+            update(e, isDown) {
+                const clientX = (e.touches && e.touches.length > 0) ? e.touches[0].clientX : e.clientX;
+                const clientY = (e.touches && e.touches.length > 0) ? e.touches[0].clientY : e.clientY;
+                this.x = clientX; this.y = clientY;
+                if (this.isDown !== isDown) {
+                    if (isDown) this.justPressed = true;
+                    else this.justReleased = true;
+                }
+                this.isDown = isDown;
+            },
+            reset() { this.justPressed = false; this.justReleased = false; }
+        };
+
+        class Pool {
+            constructor(factory, size) {
+                this.pool = []; for (let i = 0; i < size; i++) this.pool.push(factory());
+            }
+            get() {
+                let obj = this.pool.find(o => !o.active);
+                if (!obj) { obj = this.pool[0].constructor(); this.pool.push(obj); }
+                obj.active = true; return obj;
+            }
+        }
+
+        class Particle {
+            constructor() { this.active = false; this.type = 'dot'; }
+            spawn(x, y, color, speed, life, type = 'dot') {
+                this.x = x; this.y = y; this.z = MathUtils.random(10, 40);
+                const angle = Math.random() * Math.PI * 2;
+                this.vx = Math.cos(angle) * speed; this.vy = Math.sin(angle) * speed * 0.5;
+                this.vz = Math.random() * speed;
+                this.color = color; this.life = life; this.maxLife = life; this.type = type;
+                this.speed = speed; this.size = type === 'ring' ? 1 : MathUtils.random(2, 5);
+                this.active = true;
+            }
+            update(dt) {
+                this.life -= dt; if (this.life <= 0) { this.active = false; return; }
+                this.x += this.vx * dt * 60; this.y += this.vy * dt * 60; this.z += this.vz * dt * 60;
+                if (this.type === 'dot') {
+                    this.vz -= 0.2 * dt * 60;
+                    if (this.z < 0) { this.z = 0; this.vz *= -0.5; this.vx *= 0.8; this.vy *= 0.8; }
+                } else if (this.type === 'ring') this.size += this.speed * 2 * dt * 60;
+            }
+            draw(ctx) {
+                ctx.globalAlpha = Math.max(0, this.life / this.maxLife);
+                ctx.fillStyle = this.color; ctx.strokeStyle = this.color;
+                const screenY = this.y - this.z;
+                if (this.type === 'dot') {
+                    ctx.beginPath(); ctx.arc(this.x, screenY, this.size, 0, Math.PI * 2); ctx.fill();
+                } else if (this.type === 'ring') {
+                    ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(this.x, screenY, this.size, 0, Math.PI * 2); ctx.stroke();
+                }
+                ctx.globalAlpha = 1.0;
+            }
+        }
+
+        class Projectile {
+            constructor() { this.active = false; this.type = 'projectile'; }
+            spawn(x, y, tx, ty) {
+                this.x = x; this.y = y; this.z = 10;
+                const angle = Math.atan2(ty - y, tx - x);
+                this.speed = 1000; this.vx = Math.cos(angle) * this.speed; this.vy = Math.sin(angle) * this.speed;
+                this.active = true; this.trail = [];
+            }
+            update(dt, entities) {
+                this.trail.push({ x: this.x, y: this.y, z: this.z });
+                if (this.trail.length > 8) this.trail.shift();
+                this.x += this.vx * dt; this.y += this.vy * dt;
+                if (this.x < -100 || this.x > State.width + 100 || this.y < -100 || this.y > State.height + 100) {
+                    this.active = false; return;
+                }
+                for (let e of entities) {
+                    if (e && e.active && e.type === 'orb' && e.state === 'idle') {
+                        if (MathUtils.dist(this.x, this.y, e.x, e.y) < e.radius) {
+                            e.trigger(0); this.active = false;
+                            spawnParticles(this.x, this.y, 10, Config.colors.player, 5, 0.5);
+                            audio.playNoise(0.1, 0.1); return;
+                        }
+                    }
+                }
+            }
+            draw(ctx) {
+                ctx.strokeStyle = Config.colors.player; ctx.lineWidth = 3; ctx.beginPath();
+                for (let i = 0; i < this.trail.length; i++) {
+                    const p = this.trail[i]; if (i === 0) ctx.moveTo(p.x, p.y - p.z); else ctx.lineTo(p.x, p.y - p.z);
+                }
+                ctx.lineTo(this.x, this.y - this.z); ctx.stroke();
+                ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(this.x, this.y - this.z, 4, 0, Math.PI * 2); ctx.fill();
+            }
+        }
+
+        class Orb {
+            constructor() { this.active = false; this.type = 'orb'; }
+            spawn(x, y, isBoss = false) {
+                this.x = x; this.y = y; this.baseZ = MathUtils.random(20, 50); this.z = this.baseZ;
+                this.timeOffset = Math.random() * Math.PI * 2; this.isBoss = isBoss;
+                this.radius = isBoss ? 45 : MathUtils.random(15, 25);
+                this.color = isBoss ? Config.colors.boss : MathUtils.randomColor();
+                this.state = 'idle'; this.hp = isBoss ? 5 : 1; this.maxHp = this.hp; this.active = true;
+            }
+            trigger(delay) {
+                if (this.state !== 'idle') return;
+                if (this.isBoss) {
+                    this.hp--; updateBossBar(this.hp, this.maxHp);
+                    if (this.hp > 0) { spawnParticles(this.x, this.y, this.color, 5, 0.5); audio.playTone(300, 'square', 0.1, 0.1); return; }
+                }
+                this.state = 'armed'; this.timer = delay;
+            }
+            update(dt, entities) {
+                this.z = this.baseZ + Math.sin(State.time * 3 + this.timeOffset) * 10;
+                if (this.state === 'armed') {
+                    this.timer -= dt; this.x += MathUtils.random(-1.5, 1.5); this.y += MathUtils.random(-1.5, 1.5);
+                    if (this.timer <= 0) this.explode(entities);
+                } else if (this.state === 'exploding') {
+                    this.timer -= dt; if (this.timer <= 0) this.active = false;
+                }
+            }
+            explode(entities) {
+                this.state = 'exploding'; this.timer = 0.2; State.camShake = this.isBoss ? 25 : 8; State.combo++;
+                let expRadius = Config.getStat('radius') * (this.isBoss ? 3.5 : 1);
+                State.score += Math.floor((this.isBoss ? 1500 : 100) * (Config.getStat('multi') + (State.combo * 0.15)));
+                updateScoreHUD(); audio.explode(this.isBoss ? 3 : 1);
+                if (State.combo > 1) audio.combo(State.combo);
+                if (State.combo > 8) State.timeScale = 0.45;
+                spawnParticles(this.x, this.y, this.color, this.isBoss ? 18 : 10, 1, 'dot', this.isBoss ? 60 : 25);
+                spawnParticles(this.x, this.y, this.color, expRadius / 35, 0.5, 'ring', 1);
+                for (let e of entities) {
+                    if (e && e.active && e.type === 'orb' && e.state === 'idle') {
+                        if (MathUtils.dist(this.x, this.y, e.x, e.y) < expRadius) {
+                            e.trigger(MathUtils.random(0.1, 0.35));
+                            effects.push(new ChainEffect(this.x, this.y, e.x, e.y, this.color));
+                        }
+                    }
+                }
+            }
+            draw(ctx) {
+                let screenY = this.y - this.z; ctx.fillStyle = this.color;
+                if (this.state === 'idle') {
+                    ctx.beginPath(); ctx.arc(this.x, screenY, this.radius, 0, Math.PI * 2); ctx.fill();
+                    ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.beginPath(); ctx.ellipse(this.x, this.y, this.radius * 0.8, this.radius * 0.4, 0, 0, Math.PI * 2); ctx.fill();
+                } else if (this.state === 'armed') {
+                    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(this.x, screenY, this.radius * 1.3, 0, Math.PI * 2); ctx.fill();
+                } else if (this.state === 'exploding') {
+                    let r = Config.getStat('radius') * (this.isBoss ? 3.5 : 1), alpha = this.timer / 0.2;
+                    let grad = ctx.createRadialGradient(this.x, screenY, 0, this.x, screenY, r);
+                    grad.addColorStop(0, `rgba(255,255,255,${alpha})`);
+                    grad.addColorStop(0.3, this.color.replace('hsl', 'hsla').replace(')', `, ${alpha * 0.6})`));
+                    grad.addColorStop(1, 'rgba(0,0,0,0)');
+                    ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(this.x, screenY, r, 0, Math.PI * 2); ctx.fill();
+                }
+                if (this.isBoss && this.state === 'idle') {
+                    ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(this.x, screenY, this.radius + Math.sin(State.time * 6) * 6, 0, Math.PI * 2); ctx.stroke();
+                }
+            }
+        }
+
+        class Player {
+            constructor() { this.x = State.width / 2; this.y = State.height - 60; this.radius = 22; this.type = 'player'; this.active = true; }
+            update() { this.x = State.width / 2; this.y = State.height - 60; }
+            draw(ctx) {
+                ctx.fillStyle = Config.colors.player; ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fill();
+                if (Input.isDown && State.ammo > 0 && State.current === 'PLAYING') {
+                    ctx.strokeStyle = 'rgba(0, 255, 255, 0.4)'; ctx.setLineDash([8, 8]); ctx.lineWidth = 2;
+                    ctx.beginPath(); ctx.moveTo(this.x, this.y); ctx.lineTo(Input.x, Input.y); ctx.stroke(); ctx.setLineDash([]);
+                }
+            }
+        }
+
+        class ChainEffect {
+            constructor(x1, y1, x2, y2, color) { this.x1 = x1; this.y1 = y1; this.x2 = x2; this.y2 = y2; this.color = color; this.life = 0.25; this.active = true; }
+            update(dt) { this.life -= dt; if (this.life <= 0) this.active = false; }
+            draw(ctx) { ctx.strokeStyle = this.color; ctx.lineWidth = this.life * 12; ctx.beginPath(); ctx.moveTo(this.x1, this.y1); ctx.lineTo(this.x2, this.y2); ctx.stroke(); }
+        }
+
+        const canvas = document.getElementById('gameCanvas'), ctx = canvas.getContext('2d');
+        const particlePool = new Pool(() => new Particle(), 400);
+        const projPool = new Pool(() => new Projectile(), 10);
+        const orbPool = new Pool(() => new Orb(), 150);
+
+        let entities = [], effects = [], player = new Player(), lastTime = 0, comboResetTimer = 0;
+
+        function spawnParticles(x, y, color, speed, life, type = 'dot', count = 1) {
+            for (let i = 0; i < count; i++) { let p = particlePool.get(); p.spawn(x, y, color, speed, life, type); entities.push(p); }
+        }
+
+        function shoot() {
+            if (State.ammo <= 0 || State.current !== 'PLAYING') return;
+            State.ammo--; updateScoreHUD();
+            let p = projPool.get(); p.spawn(player.x, player.y, Input.x, Input.y); entities.push(p);
+            audio.shoot(); if (State.combo > 0) { comboResetTimer = 0; State.combo = 0; }
+        }
+
+        function generateLevel() {
+            entities = [player]; effects = [];
+            State.ammo = Config.getStat('ammo');
+            State.score = 0; State.combo = 0;
+            State.targetScore = State.level * 2000 + (State.level > 1 ? (State.level - 1) * 500 : 0);
+
+            updateScoreHUD();
+            let orbCount = Math.min(State.level * 8 + 15, 120), isBossLevel = State.level % 5 === 0;
+            for (let i = 0; i < orbCount; i++) { let o = orbPool.get(); o.spawn(MathUtils.random(60, State.width - 60), MathUtils.random(160, State.height - 220), false); entities.push(o); }
+            if (isBossLevel) { let boss = orbPool.get(); boss.spawn(State.width / 2, 200, true); entities.push(boss); document.getElementById('boss-bar-ui').style.display = 'block'; updateBossBar(boss.maxHp, boss.maxHp); }
+            else document.getElementById('boss-bar-ui').style.display = 'none';
+        }
+
+        function updateBossBar(hp, max) { document.getElementById('boss-bar-fill').style.width = Math.max(0, (hp / max) * 100) + '%'; }
+
+        function checkGameState() {
+            let hasArmedOrbs = false, hasProjectiles = false;
+            for (let e of entities) {
+                if (!e || !e.active) continue;
+                if (e.type === 'orb' && e.state !== 'idle') hasArmedOrbs = true;
+                if (e.type === 'projectile') hasProjectiles = true;
+            }
+            if (State.score >= State.targetScore && !hasArmedOrbs && !hasProjectiles) levelComplete();
+            else if (State.ammo <= 0 && !hasArmedOrbs && !hasProjectiles) {
+                if (comboResetTimer > 1.2) {
+                    document.getElementById('go-reason').innerText = State.score < State.targetScore ? `Mục tiêu: ${State.targetScore} điểm.` : "Hết đạn!";
+                    gameOver();
+                }
+            }
+        }
+
+        function updateScoreHUD() {
+            document.getElementById('ui-level').innerText = State.level;
+            document.getElementById('ui-score').innerText = State.score;
+            document.getElementById('ui-target').innerText = State.targetScore;
+            document.getElementById('ui-highscore').innerText = SaveSys.data.highscore;
+            document.getElementById('ui-ammo').innerText = State.ammo;
+            const c = document.getElementById('ui-combo-container');
+            if (State.combo > 1) { document.getElementById('ui-combo').innerText = State.combo; c.classList.remove('hidden'); c.classList.add('combo-active'); }
+            else c.classList.add('hidden');
+        }
+
+        function setScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+            if (id) document.getElementById(id).classList.remove('hidden');
+            if (id === 'shop-screen') updateShopUI();
+            if (id === 'level-select-screen') updateLevelGrid();
+            Input.justPressed = false;
+            Input.justReleased = false;
+        }
+
+        function startGame(lv = 1) {
+            audio.init(); audio.click(); State.current = 'PLAYING'; State.level = lv;
+            generateLevel(); setScreen(''); document.getElementById('hud').classList.remove('hidden');
+        }
+
+        function levelComplete() {
+            if (State.current === 'CLEAR') return;
+            State.current = 'CLEAR'; let bonus = State.combo * 100 * State.level; State.score += bonus;
+            SaveSys.data.score += State.score; if (State.score > SaveSys.data.highscore) SaveSys.data.highscore = State.score;
+            if (State.level === SaveSys.data.maxLevel) SaveSys.data.maxLevel++;
+            SaveSys.save(); document.getElementById('lc-bonus').innerText = bonus;
+            setScreen('levelclear-screen'); document.getElementById('hud').classList.add('hidden');
+            audio.playTone(400, 'sine', 0.1); setTimeout(() => audio.playTone(600, 'sine', 0.2), 150);
+        }
+
+        function gameOver() {
+            if (State.current === 'GAMEOVER') return;
+            State.current = 'GAMEOVER'; SaveSys.data.score += State.score;
+            if (State.score > SaveSys.data.highscore) SaveSys.data.highscore = State.score;
+            SaveSys.save(); document.getElementById('go-score').innerText = State.score;
+            setScreen('gameover-screen'); document.getElementById('hud').classList.add('hidden');
+            audio.playTone(200, 'sawtooth', 0.5);
+        }
+
+        function updateShopUI() {
+            document.getElementById('shop-score').innerText = SaveSys.data.score;
+            ['radius', 'ammo', 'multi'].forEach(type => {
+                let lvl = SaveSys.data.upgrades[type] || 1, costs = Config.upgradeCosts[type], cost = costs[lvl], maxed = lvl >= costs.length;
+                document.getElementById(`desc-${type}`).innerText = `Cấp ${lvl} -> ${maxed ? 'Tối đa' : lvl + 1}`;
+                let btn = document.getElementById(`btn-buy-${type}`);
+                if (maxed) { btn.innerText = 'ĐÃ TỐI ĐA'; btn.disabled = true; }
+                else { btn.innerText = `Giá: ${cost}`; btn.disabled = SaveSys.data.score < cost; }
+            });
+        }
+
+        function updateLevelGrid() {
+            const grid = document.getElementById('level-grid'); grid.innerHTML = '';
+            for (let i = 1; i <= 20; i++) {
+                const btn = document.createElement('button');
+                btn.innerText = i; btn.className = 'btn-level' + (i > SaveSys.data.maxLevel ? ' locked' : '');
+                btn.onclick = () => startGame(i); grid.appendChild(btn);
+            }
+        }
+
+        function buyUpgrade(type) {
+            let lvl = SaveSys.data.upgrades[type] || 1, cost = Config.upgradeCosts[type][lvl];
+            if (SaveSys.data.score >= cost) { SaveSys.data.score -= cost; SaveSys.data.upgrades[type]++; SaveSys.save(); audio.playTone(800, 'square', 0.1); updateShopUI(); }
+            else audio.error();
+        }
+
+        // Global Listeners
+        document.getElementById('btn-start').onclick = () => startGame(SaveSys.data.maxLevel);
+        document.getElementById('btn-level-menu').onclick = () => { audio.click(); State.previousState = 'MENU'; setScreen('level-select-screen'); };
+        document.getElementById('btn-main-upgrades').onclick = () => { audio.init(); audio.click(); State.previousState = 'MENU'; setScreen('shop-screen'); };
+        document.getElementById('btn-hud-shop').onclick = () => { audio.init(); audio.click(); State.previousState = 'PLAYING'; setScreen('shop-screen'); };
+        document.getElementById('btn-hud-menu').onclick = () => { audio.click(); State.previousState = 'PLAYING'; setScreen('level-select-screen'); };
+        document.getElementById('btn-shop-back').onclick = () => setScreen(State.previousState === 'PLAYING' ? '' : 'menu-screen');
+        document.getElementById('btn-level-back').onclick = () => setScreen(State.previousState === 'PLAYING' ? '' : 'menu-screen');
+        document.getElementById('btn-restart').onclick = () => startGame(State.level);
+        document.getElementById('btn-go-shop').onclick = () => { State.previousState = 'MENU'; setScreen('shop-screen'); };
+        document.getElementById('btn-next-level').onclick = () => startGame(State.level + 1);
+        document.getElementById('btn-buy-radius').onclick = () => buyUpgrade('radius');
+        document.getElementById('btn-buy-ammo').onclick = () => buyUpgrade('ammo');
+        document.getElementById('btn-buy-multi').onclick = () => buyUpgrade('multi');
+
+        const isUI = (e) => e.target.closest('button') || e.target.closest('.btn-mini') || e.target.closest('.hud');
+
+        window.addEventListener('mousedown', e => {
+            if (isUI(e)) { Input.reset(); return; }
+            if (State.current === 'PLAYING') Input.update(e, true);
+        });
+        window.addEventListener('mousemove', e => {
+            if (State.current === 'PLAYING') Input.update(e, Input.isDown);
+        });
+        window.addEventListener('mouseup', e => {
+            if (isUI(e)) { Input.reset(); return; }
+            if (State.current === 'PLAYING') Input.update(e, false);
+        });
+        window.addEventListener('touchstart', e => {
+            if (isUI(e)) { Input.reset(); return; }
+            if (State.current === 'PLAYING') { e.preventDefault(); Input.update(e, true); }
+        }, { passive: false });
+        window.addEventListener('touchmove', e => {
+            if (State.current === 'PLAYING') { e.preventDefault(); Input.update(e, true); }
+        }, { passive: false });
+        window.addEventListener('touchend', e => {
+            if (State.current === 'PLAYING') Input.update(e, false);
+        });
+
+        function resize() { State.width = window.innerWidth; State.height = window.innerHeight; canvas.width = State.width; canvas.height = State.height; if (player) player.update(); }
+        window.onresize = resize; resize();
+
+        function update(dt) {
+            const activeScreen = Array.from(document.querySelectorAll('.screen')).find(s => !s.classList.contains('hidden'));
+            if (activeScreen) return;
+
+            if (Input.justReleased && State.current === 'PLAYING') shoot();
+            State.timeScale = MathUtils.lerp(State.timeScale, 1.0, dt * 2.5);
+            let scaledDt = dt * State.timeScale; State.time += scaledDt; if (State.camShake > 0) State.camShake -= dt * 40;
+            let activeExp = entities.some(e => e && e.active && e.type === 'orb' && (e.state === 'exploding' || e.state === 'armed'));
+            if (!activeExp && State.current === 'PLAYING') { comboResetTimer += dt; if (comboResetTimer > 1.8 && State.combo > 0) { State.combo = 0; updateScoreHUD(); } } else comboResetTimer = 0;
+            for (let i = entities.length - 1; i >= 0; i--) { let e = entities[i]; if (!e || !e.active) { entities.splice(i, 1); continue; } e.update(scaledDt, entities); }
+            for (let i = effects.length - 1; i >= 0; i--) { let ef = effects[i]; if (!ef || !ef.active) { effects.splice(i, 1); continue; } ef.update(scaledDt); }
+            if (State.current === 'PLAYING') checkGameState();
+            Input.reset();
+        }
+
+        function draw() {
+            ctx.fillStyle = Config.colors.bg; ctx.fillRect(0, 0, State.width, State.height); ctx.save();
+            State.camScale = MathUtils.lerp(State.camScale, State.combo > 6 ? 1.06 : 1.0, 0.15);
+            ctx.translate(State.width / 2 + (Math.random() - 0.5) * State.camShake, State.height / 2 + (Math.random() - 0.5) * State.camShake);
+            ctx.scale(State.camScale, State.camScale); ctx.translate(-State.width / 2, -State.height / 2);
+            entities.sort((a, b) => a.y - b.y); ctx.globalCompositeOperation = 'lighter';
+            for (let ef of effects) ef.draw(ctx); ctx.globalCompositeOperation = 'source-over';
+            for (let e of entities) e.draw(ctx); ctx.restore();
+        }
+
+        function gameLoop(timestamp) { let dt = (timestamp - lastTime) / 1000; lastTime = timestamp; if (dt > 0.05) dt = 0.05; update(dt); draw(); requestAnimationFrame(gameLoop); }
+        requestAnimationFrame(gameLoop);
+    </script>
+</body>
+
+</html>
