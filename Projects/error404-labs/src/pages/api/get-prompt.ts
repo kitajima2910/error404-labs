@@ -178,8 +178,8 @@ export const GET: APIRoute = async ({ request, url }) => {
         const fileKey = Object.keys(promptFiles).find((key) => key.split('/').pop()?.startsWith(`${foundItem.id}-`))
         const fileContent = fileKey ? promptFiles[fileKey] : null
 
-        // Ghép prompt
-        const fullPrompt = fileContent ? `${foundItem.prompt_extends}\n\n${fileContent}` : foundItem.prompt_extends
+        // Chỉ lấy nội dung file .txt, không ghép với prompt_extends
+        const fullPrompt = fileContent
 
         return new Response(JSON.stringify({ prompt: fullPrompt || null }), {
             status: 200,

@@ -1,0 +1,182 @@
+Create a complete HTML5 game in a SINGLE FILE named index.html.
+
+GAME TITLE: "Draw Master Challenge"
+
+CORE CONCEPT:
+A touch-based drawing challenge game where the player must replicate target shapes as accurately as possible. The system evaluates precision, speed, and smoothness. Includes levels, boss patterns, upgrades, and simple multiplayer score comparison.
+
+RENDERING:
+- Use HTML5 Canvas (2D context)
+- Fixed top-down view (full screen canvas)
+- Resolution scaling for mobile
+
+CORE LOOP:
+1. Show target shape (ghost outline)
+2. Player draws using touch/mouse
+3. System records stroke path
+4. Compare player path vs target path
+5. Calculate score (accuracy, timing, smoothness)
+6. Show result + stars
+7. Unlock next level / rewards
+
+INPUT SYSTEM:
+- Touch-first (mobile optimized)
+- Also support mouse fallback
+- Smooth line interpolation (lerp / bezier)
+- Stroke buffering (avoid jitter)
+
+DRAWING SYSTEM:
+- Real-time line rendering
+- Use line smoothing (quadratic curve or bezier)
+- Store points in array
+- Limit max points per stroke (performance)
+- Optional pressure simulation (fake thickness)
+
+SCORING SYSTEM:
+- Compare player path vs target path using:
+  - Point distance sampling
+  - Shape overlap ratio
+  - Path deviation
+- Score components:
+  - Accuracy (0–100)
+  - Smoothness
+  - Completion
+- Final grade: S / A / B / C
+
+LEVEL SYSTEM:
+- Progressive difficulty:
+  - Simple lines → curves → complex shapes → symbols
+- Each level has:
+  - target path data (JSON)
+  - time limit
+  - score thresholds
+
+BOSS SYSTEM:
+- Boss = dynamic drawing pattern
+- Animated target (moving / fading)
+- Multiple phases:
+  - Phase 1: slow pattern
+  - Phase 2: faster
+  - Phase 3: tricky shapes
+- Telegraph before drawing
+
+SHOP SYSTEM:
+- Earn coins from score
+- Unlock:
+  - Brush styles
+  - Line color
+  - Trail effects
+- Cosmetic only (no pay-to-win)
+
+MULTIPLAYER (BASIC):
+- Local leaderboard
+- Fake async competitor data (simulate others)
+- Show ranking after level
+
+UI SYSTEM:
+- Main menu
+- Level select
+- In-game HUD:
+  - Timer
+  - Progress bar
+- Result screen:
+  - Score breakdown
+  - Stars
+- Shop screen
+- Settings:
+  - sound toggle
+  - quality mode
+
+GAME STATES:
+- Boot
+- Preload
+- Menu
+- Playing
+- Result
+- Shop
+
+CAMERA:
+- Fixed canvas
+- No movement
+
+AUDIO SYSTEM:
+- Background music loop
+- SFX:
+  - draw
+  - success
+  - fail
+  - UI click
+- Use AudioContext or HTMLAudio
+- Volume + mute toggle
+- Prevent overlapping spam
+
+EFFECT SYSTEM:
+- Trail effect when drawing
+- Glow on correct segments
+- Red highlight on errors
+- Screen shake on boss fail
+- Particle burst on success
+- Limit max particles
+
+ASSET PIPELINE:
+- Use placeholder assets:
+  - Shapes defined in JSON arrays
+  - Colors instead of textures
+- Allow easy replacement:
+  - sprite atlas optional
+  - config object for assets
+- No hard-coded values inside logic
+
+PERFORMANCE STRATEGY:
+- Use requestAnimationFrame
+- Delta time update
+- Object pooling:
+  - particles
+  - stroke points
+- Avoid creating objects in loop
+- Cap max stroke length
+- Cull off-screen effects
+- Dynamic quality:
+  - reduce particles if FPS drops
+
+CODE ARCHITECTURE (IN ONE FILE):
+- Config object
+- Game class (main loop)
+- SceneManager
+- InputManager
+- DrawingSystem
+- ScoringSystem
+- UIManager
+- AudioManager
+- EffectManager
+- SaveSystem (localStorage)
+
+STRUCTURE:
+- Separate modules via classes/functions
+- No spaghetti code
+- Clear naming
+
+SAVE SYSTEM:
+- Save:
+  - unlocked levels
+  - coins
+  - upgrades
+- Use localStorage
+
+QUALITY SETTINGS:
+- Low / Medium / High
+- Adjust:
+  - particle count
+  - trail length
+  - smoothing quality
+
+FALLBACKS:
+- If audio fails → silent mode
+- If low FPS → auto reduce effects
+
+ACCEPTANCE CRITERIA:
+- Runs smoothly on mobile (>= 50 FPS)
+- Drawing feels responsive
+- Score system works reliably
+- No major GC spikes
+- All systems functional in one file
