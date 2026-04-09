@@ -574,7 +574,7 @@
                 get() {
                     let obj = this.pool.find((o) => !o.active)
                     if (!obj) {
-                        obj = this.pool[0].constructor()
+                        obj = new this.pool[0].constructor()
                         this.pool.push(obj)
                     }
                     obj.active = true
