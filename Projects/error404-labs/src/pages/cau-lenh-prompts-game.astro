@@ -110,23 +110,6 @@ const titleTranslate: Record<string, string> = {
         </div>
     </section>
 
-    <!-- Tooltip -->
-    <div
-        id="tooltip-game"
-        class="fixed z-[40] pointer-events-none opacity-0 translate-y-2 transition-all duration-300 max-w-[280px] md:max-w-sm"
-    >
-        <div
-            class="relative bg-slate-900/95 backdrop-blur-md text-white p-4 rounded-2xl shadow-2xl border border-white/10 text-xs md:text-sm leading-relaxed overflow-hidden group"
-        >
-            <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
-            <div id="tooltip-text" class="relative z-10 font-medium italic text-slate-200"></div>
-            <!-- Glow effect -->
-            <div class="absolute -right-4 -bottom-4 w-16 h-16 bg-blue-500/20 blur-2xl rounded-full"></div>
-        </div>
-        <!-- Arrow -->
-        <div class="absolute -bottom-1.5 left-8 w-3 h-3 bg-slate-900 rotate-45 border-r border-b border-white/10"></div>
-    </div>
-
     <!-- Modal Prompt (Thay thế Toast) -->
     <div
         id="modal-prompt"
@@ -224,18 +207,6 @@ const titleTranslate: Record<string, string> = {
     // Xử lý sự kiện click để copy và hiện modal
     const copyLinks = document.querySelectorAll('a[data-title]')
 
-    // Tooltip elements
-    const tooltip = document.getElementById('tooltip-game')
-    const tooltipText = document.getElementById('tooltip-text')
-
-    // Tooltip cache
-    let tooltipCache = {}
-
-    // Listen for logout event to clear cache
-    window.addEventListener('user-logout', () => {
-        tooltipCache = {}
-    })
-
     // Modal elements
     const modal = document.getElementById('modal-prompt')
     const modalContent = document.getElementById('modal-content')
@@ -298,98 +269,8 @@ const titleTranslate: Record<string, string> = {
     })
 
     copyLinks.forEach((link) => {
-        const itemId = link.getAttribute('data-item-id');
-
-        // Hover for tooltip
-        link.addEventListener('mouseenter', async (e) => {
-            const hasPrompt = link.getAttribute('data-has-prompt')
-            if (hasPrompt !== 'true') return
-
-            // Check session to ensure cache is still valid
-            if (!localStorage.getItem('user_session')) {
-                tooltipCache = {}
-            }
-
-            tooltip.setAttribute('data-current-hover', itemId);
-
-            if (tooltipCache[itemId]) {
-                tooltipText.textContent = tooltipCache[itemId]
-                tooltip.classList.remove('opacity-0', 'translate-y-2', 'pointer-events-none')
-                tooltip.classList.add('opacity-100', 'translate-y-0')
-            } else {
-                if (!localStorage.getItem('user_session')) {
-                    tooltipText.textContent = "Vui lòng đăng nhập để xem thông tin."
-                    tooltip.classList.remove('opacity-0', 'translate-y-2', 'pointer-events-none')
-                    tooltip.classList.add('opacity-100', 'translate-y-0')
-                    return
-                }
-
-                tooltipText.textContent = "Đang lấy dữ liệu..."
-                tooltip.classList.remove('opacity-0', 'translate-y-2', 'pointer-events-none')
-                tooltip.classList.add('opacity-100', 'translate-y-0')
-
-                try {
-                    const authToken = localStorage.getItem('auth_token')
-                    const res = await fetch(`/api/get-prompt?id=${itemId}&type=tooltip`, {
-                        headers: { 'Authorization': `Bearer ${authToken}` }
-                    })
-                    const data = await res.json()
-                    
-                    if (res.ok && data.tooltip) {
-                        tooltipCache[itemId] = data.tooltip
-                        if (tooltip.getAttribute('data-current-hover') === itemId) {
-                            tooltipText.textContent = data.tooltip
-                        }
-                    } else if (res.status === 401) {
-                        if (tooltip.getAttribute('data-current-hover') === itemId) {
-                            tooltipText.textContent = "Vui lòng đăng nhập để xem thông tin."
-                        }
-                    } else {
-                        if (tooltip.getAttribute('data-current-hover') === itemId) {
-                            tooltipText.textContent = "Không có thông tin mô tả."
-                        }
-                    }
-                } catch {
-                    if (tooltip.getAttribute('data-current-hover') === itemId) {
-                        tooltipText.textContent = "Không thể lấy thông tin."
-                    }
-                }
-            }
-        })
-
-        link.addEventListener('mousemove', (e) => {
-            const x = e.clientX
-            const y = e.clientY
-            const tooltipHeight = tooltip.offsetHeight
-            const tooltipWidth = tooltip.offsetWidth
-
-            // Tối ưu vị trí: hiển thị bên trên cursor, nếu sát mép trên thì hiện bên dưới
-            let top = y - tooltipHeight - 20
-            if (top < 10) top = y + 20
-
-            // Không để tràn sang phải
-            let left = x - 32
-            if (left + tooltipWidth > window.innerWidth - 20) {
-                left = window.innerWidth - tooltipWidth - 20
-            }
-            if (left < 10) left = 10
-
-            tooltip.style.left = `${left}px`
-            tooltip.style.top = `${top}px`
-        })
-
-        link.addEventListener('mouseleave', () => {
-            tooltip.classList.add('opacity-0', 'translate-y-2', 'pointer-events-none')
-            tooltip.classList.remove('opacity-100', 'translate-y-0')
-        })
-
-        // Click for modal
         link.addEventListener('click', async (e) => {
             e.preventDefault()
-
-            // Ẩn tooltip ngay lập tức khi click
-            tooltip.classList.add('opacity-0', 'translate-y-2', 'pointer-events-none')
-            tooltip.classList.remove('opacity-100', 'translate-y-0')
 
             const hasPrompt = link.getAttribute('data-has-prompt')
             if (hasPrompt !== 'true') return
