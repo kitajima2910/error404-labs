@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Draw Master Challenge Pro - Việt Hóa</title>
+    <style>
+        /* CSS RESET & MODERN STYLING */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body,
+        html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #050510;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            touch-action: none;
+            color: #fff;
+        }
+
+        /* CANVAS */
+        #gameCanvas {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* UI SYSTEM */
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle, rgba(15, 15, 35, 0.8) 0%, rgba(5, 5, 15, 0.95) 100%);
+            pointer-events: auto;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 1;
+        }
+
+        .hidden {
+            display: none !important;
+            opacity: 0;
+            transform: scale(0.9);
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            line-height: 1;
+            margin-bottom: 30px;
+            background: linear-gradient(to bottom, #fff 30%, #e94560 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            filter: drop-shadow(0 0 15px rgba(233, 69, 96, 0.5));
+            letter-spacing: -2px;
+        }
+
+        h2 {
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+            color: #4cc9f0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        button {
+            position: relative;
+            padding: 18px 45px;
+            margin: 12px;
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #fff;
+            background: #e94560;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 0 #9d1d33, 0 15px 25px rgba(233, 69, 96, 0.4);
+            transition: all 0.1s;
+            pointer-events: auto;
+            overflow: hidden;
+        }
+
+        button:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 0 #9d1d33, 0 10px 15px rgba(233, 69, 96, 0.3);
+        }
+
+        button::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(45deg);
+            transition: 0.3s;
+            pointer-events: none;
+        }
+
+        button:hover::after {
+            left: 100%;
+        }
+
+        /* HUD */
+        #hud {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        .hud-stat {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        #timer-container {
+            position: absolute;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        #timer-bar {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #4cc9f0, #4895ef);
+            border-radius: 10px;
+            transition: width 0.1s linear;
+        }
+
+        #fever-container {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 20px;
+            border: 2px solid #333;
+        }
+
+        #fever-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ff9e00, #ff0000);
+            border-radius: 20px;
+        }
+
+        .floating-score {
+            position: absolute;
+            pointer-events: none;
+            color: #fff;
+            font-weight: 900;
+            font-size: 2rem;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            animation: float-up 0.8s ease-out forwards;
+            z-index: 100;
+        }
+
+        @keyframes float-up {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-100px) scale(1.5);
+            }
+        }
+
+        .score-box {
+            background: rgba(20, 20, 45, 0.8);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+            min-width: 300px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .grade {
+            font-size: 5rem;
+            font-weight: 900;
+            margin: -10px 0;
+            background: linear-gradient(to bottom, #ffd700, #ff9e00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.4));
+        }
+
+        /* LEVEL GRID FIX: SMALLER BUTTONS */
+        .level-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            width: 95%;
+            max-width: 550px;
+            padding: 10px;
+            overflow-y: auto;
+            max-height: 55vh;
+        }
+
+        .level-btn {
+            aspect-ratio: 1;
+            padding: 2px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 12px;
+            background: #1a1a2e;
+            box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.1s;
+        }
+
+        .level-btn b {
+            font-size: 1rem;
+        }
+
+        .level-btn small {
+            font-size: 0.55rem;
+            text-align: center;
+            margin-top: 2px;
+            color: #888;
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            width: 100%;
+        }
+
+        .level-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            filter: grayscale(1);
+        }
+
+        .shake {
+            animation: shake-anim 0.4s cubic-bezier(.36, .07, .19, .97) both;
+        }
+
+        @keyframes shake-anim {
+
+            10%,
+            90% {
+                transform: translate3d(-1px, 0, 0);
+            }
+
+            20%,
+            80% {
+                transform: translate3d(2px, 0, 0);
+            }
+
+            30%,
+            50%,
+            70% {
+                transform: translate3d(-4px, 0, 0);
+            }
+
+            40%,
+            60% {
+                transform: translate3d(4px, 0, 0);
+            }
+        }
+
+        /* HUD HOME BUTTON */
+        .hud-btn {
+            pointer-events: auto;
+            background: #e94560;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 0 #9d1d33;
+        }
+
+        .hud-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #9d1d33;
+        }
+    </style>
+</head>
+
+<body class="fever-active-container">
+
+    <canvas id="gameCanvas"></canvas>
+
+    <div id="ui-layer">
+        <!-- MENU -->
+        <div id="screen-menu" class="screen">
+            <h1 id="main-title">THÁCH THỨC<br>VẼ TAY PRO</h1>
+            <button onclick="game.ui.showScreen('levelSelect')">BẮT ĐẦU</button>
+            <button onclick="game.ui.showScreen('shop')" style="background: #4361ee; box-shadow: 0 8px 0 #2a3eb1;">TRANG
+                BỊ</button>
+            <div style="margin-top: 20px; display: flex; gap: 10px;">
+                <button onclick="game.audio.toggleMute()" id="btn-mute"
+                    style="padding: 10px 20px; font-size: 0.9rem; background: #333; box-shadow: 0 4px 0 #111;">ÂM THANH:
+                    BẬT</button>
+            </div>
+        </div>
+
+        <!-- LEVEL SELECT -->
+        <div id="screen-levelSelect" class="screen hidden">
+            <h2>CHỌN NHIỆM VỤ</h2>
+            <div class="level-grid" id="level-grid"></div>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="game.ui.showScreen('menu')"
+                    style="margin-top: 20px; background: #333; box-shadow: 0 8px 0 #111;">QUAY LẠI</button>
+                <button onclick="game.ui.showScreen('shop')"
+                    style="margin-top: 20px; background: #4361ee; box-shadow: 0 8px 0 #2a3eb1;">CỬA HÀNG</button>
+            </div>
+        </div>
+
+        <!-- HUD -->
+        <div id="hud" class="hidden">
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button class="hud-btn" onclick="game.ui.showScreen('levelSelect')">🏠</button>
+                <div class="hud-stat">🚀 <span id="hud-level">1</span></div>
+                <!-- Bổ sung combo-hud bị thiếu -->
+                <div class="hud-stat" id="combo-hud" style="color: #ff9e00; display:none">🔥 x<span
+                        id="combo-val">0</span></div>
+            </div>
+            <div class="hud-stat">💰 <span id="hud-coins">0</span></div>
+            <div id="timer-container">
+                <div id="timer-bar"></div>
+            </div>
+            <div id="fever-container">
+                <div id="fever-bar"></div>
+            </div>
+        </div>
+
+        <!-- RESULT SCREEN -->
+        <div id="screen-result" class="screen hidden">
+            <h2 id="result-title">KẾT QUẢ</h2>
+            <div class="score-box">
+                <div class="grade" id="result-grade">S</div>
+                <div id="result-stars" style="font-size: 2rem; margin: 10px 0;"></div>
+                <div style="margin: 15px 0; font-size: 1rem; color: #aaa;">
+                    ĐỘ CHÍNH XÁC: <span id="result-acc" style="color: #fff; font-weight: bold;">0</span>%<br>
+                    TIỀN THƯỞNG: +<span id="result-coins" style="color: #ffd700; font-weight: bold;">0</span>
+                </div>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; justify-content: center;">
+                <button onclick="game.ui.showScreen('levelSelect')"
+                    style="background: #333; box-shadow: 0 8px 0 #111; padding: 12px 25px; font-size: 1rem;">NHIỆM
+                    VỤ</button>
+                <button onclick="game.ui.showScreen('shop')"
+                    style="background: #4361ee; box-shadow: 0 8px 0 #2a3eb1; padding: 12px 25px; font-size: 1rem;">MUA
+                    SẮM</button>
+                <button onclick="game.retryLevel()" style="padding: 12px 25px; font-size: 1rem;">THỬ LẠI</button>
+                <button onclick="game.nextLevel()" id="btn-next-level"
+                    style="background: #4cc9f0; box-shadow: 0 8px 0 #3a96b3; padding: 12px 25px; font-size: 1rem;">TIẾP
+                    THEO</button>
+            </div>
+        </div>
+
+        <!-- SHOP -->
+        <div id="screen-shop" class="screen hidden">
+            <h2>KHO VŨ KHÍ</h2>
+            <div class="hud-stat" style="margin-bottom: 15px;">💰 <span id="shop-coins">0</span></div>
+            <div style="width: 90%; max-width: 450px; overflow-y: auto; max-height: 50vh; padding-right: 10px;"
+                id="shop-container"></div>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="game.ui.showScreen('menu')"
+                    style="margin-top: 20px; background: #333; box-shadow: 0 8px 0 #111;">TRANG CHỦ</button>
+                <button onclick="game.ui.showScreen('levelSelect')"
+                    style="margin-top: 20px; background: #e94560; box-shadow: 0 8px 0 #9d1d33;">NHIỆM VỤ</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CONFIG = {
+            RESAMPLE_POINTS: 100,
+            MAX_PARTICLES: 60,
+            FEVER_DECAY: 0.15,
+            FEVER_GAIN: 15,
+            COMBO_RESET_TIME: 1500,
+        };
+
+        function generateCircle(r) {
+            let pts = [];
+            for (let i = 0; i <= 40; i++) {
+                let t = (i / 40) * Math.PI * 2;
+                pts.push([Math.cos(t) * r, Math.sin(t) * r]);
+            }
+            return pts;
+        }
+        function generateStar(r, p) {
+            let pts = [];
+            for (let i = 0; i <= p * 2; i++) {
+                let currR = i % 2 === 0 ? r : r * 0.4;
+                let t = (i / (p * 2)) * Math.PI * 2 - Math.PI / 2;
+                pts.push([Math.cos(t) * currR, Math.sin(t) * currR]);
+            }
+            return pts;
+        }
+        function generateSpiral(r) {
+            let pts = [];
+            for (let i = 0; i <= 50; i++) {
+                let t = (i / 50) * Math.PI * 5;
+                let currR = (i / 50) * r;
+                pts.push([Math.cos(t) * currR, Math.sin(t) * currR]);
+            }
+            return pts;
+        }
+        function generateInfinity(r) {
+            let pts = [];
+            for (let i = 0; i <= 60; i++) {
+                let t = (i / 60) * Math.PI * 2;
+                let scale = r * 2 / (3 - Math.cos(2 * t));
+                pts.push([scale * Math.cos(t), scale * Math.sin(2 * t) / 2]);
+            }
+            return pts;
+        }
+        function generateHeart(r) {
+            let pts = [];
+            for (let i = 0; i <= 50; i++) {
+                let t = (i / 50) * Math.PI * 2;
+                let x = 16 * Math.pow(Math.sin(t), 3);
+                let y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+                pts.push([x * (r / 20), y * (r / 20)]);
+            }
+            return pts;
+        }
+        function generateCloud(r) {
+            let pts = [];
+            for (let i = 0; i <= 60; i++) {
+                let t = (i / 60) * Math.PI * 2;
+                let rr = r * (1 + 0.2 * Math.sin(6 * t));
+                pts.push([Math.cos(t) * rr, Math.sin(t) * rr * 0.6]);
+            }
+            return pts;
+        }
+        function generateWave(r) {
+            let pts = [];
+            for (let i = 0; i <= 40; i++) {
+                let x = (i / 40) * 0.8 - 0.4;
+                let y = Math.sin(i * 0.5) * 0.2;
+                pts.push([x, y]);
+            }
+            return pts;
+        }
+        function generateMoon(r) {
+            let pts = [];
+            for (let i = 0; i <= 30; i++) {
+                let t = (i / 30) * Math.PI - Math.PI / 2;
+                pts.push([Math.cos(t) * r, Math.sin(t) * r]);
+            }
+            for (let i = 30; i >= 0; i--) {
+                let t = (i / 30) * Math.PI - Math.PI / 2;
+                pts.push([Math.cos(t) * r * 0.6 + 0.15, Math.sin(t) * r]);
+            }
+            return pts;
+        }
+
+        const LEVELS = [
+            { id: 1, name: "Tam Giác", time: 20, threshold: { S: 80, A: 60, B: 30 }, shape: [[-0.3, 0.3], [0, -0.3], [0.3, 0.3], [-0.3, 0.3]] },
+            { id: 2, name: "Hình Vuông", time: 25, threshold: { S: 80, A: 60, B: 30 }, shape: [[-0.3, -0.3], [0.3, -0.3], [0.3, 0.3], [-0.3, 0.3], [-0.3, -0.3]] },
+            { id: 3, name: "Kim Cương", time: 25, threshold: { S: 80, A: 60, B: 30 }, shape: [[0, -0.4], [0.3, 0], [0, 0.4], [-0.3, 0], [0, -0.4]] },
+            { id: 4, name: "Vòng Tròn", time: 25, threshold: { S: 75, A: 55, B: 25 }, shape: generateCircle(0.35) },
+            { id: 5, name: "Tia Chớp", time: 20, threshold: { S: 75, A: 60, B: 30 }, shape: [[-0.2, -0.3], [0.1, -0.1], [-0.1, 0.1], [0.2, 0.3]] },
+            { id: 6, name: "Mái Nhà", time: 25, threshold: { S: 80, A: 65, B: 35 }, shape: [[-0.3, 0.3], [-0.3, -0.1], [0, -0.4], [0.3, -0.1], [0.3, 0.3], [-0.3, 0.3]] },
+            { id: 7, name: "Phi Thuyền", time: 30, threshold: { S: 75, A: 55, B: 25 }, shape: generateStar(0.35, 5) },
+            { id: 8, name: "Trái Tim", time: 25, threshold: { S: 75, A: 55, B: 25 }, shape: generateHeart(0.35) },
+            { id: 9, name: "Trăng Khuyết", time: 25, threshold: { S: 75, A: 55, B: 25 }, shape: generateMoon(0.35) },
+            { id: 10, name: "TRÙM: Mắt", time: 40, type: 'boss', speed: 1.5, threshold: { S: 65, A: 45, B: 20 }, shape: generateCircle(0.35).concat(generateCircle(0.1)) },
+            { id: 11, name: "Đường Sóng", time: 30, threshold: { S: 75, A: 55, B: 25 }, shape: generateWave(0.4) },
+            { id: 12, name: "Lục Giác", time: 30, threshold: { S: 80, A: 60, B: 30 }, shape: [[0, -0.4], [0.35, -0.2], [0.35, 0.2], [0, 0.4], [-0.35, 0.2], [-0.35, -0.2], [0, -0.4]] },
+            { id: 13, name: "Vòng Xoáy", time: 35, threshold: { S: 70, A: 50, B: 20 }, shape: generateSpiral(0.4) },
+            { id: 14, name: "Vô Cực", time: 35, threshold: { S: 70, A: 50, B: 20 }, shape: generateInfinity(0.4) },
+            { id: 15, name: "Đám Mây", time: 35, threshold: { S: 70, A: 50, B: 20 }, shape: generateCloud(0.35) },
+            { id: 16, name: "Lá Cây", time: 35, threshold: { S: 70, A: 50, B: 20 }, shape: [[0, 0.4], [0.2, 0.1], [0.3, -0.2], [0, -0.4], [-0.3, -0.2], [-0.2, 0.1], [0, 0.4]] },
+            { id: 17, name: "Cánh Diều", time: 30, threshold: { S: 80, A: 60, B: 30 }, shape: [[0, -0.4], [0.3, 0], [0, 0.4], [-0.3, 0], [0, -0.4], [0, 0.4]] },
+            { id: 18, name: "Bóng Bay", time: 35, threshold: { S: 75, A: 55, B: 25 }, shape: generateCircle(0.3).concat([[0, 0.3], [0, 0.5]]) },
+            { id: 19, name: "TRÙM: Nắng", time: 45, type: 'boss', speed: 1.0, threshold: { S: 65, A: 45, B: 20 }, shape: generateStar(0.4, 12) },
+            { id: 20, name: "TRÙM: Thiên Hà", time: 50, type: 'boss', speed: 1.8, threshold: { S: 60, A: 40, B: 15 }, shape: generateSpiral(0.4).concat(generateCircle(0.05)) },
+        ];
+
+        const SHOP = [
+            { id: 'c1', type: 'color', name: 'XANH CYBER', price: 0, value: '#4cc9f0' },
+            { id: 'c2', type: 'color', name: 'HỒNG NEON', price: 150, value: '#f72585' },
+            { id: 'c3', type: 'color', name: 'VÀNG PLASMA', price: 300, value: '#ff9e00' },
+            { id: 'c4', type: 'color', name: 'XANH ĐỘC', price: 500, value: '#adff2f' },
+            { id: 'b1', type: 'brush', name: 'BÚT KIM', price: 0, value: 8 },
+            { id: 'b2', type: 'brush', name: 'BÚT DẠ DÀY', price: 200, value: 24 }
+        ];
+
+        const MathUtils = {
+            dist: (a, b) => Math.hypot(a.x - b.x, a.y - b.y),
+            resample: (pts, n) => {
+                if (pts.length < 2) return pts;
+                let totalLen = 0;
+                for (let i = 1; i < pts.length; i++) totalLen += MathUtils.dist(pts[i - 1], pts[i]);
+                let step = totalLen / (n - 1);
+                let d = 0;
+                let newPts = [pts[0]];
+                for (let i = 1; i < pts.length; i++) {
+                    let segD = MathUtils.dist(pts[i - 1], pts[i]);
+                    if (d + segD >= step) {
+                        let ratio = (step - d) / segD;
+                        // Sửa lỗi cú pháp tại đây
+                        let q = { x: pts[i - 1].x + ratio * (pts[i].x - pts[i - 1].x), y: pts[i - 1].y + ratio * (pts[i].y - pts[i - 1].y) };
+                        newPts.push(q);
+                        pts.splice(i, 0, q);
+                        d = 0;
+                    } else d += segD;
+                }
+                while (newPts.length < n) newPts.push(pts[pts.length - 1]);
+                return newPts.slice(0, n);
+            }
+        };
+
+        class Game {
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.save = this.initSave();
+                this.audio = new AudioManager();
+                this.ui = new UIManager(this);
+                this.fx = new FXManager(this.ctx);
+
+                this.state = 'MENU';
+                this.currentLevel = null;
+                this.playerPoints = [];
+                this.targetPoints = [];
+                this.isDrawing = false;
+                this.fever = 0;
+                this.isFeverMode = false;
+                this.combo = 0;
+                this.lastDrawTime = 0;
+
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+                this.initInput();
+                requestAnimationFrame((t) => this.loop(t));
+            }
+
+            initSave() {
+                let s = JSON.parse(localStorage.getItem('dm_save_pro_v2')) || {
+                    unlocked: 1, coins: 0, items: ['c1', 'b1'], color: '#4cc9f0', brush: 8
+                };
+                return s;
+            }
+            saveData() { localStorage.setItem('dm_save_pro_v2', JSON.stringify(this.save)); }
+
+            resize() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+                this.center = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+                this.scale = Math.min(window.innerWidth, window.innerHeight);
+            }
+
+            initInput() {
+                const start = (e) => {
+                    if (this.state !== 'PLAYING') return;
+                    this.audio.start();
+                    this.isDrawing = true;
+                    this.playerPoints = [];
+                    this.addPt(e.clientX || (e.touches && e.touches[0].clientX), e.clientY || (e.touches && e.touches[0].clientY));
+                };
+                const move = (e) => {
+                    if (!this.isDrawing) return;
+                    this.addPt(e.clientX || (e.touches && e.touches[0].clientX), e.clientY || (e.touches && e.touches[0].clientY));
+                };
+                const end = () => {
+                    if (!this.isDrawing) return;
+                    this.isDrawing = false;
+                    this.evaluate();
+                };
+                this.canvas.addEventListener('mousedown', start);
+                window.addEventListener('mousemove', move);
+                window.addEventListener('mouseup', end);
+                this.canvas.addEventListener('touchstart', start, { passive: false });
+                window.addEventListener('touchmove', move, { passive: false });
+                window.addEventListener('touchend', end);
+            }
+
+            addPt(x, y) {
+                let p = { x, y };
+                if (this.playerPoints.length > 0) {
+                    if (MathUtils.dist(p, this.playerPoints[this.playerPoints.length - 1]) < 5) return;
+                }
+                this.playerPoints.push(p);
+                this.fx.spawn(x, y, 1, this.isFeverMode ? '#fff' : this.save.color, 0.5);
+                if (this.playerPoints.length % 4 === 0) this.audio.play('draw', 0.1);
+            }
+
+            startLevel(id) {
+                this.currentLevel = LEVELS.find(l => l.id === id);
+                this.state = 'PLAYING';
+                this.playerPoints = [];
+                this.time = this.currentLevel.time;
+                this.maxTime = this.time;
+                this.fever = 0;
+                this.isFeverMode = false;
+                this.combo = 0;
+                document.getElementById('hud').classList.remove('hidden');
+                this.ui.showScreen(null);
+                this.generateTarget();
+            }
+
+            generateTarget() {
+                let s = this.scale * 0.8;
+                this.targetPoints = this.currentLevel.shape.map(p => ({
+                    x: this.center.x + p[0] * s,
+                    y: this.center.y + p[1] * s
+                }));
+            }
+
+            evaluate() {
+                if (this.playerPoints.length < 15) {
+                    this.ui.showResult(0);
+                    return;
+                }
+                this.state = 'CALCULATING';
+                let pResampled = MathUtils.resample([...this.playerPoints], CONFIG.RESAMPLE_POINTS);
+                let tResampled = MathUtils.resample([...this.targetPoints], CONFIG.RESAMPLE_POINTS);
+
+                let d1 = 0, d2 = 0;
+                for (let i = 0; i < CONFIG.RESAMPLE_POINTS; i++) {
+                    d1 += MathUtils.dist(pResampled[i], tResampled[i]);
+                    d2 += MathUtils.dist(pResampled[i], tResampled[CONFIG.RESAMPLE_POINTS - 1 - i]);
+                }
+                let avgDist = Math.min(d1, d2) / CONFIG.RESAMPLE_POINTS;
+
+                let acc = Math.max(0, 100 * (1 - avgDist / (this.scale * 0.5)));
+
+                if (acc > 40) {
+                    this.fever = Math.min(100, this.fever + CONFIG.FEVER_GAIN);
+                    this.combo++;
+                    this.ui.showFloatingText(this.playerPoints[this.playerPoints.length - 1], `TUYỆT! x${this.combo}`);
+                    this.audio.play('success', 0.3);
+                } else {
+                    this.fever = Math.max(0, this.fever - 10);
+                    this.combo = 0;
+                    document.body.classList.add('shake');
+                    setTimeout(() => document.body.classList.remove('shake'), 400);
+                    this.audio.play('fail', 0.2);
+                }
+
+                if (acc > 30) this.fx.burst(this.center.x, this.center.y, 30, acc > 70 ? '#ffd700' : '#4cc9f0');
+
+                setTimeout(() => {
+                    if (this.state === 'CALCULATING') {
+                        this.ui.showResult(acc);
+                    }
+                }, 800);
+            }
+
+            retryLevel() { this.startLevel(this.currentLevel.id); }
+
+            nextLevel() {
+                let nextId = this.currentLevel.id + 1;
+                let next = LEVELS.find(l => l.id === nextId);
+                if (next && nextId <= this.save.unlocked) {
+                    this.startLevel(nextId);
+                } else {
+                    this.ui.showScreen('levelSelect');
+                }
+            }
+
+            loop(t) {
+                let dt = t - (this.lastT || t);
+                this.lastT = t;
+                requestAnimationFrame((v) => this.loop(v));
+
+                this.ctx.fillStyle = '#050510';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                this.drawBackground();
+
+                if (this.state === 'PLAYING') {
+                    this.time -= dt / 1000;
+                    if (this.time <= 0) { this.time = 0; this.evaluate(); }
+
+                    if (this.fever >= 100 && !this.isFeverMode) {
+                        this.isFeverMode = true;
+                        this.audio.play('fever', 0.5);
+                        this.ui.showFloatingText(this.center, "HƯNG PHẤN!!!", "#ff0000");
+                    }
+                    if (this.isFeverMode) {
+                        this.fever -= CONFIG.FEVER_DECAY * 2;
+                        if (this.fever <= 0) this.isFeverMode = false;
+                    } else {
+                        this.fever = Math.max(0, this.fever - CONFIG.FEVER_DECAY * (dt / 16));
+                    }
+
+                    this.ui.updateHUD(this.time, this.maxTime, this.fever, this.combo);
+
+                    this.ctx.setLineDash([10, 10]);
+                    this.ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+                    this.ctx.lineWidth = 15;
+                    this.drawPath(this.targetPoints);
+
+                    this.ctx.setLineDash([]);
+                    this.ctx.strokeStyle = this.isFeverMode ? '#fff' : this.save.color;
+                    this.ctx.lineWidth = this.save.brush;
+                    this.ctx.shadowBlur = this.isFeverMode ? 25 : 10;
+                    this.ctx.shadowColor = this.save.color;
+                    this.drawPath(this.playerPoints);
+                    this.ctx.shadowBlur = 0;
+                }
+
+                this.fx.update(dt);
+            }
+
+            drawPath(pts) {
+                if (pts.length < 2) return;
+                this.ctx.beginPath();
+                this.ctx.lineCap = 'round';
+                this.ctx.lineJoin = 'round';
+                this.ctx.moveTo(pts[0].x, pts[0].y);
+                for (let i = 1; i < pts.length; i++) this.ctx.lineTo(pts[i].x, pts[i].y);
+                this.ctx.stroke();
+            }
+
+            drawBackground() {
+                this.ctx.fillStyle = "#fff";
+                for (let i = 0; i < 20; i++) {
+                    let x = (Math.sin(this.lastT * 0.001 + i) * 0.5 + 0.5) * this.canvas.width;
+                    let y = (Math.cos(this.lastT * 0.0008 + i * 2) * 0.5 + 0.5) * this.canvas.height;
+                    this.ctx.globalAlpha = 0.2;
+                    this.ctx.beginPath();
+                    this.ctx.arc(x, y, 1, 0, Math.PI * 2);
+                    this.ctx.fill();
+                }
+                this.ctx.globalAlpha = 1.0;
+            }
+        }
+
+        class FXManager {
+            constructor(ctx) {
+                this.ctx = ctx;
+                this.parts = [];
+            }
+            spawn(x, y, count, color, life = 1.0) {
+                for (let i = 0; i < count; i++) {
+                    this.parts.push({
+                        x, y, vx: (Math.random() - 0.5) * 4, vy: (Math.random() - 0.5) * 4,
+                        life, color, size: Math.random() * 3 + 1
+                    });
+                }
+            }
+            burst(x, y, count, color) {
+                for (let i = 0; i < count; i++) {
+                    let ang = Math.random() * Math.PI * 2;
+                    let spd = Math.random() * 8 + 2;
+                    this.parts.push({
+                        x, y, vx: Math.cos(ang) * spd, vy: Math.sin(ang) * spd,
+                        life: 1.5, color, size: Math.random() * 5 + 2
+                    });
+                }
+            }
+            update(dt) {
+                this.parts = this.parts.filter(p => {
+                    p.x += p.vx; p.y += p.vy; p.life -= 0.02 * (dt / 16);
+                    if (p.life <= 0) return false;
+                    this.ctx.globalAlpha = p.life;
+                    this.ctx.fillStyle = p.color;
+                    this.ctx.beginPath();
+                    this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    return true;
+                });
+                this.ctx.globalAlpha = 1;
+            }
+        }
+
+        class UIManager {
+            constructor(game) {
+                this.game = game;
+            }
+            showScreen(id) {
+                document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+                if (id) {
+                    document.getElementById('screen-' + id).classList.remove('hidden');
+                    if (id === 'levelSelect') this.renderLevels();
+                    if (id === 'shop') this.renderShop();
+                }
+                // Luôn ẩn HUD khi không chơi
+                if (id) document.getElementById('hud').classList.add('hidden');
+            }
+            updateHUD(t, max, fever, combo) {
+                document.getElementById('hud-level').innerText = this.game.currentLevel.id;
+                document.getElementById('hud-coins').innerText = this.game.save.coins;
+                document.getElementById('timer-bar').style.width = (t / max) * 100 + '%';
+                document.getElementById('fever-bar').style.width = fever + '%';
+
+                let ch = document.getElementById('combo-hud');
+                let cv = document.getElementById('combo-val');
+                if (combo > 1) {
+                    ch.style.display = 'flex';
+                    cv.innerText = combo;
+                }
+                else ch.style.display = 'none';
+            }
+            showFloatingText(pos, txt, color = "#fff") {
+                let el = document.createElement('div');
+                el.className = 'floating-score';
+                el.style.left = pos.x + 'px';
+                el.style.top = pos.y + 'px';
+                el.style.color = color;
+                el.innerText = txt;
+                document.body.appendChild(el);
+                setTimeout(() => el.remove(), 1000);
+            }
+            renderLevels() {
+                let g = document.getElementById('level-grid'); g.innerHTML = '';
+                LEVELS.forEach(l => {
+                    let b = document.createElement('button');
+                    b.className = 'level-btn';
+                    let isLocked = l.id > this.game.save.unlocked;
+                    b.innerHTML = isLocked ? '🔒' : `<b>${l.id}</b><small>${l.name}</small>`;
+                    b.disabled = isLocked;
+                    if (!isLocked) b.onclick = () => this.game.startLevel(l.id);
+                    g.appendChild(b);
+                });
+            }
+            renderShop() {
+                document.getElementById('shop-coins').innerText = this.game.save.coins;
+                let c = document.getElementById('shop-container'); c.innerHTML = '';
+                SHOP.forEach(item => {
+                    let d = document.createElement('div');
+                    d.style = "display:flex; justify-content:space-between; align-items:center; background:#1a1a2e; padding:15px; margin-bottom:10px; border-radius:15px";
+                    let owned = this.game.save.items.includes(item.id);
+                    let active = (item.type === 'color' && this.game.save.color === item.value) || (item.type === 'brush' && this.game.save.brush === item.value);
+
+                    d.innerHTML = `<div><strong>${item.name}</strong><br><small>${item.type === 'color' ? 'MÀU SẮC' : 'CỠ BÚT'}</small></div>`;
+                    let btn = document.createElement('button');
+                    btn.style = "margin:0; padding:10px 20px; font-size:1rem";
+                    if (active) { btn.innerText = 'ĐANG DÙNG'; btn.disabled = true; btn.style.background = '#4cc9f0'; }
+                    else if (owned) { btn.innerText = 'SỬ DỤNG'; btn.onclick = () => { if (item.type === 'color') this.game.save.color = item.value; else this.game.save.brush = item.value; this.game.saveData(); this.renderShop(); }; }
+                    else { btn.innerText = `💰 ${item.price}`; btn.onclick = () => { if (this.game.save.coins >= item.price) { this.game.save.coins -= item.price; this.game.save.items.push(item.id); this.game.saveData(); this.renderShop(); this.game.audio.play('success'); } }; }
+                    d.appendChild(btn);
+                    c.appendChild(d);
+                });
+            }
+            showResult(acc) {
+                this.showScreen('result');
+                document.getElementById('hud').classList.add('hidden');
+                let lvl = this.game.currentLevel;
+                let grade = acc >= lvl.threshold.S ? 'S' : acc >= lvl.threshold.A ? 'A' : acc >= lvl.threshold.B ? 'B' : 'C';
+                let stars = acc >= lvl.threshold.S ? 3 : acc >= lvl.threshold.A ? 2 : acc >= lvl.threshold.B ? 1 : 0;
+                let bonus = Math.floor(acc / 2) + (this.game.isFeverMode ? 50 : 0);
+
+                document.getElementById('result-grade').innerText = grade;
+                document.getElementById('result-acc').innerText = acc.toFixed(1);
+                document.getElementById('result-coins').innerText = bonus;
+                document.getElementById('result-stars').innerText = "★".repeat(stars) + "☆".repeat(3 - stars);
+
+                let btnNext = document.getElementById('btn-next-level');
+                if (stars > 0) {
+                    this.game.save.coins += bonus;
+                    if (lvl.id === this.game.save.unlocked) {
+                        this.game.save.unlocked++;
+                    }
+                    this.game.saveData();
+                    btnNext.style.display = (lvl.id < LEVELS.length) ? 'inline-block' : 'none';
+                } else {
+                    btnNext.style.display = 'none';
+                }
+            }
+        }
+
+        class AudioManager {
+            constructor() { this.ctx = null; this.muted = false; }
+            start() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); }
+            toggleMute() { this.muted = !this.muted; document.getElementById('btn-mute').innerText = `ÂM THANH: ${this.muted ? 'TẮT' : 'BẬT'}`; }
+            play(type, vol = 0.2) {
+                if (this.muted || !this.ctx) return;
+                let o = this.ctx.createOscillator(), g = this.ctx.createGain();
+                o.connect(g); g.connect(this.ctx.destination);
+                if (type === 'draw') { o.type = 'triangle'; o.frequency.setValueAtTime(200 + Math.random() * 100, this.ctx.currentTime); g.gain.setValueAtTime(vol, this.ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1); o.start(); o.stop(this.ctx.currentTime + 0.1); }
+                if (type === 'success') { o.frequency.setValueAtTime(500, this.ctx.currentTime); o.frequency.exponentialRampToValueAtTime(1000, this.ctx.currentTime + 0.2); g.gain.setValueAtTime(vol, this.ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.2); o.start(); o.stop(this.ctx.currentTime + 0.2); }
+                if (type === 'fail') { o.type = 'sawtooth'; o.frequency.setValueAtTime(200, this.ctx.currentTime); o.frequency.linearRampToValueAtTime(50, this.ctx.currentTime + 0.3); g.gain.setValueAtTime(vol, this.ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.3); o.start(); o.stop(this.ctx.currentTime + 0.3); }
+                if (type === 'fever') { o.type = 'square'; o.frequency.setValueAtTime(800, this.ctx.currentTime); g.gain.setValueAtTime(vol, this.ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.5); o.start(); o.stop(this.ctx.currentTime + 0.5); }
+            }
+        }
+
+        const game = new Game();
+    </script>
+</body>
+
+</html>
