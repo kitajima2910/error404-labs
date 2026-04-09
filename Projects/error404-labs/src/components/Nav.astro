@@ -761,16 +761,7 @@ const isPost = pathname.startsWith('/bai-viet/')
         const startHeartbeat = () => {
             if (heartbeatInterval) return
 
-            // Ping lần đầu ngay lập tức khi load trang
-            const authToken = localStorage.getItem('auth_token')
-            fetch('/api/user/heartbeat', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${authToken}`,
-                },
-            }).catch(() => {})
-
+            // Chỉ bắt đầu interval, không gọi heartbeat ngay để tránh cộng điểm khi F5
             heartbeatInterval = setInterval(async () => {
                 // Chỉ gửi ping nếu tab đang active (giảm tải và chống "treo" ảo)
                 if (document.visibilityState === 'visible') {
@@ -784,11 +775,11 @@ const isPost = pathname.startsWith('/bai-viet/')
                             },
                         })
                         const data = await res.json()
-                        if (data.points_added > 0) {
-                            window.showToast(`Tuyệt vời! +${data.points_added} điểm online bền bỉ! 🏆`, 'success')
+                        if (data.pointsEarned > 0) {
+                            window.showToast(`Tuyệt vời! +${data.pointsEarned} điểm online bền bỉ! 🏆`, 'success')
                             // Cập nhật lại điểm trên UI ngay lập tức
                             const points = parseInt(localStorage.getItem('user_points') || '0')
-                            localStorage.setItem('user_points', (points + data.points_added).toString())
+                            localStorage.setItem('user_points', (points + data.pointsEarned).toString())
                             checkSession()
                         }
                     } catch (e) {}
