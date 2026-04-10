@@ -1377,32 +1377,6 @@
                 
                 // Vẽ thực thể
                 Entity.drawEntity(ctx, this)
-
-                // Thanh máu trên đầu quái
-                if (this.state !== 'DEAD' && this.hp < this.maxHp) {
-                    const barW = 60
-                    const barH = 6
-                    const x = this.x - barW / 2
-                    const y = this.getDrawY() - this.h - 15
-                    
-                    // Background
-                    ctx.fillStyle = 'rgba(0,0,0,0.5)'
-                    ctx.fillRect(x, y, barW, barH)
-                    
-                    // Health bar
-                    const hpW = (this.hp / this.maxHp) * barW
-                    ctx.fillStyle = '#f00'
-                    ctx.fillRect(x, y, hpW, barH)
-                    
-                    // HP Text
-                    ctx.fillStyle = '#fff'
-                    ctx.font = 'bold 10px "Orbitron", sans-serif'
-                    ctx.textAlign = 'center'
-                    ctx.shadowBlur = 4
-                    ctx.shadowColor = '#000'
-                    ctx.fillText(`${Math.ceil(this.hp)}/${this.maxHp}`, this.x, y - 5)
-                    ctx.shadowBlur = 0
-                }
             }
         }
 
@@ -1750,14 +1724,30 @@
             }
             draw(ctx) {
                 super.draw(ctx)
-                if (this.state === 'DEAD' || this.hp <= 0) return
-                const bw = this.type === 'boss' ? 80 : 40, bh = 4
-                const bx = this.x - bw / 2, by = this.getDrawY() - this.h - 15
+                if (this.state === 'DEAD' || this.hp <= 0 || this.hp >= this.maxHp) return
+
+                const barW = this.type === 'boss' ? 100 : 60
+                const barH = 6
+                const x = this.x - barW / 2
+                const y = this.getDrawY() - this.h - 15
+                
+                // Background
                 ctx.fillStyle = 'rgba(0,0,0,0.5)'
-                ctx.fillRect(bx, by, bw, bh)
+                ctx.fillRect(x, y, barW, barH)
+                
+                // Health bar
                 const hpP = Math.max(0, this.hp / this.maxHp)
-                ctx.fillStyle = this.type === 'boss' ? '#f0f' : (hpP > 0.3 ? '#f00' : '#ff4444')
-                ctx.fillRect(bx, by, bw * hpP, bh)
+                ctx.fillStyle = this.type === 'boss' ? '#f0f' : '#f00'
+                ctx.fillRect(x, y, barW * hpP, barH)
+                
+                // HP Text
+                ctx.fillStyle = '#fff'
+                ctx.font = 'bold 10px "Orbitron", sans-serif'
+                ctx.textAlign = 'center'
+                ctx.shadowBlur = 4
+                ctx.shadowColor = '#000'
+                ctx.fillText(`${Math.ceil(this.hp)}/${this.maxHp}`, this.x, y - 5)
+                ctx.shadowBlur = 0
             }
         }
 
