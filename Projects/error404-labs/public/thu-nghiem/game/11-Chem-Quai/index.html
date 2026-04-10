@@ -1452,6 +1452,8 @@
 
                 this._handleStates()
                 this.updatePhysics(dt)
+                // Chặn không cho đi quá bên trái (x=0)
+                if (this.x < 0) this.x = 0
             }
             _handleStates() {
                 if (this.state.startsWith('ATTACK_')) {
@@ -1910,10 +1912,12 @@
                 }
             }
             _spawnOneEnemy(type) {
-                // Spawn từ ngoài màn hình, cách player ít nhất 500px
+                // Spawn từ ngoài màn hình, cách player ít nhất 500px, không spawn quá x=0
                 const side = Math.random() > 0.5 ? 1 : -1
                 const px = this.player ? this.player.x : 0
-                const spawnX = px + side * (500 + Math.random() * 600)
+                let spawnX = px + side * (500 + Math.random() * 600)
+                if (spawnX < 0) spawnX = px + (500 + Math.random() * 600) // Nếu < 0 thì đảo sang bên phải
+                
                 const spawnY = CONFIG.floorY - 50 + Math.random() * 100
                 this.enemies.push(new Enemy(spawnX, spawnY, type, this.wave))
             }
@@ -2205,9 +2209,70 @@
                 ctx.shadowBlur = 10
                 ctx.shadowColor = '#0ff'
                 ctx.beginPath()
-                ctx.moveTo(camX - 1000, CONFIG.floorY)
+                // Vẽ đường đi bắt đầu từ x=0 và vô tận về bên phải
+                const roadStartX = Math.max(0, camX - 1000)
+                ctx.moveTo(roadStartX, CONFIG.floorY)
                 ctx.lineTo(camX + 1500, CONFIG.floorY)
                 ctx.stroke()
+
+                // Vẽ Cổng Xuất Phát (Cyber Gate) tại x=0
+                if (camX < 1500) {
+                    ctx.save()
+                    ctx.translate(0, CONFIG.floorY)
+                    
+                    // Trụ trái & phải của cổng
+                    const drawGatePillar = (side) => {
+                        ctx.save()
+                        ctx.translate(0, side * 150)
+                        
+                        // Ánh sáng chân trụ
+                        const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, 100)
+                        glow.addColorStop(0, 'rgba(255, 0, 255, 0.4)')
+                        glow.addColorStop(1, 'transparent')
+                        ctx.fillStyle = glow
+                        ctx.fillRect(-100, -100, 200, 200)
+
+                        // Thân trụ chính
+                        ctx.strokeStyle = '#f0f'
+                        ctx.lineWidth = 12
+                        ctx.shadowBlur = 25
+                        ctx.shadowColor = '#f0f'
+                        ctx.beginPath()
+                        ctx.moveTo(0, -100); ctx.lineTo(0, 50); ctx.stroke()
+                        
+                        // Chi tiết cơ khí
+                        ctx.strokeStyle = '#fff'
+                        ctx.lineWidth = 2
+                        ctx.shadowBlur = 0
+                        ctx.strokeRect(-15, -120, 30, 20)
+                        ctx.strokeRect(-10, 50, 20, 10)
+                        
+                        // Đèn tín hiệu nhỏ
+                        ctx.fillStyle = Math.sin(performance.now() * 0.01) > 0 ? '#0ff' : '#055'
+                        ctx.beginPath(); ctx.arc(0, -110, 4, 0, Math.PI * 2); ctx.fill()
+                        
+                        ctx.restore()
+                    }
+                    
+                    drawGatePillar(1)
+                    drawGatePillar(-1)
+                    
+                    // Tia laser ngang kết nối
+                    ctx.strokeStyle = 'rgba(255, 0, 255, 0.6)'
+                    ctx.lineWidth = 2
+                    ctx.setLineDash([10, 20])
+                    ctx.beginPath()
+                    ctx.moveTo(0, -150); ctx.lineTo(0, 150); ctx.stroke()
+                    ctx.setLineDash([])
+
+                    // Chữ "ZONE 0"
+                    ctx.fillStyle = '#f0f'
+                    ctx.font = 'bold 30px "Orbitron", sans-serif'
+                    ctx.textAlign = 'center'
+                    ctx.fillText("ZONE 0", -20, -120)
+
+                    ctx.restore()
+                }
                 ctx.shadowBlur = 0
                 ctx.restore()
             }
