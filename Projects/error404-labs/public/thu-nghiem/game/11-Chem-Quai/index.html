@@ -432,8 +432,16 @@
         .skill-name {
             font-family: 'Orbitron', sans-serif;
             font-size: 1rem;
-            margin-bottom: 5px;
+            margin-bottom: 2px;
             color: #fff;
+        }
+
+        .skill-dmg {
+            font-size: 0.85rem;
+            color: #ffde00;
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-shadow: 0 0 5px rgba(255, 222, 0, 0.4);
         }
 
         .skill-cost {
@@ -709,6 +717,15 @@
             floorY: 600,
             depthScale: 0.5,
             colors: { player: '#0ff', enemy: '#f00', advanced: '#f80', boss: '#f0f', shield: '#0f0', ranged: '#ff0', ninja: '#0ff', slime: '#0f4' },
+        }
+
+        const SKILLS_DATA = {
+            vfx1: { dmg: 0 },
+            vfx2: { dmg: 20 },
+            vfx3: { dmg: 65 },
+            vfx4: { dmg: 180 },
+            vfx5: { dmg: 500 },
+            vfx6: { dmg: 1400 },
         }
 
         const SPRITES = {
@@ -1988,7 +2005,8 @@
                         crit = this.player.nextCrit
                     for (let e of this.enemies)
                         if (e.state !== 'DEAD' && Utils.rectIntersect(pb, e.getHitbox())) {
-                            let d = pb.dmg * SaveSystem.data.stats.dmgMult
+                            const skillDmg = SKILLS_DATA[SaveSystem.data.skills.active]?.dmg || 0
+                            let d = (pb.dmg + skillDmg) * SaveSystem.data.stats.dmgMult
                             if (crit) d *= 3.0
                             e.takeDamage(d, this.player.dir * pb.force, this.player)
                             // Đã xóa spawnSlash (vệt trắng lớn) theo yêu cầu
@@ -2100,6 +2118,7 @@
                         card.innerHTML = `
                             <div class="skill-preview"><canvas id="preview-${id}"></canvas></div>
                             <div class="skill-name">SET BẬC ${v}</div>
+                            <div class="skill-dmg">ST CỘNG: +${SKILLS_DATA[id].dmg}</div>
                             <div class="skill-cost">${isUnlocked ? (isActive ? 'ĐANG DÙNG' : 'ĐÃ SỞ HỮU') : cost + ' VNĐ'}</div>
                             <button class="shop-btn skill-btn" id="buy-${id}">
                                 ${isActive ? 'ĐANG DÙNG' : isUnlocked ? 'SỬ DỤNG' : `MUA NGAY`}
