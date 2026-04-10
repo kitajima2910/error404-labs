@@ -427,7 +427,7 @@
                 gravity: 1600,
                 floorY: 600,
                 depthScale: 0.5,
-                colors: { player: '#0ff', enemy: '#f00', advanced: '#f80', boss: '#f0f' },
+                colors: { player: '#0ff', enemy: '#f00', advanced: '#f80', boss: '#f0f', shield: '#0f0', ranged: '#ff0' },
             }
 
             const SPRITES = {
@@ -887,6 +887,7 @@
                     this.stateTime = 0
                     this.color = '#fff'
                     this.hitFlicker = 0
+                    this.weaponType = 'sword'
                 }
                 getDrawY() {
                     return this.y - this.z
@@ -1034,11 +1035,23 @@
                     ctx.stroke()
                     if (e.state.startsWith('ATTACK') && !isGhost) {
                         ctx.strokeStyle = '#fff'
-                        ctx.lineWidth = 6
+                        ctx.lineWidth = 4
                         ctx.beginPath()
-                        ctx.moveTo(0, 22)
-                        ctx.lineTo(20, 45)
-                        ctx.stroke()
+                        if (e.weaponType === 'hammer') {
+                            ctx.lineWidth = 6
+                            ctx.moveTo(0, 0); ctx.lineTo(10, 35); ctx.stroke();
+                            ctx.fillStyle = '#aaa'; ctx.fillRect(-10, 25, 30, 15);
+                        } else if (e.weaponType === 'shield') {
+                            ctx.strokeStyle = '#0f0'; ctx.lineWidth = 3;
+                            ctx.strokeRect(12, -25, 8, 50);
+                            ctx.strokeStyle = '#fff'; ctx.moveTo(0, 20); ctx.lineTo(15, 35); ctx.stroke();
+                        } else if (e.weaponType === 'bow') {
+                            ctx.beginPath(); ctx.arc(12, 18, 18, -Math.PI/2, Math.PI/2); ctx.stroke();
+                            ctx.moveTo(12, 0); ctx.lineTo(12, 36); ctx.stroke();
+                        } else { // sword
+                            ctx.lineWidth = 5
+                            ctx.moveTo(0, 22); ctx.lineTo(25, 45); ctx.stroke();
+                        }
                     }
                     ctx.restore()
                     ctx.restore()
@@ -1162,12 +1175,26 @@
                     super(x, y, 0, 40, 70)
                     this.type = type
                     this.atkCd = Math.random() * 2
-                    const scale = 1 + (wave - 1) * 0.12 // Quái mạnh dần 12% mỗi màn
+                    const scale = 1 + (wave - 1) * 0.12
+                    this.weaponType = 'sword'
                     if (type === 'basic') {
                         this.color = CONFIG.colors.enemy
                         this.hp = this.maxHp = Math.floor(40 * scale)
                         this.speed = 130 + wave * 3
                         this.atkR = 70
+                    } else if (type === 'shield') {
+                        this.color = CONFIG.colors.shield
+                        this.hp = this.maxHp = Math.floor(120 * scale)
+                        this.speed = 80 + wave * 2
+                        this.atkR = 60
+                        this.weaponType = 'shield'
+                        this.w = 55; this.h = 75
+                    } else if (type === 'ranged') {
+                        this.color = CONFIG.colors.ranged
+                        this.hp = this.maxHp = Math.floor(30 * scale)
+                        this.speed = 150 + wave * 2
+                        this.atkR = 400
+                        this.weaponType = 'bow'
                     } else if (type === 'advanced') {
                         this.color = CONFIG.colors.advanced
                         this.hp = this.maxHp = Math.floor(100 * scale)
@@ -1175,6 +1202,7 @@
                         this.atkR = 100
                         this.w = 50
                         this.h = 80
+                        this.weaponType = 'hammer'
                     } else if (type === 'boss') {
                         this.color = CONFIG.colors.boss
                         this.hp = this.maxHp = Math.floor(800 * scale)
@@ -1183,7 +1211,6 @@
                         this.w = 80
                         this.h = 140
                     }
-                    // Sát thương quái cũng tăng theo wave
                     this.dmgScale = scale
                 }
                 update(dt, player) {
@@ -1199,37 +1226,75 @@
                         if (this.stateTime > (this.type === 'boss' ? 0.15 : 0.35)) this.changeState('IDLE')
                     } else if (this.state === 'ATTACK') {
                         if (this.stateTime > 0.7) this.changeState('IDLE')
+                        // Spawn đạn cho quái Ranged
+                        if (this.type === 'ranged' && this.stateTime > 0.4 && !this._hasShot) {
+                            const game = window._gameInstance
+                            if (game) {
+                                game.projectiles.push({
+                                    x: this.x + this.dir * 20,
+                                    y: this.getDrawY() - 40,
+                                    vx: this.dir * 600,
+                                    vy: 0,
+                                    dmg: 15 * (this.dmgScale || 1),
+                                    life: 3
+                                })
+                                this._hasShot = true
+                            }
+                        }
                     } else {
                         const dx = player.x - this.x,
                             dy = player.y - this.y,
                             d = Math.hypot(dx, dy)
-                        if (d > this.atkR) {
-                            this.changeState('RUN')
-                            this.dir = dx > 0 ? 1 : -1
-                            this.vx = (dx / d) * this.speed
-                            this.vy = (dy / d) * this.speed * CONFIG.depthScale
-                        } else {
-                            this.vx *= 0.5
-                            this.vy *= 0.5
-                            if (this.atkCd <= 0 && Math.abs(dy) < 40) {
-                                this.changeState('ATTACK')
+                        
+                        if (this.type === 'ranged') {
+                            if (d < 300) {
+                                this.changeState('RUN')
                                 this.dir = dx > 0 ? 1 : -1
-                                this.atkCd = 1.5 + Math.random()
-                            } else this.changeState('IDLE')
+                                this.vx = -Math.sign(dx) * this.speed
+                                this.vy = -Math.sign(dy) * this.speed * CONFIG.depthScale
+                            } else if (d > 500) {
+                                this.changeState('RUN')
+                                this.dir = dx > 0 ? 1 : -1
+                                this.vx = Math.sign(dx) * this.speed
+                                this.vy = Math.sign(dy) * this.speed * CONFIG.depthScale
+                            } else {
+                                this.vx *= 0.5; this.vy *= 0.5
+                                if (this.atkCd <= 0) {
+                                    this.changeState('ATTACK')
+                                    this.dir = dx > 0 ? 1 : -1
+                                    this._hasShot = false
+                                    this.atkCd = 1.5 + Math.random()
+                                } else this.changeState('IDLE')
+                            }
+                        } else {
+                            if (d > this.atkR) {
+                                this.changeState('RUN')
+                                this.dir = dx > 0 ? 1 : -1
+                                this.vx = (dx / d) * this.speed
+                                this.vy = (dy / d) * this.speed * CONFIG.depthScale
+                            } else {
+                                this.vx *= 0.5
+                                this.vy *= 0.5
+                                if (this.atkCd <= 0 && Math.abs(dy) < 80) {
+                                    this.changeState('ATTACK')
+                                    this.dir = dx > 0 ? 1 : -1
+                                    this.atkCd = 1.0 + Math.random()
+                                } else this.changeState('IDLE')
+                            }
                         }
                     }
                     this.updatePhysics(dt)
                 }
                 getCurrentAttackBox() {
-                    if (this.state !== 'ATTACK' || this.stateTime < 0.4 || this.stateTime > 0.5) return null
-                    let w = this.type === 'boss' ? 180 : 70,
-                        h = this.type === 'boss' ? 130 : 50
+                    if (this.state !== 'ATTACK' || this.stateTime < 0.2 || this.stateTime > 0.6) return null
+                    let w = this.type === 'boss' ? 180 : 90,
+                        h = this.type === 'boss' ? 130 : 70
                     return {
-                        x: this.x + (this.dir > 0 ? 0 : -w) + this.dir * 20,
-                        y: this.getDrawY() - h,
+                        x: this.x + (this.dir > 0 ? -10 : -w + 10),
+                        y: this.getDrawY() - h - 10,
                         w,
                         h,
-                        dmg: Math.floor((this.type === 'boss' ? 40 : this.type === 'advanced' ? 20 : 15) * (this.dmgScale || 1)),
+                        dmg: Math.floor((this.type === 'boss' ? 40 : this.type === 'shield' ? 25 : this.type === 'advanced' ? 20 : 15) * (this.dmgScale || 1)),
                     }
                 }
                 draw(ctx) {
@@ -1270,6 +1335,8 @@
                     this.spawnQueue = [] // Hàng đợi spawn quái
                     this.spawnTimer = 0
                     this.maxWave = 30
+                    this.projectiles = [] // Hệ thống đạn
+                    window._gameInstance = this
                     this.bindUI()
                     requestAnimationFrame((t) => this.loop(t))
                 }
@@ -1357,14 +1424,16 @@
                 }
                 _buildSpawnQueue() {
                     this.spawnQueue = []
-                    // Số quái tăng dần: 3 ở màn 1, tối đa ~18 ở màn 30
-                    this.waveTotal = Math.min(3 + Math.floor(this.wave * 0.5), 18)
+                    this.waveTotal = Math.min(3 + Math.floor(this.wave * 0.7), 25)
                     const isBossWave = this.wave % 5 === 0
                     for (let i = 0; i < this.waveTotal; i++) {
                         let t = 'basic'
-                        const advancedChance = Math.min(0.1 + this.wave * 0.025, 0.7)
-                        if (this.wave > 2 && Math.random() < advancedChance) t = 'advanced'
-                        // Boss ở cuối mỗi 5 màn
+                        const r = Math.random()
+                        if (this.wave > 2) {
+                            if (r < 0.2) t = 'ranged'
+                            else if (r < 0.35) t = 'shield'
+                            else if (r < 0.5) t = 'advanced'
+                        }
                         if (isBossWave && i === this.waveTotal - 1) t = 'boss'
                         this.spawnQueue.push(t)
                     }
@@ -1441,7 +1510,7 @@
                                 this.money += Math.floor(1 + this.combo * 0.2)
                                 if (e.state === 'DEAD') {
                                     this.waveKills++
-                                    this.money += e.type === 'boss' ? 200 : 25
+                                    this.money += e.type === 'boss' ? 200 : (e.type === 'shield' ? 50 : 25)
                                 }
                             }
                         if (hit) {
@@ -1655,6 +1724,21 @@
                                         this.spawnTimer = Math.max(0.5, 2.5 - this.wave * 0.06) // Tần suất spawn nhanh dần
                                     }
                                 }
+
+                                // Cập nhật đạn
+                                this.projectiles.forEach(p => {
+                                    p.x += p.vx * ldt
+                                    p.y += p.vy * ldt
+                                    p.life -= ldt
+                                    if (Utils.rectIntersect({x:p.x-5, y:p.y-5, w:10, h:10}, this.player.getHitbox())) {
+                                        if (this.player.takeDamage(p.dmg, p.vx > 0 ? 300 : -300)) {
+                                            p.life = 0
+                                            this.camera.shake(15, 0.2)
+                                        }
+                                    }
+                                })
+                                this.projectiles = this.projectiles.filter(p => p.life > 0)
+
                                 // Cập nhật tiến trình wave
                                 const wp = document.getElementById('wave-progress')
                                 if (wp) wp.innerText = `Tiêu diệt: ${this.waveKills}/${this.waveTotal}`
@@ -1704,6 +1788,16 @@
                         }
                     }
                     this.ctx.restore()
+
+                    // Vẽ đạn
+                    this.projectiles.forEach(p => {
+                        this.ctx.fillStyle = '#ff0'
+                        this.ctx.shadowBlur = 10
+                        this.ctx.shadowColor = '#ff0'
+                        this.ctx.fillRect(p.x - 5, p.y - 5, 12, 4)
+                        this.ctx.shadowBlur = 0
+                    })
+
                     if (this.hitStop > 0) {
                         this.ctx.fillStyle = 'rgba(255,255,255,0.15)'
                         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
