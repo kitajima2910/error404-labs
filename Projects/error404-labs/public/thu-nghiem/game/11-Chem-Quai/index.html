@@ -851,8 +851,8 @@
                 update(dt, t) {
                     const tx = t.x - CONFIG.canvasWidth / 2,
                         ty = t.y - CONFIG.canvasHeight / 1.5
-                    this.x = Utils.lerp(this.x, Utils.clamp(tx, -500, 2000), 10 * dt)
-                    this.y = Utils.lerp(this.y, Utils.clamp(ty, -300, 300), 10 * dt)
+                    this.x = Utils.lerp(this.x, tx, 10 * dt)
+                    this.y = Utils.lerp(this.y, ty, 10 * dt)
                     this.zoom = Utils.lerp(this.zoom, this.targetZoom, 15 * dt)
                     if (this.shakeT > 0) this.shakeT -= dt
                 }
@@ -908,8 +908,8 @@
                         this.vx *= Math.pow(0.001, dt)
                         this.vy *= Math.pow(0.001, dt)
                     }
-                    this.y = Utils.clamp(this.y, CONFIG.floorY - 150, CONFIG.floorY + 50)
-                    this.x = Utils.clamp(this.x, -800, 2500)
+                    this.y = Utils.clamp(this.y, CONFIG.floorY - 1000, CONFIG.floorY + 1000)
+                    // Không còn clamp X để map vô tận
                 }
                 changeState(s) {
                     if (this.state === s) return
@@ -1854,22 +1854,33 @@
                     }
                     ctx.save()
                     this.camera.apply(ctx)
-                    ctx.lineWidth = 2
-                    ctx.strokeStyle = 'rgba(0, 255, 255, 0.15)'
-                    const ox = camX * 0.5
+                    // Vẽ lưới vô tận dựa trên vị trí camera
+                    const startX = Math.floor((camX - 1000) / 120) * 120
+                    const endX = startX + 2500
+                    const camY = this.camera.y
+                    const startY = Math.floor((camY - 1000) / 120) * 120
+                    const endY = startY + 2000
+                    
                     ctx.beginPath()
-                    for (let i = -2000; i < 4000; i += 120) {
-                        ctx.moveTo(i - ox, CONFIG.floorY - 1000)
-                        ctx.lineTo(i - ox, CONFIG.floorY + 1000)
+                    // Đường kẻ dọc
+                    for (let i = startX; i < endX; i += 120) {
+                        ctx.moveTo(i, camY - 1000)
+                        ctx.lineTo(i, camY + 1000)
+                    }
+                    // Đường kẻ ngang (lưới cho sàn)
+                    for (let j = startY; j < endY; j += 80) {
+                        ctx.moveTo(camX - 1000, j)
+                        ctx.lineTo(camX + 1500, j)
                     }
                     ctx.stroke()
+                    
                     ctx.strokeStyle = '#0ff'
                     ctx.lineWidth = 4
                     ctx.shadowBlur = 10
                     ctx.shadowColor = '#0ff'
                     ctx.beginPath()
-                    ctx.moveTo(-1000, CONFIG.floorY)
-                    ctx.lineTo(4000, CONFIG.floorY)
+                    ctx.moveTo(camX - 1000, CONFIG.floorY)
+                    ctx.lineTo(camX + 1500, CONFIG.floorY)
                     ctx.stroke()
                     ctx.shadowBlur = 0
                     ctx.restore()
