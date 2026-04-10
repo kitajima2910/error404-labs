@@ -308,9 +308,83 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(0, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        #skills-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .skill-card {
+            background: rgba(0, 40, 60, 0.3);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .skill-card:hover {
+            border-color: var(--ui-color);
+            background: rgba(0, 255, 255, 0.05);
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.2);
+        }
+
+        .skill-card.active {
+            border-color: #ff0;
+            box-shadow: 0 0 20px rgba(255, 255, 0, 0.3);
+        }
+
+        .skill-preview {
+            width: 120px;
+            height: 120px;
+            background: #000;
+            border-radius: 10px;
             margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid rgba(0, 255, 255, 0.1);
+        }
+
+        .skill-preview canvas {
+            width: 100%;
+            height: 100%;
+            image-rendering: pixelated;
+        }
+
+        .skill-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            margin-bottom: 5px;
+            color: #fff;
+        }
+
+        .skill-cost {
+            color: #0ff;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .skill-btn {
+            width: 100%;
+            min-width: 0 !important;
+            padding: 10px !important;
+            font-size: 0.9rem !important;
+            margin: 0 !important;
+            clip-path: none !important;
         }
 
         .shop-btn {
@@ -428,9 +502,10 @@
             <div id="wave-progress"
                 style="position:absolute;top:50px;left:50%;transform:translateX(-50%);color:#0ff;font-size:1rem;text-shadow:0 0 5px #0ff">
             </div>
-            <button id="open-shop-btn"
-                style="position:absolute;top:20px;right:140px;pointer-events:auto;padding:8px 16px;font-size:0.9rem;z-index:55">CỬA
-                HÀNG (K)</button>
+            <div id="shop-buttons" style="position:absolute;top:20px;right:140px;display:flex;gap:10px;pointer-events:auto;z-index:55">
+                <button id="open-skills-btn" style="padding:8px 16px;font-size:0.9rem;min-width:140px;margin:0">KỸ NĂNG (K)</button>
+                <button id="open-upgrades-btn" style="padding:8px 16px;font-size:0.9rem;min-width:140px;margin:0">NÂNG CẤP (L)</button>
+            </div>
             <div id="timing-indicator">
                 <div id="timing-window"></div>
                 <div id="timing-cursor"></div>
@@ -458,8 +533,7 @@
                         trắng nằm trong vùng sáng để gây <b style="color: #ff0">CHÍ MẠNG (x3 Sát thương)</b>.</p>
                     <p><b style="color: var(--ui-color)">✦ Lướt (Dash):</b> Nhấn phím <b style="color: #fff">Space</b>
                         để lướt nhanh. Bạn sẽ không nhận sát thương khi đang lướt.</p>
-                    <p><b style="color: var(--ui-color)">✦ Cửa Hàng:</b> Nhấn phím <b style="color: #fff">K</b> để nâng
-                        cấp Sát thương, Máu (Max 30,000!) và mở khóa các kỹ năng Tia sét mạnh mẽ.</p>
+                    <p><b style="color: var(--ui-color)">✦ Nâng Cấp & Kỹ Năng:</b> Nhấn phím <b style="color: #fff">K</b> để mở Cửa hàng Kỹ năng (Tia sét) và phím <b style="color: #fff">L</b> để Nâng cấp thuộc tính (Sát thương, Máu, Lướt).</p>
                     <p><b style="color: var(--ui-color)">✦ Quái vật:</b> Cẩn thận với Slime phun độc và các quái vật
                         Ninja biết né tránh đòn đánh của bạn.</p>
                 </div>
@@ -467,11 +541,10 @@
             </div>
         </div>
 
-        <div id="shop-menu" class="overlay hidden">
+        <div id="upgrades-menu" class="overlay hidden">
             <div class="shop-panel">
-                <h1>NÂNG CẤP</h1>
-                <h3 style="text-align: right; color: #0ff; margin-bottom: 20px">
-                    Ngân sách: <span id="shop-funds">0</span> VNĐ
+                <h3 style="text-align: right; color: #0ff; margin-bottom: 20px; font-family: 'Orbitron', sans-serif;">
+                    Ngân sách: <span class="shop-funds">0</span> VNĐ
                 </h3>
                 <div class="shop-item">
                     <span>Sát thương (+25%)</span>
@@ -489,13 +562,17 @@
                     <span>Hồi lướt (-15%)</span>
                     <button class="shop-btn" id="upg-dash">Giá: <span id="cost-dash">60</span> VNĐ</button>
                 </div>
+            </div>
+        </div>
 
-                <h2 style="color: #ff0; margin: 20px 0 10px 0; border-bottom: 1px solid #ff0">KỸ NĂNG</h2>
+        <div id="skills-menu" class="overlay hidden">
+            <div class="shop-panel">
+                <h3 style="text-align: right; color: #0ff; margin-bottom: 20px; font-family: 'Orbitron', sans-serif;">
+                    Ngân sách: <span class="shop-funds">0</span> VNĐ
+                </h3>
                 <div id="skills-list">
                     <!-- Skills will be injected here -->
                 </div>
-
-                <div style="text-align: center; margin-top: 20px"><button id="next-wave-btn">TIẾP TỤC</button></div>
             </div>
         </div>
 
@@ -1641,25 +1718,26 @@
                     document.getElementById('main-menu').classList.remove('hidden')
                     this.state = 'MENU'
                 })
-                document.getElementById('next-wave-btn').addEventListener('click', () => {
-                    document.getElementById('shop-menu').classList.add('hidden')
-                    if (this.state === 'SHOP') {
-                        this.state = 'GAME'
-                        document.getElementById('hud').classList.remove('hidden')
-                        document.getElementById('touch-controls').classList.remove('hidden')
-                    }
+                document.getElementById('open-skills-btn').addEventListener('click', () => {
+                    if (this.state === 'GAME') this.openSkills()
+                    else if (this.state === 'SHOP') this.closeAllMenus()
                 })
-                document.getElementById('open-shop-btn').addEventListener('click', () => {
-                    if (this.state === 'GAME') this.openShop()
+                document.getElementById('open-upgrades-btn').addEventListener('click', () => {
+                    if (this.state === 'GAME') this.openUpgrades()
+                    else if (this.state === 'SHOP') this.closeAllMenus()
                 })
-                // Phím K để mở shop trong gameplay
+                // Phím K cho kỹ năng, L cho nâng cấp (Toggle)
                 window.addEventListener('keydown', (e) => {
-                    if (e.code === 'KeyK' && this.state === 'GAME') this.openShop()
+                    if (e.code === 'KeyK') {
+                        if (this.state === 'GAME') this.openSkills()
+                        else if (this.state === 'SHOP') this.closeAllMenus()
+                    }
+                    if (e.code === 'KeyL') {
+                        if (this.state === 'GAME') this.openUpgrades()
+                        else if (this.state === 'SHOP') this.closeAllMenus()
+                    }
                     if (e.code === 'Escape' && this.state === 'SHOP') {
-                        document.getElementById('shop-menu').classList.add('hidden')
-                        this.state = 'GAME'
-                        document.getElementById('hud').classList.remove('hidden')
-                        document.getElementById('touch-controls').classList.remove('hidden')
+                        this.closeAllMenus()
                     }
                 })
                 const shop = (id, stat, key, step, max) => {
@@ -1844,8 +1922,7 @@
             }
             updateShopUI() {
                 const d = SaveSystem.data
-                const funds = document.getElementById('shop-funds')
-                if (funds) funds.innerText = this.money
+                document.querySelectorAll('.shop-funds').forEach(el => el.innerText = this.money)
                 const items = [
                     [
                         'dmgMult',
@@ -1877,7 +1954,7 @@
                     }
                 })
 
-                // Cập nhật Skill UI
+                // Cập nhật Skill UI (Grid 6 ô)
                 const skillContainer = document.getElementById('skills-list')
                 if (skillContainer) {
                     skillContainer.innerHTML = ''
@@ -1887,15 +1964,39 @@
                         const isActive = d.skills.active === id
                         const cost = d.skillCosts[id] || 0
 
-                        const item = document.createElement('div')
-                        item.className = 'shop-item'
-                        item.innerHTML = `
-                                <span>Tia sét bậc ${v}</span>
-                                <button class="shop-btn" id="buy-${id}">
-                                    ${isActive ? 'ĐANG DÙNG' : isUnlocked ? 'SỬ DỤNG' : `Giá: ${cost} VNĐ`}
-                                </button>
-                            `
-                        skillContainer.appendChild(item)
+                        const card = document.createElement('div')
+                        card.className = `skill-card ${isActive ? 'active' : ''}`
+                        card.innerHTML = `
+                            <div class="skill-preview"><canvas id="preview-${id}"></canvas></div>
+                            <div class="skill-name">SET BẬC ${v}</div>
+                            <div class="skill-cost">${isUnlocked ? (isActive ? 'ĐANG DÙNG' : 'ĐÃ SỞ HỮU') : cost + ' VNĐ'}</div>
+                            <button class="shop-btn skill-btn" id="buy-${id}">
+                                ${isActive ? 'ĐANG DÙNG' : isUnlocked ? 'SỬ DỤNG' : `MUA NGAY`}
+                            </button>
+                        `
+                        skillContainer.appendChild(card)
+
+                        // Render animation preview
+                        const canvas = document.getElementById(`preview-${id}`)
+                        const ctx = canvas.getContext('2d')
+                        canvas.width = 120
+                        canvas.height = 120
+                        
+                        let frame = 0
+                        const animate = () => {
+                            if (!this.state || this.state !== 'SHOP' || !document.getElementById(`preview-${id}`)) return
+                            ctx.clearRect(0, 0, 120, 120)
+                            const imgs = SPRITES[id] ? SPRITES[id][0] : []
+                            if (imgs && imgs.length > 0) {
+                                const img = imgs[Math.floor(frame) % imgs.length]
+                                if (img.complete) {
+                                    ctx.drawImage(img, 0, 0, 120, 120)
+                                }
+                            }
+                            frame += 0.2
+                            requestAnimationFrame(animate)
+                        }
+                        animate()
 
                         const btn = document.getElementById(`buy-${id}`)
                         btn.disabled = (!isUnlocked && this.money < cost)
@@ -1918,14 +2019,27 @@
                     }
                 }
             }
-            openShop() {
+            openSkills() {
+                this._openAnyMenu('skills-menu')
+            }
+            openUpgrades() {
+                this._openAnyMenu('upgrades-menu')
+            }
+            closeAllMenus() {
+                document.getElementById('upgrades-menu').classList.add('hidden')
+                document.getElementById('skills-menu').classList.add('hidden')
+                this.state = 'GAME'
+                document.getElementById('hud').classList.remove('hidden')
+                document.getElementById('touch-controls').classList.remove('hidden')
+            }
+            _openAnyMenu(id) {
                 this.state = 'SHOP'
                 SaveSystem.data.money = this.money
                 SaveSystem.data.wave = this.wave
                 SaveSystem.save()
                 document.getElementById('hud').classList.add('hidden')
                 document.getElementById('touch-controls').classList.add('hidden')
-                document.getElementById('shop-menu').classList.remove('hidden')
+                document.getElementById(id).classList.remove('hidden')
                 this.updateShopUI()
             }
             gameOver() {
