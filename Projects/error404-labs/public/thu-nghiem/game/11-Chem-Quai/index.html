@@ -8,13 +8,16 @@
     <link rel="icon"
         href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect fill='%23111' width='32' height='32' rx='4'/><text x='16' y='22' font-size='18' fill='%230ff' text-anchor='middle'>N</text></svg>"
         type="image/svg+xml" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --ui-color: #0ff;
-            --bg-color: #111;
-            --text-shadow: 0 0 5px #0ff, 0 0 10px #0ff;
+            --ui-color-alt: #f0f;
+            --bg-color: #050510;
+            --text-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
+            --glass-bg: rgba(0, 20, 30, 0.7);
         }
-
+ 
         * {
             box-sizing: border-box;
             margin: 0;
@@ -22,11 +25,11 @@
             user-select: none;
             -webkit-user-select: none;
         }
-
+ 
         body {
             background: var(--bg-color);
             color: #fff;
-            font-family: 'Courier New', Courier, monospace;
+            font-family: 'Inter', sans-serif;
             overflow: hidden;
             touch-action: none;
         }
@@ -54,9 +57,25 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background: rgba(0, 0, 0, 0.8);
+            background: radial-gradient(circle at center, rgba(10, 20, 50, 0.8) 0%, rgba(0, 5, 10, 0.95) 100%);
             z-index: 100;
-            transition: opacity 0.3s;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(8px);
+        }
+
+        /* Hiệu ứng quét màn hình cổ điển */
+        .overlay::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 4px, 3px 100%;
+            pointer-events: none;
+            opacity: 0.3;
         }
 
         .hidden {
@@ -64,35 +83,98 @@
         }
 
         h1 {
-            font-size: 3rem;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 5rem;
+            font-weight: 900;
             color: var(--ui-color);
             text-shadow: var(--text-shadow);
-            margin-bottom: 20px;
+            margin-bottom: 40px;
             text-transform: uppercase;
             text-align: center;
+            letter-spacing: 15px;
+            animation: titleFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes titleFloat {
+            0%, 100% { transform: translateY(0) scale(1); filter: brightness(1); }
+            50% { transform: translateY(-10px) scale(1.02); filter: brightness(1.2); }
+        }
+
+        .menu-frame {
+            background: var(--glass-bg);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            padding: 60px;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-frame::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(transparent, var(--ui-color), transparent, transparent);
+            animation: rotate 4s linear infinite;
+            opacity: 0.1;
+        }
+
+        @keyframes rotate {
+            100% { transform: rotate(1turn); }
         }
 
         button {
-            background: transparent;
-            border: 2px solid var(--ui-color);
+            background: rgba(0, 255, 255, 0.05);
+            border: 1px solid var(--ui-color);
             color: var(--ui-color);
-            padding: 15px 30px;
-            font-size: 1.5rem;
-            font-family: inherit;
+            padding: 20px 40px;
+            font-size: 1.2rem;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
             cursor: pointer;
-            margin: 10px;
-            transition: all 0.2s;
+            margin: 15px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             text-shadow: 0 0 5px var(--ui-color);
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
-            min-width: 320px; /* Đảm bảo các nút menu có kích thước đồng nhất */
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.1);
+            min-width: 320px;
             text-align: center;
+            letter-spacing: 4px;
+            clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%);
+            position: relative;
+            overflow: hidden;
         }
 
-        button:hover,
-        button:active {
+        button::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        button:hover {
             background: var(--ui-color);
             color: #000;
-            box-shadow: 0 0 20px var(--ui-color);
+            box-shadow: 0 0 30px var(--ui-color);
+            transform: scale(1.05) skewX(-5deg);
+            text-shadow: none;
+        }
+
+        button:hover::after {
+            left: 100%;
+        }
+
+        button:active {
+            transform: scale(0.95);
         }
 
         button:disabled {
@@ -209,15 +291,17 @@
         }
 
         .shop-panel {
-            background: rgba(0, 20, 20, 0.95);
-            border: 2px solid var(--ui-color);
-            padding: 30px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 85vh;
+            background: rgba(5, 10, 20, 0.95);
+            border: 1px solid var(--ui-color);
+            padding: 40px;
+            border-radius: 15px;
+            width: 95%;
+            max-width: 800px;
+            max-height: 90vh;
             overflow-y: auto;
             pointer-events: auto;
+            box-shadow: 0 0 50px rgba(0, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
         }
 
         .shop-item {
@@ -354,10 +438,12 @@
         </div>
 
         <div id="main-menu" class="overlay">
-            <h1>Chém Quái</h1>
-            <button id="start-btn">BẮT ĐẦU</button>
-            <button id="how-to-play-btn">HƯỚNG DẪN</button>
-            <button id="reset-save-btn">XÓA TIẾN TRÌNH</button>
+            <div class="menu-frame">
+                <h1>Chém Quái</h1>
+                <button id="start-btn">BẮT ĐẦU</button>
+                <button id="how-to-play-btn">HƯỚNG DẪN</button>
+                <button id="reset-save-btn" style="border-color: var(--ui-color-alt); color: var(--ui-color-alt); text-shadow: 0 0 5px var(--ui-color-alt);">XÓA TIẾN TRÌNH</button>
+            </div>
         </div>
 
         <div id="instructions-menu" class="overlay hidden">
