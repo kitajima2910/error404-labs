@@ -1,2012 +1,2035 @@
 <!doctype html>
 <html lang="vi">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-        <title>Neon Striker - Game Hành Động 2.5D</title>
-        <link
-            rel="icon"
-            href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect fill='%23111' width='32' height='32' rx='4'/><text x='16' y='22' font-size='18' fill='%230ff' text-anchor='middle'>N</text></svg>"
-            type="image/svg+xml"
-        />
-        <style>
-            :root {
-                --ui-color: #0ff;
-                --bg-color: #111;
-                --text-shadow: 0 0 5px #0ff, 0 0 10px #0ff;
-            }
 
-            * {
-                box-sizing: border-box;
-                margin: 0;
-                padding: 0;
-                user-select: none;
-                -webkit-user-select: none;
-            }
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Chém Quái - Game Hành Động</title>
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect fill='%23111' width='32' height='32' rx='4'/><text x='16' y='22' font-size='18' fill='%230ff' text-anchor='middle'>N</text></svg>"
+        type="image/svg+xml" />
+    <style>
+        :root {
+            --ui-color: #0ff;
+            --bg-color: #111;
+            --text-shadow: 0 0 5px #0ff, 0 0 10px #0ff;
+        }
 
-            body {
-                background: var(--bg-color);
-                color: #fff;
-                font-family: 'Courier New', Courier, monospace;
-                overflow: hidden;
-                touch-action: none;
-            }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
 
-            #game-container {
-                position: relative;
-                width: 100vw;
-                height: 100vh;
-            }
+        body {
+            background: var(--bg-color);
+            color: #fff;
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
+            touch-action: none;
+        }
 
-            canvas {
-                display: block;
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-            }
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
 
-            .overlay {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                background: rgba(0, 0, 0, 0.8);
-                z-index: 100;
-                transition: opacity 0.3s;
-            }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
 
-            .hidden {
-                display: none !important;
-            }
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 100;
+            transition: opacity 0.3s;
+        }
 
-            h1 {
-                font-size: 3rem;
-                color: var(--ui-color);
-                text-shadow: var(--text-shadow);
-                margin-bottom: 20px;
-                text-transform: uppercase;
-                text-align: center;
-            }
+        .hidden {
+            display: none !important;
+        }
 
-            button {
-                background: transparent;
-                border: 2px solid var(--ui-color);
-                color: var(--ui-color);
-                padding: 15px 30px;
-                font-size: 1.5rem;
-                font-family: inherit;
-                cursor: pointer;
-                margin: 10px;
-                transition: all 0.2s;
-                text-shadow: 0 0 5px var(--ui-color);
-                box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
-            }
+        h1 {
+            font-size: 3rem;
+            color: var(--ui-color);
+            text-shadow: var(--text-shadow);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            text-align: center;
+        }
 
-            button:hover,
-            button:active {
-                background: var(--ui-color);
-                color: #000;
-                box-shadow: 0 0 20px var(--ui-color);
-            }
+        button {
+            background: transparent;
+            border: 2px solid var(--ui-color);
+            color: var(--ui-color);
+            padding: 15px 30px;
+            font-size: 1.5rem;
+            font-family: inherit;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.2s;
+            text-shadow: 0 0 5px var(--ui-color);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+            min-width: 320px; /* Đảm bảo các nút menu có kích thước đồng nhất */
+            text-align: center;
+        }
 
-            button:disabled {
-                border-color: #555;
-                color: #555;
-                cursor: not-allowed;
-                text-shadow: none;
-                box-shadow: none;
-            }
+        button:hover,
+        button:active {
+            background: var(--ui-color);
+            color: #000;
+            box-shadow: 0 0 20px var(--ui-color);
+        }
 
-            #hud {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                pointer-events: none;
-                z-index: 50;
-                padding: 20px;
-            }
+        button:disabled {
+            border-color: #555;
+            color: #555;
+            cursor: not-allowed;
+            text-shadow: none;
+            box-shadow: none;
+        }
 
-            .hud-top {
-                display: flex;
-                justify-content: space-between;
-                align-items: flex-start;
-            }
+        #hud {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+            padding: 20px;
+        }
 
-            .health-container {
-                width: 350px;
-                height: 30px;
-                background: rgba(255, 0, 0, 0.2);
-                border: 2px solid #fff;
-                position: relative;
-                box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
-            }
+        .hud-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
 
-            #health-bar {
-                height: 100%;
-                background: linear-gradient(90deg, #0f0, #0a0);
-                width: 100%;
-                transition: width 0.2s;
-            }
+        .health-container {
+            width: 350px;
+            height: 30px;
+            background: rgba(255, 0, 0, 0.2);
+            border: 2px solid #fff;
+            position: relative;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
+        }
 
-            .stats {
-                text-align: right;
-            }
+        #health-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #0f0, #0a0);
+            width: 100%;
+            transition: width 0.2s;
+        }
 
-            #combo-display {
-                font-size: 1.5rem;
-                font-weight: 800;
-                font-style: italic;
-                color: #ff0;
-                text-shadow: 0 0 15px rgba(255, 255, 0, 0.7);
-                opacity: 0;
-                transition: transform 0.1s, opacity 0.2s;
-                letter-spacing: 2px;
-            }
+        .stats {
+            text-align: right;
+        }
 
-            #combo-display.active {
-                opacity: 1;
-                transform: scale(1.1);
-            }
+        #combo-display {
+            font-size: 1.5rem;
+            font-weight: 800;
+            font-style: italic;
+            color: #ff0;
+            text-shadow: 0 0 15px rgba(255, 255, 0, 0.7);
+            opacity: 0;
+            transition: transform 0.1s, opacity 0.2s;
+            letter-spacing: 2px;
+        }
 
-            .crit-text {
-                color: #f0f !important;
-                text-shadow: 0 0 25px #f0f !important;
-            }
+        #combo-display.active {
+            opacity: 1;
+            transform: scale(1.1);
+        }
 
-            #currency-display {
-                font-size: 1.5rem;
-                color: var(--ui-color);
-                margin-top: 5px;
-                text-shadow: 0 0 5px var(--ui-color);
-            }
+        .crit-text {
+            color: #f0f !important;
+            text-shadow: 0 0 25px #f0f !important;
+        }
 
-            #wave-display {
-                font-size: 1.5rem;
-                text-align: center;
-                position: absolute;
-                top: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                color: #fff;
-            }
+        #currency-display {
+            font-size: 1.5rem;
+            color: var(--ui-color);
+            margin-top: 5px;
+            text-shadow: 0 0 5px var(--ui-color);
+        }
 
-            #timing-indicator {
-                position: absolute;
-                bottom: 20%;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 240px;
-                height: 14px;
-                background: #222;
-                border: 2px solid #444;
-                opacity: 0;
-                transition: opacity 0.2s;
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            }
+        #wave-display {
+            font-size: 1.5rem;
+            text-align: center;
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+        }
 
-            #timing-window {
-                position: absolute;
-                height: 100%;
-                background: rgba(0, 255, 255, 0.7);
-                box-shadow: 0 0 15px #0ff;
-            }
+        #timing-indicator {
+            position: absolute;
+            bottom: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 240px;
+            height: 14px;
+            background: #222;
+            border: 2px solid #444;
+            opacity: 0;
+            transition: opacity 0.2s;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
 
-            #timing-cursor {
-                position: absolute;
-                width: 6px;
-                height: 22px;
-                background: #fff;
-                top: -6px;
-                box-shadow: 0 0 10px #fff;
-            }
+        #timing-window {
+            position: absolute;
+            height: 100%;
+            background: rgba(0, 255, 255, 0.7);
+            box-shadow: 0 0 15px #0ff;
+        }
 
-            .shop-panel {
-                background: rgba(0, 20, 20, 0.95);
-                border: 2px solid var(--ui-color);
-                padding: 30px;
-                border-radius: 10px;
-                width: 90%;
-                max-width: 600px;
-                max-height: 85vh;
-                overflow-y: auto;
-                pointer-events: auto;
-            }
+        #timing-cursor {
+            position: absolute;
+            width: 6px;
+            height: 22px;
+            background: #fff;
+            top: -6px;
+            box-shadow: 0 0 10px #fff;
+        }
 
-            .shop-item {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 15px;
-                padding-bottom: 15px;
-                border-bottom: 1px solid #333;
-            }
+        .shop-panel {
+            background: rgba(0, 20, 20, 0.95);
+            border: 2px solid var(--ui-color);
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 85vh;
+            overflow-y: auto;
+            pointer-events: auto;
+        }
 
-            .shop-btn {
-                padding: 10px 20px;
-                font-size: 1rem;
-                min-width: 200px;
-            }
+        .shop-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #333;
+        }
 
+        .shop-btn {
+            padding: 10px 20px;
+            font-size: 1rem;
+            min-width: 200px !important; /* Ghi đè lại min-width của global button */
+        }
+
+        #touch-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40%;
+            pointer-events: none;
+            z-index: 60;
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+        }
+
+        .joystick-area {
+            width: 40%;
+            height: 100%;
+            pointer-events: auto;
+            position: relative;
+        }
+
+        .joystick-base {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 50%;
+            bottom: 20px;
+            left: 20px;
+            display: none;
+        }
+
+        .joystick-stick {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 255, 255, 0.5);
+            border-radius: 50%;
+            top: 35px;
+            left: 35px;
+        }
+
+        .action-buttons {
+            width: 50%;
+            height: 100%;
+            pointer-events: auto;
+            position: relative;
+        }
+
+        .t-btn {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid var(--ui-color);
+            color: var(--ui-color);
+            font-size: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .t-btn:active {
+            background: rgba(0, 255, 255, 0.4);
+        }
+
+        #btn-atk {
+            bottom: 20px;
+            right: 40px;
+            width: 100px;
+            height: 100px;
+            font-size: 1.2rem;
+        }
+
+        #btn-dash {
+            bottom: 20px;
+            right: 160px;
+            border-color: #f0f;
+            color: #f0f;
+        }
+
+        @media (min-width: 768px) {
             #touch-controls {
-                position: absolute;
-                bottom: 0;
-                left: 0;
-                width: 100%;
-                height: 40%;
-                pointer-events: none;
-                z-index: 60;
-                display: flex;
-                justify-content: space-between;
-                padding: 20px;
-            }
-
-            .joystick-area {
-                width: 40%;
-                height: 100%;
-                pointer-events: auto;
-                position: relative;
-            }
-
-            .joystick-base {
-                position: absolute;
-                width: 120px;
-                height: 120px;
-                background: rgba(255, 255, 255, 0.1);
-                border: 2px solid rgba(0, 255, 255, 0.3);
-                border-radius: 50%;
-                bottom: 20px;
-                left: 20px;
                 display: none;
             }
+        }
+    </style>
+</head>
 
-            .joystick-stick {
-                position: absolute;
-                width: 50px;
-                height: 50px;
-                background: rgba(0, 255, 255, 0.5);
-                border-radius: 50%;
-                top: 35px;
-                left: 35px;
-            }
+<body>
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
 
-            .action-buttons {
-                width: 50%;
-                height: 100%;
-                pointer-events: auto;
-                position: relative;
-            }
-
-            .t-btn {
-                position: absolute;
-                width: 80px;
-                height: 80px;
-                border-radius: 50%;
-                background: rgba(255, 255, 255, 0.1);
-                border: 2px solid var(--ui-color);
-                color: var(--ui-color);
-                font-size: 1rem;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                font-weight: bold;
-                text-align: center;
-            }
-
-            .t-btn:active {
-                background: rgba(0, 255, 255, 0.4);
-            }
-
-            #btn-atk {
-                bottom: 20px;
-                right: 40px;
-                width: 100px;
-                height: 100px;
-                font-size: 1.2rem;
-            }
-
-            #btn-dash {
-                bottom: 20px;
-                right: 160px;
-                border-color: #f0f;
-                color: #f0f;
-            }
-
-            @media (min-width: 768px) {
-                #touch-controls {
-                    display: none;
-                }
-            }
-        </style>
-    </head>
-
-    <body>
-        <div id="game-container">
-            <canvas id="gameCanvas"></canvas>
-
-            <div id="hud" class="hidden">
-                <div class="hud-top">
-                    <div class="health-container">
-                        <div id="health-bar"></div>
-                    </div>
-                    <div id="wave-display">MÀN 1</div>
-                    <div class="stats">
-                        <div id="currency-display">0 VNĐ</div>
-                    </div>
+        <div id="hud" class="hidden">
+            <div class="hud-top">
+                <div class="health-container">
+                    <div id="health-bar"></div>
                 </div>
-                <div id="wave-progress" style="position:absolute;top:50px;left:50%;transform:translateX(-50%);color:#0ff;font-size:1rem;text-shadow:0 0 5px #0ff"></div>
-                <button id="open-shop-btn" style="position:absolute;top:20px;right:140px;pointer-events:auto;padding:8px 16px;font-size:0.9rem;z-index:55">CỬA HÀNG (K)</button>
-                <div id="timing-indicator">
-                    <div id="timing-window"></div>
-                    <div id="timing-cursor"></div>
+                <div id="wave-display">MÀN 1</div>
+                <div class="stats">
+                    <div id="currency-display">0 VNĐ</div>
                 </div>
             </div>
-
-            <div id="main-menu" class="overlay">
-                <h1>Neon Striker</h1>
-                <div style="margin-bottom: 20px; text-align: center; line-height: 1.6">
-                    <b>Điều khiển:</b><br />
-                    Mũi tên / WASD: Di chuyển<br />
-                    J: Tấn công (Căn chuẩn để gây Chí mạng!)<br />
-                    K: Mở cửa hàng nâng cấp<br />
-                    Space: Lướt né chiêu
-                </div>
-                <button id="start-btn">BẮT ĐẦU</button>
-                <button id="reset-save-btn" style="font-size: 1rem; padding: 10px">Xóa tiến trình</button>
+            <div id="wave-progress"
+                style="position:absolute;top:50px;left:50%;transform:translateX(-50%);color:#0ff;font-size:1rem;text-shadow:0 0 5px #0ff">
             </div>
-
-            <div id="shop-menu" class="overlay hidden">
-                <div class="shop-panel">
-                    <h1>NÂNG CẤP</h1>
-                    <h3 style="text-align: right; color: #0ff; margin-bottom: 20px">
-                        Ngân sách: <span id="shop-funds">0</span> VNĐ
-                    </h3>
-                    <div class="shop-item">
-                        <span>Sát thương (+25%)</span>
-                        <button class="shop-btn" id="upg-dmg">Giá: <span id="cost-dmg">50</span> VNĐ</button>
-                    </div>
-                    <div class="shop-item">
-                        <span>Cửa sổ chí mạng (+20%)</span>
-                        <button class="shop-btn" id="upg-crit">Giá: <span id="cost-crit">75</span> VNĐ</button>
-                    </div>
-                    <div class="shop-item">
-                        <span>Máu tối đa (+100)</span>
-                        <button class="shop-btn" id="upg-hp">Giá: <span id="cost-hp">100</span> VNĐ</button>
-                    </div>
-                    <div class="shop-item">
-                        <span>Hồi lướt (-15%)</span>
-                        <button class="shop-btn" id="upg-dash">Giá: <span id="cost-dash">60</span> VNĐ</button>
-                    </div>
-
-                    <h2 style="color: #ff0; margin: 20px 0 10px 0; border-bottom: 1px solid #ff0">KỸ NĂNG</h2>
-                    <div id="skills-list">
-                        <!-- Skills will be injected here -->
-                    </div>
-
-                    <div style="text-align: center; margin-top: 20px"><button id="next-wave-btn">TIẾP TỤC</button></div>
-                </div>
-            </div>
-
-            <div id="game-over-menu" class="overlay hidden">
-                <h1 style="color: #f00">THẤT BẠI</h1>
-                <p style="font-size: 1.5rem; margin-bottom: 20px">Màn đã vượt: <span id="final-wave">0</span></p>
-                <button id="restart-btn">TRANG CHỦ</button>
-            </div>
-
-            <div id="victory-menu" class="overlay hidden">
-                <h1 style="color: #0f0">CHIẾN THẮNG!</h1>
-                <p style="font-size: 1.5rem; margin-bottom: 20px; text-align:center">Bạn đã hoàn thành tất cả 30 màn!<br>Tổng VNĐ: <span id="final-money">0</span></p>
-                <button id="victory-btn">TRANG CHỦ</button>
-            </div>
-
-            <div id="touch-controls" class="hidden">
-                <div class="joystick-area" id="joy-area">
-                    <div class="joystick-base" id="joy-base">
-                        <div class="joystick-stick" id="joy-stick"></div>
-                    </div>
-                </div>
-                <div class="action-buttons">
-                    <div class="t-btn" id="btn-dash">LƯỚT</div>
-                    <div class="t-btn" id="btn-atk">ĐÁNH</div>
-                </div>
+            <button id="open-shop-btn"
+                style="position:absolute;top:20px;right:140px;pointer-events:auto;padding:8px 16px;font-size:0.9rem;z-index:55">CỬA
+                HÀNG (K)</button>
+            <div id="timing-indicator">
+                <div id="timing-window"></div>
+                <div id="timing-cursor"></div>
             </div>
         </div>
 
-        <script>
-            // --- CONFIG & UTILS ---
-            const CONFIG = {
-                canvasWidth: 1280,
-                canvasHeight: 720,
-                fps: 60,
-                gravity: 1600,
-                floorY: 600,
-                depthScale: 0.5,
-                colors: { player: '#0ff', enemy: '#f00', advanced: '#f80', boss: '#f0f', shield: '#0f0', ranged: '#ff0', ninja: '#0ff', slime: '#0f4' },
-            }
+        <div id="main-menu" class="overlay">
+            <h1>Chém Quái</h1>
+            <button id="start-btn">BẮT ĐẦU</button>
+            <button id="how-to-play-btn">HƯỚNG DẪN</button>
+            <button id="reset-save-btn">XÓA TIẾN TRÌNH</button>
+        </div>
 
-            const SPRITES = {
-                idle: [],
-                run: [],
-                hurt: null,
-                dead: [],
-                attack: [],
-                vfx1: [], vfx2: [], vfx3: [], vfx4: [], vfx5: [], vfx6: [],
-                loaded: false,
-                load() {
-                    if (this.loaded) return
-                    let loadedCount = 0
-                    const vfxCount = 6
-                    const totalToLoad = 5 + 8 + 1 + 8 + 5 + (vfxCount * 4)
-                    const check = () => {
-                        loadedCount++
-                        if (loadedCount >= totalToLoad) this.loaded = true
-                    }
+        <div id="instructions-menu" class="overlay hidden">
+            <div class="shop-panel" style="max-width: 800px; text-align: center;">
+                <h1>HƯỚNG DẪN</h1>
+                <div style="text-align: left; line-height: 1.8; margin-bottom: 30px; font-size: 1.1rem; color: #eee;">
+                    <p><b style="color: var(--ui-color)">✦ Di Chuyển:</b> Sử dụng phím <b style="color: #fff">A/D</b>
+                        hoặc <b style="color: #fff">Mũi tên Trái/Phải</b> để di chuyển trên đường chạy vô tận. (Game đã
+                        khóa di chuyển Lên/Xuống để tập trung vào hành động 1D).</p>
+                    <p><b style="color: var(--ui-color)">✦ Tấn Công:</b> Nhấn phím <b style="color: #fff">J</b> để chém.
+                        Khi đánh trúng, thanh nhịp điệu sẽ hiện ra. Nhấn <b style="color: #fff">J</b> đúng lúc vạch
+                        trắng nằm trong vùng sáng để gây <b style="color: #ff0">CHÍ MẠNG (x3 Sát thương)</b>.</p>
+                    <p><b style="color: var(--ui-color)">✦ Lướt (Dash):</b> Nhấn phím <b style="color: #fff">Space</b>
+                        để lướt nhanh. Bạn sẽ không nhận sát thương khi đang lướt.</p>
+                    <p><b style="color: var(--ui-color)">✦ Cửa Hàng:</b> Nhấn phím <b style="color: #fff">K</b> để nâng
+                        cấp Sát thương, Máu (Max 30,000!) và mở khóa các kỹ năng Tia sét mạnh mẽ.</p>
+                    <p><b style="color: var(--ui-color)">✦ Quái vật:</b> Cẩn thận với Slime phun độc và các quái vật
+                        Ninja biết né tránh đòn đánh của bạn.</p>
+                </div>
+                <button id="back-to-menu-btn">QUAY LẠI</button>
+            </div>
+        </div>
 
-                    this.idle[0] = []
-                    for (let c = 0; c < 5; c++) {
+        <div id="shop-menu" class="overlay hidden">
+            <div class="shop-panel">
+                <h1>NÂNG CẤP</h1>
+                <h3 style="text-align: right; color: #0ff; margin-bottom: 20px">
+                    Ngân sách: <span id="shop-funds">0</span> VNĐ
+                </h3>
+                <div class="shop-item">
+                    <span>Sát thương (+25%)</span>
+                    <button class="shop-btn" id="upg-dmg">Giá: <span id="cost-dmg">50</span> VNĐ</button>
+                </div>
+                <div class="shop-item">
+                    <span>Cửa sổ chí mạng (+20%)</span>
+                    <button class="shop-btn" id="upg-crit">Giá: <span id="cost-crit">75</span> VNĐ</button>
+                </div>
+                <div class="shop-item">
+                    <span>Máu tối đa (+2500)</span>
+                    <button class="shop-btn" id="upg-hp">Giá: <span id="cost-hp">100</span> VNĐ</button>
+                </div>
+                <div class="shop-item">
+                    <span>Hồi lướt (-15%)</span>
+                    <button class="shop-btn" id="upg-dash">Giá: <span id="cost-dash">60</span> VNĐ</button>
+                </div>
+
+                <h2 style="color: #ff0; margin: 20px 0 10px 0; border-bottom: 1px solid #ff0">KỸ NĂNG</h2>
+                <div id="skills-list">
+                    <!-- Skills will be injected here -->
+                </div>
+
+                <div style="text-align: center; margin-top: 20px"><button id="next-wave-btn">TIẾP TỤC</button></div>
+            </div>
+        </div>
+
+        <div id="game-over-menu" class="overlay hidden">
+            <h1 style="color: #f00">THẤT BẠI</h1>
+            <p style="font-size: 1.5rem; margin-bottom: 20px">Màn đã vượt: <span id="final-wave">0</span></p>
+            <button id="restart-btn">TRANG CHỦ</button>
+        </div>
+
+        <div id="victory-menu" class="overlay hidden">
+            <h1 style="color: #0f0">CHIẾN THẮNG!</h1>
+            <p style="font-size: 1.5rem; margin-bottom: 20px; text-align:center">Bạn đã hoàn thành tất cả 30
+                màn!<br>Tổng VNĐ: <span id="final-money">0</span></p>
+            <button id="victory-btn">TRANG CHỦ</button>
+        </div>
+
+        <div id="touch-controls" class="hidden">
+            <div class="joystick-area" id="joy-area">
+                <div class="joystick-base" id="joy-base">
+                    <div class="joystick-stick" id="joy-stick"></div>
+                </div>
+            </div>
+            <div class="action-buttons">
+                <div class="t-btn" id="btn-dash">LƯỚT</div>
+                <div class="t-btn" id="btn-atk">ĐÁNH</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIG & UTILS ---
+        const CONFIG = {
+            canvasWidth: 1280,
+            canvasHeight: 720,
+            fps: 60,
+            gravity: 1600,
+            floorY: 600,
+            depthScale: 0.5,
+            colors: { player: '#0ff', enemy: '#f00', advanced: '#f80', boss: '#f0f', shield: '#0f0', ranged: '#ff0', ninja: '#0ff', slime: '#0f4' },
+        }
+
+        const SPRITES = {
+            idle: [],
+            run: [],
+            hurt: null,
+            dead: [],
+            attack: [],
+            vfx1: [], vfx2: [], vfx3: [], vfx4: [], vfx5: [], vfx6: [],
+            loaded: false,
+            load() {
+                if (this.loaded) return
+                let loadedCount = 0
+                const vfxCount = 6
+                const totalToLoad = 5 + 8 + 1 + 8 + 5 + (vfxCount * 4)
+                const check = () => {
+                    loadedCount++
+                    if (loadedCount >= totalToLoad) this.loaded = true
+                }
+
+                this.idle[0] = []
+                for (let c = 0; c < 5; c++) {
+                    const img = new Image()
+                    img.src = `assets/p-idle/sprite_${c}.png`
+                    img.onload = check
+                    img.onerror = check
+                    this.idle[0].push(img)
+                }
+
+                this.run[0] = []
+                for (let c = 0; c < 8; c++) {
+                    const img = new Image()
+                    img.src = `assets/p-run/sprite_${c}.png`
+                    img.onload = check
+                    img.onerror = check
+                    this.run[0].push(img)
+                }
+
+                this.hurt = new Image()
+                this.hurt.src = 'assets/p-hurt/sprite_0.png'
+                this.hurt.onload = check
+                this.hurt.onerror = check
+
+                this.dead[0] = []
+                for (let c = 0; c < 8; c++) {
+                    const img = new Image()
+                    img.src = `assets/p-dead/sprite_${c}.png`
+                    img.onload = check
+                    img.onerror = check
+                    this.dead[0].push(img)
+                }
+
+                this.attack[0] = []
+                for (let c = 0; c < 5; c++) {
+                    const img = new Image()
+                    img.src = `assets/p-attack/sprite_${c}.png`
+                    img.onload = check
+                    img.onerror = check
+                    this.attack[0].push(img)
+                }
+
+                for (let v = 1; v <= 6; v++) {
+                    this[`vfx${v}`][0] = []
+                    for (let c = 1; c <= 4; c++) {
                         const img = new Image()
-                        img.src = `assets/p-idle/sprite_${c}.png`
+                        img.src = `assets/p-skill-vfx${v}/lightning_skill${v}_frame${c}.png`
                         img.onload = check
                         img.onerror = check
-                        this.idle[0].push(img)
+                        this[`vfx${v}`][0].push(img)
                     }
+                }
+            },
+        }
 
-                    this.run[0] = []
-                    for (let c = 0; c < 8; c++) {
-                        const img = new Image()
-                        img.src = `assets/p-run/sprite_${c}.png`
-                        img.onload = check
-                        img.onerror = check
-                        this.run[0].push(img)
-                    }
+        const Utils = {
+            lerp: (a, b, t) => a + (b - a) * t,
+            clamp: (val, min, max) => Math.max(min, Math.min(max, val)),
+            rectIntersect: (r1, r2) =>
+                !(r2.x > r1.x + r1.w || r2.x + r2.w < r1.x || r2.y > r1.y + r1.h || r2.y + r2.h < r1.y),
+        }
 
-                    this.hurt = new Image()
-                    this.hurt.src = 'assets/p-hurt/sprite_0.png'
-                    this.hurt.onload = check
-                    this.hurt.onerror = check
-
-                    this.dead[0] = []
-                    for (let c = 0; c < 8; c++) {
-                        const img = new Image()
-                        img.src = `assets/p-dead/sprite_${c}.png`
-                        img.onload = check
-                        img.onerror = check
-                        this.dead[0].push(img)
-                    }
-
-                    this.attack[0] = []
-                    for (let c = 0; c < 5; c++) {
-                        const img = new Image()
-                        img.src = `assets/p-attack/sprite_${c}.png`
-                        img.onload = check
-                        img.onerror = check
-                        this.attack[0].push(img)
-                    }
-
-                    for (let v = 1; v <= 6; v++) {
-                        this[`vfx${v}`][0] = []
-                        for (let c = 1; c <= 4; c++) {
-                            const img = new Image()
-                            img.src = `assets/p-skill-vfx${v}/lightning_skill${v}_frame${c}.png`
-                            img.onload = check
-                            img.onerror = check
-                            this[`vfx${v}`][0].push(img)
-                        }
-                    }
-                },
+        // --- AUDIO MANAGER ---
+        class AudioManager {
+            constructor() {
+                const AC = window.AudioContext || window.webkitAudioContext
+                this.ctx = new AC()
+                this.enabled = true
             }
-
-            const Utils = {
-                lerp: (a, b, t) => a + (b - a) * t,
-                clamp: (val, min, max) => Math.max(min, Math.min(max, val)),
-                rectIntersect: (r1, r2) =>
-                    !(r2.x > r1.x + r1.w || r2.x + r2.w < r1.x || r2.y > r1.y + r1.h || r2.y + r2.h < r1.y),
+            init() {
+                if (this.ctx.state === 'suspended') this.ctx.resume()
             }
-
-            // --- AUDIO MANAGER ---
-            class AudioManager {
-                constructor() {
-                    const AC = window.AudioContext || window.webkitAudioContext
-                    this.ctx = new AC()
-                    this.enabled = true
-                }
-                init() {
-                    if (this.ctx.state === 'suspended') this.ctx.resume()
-                }
-                playSynth(type, freq, duration, vol, slide = null) {
-                    if (!this.enabled) return
-                    const osc = this.ctx.createOscillator()
-                    const gain = this.ctx.createGain()
-                    osc.type = type
-                    osc.connect(gain)
-                    gain.connect(this.ctx.destination)
-                    const now = this.ctx.currentTime
-                    osc.frequency.setValueAtTime(freq, now)
-                    if (slide) osc.frequency.exponentialRampToValueAtTime(slide, now + duration)
-                    gain.gain.setValueAtTime(vol, now)
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + duration)
-                    osc.start(now)
-                    osc.stop(now + duration)
-                }
-                playHit() {
-                    this.playSynth('square', 150, 0.1, 0.2, 50)
-                }
-                playCrit() {
-                    this.playSynth('sawtooth', 300, 0.2, 0.4, 100)
-                    setTimeout(() => this.playSynth('square', 600, 0.2, 0.3, 200), 50)
-                }
-                playSwing() {
-                    this.playSynth('sine', 400, 0.1, 0.1, 200)
-                }
-                playDash() {
-                    this.playSynth('triangle', 600, 0.15, 0.2, 300)
-                }
-                playBuy() {
-                    this.playSynth('square', 800, 0.1, 0.1, 1200)
-                }
-                playError() {
-                    this.playSynth('sawtooth', 100, 0.3, 0.2)
-                }
+            playSynth(type, freq, duration, vol, slide = null) {
+                if (!this.enabled) return
+                const osc = this.ctx.createOscillator()
+                const gain = this.ctx.createGain()
+                osc.type = type
+                osc.connect(gain)
+                gain.connect(this.ctx.destination)
+                const now = this.ctx.currentTime
+                osc.frequency.setValueAtTime(freq, now)
+                if (slide) osc.frequency.exponentialRampToValueAtTime(slide, now + duration)
+                gain.gain.setValueAtTime(vol, now)
+                gain.gain.exponentialRampToValueAtTime(0.01, now + duration)
+                osc.start(now)
+                osc.stop(now + duration)
             }
-            const audio = new AudioManager()
+            playHit() {
+                this.playSynth('square', 150, 0.1, 0.2, 50)
+            }
+            playCrit() {
+                this.playSynth('sawtooth', 300, 0.2, 0.4, 100)
+                setTimeout(() => this.playSynth('square', 600, 0.2, 0.3, 200), 50)
+            }
+            playSwing() {
+                this.playSynth('sine', 400, 0.1, 0.1, 200)
+            }
+            playDash() {
+                this.playSynth('triangle', 600, 0.15, 0.2, 300)
+            }
+            playBuy() {
+                this.playSynth('square', 800, 0.1, 0.1, 1200)
+            }
+            playError() {
+                this.playSynth('sawtooth', 100, 0.3, 0.2)
+            }
+        }
+        const audio = new AudioManager()
 
-            // --- SAVE SYSTEM ---
-            const SaveSystem = {
-                data: {
+        // --- SAVE SYSTEM ---
+        const SaveSystem = {
+            data: {
+                money: 0,
+                wave: 1,
+                stats: { dmgMult: 1, critWindowMult: 1, maxHp: 30000, dashCdMult: 1 },
+                costs: { dmg: 50, crit: 75, hp: 100, dash: 60 },
+                skills: { unlocked: ['vfx1'], active: 'vfx1' },
+                skillCosts: { vfx2: 500, vfx3: 1000, vfx4: 2000, vfx5: 4000, vfx6: 8000 },
+            },
+            save() {
+                localStorage.setItem('neonStrikerSave', JSON.stringify(this.data))
+            },
+            load() {
+                try {
+                    const s = localStorage.getItem('neonStrikerSave')
+                    if (s) {
+                        const parsed = JSON.parse(s)
+                        this.data = { ...this.data, ...parsed }
+                        if (this.data.stats.maxHp < 30000) this.data.stats.maxHp = 30000
+                    }
+                } catch (e) { }
+            },
+            reset() {
+                this.data = {
                     money: 0,
                     wave: 1,
                     stats: { dmgMult: 1, critWindowMult: 1, maxHp: 30000, dashCdMult: 1 },
                     costs: { dmg: 50, crit: 75, hp: 100, dash: 60 },
                     skills: { unlocked: ['vfx1'], active: 'vfx1' },
                     skillCosts: { vfx2: 500, vfx3: 1000, vfx4: 2000, vfx5: 4000, vfx6: 8000 },
-                },
-                save() {
-                    localStorage.setItem('neonStrikerSave', JSON.stringify(this.data))
-                },
-                load() {
-                    try {
-                        const s = localStorage.getItem('neonStrikerSave')
-                        if (s) {
-                            const parsed = JSON.parse(s)
-                            this.data = { ...this.data, ...parsed }
-                            if (this.data.stats.maxHp < 30000) this.data.stats.maxHp = 30000
-                        }
-                    } catch (e) {}
-                },
-                reset() {
-                    this.data = {
-                        money: 0,
-                        wave: 1,
-                        stats: { dmgMult: 1, critWindowMult: 1, maxHp: 30000, dashCdMult: 1 },
-                        costs: { dmg: 50, crit: 75, hp: 100, dash: 60 },
-                        skills: { unlocked: ['vfx1'], active: 'vfx1' },
-                        skillCosts: { vfx2: 500, vfx3: 1000, vfx4: 2000, vfx5: 4000, vfx6: 8000 },
-                    }
-                    this.save()
-                },
-            }
+                }
+                this.save()
+            },
+        }
 
-            // --- INPUT MANAGER ---
-            class InputManager {
-                constructor() {
-                    this.keys = {}
-                    this.buffer = []
-                    this.bufferTime = 0.15
-                    this.joystick = { x: 0, y: 0, active: false }
-                    window.addEventListener('keydown', (e) => {
-                        this.keys[e.code] = true
-                        this._registerAction(e.code)
-                    })
-                    window.addEventListener('keyup', (e) => {
-                        this.keys[e.code] = false
-                    })
-                    const joy = document.getElementById('joy-area'),
-                        base = document.getElementById('joy-base'),
-                        stick = document.getElementById('joy-stick')
-                    let touchId = null,
-                        startX = 0,
-                        startY = 0
-                    joy.addEventListener('touchstart', (e) => {
-                        e.preventDefault()
-                        const t = e.changedTouches[0]
-                        touchId = t.identifier
-                        startX = t.clientX
-                        startY = t.clientY
-                        base.style.display = 'block'
-                        base.style.left = startX - 60 + 'px'
-                        base.style.top = startY - 60 + 'px'
-                        stick.style.transform = `translate(0, 0)`
-                        this.joystick.active = true
-                    })
-                    joy.addEventListener('touchmove', (e) => {
-                        e.preventDefault()
-                        for (let t of e.changedTouches)
-                            if (t.identifier === touchId) {
-                                let dx = t.clientX - startX,
-                                    dy = t.clientY - startY,
-                                    dist = Math.hypot(dx, dy),
-                                    max = 50
-                                if (dist > max) {
-                                    dx = (dx / dist) * max
-                                    dy = (dy / dist) * max
-                                }
-                                stick.style.transform = `translate(${dx}px, ${dy}px)`
-                                this.joystick.x = dx / max
-                                this.joystick.y = dy / max
+        // --- INPUT MANAGER ---
+        class InputManager {
+            constructor() {
+                this.keys = {}
+                this.buffer = []
+                this.bufferTime = 0.15
+                this.joystick = { x: 0, y: 0, active: false }
+                window.addEventListener('keydown', (e) => {
+                    this.keys[e.code] = true
+                    this._registerAction(e.code)
+                })
+                window.addEventListener('keyup', (e) => {
+                    this.keys[e.code] = false
+                })
+                const joy = document.getElementById('joy-area'),
+                    base = document.getElementById('joy-base'),
+                    stick = document.getElementById('joy-stick')
+                let touchId = null,
+                    startX = 0,
+                    startY = 0
+                joy.addEventListener('touchstart', (e) => {
+                    e.preventDefault()
+                    const t = e.changedTouches[0]
+                    touchId = t.identifier
+                    startX = t.clientX
+                    startY = t.clientY
+                    base.style.display = 'block'
+                    base.style.left = startX - 60 + 'px'
+                    base.style.top = startY - 60 + 'px'
+                    stick.style.transform = `translate(0, 0)`
+                    this.joystick.active = true
+                })
+                joy.addEventListener('touchmove', (e) => {
+                    e.preventDefault()
+                    for (let t of e.changedTouches)
+                        if (t.identifier === touchId) {
+                            let dx = t.clientX - startX,
+                                dy = t.clientY - startY,
+                                dist = Math.hypot(dx, dy),
+                                max = 50
+                            if (dist > max) {
+                                dx = (dx / dist) * max
+                                dy = (dy / dist) * max
                             }
-                    })
-                    const end = (e) => {
-                        for (let t of e.changedTouches)
-                            if (t.identifier === touchId) {
-                                touchId = null
-                                base.style.display = 'none'
-                                this.joystick = { x: 0, y: 0, active: false }
-                            }
-                    }
-                    joy.addEventListener('touchend', end)
-                    joy.addEventListener('touchcancel', end)
-                    const bind = (id, code) => {
-                        const el = document.getElementById(id)
-                        if (el) {
-                            el.addEventListener('touchstart', (e) => {
-                                e.preventDefault()
-                                this._registerAction(code)
-                                this.keys[code] = true
-                            })
-                            el.addEventListener('touchend', (e) => {
-                                e.preventDefault()
-                                this.keys[code] = false
-                            })
+                            stick.style.transform = `translate(${dx}px, ${dy}px)`
+                            this.joystick.x = dx / max
+                            this.joystick.y = dy / max
                         }
-                    }
-                    bind('btn-atk', 'KeyJ')
-                    bind('btn-dash', 'Space')
+                })
+                const end = (e) => {
+                    for (let t of e.changedTouches)
+                        if (t.identifier === touchId) {
+                            touchId = null
+                            base.style.display = 'none'
+                            this.joystick = { x: 0, y: 0, active: false }
+                        }
                 }
-                _registerAction(c) {
-                    if (
-                        [
-                            'KeyJ',
-                            'Space',
-                        ].includes(c)
-                    )
-                        this.buffer.push({ code: c, time: performance.now() / 1000 })
-                }
-                update() {
-                    const now = performance.now() / 1000
-                    this.buffer = this.buffer.filter((b) => now - b.time < this.bufferTime)
-                }
-                consume(c) {
-                    const i = this.buffer.findIndex((b) => b.code === c)
-                    if (i !== -1) {
-                        this.buffer.splice(i, 1)
-                        return true
-                    }
-                    return false
-                }
-                getAxisX() {
-                    if (this.joystick.active) return this.joystick.x > 0.3 ? 1 : this.joystick.x < -0.3 ? -1 : 0
-                    return (
-                        (this.keys['ArrowRight'] || this.keys['KeyD'] ? 1 : 0) -
-                        (this.keys['ArrowLeft'] || this.keys['KeyA'] ? 1 : 0)
-                    )
-                }
-                getAxisY() {
-                    if (this.joystick.active) return this.joystick.y > 0.3 ? 1 : this.joystick.y < -0.3 ? -1 : 0
-                    return (
-                        (this.keys['ArrowDown'] || this.keys['KeyS'] ? 1 : 0) -
-                        (this.keys['ArrowUp'] || this.keys['KeyW'] ? 1 : 0)
-                    )
-                }
-            }
-
-            // --- PARTICLE SYSTEM ---
-            class ParticleSystem {
-                constructor() {
-                    this.particles = []
-                    this.ghosts = []
-                }
-                spawn(x, y, color, count, speed = 1, life = 1) {
-                    for (let i = 0; i < count; i++) {
-                        const a = Math.random() * Math.PI * 2,
-                            s = Math.random() * 400 * speed
-                        this.particles.push({
-                            x,
-                            y,
-                            vx: Math.cos(a) * s,
-                            vy: Math.sin(a) * s,
-                            life: (0.2 + Math.random() * 0.3) * life,
-                            maxLife: 0.5 * life,
-                            size: Math.random() * 10 + 5,
-                            color,
+                joy.addEventListener('touchend', end)
+                joy.addEventListener('touchcancel', end)
+                const bind = (id, code) => {
+                    const el = document.getElementById(id)
+                    if (el) {
+                        el.addEventListener('touchstart', (e) => {
+                            e.preventDefault()
+                            this._registerAction(code)
+                            this.keys[code] = true
+                        })
+                        el.addEventListener('touchend', (e) => {
+                            e.preventDefault()
+                            this.keys[code] = false
                         })
                     }
                 }
-                spawnSlash(x, y, dir, size, color) {
-                    this.particles.push({ type: 'slash', x, y, dir, size, life: 0.2, maxLife: 0.2, color })
-                    // Thêm tia lửa khi chém
-                    for (let i = 0; i < 8; i++) {
-                        const a = Math.random() - 0.5 + (dir > 0 ? 0 : Math.PI)
-                        const s = 400 + Math.random() * 400
-                        this.particles.push({
-                            x,
-                            y,
-                            vx: Math.cos(a) * s,
-                            vy: Math.sin(a) * s,
-                            life: 0.1 + Math.random() * 0.2,
-                            maxLife: 0.3,
-                            size: Math.random() * 4 + 2,
-                            color,
-                        })
-                    }
-                }
-                spawnSkillVFX(x, y, skillId) {
-                    this.particles.push({ type: 'skill_vfx', skillId, x, y, life: 0.2, maxLife: 0.2 })
-                }
-                spawnGhost(entity) {
-                    this.ghosts.push({
-                        x: entity.x,
-                        y: entity.y,
-                        z: entity.z,
-                        dir: entity.dir,
-                        life: 0.4,
-                        color: entity.color,
-                        state: entity.state,
-                        stateTime: entity.stateTime,
-                    })
-                }
-                update(dt) {
-                    for (let i = this.particles.length - 1; i >= 0; i--) {
-                        let p = this.particles[i]
-                        p.life -= dt
-                        if (p.life <= 0) {
-                            this.particles.splice(i, 1)
-                            continue
-                        }
-                        if (!p.type) {
-                            p.x += p.vx * dt
-                            p.y += p.vy * dt
-                            p.vy += CONFIG.gravity * 0.4 * dt
-                        }
-                    }
-                    for (let i = this.ghosts.length - 1; i >= 0; i--) {
-                        this.ghosts[i].life -= dt
-                        if (this.ghosts[i].life <= 0) this.ghosts.splice(i, 1)
-                    }
-                }
-                draw(ctx, drawFn) {
-                    ctx.globalCompositeOperation = 'lighter'
-                    for (let g of this.ghosts) {
-                        ctx.globalAlpha = (g.life / 0.4) * 0.3 // Mờ dần theo thời gian sống
-                        drawFn(ctx, g, true)
-                    }
-                    for (let p of this.particles) {
-                        const a = Math.max(0, p.life / p.maxLife)
-                        ctx.fillStyle = p.color
-                        ctx.globalAlpha = a
-                        if (p.type === 'slash') {
-                            ctx.save()
-                            ctx.translate(p.x, p.y)
-                            ctx.scale(p.dir, 1)
-                            const grad = ctx.createLinearGradient(0, 0, p.size, 0)
-                            grad.addColorStop(0, '#fff')
-                            grad.addColorStop(0.5, p.color)
-                            grad.addColorStop(1, 'transparent')
-
-                            ctx.shadowBlur = 20 * a
-                            ctx.shadowColor = p.color
-                            ctx.fillStyle = grad
-                            ctx.beginPath()
-                            ctx.moveTo(0, -p.size * 0.4)
-                            ctx.quadraticCurveTo(p.size * 1.2, 0, 0, p.size * 0.4)
-                            ctx.lineTo(0, -p.size * 0.4)
-                            ctx.fill()
-
-                            // Đường viền sáng rực
-                            ctx.strokeStyle = '#fff'
-                            ctx.lineWidth = 2 * a
-                            ctx.stroke()
-                            ctx.restore()
-                        } else if (p.type === 'skill_vfx') {
-                            const frames = SPRITES[p.skillId][0]
-                            const frameIdx = Math.min(Math.floor((1 - a) * frames.length), frames.length - 1)
-                            const sprite = frames[frameIdx]
-                            if (sprite && sprite.complete) {
-                                ctx.save()
-                                ctx.globalCompositeOperation = 'source-over'
-                                ctx.translate(p.x, p.y)
-                                const sz = 200
-                                ctx.drawImage(sprite, -sz / 2, -sz / 2, sz, sz)
-                                ctx.restore()
-                            }
-                        } else {
-                            const s = p.size * a
-                            ctx.fillRect(p.x - s / 2, p.y - s / 2, s, s)
-                        }
-                    }
-                    ctx.globalAlpha = 1.0
-                    ctx.globalCompositeOperation = 'source-over'
-                }
+                bind('btn-atk', 'KeyJ')
+                bind('btn-dash', 'Space')
             }
-
-            // --- CAMERA ---
-            class Camera {
-                constructor() {
-                    this.x = 0
-                    this.y = 0
-                    this.zoom = 1
-                    this.targetZoom = 1
-                    this.shakeT = 0
-                    this.shakeI = 0
-                }
-                shake(i, d) {
-                    this.shakeI = i
-                    this.shakeT = d
-                }
-                update(dt, t) {
-                    const tx = t.x - CONFIG.canvasWidth / 2,
-                        ty = t.y - CONFIG.canvasHeight / 1.5
-                    this.x = Utils.lerp(this.x, tx, 10 * dt)
-                    this.y = Utils.lerp(this.y, ty, 10 * dt)
-                    this.zoom = Utils.lerp(this.zoom, this.targetZoom, 15 * dt)
-                    if (this.shakeT > 0) this.shakeT -= dt
-                }
-                apply(ctx) {
-                    ctx.translate(CONFIG.canvasWidth / 2, CONFIG.canvasHeight / 2)
-                    ctx.scale(this.zoom, this.zoom)
-                    let sx = 0,
-                        sy = 0
-                    if (this.shakeT > 0) {
-                        sx = (Math.random() - 0.5) * this.shakeI
-                        sy = (Math.random() - 0.5) * this.shakeI
-                    }
-                    ctx.translate(-CONFIG.canvasWidth / 2 - this.x + sx, -CONFIG.canvasHeight / 2 - this.y + sy)
-                }
+            _registerAction(c) {
+                if (
+                    [
+                        'KeyJ',
+                        'Space',
+                    ].includes(c)
+                )
+                    this.buffer.push({ code: c, time: performance.now() / 1000 })
             }
-
-            // --- ENTITIES ---
-            class Entity {
-                constructor(x, y, z, w, h) {
-                    this.x = x
-                    this.y = y
-                    this.z = z
-                    this.w = w
-                    this.h = h
-                    this.vx = 0
-                    this.vy = 0
-                    this.vz = 0
-                    this.dir = 1
-                    this.hp = 100
-                    this.maxHp = 100
-                    this.state = 'IDLE'
-                    this.stateTime = 0
-                    this.color = '#fff'
-                    this.hitFlicker = 0
-                    this.weaponType = 'sword'
-                }
-                getDrawY() {
-                    return this.y - this.z
-                }
-                getHitbox() {
-                    return { x: this.x - this.w / 2, y: this.getDrawY() - this.h, w: this.w, h: this.h }
-                }
-                updatePhysics(dt) {
-                    this.x += this.vx * dt
-                    this.y += this.vy * dt
-                    this.z += this.vz * dt
-                    if (this.z > 0) this.vz -= CONFIG.gravity * dt
-                    else {
-                        this.z = 0
-                        this.vz = 0
-                    }
-                    if (this.state !== 'DASH') {
-                        this.vx *= Math.pow(0.001, dt)
-                        this.vy *= Math.pow(0.001, dt)
-                    }
-                    this.y = Utils.clamp(this.y, CONFIG.floorY - 1000, CONFIG.floorY + 1000)
-                    // Không còn clamp X để map vô tận
-                }
-                changeState(s) {
-                    if (this.state === s) return
-                    this.state = s
-                    this.stateTime = 0
-                }
-                takeDamage(a, kbx, src) {
-                    if (this.state === 'DEAD' || this.state === 'DASH') return false
-                    this.hp -= a
-                    this.hitFlicker = 0.1
-                    this.vx = kbx
-                    if (this.hp <= 0) {
-                        this.hp = 0
-                        this.changeState('DEAD')
-                        this.vz = 300
-                        audio.playSynth('sawtooth', 80, 0.4, 0.4)
-                    } else {
-                        this.changeState('HURT')
-                        audio.playHit()
-                    }
+            update() {
+                const now = performance.now() / 1000
+                this.buffer = this.buffer.filter((b) => now - b.time < this.bufferTime)
+            }
+            consume(c) {
+                const i = this.buffer.findIndex((b) => b.code === c)
+                if (i !== -1) {
+                    this.buffer.splice(i, 1)
                     return true
                 }
-                static drawEntity(ctx, e, isGhost = false) {
-                    const t = e.stateTime,
-                        drawY = e.y - e.z
-                    ctx.save()
-                    ctx.translate(e.x, drawY)
-                    ctx.scale(e.dir, 1)
-                    if (!isGhost && e.hitFlicker > 0) ctx.filter = 'brightness(4)'
+                return false
+            }
+            getAxisX() {
+                if (this.joystick.active) return this.joystick.x > 0.3 ? 1 : this.joystick.x < -0.3 ? -1 : 0
+                return (
+                    (this.keys['ArrowRight'] || this.keys['KeyD'] ? 1 : 0) -
+                    (this.keys['ArrowLeft'] || this.keys['KeyA'] ? 1 : 0)
+                )
+            }
+            getAxisY() {
+                if (this.joystick.active) return this.joystick.y > 0.3 ? 1 : this.joystick.y < -0.3 ? -1 : 0
+                return (
+                    (this.keys['ArrowDown'] || this.keys['KeyS'] ? 1 : 0) -
+                    (this.keys['ArrowUp'] || this.keys['KeyW'] ? 1 : 0)
+                )
+            }
+        }
 
-                    const isPlayer = e.constructor.name === 'Player'
-                    if (SPRITES.loaded && !isGhost && isPlayer) {
-                        const sSize = 110 // Tăng quy mô nhân vật để ngang bằng với kẻ địch
-                        let sprite = null
-                        if (e.state === 'IDLE') {
-                            const totalFrames = 5
-                            sprite = SPRITES.idle[0][Math.floor(t * 10) % totalFrames]
-                        } else if (e.state === 'RUN') {
-                            const totalFrames = 8
-                            sprite = SPRITES.run[0][Math.floor(t * 12) % totalFrames]
-                        } else if (e.state === 'HURT') {
-                            sprite = SPRITES.hurt
-                        } else if (e.state === 'DEAD') {
-                            const totalFrames = 8
-                            sprite = SPRITES.dead[0][Math.min(Math.floor(t * 6), totalFrames - 1)]
-                        } else if (e.state.startsWith('ATTACK')) {
-                            const step = parseInt(e.state.split('_')[1])
-                            const atk = e.attacks[step]
-                            const totalDur = atk.startup + atk.active + atk.recover
-                            const totalFrames = 5
-                            sprite =
-                                SPRITES.attack[0][Math.min(Math.floor((t / totalDur) * totalFrames), totalFrames - 1)]
-                        }
+        // --- PARTICLE SYSTEM ---
+        class ParticleSystem {
+            constructor() {
+                this.particles = []
+                this.ghosts = []
+            }
+            spawn(x, y, color, count, speed = 1, life = 1) {
+                for (let i = 0; i < count; i++) {
+                    const a = Math.random() * Math.PI * 2,
+                        s = Math.random() * 400 * speed
+                    this.particles.push({
+                        x,
+                        y,
+                        vx: Math.cos(a) * s,
+                        vy: Math.sin(a) * s,
+                        life: (0.2 + Math.random() * 0.3) * life,
+                        maxLife: 0.5 * life,
+                        size: Math.random() * 10 + 5,
+                        color,
+                    })
+                }
+            }
+            spawnSlash(x, y, dir, size, color) {
+                this.particles.push({ type: 'slash', x, y, dir, size, life: 0.2, maxLife: 0.2, color })
+                // Thêm tia lửa khi chém
+                for (let i = 0; i < 8; i++) {
+                    const a = Math.random() - 0.5 + (dir > 0 ? 0 : Math.PI)
+                    const s = 400 + Math.random() * 400
+                    this.particles.push({
+                        x,
+                        y,
+                        vx: Math.cos(a) * s,
+                        vy: Math.sin(a) * s,
+                        life: 0.1 + Math.random() * 0.2,
+                        maxLife: 0.3,
+                        size: Math.random() * 4 + 2,
+                        color,
+                    })
+                }
+            }
+            spawnSkillVFX(x, y, skillId) {
+                this.particles.push({ type: 'skill_vfx', skillId, x, y, life: 0.2, maxLife: 0.2 })
+            }
+            spawnGhost(entity) {
+                this.ghosts.push({
+                    x: entity.x,
+                    y: entity.y,
+                    z: entity.z,
+                    dir: entity.dir,
+                    life: 0.4,
+                    color: entity.color,
+                    state: entity.state,
+                    stateTime: entity.stateTime,
+                })
+            }
+            update(dt) {
+                for (let i = this.particles.length - 1; i >= 0; i--) {
+                    let p = this.particles[i]
+                    p.life -= dt
+                    if (p.life <= 0) {
+                        this.particles.splice(i, 1)
+                        continue
+                    }
+                    if (!p.type) {
+                        p.x += p.vx * dt
+                        p.y += p.vy * dt
+                        p.vy += CONFIG.gravity * 0.4 * dt
+                    }
+                }
+                for (let i = this.ghosts.length - 1; i >= 0; i--) {
+                    this.ghosts[i].life -= dt
+                    if (this.ghosts[i].life <= 0) this.ghosts.splice(i, 1)
+                }
+            }
+            draw(ctx, drawFn) {
+                ctx.globalCompositeOperation = 'lighter'
+                for (let g of this.ghosts) {
+                    ctx.globalAlpha = (g.life / 0.4) * 0.3 // Mờ dần theo thời gian sống
+                    drawFn(ctx, g, true)
+                }
+                for (let p of this.particles) {
+                    const a = Math.max(0, p.life / p.maxLife)
+                    ctx.fillStyle = p.color
+                    ctx.globalAlpha = a
+                    if (p.type === 'slash') {
+                        ctx.save()
+                        ctx.translate(p.x, p.y)
+                        ctx.scale(p.dir, 1)
+                        const grad = ctx.createLinearGradient(0, 0, p.size, 0)
+                        grad.addColorStop(0, '#fff')
+                        grad.addColorStop(0.5, p.color)
+                        grad.addColorStop(1, 'transparent')
 
-                        if (sprite && sprite.complete) {
-                            ctx.drawImage(sprite, -sSize / 2, -sSize, sSize, sSize)
-                            ctx.restore()
-                            return
-                        }
-                    }
-
-                    let sX = 1,
-                        sY = 1,
-                        bOff = 0,
-                        headBob = Math.sin(t * 12) * 2,
-                        legM = 0,
-                        armA = 0
-                    if (e.state === 'RUN') {
-                        legM = Math.sin(t * 18) * 18
-                        armA = -Math.sin(t * 18) * 25
-                        bOff = Math.sin(t * 18) * 4
-                    } else if (e.state.startsWith('ATTACK')) {
-                        armA = 70
-                        sX = 1.2
-                        bOff = 2
-                    } else if (e.state === 'DASH') {
-                        sX = 1.6
-                        sY = 0.6
-                    }
-
-                    const bs = e.bodyScale || 1.0
-                    ctx.scale(sX * bs, sY * bs)
-                    ctx.strokeStyle = e.color
-                    ctx.lineWidth = 4
-                    ctx.lineCap = 'round'
-                    if (!isGhost) {
-                        ctx.shadowBlur = 15
-                        ctx.shadowColor = e.color
-                    }
-
-                    ctx.fillStyle = isGhost ? e.color : '#111'
-                    // Body shape theo loại quái
-                    if (e.type === 'ninja') {
-                        // Ninja: thân mỏng, nhanh nhẹn
-                        ctx.fillRect(-7, -50 + bOff, 14, 28)
-                        ctx.strokeRect(-7, -50 + bOff, 14, 28)
-                        ctx.beginPath(); ctx.arc(0, -57 + bOff + headBob, 8, 0, Math.PI * 2); ctx.fill(); ctx.stroke()
-                        if (!isGhost) { ctx.fillStyle = '#f00'; ctx.fillRect(3, -60 + bOff + headBob, 5, 2) }
-                        // Khăn ninja bay
-                        ctx.strokeStyle = '#0ff'; ctx.lineWidth = 2
-                        ctx.beginPath(); ctx.moveTo(-8, -57 + bOff); ctx.lineTo(-18 + Math.sin(t*15)*5, -62 + bOff); ctx.stroke()
-                        ctx.strokeStyle = e.color; ctx.lineWidth = 4
-                    } else if (e.type === 'shield') {
-                        // Shield: thân rộng, vai to
-                        ctx.fillRect(-14, -55 + bOff, 28, 38)
-                        ctx.strokeRect(-14, -55 + bOff, 28, 38)
-                        ctx.beginPath(); ctx.arc(0, -65 + bOff + headBob, 12, 0, Math.PI * 2); ctx.fill(); ctx.stroke()
-                        if (!isGhost) { ctx.fillStyle = '#fff'; ctx.fillRect(3, -68 + bOff + headBob, 7, 3) }
-                        // Vai giáp
-                        ctx.fillStyle = e.color; ctx.globalAlpha = 0.4
-                        ctx.fillRect(-18, -55 + bOff, 6, 12); ctx.fillRect(12, -55 + bOff, 6, 12)
-                        ctx.globalAlpha = 1.0
-                    } else if (e.type === 'advanced') {
-                        // Advanced: cơ bắp
-                        ctx.fillRect(-12, -55 + bOff, 24, 38)
-                        ctx.strokeRect(-12, -55 + bOff, 24, 38)
-                        ctx.beginPath(); ctx.arc(0, -65 + bOff + headBob, 11, 0, Math.PI * 2); ctx.fill(); ctx.stroke()
-                        if (!isGhost) { ctx.fillStyle = '#fff'; ctx.fillRect(3, -68 + bOff + headBob, 7, 3) }
-                    } else if (e.type === 'slime') {
-                        // Slime: dạng giọt nước co giãn
-                        const squash = 1 + Math.sin(t * 10) * 0.1
-                        const stretch = 1 / squash
-                        ctx.scale(squash, stretch)
-                        ctx.beginPath();
-                        ctx.arc(0, -20, 20, Math.PI, 0);
-                        ctx.lineTo(20, 0); ctx.lineTo(-20, 0);
-                        ctx.closePath();
-                        ctx.fillStyle = e.color; ctx.globalAlpha = 0.6; ctx.fill();
-                        ctx.globalAlpha = 1.0; ctx.strokeStyle = '#fff'; ctx.stroke();
-                        // Mắt slime
-                        ctx.fillStyle = '#fff';
-                        ctx.beginPath(); ctx.arc(-7, -15, 3, 0, Math.PI * 2); ctx.fill();
-                        ctx.beginPath(); ctx.arc(7, -15, 3, 0, Math.PI * 2); ctx.fill();
-                        ctx.restore(); return; // Slime không có chân tay
-                    } else {
-                        // Basic / Boss
-                        ctx.fillRect(-10, -55 + bOff, 20, 35)
-                        ctx.strokeRect(-10, -55 + bOff, 20, 35)
-                        ctx.beginPath(); ctx.arc(0, -65 + bOff + headBob, 10, 0, Math.PI * 2); ctx.fill(); ctx.stroke()
-                        if (!isGhost) { ctx.fillStyle = '#fff'; ctx.fillRect(3, -68 + bOff + headBob, 7, 3) }
-                    }
-                    // Chân
-                    ctx.beginPath(); ctx.moveTo(-5, -20 + bOff); ctx.lineTo(-5 - legM, 0); ctx.stroke()
-                    ctx.beginPath(); ctx.moveTo(5, -20 + bOff); ctx.lineTo(5 + legM, 0); ctx.stroke()
-                    // Tay trái
-                    ctx.save()
-                    ctx.translate(-8, -50 + bOff)
-                    ctx.rotate((-armA * Math.PI) / 180)
-                    ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, 22); ctx.stroke()
-                    // Shield luôn cầm khiên (tay trái)
-                    if (e.type === 'shield' && !isGhost) {
-                        ctx.strokeStyle = '#0f0'; ctx.lineWidth = 3
-                        ctx.strokeRect(-12, 5, 10, 30)
-                        ctx.fillStyle = 'rgba(0,255,0,0.15)'; ctx.fillRect(-12, 5, 10, 30)
-                        ctx.strokeStyle = e.color; ctx.lineWidth = 4
-                    }
-                    ctx.restore()
-                    // Tay phải + vũ khí
-                    ctx.save()
-                    ctx.translate(8, -50 + bOff)
-                    ctx.rotate((armA * Math.PI) / 180)
-                    ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, 22); ctx.stroke()
-                    if (e.state.startsWith('ATTACK') && !isGhost) {
-                        ctx.strokeStyle = '#fff'
-                        ctx.lineWidth = 4
+                        ctx.shadowBlur = 20 * a
+                        ctx.shadowColor = p.color
+                        ctx.fillStyle = grad
                         ctx.beginPath()
-                        if (e.weaponType === 'hammer') {
-                            ctx.lineWidth = 6
-                            ctx.moveTo(0, 0); ctx.lineTo(10, 35); ctx.stroke()
-                            ctx.fillStyle = '#aaa'; ctx.fillRect(-10, 25, 30, 15)
-                        } else if (e.weaponType === 'dagger') {
-                            ctx.lineWidth = 3; ctx.strokeStyle = '#0ff'
-                            ctx.moveTo(0, 18); ctx.lineTo(18, 30); ctx.stroke()
-                            ctx.moveTo(0, 18); ctx.lineTo(8, 12); ctx.stroke() // guard
-                        } else if (e.weaponType === 'bow') {
-                            ctx.beginPath(); ctx.arc(12, 18, 18, -Math.PI/2, Math.PI/2); ctx.stroke()
-                            ctx.moveTo(12, 0); ctx.lineTo(12, 36); ctx.stroke()
-                        } else if (e.weaponType === 'shield') {
-                            ctx.strokeStyle = '#fff'; ctx.moveTo(0, 20); ctx.lineTo(20, 38); ctx.stroke()
-                        } else {
-                            ctx.lineWidth = 5
-                            ctx.moveTo(0, 22); ctx.lineTo(25, 45); ctx.stroke()
-                        }
-                    } else if (!isGhost) {
-                        // Vũ khí khi IDLE/RUN
-                        ctx.strokeStyle = e.color; ctx.globalAlpha = 0.4; ctx.lineWidth = 2
-                        if (e.weaponType === 'bow') {
-                            ctx.beginPath(); ctx.arc(8, 18, 12, -Math.PI/2, Math.PI/2); ctx.stroke()
-                        } else if (e.weaponType === 'dagger') {
-                            ctx.beginPath(); ctx.moveTo(0, 20); ctx.lineTo(10, 28); ctx.stroke()
-                        } else if (e.weaponType === 'hammer') {
-                            ctx.beginPath(); ctx.moveTo(0, 10); ctx.lineTo(0, 30); ctx.stroke()
-                            ctx.fillStyle = e.color; ctx.fillRect(-5, 22, 12, 8)
-                        }
-                        ctx.globalAlpha = 1.0
-                    }
-                    ctx.restore()
-                    ctx.restore()
-                }
-                draw(ctx) {
-                    ctx.fillStyle = 'rgba(0,0,0,0.3)'
-                    ctx.beginPath()
-                    ctx.ellipse(this.x, this.y, this.w / 1.1, this.w / 4, 0, 0, Math.PI * 2)
-                    ctx.fill()
-                    Entity.drawEntity(ctx, this)
-                }
-            }
+                        ctx.moveTo(0, -p.size * 0.4)
+                        ctx.quadraticCurveTo(p.size * 1.2, 0, 0, p.size * 0.4)
+                        ctx.lineTo(0, -p.size * 0.4)
+                        ctx.fill()
 
-            class Player extends Entity {
-                constructor(x, y) {
-                    super(x, y, 0, 40, 80)
-                    this.color = CONFIG.colors.player
-                    this.maxHp = SaveSystem.data.stats.maxHp
-                    this.hp = this.maxHp
-                    this.speed = 400
-                    this.dashSpeed = 1200
-                    this.dashCd = 0
-                    this.attackStep = 0
-                    this.ghostTimer = 0
-                    this.attacks = [
-                        { startup: 0.05, active: 0.08, recover: 0.12, dmg: 10, w: 85, h: 60, offset: 60, force: 180 },
-                        { startup: 0.05, active: 0.08, recover: 0.12, dmg: 15, w: 95, h: 70, offset: 70, force: 250 },
-                        { startup: 0.08, active: 0.12, recover: 0.25, dmg: 35, w: 120, h: 100, offset: 80, force: 600 },
-                    ]
-                }
-                update(dt, input, particles) {
-                    this.stateTime += dt
-                    if (this.hitFlicker > 0) this.hitFlicker -= dt
-                    if (this.dashCd > 0) this.dashCd -= dt
-                    if (this.state === 'DEAD') {
-                        this.updatePhysics(dt)
-                        return
-                    }
-                    const canM =
-                        [
-                            'IDLE',
-                            'RUN',
-                        ].includes(this.state) || !this.state.startsWith('ATTACK')
-                    if (canM) {
-                        const ax = input.getAxisX(),
-                            ay = input.getAxisY()
-                        if (ax !== 0 || ay !== 0) {
-                            const len = Math.hypot(ax, ay)
-                            this.vx = Utils.lerp(this.vx, (ax / len) * this.speed, 20 * dt)
-                            this.vy = Utils.lerp(this.vy, (ay / len) * this.speed * CONFIG.depthScale, 20 * dt)
-                            this.dir = ax !== 0 ? (ax > 0 ? 1 : -1) : this.dir
-                            this.changeState('RUN')
-                        } else this.changeState('IDLE')
-                    }
-                    if (canM || (this.state.startsWith('ATTACK') && this.isCritWindow)) {
-                        if (input.consume('KeyJ')) {
-                            this.nextCrit = this.isCritWindow
-                            this.changeState(`ATTACK_${this.attackStep}`)
-                            this.vx = this.dir * 250
-                            audio.playSwing()
-                            // Tạo hiệu ứng tia sét ngay khi nhấn chém (kể cả chém không khí)
-                            particles.spawnSkillVFX(this.x + this.dir * 70, this.getDrawY() - this.h / 2, SaveSystem.data.skills.active)
-                        }
-                    }
-                    if (canM && input.consume('Space') && this.dashCd <= 0) {
-                        this.changeState('DASH')
-                        this.vx = this.dir * this.dashSpeed
-                        this.dashCd = 0.7 * SaveSystem.data.stats.dashCdMult
-                        audio.playDash()
-                        particles.spawnGhost(this)
-                        this.ghostTimer = 0.04 // Khởi tạo thời gian tạo bóng
-                    }
-
-                    // Hiệu ứng bóng mờ khi đang lướt
-                    if (this.state === 'DASH') {
-                        this.ghostTimer -= dt
-                        if (this.ghostTimer <= 0) {
-                            particles.spawnGhost(this)
-                            this.ghostTimer = 0.04
-                        }
-                    }
-
-                    this._handleStates()
-                    this.updatePhysics(dt)
-                }
-                _handleStates() {
-                    if (this.state.startsWith('ATTACK_')) {
-                        const atk = this.attacks[parseInt(this.state.split('_')[1])],
-                            total = atk.startup + atk.active + atk.recover
-                        const critStart = atk.startup + atk.active + atk.recover * 0.1,
-                            critW = 0.2 * SaveSystem.data.stats.critWindowMult
-                        this.isCritWindow = this.stateTime >= critStart && this.stateTime <= critStart + critW
-                        if (this.stateTime > total) {
-                            this.attackStep = (this.attackStep + 1) % 3
-                            this.changeState('IDLE')
-                            this.isCritWindow = false
-                        }
-                    } else if (this.state === 'DASH' && this.stateTime > 0.2) this.changeState('IDLE')
-                    else if (this.state === 'HURT' && this.stateTime > 0.3) {
-                        this.changeState('IDLE')
-                        this.attackStep = 0
-                    }
-                }
-                getCurrentAttackBox() {
-                    let atk
-                    if (this.state.startsWith('ATTACK_')) atk = this.attacks[parseInt(this.state.split('_')[1])]
-                    if (!atk || this.stateTime < atk.startup || this.stateTime > atk.startup + atk.active) return null
-                    return {
-                        x: this.x + (this.dir > 0 ? 0 : -atk.w) + (this.dir * atk.offset) / 2,
-                        y: this.getDrawY() - this.h / 2 - atk.h / 2,
-                        w: atk.w,
-                        h: atk.h,
-                        dmg: atk.dmg,
-                        force: atk.force,
-                    }
-                }
-            }
-
-            class Enemy extends Entity {
-                constructor(x, y, type = 'basic', wave = 1) {
-                    super(x, y, 0, 40, 70)
-                    this.type = type
-                    this.atkCd = Math.random() * 1.5
-                    const scale = 1 + (wave - 1) * 0.12
-                    this.weaponType = 'sword'
-                    this.bodyScale = 1.0 // Tỷ lệ cơ thể
-                    this.dodgeCd = 0 // Cooldown né
-                    this.canDodge = false
-                    if (type === 'basic') {
-                        this.color = CONFIG.colors.enemy
-                        this.hp = this.maxHp = Math.floor(40 * scale)
-                        this.speed = 140 + wave * 3
-                        this.atkR = 75
-                        this.bodyScale = 0.9
-                    } else if (type === 'ninja') {
-                        this.color = '#0ff'
-                        this.hp = this.maxHp = Math.floor(25 * scale)
-                        this.speed = 280 + wave * 4
-                        this.atkR = 65
-                        this.weaponType = 'dagger'
-                        this.bodyScale = 0.75
-                        this.w = 30; this.h = 60
-                        this.canDodge = true
-                    } else if (type === 'shield') {
-                        this.color = CONFIG.colors.shield
-                        this.hp = this.maxHp = Math.floor(150 * scale)
-                        this.speed = 90 + wave * 2
-                        this.atkR = 65
-                        this.weaponType = 'shield'
-                        this.w = 55; this.h = 80
-                        this.bodyScale = 1.2
-                    } else if (type === 'ranged') {
-                        this.color = CONFIG.colors.ranged
-                        this.hp = this.maxHp = Math.floor(30 * scale)
-                        this.speed = 160 + wave * 2
-                        this.atkR = 400
-                        this.weaponType = 'bow'
-                        this.bodyScale = 0.85
-                    } else if (type === 'advanced') {
-                        this.color = CONFIG.colors.advanced
-                        this.hp = this.maxHp = Math.floor(100 * scale)
-                        this.speed = 160 + wave * 3
-                        this.atkR = 110
-                        this.w = 55; this.h = 85
-                        this.weaponType = 'hammer'
-                        this.bodyScale = 1.3
-                    } else if (type === 'boss') {
-                        this.color = CONFIG.colors.boss
-                        this.hp = this.maxHp = Math.floor(800 * scale)
-                        this.speed = 190 + wave * 2
-                        this.atkR = 140
-                        this.w = 80; this.h = 140
-                        this.bodyScale = 2.0
-                        this.canDodge = true
-                    } else if (type === 'slime') {
-                        this.color = CONFIG.colors.slime
-                        this.hp = this.maxHp = Math.floor(50 * scale)
-                        this.speed = 100 + wave * 2
-                        this.atkR = 300
-                        this.weaponType = 'poison'
-                        this.bodyScale = 1.0
-                        this.jumpCd = 0
-                    }
-                    this.dmgScale = scale
-                }
-                _tryDodge(player) {
-                    if (!this.canDodge || this.dodgeCd > 0 || this.state === 'ATTACK') return false
-                    // Né khi player đang tấn công và ở gần
-                    const d = Math.abs(player.x - this.x)
-                    if (player.state.startsWith('ATTACK') && d < 150) {
-                        const dodgeDir = this.x > player.x ? 1 : -1
-                        this.vx = dodgeDir * this.speed * 3
-                        this.vy = (Math.random() - 0.5) * this.speed * 2
-                        this.dodgeCd = this.type === 'ninja' ? 1.5 : 3.0
-                        this.changeState('RUN')
-                        return true
-                    }
-                    return false
-                }
-                update(dt, player) {
-                    this.stateTime += dt
-                    if (this.hitFlicker > 0) this.hitFlicker -= dt
-                    if (this.atkCd > 0) this.atkCd -= dt
-                    if (this.dodgeCd > 0) this.dodgeCd -= dt
-                    if (this.jumpCd >= 0) this.jumpCd -= dt
-                    if (this.state === 'DEAD') {
-                        this.vx *= 0.95
-                        this.updatePhysics(dt)
-                        return
-                    }
-                    // Thử né trước
-                    if (this._tryDodge(player)) { this.updatePhysics(dt); return }
-                    if (this.state === 'HURT') {
-                        if (this.stateTime > (this.type === 'boss' ? 0.15 : 0.25)) this.changeState('IDLE')
-                    } else if (this.state === 'ATTACK') {
-                        const atkDur = this.type === 'ninja' ? 0.4 : (this.type === 'advanced' ? 0.9 : 0.7)
-                        if (this.stateTime > atkDur) this.changeState('IDLE')
-                        // Spawn đạn cho quái Ranged hoặc Slime
-                        if ((this.type === 'ranged' || this.type === 'slime') && this.stateTime > 0.35 && !this._hasShot) {
-                            const game = window._gameInstance
-                            if (game) {
-                                const dx = player.x - this.x, dy = (player.getDrawY() - 20) - (this.getDrawY() - 20)
-                                const dist = Math.hypot(dx, dy) || 1
-                                game.projectiles.push({
-                                    x: this.x + this.dir * 20,
-                                    y: this.getDrawY() - 20,
-                                    vx: (dx / dist) * 500,
-                                    vy: (dy / dist) * 500,
-                                    dmg: Math.floor((this.type === 'slime' ? 10 : 12) * (this.dmgScale || 1)),
-                                    color: this.type === 'slime' ? '#0f4' : '#fff',
-                                    life: 3
-                                })
-                                this._hasShot = true
-                            }
+                        // Đường viền sáng rực
+                        ctx.strokeStyle = '#fff'
+                        ctx.lineWidth = 2 * a
+                        ctx.stroke()
+                        ctx.restore()
+                    } else if (p.type === 'skill_vfx') {
+                        const frames = SPRITES[p.skillId][0]
+                        const frameIdx = Math.min(Math.floor((1 - a) * frames.length), frames.length - 1)
+                        const sprite = frames[frameIdx]
+                        if (sprite && sprite.complete) {
+                            ctx.save()
+                            ctx.globalCompositeOperation = 'source-over'
+                            ctx.translate(p.x, p.y)
+                            const sz = 200
+                            ctx.drawImage(sprite, -sz / 2, -sz / 2, sz, sz)
+                            ctx.restore()
                         }
                     } else {
-                        const dx = player.x - this.x,
-                            dy = player.y - this.y,
-                            d = Math.hypot(dx, dy)
-                        
-                        if (this.type === 'slime') {
-                            // Slime logic: Nhảy nhót tiến lại gần để phun độc
-                            if (this.z === 0 && this.jumpCd <= 0) {
-                                this.vz = 400 + Math.random() * 200
-                                this.vx = Math.sign(dx) * this.speed * 2
-                                this.vy = Math.sign(dy) * this.speed * CONFIG.depthScale
-                                this.jumpCd = 1.0 + Math.random()
-                                this.changeState('RUN')
-                            }
-                            if (d < this.atkR && this.atkCd <= 0 && this.z === 0) {
+                        const s = p.size * a
+                        ctx.fillRect(p.x - s / 2, p.y - s / 2, s, s)
+                    }
+                }
+                ctx.globalAlpha = 1.0
+                ctx.globalCompositeOperation = 'source-over'
+            }
+        }
+
+        // --- CAMERA ---
+        class Camera {
+            constructor() {
+                this.x = 0
+                this.y = 0
+                this.zoom = 1
+                this.targetZoom = 1
+                this.shakeT = 0
+                this.shakeI = 0
+            }
+            shake(i, d) {
+                this.shakeI = i
+                this.shakeT = d
+            }
+            update(dt, t) {
+                const tx = t.x - CONFIG.canvasWidth / 2,
+                    ty = CONFIG.floorY - CONFIG.canvasHeight / 1.5
+                this.x = Utils.lerp(this.x, tx, 10 * dt)
+                this.y = Utils.lerp(this.y, ty, 10 * dt)
+                this.zoom = Utils.lerp(this.zoom, this.targetZoom, 15 * dt)
+                if (this.shakeT > 0) this.shakeT -= dt
+            }
+            apply(ctx) {
+                ctx.translate(CONFIG.canvasWidth / 2, CONFIG.canvasHeight / 2)
+                ctx.scale(this.zoom, this.zoom)
+                let sx = 0,
+                    sy = 0
+                if (this.shakeT > 0) {
+                    sx = (Math.random() - 0.5) * this.shakeI
+                    sy = (Math.random() - 0.5) * this.shakeI
+                }
+                ctx.translate(-CONFIG.canvasWidth / 2 - this.x + sx, -CONFIG.canvasHeight / 2 - this.y + sy)
+            }
+        }
+
+        // --- ENTITIES ---
+        class Entity {
+            constructor(x, y, z, w, h) {
+                this.x = x
+                this.y = y
+                this.z = z
+                this.w = w
+                this.h = h
+                this.vx = 0
+                this.vy = 0
+                this.vz = 0
+                this.dir = 1
+                this.hp = 100
+                this.maxHp = 100
+                this.state = 'IDLE'
+                this.stateTime = 0
+                this.color = '#fff'
+                this.hitFlicker = 0
+                this.weaponType = 'sword'
+            }
+            getDrawY() {
+                return this.y - this.z
+            }
+            getHitbox() {
+                return { x: this.x - this.w / 2, y: this.getDrawY() - this.h, w: this.w, h: this.h }
+            }
+            updatePhysics(dt) {
+                this.x += this.vx * dt
+                this.y += this.vy * dt
+                this.z += this.vz * dt
+                if (this.z > 0) this.vz -= CONFIG.gravity * dt
+                else {
+                    this.z = 0
+                    this.vz = 0
+                }
+                if (this.state !== 'DASH') {
+                    this.vx *= Math.pow(0.001, dt)
+                    this.vy *= Math.pow(0.001, dt)
+                }
+                this.y = CONFIG.floorY
+                this.vy = 0
+                // Không còn clamp X để map vô tận
+            }
+            changeState(s) {
+                if (this.state === s) return
+                this.state = s
+                this.stateTime = 0
+            }
+            takeDamage(a, kbx, src) {
+                if (this.state === 'DEAD' || this.state === 'DASH') return false
+                this.hp -= a
+                this.hitFlicker = 0.1
+                this.vx = kbx
+                if (this.hp <= 0) {
+                    this.hp = 0
+                    this.changeState('DEAD')
+                    this.vz = 300
+                    audio.playSynth('sawtooth', 80, 0.4, 0.4)
+                } else {
+                    this.changeState('HURT')
+                    audio.playHit()
+                }
+                return true
+            }
+            static drawEntity(ctx, e, isGhost = false) {
+                const t = e.stateTime,
+                    drawY = e.y - e.z
+                ctx.save()
+                ctx.translate(e.x, drawY)
+                ctx.scale(e.dir, 1)
+                if (!isGhost && e.hitFlicker > 0) ctx.filter = 'brightness(4)'
+
+                const isPlayer = e.constructor.name === 'Player'
+                if (SPRITES.loaded && !isGhost && isPlayer) {
+                    const sSize = 110 // Tăng quy mô nhân vật để ngang bằng với kẻ địch
+                    let sprite = null
+                    if (e.state === 'IDLE') {
+                        const totalFrames = 5
+                        sprite = SPRITES.idle[0][Math.floor(t * 10) % totalFrames]
+                    } else if (e.state === 'RUN') {
+                        const totalFrames = 8
+                        sprite = SPRITES.run[0][Math.floor(t * 12) % totalFrames]
+                    } else if (e.state === 'HURT') {
+                        sprite = SPRITES.hurt
+                    } else if (e.state === 'DEAD') {
+                        const totalFrames = 8
+                        sprite = SPRITES.dead[0][Math.min(Math.floor(t * 6), totalFrames - 1)]
+                    } else if (e.state.startsWith('ATTACK')) {
+                        const step = parseInt(e.state.split('_')[1])
+                        const atk = e.attacks[step]
+                        const totalDur = atk.startup + atk.active + atk.recover
+                        const totalFrames = 5
+                        sprite =
+                            SPRITES.attack[0][Math.min(Math.floor((t / totalDur) * totalFrames), totalFrames - 1)]
+                    }
+
+                    if (sprite && sprite.complete) {
+                        ctx.drawImage(sprite, -sSize / 2, -sSize, sSize, sSize)
+                        ctx.restore()
+                        return
+                    }
+                }
+
+                let sX = 1,
+                    sY = 1,
+                    bOff = 0,
+                    headBob = Math.sin(t * 12) * 2,
+                    legM = 0,
+                    armA = 0
+                if (e.state === 'RUN') {
+                    legM = Math.sin(t * 18) * 18
+                    armA = -Math.sin(t * 18) * 25
+                    bOff = Math.sin(t * 18) * 4
+                } else if (e.state.startsWith('ATTACK')) {
+                    armA = 70
+                    sX = 1.2
+                    bOff = 2
+                } else if (e.state === 'DASH') {
+                    sX = 1.6
+                    sY = 0.6
+                }
+
+                const bs = e.bodyScale || 1.0
+                ctx.scale(sX * bs, sY * bs)
+                ctx.strokeStyle = e.color
+                ctx.lineWidth = 4
+                ctx.lineCap = 'round'
+                if (!isGhost) {
+                    ctx.shadowBlur = 15
+                    ctx.shadowColor = e.color
+                }
+
+                ctx.fillStyle = isGhost ? e.color : '#111'
+                // Body shape theo loại quái
+                if (e.type === 'ninja') {
+                    // Ninja: thân mỏng, nhanh nhẹn
+                    ctx.fillRect(-7, -50 + bOff, 14, 28)
+                    ctx.strokeRect(-7, -50 + bOff, 14, 28)
+                    ctx.beginPath(); ctx.arc(0, -57 + bOff + headBob, 8, 0, Math.PI * 2); ctx.fill(); ctx.stroke()
+                    if (!isGhost) { ctx.fillStyle = '#f00'; ctx.fillRect(3, -60 + bOff + headBob, 5, 2) }
+                    // Khăn ninja bay
+                    ctx.strokeStyle = '#0ff'; ctx.lineWidth = 2
+                    ctx.beginPath(); ctx.moveTo(-8, -57 + bOff); ctx.lineTo(-18 + Math.sin(t * 15) * 5, -62 + bOff); ctx.stroke()
+                    ctx.strokeStyle = e.color; ctx.lineWidth = 4
+                } else if (e.type === 'shield') {
+                    // Shield: thân rộng, vai to
+                    ctx.fillRect(-14, -55 + bOff, 28, 38)
+                    ctx.strokeRect(-14, -55 + bOff, 28, 38)
+                    ctx.beginPath(); ctx.arc(0, -65 + bOff + headBob, 12, 0, Math.PI * 2); ctx.fill(); ctx.stroke()
+                    if (!isGhost) { ctx.fillStyle = '#fff'; ctx.fillRect(3, -68 + bOff + headBob, 7, 3) }
+                    // Vai giáp
+                    ctx.fillStyle = e.color; ctx.globalAlpha = 0.4
+                    ctx.fillRect(-18, -55 + bOff, 6, 12); ctx.fillRect(12, -55 + bOff, 6, 12)
+                    ctx.globalAlpha = 1.0
+                } else if (e.type === 'advanced') {
+                    // Advanced: cơ bắp
+                    ctx.fillRect(-12, -55 + bOff, 24, 38)
+                    ctx.strokeRect(-12, -55 + bOff, 24, 38)
+                    ctx.beginPath(); ctx.arc(0, -65 + bOff + headBob, 11, 0, Math.PI * 2); ctx.fill(); ctx.stroke()
+                    if (!isGhost) { ctx.fillStyle = '#fff'; ctx.fillRect(3, -68 + bOff + headBob, 7, 3) }
+                } else if (e.type === 'slime') {
+                    // Slime: dạng giọt nước co giãn
+                    const squash = 1 + Math.sin(t * 10) * 0.1
+                    const stretch = 1 / squash
+                    ctx.scale(squash, stretch)
+                    ctx.beginPath();
+                    ctx.arc(0, -20, 20, Math.PI, 0);
+                    ctx.lineTo(20, 0); ctx.lineTo(-20, 0);
+                    ctx.closePath();
+                    ctx.fillStyle = e.color; ctx.globalAlpha = 0.6; ctx.fill();
+                    ctx.globalAlpha = 1.0; ctx.strokeStyle = '#fff'; ctx.stroke();
+                    // Mắt slime
+                    ctx.fillStyle = '#fff';
+                    ctx.beginPath(); ctx.arc(-7, -15, 3, 0, Math.PI * 2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(7, -15, 3, 0, Math.PI * 2); ctx.fill();
+                    ctx.restore(); return; // Slime không có chân tay
+                } else {
+                    // Basic / Boss
+                    ctx.fillRect(-10, -55 + bOff, 20, 35)
+                    ctx.strokeRect(-10, -55 + bOff, 20, 35)
+                    ctx.beginPath(); ctx.arc(0, -65 + bOff + headBob, 10, 0, Math.PI * 2); ctx.fill(); ctx.stroke()
+                    if (!isGhost) { ctx.fillStyle = '#fff'; ctx.fillRect(3, -68 + bOff + headBob, 7, 3) }
+                }
+                // Chân
+                ctx.beginPath(); ctx.moveTo(-5, -20 + bOff); ctx.lineTo(-5 - legM, 0); ctx.stroke()
+                ctx.beginPath(); ctx.moveTo(5, -20 + bOff); ctx.lineTo(5 + legM, 0); ctx.stroke()
+                // Tay trái
+                ctx.save()
+                ctx.translate(-8, -50 + bOff)
+                ctx.rotate((-armA * Math.PI) / 180)
+                ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, 22); ctx.stroke()
+                // Shield luôn cầm khiên (tay trái)
+                if (e.type === 'shield' && !isGhost) {
+                    ctx.strokeStyle = '#0f0'; ctx.lineWidth = 3
+                    ctx.strokeRect(-12, 5, 10, 30)
+                    ctx.fillStyle = 'rgba(0,255,0,0.15)'; ctx.fillRect(-12, 5, 10, 30)
+                    ctx.strokeStyle = e.color; ctx.lineWidth = 4
+                }
+                ctx.restore()
+                // Tay phải + vũ khí
+                ctx.save()
+                ctx.translate(8, -50 + bOff)
+                ctx.rotate((armA * Math.PI) / 180)
+                ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, 22); ctx.stroke()
+                if (e.state.startsWith('ATTACK') && !isGhost) {
+                    ctx.strokeStyle = '#fff'
+                    ctx.lineWidth = 4
+                    ctx.beginPath()
+                    if (e.weaponType === 'hammer') {
+                        ctx.lineWidth = 6
+                        ctx.moveTo(0, 0); ctx.lineTo(10, 35); ctx.stroke()
+                        ctx.fillStyle = '#aaa'; ctx.fillRect(-10, 25, 30, 15)
+                    } else if (e.weaponType === 'dagger') {
+                        ctx.lineWidth = 3; ctx.strokeStyle = '#0ff'
+                        ctx.moveTo(0, 18); ctx.lineTo(18, 30); ctx.stroke()
+                        ctx.moveTo(0, 18); ctx.lineTo(8, 12); ctx.stroke() // guard
+                    } else if (e.weaponType === 'bow') {
+                        ctx.beginPath(); ctx.arc(12, 18, 18, -Math.PI / 2, Math.PI / 2); ctx.stroke()
+                        ctx.moveTo(12, 0); ctx.lineTo(12, 36); ctx.stroke()
+                    } else if (e.weaponType === 'shield') {
+                        ctx.strokeStyle = '#fff'; ctx.moveTo(0, 20); ctx.lineTo(20, 38); ctx.stroke()
+                    } else {
+                        ctx.lineWidth = 5
+                        ctx.moveTo(0, 22); ctx.lineTo(25, 45); ctx.stroke()
+                    }
+                } else if (!isGhost) {
+                    // Vũ khí khi IDLE/RUN
+                    ctx.strokeStyle = e.color; ctx.globalAlpha = 0.4; ctx.lineWidth = 2
+                    if (e.weaponType === 'bow') {
+                        ctx.beginPath(); ctx.arc(8, 18, 12, -Math.PI / 2, Math.PI / 2); ctx.stroke()
+                    } else if (e.weaponType === 'dagger') {
+                        ctx.beginPath(); ctx.moveTo(0, 20); ctx.lineTo(10, 28); ctx.stroke()
+                    } else if (e.weaponType === 'hammer') {
+                        ctx.beginPath(); ctx.moveTo(0, 10); ctx.lineTo(0, 30); ctx.stroke()
+                        ctx.fillStyle = e.color; ctx.fillRect(-5, 22, 12, 8)
+                    }
+                    ctx.globalAlpha = 1.0
+                }
+                ctx.restore()
+                ctx.restore()
+            }
+            draw(ctx) {
+                ctx.fillStyle = 'rgba(0,0,0,0.3)'
+                ctx.beginPath()
+                ctx.ellipse(this.x, this.y, this.w / 1.1, this.w / 4, 0, 0, Math.PI * 2)
+                ctx.fill()
+                Entity.drawEntity(ctx, this)
+            }
+        }
+
+        class Player extends Entity {
+            constructor(x, y) {
+                super(x, y, 0, 40, 80)
+                this.color = CONFIG.colors.player
+                this.maxHp = SaveSystem.data.stats.maxHp
+                this.hp = this.maxHp
+                this.speed = 400
+                this.dashSpeed = 1200
+                this.dashCd = 0
+                this.attackStep = 0
+                this.ghostTimer = 0
+                this.attacks = [
+                    { startup: 0.05, active: 0.08, recover: 0.12, dmg: 10, w: 85, h: 60, offset: 60, force: 180 },
+                    { startup: 0.05, active: 0.08, recover: 0.12, dmg: 15, w: 95, h: 70, offset: 70, force: 250 },
+                    { startup: 0.08, active: 0.12, recover: 0.25, dmg: 35, w: 120, h: 100, offset: 80, force: 600 },
+                ]
+            }
+            update(dt, input, particles) {
+                this.stateTime += dt
+                this.y = CONFIG.floorY
+                if (this.hitFlicker > 0) this.hitFlicker -= dt
+                if (this.dashCd > 0) this.dashCd -= dt
+                if (this.state === 'DEAD') {
+                    this.updatePhysics(dt)
+                    return
+                }
+                const canM =
+                    [
+                        'IDLE',
+                        'RUN',
+                    ].includes(this.state) || !this.state.startsWith('ATTACK')
+                if (canM) {
+                    const ax = input.getAxisX()
+                    if (ax !== 0) {
+                        this.vx = Utils.lerp(this.vx, ax * this.speed, 20 * dt)
+                        this.dir = ax > 0 ? 1 : -1
+                        this.changeState('RUN')
+                    } else {
+                        this.vx *= 0.5
+                        this.changeState('IDLE')
+                    }
+                }
+                if (canM || (this.state.startsWith('ATTACK') && this.isCritWindow)) {
+                    if (input.consume('KeyJ')) {
+                        this.nextCrit = this.isCritWindow
+                        this.changeState(`ATTACK_${this.attackStep}`)
+                        this.vx = this.dir * 250
+                        audio.playSwing()
+                        // Tạo hiệu ứng tia sét ngay khi nhấn chém (kể cả chém không khí)
+                        particles.spawnSkillVFX(this.x + this.dir * 70, this.getDrawY() - this.h / 2, SaveSystem.data.skills.active)
+                    }
+                }
+                if (canM && input.consume('Space') && this.dashCd <= 0) {
+                    this.changeState('DASH')
+                    this.vx = this.dir * this.dashSpeed
+                    this.dashCd = 0.7 * SaveSystem.data.stats.dashCdMult
+                    audio.playDash()
+                    particles.spawnGhost(this)
+                    this.ghostTimer = 0.04 // Khởi tạo thời gian tạo bóng
+                }
+
+                // Hiệu ứng bóng mờ khi đang lướt
+                if (this.state === 'DASH') {
+                    this.ghostTimer -= dt
+                    if (this.ghostTimer <= 0) {
+                        particles.spawnGhost(this)
+                        this.ghostTimer = 0.04
+                    }
+                }
+
+                this._handleStates()
+                this.updatePhysics(dt)
+            }
+            _handleStates() {
+                if (this.state.startsWith('ATTACK_')) {
+                    const atk = this.attacks[parseInt(this.state.split('_')[1])],
+                        total = atk.startup + atk.active + atk.recover
+                    const critStart = atk.startup + atk.active + atk.recover * 0.1,
+                        critW = 0.2 * SaveSystem.data.stats.critWindowMult
+                    this.isCritWindow = this.stateTime >= critStart && this.stateTime <= critStart + critW
+                    if (this.stateTime > total) {
+                        this.attackStep = (this.attackStep + 1) % 3
+                        this.changeState('IDLE')
+                        this.isCritWindow = false
+                    }
+                } else if (this.state === 'DASH' && this.stateTime > 0.2) this.changeState('IDLE')
+                else if (this.state === 'HURT' && this.stateTime > 0.3) {
+                    this.changeState('IDLE')
+                    this.attackStep = 0
+                }
+            }
+            getCurrentAttackBox() {
+                let atk
+                if (this.state.startsWith('ATTACK_')) atk = this.attacks[parseInt(this.state.split('_')[1])]
+                if (!atk || this.stateTime < atk.startup || this.stateTime > atk.startup + atk.active) return null
+                return {
+                    x: this.x + (this.dir > 0 ? 0 : -atk.w) + (this.dir * atk.offset) / 2,
+                    y: this.getDrawY() - this.h / 2 - atk.h / 2,
+                    w: atk.w,
+                    h: atk.h,
+                    dmg: atk.dmg,
+                    force: atk.force,
+                }
+            }
+        }
+
+        class Enemy extends Entity {
+            constructor(x, y, type = 'basic', wave = 1) {
+                super(x, y, 0, 40, 70)
+                this.type = type
+                this.atkCd = Math.random() * 1.5
+                const scale = 1 + (wave - 1) * 0.12
+                this.weaponType = 'sword'
+                this.bodyScale = 1.0 // Tỷ lệ cơ thể
+                this.dodgeCd = 0 // Cooldown né
+                this.canDodge = false
+                if (type === 'basic') {
+                    this.color = CONFIG.colors.enemy
+                    this.hp = this.maxHp = Math.floor(40 * scale)
+                    this.speed = 140 + wave * 3
+                    this.atkR = 75
+                    this.bodyScale = 0.9
+                } else if (type === 'ninja') {
+                    this.color = '#0ff'
+                    this.hp = this.maxHp = Math.floor(25 * scale)
+                    this.speed = 280 + wave * 4
+                    this.atkR = 65
+                    this.weaponType = 'dagger'
+                    this.bodyScale = 0.75
+                    this.w = 30; this.h = 60
+                    this.canDodge = true
+                } else if (type === 'shield') {
+                    this.color = CONFIG.colors.shield
+                    this.hp = this.maxHp = Math.floor(150 * scale)
+                    this.speed = 90 + wave * 2
+                    this.atkR = 65
+                    this.weaponType = 'shield'
+                    this.w = 55; this.h = 80
+                    this.bodyScale = 1.2
+                } else if (type === 'ranged') {
+                    this.color = CONFIG.colors.ranged
+                    this.hp = this.maxHp = Math.floor(30 * scale)
+                    this.speed = 160 + wave * 2
+                    this.atkR = 400
+                    this.weaponType = 'bow'
+                    this.bodyScale = 0.85
+                } else if (type === 'advanced') {
+                    this.color = CONFIG.colors.advanced
+                    this.hp = this.maxHp = Math.floor(100 * scale)
+                    this.speed = 160 + wave * 3
+                    this.atkR = 110
+                    this.w = 55; this.h = 85
+                    this.weaponType = 'hammer'
+                    this.bodyScale = 1.3
+                } else if (type === 'boss') {
+                    this.color = CONFIG.colors.boss
+                    this.hp = this.maxHp = Math.floor(800 * scale)
+                    this.speed = 190 + wave * 2
+                    this.atkR = 140
+                    this.w = 80; this.h = 140
+                    this.bodyScale = 2.0
+                    this.canDodge = true
+                } else if (type === 'slime') {
+                    this.color = CONFIG.colors.slime
+                    this.hp = this.maxHp = Math.floor(50 * scale)
+                    this.speed = 100 + wave * 2
+                    this.atkR = 300
+                    this.weaponType = 'poison'
+                    this.bodyScale = 1.0
+                    this.jumpCd = 0
+                }
+                this.dmgScale = scale
+            }
+            _tryDodge(player) {
+                if (!this.canDodge || this.dodgeCd > 0 || this.state === 'ATTACK') return false
+                // Né khi player đang tấn công và ở gần
+                const d = Math.abs(player.x - this.x)
+                if (player.state.startsWith('ATTACK') && d < 150) {
+                    const dodgeDir = this.x > player.x ? 1 : -1
+                    this.vx = dodgeDir * this.speed * 3
+                    this.dodgeCd = this.type === 'ninja' ? 1.5 : 3.0
+                    this.changeState('RUN')
+                    return true
+                }
+                return false
+            }
+            update(dt, player) {
+                this.stateTime += dt
+                this.y = CONFIG.floorY
+                if (this.hitFlicker > 0) this.hitFlicker -= dt
+                if (this.atkCd > 0) this.atkCd -= dt
+                if (this.dodgeCd > 0) this.dodgeCd -= dt
+                if (this.jumpCd >= 0) this.jumpCd -= dt
+                if (this.state === 'DEAD') {
+                    this.vx *= 0.95
+                    this.updatePhysics(dt)
+                    return
+                }
+                // Thử né trước
+                if (this._tryDodge(player)) { this.updatePhysics(dt); return }
+                if (this.state === 'HURT') {
+                    if (this.stateTime > (this.type === 'boss' ? 0.15 : 0.25)) this.changeState('IDLE')
+                } else if (this.state === 'ATTACK') {
+                    const atkDur = this.type === 'ninja' ? 0.4 : (this.type === 'advanced' ? 0.9 : 0.7)
+                    if (this.stateTime > atkDur) this.changeState('IDLE')
+                    // Spawn đạn cho quái Ranged hoặc Slime
+                    if ((this.type === 'ranged' || this.type === 'slime') && this.stateTime > 0.35 && !this._hasShot) {
+                        const game = window._gameInstance
+                        if (game) {
+                            const dx = player.x - this.x
+                            game.projectiles.push({
+                                x: this.x + this.dir * 20,
+                                y: this.getDrawY() - 20,
+                                vx: Math.sign(dx) * 500,
+                                vy: 0,
+                                dmg: Math.floor((this.type === 'slime' ? 10 : 12) * (this.dmgScale || 1)),
+                                color: this.type === 'slime' ? '#0f4' : '#fff',
+                                life: 3
+                            })
+                            this._hasShot = true
+                        }
+                    }
+                } else {
+                    const dx = player.x - this.x,
+                        d = Math.abs(dx)
+
+                    if (this.type === 'slime') {
+                        // Slime logic: Nhảy nhót tiến lại gần để phun độc
+                        if (this.z === 0 && this.jumpCd <= 0) {
+                            this.vz = 400 + Math.random() * 200
+                            this.vx = Math.sign(dx) * this.speed * 2
+                            this.jumpCd = 1.0 + Math.random()
+                            this.changeState('RUN')
+                        }
+                        if (d < this.atkR && this.atkCd <= 0 && this.z === 0) {
+                            this.changeState('ATTACK')
+                            this.dir = dx > 0 ? 1 : -1
+                            this._hasShot = false
+                            this.atkCd = 2.0 + Math.random()
+                        }
+                        if (this.z > 0) {
+                            this.changeState('RUN') // Trạng thái bay/nhảy
+                        } else if (this.state !== 'ATTACK') {
+                            this.vx *= 0.8
+                            if (Math.abs(this.vx) < 10) this.changeState('IDLE')
+                        }
+                    } else if (this.type === 'ranged') {
+                        // Ranged: giữ khoảng cách, bắn khi trong tầm
+                        if (d < 250) {
+                            this.changeState('RUN')
+                            this.dir = dx > 0 ? 1 : -1
+                            this.vx = -Math.sign(dx) * this.speed * 1.2
+                        } else if (d > 500) {
+                            this.changeState('RUN')
+                            this.dir = dx > 0 ? 1 : -1
+                            this.vx = Math.sign(dx) * this.speed
+                        } else {
+                            this.vx *= 0.3
+                            if (this.atkCd <= 0) {
                                 this.changeState('ATTACK')
                                 this.dir = dx > 0 ? 1 : -1
                                 this._hasShot = false
-                                this.atkCd = 2.0 + Math.random()
-                            }
-                            if (this.z > 0) {
-                                this.changeState('RUN') // Trạng thái bay/nhảy
-                            } else if (this.state !== 'ATTACK') {
-                                this.vx *= 0.8; this.vy *= 0.8
-                                if (Math.abs(this.vx) < 10) this.changeState('IDLE')
-                            }
-                        } else if (this.type === 'ranged') {
-                            // Ranged: giữ khoảng cách, bắn khi trong tầm
-                            if (d < 250) {
-                                this.changeState('RUN')
-                                this.dir = dx > 0 ? 1 : -1
-                                this.vx = -Math.sign(dx) * this.speed * 1.2
-                                this.vy = (Math.random() - 0.5) * this.speed
-                            } else if (d > 500) {
-                                this.changeState('RUN')
-                                this.dir = dx > 0 ? 1 : -1
-                                this.vx = Math.sign(dx) * this.speed
-                                this.vy = Math.sign(dy) * this.speed * CONFIG.depthScale
+                                this.atkCd = 1.2 + Math.random() * 0.8
                             } else {
-                                this.vx *= 0.3; this.vy *= 0.3
-                                if (this.atkCd <= 0) {
-                                    this.changeState('ATTACK')
-                                    this.dir = dx > 0 ? 1 : -1
-                                    this._hasShot = false
-                                    this.atkCd = 1.2 + Math.random() * 0.8
-                                } else {
-                                    // Di chuyển ngang khi chờ bắn
-                                    this.vx = Math.sin(this.stateTime * 3) * this.speed * 0.5
-                                    this.changeState('RUN')
-                                }
-                            }
-                        } else if (this.type === 'ninja') {
-                            // Ninja: lao nhanh, đánh xong lùi
-                            if (d > this.atkR) {
+                                // Di chuyển ngang khi chờ bắn
+                                this.vx = Math.sin(this.stateTime * 3) * this.speed * 0.5
                                 this.changeState('RUN')
-                                this.dir = dx > 0 ? 1 : -1
-                                this.vx = (dx / d) * this.speed
-                                this.vy = (dy / d) * this.speed * CONFIG.depthScale
-                            } else {
-                                if (this.atkCd <= 0 && Math.abs(dy) < 80) {
-                                    this.changeState('ATTACK')
-                                    this.dir = dx > 0 ? 1 : -1
-                                    this.atkCd = 0.6 + Math.random() * 0.5
-                                } else {
-                                    // Vòng quanh player
-                                    this.vx = Math.cos(this.stateTime * 5) * this.speed * 0.8
-                                    this.vy = Math.sin(this.stateTime * 5) * this.speed * 0.4
-                                    this.changeState('RUN')
-                                }
-                            }
-                        } else if (this.type === 'shield') {
-                            // Shield: tiến chậm, chặn đòn
-                            if (d > this.atkR) {
-                                this.changeState('RUN')
-                                this.dir = dx > 0 ? 1 : -1
-                                this.vx = (dx / d) * this.speed
-                                this.vy = (dy / d) * this.speed * CONFIG.depthScale
-                            } else {
-                                this.vx *= 0.3; this.vy *= 0.3
-                                if (this.atkCd <= 0 && Math.abs(dy) < 80) {
-                                    this.changeState('ATTACK')
-                                    this.dir = dx > 0 ? 1 : -1
-                                    this.atkCd = 1.5 + Math.random()
-                                } else this.changeState('IDLE')
-                            }
-                        } else {
-                            // Basic & Advanced & Boss: tiến lại đánh
-                            if (d > this.atkR) {
-                                this.changeState('RUN')
-                                this.dir = dx > 0 ? 1 : -1
-                                this.vx = (dx / d) * this.speed
-                                this.vy = (dy / d) * this.speed * CONFIG.depthScale
-                            } else {
-                                this.vx *= 0.5; this.vy *= 0.5
-                                if (this.atkCd <= 0 && Math.abs(dy) < 80) {
-                                    this.changeState('ATTACK')
-                                    this.dir = dx > 0 ? 1 : -1
-                                    this.atkCd = this.type === 'boss' ? (0.8 + Math.random() * 0.5) : (1.0 + Math.random())
-                                } else this.changeState('IDLE')
                             }
                         }
+                    } else if (this.type === 'ninja') {
+                        // Ninja: lao nhanh, đánh xong lùi
+                        if (d > this.atkR) {
+                            this.changeState('RUN')
+                            this.dir = dx > 0 ? 1 : -1
+                            this.vx = Math.sign(dx) * this.speed
+                        } else {
+                            if (this.atkCd <= 0) {
+                                this.changeState('ATTACK')
+                                this.dir = dx > 0 ? 1 : -1
+                                this.atkCd = 0.6 + Math.random() * 0.5
+                            } else {
+                                // Vòng quanh player
+                                this.vx = Math.cos(this.stateTime * 5) * this.speed * 0.8
+                                this.changeState('RUN')
+                            }
+                        }
+                    } else if (this.type === 'shield') {
+                        // Shield: tiến chậm, chặn đòn
+                        if (d > this.atkR) {
+                            this.changeState('RUN')
+                            this.dir = dx > 0 ? 1 : -1
+                            this.vx = Math.sign(dx) * this.speed
+                        } else {
+                            this.vx *= 0.3
+                            if (this.atkCd <= 0) {
+                                this.changeState('ATTACK')
+                                this.dir = dx > 0 ? 1 : -1
+                                this.atkCd = 1.5 + Math.random()
+                            } else this.changeState('IDLE')
+                        }
+                    } else {
+                        // Basic & Advanced & Boss: tiến lại đánh
+                        if (d > this.atkR) {
+                            this.changeState('RUN')
+                            this.dir = dx > 0 ? 1 : -1
+                            this.vx = Math.sign(dx) * this.speed
+                        } else {
+                            this.vx *= 0.5
+                            if (this.atkCd <= 0) {
+                                this.changeState('ATTACK')
+                                this.dir = dx > 0 ? 1 : -1
+                                this.atkCd = this.type === 'boss' ? (0.8 + Math.random() * 0.5) : (1.0 + Math.random())
+                            } else this.changeState('IDLE')
+                        }
                     }
-                    this.updatePhysics(dt)
                 }
-                // Shield giảm 50% sát thương khi đang IDLE (giơ khiên)
-                takeDamage(a, kbx, src) {
-                    let dmg = a
-                    if (this.type === 'shield' && this.state === 'IDLE') dmg = Math.floor(a * 0.5)
-                    return super.takeDamage(dmg, kbx, src)
-                }
-                getCurrentAttackBox() {
-                    if (this.state !== 'ATTACK') return null
-                    const t = this.stateTime
-                    // Mỗi loại có timing khác nhau
-                    if (this.type === 'ninja') { if (t < 0.1 || t > 0.3) return null }
-                    else if (this.type === 'advanced') { if (t < 0.3 || t > 0.7) return null }
-                    else if (this.type === 'ranged') { return null } // Ranged chỉ bắn đạn
-                    else { if (t < 0.2 || t > 0.6) return null }
-                    let w = this.type === 'boss' ? 180 : (this.type === 'advanced' ? 120 : (this.type === 'ninja' ? 60 : 90)),
-                        h = this.type === 'boss' ? 130 : (this.type === 'advanced' ? 100 : 70)
-                    return {
-                        x: this.x + (this.dir > 0 ? -10 : -w + 10),
-                        y: this.getDrawY() - h - 10,
-                        w,
-                        h,
-                        dmg: Math.floor((this.type === 'boss' ? 40 : this.type === 'advanced' ? 25 : this.type === 'shield' ? 20 : this.type === 'ninja' ? 12 : 15) * (this.dmgScale || 1)),
-                    }
-                }
-                draw(ctx) {
-                    super.draw(ctx)
-                    if (this.state === 'DEAD' || this.hp <= 0) return
-                    const bw = this.type === 'boss' ? 80 : 40, bh = 4
-                    const bx = this.x - bw / 2, by = this.getDrawY() - this.h - 15
-                    ctx.fillStyle = 'rgba(0,0,0,0.5)'
-                    ctx.fillRect(bx, by, bw, bh)
-                    const hpP = Math.max(0, this.hp / this.maxHp)
-                    ctx.fillStyle = this.type === 'boss' ? '#f0f' : (hpP > 0.3 ? '#f00' : '#ff4444')
-                    ctx.fillRect(bx, by, bw * hpP, bh)
+                this.updatePhysics(dt)
+            }
+            // Shield giảm 50% sát thương khi đang IDLE (giơ khiên)
+            takeDamage(a, kbx, src) {
+                let dmg = a
+                if (this.type === 'shield' && this.state === 'IDLE') dmg = Math.floor(a * 0.5)
+                return super.takeDamage(dmg, kbx, src)
+            }
+            getCurrentAttackBox() {
+                if (this.state !== 'ATTACK') return null
+                const t = this.stateTime
+                // Mỗi loại có timing khác nhau
+                if (this.type === 'ninja') { if (t < 0.1 || t > 0.3) return null }
+                else if (this.type === 'advanced') { if (t < 0.3 || t > 0.7) return null }
+                else if (this.type === 'ranged') { return null } // Ranged chỉ bắn đạn
+                else { if (t < 0.2 || t > 0.6) return null }
+                let w = this.type === 'boss' ? 180 : (this.type === 'advanced' ? 120 : (this.type === 'ninja' ? 60 : 90)),
+                    h = this.type === 'boss' ? 130 : (this.type === 'advanced' ? 100 : 70)
+                return {
+                    x: this.x + (this.dir > 0 ? -10 : -w + 10),
+                    y: this.getDrawY() - h - 10,
+                    w,
+                    h,
+                    dmg: Math.floor((this.type === 'boss' ? 40 : this.type === 'advanced' ? 25 : this.type === 'shield' ? 20 : this.type === 'ninja' ? 12 : 15) * (this.dmgScale || 1)),
                 }
             }
+            draw(ctx) {
+                super.draw(ctx)
+                if (this.state === 'DEAD' || this.hp <= 0) return
+                const bw = this.type === 'boss' ? 80 : 40, bh = 4
+                const bx = this.x - bw / 2, by = this.getDrawY() - this.h - 15
+                ctx.fillStyle = 'rgba(0,0,0,0.5)'
+                ctx.fillRect(bx, by, bw, bh)
+                const hpP = Math.max(0, this.hp / this.maxHp)
+                ctx.fillStyle = this.type === 'boss' ? '#f0f' : (hpP > 0.3 ? '#f00' : '#ff4444')
+                ctx.fillRect(bx, by, bw * hpP, bh)
+            }
+        }
 
-            // --- GAME CORE ---
-            class Game {
-                constructor() {
-                    this.canvas = document.getElementById('gameCanvas')
-                    this.ctx = this.canvas.getContext('2d', { alpha: false })
-                    this.input = new InputManager()
-                    this.camera = new Camera()
-                    this.particles = new ParticleSystem()
-                    this.resize()
-                    window.addEventListener('resize', () => this.resize())
-                    this.state = 'MENU'
-                    this.lastT = performance.now()
-                    this.timeScale = 1.0
-                    this.hitStop = 0
-                    this.player = null
-                    this.enemies = []
-                    this.combo = 0
-                    this.comboT = 0
-                    this.wave = SaveSystem.data.wave
-                    this.money = SaveSystem.data.money
-                    this.waveKills = 0
-                    this.waveTotal = 0
-                    this.spawnQueue = [] // Hàng đợi spawn quái
-                    this.spawnTimer = 0
-                    this.maxWave = 30
-                    this.projectiles = [] // Hệ thống đạn
-                    window._gameInstance = this
-                    this.bindUI()
-                    requestAnimationFrame((t) => this.loop(t))
-                }
-                resize() {
-                    this.canvas.width = window.innerWidth
-                    this.canvas.height = window.innerHeight
-                    CONFIG.canvasWidth = window.innerWidth
-                    CONFIG.canvasHeight = window.innerHeight
-                }
-                bindUI() {
-                    document.getElementById('start-btn').addEventListener('click', () => this.startWave())
-                    document.getElementById('reset-save-btn').addEventListener('click', () => {
-                        SaveSystem.reset()
-                        location.reload()
-                    })
-                    document.getElementById('restart-btn').addEventListener('click', () => {
-                        document.getElementById('game-over-menu').classList.add('hidden')
-                        document.getElementById('main-menu').classList.remove('hidden')
-                        this.state = 'MENU'
-                    })
-                    document.getElementById('victory-btn').addEventListener('click', () => {
-                        document.getElementById('victory-menu').classList.add('hidden')
-                        document.getElementById('main-menu').classList.remove('hidden')
-                        this.state = 'MENU'
-                    })
-                    document.getElementById('next-wave-btn').addEventListener('click', () => {
-                        document.getElementById('shop-menu').classList.add('hidden')
-                        if (this.state === 'SHOP') {
-                            this.state = 'GAME'
-                            document.getElementById('hud').classList.remove('hidden')
-                            document.getElementById('touch-controls').classList.remove('hidden')
-                        }
-                    })
-                    document.getElementById('open-shop-btn').addEventListener('click', () => {
-                        if (this.state === 'GAME') this.openShop()
-                    })
-                    // Phím K để mở shop trong gameplay
-                    window.addEventListener('keydown', (e) => {
-                        if (e.code === 'KeyK' && this.state === 'GAME') this.openShop()
-                        if (e.code === 'Escape' && this.state === 'SHOP') {
-                            document.getElementById('shop-menu').classList.add('hidden')
-                            this.state = 'GAME'
-                            document.getElementById('hud').classList.remove('hidden')
-                            document.getElementById('touch-controls').classList.remove('hidden')
-                        }
-                    })
-                    const shop = (id, stat, key, step, max) => {
-                        const btn = document.getElementById(id)
-                        if (btn) {
-                            btn.addEventListener('click', () => {
-                                let c = SaveSystem.data.costs[key]
-                                if (this.money >= c && SaveSystem.data.stats[stat] < max) {
-                                    this.money -= c
-                                    SaveSystem.data.money = this.money
-                                    SaveSystem.data.stats[stat] += step
-                                    SaveSystem.data.costs[key] = Math.floor(c * 1.6)
-                                    SaveSystem.save()
-                                    audio.playBuy()
-                                    this.updateShopUI()
-                                } else audio.playError()
-                            })
-                        }
-                    }
-                    shop('upg-dmg', 'dmgMult', 'dmg', 0.25, 8)
-                    shop('upg-crit', 'critWindowMult', 'crit', 0.2, 5)
-                    shop('upg-hp', 'maxHp', 'hp', 100, 1500)
-                    shop('upg-dash', 'dashCdMult', 'dash', -0.1, 0.2)
-                }
-                startWave() {
-                    audio.init()
+        // --- GAME CORE ---
+        class Game {
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas')
+                this.ctx = this.canvas.getContext('2d', { alpha: false })
+                this.input = new InputManager()
+                this.camera = new Camera()
+                this.particles = new ParticleSystem()
+                this.resize()
+                window.addEventListener('resize', () => this.resize())
+                this.state = 'MENU'
+                this.lastT = performance.now()
+                this.timeScale = 1.0
+                this.hitStop = 0
+                this.player = null
+                this.enemies = []
+                this.combo = 0
+                this.comboT = 0
+                this.wave = SaveSystem.data.wave
+                this.money = SaveSystem.data.money
+                this.waveKills = 0
+                this.waveTotal = 0
+                this.spawnQueue = [] // Hàng đợi spawn quái
+                this.spawnTimer = 0
+                this.maxWave = 30
+                this.projectiles = [] // Hệ thống đạn
+                window._gameInstance = this
+                this.bindUI()
+                requestAnimationFrame((t) => this.loop(t))
+            }
+            resize() {
+                this.canvas.width = window.innerWidth
+                this.canvas.height = window.innerHeight
+                CONFIG.canvasWidth = window.innerWidth
+                CONFIG.canvasHeight = window.innerHeight
+            }
+            bindUI() {
+                document.getElementById('start-btn').addEventListener('click', () => this.startWave())
+                document.getElementById('how-to-play-btn').addEventListener('click', () => {
                     document.getElementById('main-menu').classList.add('hidden')
-                    document.getElementById('hud').classList.remove('hidden')
-                    document.getElementById('touch-controls').classList.remove('hidden')
-                    this.state = 'GAME'
-                    this.player = new Player(0, CONFIG.floorY)
-                    this.enemies = []
-                    this.combo = 0
-                    this.camera.zoom = 1
-                    this.timeScale = 1.0
-                    this.waveKills = 0
-                    this._buildSpawnQueue()
-                    this._spawnInitialBatch()
-                    document.getElementById('wave-display').innerText = `MÀN ${this.wave}/${this.maxWave}`
-                    this.updateHUD()
-                }
-                _buildSpawnQueue() {
-                    this.spawnQueue = []
-                    this.waveTotal = Math.min(3 + Math.floor(this.wave * 0.7), 25)
-                    const isBossWave = this.wave % 5 === 0
-                    const w = this.wave
-                    for (let i = 0; i < this.waveTotal; i++) {
-                        let t = 'basic'
-                        const r = Math.random()
-                        // Spawn thông minh: loại quái mở dần theo wave
-                        if (w >= 2 && r < 0.18) t = 'ranged'
-                        else if (w >= 3 && r < 0.30) t = 'shield'
-                        else if (w >= 4 && r < 0.42) t = 'ninja'
-                        else if (w >= 5 && r < 0.52) t = 'advanced'
-                        else if (w >= 6 && r < 0.62) t = 'slime'
-                        // Đảm bảo luôn có mix: ít nhất 1 ranged và 1 melee từ wave 5
-                        if (w >= 5 && i === 0 && this.spawnQueue.filter(q=>q==='ranged').length === 0) t = 'ranged'
-                        if (w >= 4 && i === 1 && this.spawnQueue.filter(q=>q==='ninja').length === 0) t = 'ninja'
-                        if (w >= 6 && i === 2 && this.spawnQueue.filter(q=>q==='slime').length === 0) t = 'slime'
-                        if (isBossWave && i === this.waveTotal - 1) t = 'boss'
-                        this.spawnQueue.push(t)
+                    document.getElementById('instructions-menu').classList.remove('hidden')
+                })
+                document.getElementById('back-to-menu-btn').addEventListener('click', () => {
+                    document.getElementById('instructions-menu').classList.add('hidden')
+                    document.getElementById('main-menu').classList.remove('hidden')
+                })
+                document.getElementById('reset-save-btn').addEventListener('click', () => {
+                    SaveSystem.reset()
+                    location.reload()
+                })
+                document.getElementById('restart-btn').addEventListener('click', () => {
+                    document.getElementById('game-over-menu').classList.add('hidden')
+                    document.getElementById('main-menu').classList.remove('hidden')
+                    this.state = 'MENU'
+                })
+                document.getElementById('victory-btn').addEventListener('click', () => {
+                    document.getElementById('victory-menu').classList.add('hidden')
+                    document.getElementById('main-menu').classList.remove('hidden')
+                    this.state = 'MENU'
+                })
+                document.getElementById('next-wave-btn').addEventListener('click', () => {
+                    document.getElementById('shop-menu').classList.add('hidden')
+                    if (this.state === 'SHOP') {
+                        this.state = 'GAME'
+                        document.getElementById('hud').classList.remove('hidden')
+                        document.getElementById('touch-controls').classList.remove('hidden')
                     }
-                    // Shuffle để không spawn theo thứ tự cố định
-                    for (let i = this.spawnQueue.length - 1; i > 0; i--) {
-                        if (this.spawnQueue[i] === 'boss') continue // Boss luôn ở cuối
-                        const j = Math.floor(Math.random() * i)
-                        if (this.spawnQueue[j] === 'boss') continue
+                })
+                document.getElementById('open-shop-btn').addEventListener('click', () => {
+                    if (this.state === 'GAME') this.openShop()
+                })
+                // Phím K để mở shop trong gameplay
+                window.addEventListener('keydown', (e) => {
+                    if (e.code === 'KeyK' && this.state === 'GAME') this.openShop()
+                    if (e.code === 'Escape' && this.state === 'SHOP') {
+                        document.getElementById('shop-menu').classList.add('hidden')
+                        this.state = 'GAME'
+                        document.getElementById('hud').classList.remove('hidden')
+                        document.getElementById('touch-controls').classList.remove('hidden')
+                    }
+                })
+                const shop = (id, stat, key, step, max) => {
+                    const btn = document.getElementById(id)
+                    if (btn) {
+                        btn.addEventListener('click', () => {
+                            let c = SaveSystem.data.costs[key]
+                            if (this.money >= c && SaveSystem.data.stats[stat] < max) {
+                                this.money -= c
+                                SaveSystem.data.money = this.money
+                                SaveSystem.data.stats[stat] += step
+                                SaveSystem.data.costs[key] = Math.floor(c * 1.6)
+                                SaveSystem.save()
+                                audio.playBuy()
+                                this.updateShopUI()
+                            } else audio.playError()
+                        })
+                    }
+                }
+                shop('upg-dmg', 'dmgMult', 'dmg', 0.25, 8)
+                shop('upg-crit', 'critWindowMult', 'crit', 0.2, 5)
+                shop('upg-hp', 'maxHp', 'hp', 2500, 100000)
+                shop('upg-dash', 'dashCdMult', 'dash', -0.1, 0.2)
+            }
+            startWave() {
+                audio.init()
+                document.getElementById('main-menu').classList.add('hidden')
+                document.getElementById('hud').classList.remove('hidden')
+                document.getElementById('touch-controls').classList.remove('hidden')
+                this.state = 'GAME'
+                this.player = new Player(0, CONFIG.floorY)
+                this.enemies = []
+                this.combo = 0
+                this.camera.zoom = 1
+                this.timeScale = 1.0
+                this.waveKills = 0
+                this._buildSpawnQueue()
+                this._spawnInitialBatch()
+                document.getElementById('wave-display').innerText = `MÀN ${this.wave}/${this.maxWave}`
+                this.updateHUD()
+            }
+            _buildSpawnQueue() {
+                this.spawnQueue = []
+                this.waveTotal = Math.min(3 + Math.floor(this.wave * 0.7), 25)
+                const isBossWave = this.wave % 5 === 0
+                const w = this.wave
+                for (let i = 0; i < this.waveTotal; i++) {
+                    let t = 'basic'
+                    const r = Math.random()
+                    // Spawn thông minh: loại quái mở dần theo wave
+                    if (w >= 2 && r < 0.18) t = 'ranged'
+                    else if (w >= 3 && r < 0.30) t = 'shield'
+                    else if (w >= 4 && r < 0.42) t = 'ninja'
+                    else if (w >= 5 && r < 0.52) t = 'advanced'
+                    else if (w >= 6 && r < 0.62) t = 'slime'
+                    // Đảm bảo luôn có mix: ít nhất 1 ranged và 1 melee từ wave 5
+                    if (w >= 5 && i === 0 && this.spawnQueue.filter(q => q === 'ranged').length === 0) t = 'ranged'
+                    if (w >= 4 && i === 1 && this.spawnQueue.filter(q => q === 'ninja').length === 0) t = 'ninja'
+                    if (w >= 6 && i === 2 && this.spawnQueue.filter(q => q === 'slime').length === 0) t = 'slime'
+                    if (isBossWave && i === this.waveTotal - 1) t = 'boss'
+                    this.spawnQueue.push(t)
+                }
+                // Shuffle để không spawn theo thứ tự cố định
+                for (let i = this.spawnQueue.length - 1; i > 0; i--) {
+                    if (this.spawnQueue[i] === 'boss') continue // Boss luôn ở cuối
+                    const j = Math.floor(Math.random() * i)
+                    if (this.spawnQueue[j] === 'boss') continue
                         ;[this.spawnQueue[i], this.spawnQueue[j]] = [this.spawnQueue[j], this.spawnQueue[i]]
-                    }
-                    this.spawnTimer = 0
                 }
-                _spawnInitialBatch() {
-                    // Spawn lô đầu: tối đa 3-5 con tùy wave
-                    const batch = Math.min(Math.floor(2 + this.wave * 0.15), 5, this.spawnQueue.length)
-                    for (let i = 0; i < batch; i++) {
-                        this._spawnOneEnemy(this.spawnQueue.shift())
-                    }
+                this.spawnTimer = 0
+            }
+            _spawnInitialBatch() {
+                // Spawn lô đầu: tối đa 3-5 con tùy wave
+                const batch = Math.min(Math.floor(2 + this.wave * 0.15), 5, this.spawnQueue.length)
+                for (let i = 0; i < batch; i++) {
+                    this._spawnOneEnemy(this.spawnQueue.shift())
                 }
-                _spawnOneEnemy(type) {
-                    // Spawn từ ngoài màn hình, cách player ít nhất 500px
-                    const side = Math.random() > 0.5 ? 1 : -1
-                    const px = this.player ? this.player.x : 0
-                    const spawnX = px + side * (500 + Math.random() * 600)
-                    const spawnY = CONFIG.floorY - 50 + Math.random() * 100
-                    this.enemies.push(new Enemy(spawnX, spawnY, type, this.wave))
+            }
+            _spawnOneEnemy(type) {
+                // Spawn từ ngoài màn hình, cách player ít nhất 500px
+                const side = Math.random() > 0.5 ? 1 : -1
+                const px = this.player ? this.player.x : 0
+                const spawnX = px + side * (500 + Math.random() * 600)
+                const spawnY = CONFIG.floorY - 50 + Math.random() * 100
+                this.enemies.push(new Enemy(spawnX, spawnY, type, this.wave))
+            }
+            _nextWave() {
+                this.wave++
+                SaveSystem.data.wave = this.wave
+                SaveSystem.data.money = this.money
+                SaveSystem.save()
+                if (this.wave > this.maxWave) {
+                    // Chiến thắng!
+                    this.state = 'OVER'
+                    document.getElementById('hud').classList.add('hidden')
+                    document.getElementById('touch-controls').classList.add('hidden')
+                    document.getElementById('final-money').innerText = this.money
+                    document.getElementById('victory-menu').classList.remove('hidden')
+                    return
                 }
-                _nextWave() {
-                    this.wave++
-                    SaveSystem.data.wave = this.wave
-                    SaveSystem.data.money = this.money
-                    SaveSystem.save()
-                    if (this.wave > this.maxWave) {
-                        // Chiến thắng!
-                        this.state = 'OVER'
-                        document.getElementById('hud').classList.add('hidden')
-                        document.getElementById('touch-controls').classList.add('hidden')
-                        document.getElementById('final-money').innerText = this.money
-                        document.getElementById('victory-menu').classList.remove('hidden')
-                        return
-                    }
-                    // Chuyển màn mượt: giữ player, reset quái
-                    this.enemies = []
-                    this.waveKills = 0
-                    this._buildSpawnQueue()
-                    this._spawnInitialBatch()
-                    document.getElementById('wave-display').innerText = `MÀN ${this.wave}/${this.maxWave}`
-                    // Hiệu ứng thông báo màn mới
-                    this.camera.shake(5, 0.2)
-                    this.updateHUD()
-                }
-                triggerHitEffect(x, y, isCrit) {
-                    this.hitStop = isCrit ? 0.14 : 0.07
-                    this.camera.shake(isCrit ? 35 : 15, isCrit ? 0.4 : 0.2)
-                    if (isCrit) {
-                        this.camera.targetZoom = 1.4
-                        setTimeout(() => (this.camera.targetZoom = 1), 200)
-                        this.timeScale = 0.15
-                        setTimeout(() => (this.timeScale = 1), 120)
-                        audio.playCrit()
-                    } else audio.playHit()
-                    // Loại bỏ hạt trắng cũ vì đã có vfx1
-                    // this.particles.spawn(x, y, isCrit ? '#f0f' : '#fff', isCrit ? 40 : 15, isCrit ? 3.0 : 1.5);
-                }
-                checkCombat() {
-                    const pb = this.player.getCurrentAttackBox()
-                    if (pb && !this.hasHit) {
-                        let hit = false,
-                            crit = this.player.nextCrit
-                        for (let e of this.enemies)
-                            if (e.state !== 'DEAD' && Utils.rectIntersect(pb, e.getHitbox())) {
-                                let d = pb.dmg * SaveSystem.data.stats.dmgMult
-                                if (crit) d *= 3.0
-                                e.takeDamage(d, this.player.dir * pb.force, this.player)
-                                // Đã xóa spawnSlash (vệt trắng lớn) theo yêu cầu
-                                this.particles.spawnSkillVFX(e.x, e.y - e.h / 2, SaveSystem.data.skills.active)
-                                this.triggerHitEffect(e.x, e.y - e.h / 2, crit)
-                                hit = true
-                                this.combo++
-                                this.comboT = 4.0
-                                this.money += Math.floor(1 + this.combo * 0.2)
-                                if (e.state === 'DEAD') {
-                                    this.waveKills++
-                                    this.money += e.type === 'boss' ? 200 : (e.type === 'shield' ? 50 : 25)
-                                }
+                // Chuyển màn mượt: giữ player, reset quái
+                this.enemies = []
+                this.waveKills = 0
+                this._buildSpawnQueue()
+                this._spawnInitialBatch()
+                document.getElementById('wave-display').innerText = `MÀN ${this.wave}/${this.maxWave}`
+                // Hiệu ứng thông báo màn mới
+                this.camera.shake(5, 0.2)
+                this.updateHUD()
+            }
+            triggerHitEffect(x, y, isCrit) {
+                this.hitStop = isCrit ? 0.14 : 0.07
+                this.camera.shake(isCrit ? 35 : 15, isCrit ? 0.4 : 0.2)
+                if (isCrit) {
+                    this.camera.targetZoom = 1.4
+                    setTimeout(() => (this.camera.targetZoom = 1), 200)
+                    this.timeScale = 0.15
+                    setTimeout(() => (this.timeScale = 1), 120)
+                    audio.playCrit()
+                } else audio.playHit()
+                // Loại bỏ hạt trắng cũ vì đã có vfx1
+                // this.particles.spawn(x, y, isCrit ? '#f0f' : '#fff', isCrit ? 40 : 15, isCrit ? 3.0 : 1.5);
+            }
+            checkCombat() {
+                const pb = this.player.getCurrentAttackBox()
+                if (pb && !this.hasHit) {
+                    let hit = false,
+                        crit = this.player.nextCrit
+                    for (let e of this.enemies)
+                        if (e.state !== 'DEAD' && Utils.rectIntersect(pb, e.getHitbox())) {
+                            let d = pb.dmg * SaveSystem.data.stats.dmgMult
+                            if (crit) d *= 3.0
+                            e.takeDamage(d, this.player.dir * pb.force, this.player)
+                            // Đã xóa spawnSlash (vệt trắng lớn) theo yêu cầu
+                            this.particles.spawnSkillVFX(e.x, e.y - e.h / 2, SaveSystem.data.skills.active)
+                            this.triggerHitEffect(e.x, e.y - e.h / 2, crit)
+                            hit = true
+                            this.combo++
+                            this.comboT = 4.0
+                            this.money += Math.floor(1 + this.combo * 0.2)
+                            if (e.state === 'DEAD') {
+                                this.waveKills++
+                                this.money += e.type === 'boss' ? 200 : (e.type === 'shield' ? 50 : 25)
                             }
-                        if (hit) {
-                            this.hasHit = true
+                        }
+                    if (hit) {
+                        this.hasHit = true
+                        this.updateHUD()
+                    }
+                }
+                if (!pb) this.hasHit = false
+                for (let e of this.enemies) {
+                    const eb = e.getCurrentAttackBox()
+                    if (eb && Utils.rectIntersect(eb, this.player.getHitbox())) {
+                        if (this.player.takeDamage(eb.dmg, e.dir * 300, e)) {
+                            this.camera.shake(20, 0.3)
+                            this.particles.spawn(this.player.x, this.player.y - this.player.h / 2, '#f00', 20)
+                            this.combo = 0
                             this.updateHUD()
                         }
                     }
-                    if (!pb) this.hasHit = false
-                    for (let e of this.enemies) {
-                        const eb = e.getCurrentAttackBox()
-                        if (eb && Utils.rectIntersect(eb, this.player.getHitbox())) {
-                            if (this.player.takeDamage(eb.dmg, e.dir * 300, e)) {
-                                this.camera.shake(20, 0.3)
-                                this.particles.spawn(this.player.x, this.player.y - this.player.h / 2, '#f00', 20)
-                                this.combo = 0
-                                this.updateHUD()
-                            }
-                        }
-                    }
-                    if (this.player.state === 'DEAD' && this.state !== 'GAMEOVER') {
-                        this.state = 'GAMEOVER'
-                        setTimeout(() => this.gameOver(), 2500)
-                    }
                 }
-                updateHUD() {
-                    const hp = Math.max(0, (this.player.hp / this.player.maxHp) * 100)
-                    const hbar = document.getElementById('health-bar')
-                    if (hbar) {
-                        hbar.style.width = hp + '%'
-                        hbar.style.background =
-                            hp > 30 ? 'linear-gradient(90deg, #0f0, #0a0)' : 'linear-gradient(90deg, #f00, #a00)'
+                if (this.player.state === 'DEAD' && this.state !== 'GAMEOVER') {
+                    this.state = 'GAMEOVER'
+                    setTimeout(() => this.gameOver(), 2500)
+                }
+            }
+            updateHUD() {
+                const hp = Math.max(0, (this.player.hp / this.player.maxHp) * 100)
+                const hbar = document.getElementById('health-bar')
+                if (hbar) {
+                    hbar.style.width = hp + '%'
+                    hbar.style.background =
+                        hp > 30 ? 'linear-gradient(90deg, #0f0, #0a0)' : 'linear-gradient(90deg, #f00, #a00)'
+                }
+                const cur = document.getElementById('currency-display')
+                if (cur) cur.innerText = this.money + ' VNĐ'
+            }
+            updateTimingUI() {
+                const ind = document.getElementById('timing-indicator')
+                if (ind) ind.style.opacity = 0
+            }
+            updateShopUI() {
+                const d = SaveSystem.data
+                const funds = document.getElementById('shop-funds')
+                if (funds) funds.innerText = this.money
+                const items = [
+                    [
+                        'dmgMult',
+                        8,
+                        'dmg',
+                    ],
+                    [
+                        'critWindowMult',
+                        5,
+                        'crit',
+                    ],
+                    [
+                        'maxHp',
+                        1500,
+                        'hp',
+                    ],
+                    [
+                        'dashCdMult',
+                        0.2,
+                        'dash',
+                    ],
+                ]
+                items.forEach((i) => {
+                    const b = document.getElementById('upg-' + i[2])
+                    if (b) {
+                        b.disabled = d.stats[i[0]] >= i[1] || this.money < d.costs[i[2]]
+                        if (d.stats[i[0]] >= i[1]) b.innerText = 'TỐI ĐA'
+                        else b.innerHTML = `Giá: <span id="cost-${i[2]}">${d.costs[i[2]]}</span> VNĐ`
                     }
-                    const cur = document.getElementById('currency-display')
-                    if (cur) cur.innerText = this.money + ' VNĐ'
-                }
-                updateTimingUI() {
-                    const ind = document.getElementById('timing-indicator')
-                    if (ind) ind.style.opacity = 0
-                }
-                updateShopUI() {
-                    const d = SaveSystem.data
-                    const funds = document.getElementById('shop-funds')
-                    if (funds) funds.innerText = this.money
-                    const items = [
-                        [
-                            'dmgMult',
-                            8,
-                            'dmg',
-                        ],
-                        [
-                            'critWindowMult',
-                            5,
-                            'crit',
-                        ],
-                        [
-                            'maxHp',
-                            1500,
-                            'hp',
-                        ],
-                        [
-                            'dashCdMult',
-                            0.2,
-                            'dash',
-                        ],
-                    ]
-                    items.forEach((i) => {
-                        const b = document.getElementById('upg-' + i[2])
-                        if (b) {
-                            b.disabled = d.stats[i[0]] >= i[1] || this.money < d.costs[i[2]]
-                            if (d.stats[i[0]] >= i[1]) b.innerText = 'TỐI ĐA'
-                            else b.innerHTML = `Giá: <span id="cost-${i[2]}">${d.costs[i[2]]}</span> VNĐ`
-                        }
-                    })
+                })
 
-                    // Cập nhật Skill UI
-                    const skillContainer = document.getElementById('skills-list')
-                    if (skillContainer) {
-                        skillContainer.innerHTML = ''
-                        for (let v = 1; v <= 6; v++) {
-                            const id = `vfx${v}`
-                            const isUnlocked = d.skills.unlocked.includes(id)
-                            const isActive = d.skills.active === id
-                            const cost = d.skillCosts[id] || 0
+                // Cập nhật Skill UI
+                const skillContainer = document.getElementById('skills-list')
+                if (skillContainer) {
+                    skillContainer.innerHTML = ''
+                    for (let v = 1; v <= 6; v++) {
+                        const id = `vfx${v}`
+                        const isUnlocked = d.skills.unlocked.includes(id)
+                        const isActive = d.skills.active === id
+                        const cost = d.skillCosts[id] || 0
 
-                            const item = document.createElement('div')
-                            item.className = 'shop-item'
-                            item.innerHTML = `
+                        const item = document.createElement('div')
+                        item.className = 'shop-item'
+                        item.innerHTML = `
                                 <span>Tia sét bậc ${v}</span>
                                 <button class="shop-btn" id="buy-${id}">
                                     ${isActive ? 'ĐANG DÙNG' : isUnlocked ? 'SỬ DỤNG' : `Giá: ${cost} VNĐ`}
                                 </button>
                             `
-                            skillContainer.appendChild(item)
+                        skillContainer.appendChild(item)
 
-                            const btn = document.getElementById(`buy-${id}`)
-                            btn.disabled = (!isUnlocked && this.money < cost)
-                            btn.addEventListener('click', () => {
-                                if (isUnlocked) {
-                                    d.skills.active = id
-                                    SaveSystem.save()
-                                    audio.playBuy()
-                                    this.updateShopUI()
-                                } else if (this.money >= cost) {
-                                    this.money -= cost
-                                    d.money = this.money
-                                    d.skills.unlocked.push(id)
-                                    d.skills.active = id
-                                    SaveSystem.save()
-                                    audio.playBuy()
-                                    this.updateShopUI()
-                                }
-                            })
-                        }
+                        const btn = document.getElementById(`buy-${id}`)
+                        btn.disabled = (!isUnlocked && this.money < cost)
+                        btn.addEventListener('click', () => {
+                            if (isUnlocked) {
+                                d.skills.active = id
+                                SaveSystem.save()
+                                audio.playBuy()
+                                this.updateShopUI()
+                            } else if (this.money >= cost) {
+                                this.money -= cost
+                                d.money = this.money
+                                d.skills.unlocked.push(id)
+                                d.skills.active = id
+                                SaveSystem.save()
+                                audio.playBuy()
+                                this.updateShopUI()
+                            }
+                        })
                     }
                 }
-                openShop() {
-                    this.state = 'SHOP'
-                    SaveSystem.data.money = this.money
-                    SaveSystem.data.wave = this.wave
-                    SaveSystem.save()
-                    document.getElementById('hud').classList.add('hidden')
-                    document.getElementById('touch-controls').classList.add('hidden')
-                    document.getElementById('shop-menu').classList.remove('hidden')
-                    this.updateShopUI()
+            }
+            openShop() {
+                this.state = 'SHOP'
+                SaveSystem.data.money = this.money
+                SaveSystem.data.wave = this.wave
+                SaveSystem.save()
+                document.getElementById('hud').classList.add('hidden')
+                document.getElementById('touch-controls').classList.add('hidden')
+                document.getElementById('shop-menu').classList.remove('hidden')
+                this.updateShopUI()
+            }
+            gameOver() {
+                this.state = 'OVER'
+                SaveSystem.save()
+                document.getElementById('hud').classList.add('hidden')
+                document.getElementById('touch-controls').classList.add('hidden')
+                document.getElementById('game-over-menu').classList.remove('hidden')
+                document.getElementById('final-wave').innerText = this.wave - 1
+            }
+
+            drawBG() {
+                const ctx = this.ctx
+                const skyGrad = ctx.createLinearGradient(0, 0, 0, CONFIG.canvasHeight)
+                skyGrad.addColorStop(0, '#000510')
+                skyGrad.addColorStop(1, '#110520')
+                ctx.fillStyle = skyGrad
+                ctx.fillRect(0, 0, CONFIG.canvasWidth, CONFIG.canvasHeight)
+                const camX = this.camera.x
+                ctx.fillStyle = '#080210'
+                for (let i = -5; i < 15; i++) {
+                    let x = i * 300 - ((camX * 0.1) % 300)
+                    let h = 200 + Math.sin(i * 123) * 100
+                    ctx.fillRect(x, CONFIG.floorY - h, 250, h)
                 }
-                gameOver() {
-                    this.state = 'OVER'
-                    SaveSystem.save()
-                    document.getElementById('hud').classList.add('hidden')
-                    document.getElementById('touch-controls').classList.add('hidden')
-                    document.getElementById('game-over-menu').classList.remove('hidden')
-                    document.getElementById('final-wave').innerText = this.wave - 1
+                for (let i = -5; i < 20; i++) {
+                    let x = i * 200 - ((camX * 0.25) % 200)
+                    let h = 150 + Math.cos(i * 456) * 80
+                    ctx.fillStyle = '#10051a'
+                    ctx.fillRect(x, CONFIG.floorY - h, 150, h)
+                    ctx.fillStyle = i % 2 === 0 ? 'rgba(0, 255, 255, 0.1)' : 'rgba(255, 0, 255, 0.1)'
+                    ctx.fillRect(x + 20, CONFIG.floorY - h + 30, 20, 20)
+                    ctx.fillRect(x + 110, CONFIG.floorY - h + 80, 20, 20)
                 }
+                ctx.save()
+                this.camera.apply(ctx)
+                // Vẽ lưới vô tận dựa trên vị trí camera
+                const startX = Math.floor((camX - 1000) / 120) * 120
+                const endX = startX + 2500
+                const camY = this.camera.y
+                const startY = Math.floor((camY - 1000) / 120) * 120
+                const endY = startY + 2000
 
-                drawBG() {
-                    const ctx = this.ctx
-                    const skyGrad = ctx.createLinearGradient(0, 0, 0, CONFIG.canvasHeight)
-                    skyGrad.addColorStop(0, '#000510')
-                    skyGrad.addColorStop(1, '#110520')
-                    ctx.fillStyle = skyGrad
-                    ctx.fillRect(0, 0, CONFIG.canvasWidth, CONFIG.canvasHeight)
-                    const camX = this.camera.x
-                    ctx.fillStyle = '#080210'
-                    for (let i = -5; i < 15; i++) {
-                        let x = i * 300 - ((camX * 0.1) % 300)
-                        let h = 200 + Math.sin(i * 123) * 100
-                        ctx.fillRect(x, CONFIG.floorY - h, 250, h)
-                    }
-                    for (let i = -5; i < 20; i++) {
-                        let x = i * 200 - ((camX * 0.25) % 200)
-                        let h = 150 + Math.cos(i * 456) * 80
-                        ctx.fillStyle = '#10051a'
-                        ctx.fillRect(x, CONFIG.floorY - h, 150, h)
-                        ctx.fillStyle = i % 2 === 0 ? 'rgba(0, 255, 255, 0.1)' : 'rgba(255, 0, 255, 0.1)'
-                        ctx.fillRect(x + 20, CONFIG.floorY - h + 30, 20, 20)
-                        ctx.fillRect(x + 110, CONFIG.floorY - h + 80, 20, 20)
-                    }
-                    ctx.save()
-                    this.camera.apply(ctx)
-                    // Vẽ lưới vô tận dựa trên vị trí camera
-                    const startX = Math.floor((camX - 1000) / 120) * 120
-                    const endX = startX + 2500
-                    const camY = this.camera.y
-                    const startY = Math.floor((camY - 1000) / 120) * 120
-                    const endY = startY + 2000
-                    
-                    ctx.beginPath()
-                    // Đường kẻ dọc
-                    for (let i = startX; i < endX; i += 120) {
-                        ctx.moveTo(i, camY - 1000)
-                        ctx.lineTo(i, camY + 1000)
-                    }
-                    // Đường kẻ ngang (lưới cho sàn)
-                    for (let j = startY; j < endY; j += 80) {
-                        ctx.moveTo(camX - 1000, j)
-                        ctx.lineTo(camX + 1500, j)
-                    }
-                    ctx.stroke()
-                    
-                    ctx.strokeStyle = '#0ff'
-                    ctx.lineWidth = 4
-                    ctx.shadowBlur = 10
-                    ctx.shadowColor = '#0ff'
-                    ctx.beginPath()
-                    ctx.moveTo(camX - 1000, CONFIG.floorY)
-                    ctx.lineTo(camX + 1500, CONFIG.floorY)
-                    ctx.stroke()
-                    ctx.shadowBlur = 0
-                    ctx.restore()
+                ctx.beginPath()
+                // Đường kẻ dọc
+                for (let i = startX; i < endX; i += 120) {
+                    ctx.moveTo(i, camY - 1000)
+                    ctx.lineTo(i, camY + 1000)
                 }
+                // Đường kẻ ngang (lưới cho sàn)
+                for (let j = startY; j < endY; j += 80) {
+                    ctx.moveTo(camX - 1000, j)
+                    ctx.lineTo(camX + 1500, j)
+                }
+                ctx.stroke()
 
-                loop(t) {
-                    let dt = Math.min(0.05, (t - this.lastT) / 1000)
-                    this.lastT = t
-                    this.input.update()
-                    if (this.state === 'GAME' || this.state === 'GAMEOVER') {
-                        let ldt = dt * this.timeScale
-                        if (this.hitStop > 0) {
-                            this.hitStop -= dt
-                            ldt = 0
-                        }
-                        if (ldt > 0 || this.state === 'GAMEOVER') {
-                            this.player.update(this.state === 'GAMEOVER' ? dt : ldt, this.input, this.particles)
-                            if (this.state === 'GAME') {
-                                this.enemies.forEach((e) => e.update(ldt, this.player))
-                                this.particles.update(ldt)
-                                this.checkCombat()
-                                if (this.combo > 0) {
-                                    this.comboT -= ldt
-                                    if (this.comboT <= 0) {
-                                        this.combo = 0
-                                        this.updateHUD()
-                                    }
-                                }
-                                // Spawn thêm quái từ hàng đợi khi số quái sống < ngưỡng
-                                const alive = this.enemies.filter(e => e.state !== 'DEAD').length
-                                const maxOnScreen = Math.min(3 + Math.floor(this.wave * 0.2), 8)
-                                if (this.spawnQueue.length > 0 && alive < maxOnScreen) {
-                                    this.spawnTimer -= ldt
-                                    if (this.spawnTimer <= 0) {
-                                        this._spawnOneEnemy(this.spawnQueue.shift())
-                                        this.spawnTimer = Math.max(0.5, 2.5 - this.wave * 0.06) // Tần suất spawn nhanh dần
-                                    }
-                                }
+                ctx.strokeStyle = '#0ff'
+                ctx.lineWidth = 4
+                ctx.shadowBlur = 10
+                ctx.shadowColor = '#0ff'
+                ctx.beginPath()
+                ctx.moveTo(camX - 1000, CONFIG.floorY)
+                ctx.lineTo(camX + 1500, CONFIG.floorY)
+                ctx.stroke()
+                ctx.shadowBlur = 0
+                ctx.restore()
+            }
 
-                                // Cập nhật đạn
-                                this.projectiles.forEach(p => {
-                                    p.x += p.vx * ldt
-                                    p.y += p.vy * ldt
-                                    p.life -= ldt
-                                    if (Utils.rectIntersect({x:p.x-5, y:p.y-5, w:10, h:10}, this.player.getHitbox())) {
-                                        if (this.player.takeDamage(p.dmg, p.vx > 0 ? 300 : -300)) {
-                                            p.life = 0
-                                            this.camera.shake(15, 0.2)
-                                        }
-                                    }
-                                })
-                                this.projectiles = this.projectiles.filter(p => p.life > 0)
-
-                                // Cập nhật tiến trình wave
-                                const wp = document.getElementById('wave-progress')
-                                if (wp) wp.innerText = `Tiêu diệt: ${this.waveKills}/${this.waveTotal}`
-                                // Hết quái → tự động sang màn tiếp
-                                if (this.waveKills >= this.waveTotal && this.spawnQueue.length === 0 && alive === 0 && this.player.state !== 'DEAD') {
-                                    this._nextWave()
+            loop(t) {
+                let dt = Math.min(0.05, (t - this.lastT) / 1000)
+                this.lastT = t
+                this.input.update()
+                if (this.state === 'GAME' || this.state === 'GAMEOVER') {
+                    let ldt = dt * this.timeScale
+                    if (this.hitStop > 0) {
+                        this.hitStop -= dt
+                        ldt = 0
+                    }
+                    if (ldt > 0 || this.state === 'GAMEOVER') {
+                        this.player.update(this.state === 'GAMEOVER' ? dt : ldt, this.input, this.particles)
+                        if (this.state === 'GAME') {
+                            this.enemies.forEach((e) => e.update(ldt, this.player))
+                            this.particles.update(ldt)
+                            this.checkCombat()
+                            if (this.combo > 0) {
+                                this.comboT -= ldt
+                                if (this.comboT <= 0) {
+                                    this.combo = 0
+                                    this.updateHUD()
                                 }
                             }
-                        }
-                        this.enemies = this.enemies.filter((e) => e.state !== 'DEAD' || e.stateTime < 1.5)
-                        this.camera.update(dt, this.player)
-                        this.updateTimingUI()
-                    }
-                    this.drawBG()
-                    this.ctx.save()
-                    this.camera.apply(this.ctx)
-                    if (this.state === 'GAME' || this.state === 'GAMEOVER' || this.state === 'OVER') {
-                        [this.player, ...this.enemies.filter(e => e.state !== 'DEAD' || e.stateTime < 1.5)]
-                            .sort((a, b) => a.y - b.y)
-                            .forEach((e) => e.draw(this.ctx))
-                        this.particles.draw(this.ctx, Entity.drawEntity)
+                            // Spawn thêm quái từ hàng đợi khi số quái sống < ngưỡng
+                            const alive = this.enemies.filter(e => e.state !== 'DEAD').length
+                            const maxOnScreen = Math.min(3 + Math.floor(this.wave * 0.2), 8)
+                            if (this.spawnQueue.length > 0 && alive < maxOnScreen) {
+                                this.spawnTimer -= ldt
+                                if (this.spawnTimer <= 0) {
+                                    this._spawnOneEnemy(this.spawnQueue.shift())
+                                    this.spawnTimer = Math.max(0.5, 2.5 - this.wave * 0.06) // Tần suất spawn nhanh dần
+                                }
+                            }
 
-                        // Vẽ Combo trên đầu nhân vật
-                        if (this.combo > 1) {
-                            const ctx = this.ctx
-                            ctx.save()
-                            ctx.textAlign = 'center'
-                            ctx.font = '800 24px "Inter", sans-serif'
-                            ctx.fontStyle = 'italic'
-                            
-                            // Hiệu ứng bay lên và mờ dần dựa trên comboT (4.0 -> 0)
-                            const floatUp = (4.0 - this.comboT) * 20
-                            ctx.globalAlpha = Math.min(1, this.comboT * 1.5)
-                            
-                            const pulse = 1 + Math.sin(performance.now() * 0.01) * 0.05
-                            ctx.translate(this.player.x, this.player.getDrawY() - this.player.h - 20 - floatUp)
-                            ctx.scale(pulse, pulse)
-                            
-                            ctx.shadowBlur = 10
-                            ctx.shadowColor = this.player.isCritWindow ? '#f0f' : '#ff0'
-                            ctx.fillStyle = this.player.isCritWindow ? '#f0f' : '#ff0'
-                            
-                            // Vẽ nghiêng bằng transform
-                            ctx.transform(1, 0, -0.2, 1, 0, 0) 
-                            ctx.fillText(this.combo + 'x COMBO', 0, 0)
-                            ctx.restore()
+                            // Cập nhật đạn
+                            this.projectiles.forEach(p => {
+                                p.x += p.vx * ldt
+                                p.y += p.vy * ldt
+                                p.life -= ldt
+                                if (Utils.rectIntersect({ x: p.x - 5, y: p.y - 5, w: 10, h: 10 }, this.player.getHitbox())) {
+                                    if (this.player.takeDamage(p.dmg, p.vx > 0 ? 300 : -300)) {
+                                        p.life = 0
+                                        this.camera.shake(15, 0.2)
+                                    }
+                                }
+                            })
+                            this.projectiles = this.projectiles.filter(p => p.life > 0)
+
+                            // Cập nhật tiến trình wave
+                            const wp = document.getElementById('wave-progress')
+                            if (wp) wp.innerText = `Tiêu diệt: ${this.waveKills}/${this.waveTotal}`
+                            // Hết quái → tự động sang màn tiếp
+                            if (this.waveKills >= this.waveTotal && this.spawnQueue.length === 0 && alive === 0 && this.player.state !== 'DEAD') {
+                                this._nextWave()
+                            }
                         }
                     }
-                    this.ctx.restore()
-
-                    // Vẽ đạn
-                    this.projectiles.forEach(p => {
-                        this.ctx.save()
-                        this.ctx.translate(-this.camera.x, 0)
-                        this.ctx.fillStyle = p.color || '#fff'
-                        this.ctx.shadowBlur = 10
-                        this.ctx.shadowColor = p.color || '#fff'
-                        this.ctx.fillRect(p.x - 6, p.y - 4, 12, 8)
-                        this.ctx.restore()
-                    })
-
-                    if (this.hitStop > 0) {
-                        this.ctx.fillStyle = 'rgba(255,255,255,0.15)'
-                        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
-                    }
-                    requestAnimationFrame((t) => this.loop(t))
+                    this.enemies = this.enemies.filter((e) => e.state !== 'DEAD' || e.stateTime < 1.5)
+                    this.camera.update(dt, this.player)
+                    this.updateTimingUI()
                 }
+                this.drawBG()
+                this.ctx.save()
+                this.camera.apply(this.ctx)
+                if (this.state === 'GAME' || this.state === 'GAMEOVER' || this.state === 'OVER') {
+                    [this.player, ...this.enemies.filter(e => e.state !== 'DEAD' || e.stateTime < 1.5)]
+                        .sort((a, b) => a.y - b.y)
+                        .forEach((e) => e.draw(this.ctx))
+                    this.particles.draw(this.ctx, Entity.drawEntity)
+
+                    // Vẽ Combo trên đầu nhân vật
+                    if (this.combo > 1) {
+                        const ctx = this.ctx
+                        ctx.save()
+                        ctx.textAlign = 'center'
+                        ctx.font = '800 24px "Inter", sans-serif'
+                        ctx.fontStyle = 'italic'
+
+                        // Hiệu ứng bay lên và mờ dần dựa trên comboT (4.0 -> 0)
+                        const floatUp = (4.0 - this.comboT) * 20
+                        ctx.globalAlpha = Math.min(1, this.comboT * 1.5)
+
+                        const pulse = 1 + Math.sin(performance.now() * 0.01) * 0.05
+                        ctx.translate(this.player.x, this.player.getDrawY() - this.player.h - 20 - floatUp)
+                        ctx.scale(pulse, pulse)
+
+                        ctx.shadowBlur = 10
+                        ctx.shadowColor = this.player.isCritWindow ? '#f0f' : '#ff0'
+                        ctx.fillStyle = this.player.isCritWindow ? '#f0f' : '#ff0'
+
+                        // Vẽ nghiêng bằng transform
+                        ctx.transform(1, 0, -0.2, 1, 0, 0)
+                        ctx.fillText(this.combo + 'x COMBO', 0, 0)
+                        ctx.restore()
+                    }
+                }
+                this.ctx.restore()
+
+                // Vẽ đạn
+                this.projectiles.forEach(p => {
+                    this.ctx.save()
+                    this.ctx.translate(-this.camera.x, 0)
+                    this.ctx.fillStyle = p.color || '#fff'
+                    this.ctx.shadowBlur = 10
+                    this.ctx.shadowColor = p.color || '#fff'
+                    this.ctx.fillRect(p.x - 6, p.y - 4, 12, 8)
+                    this.ctx.restore()
+                })
+
+                if (this.hitStop > 0) {
+                    this.ctx.fillStyle = 'rgba(255,255,255,0.15)'
+                    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
+                }
+                requestAnimationFrame((t) => this.loop(t))
             }
-            window.onload = () => {
-                SaveSystem.load()
-                SPRITES.load()
-                new Game()
-            }
-        </script>
-    </body>
+        }
+        window.onload = () => {
+            SaveSystem.load()
+            SPRITES.load()
+            new Game()
+        }
+    </script>
+</body>
+
 </html>
