@@ -11,6 +11,10 @@ const navData = [
         name: 'RSS',
         path: '/rss.xml',
     },
+    {
+        name: 'Tools',
+        path: '/tools',
+    },
 ]
 
 export default navData

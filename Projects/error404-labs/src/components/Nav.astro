@@ -5,6 +5,7 @@ import IconBlog from '../icons/IconBlog.astro'
 import IconAbout from '../icons/IconAbout.astro'
 import IconRSS from '../icons/IconRSS.astro'
 import IconSearch from '../icons/IconSearch.astro'
+import IconTools from '../icons/IconTools.astro'
 import ScrollProgress from './ScrollProgress.astro'
 
 const onIcons = (name: string) => {
@@ -15,6 +16,8 @@ const onIcons = (name: string) => {
             return { component: IconBlog }
         case 'RSS':
             return { component: IconRSS }
+        case 'Tools':
+            return { component: IconTools }
     }
 }
 
@@ -33,18 +36,18 @@ const isPost = pathname.startsWith('/bai-viet/')
             <!-- Logo -->
             <div class="flex items-center flex-shrink-0">
                 <a href="/" class="logomark" arial-label="Go Home">
-                    <img src="/avatar_v2.avif" alt="Avatar" class="rounded-full w-12 lg:w-20" />
+                    <img src="/avatar_v2.avif" alt="Avatar" class="rounded-full w-10 lg:w-16" />
                 </a>
             </div>
 
             <!-- Right side Navigation & Actions -->
-            <div class="flex items-center gap-2 md:gap-4 ml-4">
+            <div class="flex items-center gap-2">
                 <!-- Desktop Menu -->
                 <div class="hidden lg:flex items-center">
                     <ul class="flex">
                         {
                             navData.map((item) => (
-                                <li class="ml-4">
+                                <li class="ml-2">
                                     <Link
                                         text={item.name}
                                         href={item.path}
@@ -52,6 +55,7 @@ const isPost = pathname.startsWith('/bai-viet/')
                                         isFilled={false}
                                         borderVisible={true}
                                         data-navLink
+                                        classes="text-xs xl:text-sm px-3 xl:px-4 py-2"
                                         icon={{
                                             component: onIcons(item.name)?.component,
                                             side: 'left',
@@ -59,48 +63,50 @@ const isPost = pathname.startsWith('/bai-viet/')
                                         target={item.name === 'RSS' ? '_blank' : '_self'}
                                     />
                                 </li>
-                            ))
-                        }
-                    </ul>
+                    ))
+                }
+            </ul>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center gap-2">
+            <!-- Search button -->
+            <button id="openModal" class="p-0 border-none bg-transparent cursor-pointer">
+                <!-- Desktop/Tablet Text + Icon -->
+                <div class="hidden sm:block">
+                    <Link
+                        text="Tìm"
+                        href="#/tim"
+                        style="primary"
+                        isFilled={false}
+                        borderVisible={true}
+                        classes="text-xs xl:text-sm px-3 xl:px-4 py-2"
+                        icon={{
+                            component: IconSearch,
+                            side: 'left',
+                        }}
+                    />
                 </div>
+                <!-- Mobile Icon Only -->
+                <div
+                    class="cursor-pointer sm:hidden text-blue-600 border border-blue-600 rounded-lg p-2 hover:bg-blue-50 transition-colors flex items-center justify-center h-[38px] w-[38px]"
+                >
+                    <IconSearch class="w-5 h-5" />
+                </div>
+            </button>
 
-                <!-- Action Buttons -->
-                <div class="flex items-center gap-4">
-                    <!-- Search button -->
-                    <button id="openModal">
-                        <!-- Desktop/Tablet Text + Icon -->
-                        <div class="hidden sm:block">
-                            <Link
-                                text="Tìm"
-                                href="#/tim"
-                                style="primary"
-                                isFilled={false}
-                                borderVisible={true}
-                                icon={{
-                                    component: IconSearch,
-                                    side: 'left',
-                                }}
-                            />
-                        </div>
-                        <!-- Mobile Icon Only -->
-                        <div
-                            class="cursor-pointer sm:hidden text-blue-600 border border-blue-600 rounded-lg p-2.5 hover:bg-blue-50 transition-colors"
-                        >
-                            <IconSearch class="w-5 h-5" />
-                        </div>
-                    </button>
-
-                    <!-- Login Component -->
-                    <div id="authContainer" class="flex items-center">
-                        <button id="openLoginModal" class="block">
-                            <Link
-                                text="Đăng Nhập"
-                                href="#/login"
-                                style="primary"
-                                isFilled={true}
-                                borderVisible={true}
-                            />
-                        </button>
+            <!-- Login Component -->
+            <div id="authContainer" class="flex items-center">
+                <button id="openLoginModal" class="block p-0 border-none bg-transparent cursor-pointer">
+                    <Link
+                        text="Đăng Nhập"
+                        href="#/login"
+                        style="primary"
+                        classes="text-xs xl:text-sm px-3 xl:px-4 py-2"
+                        isFilled={true}
+                        borderVisible={true}
+                    />
+                </button>
                         <div
                             id="userProfileStatus"
                             class="hidden text-sm md:text-base font-bold text-blue-600 items-center gap-4 relative"
