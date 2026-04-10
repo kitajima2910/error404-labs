@@ -140,17 +140,19 @@
             }
 
             #combo-display {
-                font-size: 2.5rem;
-                font-weight: bold;
+                font-size: 1.5rem;
+                font-weight: 800;
+                font-style: italic;
                 color: #ff0;
-                text-shadow: 0 0 10px #ff0;
+                text-shadow: 0 0 15px rgba(255, 255, 0, 0.7);
                 opacity: 0;
-                transition: transform 0.1s;
+                transition: transform 0.1s, opacity 0.2s;
+                letter-spacing: 2px;
             }
 
             #combo-display.active {
                 opacity: 1;
-                transform: scale(1.3);
+                transform: scale(1.1);
             }
 
             .crit-text {
@@ -212,6 +214,8 @@
                 border-radius: 10px;
                 width: 90%;
                 max-width: 600px;
+                max-height: 85vh;
+                overflow-y: auto;
                 pointer-events: auto;
             }
 
@@ -333,10 +337,11 @@
                     </div>
                     <div id="wave-display">MÀN 1</div>
                     <div class="stats">
-                        <div id="combo-display">0x COMBO</div>
                         <div id="currency-display">0 VNĐ</div>
                     </div>
                 </div>
+                <div id="wave-progress" style="position:absolute;top:50px;left:50%;transform:translateX(-50%);color:#0ff;font-size:1rem;text-shadow:0 0 5px #0ff"></div>
+                <button id="open-shop-btn" style="position:absolute;top:20px;right:140px;pointer-events:auto;padding:8px 16px;font-size:0.9rem;z-index:55">CỬA HÀNG (K)</button>
                 <div id="timing-indicator">
                     <div id="timing-window"></div>
                     <div id="timing-cursor"></div>
@@ -349,6 +354,7 @@
                     <b>Điều khiển:</b><br />
                     Mũi tên / WASD: Di chuyển<br />
                     J: Tấn công (Căn chuẩn để gây Chí mạng!)<br />
+                    K: Mở cửa hàng nâng cấp<br />
                     Space: Lướt né chiêu
                 </div>
                 <button id="start-btn">BẮT ĐẦU</button>
@@ -377,6 +383,12 @@
                         <span>Hồi lướt (-15%)</span>
                         <button class="shop-btn" id="upg-dash">Giá: <span id="cost-dash">60</span> VNĐ</button>
                     </div>
+
+                    <h2 style="color: #ff0; margin: 20px 0 10px 0; border-bottom: 1px solid #ff0">KỸ NĂNG</h2>
+                    <div id="skills-list">
+                        <!-- Skills will be injected here -->
+                    </div>
+
                     <div style="text-align: center; margin-top: 20px"><button id="next-wave-btn">TIẾP TỤC</button></div>
                 </div>
             </div>
@@ -385,6 +397,12 @@
                 <h1 style="color: #f00">THẤT BẠI</h1>
                 <p style="font-size: 1.5rem; margin-bottom: 20px">Màn đã vượt: <span id="final-wave">0</span></p>
                 <button id="restart-btn">TRANG CHỦ</button>
+            </div>
+
+            <div id="victory-menu" class="overlay hidden">
+                <h1 style="color: #0f0">CHIẾN THẮNG!</h1>
+                <p style="font-size: 1.5rem; margin-bottom: 20px; text-align:center">Bạn đã hoàn thành tất cả 30 màn!<br>Tổng VNĐ: <span id="final-money">0</span></p>
+                <button id="victory-btn">TRANG CHỦ</button>
             </div>
 
             <div id="touch-controls" class="hidden">
@@ -418,12 +436,13 @@
                 hurt: null,
                 dead: [],
                 attack: [],
-                vfx1: [],
+                vfx1: [], vfx2: [], vfx3: [], vfx4: [], vfx5: [], vfx6: [],
                 loaded: false,
                 load() {
                     if (this.loaded) return
                     let loadedCount = 0
-                    const totalToLoad = 5 + 8 + 1 + 8 + 5 + 4
+                    const vfxCount = 6
+                    const totalToLoad = 5 + 8 + 1 + 8 + 5 + (vfxCount * 4)
                     const check = () => {
                         loadedCount++
                         if (loadedCount >= totalToLoad) this.loaded = true
@@ -470,13 +489,15 @@
                         this.attack[0].push(img)
                     }
 
-                    this.vfx1[0] = []
-                    for (let c = 1; c <= 4; c++) {
-                        const img = new Image()
-                        img.src = `assets/p-skill-vfx1/lightning_skill1_frame${c}.png`
-                        img.onload = check
-                        img.onerror = check
-                        this.vfx1[0].push(img)
+                    for (let v = 1; v <= 6; v++) {
+                        this[`vfx${v}`][0] = []
+                        for (let c = 1; c <= 4; c++) {
+                            const img = new Image()
+                            img.src = `assets/p-skill-vfx${v}/lightning_skill${v}_frame${c}.png`
+                            img.onload = check
+                            img.onerror = check
+                            this[`vfx${v}`][0].push(img)
+                        }
                     }
                 },
             }
@@ -542,6 +563,8 @@
                     wave: 1,
                     stats: { dmgMult: 1, critWindowMult: 1, maxHp: 300, dashCdMult: 1 },
                     costs: { dmg: 50, crit: 75, hp: 100, dash: 60 },
+                    skills: { unlocked: ['vfx1'], active: 'vfx1' },
+                    skillCosts: { vfx2: 500, vfx3: 1000, vfx4: 2000, vfx5: 4000, vfx6: 8000 },
                 },
                 save() {
                     localStorage.setItem('neonStrikerSave', JSON.stringify(this.data))
@@ -562,6 +585,8 @@
                         wave: 1,
                         stats: { dmgMult: 1, critWindowMult: 1, maxHp: 300, dashCdMult: 1 },
                         costs: { dmg: 50, crit: 75, hp: 100, dash: 60 },
+                        skills: { unlocked: ['vfx1'], active: 'vfx1' },
+                        skillCosts: { vfx2: 500, vfx3: 1000, vfx4: 2000, vfx5: 4000, vfx6: 8000 },
                     }
                     this.save()
                 },
@@ -720,8 +745,8 @@
                         })
                     }
                 }
-                spawnVFX1(x, y) {
-                    this.particles.push({ type: 'vfx1', x, y, life: 0.2, maxLife: 0.2 })
+                spawnSkillVFX(x, y, skillId) {
+                    this.particles.push({ type: 'skill_vfx', skillId, x, y, life: 0.2, maxLife: 0.2 })
                 }
                 spawnGhost(entity) {
                     this.ghosts.push({
@@ -787,15 +812,15 @@
                             ctx.lineWidth = 2 * a
                             ctx.stroke()
                             ctx.restore()
-                        } else if (p.type === 'vfx1') {
-                            const frames = SPRITES.vfx1[0]
+                        } else if (p.type === 'skill_vfx') {
+                            const frames = SPRITES[p.skillId][0]
                             const frameIdx = Math.min(Math.floor((1 - a) * frames.length), frames.length - 1)
                             const sprite = frames[frameIdx]
                             if (sprite && sprite.complete) {
                                 ctx.save()
-                                ctx.globalCompositeOperation = 'source-over' // Đảm bảo tia sét hiện rõ trên quái
+                                ctx.globalCompositeOperation = 'source-over'
                                 ctx.translate(p.x, p.y)
-                                const sz = 200 // Tăng kích thước hiệu ứng
+                                const sz = 200
                                 ctx.drawImage(sprite, -sz / 2, -sz / 2, sz, sz)
                                 ctx.restore()
                             }
@@ -1075,7 +1100,7 @@
                             this.vx = this.dir * 250
                             audio.playSwing()
                             // Tạo hiệu ứng tia sét ngay khi nhấn chém (kể cả chém không khí)
-                            particles.spawnVFX1(this.x + this.dir * 70, this.getDrawY() - this.h / 2)
+                            particles.spawnSkillVFX(this.x + this.dir * 70, this.getDrawY() - this.h / 2, SaveSystem.data.skills.active)
                         }
                     }
                     if (canM && input.consume('Space') && this.dashCd <= 0) {
@@ -1133,30 +1158,33 @@
             }
 
             class Enemy extends Entity {
-                constructor(x, y, type = 'basic') {
+                constructor(x, y, type = 'basic', wave = 1) {
                     super(x, y, 0, 40, 70)
                     this.type = type
                     this.atkCd = Math.random() * 2
+                    const scale = 1 + (wave - 1) * 0.12 // Quái mạnh dần 12% mỗi màn
                     if (type === 'basic') {
                         this.color = CONFIG.colors.enemy
-                        this.hp = this.maxHp = 40
-                        this.speed = 130
+                        this.hp = this.maxHp = Math.floor(40 * scale)
+                        this.speed = 130 + wave * 3
                         this.atkR = 70
                     } else if (type === 'advanced') {
                         this.color = CONFIG.colors.advanced
-                        this.hp = this.maxHp = 100
-                        this.speed = 160
+                        this.hp = this.maxHp = Math.floor(100 * scale)
+                        this.speed = 160 + wave * 3
                         this.atkR = 100
                         this.w = 50
                         this.h = 80
                     } else if (type === 'boss') {
                         this.color = CONFIG.colors.boss
-                        this.hp = this.maxHp = 800
-                        this.speed = 190
+                        this.hp = this.maxHp = Math.floor(800 * scale)
+                        this.speed = 190 + wave * 2
                         this.atkR = 130
                         this.w = 80
                         this.h = 140
                     }
+                    // Sát thương quái cũng tăng theo wave
+                    this.dmgScale = scale
                 }
                 update(dt, player) {
                     this.stateTime += dt
@@ -1201,7 +1229,7 @@
                         y: this.getDrawY() - h,
                         w,
                         h,
-                        dmg: this.type === 'boss' ? 40 : this.type === 'advanced' ? 20 : 15,
+                        dmg: Math.floor((this.type === 'boss' ? 40 : this.type === 'advanced' ? 20 : 15) * (this.dmgScale || 1)),
                     }
                 }
             }
@@ -1227,6 +1255,10 @@
                     this.wave = SaveSystem.data.wave
                     this.money = SaveSystem.data.money
                     this.waveKills = 0
+                    this.waveTotal = 0
+                    this.spawnQueue = [] // Hàng đợi spawn quái
+                    this.spawnTimer = 0
+                    this.maxWave = 30
                     this.bindUI()
                     requestAnimationFrame((t) => this.loop(t))
                 }
@@ -1247,9 +1279,31 @@
                         document.getElementById('main-menu').classList.remove('hidden')
                         this.state = 'MENU'
                     })
+                    document.getElementById('victory-btn').addEventListener('click', () => {
+                        document.getElementById('victory-menu').classList.add('hidden')
+                        document.getElementById('main-menu').classList.remove('hidden')
+                        this.state = 'MENU'
+                    })
                     document.getElementById('next-wave-btn').addEventListener('click', () => {
                         document.getElementById('shop-menu').classList.add('hidden')
-                        this.startWave()
+                        if (this.state === 'SHOP') {
+                            this.state = 'GAME'
+                            document.getElementById('hud').classList.remove('hidden')
+                            document.getElementById('touch-controls').classList.remove('hidden')
+                        }
+                    })
+                    document.getElementById('open-shop-btn').addEventListener('click', () => {
+                        if (this.state === 'GAME') this.openShop()
+                    })
+                    // Phím K để mở shop trong gameplay
+                    window.addEventListener('keydown', (e) => {
+                        if (e.code === 'KeyK' && this.state === 'GAME') this.openShop()
+                        if (e.code === 'Escape' && this.state === 'SHOP') {
+                            document.getElementById('shop-menu').classList.add('hidden')
+                            this.state = 'GAME'
+                            document.getElementById('hud').classList.remove('hidden')
+                            document.getElementById('touch-controls').classList.remove('hidden')
+                        }
                     })
                     const shop = (id, stat, key, step, max) => {
                         const btn = document.getElementById(id)
@@ -1284,21 +1338,64 @@
                     this.combo = 0
                     this.camera.zoom = 1
                     this.timeScale = 1.0
-                    this.waveTotal = 3 + Math.floor(this.wave * 1.6)
                     this.waveKills = 0
+                    this._buildSpawnQueue()
+                    this._spawnInitialBatch()
+                    document.getElementById('wave-display').innerText = `MÀN ${this.wave}/${this.maxWave}`
+                    this.updateHUD()
+                }
+                _buildSpawnQueue() {
+                    this.spawnQueue = []
+                    // Số quái tăng dần: 3 ở màn 1, tối đa ~18 ở màn 30
+                    this.waveTotal = Math.min(3 + Math.floor(this.wave * 0.5), 18)
+                    const isBossWave = this.wave % 5 === 0
                     for (let i = 0; i < this.waveTotal; i++) {
                         let t = 'basic'
-                        if (this.wave > 2 && Math.random() < 0.4) t = 'advanced'
-                        if (this.wave % 5 === 0 && i === this.waveTotal - 1) t = 'boss'
-                        this.enemies.push(
-                            new Enemy(
-                                (Math.random() > 0.5 ? 1 : -1) * (600 + Math.random() * 1000),
-                                CONFIG.floorY - 50 + Math.random() * 100,
-                                t,
-                            ),
-                        )
+                        const advancedChance = Math.min(0.1 + this.wave * 0.025, 0.7)
+                        if (this.wave > 2 && Math.random() < advancedChance) t = 'advanced'
+                        // Boss ở cuối mỗi 5 màn
+                        if (isBossWave && i === this.waveTotal - 1) t = 'boss'
+                        this.spawnQueue.push(t)
                     }
-                    document.getElementById('wave-display').innerText = `MÀN ${this.wave}`
+                    this.spawnTimer = 0
+                }
+                _spawnInitialBatch() {
+                    // Spawn lô đầu: tối đa 3-5 con tùy wave
+                    const batch = Math.min(Math.floor(2 + this.wave * 0.15), 5, this.spawnQueue.length)
+                    for (let i = 0; i < batch; i++) {
+                        this._spawnOneEnemy(this.spawnQueue.shift())
+                    }
+                }
+                _spawnOneEnemy(type) {
+                    // Spawn từ ngoài màn hình, cách player ít nhất 500px
+                    const side = Math.random() > 0.5 ? 1 : -1
+                    const px = this.player ? this.player.x : 0
+                    const spawnX = px + side * (500 + Math.random() * 600)
+                    const spawnY = CONFIG.floorY - 50 + Math.random() * 100
+                    this.enemies.push(new Enemy(spawnX, spawnY, type, this.wave))
+                }
+                _nextWave() {
+                    this.wave++
+                    SaveSystem.data.wave = this.wave
+                    SaveSystem.data.money = this.money
+                    SaveSystem.save()
+                    if (this.wave > this.maxWave) {
+                        // Chiến thắng!
+                        this.state = 'OVER'
+                        document.getElementById('hud').classList.add('hidden')
+                        document.getElementById('touch-controls').classList.add('hidden')
+                        document.getElementById('final-money').innerText = this.money
+                        document.getElementById('victory-menu').classList.remove('hidden')
+                        return
+                    }
+                    // Chuyển màn mượt: giữ player, reset quái
+                    this.enemies = []
+                    this.waveKills = 0
+                    this._buildSpawnQueue()
+                    this._spawnInitialBatch()
+                    document.getElementById('wave-display').innerText = `MÀN ${this.wave}/${this.maxWave}`
+                    // Hiệu ứng thông báo màn mới
+                    this.camera.shake(5, 0.2)
                     this.updateHUD()
                 }
                 triggerHitEffect(x, y, isCrit) {
@@ -1325,7 +1422,7 @@
                                 if (crit) d *= 3.0
                                 e.takeDamage(d, this.player.dir * pb.force, this.player)
                                 // Đã xóa spawnSlash (vệt trắng lớn) theo yêu cầu
-                                this.particles.spawnVFX1(e.x, e.y - e.h / 2)
+                                this.particles.spawnSkillVFX(e.x, e.y - e.h / 2, SaveSystem.data.skills.active)
                                 this.triggerHitEffect(e.x, e.y - e.h / 2, crit)
                                 hit = true
                                 this.combo++
@@ -1365,15 +1462,6 @@
                         hbar.style.width = hp + '%'
                         hbar.style.background =
                             hp > 30 ? 'linear-gradient(90deg, #0f0, #0a0)' : 'linear-gradient(90deg, #f00, #a00)'
-                    }
-                    const cd = document.getElementById('combo-display')
-                    if (cd) {
-                        cd.innerText = this.combo + 'x COMBO'
-                        if (this.combo > 1) {
-                            cd.classList.add('active')
-                            if (this.player.isCritWindow) cd.classList.add('crit-text')
-                            else cd.classList.remove('crit-text')
-                        } else cd.classList.remove('active')
                     }
                     const cur = document.getElementById('currency-display')
                     if (cur) cur.innerText = this.money + ' VNĐ'
@@ -1416,6 +1504,47 @@
                             else b.innerHTML = `Giá: <span id="cost-${i[2]}">${d.costs[i[2]]}</span> VNĐ`
                         }
                     })
+
+                    // Cập nhật Skill UI
+                    const skillContainer = document.getElementById('skills-list')
+                    if (skillContainer) {
+                        skillContainer.innerHTML = ''
+                        for (let v = 1; v <= 6; v++) {
+                            const id = `vfx${v}`
+                            const isUnlocked = d.skills.unlocked.includes(id)
+                            const isActive = d.skills.active === id
+                            const cost = d.skillCosts[id] || 0
+
+                            const item = document.createElement('div')
+                            item.className = 'shop-item'
+                            item.innerHTML = `
+                                <span>Tia sét bậc ${v}</span>
+                                <button class="shop-btn" id="buy-${id}">
+                                    ${isActive ? 'ĐANG DÙNG' : isUnlocked ? 'SỬ DỤNG' : `Giá: ${cost} VNĐ`}
+                                </button>
+                            `
+                            skillContainer.appendChild(item)
+
+                            const btn = document.getElementById(`buy-${id}`)
+                            btn.disabled = (!isUnlocked && this.money < cost)
+                            btn.addEventListener('click', () => {
+                                if (isUnlocked) {
+                                    d.skills.active = id
+                                    SaveSystem.save()
+                                    audio.playBuy()
+                                    this.updateShopUI()
+                                } else if (this.money >= cost) {
+                                    this.money -= cost
+                                    d.money = this.money
+                                    d.skills.unlocked.push(id)
+                                    d.skills.active = id
+                                    SaveSystem.save()
+                                    audio.playBuy()
+                                    this.updateShopUI()
+                                }
+                            })
+                        }
+                    }
                 }
                 openShop() {
                     this.state = 'SHOP'
@@ -1505,7 +1634,23 @@
                                         this.updateHUD()
                                     }
                                 }
-                                if (this.waveKills >= this.waveTotal && this.player.state !== 'DEAD') this.openShop()
+                                // Spawn thêm quái từ hàng đợi khi số quái sống < ngưỡng
+                                const alive = this.enemies.filter(e => e.state !== 'DEAD').length
+                                const maxOnScreen = Math.min(3 + Math.floor(this.wave * 0.2), 8)
+                                if (this.spawnQueue.length > 0 && alive < maxOnScreen) {
+                                    this.spawnTimer -= ldt
+                                    if (this.spawnTimer <= 0) {
+                                        this._spawnOneEnemy(this.spawnQueue.shift())
+                                        this.spawnTimer = Math.max(0.5, 2.5 - this.wave * 0.06) // Tần suất spawn nhanh dần
+                                    }
+                                }
+                                // Cập nhật tiến trình wave
+                                const wp = document.getElementById('wave-progress')
+                                if (wp) wp.innerText = `Tiêu diệt: ${this.waveKills}/${this.waveTotal}`
+                                // Hết quái → tự động sang màn tiếp
+                                if (this.waveKills >= this.waveTotal && this.spawnQueue.length === 0 && alive === 0 && this.player.state !== 'DEAD') {
+                                    this._nextWave()
+                                }
                             }
                         }
                         this.enemies = this.enemies.filter((e) => e.state !== 'DEAD' || e.stateTime < 1.5)
@@ -1516,13 +1661,36 @@
                     this.ctx.save()
                     this.camera.apply(this.ctx)
                     if (this.state === 'GAME' || this.state === 'GAMEOVER' || this.state === 'OVER') {
-                        ;[
-                            this.player,
-                            ...this.enemies,
-                        ]
+                        [this.player, ...this.enemies.filter(e => e.state !== 'DEAD' || e.stateTime < 1.5)]
                             .sort((a, b) => a.y - b.y)
                             .forEach((e) => e.draw(this.ctx))
                         this.particles.draw(this.ctx, Entity.drawEntity)
+
+                        // Vẽ Combo trên đầu nhân vật
+                        if (this.combo > 1) {
+                            const ctx = this.ctx
+                            ctx.save()
+                            ctx.textAlign = 'center'
+                            ctx.font = '800 24px "Inter", sans-serif'
+                            ctx.fontStyle = 'italic'
+                            
+                            // Hiệu ứng bay lên và mờ dần dựa trên comboT (4.0 -> 0)
+                            const floatUp = (4.0 - this.comboT) * 20
+                            ctx.globalAlpha = Math.min(1, this.comboT * 1.5)
+                            
+                            const pulse = 1 + Math.sin(performance.now() * 0.01) * 0.05
+                            ctx.translate(this.player.x, this.player.getDrawY() - this.player.h - 20 - floatUp)
+                            ctx.scale(pulse, pulse)
+                            
+                            ctx.shadowBlur = 10
+                            ctx.shadowColor = this.player.isCritWindow ? '#f0f' : '#ff0'
+                            ctx.fillStyle = this.player.isCritWindow ? '#f0f' : '#ff0'
+                            
+                            // Vẽ nghiêng bằng transform
+                            ctx.transform(1, 0, -0.2, 1, 0, 0) 
+                            ctx.fillText(this.combo + 'x COMBO', 0, 0)
+                            ctx.restore()
+                        }
                     }
                     this.ctx.restore()
                     if (this.hitStop > 0) {
