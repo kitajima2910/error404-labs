@@ -1425,20 +1425,27 @@
             constructor(x, y, type) {
                 this.x = x
                 this.y = y
-                this.vy = -300 // Nảy lên khi rớt
-                this.type = type // 'hp' or 'star'
+                this.vx = (Math.random() - 0.5) * 400 // Văng theo chiều ngang
+                this.vy = -400 - Math.random() * 200 // Văng lên cao
+                this.type = type
                 this.w = 30
                 this.h = 30
                 this.color = type === 'hp' ? '#f00' : '#ff0'
                 this.collected = false
-                this.life = 10.0 // Tồn tại 10 giây
+                this.life = 10.0
             }
             update(dt) {
                 this.vy += CONFIG.gravity * 0.8 * dt
+                this.x += this.vx * dt
                 this.y += this.vy * dt
+                
+                // Ma sát không khí nhẹ
+                this.vx *= 0.98
+
                 if (this.y > CONFIG.floorY) {
                     this.y = CONFIG.floorY
-                    this.vy *= -0.4 // Nảy nhẹ
+                    this.vy *= -0.5 // Nảy
+                    this.vx *= 0.6 // Ma sát mặt đất
                 }
                 this.life -= dt
             }
