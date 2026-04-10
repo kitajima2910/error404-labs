@@ -198,17 +198,31 @@
 
         .hud-top {
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .char-info-panel {
+            background: rgba(0, 20, 30, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-left: 5px solid var(--ui-color);
+            padding: 10px 20px;
+            border-radius: 0 15px 15px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
         }
 
         .health-container {
-            width: 350px;
-            height: 30px;
-            background: rgba(255, 0, 0, 0.2);
-            border: 2px solid #fff;
+            width: 300px;
+            height: 20px;
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             position: relative;
-            box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
+            overflow: hidden;
+            border-radius: 3px;
         }
 
         #health-bar {
@@ -228,12 +242,31 @@
             justify-content: center;
             align-items: center;
             color: #fff;
-            font-size: 0.9rem;
+            font-size: 0.75rem;
             font-weight: 800;
             text-shadow: 1px 1px 2px #000;
             pointer-events: none;
             z-index: 5;
             font-family: 'Orbitron', sans-serif;
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 15px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .stat-val {
+            color: var(--ui-color);
+            font-weight: bold;
         }
 
         .stats {
@@ -509,9 +542,25 @@
 
         <div id="hud" class="hidden">
             <div class="hud-top">
-                <div class="health-container">
-                    <div id="health-bar"></div>
-                    <div id="health-text">0 / 30000</div>
+                <div class="char-info-panel">
+                    <div class="health-container">
+                        <div id="health-bar"></div>
+                        <div id="health-text">0 / 30000</div>
+                    </div>
+                    <div class="stats-row">
+                        <div class="stat-item">
+                            <span>ATK:</span>
+                            <span class="stat-val" id="stat-atk">100%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>CRT:</span>
+                            <span class="stat-val" id="stat-crit">100%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>DASH:</span>
+                            <span class="stat-val" id="stat-dash">100%</span>
+                        </div>
+                    </div>
                 </div>
                 <div id="wave-display">MÀN 1</div>
                 <div class="stats">
@@ -1960,6 +2009,7 @@
                 }
             }
             updateHUD() {
+                const d = SaveSystem.data
                 const hp = Math.max(0, (this.player.hp / this.player.maxHp) * 100)
                 const hbar = document.getElementById('health-bar')
                 if (hbar) {
@@ -1970,6 +2020,13 @@
                 const htext = document.getElementById('health-text')
                 if (htext) htext.innerText = `${Math.ceil(this.player.hp)} / ${this.player.maxHp}`
                 
+                // Cập nhật stats
+                if (document.getElementById('stat-atk')) {
+                    document.getElementById('stat-atk').innerText = Math.round(d.stats.dmgMult * 100) + '%'
+                    document.getElementById('stat-crit').innerText = Math.round(d.stats.critWindowMult * 100) + '%'
+                    document.getElementById('stat-dash').innerText = Math.round((1/d.stats.dashCdMult) * 100) + '%'
+                }
+
                 const cur = document.getElementById('currency-display')
                 if (cur) cur.innerText = this.money + ' VNĐ'
             }
