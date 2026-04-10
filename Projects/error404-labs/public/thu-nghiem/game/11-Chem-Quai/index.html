@@ -427,7 +427,7 @@
                 gravity: 1600,
                 floorY: 600,
                 depthScale: 0.5,
-                colors: { player: '#0ff', enemy: '#f00', advanced: '#f80', boss: '#f0f', shield: '#0f0', ranged: '#ff0', ninja: '#0ff' },
+                colors: { player: '#0ff', enemy: '#f00', advanced: '#f80', boss: '#f0f', shield: '#0f0', ranged: '#ff0', ninja: '#0ff', slime: '#0f4' },
             }
 
             const SPRITES = {
@@ -561,7 +561,7 @@
                 data: {
                     money: 0,
                     wave: 1,
-                    stats: { dmgMult: 1, critWindowMult: 1, maxHp: 300, dashCdMult: 1 },
+                    stats: { dmgMult: 1, critWindowMult: 1, maxHp: 30000, dashCdMult: 1 },
                     costs: { dmg: 50, crit: 75, hp: 100, dash: 60 },
                     skills: { unlocked: ['vfx1'], active: 'vfx1' },
                     skillCosts: { vfx2: 500, vfx3: 1000, vfx4: 2000, vfx5: 4000, vfx6: 8000 },
@@ -575,7 +575,7 @@
                         if (s) {
                             const parsed = JSON.parse(s)
                             this.data = { ...this.data, ...parsed }
-                            if (this.data.stats.maxHp < 300) this.data.stats.maxHp = 300
+                            if (this.data.stats.maxHp < 30000) this.data.stats.maxHp = 30000
                         }
                     } catch (e) {}
                 },
@@ -583,7 +583,7 @@
                     this.data = {
                         money: 0,
                         wave: 1,
-                        stats: { dmgMult: 1, critWindowMult: 1, maxHp: 300, dashCdMult: 1 },
+                        stats: { dmgMult: 1, critWindowMult: 1, maxHp: 30000, dashCdMult: 1 },
                         costs: { dmg: 50, crit: 75, hp: 100, dash: 60 },
                         skills: { unlocked: ['vfx1'], active: 'vfx1' },
                         skillCosts: { vfx2: 500, vfx3: 1000, vfx4: 2000, vfx5: 4000, vfx6: 8000 },
@@ -1028,6 +1028,22 @@
                         ctx.strokeRect(-12, -55 + bOff, 24, 38)
                         ctx.beginPath(); ctx.arc(0, -65 + bOff + headBob, 11, 0, Math.PI * 2); ctx.fill(); ctx.stroke()
                         if (!isGhost) { ctx.fillStyle = '#fff'; ctx.fillRect(3, -68 + bOff + headBob, 7, 3) }
+                    } else if (e.type === 'slime') {
+                        // Slime: dạng giọt nước co giãn
+                        const squash = 1 + Math.sin(t * 10) * 0.1
+                        const stretch = 1 / squash
+                        ctx.scale(squash, stretch)
+                        ctx.beginPath();
+                        ctx.arc(0, -20, 20, Math.PI, 0);
+                        ctx.lineTo(20, 0); ctx.lineTo(-20, 0);
+                        ctx.closePath();
+                        ctx.fillStyle = e.color; ctx.globalAlpha = 0.6; ctx.fill();
+                        ctx.globalAlpha = 1.0; ctx.strokeStyle = '#fff'; ctx.stroke();
+                        // Mắt slime
+                        ctx.fillStyle = '#fff';
+                        ctx.beginPath(); ctx.arc(-7, -15, 3, 0, Math.PI * 2); ctx.fill();
+                        ctx.beginPath(); ctx.arc(7, -15, 3, 0, Math.PI * 2); ctx.fill();
+                        ctx.restore(); return; // Slime không có chân tay
                     } else {
                         // Basic / Boss
                         ctx.fillRect(-10, -55 + bOff, 20, 35)
@@ -1263,6 +1279,14 @@
                         this.w = 80; this.h = 140
                         this.bodyScale = 2.0
                         this.canDodge = true
+                    } else if (type === 'slime') {
+                        this.color = CONFIG.colors.slime
+                        this.hp = this.maxHp = Math.floor(50 * scale)
+                        this.speed = 100 + wave * 2
+                        this.atkR = 300
+                        this.weaponType = 'poison'
+                        this.bodyScale = 1.0
+                        this.jumpCd = 0
                     }
                     this.dmgScale = scale
                 }
@@ -1285,6 +1309,7 @@
                     if (this.hitFlicker > 0) this.hitFlicker -= dt
                     if (this.atkCd > 0) this.atkCd -= dt
                     if (this.dodgeCd > 0) this.dodgeCd -= dt
+                    if (this.jumpCd >= 0) this.jumpCd -= dt
                     if (this.state === 'DEAD') {
                         this.vx *= 0.95
                         this.updatePhysics(dt)
@@ -1297,18 +1322,19 @@
                     } else if (this.state === 'ATTACK') {
                         const atkDur = this.type === 'ninja' ? 0.4 : (this.type === 'advanced' ? 0.9 : 0.7)
                         if (this.stateTime > atkDur) this.changeState('IDLE')
-                        // Spawn đạn cho quái Ranged
-                        if (this.type === 'ranged' && this.stateTime > 0.35 && !this._hasShot) {
+                        // Spawn đạn cho quái Ranged hoặc Slime
+                        if ((this.type === 'ranged' || this.type === 'slime') && this.stateTime > 0.35 && !this._hasShot) {
                             const game = window._gameInstance
                             if (game) {
-                                const dx = player.x - this.x, dy = (player.getDrawY() - 40) - (this.getDrawY() - 40)
+                                const dx = player.x - this.x, dy = (player.getDrawY() - 20) - (this.getDrawY() - 20)
                                 const dist = Math.hypot(dx, dy) || 1
                                 game.projectiles.push({
                                     x: this.x + this.dir * 20,
-                                    y: this.getDrawY() - 40,
-                                    vx: (dx / dist) * 550,
-                                    vy: (dy / dist) * 550,
-                                    dmg: Math.floor(12 * (this.dmgScale || 1)),
+                                    y: this.getDrawY() - 20,
+                                    vx: (dx / dist) * 500,
+                                    vy: (dy / dist) * 500,
+                                    dmg: Math.floor((this.type === 'slime' ? 10 : 12) * (this.dmgScale || 1)),
+                                    color: this.type === 'slime' ? '#0f4' : '#fff',
                                     life: 3
                                 })
                                 this._hasShot = true
@@ -1319,7 +1345,28 @@
                             dy = player.y - this.y,
                             d = Math.hypot(dx, dy)
                         
-                        if (this.type === 'ranged') {
+                        if (this.type === 'slime') {
+                            // Slime logic: Nhảy nhót tiến lại gần để phun độc
+                            if (this.z === 0 && this.jumpCd <= 0) {
+                                this.vz = 400 + Math.random() * 200
+                                this.vx = Math.sign(dx) * this.speed * 2
+                                this.vy = Math.sign(dy) * this.speed * CONFIG.depthScale
+                                this.jumpCd = 1.0 + Math.random()
+                                this.changeState('RUN')
+                            }
+                            if (d < this.atkR && this.atkCd <= 0 && this.z === 0) {
+                                this.changeState('ATTACK')
+                                this.dir = dx > 0 ? 1 : -1
+                                this._hasShot = false
+                                this.atkCd = 2.0 + Math.random()
+                            }
+                            if (this.z > 0) {
+                                this.changeState('RUN') // Trạng thái bay/nhảy
+                            } else if (this.state !== 'ATTACK') {
+                                this.vx *= 0.8; this.vy *= 0.8
+                                if (Math.abs(this.vx) < 10) this.changeState('IDLE')
+                            }
+                        } else if (this.type === 'ranged') {
                             // Ranged: giữ khoảng cách, bắn khi trong tầm
                             if (d < 250) {
                                 this.changeState('RUN')
@@ -1559,9 +1606,11 @@
                         else if (w >= 3 && r < 0.30) t = 'shield'
                         else if (w >= 4 && r < 0.42) t = 'ninja'
                         else if (w >= 5 && r < 0.52) t = 'advanced'
+                        else if (w >= 6 && r < 0.62) t = 'slime'
                         // Đảm bảo luôn có mix: ít nhất 1 ranged và 1 melee từ wave 5
                         if (w >= 5 && i === 0 && this.spawnQueue.filter(q=>q==='ranged').length === 0) t = 'ranged'
                         if (w >= 4 && i === 1 && this.spawnQueue.filter(q=>q==='ninja').length === 0) t = 'ninja'
+                        if (w >= 6 && i === 2 && this.spawnQueue.filter(q=>q==='slime').length === 0) t = 'slime'
                         if (isBossWave && i === this.waveTotal - 1) t = 'boss'
                         this.spawnQueue.push(t)
                     }
@@ -1926,11 +1975,13 @@
 
                     // Vẽ đạn
                     this.projectiles.forEach(p => {
-                        this.ctx.fillStyle = '#ff0'
+                        this.ctx.save()
+                        this.ctx.translate(-this.camera.x, 0)
+                        this.ctx.fillStyle = p.color || '#fff'
                         this.ctx.shadowBlur = 10
-                        this.ctx.shadowColor = '#ff0'
-                        this.ctx.fillRect(p.x - 5, p.y - 5, 12, 4)
-                        this.ctx.shadowBlur = 0
+                        this.ctx.shadowColor = p.color || '#fff'
+                        this.ctx.fillRect(p.x - 6, p.y - 4, 12, 8)
+                        this.ctx.restore()
                     })
 
                     if (this.hitStop > 0) {
