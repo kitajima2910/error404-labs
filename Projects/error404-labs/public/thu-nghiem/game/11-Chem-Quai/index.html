@@ -793,8 +793,9 @@
                             const sprite = frames[frameIdx]
                             if (sprite && sprite.complete) {
                                 ctx.save()
+                                ctx.globalCompositeOperation = 'source-over' // Đảm bảo tia sét hiện rõ trên quái
                                 ctx.translate(p.x, p.y)
-                                const sz = 160
+                                const sz = 200 // Tăng kích thước hiệu ứng
                                 ctx.drawImage(sprite, -sz / 2, -sz / 2, sz, sz)
                                 ctx.restore()
                             }
@@ -1073,6 +1074,8 @@
                             this.changeState(`ATTACK_${this.attackStep}`)
                             this.vx = this.dir * 250
                             audio.playSwing()
+                            // Tạo hiệu ứng tia sét ngay khi nhấn chém (kể cả chém không khí)
+                            particles.spawnVFX1(this.x + this.dir * 70, this.getDrawY() - this.h / 2)
                         }
                     }
                     if (canM && input.consume('Space') && this.dashCd <= 0) {

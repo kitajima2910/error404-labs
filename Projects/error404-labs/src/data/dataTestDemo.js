@@ -1,6 +1,11 @@
 export const DATA_DEMO = [
     {
-        name: '10. Nổ Bóng Bay',
+        name: '11. Chém Quái',
+        link: '/thu-nghiem/game/11-Chem-Quai/index.html',
+        image: '/thu-nghiem/game/11-Chem-Quai/11-Chem-Quai.avif',
+    },
+    {
+        name: '10. Nổ Bóng',
         link: '/thu-nghiem/game/10-No-Bong/index.html',
         image: '/thu-nghiem/game/10-No-Bong/10-No-Bong.avif',
     },
