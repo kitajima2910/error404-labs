@@ -2423,6 +2423,43 @@
                 }
                 this.ctx.restore()
 
+                // Chỉ hướng quái vật ngoài màn hình
+                if (this.state === 'GAME') {
+                    this.enemies.filter(e => e.state !== 'DEAD').forEach(e => {
+                        const relX = e.x - this.camera.x
+                        const margin = 40
+                        if (relX < -20 || relX > this.canvas.width + 20) {
+                            const edgeX = relX < 0 ? margin : this.canvas.width - margin
+                            const edgeY = Utils.clamp(e.y - 50, margin, this.canvas.height - margin)
+                            
+                            this.ctx.save()
+                            this.ctx.fillStyle = e.color
+                            this.ctx.shadowBlur = 15
+                            this.ctx.shadowColor = e.color
+                            
+                            // Vẽ hình thoi/mũi tên chỉ hướng
+                            this.ctx.beginPath()
+                            if (relX < 0) {
+                                this.ctx.moveTo(edgeX + 20, edgeY - 12)
+                                this.ctx.lineTo(edgeX, edgeY)
+                                this.ctx.lineTo(edgeX + 20, edgeY + 12)
+                            } else {
+                                this.ctx.moveTo(edgeX - 20, edgeY - 12)
+                                this.ctx.lineTo(edgeX, edgeY)
+                                this.ctx.lineTo(edgeX - 20, edgeY + 12)
+                            }
+                            this.ctx.fill()
+                            
+                            // Thêm hiệu ứng nhấp nháy
+                            this.ctx.globalAlpha = 0.5 + Math.sin(performance.now() * 0.01) * 0.5
+                            this.ctx.strokeStyle = '#fff'
+                            this.ctx.lineWidth = 2
+                            this.ctx.stroke()
+                            this.ctx.restore()
+                        }
+                    })
+                }
+
                 // Vẽ đạn
                 this.projectiles.forEach(p => {
                     this.ctx.save()
