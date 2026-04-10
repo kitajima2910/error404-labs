@@ -1232,6 +1232,17 @@
                         dmg: Math.floor((this.type === 'boss' ? 40 : this.type === 'advanced' ? 20 : 15) * (this.dmgScale || 1)),
                     }
                 }
+                draw(ctx) {
+                    super.draw(ctx)
+                    if (this.state === 'DEAD' || this.hp <= 0) return
+                    const bw = this.type === 'boss' ? 80 : 40, bh = 4
+                    const bx = this.x - bw / 2, by = this.getDrawY() - this.h - 15
+                    ctx.fillStyle = 'rgba(0,0,0,0.5)'
+                    ctx.fillRect(bx, by, bw, bh)
+                    const hpP = Math.max(0, this.hp / this.maxHp)
+                    ctx.fillStyle = this.type === 'boss' ? '#f0f' : (hpP > 0.3 ? '#f00' : '#ff4444')
+                    ctx.fillRect(bx, by, bw * hpP, bh)
+                }
             }
 
             // --- GAME CORE ---
