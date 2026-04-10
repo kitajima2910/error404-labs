@@ -409,11 +409,12 @@
             hurt: null,
             dead: [],
             attack: [],
+            vfx1: [],
             loaded: false,
             load() {
                 if (this.loaded) return;
                 let loadedCount = 0;
-                const totalToLoad = 5 + 8 + 1 + 8 + 5;
+                const totalToLoad = 5 + 8 + 1 + 8 + 5 + 4;
                 const check = () => { loadedCount++; if (loadedCount >= totalToLoad) this.loaded = true; };
                 
                 this.idle[0] = [];
@@ -455,6 +456,15 @@
                     img.onload = check;
                     img.onerror = check;
                     this.attack[0].push(img);
+                }
+
+                this.vfx1[0] = [];
+                for (let c = 1; c <= 4; c++) {
+                    const img = new Image();
+                    img.src = `assets/p-skill-vfx1/lightning_skill1_frame${c}.png`;
+                    img.onload = check;
+                    img.onerror = check;
+                    this.vfx1[0].push(img);
                 }
             }
         };
@@ -560,6 +570,9 @@
                     this.particles.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 0.1 + Math.random() * 0.2, maxLife: 0.3, size: Math.random() * 4 + 2, color });
                 }
             }
+            spawnVFX1(x, y) {
+                this.particles.push({ type: 'vfx1', x, y, life: 0.2, maxLife: 0.2 });
+            }
             spawnGhost(entity) {
                 this.ghosts.push({ x: entity.x, y: entity.y, z: entity.z, dir: entity.dir, life: 0.4, color: entity.color, state: entity.state, stateTime: entity.stateTime });
             }
@@ -595,6 +608,16 @@
                         ctx.strokeStyle = '#fff'; ctx.lineWidth = 2 * a;
                         ctx.stroke();
                         ctx.restore();
+                    } else if (p.type === 'vfx1') {
+                        const frames = SPRITES.vfx1[0];
+                        const frameIdx = Math.min(Math.floor((1 - a) * frames.length), frames.length - 1);
+                        const sprite = frames[frameIdx];
+                        if (sprite && sprite.complete) {
+                            ctx.save(); ctx.translate(p.x, p.y);
+                            const sz = 160;
+                            ctx.drawImage(sprite, -sz / 2, -sz / 2, sz, sz);
+                            ctx.restore();
+                        }
                     } else { const s = p.size * a; ctx.fillRect(p.x - s / 2, p.y - s / 2, s, s); }
                 }
                 ctx.globalAlpha = 1.0; ctx.globalCompositeOperation = 'source-over';
@@ -842,7 +865,8 @@
                     this.timeScale = 0.15; setTimeout(() => this.timeScale = 1, 120);
                     audio.playCrit();
                 } else audio.playHit();
-                this.particles.spawn(x, y, isCrit ? '#f0f' : '#fff', isCrit ? 40 : 15, isCrit ? 3.0 : 1.5);
+                // Loại bỏ hạt trắng cũ vì đã có vfx1
+                // this.particles.spawn(x, y, isCrit ? '#f0f' : '#fff', isCrit ? 40 : 15, isCrit ? 3.0 : 1.5);
             }
             checkCombat() {
                 const pb = this.player.getCurrentAttackBox();
@@ -851,7 +875,8 @@
                     for (let e of this.enemies) if (e.state !== 'DEAD' && Utils.rectIntersect(pb, e.getHitbox())) {
                         let d = pb.dmg * SaveSystem.data.stats.dmgMult; if (crit) d *= 3.0;
                         e.takeDamage(d, this.player.dir * pb.force, this.player);
-                        this.particles.spawnSlash(e.x, e.y - e.h / 2, this.player.dir, pb.w, crit ? '#0ff' : '#fff');
+                        // Đã xóa spawnSlash (vệt trắng lớn) theo yêu cầu
+                        this.particles.spawnVFX1(e.x, e.y - e.h / 2);
                         this.triggerHitEffect(e.x, e.y - e.h / 2, crit);
                         hit = true; this.combo++; this.comboT = 4.0; this.money += Math.floor(1 + this.combo * 0.2);
                         if (e.state === 'DEAD') { this.waveKills++; this.money += (e.type === 'boss' ? 200 : 25); }
@@ -953,8 +978,8 @@
                 }
                 this.drawBG(); this.ctx.save(); this.camera.apply(this.ctx);
                 if (this.state === 'GAME' || this.state === 'GAMEOVER' || this.state === 'OVER') {
-                    this.particles.draw(this.ctx, Entity.drawEntity);
                     [this.player, ...this.enemies].sort((a, b) => a.y - b.y).forEach(e => e.draw(this.ctx));
+                    this.particles.draw(this.ctx, Entity.drawEntity);
                 }
                 this.ctx.restore(); if (this.hitStop > 0) { this.ctx.fillStyle = 'rgba(255,255,255,0.15)'; this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height); }
                 requestAnimationFrame(t => this.loop(t));
