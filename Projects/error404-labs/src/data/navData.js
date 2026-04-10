@@ -12,7 +12,7 @@ const navData = [
         path: '/rss.xml',
     },
     {
-        name: 'Tools',
+        name: 'Công cụ',
         path: '/tools',
     },
 ]
