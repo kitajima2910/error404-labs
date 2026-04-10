@@ -8,7 +8,9 @@
     <link rel="icon"
         href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect fill='%23111' width='32' height='32' rx='4'/><text x='16' y='22' font-size='18' fill='%230ff' text-anchor='middle'>N</text></svg>"
         type="image/svg+xml" />
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;700&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --ui-color: #0ff;
@@ -17,7 +19,7 @@
             --text-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
             --glass-bg: rgba(0, 20, 30, 0.7);
         }
- 
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -25,7 +27,7 @@
             user-select: none;
             -webkit-user-select: none;
         }
- 
+
         body {
             background: var(--bg-color);
             color: #fff;
@@ -71,8 +73,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
             background-size: 100% 4px, 3px 100%;
             pointer-events: none;
             opacity: 0.3;
@@ -96,8 +98,17 @@
         }
 
         @keyframes titleFloat {
-            0%, 100% { transform: translateY(0) scale(1); filter: brightness(1); }
-            50% { transform: translateY(-10px) scale(1.02); filter: brightness(1.2); }
+
+            0%,
+            100% {
+                transform: translateY(0) scale(1);
+                filter: brightness(1);
+            }
+
+            50% {
+                transform: translateY(-10px) scale(1.02);
+                filter: brightness(1.2);
+            }
         }
 
         .menu-frame {
@@ -126,7 +137,9 @@
         }
 
         @keyframes rotate {
-            100% { transform: rotate(1turn); }
+            100% {
+                transform: rotate(1turn);
+            }
         }
 
         button {
@@ -441,7 +454,8 @@
         .shop-btn {
             padding: 10px 20px;
             font-size: 1rem;
-            min-width: 200px !important; /* Ghi đè lại min-width của global button */
+            min-width: 200px !important;
+            /* Ghi đè lại min-width của global button */
         }
 
         #touch-controls {
@@ -570,9 +584,12 @@
             <div id="wave-progress"
                 style="position:absolute;top:50px;left:50%;transform:translateX(-50%);color:#0ff;font-size:1rem;text-shadow:0 0 5px #0ff">
             </div>
-            <div id="shop-buttons" style="position:absolute;top:20px;right:140px;display:flex;gap:10px;pointer-events:auto;z-index:55">
-                <button id="open-skills-btn" style="padding:8px 16px;font-size:0.9rem;min-width:140px;margin:0">KỸ NĂNG (K)</button>
-                <button id="open-upgrades-btn" style="padding:8px 16px;font-size:0.9rem;min-width:140px;margin:0">NÂNG CẤP (L)</button>
+            <div id="shop-buttons"
+                style="position:absolute;top:20px;right:140px;display:flex;gap:10px;pointer-events:auto;z-index:55">
+                <button id="open-skills-btn" style="padding:8px 16px;font-size:0.9rem;min-width:140px;margin:0">KỸ NĂNG
+                    (K)</button>
+                <button id="open-upgrades-btn" style="padding:8px 16px;font-size:0.9rem;min-width:140px;margin:0">NÂNG
+                    CẤP (L)</button>
             </div>
             <div id="timing-indicator">
                 <div id="timing-window"></div>
@@ -585,7 +602,9 @@
                 <h1>Chém Quái</h1>
                 <button id="start-btn">BẮT ĐẦU</button>
                 <button id="how-to-play-btn">HƯỚNG DẪN</button>
-                <button id="reset-save-btn" style="border-color: var(--ui-color-alt); color: var(--ui-color-alt); text-shadow: 0 0 5px var(--ui-color-alt);">XÓA TIẾN TRÌNH</button>
+                <button id="reset-save-btn"
+                    style="border-color: var(--ui-color-alt); color: var(--ui-color-alt); text-shadow: 0 0 5px var(--ui-color-alt);">XÓA
+                    TIẾN TRÌNH</button>
             </div>
         </div>
 
@@ -601,7 +620,9 @@
                         trắng nằm trong vùng sáng để gây <b style="color: #ff0">CHÍ MẠNG (x3 Sát thương)</b>.</p>
                     <p><b style="color: var(--ui-color)">✦ Lướt (Dash):</b> Nhấn phím <b style="color: #fff">Space</b>
                         để lướt nhanh. Bạn sẽ không nhận sát thương khi đang lướt.</p>
-                    <p><b style="color: var(--ui-color)">✦ Nâng Cấp & Kỹ Năng:</b> Nhấn phím <b style="color: #fff">K</b> để mở Cửa hàng Kỹ năng (Tia sét) và phím <b style="color: #fff">L</b> để Nâng cấp thuộc tính (Sát thương, Máu, Lướt).</p>
+                    <p><b style="color: var(--ui-color)">✦ Nâng Cấp & Kỹ Năng:</b> Nhấn phím <b
+                            style="color: #fff">K</b> để mở Cửa hàng Kỹ năng (Tia sét) và phím <b
+                            style="color: #fff">L</b> để Nâng cấp thuộc tính (Sát thương, Máu, Lướt).</p>
                     <p><b style="color: var(--ui-color)">✦ Quái vật:</b> Cẩn thận với Slime phun độc và các quái vật
                         Ninja biết né tránh đòn đánh của bạn.</p>
                 </div>
@@ -630,7 +651,8 @@
                     <span>Hồi lướt (-15%)</span>
                     <button class="shop-btn" id="upg-dash">Giá: <span id="cost-dash">60</span> VNĐ</button>
                 </div>
-                <div style="text-align: center; margin-top: 20px; color: rgba(255, 255, 255, 0.5); font-size: 0.8rem; font-family: 'Orbitron', sans-serif;">
+                <div
+                    style="text-align: center; margin-top: 20px; color: rgba(255, 255, 255, 0.5); font-size: 0.8rem; font-family: 'Orbitron', sans-serif;">
                     NHẤN <b style="color: #0ff">L</b> ĐỂ QUAY LẠI GAME
                 </div>
             </div>
@@ -644,7 +666,8 @@
                 <div id="skills-list">
                     <!-- Skills will be injected here -->
                 </div>
-                <div style="text-align: center; margin-top: 20px; color: rgba(255, 255, 255, 0.5); font-size: 0.8rem; font-family: 'Orbitron', sans-serif;">
+                <div
+                    style="text-align: center; margin-top: 20px; color: rgba(255, 255, 255, 0.5); font-size: 0.8rem; font-family: 'Orbitron', sans-serif;">
                     NHẤN <b style="color: #0ff">K</b> ĐỂ QUAY LẠI GAME
                 </div>
             </div>
@@ -653,14 +676,14 @@
         <div id="game-over-menu" class="overlay hidden">
             <h1 style="color: #f00">THẤT BẠI</h1>
             <p style="font-size: 1.5rem; margin-bottom: 20px">Màn đã vượt: <span id="final-wave">0</span></p>
-            <button id="restart-btn">TRANG CHỦ</button>
+            <button id="restart-btn">QUAY VỀ</button>
         </div>
 
         <div id="victory-menu" class="overlay hidden">
             <h1 style="color: #0f0">CHIẾN THẮNG!</h1>
             <p style="font-size: 1.5rem; margin-bottom: 20px; text-align:center">Bạn đã hoàn thành tất cả 30
                 màn!<br>Tổng VNĐ: <span id="final-money">0</span></p>
-            <button id="victory-btn">TRANG CHỦ</button>
+            <button id="victory-btn">QUAY VỀ</button>
         </div>
 
         <div id="touch-controls" class="hidden">
@@ -1374,7 +1397,7 @@
                 ctx.beginPath()
                 ctx.ellipse(this.x, this.y, this.w / 1.1, this.w / 4, 0, 0, Math.PI * 2)
                 ctx.fill()
-                
+
                 // Vẽ thực thể
                 Entity.drawEntity(ctx, this)
             }
@@ -1501,13 +1524,13 @@
                 if (type === 'basic') {
                     this.color = CONFIG.colors.enemy
                     this.hp = this.maxHp = Math.floor(40 * scale)
-                    this.speed = 140 + wave * 3
+                    this.speed = 110 + wave * 2.5
                     this.atkR = 75
                     this.bodyScale = 0.9
                 } else if (type === 'ninja') {
                     this.color = '#0ff'
                     this.hp = this.maxHp = Math.floor(25 * scale)
-                    this.speed = 280 + wave * 4
+                    this.speed = 180 + wave * 3.5
                     this.atkR = 65
                     this.weaponType = 'dagger'
                     this.bodyScale = 0.75
@@ -1516,7 +1539,7 @@
                 } else if (type === 'shield') {
                     this.color = CONFIG.colors.shield
                     this.hp = this.maxHp = Math.floor(150 * scale)
-                    this.speed = 90 + wave * 2
+                    this.speed = 70 + wave * 1.5
                     this.atkR = 65
                     this.weaponType = 'shield'
                     this.w = 55; this.h = 80
@@ -1732,16 +1755,16 @@
                 const barH = 6
                 const x = this.x - barW / 2
                 const y = this.getDrawY() - this.h - 15
-                
+
                 // Background
                 ctx.fillStyle = 'rgba(0,0,0,0.5)'
                 ctx.fillRect(x, y, barW, barH)
-                
+
                 // Health bar
                 const hpP = Math.max(0, this.hp / this.maxHp)
                 ctx.fillStyle = this.type === 'boss' ? '#f0f' : '#f00'
                 ctx.fillRect(x, y, barW * hpP, barH)
-                
+
                 // HP Text
                 ctx.fillStyle = '#fff'
                 ctx.font = 'bold 10px "Orbitron", sans-serif'
@@ -1869,8 +1892,8 @@
                 this.camera.zoom = 1
                 this.timeScale = 1.0
                 this.waveKills = 0
+                this.hasPlayerMoved = false
                 this._buildSpawnQueue()
-                this._spawnInitialBatch()
                 document.getElementById('wave-display').innerText = `MÀN ${this.wave}/${this.maxWave}`
                 this.updateHUD()
             }
@@ -1917,7 +1940,7 @@
                 const px = this.player ? this.player.x : 0
                 let spawnX = px + side * (500 + Math.random() * 600)
                 if (spawnX < 0) spawnX = px + (500 + Math.random() * 600) // Nếu < 0 thì đảo sang bên phải
-                
+
                 const spawnY = CONFIG.floorY - 50 + Math.random() * 100
                 this.enemies.push(new Enemy(spawnX, spawnY, type, this.wave))
             }
@@ -2013,12 +2036,12 @@
                 }
                 const htext = document.getElementById('health-text')
                 if (htext) htext.innerText = `${Math.ceil(this.player.hp)} / ${this.player.maxHp}`
-                
+
                 // Cập nhật stats
                 if (document.getElementById('stat-atk')) {
                     document.getElementById('stat-atk').innerText = Math.round(d.stats.dmgMult * 100) + '%'
                     document.getElementById('stat-crit').innerText = Math.round(d.stats.critWindowMult * 100) + '%'
-                    document.getElementById('stat-dash').innerText = Math.round((1/d.stats.dashCdMult) * 100) + '%'
+                    document.getElementById('stat-dash').innerText = Math.round((1 / d.stats.dashCdMult) * 100) + '%'
                 }
 
                 const cur = document.getElementById('currency-display')
@@ -2089,7 +2112,7 @@
                         const ctx = canvas.getContext('2d')
                         canvas.width = 120
                         canvas.height = 120
-                        
+
                         let frame = 0
                         const animate = () => {
                             if (!this.state || this.state !== 'SHOP' || !document.getElementById(`preview-${id}`)) return
@@ -2219,12 +2242,12 @@
                 if (camX < 1500) {
                     ctx.save()
                     ctx.translate(0, CONFIG.floorY)
-                    
+
                     // Trụ trái & phải của cổng
                     const drawGatePillar = (side) => {
                         ctx.save()
                         ctx.translate(0, side * 150)
-                        
+
                         // Ánh sáng chân trụ
                         const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, 100)
                         glow.addColorStop(0, 'rgba(255, 0, 255, 0.4)')
@@ -2239,24 +2262,24 @@
                         ctx.shadowColor = '#f0f'
                         ctx.beginPath()
                         ctx.moveTo(0, -100); ctx.lineTo(0, 50); ctx.stroke()
-                        
+
                         // Chi tiết cơ khí
                         ctx.strokeStyle = '#fff'
                         ctx.lineWidth = 2
                         ctx.shadowBlur = 0
                         ctx.strokeRect(-15, -120, 30, 20)
                         ctx.strokeRect(-10, 50, 20, 10)
-                        
+
                         // Đèn tín hiệu nhỏ
                         ctx.fillStyle = Math.sin(performance.now() * 0.01) > 0 ? '#0ff' : '#055'
                         ctx.beginPath(); ctx.arc(0, -110, 4, 0, Math.PI * 2); ctx.fill()
-                        
+
                         ctx.restore()
                     }
-                    
+
                     drawGatePillar(1)
                     drawGatePillar(-1)
-                    
+
                     // Tia laser ngang kết nối
                     ctx.strokeStyle = 'rgba(255, 0, 255, 0.6)'
                     ctx.lineWidth = 2
@@ -2300,14 +2323,20 @@
                                     this.updateHUD()
                                 }
                             }
+                            // Chỉ bắt đầu spawn quái sau khi người chơi di chuyển
+                            if (!this.hasPlayerMoved && Math.abs(this.player.x) > 50) {
+                                this.hasPlayerMoved = true
+                                this._spawnInitialBatch()
+                            }
+
                             // Spawn thêm quái từ hàng đợi khi số quái sống < ngưỡng
                             const alive = this.enemies.filter(e => e.state !== 'DEAD').length
                             const maxOnScreen = Math.min(3 + Math.floor(this.wave * 0.2), 8)
-                            if (this.spawnQueue.length > 0 && alive < maxOnScreen) {
+                            if (this.hasPlayerMoved && this.spawnQueue.length > 0 && alive < maxOnScreen) {
                                 this.spawnTimer -= ldt
                                 if (this.spawnTimer <= 0) {
                                     this._spawnOneEnemy(this.spawnQueue.shift())
-                                    this.spawnTimer = Math.max(0.5, 2.5 - this.wave * 0.06) // Tần suất spawn nhanh dần
+                                    this.spawnTimer = Math.max(0.8, 3.5 - this.wave * 0.08) // Tần suất spawn chậm lại
                                 }
                             }
 
