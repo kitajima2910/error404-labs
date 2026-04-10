@@ -218,6 +218,24 @@
             transition: width 0.2s;
         }
 
+        #health-text {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            font-size: 0.9rem;
+            font-weight: 800;
+            text-shadow: 1px 1px 2px #000;
+            pointer-events: none;
+            z-index: 5;
+            font-family: 'Orbitron', sans-serif;
+        }
+
         .stats {
             text-align: right;
         }
@@ -493,6 +511,7 @@
             <div class="hud-top">
                 <div class="health-container">
                     <div id="health-bar"></div>
+                    <div id="health-text">0 / 30000</div>
                 </div>
                 <div id="wave-display">MÀN 1</div>
                 <div class="stats">
@@ -1301,11 +1320,40 @@
                 ctx.restore()
             }
             draw(ctx) {
+                // Bóng dưới chân
                 ctx.fillStyle = 'rgba(0,0,0,0.3)'
                 ctx.beginPath()
                 ctx.ellipse(this.x, this.y, this.w / 1.1, this.w / 4, 0, 0, Math.PI * 2)
                 ctx.fill()
+                
+                // Vẽ thực thể
                 Entity.drawEntity(ctx, this)
+
+                // Thanh máu trên đầu quái
+                if (this.state !== 'DEAD' && this.hp < this.maxHp) {
+                    const barW = 60
+                    const barH = 6
+                    const x = this.x - barW / 2
+                    const y = this.getDrawY() - this.h - 15
+                    
+                    // Background
+                    ctx.fillStyle = 'rgba(0,0,0,0.5)'
+                    ctx.fillRect(x, y, barW, barH)
+                    
+                    // Health bar
+                    const hpW = (this.hp / this.maxHp) * barW
+                    ctx.fillStyle = '#f00'
+                    ctx.fillRect(x, y, hpW, barH)
+                    
+                    // HP Text
+                    ctx.fillStyle = '#fff'
+                    ctx.font = 'bold 10px "Orbitron", sans-serif'
+                    ctx.textAlign = 'center'
+                    ctx.shadowBlur = 4
+                    ctx.shadowColor = '#000'
+                    ctx.fillText(`${Math.ceil(this.hp)}/${this.maxHp}`, this.x, y - 5)
+                    ctx.shadowBlur = 0
+                }
             }
         }
 
@@ -1919,6 +1967,9 @@
                     hbar.style.background =
                         hp > 30 ? 'linear-gradient(90deg, #0f0, #0a0)' : 'linear-gradient(90deg, #f00, #a00)'
                 }
+                const htext = document.getElementById('health-text')
+                if (htext) htext.innerText = `${Math.ceil(this.player.hp)} / ${this.player.maxHp}`
+                
                 const cur = document.getElementById('currency-display')
                 if (cur) cur.innerText = this.money + ' VNĐ'
             }
