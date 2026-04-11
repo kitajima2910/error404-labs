@@ -1925,6 +1925,7 @@
                 this.spawnQueue = [] // Hàng đợi spawn quái
                 this.spawnTimer = 0
                 this.items = [] // Vật phẩm rớt
+                this.exitGateX = null // Tọa độ cổng dịch chuyển qua màn mới
                 this.maxWave = 1000
                 this.projectiles = [] // Hệ thống đạn
                 window._gameInstance = this
@@ -2071,6 +2072,7 @@
             }
             _nextWave() {
                 this.wave++
+                this.exitGateX = null // Reset cổng
                 SaveSystem.data.wave = this.wave
                 SaveSystem.data.money = this.money
                 SaveSystem.save()
@@ -2398,64 +2400,98 @@
                 ctx.stroke()
 
                 // Vẽ Cổng Xuất Phát (Cyber Gate) tại x=0
-                if (camX < 1500) {
+                this.drawCyberGate(ctx, 0, "START")
+                
+                // Vẽ Cổng Thoát (Checkpoint)
+                if (this.exitGateX !== null) {
+                    this.drawCyberGate(ctx, this.exitGateX, `NEXT: ZONE ${this.wave + 1}`)
+                    
+                    // Vẽ mũi tên chỉ hướng tới cổng
                     ctx.save()
-                    ctx.translate(0, CONFIG.floorY)
-
-                    // Trụ trái & phải của cổng
-                    const drawGatePillar = (side) => {
+                    const dist = this.exitGateX - this.player.x
+                    if (dist > 500) {
+                        ctx.restore()
                         ctx.save()
-                        ctx.translate(0, side * 150)
-
-                        // Ánh sáng chân trụ
-                        const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, 100)
-                        glow.addColorStop(0, 'rgba(255, 0, 255, 0.4)')
-                        glow.addColorStop(1, 'transparent')
-                        ctx.fillStyle = glow
-                        ctx.fillRect(-100, -100, 200, 200)
-
-                        // Thân trụ chính
-                        ctx.strokeStyle = '#f0f'
-                        ctx.lineWidth = 12
+                        const arrowX = CONFIG.canvasWidth - 100
+                        const arrowY = CONFIG.canvasHeight / 2
+                        ctx.translate(arrowX, arrowY)
+                        ctx.fillStyle = '#f0f'
                         ctx.shadowBlur = 10
                         ctx.shadowColor = '#f0f'
                         ctx.beginPath()
-                        ctx.moveTo(0, -100); ctx.lineTo(0, 50); ctx.stroke()
-
-                        // Chi tiết cơ khí
-                        ctx.strokeStyle = '#fff'
-                        ctx.lineWidth = 2
-                        ctx.shadowBlur = 0
-                        ctx.strokeRect(-15, -120, 30, 20)
-                        ctx.strokeRect(-10, 50, 20, 10)
-
-                        // Đèn tín hiệu nhỏ
-                        ctx.fillStyle = Math.sin(performance.now() * 0.01) > 0 ? '#0ff' : '#055'
-                        ctx.beginPath(); ctx.arc(0, -110, 4, 0, Math.PI * 2); ctx.fill()
-
-                        ctx.restore()
+                        ctx.moveTo(0, -20); ctx.lineTo(20, 0); ctx.lineTo(0, 20); ctx.fill()
+                        ctx.font = 'bold 16px "Orbitron", sans-serif'
+                        ctx.textAlign = 'right'
+                        ctx.fillText("TỚI CỔNG DỊCH CHUYỂN ", -30, 7)
                     }
+                    ctx.restore()
+                }
 
-                    drawGatePillar(1)
-                    drawGatePillar(-1)
+                ctx.shadowBlur = 0
+                ctx.restore()
+            }
 
-                    // Tia laser ngang kết nối
-                    ctx.strokeStyle = 'rgba(255, 0, 255, 0.6)'
-                    ctx.lineWidth = 2
-                    ctx.setLineDash([10, 20])
+            drawCyberGate(ctx, x, label) {
+                const camX = this.camera.x
+                // Tối ưu: Chỉ vẽ cổng nếu nó nằm trong hoặc gần tầm nhìn của camera
+                if (x < camX - 1000 || x > camX + CONFIG.canvasWidth + 1000) return
+
+                ctx.save()
+                ctx.translate(x, CONFIG.floorY)
+
+                // Trụ trái & phải của cổng
+                const drawGatePillar = (side) => {
+                    ctx.save()
+                    ctx.translate(0, side * 150)
+
+                    // Ánh sáng chân trụ
+                    const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, 100)
+                    glow.addColorStop(0, 'rgba(255, 0, 255, 0.4)')
+                    glow.addColorStop(1, 'transparent')
+                    ctx.fillStyle = glow
+                    ctx.fillRect(-100, -100, 200, 200)
+
+                    // Thân trụ chính
+                    ctx.strokeStyle = '#f0f'
+                    ctx.lineWidth = 12
+                    ctx.shadowBlur = 10
+                    ctx.shadowColor = '#f0f'
                     ctx.beginPath()
-                    ctx.moveTo(0, -150); ctx.lineTo(0, 150); ctx.stroke()
-                    ctx.setLineDash([])
+                    ctx.moveTo(0, -100); ctx.lineTo(0, 50); ctx.stroke()
 
-                    // Chữ "ZONE 0"
-                    ctx.fillStyle = '#f0f'
-                    ctx.font = 'bold 30px "Orbitron", sans-serif'
-                    ctx.textAlign = 'center'
-                    ctx.fillText("ZONE 0", -20, -120)
+                    // Chi tiết cơ khí
+                    ctx.strokeStyle = '#fff'
+                    ctx.lineWidth = 2
+                    ctx.shadowBlur = 0
+                    ctx.strokeRect(-15, -120, 30, 20)
+                    ctx.strokeRect(-10, 50, 20, 10)
+
+                    // Đèn tín hiệu nhỏ
+                    ctx.fillStyle = Math.sin(performance.now() * 0.01) > 0 ? '#0ff' : '#055'
+                    ctx.beginPath(); ctx.arc(0, -110, 4, 0, Math.PI * 2); ctx.fill()
 
                     ctx.restore()
                 }
-                ctx.shadowBlur = 0
+
+                drawGatePillar(1)
+                drawGatePillar(-1)
+
+                // Tia laser ngang kết nối
+                ctx.strokeStyle = 'rgba(255, 0, 255, 0.6)'
+                ctx.lineWidth = 2
+                ctx.setLineDash([10, 20])
+                ctx.beginPath()
+                ctx.moveTo(0, -150); ctx.lineTo(0, 150); ctx.stroke()
+                ctx.setLineDash([])
+
+                // Chữ label
+                ctx.shadowBlur = 10
+                ctx.shadowColor = '#f0f'
+                ctx.fillStyle = '#f0f'
+                ctx.font = 'bold 30px "Orbitron", sans-serif'
+                ctx.textAlign = 'center'
+                ctx.fillText(label, -20, -120)
+
                 ctx.restore()
             }
 
@@ -2531,8 +2567,17 @@
                             // Cập nhật tiến trình wave
                             const wp = document.getElementById('wave-progress')
                             if (wp) wp.innerText = `Tiêu diệt: ${this.waveKills}/${this.waveTotal}`
-                            // Hết quái → tự động sang màn tiếp
+                            // Hết quái → Hiện cổng dịch chuyển (Checkpoint)
                             if (this.waveKills >= this.waveTotal && this.spawnQueue.length === 0 && alive === 0 && this.player.state !== 'DEAD') {
+                                if (this.exitGateX === null) {
+                                    this.exitGateX = this.player.x + 800
+                                    this.camera.shake(8, 0.4)
+                                    audio.playSynth('square', 200, 0.5, 0.2, 800)
+                                }
+                            }
+                            
+                            // Kiểm tra đi vào cổng
+                            if (this.exitGateX !== null && this.player.x > this.exitGateX - 50) {
                                 this._nextWave()
                             }
                         }
