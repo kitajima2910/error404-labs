@@ -172,6 +172,17 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         );
 
         const host = request.headers.get('host') || '';
+        const isDev_ = import.meta.env.DEV;
+
+        // Set cookie để middleware server-side có thể chặn truy cập trực tiếp /tools/...
+        cookies.set('auth_token', token, {
+            path: '/',
+            httpOnly: true,
+            secure: !isDev_,
+            sameSite: 'lax',
+            maxAge: 60 * 60 * 24 * 7 // 7 days
+        });
+
         return new Response(JSON.stringify({ 
             success: true, 
             token,

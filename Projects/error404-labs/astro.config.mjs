@@ -15,6 +15,23 @@ export default defineConfig({
         sitemap(),
     ],
     vite: {
+        plugins: [{
+            name: 'tools-auth-guard',
+            configureServer(server) {
+                server.middlewares.use((req, res, next) => {
+                    if (req.url?.startsWith('/tools/')) {
+                        const cookies = req.headers.cookie || '';
+                        const hasAuth = cookies.split(';').some(c => c.trim().startsWith('auth_token='));
+                        if (!hasAuth) {
+                            res.writeHead(302, { Location: '/?auth=required' });
+                            res.end();
+                            return;
+                        }
+                    }
+                    next();
+                });
+            }
+        }],
         css: {
             postcss: {
                 plugins: [tailwindcss()],

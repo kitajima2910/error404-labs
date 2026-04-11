@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 
 export const prerender = false;
 
-export const GET: APIRoute = async ({ request }) => {
+export const GET: APIRoute = async ({ request, cookies }) => {
     const isDev = import.meta.env.DEV;
     try {
         const authHeader = request.headers.get('Authorization');
@@ -64,6 +64,15 @@ export const GET: APIRoute = async ({ request }) => {
                 }
             });
         }
+
+        // Refresh cookie auth_token để middleware chặn /tools/... hoạt động
+        cookies.set('auth_token', token, {
+            path: '/',
+            httpOnly: true,
+            secure: !isDev,
+            sameSite: 'lax',
+            maxAge: 60 * 60 * 24 * 7
+        });
 
         return new Response(JSON.stringify({ 
             authenticated: true, 

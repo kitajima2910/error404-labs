@@ -1,6 +1,17 @@
 import { defineMiddleware } from 'astro:middleware';
 
-export const onRequest = defineMiddleware(async (_context, next) => {
+export const onRequest = defineMiddleware(async (context, next) => {
+    const { url, cookies } = context;
+
+    // Chặn truy cập trực tiếp file tĩnh /tools/... nếu chưa login
+    // Không chặn /tools (trang .astro đã có auth guard riêng)
+    if (url.pathname.startsWith('/tools/')) {
+        const token = cookies.get('auth_token')?.value;
+        if (!token) {
+            return context.redirect('/?auth=required');
+        }
+    }
+
     const response = await next();
 
     // Security Headers
