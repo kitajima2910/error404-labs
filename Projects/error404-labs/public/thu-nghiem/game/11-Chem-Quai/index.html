@@ -1423,17 +1423,22 @@
 
         // --- ITEM CLASS ---
         class Item {
-            constructor(x, y, type) {
+            constructor(x, y, type, dir = 0) {
                 this.x = x
                 this.y = y
-                this.vx = (Math.random() - 0.5) * 400 // Văng theo chiều ngang
-                this.vy = -400 - Math.random() * 200 // Văng lên cao
+                // Văng xa hơn và theo hướng chém của player
+                const velocityX = 500 + Math.random() * 300
+                this.vx = dir !== 0 ? dir * velocityX : (Math.random() > 0.5 ? 1 : -1) * velocityX
+                this.vy = -700 - Math.random() * 400 // Văng lên cao hơn nữa
                 this.type = type
-                this.w = 30
-                this.h = 30
-                this.color = type === 'hp' ? '#f00' : '#ff0'
+                this.w = 35
+                this.h = 35
+                this.color = type === 'hp' ? '#ff2d2d' : '#ffd700'
                 this.collected = false
                 this.life = 10.0
+                this.collectDelay = 0.6
+                this.angle = Math.random() * Math.PI * 2
+                this.rotSpeed = (Math.random() - 0.5) * 15
             }
             update(dt) {
                 this.vy += CONFIG.gravity * 0.8 * dt
@@ -1441,44 +1446,80 @@
                 this.y += this.vy * dt
                 
                 // Ma sát không khí nhẹ
-                this.vx *= 0.98
+                this.vx *= 0.99
+                this.angle += this.rotSpeed * dt
 
                 if (this.y > CONFIG.floorY) {
                     this.y = CONFIG.floorY
-                    this.vy *= -0.5 // Nảy
-                    this.vx *= 0.6 // Ma sát mặt đất
+                    this.vy *= -0.6 // Nảy mạnh hơn
+                    this.vx *= 0.7 
+                    this.rotSpeed *= 0.6
                 }
                 this.life -= dt
+                if (this.collectDelay > 0) this.collectDelay -= dt
             }
             draw(ctx) {
+                const alpha = this.life < 2 ? (this.life * 5) % 1 : 1 // Nhấp nháy khi sắp biến mất
+                if (alpha < 0.2) return
+
                 ctx.save()
-                ctx.translate(Math.round(this.x), Math.round(this.y - 15))
-                ctx.shadowBlur = 5
-                ctx.shadowColor = this.color
+                ctx.translate(Math.round(this.x), Math.round(this.y - 20))
+                ctx.rotate(this.angle)
                 
-                // Hiệu ứng lơ lửng
-                const bob = Math.sin(performance.now() * 0.01) * 5
-                ctx.translate(0, bob)
+                // Hiệu ứng Neon Glow mạnh
+                ctx.shadowBlur = 15 + Math.sin(performance.now() * 0.01) * 5
+                ctx.shadowColor = this.color
+                ctx.globalAlpha = alpha
 
                 if (this.type === 'hp') {
-                    // Vẽ bình máu (chữ thập)
+                    // Vẽ tim Neon hoặc Chữ thập cải tiến
                     ctx.fillStyle = '#fff'
-                    ctx.fillRect(-12, -4, 24, 8)
-                    ctx.fillRect(-4, -12, 8, 24)
-                    ctx.strokeStyle = '#f00'; ctx.lineWidth = 2; ctx.strokeRect(-12, -12, 24, 24)
-                } else {
-                    // Vẽ ngôi sao
-                    ctx.fillStyle = '#ff0'
+                    ctx.strokeStyle = this.color
+                    ctx.lineWidth = 3
+                    
+                    // Hình thoi bo góc (Crystal)
                     ctx.beginPath()
-                    for (let i = 0; i < 5; i++) {
-                        const a = (i * Math.PI * 2) / 5 - Math.PI / 2
-                        ctx.lineTo(Math.cos(a) * 15, Math.sin(a) * 15)
-                        const a2 = a + Math.PI / 5
-                        ctx.lineTo(Math.cos(a2) * 7, Math.sin(a2) * 7)
+                    ctx.moveTo(0, -18); ctx.lineTo(15, 0); ctx.lineTo(0, 18); ctx.lineTo(-15, 0);
+                    ctx.closePath(); ctx.fill(); ctx.stroke()
+                    
+                    // Chữ thập bên trong
+                    ctx.fillStyle = this.color
+                    ctx.fillRect(-8, -2, 16, 4)
+                    ctx.fillRect(-2, -8, 4, 16)
+                } else {
+                    // Vẽ đồng tiền Neon (Star/Diamond)
+                    ctx.fillStyle = '#fff'
+                    ctx.strokeStyle = this.color
+                    ctx.lineWidth = 3
+                    
+                    // Hình lục giác hoặc Ngôi sao lấp lánh
+                    ctx.beginPath()
+                    for (let i = 0; i < 8; i++) {
+                        const r = i % 2 === 0 ? 18 : 8
+                        const a = (i * Math.PI * 2) / 8
+                        ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r)
                     }
-                    ctx.closePath(); ctx.fill()
-                    ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke()
+                    ctx.closePath(); ctx.fill(); ctx.stroke()
+                    
+                    // Nhân vật trung tâm
+                    ctx.fillStyle = this.color
+                    ctx.font = 'bold 12px Arial'
+                    ctx.textAlign = 'center'
+                    ctx.textBaseline = 'middle'
+                    ctx.rotate(-this.angle) // Giữ chữ không bị xoay theo
+                    ctx.fillText('$', 0, 0)
                 }
+                
+                // Thêm các hạt lấp lánh nhỏ xung quanh nếu đang bay
+                if (Math.abs(this.vy) > 100) {
+                    ctx.fillStyle = '#fff'
+                    for(let i=0; i<3; i++) {
+                        const ox = (Math.random()-0.5) * 40
+                        const oy = (Math.random()-0.5) * 40
+                        ctx.fillRect(ox, oy, 2, 2)
+                    }
+                }
+
                 ctx.restore()
             }
         }
@@ -2089,8 +2130,8 @@
                                 this.money += e.type === 'boss' ? 200 : (e.type === 'shield' ? 50 : 25)
                                 // Cơ hội rớt vật phẩm
                                 const roll = Math.random()
-                                if (roll < 0.12) this.items.push(new Item(e.x, e.y, 'hp'))
-                                else if (roll < 0.35) this.items.push(new Item(e.x, e.y, 'star'))
+                                if (roll < 0.12) this.items.push(new Item(e.x, e.y, 'hp', this.player.dir))
+                                else if (roll < 0.35) this.items.push(new Item(e.x, e.y, 'star', this.player.dir))
                             }
                         }
                     if (hit) {
@@ -2122,7 +2163,7 @@
                     
                     // Va chạm với player
                     const dist = Math.hypot(this.player.x - item.x, (this.player.y - this.player.h/2) - (item.y - 15))
-                    if (dist < 60) {
+                    if (item.collectDelay <= 0 && dist < 60) {
                         if (item.type === 'hp') {
                             this.player.hp = Math.min(this.player.maxHp, this.player.hp + this.player.maxHp * 0.2)
                             this.particles.spawn(this.player.x, this.player.y - 50, '#0f0', 15)
@@ -2505,12 +2546,24 @@
                 this.camera.apply(this.ctx)
                 if (this.state === 'GAME' || this.state === 'GAMEOVER' || this.state === 'OVER') {
                     // Tối ưu: Vẽ tập hợp thực thể mà không tạo mảng mới mỗi khung hình
-                    const entitiesToDraw = this.enemies.concat(this.player);
+                    const entitiesToDraw = this.enemies.concat(this.player, this.items);
                     entitiesToDraw.sort((a, b) => a.y - b.y);
                     for (let i = 0; i < entitiesToDraw.length; i++) {
                         entitiesToDraw[i].draw(this.ctx);
                     }
                     this.particles.draw(this.ctx, Entity.drawEntity)
+
+                    // Vẽ đạn (projectiles)
+                    this.projectiles.forEach(p => {
+                        this.ctx.save()
+                        this.ctx.fillStyle = p.color || '#fff'
+                        this.ctx.shadowBlur = 10
+                        this.ctx.shadowColor = p.color || '#fff'
+                        this.ctx.beginPath()
+                        this.ctx.arc(p.x, p.y, 6, 0, Math.PI * 2)
+                        this.ctx.fill()
+                        this.ctx.restore()
+                    })
 
                     // Vẽ Combo trên đầu nhân vật
                     if (this.combo > 1) {
