@@ -592,6 +592,7 @@
             <div id="wave-progress"
                 style="position:absolute;top:50px;left:50%;transform:translateX(-50%);color:#0ff;font-size:1rem;text-shadow:0 0 5px #0ff">
             </div>
+            <div id="fps-display" style="position:absolute;top:20px;right:20px;color:#0f0;font-family:'Orbitron', sans-serif;font-size:1.2rem;text-shadow:0 0 3px #000;pointer-events:none;z-index:55;font-weight:bold;">FPS: 60</div>
             <div id="shop-buttons"
                 style="position:absolute;top:20px;right:140px;display:flex;gap:10px;pointer-events:auto;z-index:55">
                 <button id="open-skills-btn" style="padding:8px 16px;font-size:0.9rem;min-width:140px;margin:0">KỸ NĂNG
@@ -1010,6 +1011,7 @@
                 this.ghosts = []
             }
             spawn(x, y, color, count, speed = 1, life = 1) {
+                if (this.particles.length > 200) return // Giới hạn số lượng hạt để bảo vệ FPS
                 for (let i = 0; i < count; i++) {
                     const a = Math.random() * Math.PI * 2,
                         s = Math.random() * 400 * speed
@@ -1096,8 +1098,7 @@
                         grad.addColorStop(0.5, p.color)
                         grad.addColorStop(1, 'transparent')
 
-                        ctx.shadowBlur = 20 * a
-                        ctx.shadowColor = p.color
+                        // Tối ưu: Loại bỏ shadowBlur cho hạt
                         ctx.fillStyle = grad
                         ctx.beginPath()
                         ctx.moveTo(0, -p.size * 0.4)
@@ -1163,7 +1164,8 @@
                     sx = (Math.random() - 0.5) * this.shakeI
                     sy = (Math.random() - 0.5) * this.shakeI
                 }
-                ctx.translate(-CONFIG.canvasWidth / 2 - this.x + sx, -CONFIG.canvasHeight / 2 - this.y + sy)
+                // Tối ưu render bằng cách làm tròn số tọa độ float
+                ctx.translate(Math.round(-CONFIG.canvasWidth / 2 - this.x + sx), Math.round(-CONFIG.canvasHeight / 2 - this.y + sy))
             }
         }
 
@@ -1235,9 +1237,11 @@
                 const t = e.stateTime,
                     drawY = e.y - e.z
                 ctx.save()
-                ctx.translate(e.x, drawY)
+                ctx.translate(Math.round(e.x), Math.round(drawY))
                 ctx.scale(e.dir, 1)
-                if (!isGhost && e.hitFlicker > 0) ctx.filter = 'brightness(4)'
+                
+                // Dùng lighter thay vì filter để giảm giật lag đáng kể khi trúng đòn
+                if (!isGhost && e.hitFlicker > 0) ctx.globalCompositeOperation = 'lighter'
 
                 const isPlayer = e.constructor.name === 'Player'
                 if (SPRITES.loaded && !isGhost && isPlayer) {
@@ -1294,11 +1298,8 @@
                 ctx.strokeStyle = e.color
                 ctx.lineWidth = 4
                 ctx.lineCap = 'round'
-                if (!isGhost) {
-                    ctx.shadowBlur = 15
-                    ctx.shadowColor = e.color
-                }
-
+                // Tối ưu: Loại bỏ hoàn toàn shadowBlur của các thực thể
+                
                 ctx.fillStyle = isGhost ? e.color : '#111'
                 // Body shape theo loại quái
                 if (e.type === 'ninja') {
@@ -1451,8 +1452,8 @@
             }
             draw(ctx) {
                 ctx.save()
-                ctx.translate(this.x, this.y - 15)
-                ctx.shadowBlur = 15
+                ctx.translate(Math.round(this.x), Math.round(this.y - 15))
+                ctx.shadowBlur = 5
                 ctx.shadowColor = this.color
                 
                 // Hiệu ứng lơ lửng
@@ -1530,8 +1531,10 @@
                         this.changeState(`ATTACK_${this.attackStep}`)
                         this.vx = this.dir * 250
                         audio.playSwing()
-                        // Tạo hiệu ứng tia sét ngay khi nhấn chém (kể cả chém không khí)
-                        particles.spawnSkillVFX(this.x + this.dir * 70, this.getDrawY() - this.h / 2, SaveSystem.data.skills.active)
+                        // Tối ưu: Chỉ tạo VFX nếu không có quá nhiều hạt đang tồn tại
+                        if (particles.particles.length < 150) {
+                            particles.spawnSkillVFX(this.x + this.dir * 70, this.getDrawY() - this.h / 2, SaveSystem.data.skills.active)
+                        }
                     }
                 }
                 if (canM && input.consume('Space') && this.dashCd <= 0) {
@@ -1848,10 +1851,8 @@
                 ctx.fillStyle = '#fff'
                 ctx.font = 'bold 10px "Orbitron", sans-serif'
                 ctx.textAlign = 'center'
-                ctx.shadowBlur = 4
-                ctx.shadowColor = '#000'
-                ctx.fillText(`${Math.ceil(this.hp)}/${this.maxHp}`, this.x, y - 5)
                 ctx.shadowBlur = 0
+                ctx.fillText(`${Math.ceil(this.hp)}/${this.maxHp}`, this.x, y - 5)
             }
         }
 
@@ -1860,6 +1861,9 @@
             constructor() {
                 this.canvas = document.getElementById('gameCanvas')
                 this.ctx = this.canvas.getContext('2d', { alpha: false })
+                this.frameCount = 0
+                this.lastFpsTime = performance.now()
+                this.currentFps = 60
                 this.input = new InputManager()
                 this.camera = new Camera()
                 this.particles = new ParticleSystem()
@@ -2049,13 +2053,14 @@
                 this.updateHUD()
             }
             triggerHitEffect(x, y, isCrit) {
-                this.hitStop = isCrit ? 0.14 : 0.07
-                this.camera.shake(isCrit ? 35 : 15, isCrit ? 0.4 : 0.2)
-                if (isCrit) {
-                    this.camera.targetZoom = 1.4
-                    setTimeout(() => (this.camera.targetZoom = 1), 200)
-                    this.timeScale = 0.15
-                    setTimeout(() => (this.timeScale = 1), 120)
+                const targetStop = isCrit ? 0.05 : 0.02
+                if (this.hitStop < targetStop) this.hitStop = targetStop
+                this.camera.shake(isCrit ? 12 : 5, isCrit ? 0.3 : 0.15)
+                if (isCrit && this.timeScale > 0.5) {
+                    this.camera.targetZoom = 1.1
+                    setTimeout(() => (this.camera.targetZoom = 1), 150)
+                    this.timeScale = 0.4
+                    setTimeout(() => (this.timeScale = 1), 100)
                     audio.playCrit()
                 } else audio.playHit()
                 // Loại bỏ hạt trắng cũ vì đã có vfx1
@@ -2342,7 +2347,7 @@
 
                 ctx.strokeStyle = '#0ff'
                 ctx.lineWidth = 4
-                ctx.shadowBlur = 10
+                ctx.shadowBlur = 5
                 ctx.shadowColor = '#0ff'
                 ctx.beginPath()
                 // Vẽ đường đi bắt đầu từ x=0 và vô tận về bên phải
@@ -2371,7 +2376,7 @@
                         // Thân trụ chính
                         ctx.strokeStyle = '#f0f'
                         ctx.lineWidth = 12
-                        ctx.shadowBlur = 25
+                        ctx.shadowBlur = 10
                         ctx.shadowColor = '#f0f'
                         ctx.beginPath()
                         ctx.moveTo(0, -100); ctx.lineTo(0, 50); ctx.stroke()
@@ -2416,6 +2421,21 @@
             loop(t) {
                 let dt = Math.min(0.05, (t - this.lastT) / 1000)
                 this.lastT = t
+
+                this.frameCount++
+                if (t - this.lastFpsTime >= 1000) {
+                    this.currentFps = this.frameCount
+                    this.frameCount = 0
+                    this.lastFpsTime = t
+                    const fpsEl = document.getElementById('fps-display')
+                    if (fpsEl) {
+                        fpsEl.innerText = `FPS: ${this.currentFps}`
+                        if (this.currentFps < 30) fpsEl.style.color = '#f00'
+                        else if (this.currentFps < 50) fpsEl.style.color = '#ff0'
+                        else fpsEl.style.color = '#0f0'
+                    }
+                }
+
                 this.input.update()
                 if (this.state === 'GAME' || this.state === 'GAMEOVER') {
                     let ldt = dt * this.timeScale
@@ -2484,9 +2504,12 @@
                 this.ctx.save()
                 this.camera.apply(this.ctx)
                 if (this.state === 'GAME' || this.state === 'GAMEOVER' || this.state === 'OVER') {
-                    [this.player, ...this.enemies.filter(e => e.state !== 'DEAD' || e.stateTime < 1.5)]
-                        .sort((a, b) => a.y - b.y)
-                        .forEach((e) => e.draw(this.ctx))
+                    // Tối ưu: Vẽ tập hợp thực thể mà không tạo mảng mới mỗi khung hình
+                    const entitiesToDraw = this.enemies.concat(this.player);
+                    entitiesToDraw.sort((a, b) => a.y - b.y);
+                    for (let i = 0; i < entitiesToDraw.length; i++) {
+                        entitiesToDraw[i].draw(this.ctx);
+                    }
                     this.particles.draw(this.ctx, Entity.drawEntity)
 
                     // Vẽ Combo trên đầu nhân vật
@@ -2505,7 +2528,7 @@
                         ctx.translate(this.player.x, this.player.getDrawY() - this.player.h - 20 - floatUp)
                         ctx.scale(pulse, pulse)
 
-                        ctx.shadowBlur = 10
+                        ctx.shadowBlur = 5
                         ctx.shadowColor = this.player.isCritWindow ? '#f0f' : '#ff0'
                         ctx.fillStyle = this.player.isCritWindow ? '#f0f' : '#ff0'
 
@@ -2528,7 +2551,7 @@
                             
                             this.ctx.save()
                             this.ctx.fillStyle = e.color
-                            this.ctx.shadowBlur = 15
+                            this.ctx.shadowBlur = 5
                             this.ctx.shadowColor = e.color
                             
                             // Vẽ hình thoi/mũi tên chỉ hướng
@@ -2559,7 +2582,7 @@
                     this.ctx.save()
                     this.ctx.translate(-this.camera.x, 0)
                     this.ctx.fillStyle = p.color || '#fff'
-                    this.ctx.shadowBlur = 10
+                    this.ctx.shadowBlur = 5
                     this.ctx.shadowColor = p.color || '#fff'
                     this.ctx.fillRect(p.x - 6, p.y - 4, 12, 8)
                     this.ctx.restore()
