@@ -2085,14 +2085,18 @@
                     document.getElementById('victory-menu').classList.remove('hidden')
                     return
                 }
-                // Chuyển màn mượt: giữ player, reset quái
+                // Chuyển màn mượt: đưa player về START, reset trạng thái
                 this.enemies = []
                 this.waveKills = 0
+                this.player.x = 0
+                this.player.y = CONFIG.floorY
+                this.hasPlayerMoved = false
                 this._buildSpawnQueue()
-                this._spawnInitialBatch()
+                
                 document.getElementById('wave-display').innerText = `MÀN ${this.wave}/${this.maxWave}`
                 // Hiệu ứng thông báo màn mới
-                this.camera.shake(5, 0.2)
+                this.camera.shake(10, 0.4)
+                audio.playSynth('sine', 400, 0.6, 0.3, 1200)
                 this.updateHUD()
             }
             triggerHitEffect(x, y, isCrit) {
@@ -2405,26 +2409,6 @@
                 // Vẽ Cổng Thoát (Checkpoint)
                 if (this.exitGateX !== null) {
                     this.drawCyberGate(ctx, this.exitGateX, `NEXT: ZONE ${this.wave + 1}`)
-                    
-                    // Vẽ mũi tên chỉ hướng tới cổng
-                    ctx.save()
-                    const dist = this.exitGateX - this.player.x
-                    if (dist > 500) {
-                        ctx.restore()
-                        ctx.save()
-                        const arrowX = CONFIG.canvasWidth - 100
-                        const arrowY = CONFIG.canvasHeight / 2
-                        ctx.translate(arrowX, arrowY)
-                        ctx.fillStyle = '#f0f'
-                        ctx.shadowBlur = 10
-                        ctx.shadowColor = '#f0f'
-                        ctx.beginPath()
-                        ctx.moveTo(0, -20); ctx.lineTo(20, 0); ctx.lineTo(0, 20); ctx.fill()
-                        ctx.font = 'bold 16px "Orbitron", sans-serif'
-                        ctx.textAlign = 'right'
-                        ctx.fillText("TỚI CỔNG DỊCH CHUYỂN ", -30, 7)
-                    }
-                    ctx.restore()
                 }
 
                 ctx.shadowBlur = 0
@@ -2633,6 +2617,40 @@
                         // Vẽ nghiêng bằng transform
                         ctx.transform(1, 0, -0.2, 1, 0, 0)
                         ctx.fillText(this.combo + 'x COMBO', 0, 0)
+                        ctx.restore()
+                    }
+
+                    // Vẽ hướng dẫn tới Cổng dịch chuyển trên đầu player
+                    if (this.exitGateX !== null) {
+                        const ctx = this.ctx
+                        ctx.save()
+                        ctx.translate(this.player.x, this.player.getDrawY() - this.player.h - 80)
+                        
+                        // Hiệu ứng nhấp nháy nhịp nhàng
+                        const pulse = 0.5 + Math.abs(Math.sin(performance.now() * 0.005)) * 0.5
+                        ctx.globalAlpha = pulse
+                        ctx.shadowBlur = 15
+                        ctx.shadowColor = '#f0f'
+                        ctx.fillStyle = '#f0f'
+                        ctx.font = 'bold 16px "Orbitron", sans-serif'
+                        ctx.textAlign = 'center'
+                        ctx.textBaseline = 'middle'
+                        
+                        const label = "TỚI CỔNG DỊCH CHUYỂN"
+                        ctx.fillText(label, 0, 0)
+                        
+                        // Mũi tên chỉ sang phải (nằm ngang với chữ)
+                        const tw = ctx.measureText(label).width
+                        ctx.beginPath()
+                        ctx.moveTo(tw/2 + 10, 0)
+                        ctx.lineTo(tw/2 + 25, 0)
+                        ctx.lineTo(tw/2 + 20, -6)
+                        ctx.moveTo(tw/2 + 25, 0)
+                        ctx.lineTo(tw/2 + 20, 6)
+                        ctx.lineWidth = 3
+                        ctx.strokeStyle = '#f0f'
+                        ctx.stroke()
+                        
                         ctx.restore()
                     }
                 }
