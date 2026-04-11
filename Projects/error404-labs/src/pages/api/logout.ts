@@ -4,11 +4,7 @@ import jwt from 'jsonwebtoken';
 
 export const prerender = false;
 
-export const POST: APIRoute = async ({ request, cookies }) => {
-    // Xóa cookie auth_token
-    cookies.delete('auth_token', { path: '/' });
-
-
+export const POST: APIRoute = async ({ request }) => {
     // CSRF Protection
     const origin = request.headers.get('origin');
     const allowedOrigins = [
