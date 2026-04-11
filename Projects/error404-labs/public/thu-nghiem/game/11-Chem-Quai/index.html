@@ -2166,8 +2166,22 @@
                     this.maxWave = 1000
                     this.projectiles = [] // Hệ thống đạn
                     window._gameInstance = this
+                    this._entitiesList = [] // Cache thực thể để sort
+                    this._createGridPattern()
                     this.bindUI()
                     requestAnimationFrame((t) => this.loop(t))
+                }
+                
+                _createGridPattern() {
+                    const size = 120
+                    const pCanvas = document.createElement('canvas')
+                    pCanvas.width = size
+                    pCanvas.height = 80
+                    const pCtx = pCanvas.getContext('2d')
+                    pCtx.strokeStyle = 'rgba(0, 255, 255, 0.08)'
+                    pCtx.lineWidth = 1
+                    pCtx.strokeRect(0, 0, size, 80)
+                    this.gridPattern = this.ctx.createPattern(pCanvas, 'repeat')
                 }
                 resize() {
                     this.canvas.width = window.innerWidth
@@ -2624,6 +2638,18 @@
                     ctx.fillStyle = skyGrad
                     ctx.fillRect(0, 0, CONFIG.canvasWidth, CONFIG.canvasHeight)
                     const camX = this.camera.x
+                    // Vẽ lưới vô tận bằng Pattern (Tối ưu cực mạnh)
+                    if (this.gridPattern) {
+                        ctx.save()
+                        ctx.translate(-((camX * 1) % 120), -((this.camera.y * 1) % 80))
+                        ctx.fillStyle = this.gridPattern
+                        // Vẽ một vùng lớn bao phủ toàn màn hình
+                        ctx.fillRect(-200, -200, CONFIG.canvasWidth + 400, CONFIG.canvasHeight + 400)
+                        ctx.restore()
+                    }
+
+                    ctx.save()
+                    this.camera.apply(ctx)
                     ctx.fillStyle = '#080210'
                     for (let i = -5; i < 15; i++) {
                         let x = i * 300 - ((camX * 0.1) % 300)
@@ -2639,27 +2665,8 @@
                         ctx.fillRect(x + 20, CONFIG.floorY - h + 30, 20, 20)
                         ctx.fillRect(x + 110, CONFIG.floorY - h + 80, 20, 20)
                     }
-                    ctx.save()
-                    this.camera.apply(ctx)
-                    // Vẽ lưới vô tận dựa trên vị trí camera
-                    const startX = Math.floor((camX - 1000) / 120) * 120
-                    const endX = startX + 2500
-                    const camY = this.camera.y
-                    const startY = Math.floor((camY - 1000) / 120) * 120
-                    const endY = startY + 2000
 
-                    ctx.beginPath()
-                    // Đường kẻ dọc
-                    for (let i = startX; i < endX; i += 120) {
-                        ctx.moveTo(i, camY - 1000)
-                        ctx.lineTo(i, camY + 1000)
-                    }
-                    // Đường kẻ ngang (lưới cho sàn)
-                    for (let j = startY; j < endY; j += 80) {
-                        ctx.moveTo(camX - 1000, j)
-                        ctx.lineTo(camX + 1500, j)
-                    }
-                    ctx.stroke()
+
 
                     ctx.strokeStyle = '#0ff'
                     ctx.lineWidth = 4
@@ -2862,25 +2869,48 @@
                     this.ctx.save()
                     this.camera.apply(this.ctx)
                     if (this.state === 'GAME' || this.state === 'GAMEOVER' || this.state === 'OVER') {
-                        // Tối ưu: Vẽ tập hợp thực thể mà không tạo mảng mới mỗi khung hình
-                        const entitiesToDraw = this.enemies.concat(this.player, this.items)
-                        entitiesToDraw.sort((a, b) => a.y - b.y)
-                        for (let i = 0; i < entitiesToDraw.length; i++) {
-                            entitiesToDraw[i].draw(this.ctx)
+                        // Tối ưu: Tái sử dụng mảng để tránh tạo rác bộ nhớ (GC)
+                        this._entitiesList.length = 0
+                        for (let i = 0; i < this.enemies.length; i++) this._entitiesList.push(this.enemies[i])
+                        this._entitiesList.push(this.player)
+                        for (let i = 0; i < this.items.length; i++) this._entitiesList.push(this.items[i])
+                        
+                        this._entitiesList.sort((a, b) => a.y - b.y)
+                        
+                        // Tự động tắt shadow nếu máy quá yếu (FPS < 40)
+                        const useShadow = this.currentFps > 40
+                        
+                        for (let i = 0; i < this._entitiesList.length; i++) {
+                            const ent = this._entitiesList[i]
+                            // Kiểm tra xem thực thể có trong màn hình không trước khi vẽ (Culling)
+                            if (ent.x > this.camera.x - 200 && ent.x < this.camera.x + CONFIG.canvasWidth + 200) {
+                                if (!useShadow) {
+                                    const oldSB = this.ctx.shadowBlur
+                                    this.ctx.shadowBlur = 0
+                                    ent.draw(this.ctx)
+                                    this.ctx.shadowBlur = oldSB
+                                } else {
+                                    ent.draw(this.ctx)
+                                }
+                            }
                         }
                         this.particles.draw(this.ctx, Entity.drawEntity)
 
-                        // Vẽ đạn (projectiles)
-                        this.projectiles.forEach((p) => {
+                        // Vẽ đạn (projectiles) tối ưu
+                        if (this.projectiles.length > 0) {
                             this.ctx.save()
-                            this.ctx.fillStyle = p.color || '#fff'
-                            this.ctx.shadowBlur = 10
-                            this.ctx.shadowColor = p.color || '#fff'
-                            this.ctx.beginPath()
-                            this.ctx.arc(p.x, p.y, 6, 0, Math.PI * 2)
-                            this.ctx.fill()
+                            // Nhóm shadow color để giảm lệnh thay đổi trạng thái context
+                            this.ctx.shadowBlur = useShadow ? 8 : 0
+                            for (let i = 0; i < this.projectiles.length; i++) {
+                                const p = this.projectiles[i]
+                                this.ctx.fillStyle = p.color || '#fff'
+                                this.ctx.shadowColor = p.color || '#fff'
+                                this.ctx.beginPath()
+                                this.ctx.arc(p.x, p.y, 6, 0, Math.PI * 2)
+                                this.ctx.fill()
+                            }
                             this.ctx.restore()
-                        })
+                        }
 
                         // Vẽ Damage Texts (Tối ưu hiệu năng)
                         this.ctx.save()
