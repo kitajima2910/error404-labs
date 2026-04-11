@@ -5,15 +5,7 @@ import { TOOLS_DATA as DATA } from '../data/toolsData.js'
 ---
 
 <MainLayout title={`Công cụ | ${TC_TITLE}`}>
-    <!-- Auth Loading State -->
-    <div id="auth-loading" class="min-h-[80vh] flex items-center justify-center bg-slate-50">
-        <div class="flex flex-col items-center gap-4">
-            <div class="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-            <p class="text-slate-400 font-bold animate-pulse text-xs uppercase tracking-widest">Đang xác thực quyền truy cập...</p>
-        </div>
-    </div>
-
-    <div id="auth-guard" class="hidden">
+    <div id="tools-container">
         <section class="min-h-screen bg-slate-50 py-8 px-4 md:px-8">
             <div class="max-w-[1600px] mx-auto h-[85vh]">
                 <div class="flex flex-col md:flex-row gap-6 h-full">
@@ -114,49 +106,8 @@ import { TOOLS_DATA as DATA } from '../data/toolsData.js'
 </MainLayout>
 
 <script is:inline>
-    // Auth Guard Implementation
-    async function checkAuth() {
-        const token = localStorage.getItem('auth_token');
-        
-        if (!token) {
-            window.location.href = '/?auth=required';
-            return;
-        }
-
-        try {
-            const res = await fetch('/api/verify', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const data = await res.json();
-
-            if (!res.ok || !data.authenticated) {
-                localStorage.removeItem('auth_token');
-                localStorage.removeItem('user_session');
-                localStorage.removeItem('user_roles');
-                window.location.href = '/?auth=required';
-                return;
-            }
-
-            // Authenticated -> Show Content
-            const loading = document.getElementById('auth-loading');
-            const guard = document.getElementById('auth-guard');
-            if (loading) loading.classList.add('hidden');
-            if (guard) guard.classList.remove('hidden');
-
-            initToolLogic();
-        } catch (err) {
-            console.error('Guard Error:', err);
-            window.location.href = '/?error=connection';
-        }
-    }
-
-    // Run Initial Check
-    checkAuth();
-
-    // Listen for login success from Nav.astro
-    window.addEventListener('user-login', () => {
-        checkAuth();
-    });
+    // Run Initial Logic
+    initToolLogic();
 
     function initToolLogic() {
         const iframe = document.getElementById('tool-iframe')
