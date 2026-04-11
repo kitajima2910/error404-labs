@@ -2314,6 +2314,16 @@
                     this.enemies.push(new Enemy(spawnX, spawnY, type, this.wave))
                 }
                 _nextWave() {
+                    // Tự động thu thập tất cả vật phẩm còn sót lại
+                    this.items.forEach(item => {
+                        if (item.type === 'hp') {
+                            this.player.hp = Math.min(this.player.maxHp, this.player.hp + this.player.maxHp * 0.2)
+                        } else {
+                            this.money += 200 + Math.floor(Math.random() * 300)
+                        }
+                    })
+                    this.items = []
+
                     this.wave++
                     this.exitGateX = null // Reset cổng
                     SaveSystem.data.wave = this.wave
