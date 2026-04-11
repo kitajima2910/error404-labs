@@ -136,18 +136,7 @@ const {
             {
                 label: 'Công cụ',
                 icon: '<i class="fa fa-wrench" aria-hidden="true"></i>',
-                action: () => {
-                    if (localStorage.getItem('auth_token')) {
-                        window.location.href = '/tools'
-                    } else {
-                        // @ts-ignore
-                        if (window.showToast) {
-                            // @ts-ignore
-                            window.showToast('Vui lòng đăng nhập để truy cập trang này!', 'warning')
-                        }
-                        document.getElementById('openLoginModal')?.click()
-                    }
-                },
+                action: () => (window.location.href = '/tools'),
             },
             {
                 label: 'Khóa Học',
