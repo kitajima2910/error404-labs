@@ -609,8 +609,12 @@ const isPost = pathname.startsWith('/bai-viet/')
         if (window.location.search.includes('auth=required')) {
             window.showToast('Vui lòng đăng nhập để truy cập trang này!', 'warning')
             setTimeout(() => {
-                const loginModal = document.querySelector('#login-modal')
-                if (loginModal) loginModal.classList.remove('hidden')
+                const loginModal = document.querySelector('#loginModal')
+                if (loginModal) {
+                    loginModal.classList.remove('hidden')
+                    loginModal.classList.add('flex')
+                    document.body.classList.add('overflow-hidden')
+                }
             }, 600)
             window.history.replaceState({}, document.title, window.location.pathname)
         }
@@ -762,6 +766,22 @@ const isPost = pathname.startsWith('/bai-viet/')
                 }
             }
         }
+
+        // Chặn click các trang cần login từ menu (như /tools)
+        const protectedLinks = ['/tools', '/cau-lenh-prompts-game'];
+        document.querySelectorAll('a[data-navLink]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                const href = link.getAttribute('href');
+                if (protectedLinks.includes(href)) {
+                    const token = localStorage.getItem('auth_token');
+                    if (!token) {
+                        e.preventDefault();
+                        window.showToast('Vui lòng đăng nhập để truy cập trang này!', 'warning');
+                        openLogin(); 
+                    }
+                }
+            });
+        });
         // Heartbeat logic: Gửi ping mỗi 60 giây để tích lũy điểm online
         let heartbeatInterval = null
         const startHeartbeat = () => {

@@ -119,15 +119,15 @@ const {
                 label: 'Prompts Game H5',
                 icon: '<i class="fa fa-gamepad" aria-hidden="true"></i>',
                 action: () => {
-                    if (localStorage.getItem('user_session')) {
+                    if (localStorage.getItem('auth_token')) {
                         window.location.href = '/cau-lenh-prompts-game'
                     } else {
                         // @ts-ignore
                         if (window.showToast) {
                             // @ts-ignore
-                            window.showToast('Vui lòng đăng nhập để truy cập!', 'warning')
+                            window.showToast('Vui lòng đăng nhập để truy cập trang này!', 'warning')
                         } else {
-                            alert('Vui lòng đăng nhập để truy cập!')
+                            alert('Vui lòng đăng nhập để truy cập trang này!')
                         }
                         document.getElementById('openLoginModal')?.click()
                     }
@@ -136,7 +136,18 @@ const {
             {
                 label: 'Công cụ',
                 icon: '<i class="fa fa-wrench" aria-hidden="true"></i>',
-                action: () => (window.location.href = '/tools'),
+                action: () => {
+                    if (localStorage.getItem('auth_token')) {
+                        window.location.href = '/tools'
+                    } else {
+                        // @ts-ignore
+                        if (window.showToast) {
+                            // @ts-ignore
+                            window.showToast('Vui lòng đăng nhập để truy cập trang này!', 'warning')
+                        }
+                        document.getElementById('openLoginModal')?.click()
+                    }
+                },
             },
             {
                 label: 'Khóa Học',

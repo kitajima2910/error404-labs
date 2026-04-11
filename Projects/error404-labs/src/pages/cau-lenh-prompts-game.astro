@@ -297,9 +297,9 @@ const titleTranslate: Record<string, string> = {
                 if (res.status === 401) {
                     localStorage.removeItem('user_session')
                     if (window.showToast) {
-                        window.showToast('Vui lòng đăng nhập để xem và sao chép prompt này!', 'info')
+                        window.showToast('Vui lòng đăng nhập để truy cập trang này!', 'warning')
                     } else {
-                        alert('Vui lòng đăng nhập để xem và sao chép prompt này!')
+                        alert('Vui lòng đăng nhập để truy cập trang này!')
                     }
                     const openLoginBtn = document.getElementById('openLoginModal')
                     if (openLoginBtn) openLoginBtn.click()

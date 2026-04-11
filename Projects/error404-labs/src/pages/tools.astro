@@ -5,141 +5,200 @@ import { TOOLS_DATA as DATA } from '../data/toolsData.js'
 ---
 
 <MainLayout title={`Công cụ | ${TC_TITLE}`}>
-    <section class="min-h-screen bg-slate-50 py-8 px-4 md:px-8">
-        <div class="max-w-[1600px] mx-auto h-[85vh]">
-            <div class="flex flex-col md:flex-row gap-6 h-full">
-                <!-- Sidebar: Tools List -->
-                <aside class="w-full md:w-[450px] flex flex-col gap-4">
-                    <div class="flex items-center justify-between px-2">
-                        <h2 class="text-2xl font-black text-slate-800 tracking-tight text-gradient uppercase">CÔNG CỤ</h2>
-                        <span
-                            class="px-4 py-1.5 bg-indigo-600 text-white rounded-full text-xs font-bold uppercase shadow-lg shadow-indigo-200"
-                        >
-                             {DATA.length} Công cụ
-                        </span>
-                    </div>
+    <!-- Auth Loading State -->
+    <div id="auth-loading" class="min-h-[80vh] flex items-center justify-center bg-slate-50">
+        <div class="flex flex-col items-center gap-4">
+            <div class="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+            <p class="text-slate-400 font-bold animate-pulse text-xs uppercase tracking-widest">Đang xác thực quyền truy cập...</p>
+        </div>
+    </div>
 
-                    <div
-                        class="tool-list-container flex-1 overflow-y-auto pr-2 custom-scrollbar flex flex-col gap-3"
-                        style="scrollbar-gutter: stable;"
-                    >
-                        {
-                            DATA.map((item, index) => (
-                                <div
-                                    class={`tool-card group relative overflow-hidden rounded-2xl bg-white border border-slate-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer flex-shrink-0 ${index === 0 ? 'ring-2 ring-indigo-500 active-card' : ''}`}
-                                    data-link={item.link}
-                                    title="Click to view. Ctrl + Click to open in new tab."
-                                >
-                                    <div class="aspect-video overflow-hidden bg-slate-100 flex items-center justify-center">
-                                         <img
-                                            src={item.image}
-                                            alt={item.name}
-                                            class="w-full h-full object-cover transform [transition:transform_0.8s_cubic-bezier(0.4,0,0.2,1)] group-hover:scale-105"
-                                        />
-                                        <div class="absolute inset-0 bg-indigo-900/10 group-hover:bg-transparent transition-colors"></div>
-                                    </div>
-                                    <div class="p-4 bg-white/95 backdrop-blur-md absolute bottom-0 left-0 right-0 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300 border-t border-slate-100 z-10">
-                                        <h3 class="font-bold text-slate-800 text-sm truncate">{item.name}</h3>
-                                        <p class="text-[10px] text-indigo-600 font-semibold mt-1 uppercase">
-                                            NHẤN ĐỂ SỬ DỤNG • CTRL+CLICK MỞ TAB MỚI
-                                        </p>
-                                    </div>
-                                    <div class="absolute top-2 left-2 p-1.5 bg-white/90 backdrop-blur shadow-sm rounded-lg z-10 opacity-100 group-hover:opacity-0 transition-opacity flex items-center gap-2">
-                                        <i class={`fa ${item.icon || 'fa-wrench'} text-indigo-600`}></i>
-                                        <h3 class="font-bold text-slate-800 text-xs px-1">{item.name}</h3>
-                                    </div>
-                                </div>
-                            ))
-                        }
-                    </div>
-                </aside>
-
-                <!-- Main: Tool Iframe -->
-                <main
-                    class="flex-1 flex flex-col bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200 relative"
-                >
-                    <!-- Browser Header Mockup -->
-                    <div class="h-12 bg-slate-100 border-b border-slate-200 flex items-center px-4 gap-4">
-                        <div class="flex gap-2">
-                            <div class="w-3 h-3 rounded-full bg-red-400"></div>
-                            <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
-                            <div class="w-3 h-3 rounded-full bg-green-400"></div>
-                        </div>
-                        <div
-                            class="flex-1 bg-white rounded-md h-7 flex items-center px-4 border border-slate-200 shadow-sm overflow-hidden"
-                        >
-                            <span class="text-xs text-slate-400 font-mono truncate current-url-display">
-                                {DATA[0].link}
+    <div id="auth-guard" class="hidden">
+        <section class="min-h-screen bg-slate-50 py-8 px-4 md:px-8">
+            <div class="max-w-[1600px] mx-auto h-[85vh]">
+                <div class="flex flex-col md:flex-row gap-6 h-full">
+                    <!-- Sidebar: Tools List -->
+                    <aside class="w-full md:w-[450px] flex flex-col gap-4">
+                        <div class="flex items-center justify-between px-2">
+                            <h2 class="text-2xl font-black text-slate-800 tracking-tight text-gradient uppercase">CÔNG CỤ</h2>
+                            <span
+                                class="px-4 py-1.5 bg-indigo-600 text-white rounded-full text-xs font-bold uppercase shadow-lg shadow-indigo-200"
+                            >
+                                 {DATA.length} Công cụ
                             </span>
                         </div>
-                        <div class="flex gap-2">
-                            <div class="w-2 h-2 rounded-full bg-slate-300"></div>
-                            <div class="w-2 h-2 rounded-full bg-slate-300"></div>
-                            <div class="w-2 h-2 rounded-full bg-slate-300"></div>
-                        </div>
-                    </div>
 
-                    <!-- Loading Spinner Overlay -->
-                    <div
-                        id="iframe-loader"
-                        class="absolute inset-0 top-12 bg-white flex items-center justify-center z-10 hidden"
-                    >
-                        <div class="animate-spin rounded-full h-12 w-12 border-4 border-indigo-500 border-t-transparent">
+                        <div
+                            class="tool-list-container flex-1 overflow-y-auto pr-2 custom-scrollbar flex flex-col gap-3"
+                            style="scrollbar-gutter: stable;"
+                        >
+                            {
+                                DATA.map((item, index) => (
+                                    <div
+                                        class={`tool-card group relative overflow-hidden rounded-2xl bg-white border border-slate-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer flex-shrink-0 ${index === 0 ? 'ring-2 ring-indigo-500 active-card' : ''}`}
+                                        data-link={item.link}
+                                        title="Click to view. Ctrl + Click to open in new tab."
+                                    >
+                                        <div class="aspect-video overflow-hidden bg-slate-100 flex items-center justify-center">
+                                             <img
+                                                src={item.image}
+                                                alt={item.name}
+                                                class="w-full h-full object-cover transform [transition:transform_0.8s_cubic-bezier(0.4,0,0.2,1)] group-hover:scale-105"
+                                            />
+                                            <div class="absolute inset-0 bg-indigo-900/10 group-hover:bg-transparent transition-colors"></div>
+                                        </div>
+                                        <div class="p-4 bg-white/95 backdrop-blur-md absolute bottom-0 left-0 right-0 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300 border-t border-slate-100 z-10">
+                                            <h3 class="font-bold text-slate-800 text-sm truncate">{item.name}</h3>
+                                            <p class="text-[10px] text-indigo-600 font-semibold mt-1 uppercase">
+                                                NHẤN ĐỂ SỬ DỤNG • CTRL+CLICK MỞ TAB MỚI
+                                            </p>
+                                        </div>
+                                        <div class="absolute top-2 left-2 p-1.5 bg-white/90 backdrop-blur shadow-sm rounded-lg z-10 opacity-100 group-hover:opacity-0 transition-opacity flex items-center gap-2">
+                                            <i class={`fa ${item.icon || 'fa-wrench'} text-indigo-600`}></i>
+                                            <h3 class="font-bold text-slate-800 text-xs px-1">{item.name}</h3>
+                                        </div>
+                                    </div>
+                                ))
+                            }
                         </div>
-                    </div>
+                    </aside>
 
-                    <iframe
-                        src={DATA[0].link}
-                        frameborder="0"
-                        class="flex-1 w-full bg-slate-50"
-                        allow="fullscreen; autoplay; clipboard-read; clipboard-write;"
-                        title="Tool Preview"
-                        id="tool-iframe"
+                    <!-- Main: Tool Iframe -->
+                    <main
+                        class="flex-1 flex flex-col bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200 relative"
                     >
-                    </iframe>
-                </main>
+                        <!-- Browser Header Mockup -->
+                        <div class="h-12 bg-slate-100 border-b border-slate-200 flex items-center px-4 gap-4">
+                            <div class="flex gap-2">
+                                <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                                <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                                <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                            </div>
+                            <div
+                                class="flex-1 bg-white rounded-md h-7 flex items-center px-4 border border-slate-200 shadow-sm overflow-hidden"
+                            >
+                                <span class="text-xs text-slate-400 font-mono truncate current-url-display">
+                                    {DATA[0].link}
+                                </span>
+                            </div>
+                            <div class="flex gap-2">
+                                <div class="w-2 h-2 rounded-full bg-slate-300"></div>
+                                <div class="w-2 h-2 rounded-full bg-slate-300"></div>
+                                <div class="w-2 h-2 rounded-full bg-slate-300"></div>
+                            </div>
+                        </div>
+
+                        <!-- Loading Spinner Overlay -->
+                        <div
+                            id="iframe-loader"
+                            class="absolute inset-0 top-12 bg-white flex items-center justify-center z-10 hidden"
+                        >
+                            <div class="animate-spin rounded-full h-12 w-12 border-4 border-indigo-500 border-t-transparent">
+                            </div>
+                        </div>
+
+                        <iframe
+                            src={DATA[0].link}
+                            frameborder="0"
+                            class="flex-1 w-full bg-slate-50"
+                            allow="fullscreen; autoplay; clipboard-read; clipboard-write;"
+                            title="Tool Preview"
+                            id="tool-iframe"
+                        >
+                        </iframe>
+                    </main>
+                </div>
             </div>
-        </div>
-    </section>
+        </section>
+    </div>
 </MainLayout>
 
 <script is:inline>
-    const iframe = document.getElementById('tool-iframe')
-    const cards = document.querySelectorAll('.tool-card')
-    const urlDisplay = document.querySelector('.current-url-display')
-    const loader = document.getElementById('iframe-loader')
+    // Auth Guard Implementation
+    async function checkAuth() {
+        const token = localStorage.getItem('auth_token');
+        
+        if (!token) {
+            window.location.href = '/?auth=required';
+            return;
+        }
 
-    cards.forEach((card) => {
-        card.addEventListener('click', (e) => {
-            const link = card.dataset.link
+        try {
+            const res = await fetch('/api/verify', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
 
-            if (e.ctrlKey || e.metaKey) {
-                window.open(link, '_blank')
-                return
+            if (!res.ok || !data.authenticated) {
+                localStorage.removeItem('auth_token');
+                localStorage.removeItem('user_session');
+                localStorage.removeItem('user_roles');
+                window.location.href = '/?auth=required';
+                return;
             }
 
-            // Show loader
-            loader.classList.remove('hidden')
+            // Authenticated -> Show Content
+            const loading = document.getElementById('auth-loading');
+            const guard = document.getElementById('auth-guard');
+            if (loading) loading.classList.add('hidden');
+            if (guard) guard.classList.remove('hidden');
 
-            // Update Active State
-            cards.forEach((c) => {
-                c.classList.remove('ring-2', 'ring-indigo-500', 'active-card')
-            })
-            card.classList.add('ring-2', 'ring-indigo-500', 'active-card')
+            initToolLogic();
+        } catch (err) {
+            console.error('Guard Error:', err);
+            window.location.href = '/?error=connection';
+        }
+    }
 
-            // Update Iframe & UI
-            iframe.src = link
-            urlDisplay.textContent = link
+    // Run Initial Check
+    checkAuth();
 
-            // Wait for load to hide loader
-            iframe.onload = () => {
-                loader.classList.add('hidden')
+    // Listen for login success from Nav.astro
+    window.addEventListener('user-login', () => {
+        checkAuth();
+    });
+
+    function initToolLogic() {
+        const iframe = document.getElementById('tool-iframe')
+        const cards = document.querySelectorAll('.tool-card')
+        const urlDisplay = document.querySelector('.current-url-display')
+        const loader = document.getElementById('iframe-loader')
+
+        if (!iframe || !cards) return;
+
+        cards.forEach((card) => {
+            // Tránh gán sự kiện nhiều lần
+            card.onclick = (e) => {
+                const link = card.dataset.link
+
+                if (e.ctrlKey || e.metaKey) {
+                    window.open(link, '_blank')
+                    return
+                }
+
+                // Show loader
+                if (loader) loader.classList.remove('hidden')
+
+                // Update Active State
+                cards.forEach((c) => {
+                    c.classList.remove('ring-2', 'ring-indigo-500', 'active-card')
+                })
+                card.classList.add('ring-2', 'ring-indigo-500', 'active-card')
+
+                // Update Iframe & UI
+                iframe.src = link
+                if (urlDisplay) urlDisplay.textContent = link
+
+                // Wait for load to hide loader
+                iframe.onload = () => {
+                    if (loader) loader.classList.add('hidden')
+                }
             }
         })
-    })
 
-    iframe.onload = () => {
-        loader.classList.add('hidden')
+        iframe.onload = () => {
+            if (loader) loader.classList.add('hidden')
+        }
     }
 </script>
 
