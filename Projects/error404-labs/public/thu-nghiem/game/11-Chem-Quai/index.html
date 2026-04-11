@@ -2161,6 +2161,7 @@
                     this.spawnQueue = [] // Hàng đợi spawn quái
                     this.spawnTimer = 0
                     this.items = [] // Vật phẩm rớt
+                    this.damageTexts = [] // Sát thương bay lên
                     this.exitGateX = null // Tọa độ cổng dịch chuyển qua màn mới
                     this.maxWave = 1000
                     this.projectiles = [] // Hệ thống đạn
@@ -2377,7 +2378,7 @@
                                 let d = (pb.dmg + skillDmg) * SaveSystem.data.stats.dmgMult
                                 if (crit) d *= 3.0
                                 e.takeDamage(d, this.player.dir * pb.force, this.player)
-                                // Đã xóa spawnSlash (vệt trắng lớn) theo yêu cầu
+                                this.spawnDamageText(e.x, e.getDrawY() - e.h / 2, Math.floor(d), crit)
                                 this.particles.spawnSkillVFX(e.x, e.y - e.h / 2, SaveSystem.data.skills.active)
                                 this.triggerHitEffect(e.x, e.y - e.h / 2, crit)
                                 hit = true
@@ -2603,6 +2604,16 @@
                     document.getElementById('touch-controls').classList.add('hidden')
                     document.getElementById('game-over-menu').classList.remove('hidden')
                     document.getElementById('final-wave').innerText = this.wave - 1
+                }
+
+                spawnDamageText(x, y, text, isCrit) {
+                    if (this.damageTexts.length > 25) this.damageTexts.shift()
+                    this.damageTexts.push({
+                        x, y, text, isCrit,
+                        life: 1.0,
+                        vx: (Math.random() - 0.5) * 120,
+                        vy: -180 - Math.random() * 120
+                    })
                 }
 
                 drawBG() {
@@ -2870,6 +2881,37 @@
                             this.ctx.fill()
                             this.ctx.restore()
                         })
+
+                        // Vẽ Damage Texts (Tối ưu hiệu năng)
+                        this.ctx.save()
+                        this.ctx.textAlign = 'center'
+                        for (let i = this.damageTexts.length - 1; i >= 0; i--) {
+                            const dt = this.damageTexts[i]
+                            const alpha = Math.min(1, dt.life * 2)
+                            this.ctx.globalAlpha = alpha
+
+                            if (dt.isCrit) {
+                                this.ctx.fillStyle = '#ff0'
+                                this.ctx.shadowBlur = 10
+                                this.ctx.shadowColor = '#f0f'
+                                this.ctx.font = 'bold 26px "Orbitron", sans-serif'
+                            } else {
+                                this.ctx.fillStyle = '#fff'
+                                this.ctx.shadowBlur = 0 // Không shadow cho text thường để mượt hơn
+                                this.ctx.font = 'bold 18px "Orbitron", sans-serif'
+                            }
+
+                            this.ctx.fillText(dt.text, Math.round(dt.x), Math.round(dt.y))
+                            
+                            // Update vật lý ngay trong loop vẽ để giảm vòng lặp
+                            const ldt = 0.016 // Giả định 60fps hoặc dùng dt thực tế nếu có
+                            dt.x += dt.vx * ldt
+                            dt.y += dt.vy * ldt
+                            dt.vy += 450 * ldt
+                            dt.life -= ldt
+                            if (dt.life <= 0) this.damageTexts.splice(i, 1)
+                        }
+                        this.ctx.restore()
 
                         // Vẽ Combo trên đầu nhân vật
                         if (this.combo > 1) {
