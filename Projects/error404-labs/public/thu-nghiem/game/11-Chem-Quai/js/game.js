@@ -842,6 +842,7 @@ class Game {
                                 if (this.player.takeDamage(10, this.player.x > t.x ? 400 : -400)) {
                                     this.camera.shake(15, 0.2)
                                     this.particles.spawn(t.x, trapY, '#f00', 10)
+                                    this.updateHUD()
                                 }
                             }
                         }
