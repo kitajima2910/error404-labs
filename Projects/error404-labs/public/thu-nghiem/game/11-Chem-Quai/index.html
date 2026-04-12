@@ -1012,9 +1012,9 @@ const SaveSystem = {
         money: 0,
         wave: 1,
         stats: { dmgMult: 1, critWindowMult: 1, maxHp: 3000, dashCdMult: 1 },
-        costs: { dmg: 50, crit: 75, hp: 100, dash: 60 },
+        costs: { dmg: 500, crit: 750, hp: 1000, dash: 600 },
         skills: { unlocked: ['vfx1'], active: 'vfx1' },
-        skillCosts: { vfx2: 500, vfx3: 1000, vfx4: 2000, vfx5: 4000, vfx6: 8000 },
+        skillCosts: { vfx2: 5000, vfx3: 10000, vfx4: 20000, vfx5: 40000, vfx6: 80000 },
     },
     save() {
         localStorage.setItem('neonStrikerSave', JSON.stringify(this.data))
@@ -1026,6 +1026,14 @@ const SaveSystem = {
                 const parsed = JSON.parse(s)
                 this.data = { ...this.data, ...parsed }
                 if (this.data.stats.maxHp < 3000) this.data.stats.maxHp = 3000
+                // Force update costs for existing players
+                if (this.data.costs.dmg < 500) this.data.costs.dmg = 500
+                if (this.data.costs.crit < 750) this.data.costs.crit = 750
+                if (this.data.costs.hp < 1000) this.data.costs.hp = 1000
+                if (this.data.costs.dash < 600) this.data.costs.dash = 600
+                if (this.data.skillCosts.vfx2 < 5000) {
+                    this.data.skillCosts = { vfx2: 5000, vfx3: 10000, vfx4: 20000, vfx5: 40000, vfx6: 80000 }
+                }
             }
         } catch (e) {}
     },
@@ -1034,9 +1042,9 @@ const SaveSystem = {
             money: 0,
             wave: 1,
             stats: { dmgMult: 1, critWindowMult: 1, maxHp: 3000, dashCdMult: 1 },
-            costs: { dmg: 50, crit: 75, hp: 100, dash: 60 },
+            costs: { dmg: 500, crit: 750, hp: 1000, dash: 600 },
             skills: { unlocked: ['vfx1'], active: 'vfx1' },
-            skillCosts: { vfx2: 500, vfx3: 1000, vfx4: 2000, vfx5: 4000, vfx6: 8000 },
+            skillCosts: { vfx2: 5000, vfx3: 10000, vfx4: 20000, vfx5: 40000, vfx6: 80000 },
         }
         this.save()
     },
@@ -2626,14 +2634,14 @@ class Game {
             let hit = false,
                 crit = this.player.nextCrit
             for (let e of this.enemies)
-                if (e.state !== 'DEAD' && Utils.rectIntersect(pb, e.getHitbox())) {
+                if (e.state !== 'DEAD' && Math.abs(this.player.z - e.z) < 50 && Utils.rectIntersect(pb, e.getHitbox())) {
                     const skillDmg = SKILLS_DATA[SaveSystem.data.skills.active]?.dmg || 0
                     let d = (pb.dmg + skillDmg) * SaveSystem.data.stats.dmgMult
                     if (crit) d *= 3.0
                     e.takeDamage(d, this.player.dir * pb.force, this.player)
                     this.spawnDamageText(e.x, e.getDrawY() - e.h / 2, Math.floor(d), crit)
-                    this.particles.spawnSkillVFX(e.x, e.y - e.h / 2, SaveSystem.data.skills.active)
-                    this.triggerHitEffect(e.x, e.y - e.h / 2, crit)
+                    this.particles.spawnSkillVFX(e.x, e.getDrawY() - e.h / 2, SaveSystem.data.skills.active)
+                    this.triggerHitEffect(e.x, e.getDrawY() - e.h / 2, crit)
                     hit = true
                     this.combo++
                     this.comboT = 4.0

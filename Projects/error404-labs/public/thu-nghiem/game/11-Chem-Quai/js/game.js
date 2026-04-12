@@ -347,14 +347,14 @@ class Game {
             let hit = false,
                 crit = this.player.nextCrit
             for (let e of this.enemies)
-                if (e.state !== 'DEAD' && Utils.rectIntersect(pb, e.getHitbox())) {
+                if (e.state !== 'DEAD' && Math.abs(this.player.z - e.z) < 50 && Utils.rectIntersect(pb, e.getHitbox())) {
                     const skillDmg = SKILLS_DATA[SaveSystem.data.skills.active]?.dmg || 0
                     let d = (pb.dmg + skillDmg) * SaveSystem.data.stats.dmgMult
                     if (crit) d *= 3.0
                     e.takeDamage(d, this.player.dir * pb.force, this.player)
                     this.spawnDamageText(e.x, e.getDrawY() - e.h / 2, Math.floor(d), crit)
-                    this.particles.spawnSkillVFX(e.x, e.y - e.h / 2, SaveSystem.data.skills.active)
-                    this.triggerHitEffect(e.x, e.y - e.h / 2, crit)
+                    this.particles.spawnSkillVFX(e.x, e.getDrawY() - e.h / 2, SaveSystem.data.skills.active)
+                    this.triggerHitEffect(e.x, e.getDrawY() - e.h / 2, crit)
                     hit = true
                     this.combo++
                     this.comboT = 4.0
