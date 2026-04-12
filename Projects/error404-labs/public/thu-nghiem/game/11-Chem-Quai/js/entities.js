@@ -74,7 +74,10 @@ class Entity {
         if (SPRITES.loaded && !isGhost && isPlayer) {
             const sSize = 110
             let sprite = null
-            if (e.state === 'IDLE') {
+            if (e.z > 0) {
+                const totalFrames = 7
+                sprite = SPRITES.jump[0][Math.floor(t * 12) % totalFrames]
+            } else if (e.state === 'IDLE') {
                 const totalFrames = 5
                 sprite = SPRITES.idle[0][Math.floor(t * 10) % totalFrames]
             } else if (e.state === 'RUN') {

@@ -5,6 +5,7 @@ const SPRITES = {
     hurt: null,
     dead: [],
     attack: [],
+    jump: [],
     vfx1: [],
     vfx2: [],
     vfx3: [],
@@ -16,7 +17,7 @@ const SPRITES = {
         if (this.loaded) return
         let loadedCount = 0
         const vfxCount = 6
-        const totalToLoad = 5 + 8 + 1 + 8 + 5 + vfxCount * 4
+        const totalToLoad = 5 + 8 + 1 + 8 + 5 + 7 + vfxCount * 4
         const check = () => {
             loadedCount++
             if (loadedCount >= totalToLoad) this.loaded = true
@@ -61,6 +62,15 @@ const SPRITES = {
             img.onload = check
             img.onerror = check
             this.attack[0].push(img)
+        }
+
+        this.jump[0] = []
+        for (let c = 0; c < 7; c++) {
+            const img = new Image()
+            img.src = `assets/p-jump/Jump_00${c}.png`
+            img.onload = check
+            img.onerror = check
+            this.jump[0].push(img)
         }
 
         for (let v = 1; v <= 6; v++) {
