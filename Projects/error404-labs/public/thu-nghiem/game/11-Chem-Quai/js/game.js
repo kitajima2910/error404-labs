@@ -30,11 +30,66 @@ class Game {
         this.exitGateX = null
         this.maxWave = 1000
         this.projectiles = []
+        this.platforms = []
+        this.groundSegments = []
+        this.traps = []
         window._gameInstance = this
         this._entitiesList = []
         this._createGridPattern()
         this.bindUI()
+        this._generateLevel(this.wave)
         requestAnimationFrame((t) => this.loop(t))
+    }
+
+    _generateLevel(wave) {
+        this.groundSegments = []
+        this.platforms = []
+        this.traps = []
+        this._spawnPositions = []
+
+        const levelLength = 4000 + wave * 600
+        this.exitGateX = levelLength
+
+        // Mặt đất giới hạn từ điểm bắt đầu đến điểm dịch chuyển
+        this.groundSegments.push({ x: 0, w: levelLength })
+
+        // Vị trí spawn quái cố định cho mỗi màn
+        this.waveTotal = Math.min(3 + Math.floor(wave * 0.7), 25)
+        for (let i = 0; i < this.waveTotal; i++) {
+            const seed = wave * 500 + i
+            const x = 400 + Utils.seededRandom(seed) * (levelLength - 800)
+            this._spawnPositions.push(x)
+        }
+
+        // Platforms
+        for (let i = 0; i < 10 + Math.min(wave, 10); i++) {
+            const seed = wave * 200 + i
+            const x = 500 + Utils.seededRandom(seed) * (levelLength - 1000)
+            const z = 140 + Utils.seededRandom(seed + 1) * 120
+            const w = 150 + Utils.seededRandom(seed + 2) * 100
+            this.platforms.push({
+                x,
+                z,
+                y: CONFIG.floorY - z,
+                w,
+                color: `hsl(${(wave * 60 + i * 30) % 360}, 100%, 70%)`,
+            })
+        }
+
+        // Traps (saws)
+        for (let i = 0; i < 3 + Math.floor(wave / 2); i++) {
+            const seed = wave * 300 + i
+            const x = 1500 + Utils.seededRandom(seed) * (levelLength - 2000)
+            const z = Utils.seededRandom(seed + 1) > 0.4 ? 0 : 60 + Utils.seededRandom(seed + 2) * 120
+            this.traps.push({
+                x,
+                z,
+                r: 35,
+                type: 'saw',
+                angle: 0,
+                speed: 6 + Utils.seededRandom(seed + 3) * 12,
+            })
+        }
     }
 
     _createGridPattern() {
@@ -134,18 +189,21 @@ class Game {
         this.timeScale = 1.0
         this.waveKills = 0
         this.hasPlayerMoved = false
+        this._gateVibrationTriggered = false
         this._buildSpawnQueue()
+        this._spawnInitialBatch()
+        this._generateLevel(this.wave)
         document.getElementById('wave-display').innerText = `MÀN ${this.wave}/${this.maxWave}`
         this.updateHUD()
     }
     _buildSpawnQueue() {
         this.spawnQueue = []
-        this.waveTotal = Math.min(3 + Math.floor(this.wave * 0.7), 25)
+        this.spawnIndex = 0
         const isBossWave = this.wave % 5 === 0
         const w = this.wave
         for (let i = 0; i < this.waveTotal; i++) {
             let t = 'basic'
-            const r = Math.random()
+            const r = Utils.seededRandom(this.wave * 700 + i)
             if (w >= 2 && r < 0.18) t = 'ranged'
             else if (w >= 3 && r < 0.3) t = 'shield'
             else if (w >= 4 && r < 0.42) t = 'ninja'
@@ -159,7 +217,7 @@ class Game {
         }
         for (let i = this.spawnQueue.length - 1; i > 0; i--) {
             if (this.spawnQueue[i] === 'boss') continue
-            const j = Math.floor(Math.random() * i)
+            const j = Math.floor(Utils.seededRandom(this.wave * 800 + i) * i)
             if (this.spawnQueue[j] === 'boss') continue
             ;[
                 this.spawnQueue[i],
@@ -178,12 +236,9 @@ class Game {
         }
     }
     _spawnOneEnemy(type) {
-        const side = Math.random() > 0.5 ? 1 : -1
-        const px = this.player ? this.player.x : 0
-        let spawnX = px + side * (500 + Math.random() * 600)
-        if (spawnX < 0) spawnX = px + (500 + Math.random() * 600)
-
+        const spawnX = this._spawnPositions[this.spawnIndex] || 400 + Math.random() * 2000
         const spawnY = CONFIG.floorY - 50 + Math.random() * 100
+        this.spawnIndex++
         this.enemies.push(new Enemy(spawnX, spawnY, type, this.wave))
     }
     _nextWave() {
@@ -213,8 +268,13 @@ class Game {
         this.waveKills = 0
         this.player.x = 0
         this.player.y = CONFIG.floorY
+        this.player.z = 0
+        this.player.vz = 0
         this.hasPlayerMoved = false
+        this._gateVibrationTriggered = false
         this._buildSpawnQueue()
+        this._spawnInitialBatch()
+        this._generateLevel(this.wave)
 
         document.getElementById('wave-display').innerText = `MÀN ${this.wave}/${this.maxWave}`
         this.camera.shake(10, 0.4)
@@ -232,6 +292,38 @@ class Game {
             setTimeout(() => (this.timeScale = 1), 100)
             audio.playCrit()
         } else audio.playHit()
+    }
+    _checkPlatformCollision() {
+        const p = this.player
+        if (!p) return
+        p.onPlatform = false
+        const footY = p.y - p.z
+        for (const plat of this.platforms) {
+            if (p.x > plat.x - plat.w / 2 - 20 && p.x < plat.x + plat.w / 2 + 20) {
+                if (p.vz <= 0 && footY >= plat.y - 40 && footY <= plat.y + 15) {
+                    p.z = CONFIG.floorY - plat.y
+                    p.y = CONFIG.floorY
+                    p.vz = 0
+                    p.onPlatform = true
+                    return
+                }
+            }
+        }
+    }
+    _checkEnemyPlatformCollision(enemy) {
+        enemy.onPlatform = false
+        const footY = enemy.y - enemy.z
+        for (const plat of this.platforms) {
+            if (enemy.x > plat.x - plat.w / 2 - 20 && enemy.x < plat.x + plat.w / 2 + 20) {
+                if (enemy.vz <= 0 && footY >= plat.y - 15 && footY <= plat.y + 15) {
+                    enemy.z = CONFIG.floorY - plat.y
+                    enemy.y = CONFIG.floorY
+                    enemy.vz = 0
+                    enemy.onPlatform = true
+                    return
+                }
+            }
+        }
     }
     checkCombat() {
         const pb = this.player.getCurrentAttackBox()
@@ -251,7 +343,8 @@ class Game {
                     this.combo++
                     this.comboT = 4.0
                     this.money += Math.floor(1 + this.combo * 0.2)
-                    if (e.state === 'DEAD') {
+                    if (e.state === 'DEAD' && !e._killed) {
+                        e._killed = true
                         this.waveKills++
                         this.money += e.type === 'boss' ? 200 : e.type === 'shield' ? 50 : 25
                         const roll = Math.random()
@@ -512,11 +605,8 @@ class Game {
         ctx.lineWidth = 4
         ctx.shadowBlur = 5
         ctx.shadowColor = '#0ff'
-        ctx.beginPath()
-        const roadStartX = Math.max(0, camX - 1000)
-        ctx.moveTo(roadStartX, CONFIG.floorY)
-        ctx.lineTo(camX + 1500, CONFIG.floorY)
-        ctx.stroke()
+        // Road drawing removed, replaced by groundSegments in drawLevel()
+        ctx.shadowBlur = 0
 
         this.drawCyberGate(ctx, 0, 'START')
 
@@ -528,9 +618,103 @@ class Game {
         ctx.restore()
     }
 
+    drawLevel() {
+        const ctx = this.ctx
+        ctx.save()
+        this.camera.apply(ctx)
+
+        ctx.fillStyle = '#050a1b'
+        ctx.strokeStyle = '#0ff'
+        ctx.lineWidth = 2
+
+        const useEffects = this.currentFps > 40
+
+        // Draw ground segments
+        for (const s of this.groundSegments) {
+            if (s.x + s.w < this.camera.x - 200 || s.x > this.camera.x + CONFIG.canvasWidth + 200) continue
+            ctx.fillRect(s.x, CONFIG.floorY, s.w, 2000)
+            ctx.strokeRect(s.x, CONFIG.floorY, s.w, 10)
+
+            // Neon edge
+            if (useEffects) {
+                ctx.save()
+                ctx.shadowBlur = 10
+                ctx.shadowColor = '#0ff'
+                ctx.strokeStyle = '#0ff'
+                ctx.beginPath()
+                ctx.moveTo(s.x, CONFIG.floorY)
+                ctx.lineTo(s.x + s.w, CONFIG.floorY)
+                ctx.stroke()
+                ctx.restore()
+            }
+        }
+
+        // Draw platforms
+        for (const p of this.platforms) {
+            if (p.x + p.w < this.camera.x - 200 || p.x > this.camera.x + CONFIG.canvasWidth + 200) continue
+            ctx.fillStyle = p.color
+            if (useEffects) {
+                ctx.shadowBlur = 15
+                ctx.shadowColor = p.color
+            }
+            ctx.fillRect(p.x - p.w / 2, p.y, p.w, 12)
+            ctx.shadowBlur = 0
+
+            // Support pillars
+            ctx.strokeStyle = 'rgba(255,255,255,0.2)'
+            ctx.lineWidth = 2
+            ctx.beginPath()
+            ctx.moveTo(p.x - p.w / 4, p.y + 12)
+            ctx.lineTo(p.x - p.w / 4, CONFIG.floorY)
+            ctx.moveTo(p.x + p.w / 4, p.y + 12)
+            ctx.lineTo(p.x + p.w / 4, CONFIG.floorY)
+            ctx.stroke()
+        }
+
+        // Draw traps
+        for (const t of this.traps) {
+            if (t.x + t.r < this.camera.x - 200 || t.x - t.r > this.camera.x + CONFIG.canvasWidth + 200) continue
+            ctx.save()
+            ctx.translate(Math.round(t.x), Math.round(CONFIG.floorY - t.z - t.r))
+            ctx.rotate(t.angle)
+
+            if (useEffects) {
+                ctx.shadowBlur = 10
+                ctx.shadowColor = '#f00'
+            }
+
+            ctx.fillStyle = '#666'
+            ctx.strokeStyle = '#fff'
+            ctx.lineWidth = 2
+            ctx.beginPath()
+            for (let i = 0; i < 16; i++) {
+                const r = i % 2 === 0 ? t.r : t.r * 0.7
+                const a = (i / 16) * Math.PI * 2
+                ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r)
+            }
+            ctx.closePath()
+            ctx.fill()
+            ctx.stroke()
+
+            ctx.fillStyle = '#111'
+            ctx.beginPath()
+            ctx.arc(0, 0, 8, 0, Math.PI * 2)
+            ctx.fill()
+
+            ctx.restore()
+        }
+
+        ctx.restore()
+    }
+
     drawCyberGate(ctx, x, label) {
         const camX = this.camera.x
         if (x < camX - 1000 || x > camX + CONFIG.canvasWidth + 1000) return
+
+        const alive = this.enemies.filter((e) => e.state !== 'DEAD').length
+        const totalInWave = this.waveKills + alive + this.spawnQueue.length
+        const isLocked = x !== 0 && (this.waveKills < totalInWave || this.spawnQueue.length > 0 || alive > 0)
+        const mainColor = isLocked ? '#f00' : '#f0f'
 
         ctx.save()
         ctx.translate(Math.round(x), Math.round(CONFIG.floorY))
@@ -542,13 +726,13 @@ class Game {
             const useEffects = this.currentFps > 45
             if (useEffects) {
                 const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, 100)
-                glow.addColorStop(0, 'rgba(255, 0, 255, 0.4)')
+                glow.addColorStop(0, isLocked ? 'rgba(255, 0, 0, 0.4)' : 'rgba(255, 0, 255, 0.4)')
                 glow.addColorStop(1, 'transparent')
                 ctx.fillStyle = glow
                 ctx.fillRect(-100, -100, 200, 200)
             }
 
-            ctx.strokeStyle = '#f0f'
+            ctx.strokeStyle = mainColor
             ctx.lineWidth = 12
             if (useEffects) {
                 ctx.shadowBlur = 10
@@ -588,18 +772,19 @@ class Game {
         ctx.stroke()
         ctx.setLineDash([])
 
-        const hue = (performance.now() * 0.1) % 360
-        ctx.fillStyle = `hsl(${hue}, 100%, 70%)`
+        const hue = isLocked ? 0 : (performance.now() * 0.1) % 360
+        ctx.fillStyle = isLocked ? '#f00' : `hsl(${hue}, 100%, 70%)`
         if (this.currentFps > 45) {
             ctx.shadowBlur = 15
-            ctx.shadowColor = `hsl(${hue}, 100%, 50%)`
+            ctx.shadowColor = isLocked ? '#f00' : `hsl(${hue}, 100%, 50%)`
         }
-        ctx.font = 'bold 36px "Orbitron", sans-serif'
+        ctx.font = 'bold 36px "Montserrat", sans-serif'
         ctx.textAlign = 'center'
-        
+
         const bounce = Math.sin(performance.now() * 0.005) * 10
-        ctx.fillText(label, 0, -180 + bounce)
-        
+        const displayLabel = isLocked ? 'PHONG ẤN - DIỆT HẾT QUÁI' : label
+        ctx.fillText(displayLabel, 0, -180 + bounce)
+
         ctx.shadowBlur = 0
         ctx.restore()
     }
@@ -635,10 +820,32 @@ class Game {
                 ldt = 0
             }
             if (ldt > 0 || this.state === 'GAMEOVER') {
+                this._checkPlatformCollision()
                 this.player.update(this.state === 'GAMEOVER' ? dt : ldt, this.input, this.particles)
                 if (this.state === 'GAME') {
-                    this.enemies.forEach((e) => e.update(ldt, this.player))
+                    this.enemies.forEach((e) => {
+                        e.update(ldt, this.player)
+                        this._checkEnemyPlatformCollision(e)
+                    })
                     this.particles.update(ldt)
+
+                    // Update and check traps
+                    for (const t of this.traps) {
+                        t.angle += t.speed * ldt
+                        if (this.player.state !== 'DEAD' && this.player.state !== 'DASH') {
+                            const trapY = CONFIG.floorY - t.z - t.r
+                            const dist = Math.hypot(
+                                this.player.x - t.x,
+                                this.player.getDrawY() - this.player.h / 2 - trapY,
+                            )
+                            if (dist < t.r + 20) {
+                                if (this.player.takeDamage(10, this.player.x > t.x ? 400 : -400)) {
+                                    this.camera.shake(15, 0.2)
+                                    this.particles.spawn(t.x, trapY, '#f00', 10)
+                                }
+                            }
+                        }
+                    }
                     this.checkCombat()
                     if (this.combo > 0) {
                         this.comboT -= ldt
@@ -647,11 +854,6 @@ class Game {
                             this.updateHUD()
                         }
                     }
-                    if (!this.hasPlayerMoved && Math.abs(this.player.x) > 50) {
-                        this.hasPlayerMoved = true
-                        this._spawnInitialBatch()
-                    }
-
                     const alive = this.enemies.filter((e) => e.state !== 'DEAD').length
                     const maxOnScreen = Math.min(3 + Math.floor(this.wave * 0.2), 8)
                     if (this.hasPlayerMoved && this.spawnQueue.length > 0 && alive < maxOnScreen) {
@@ -675,22 +877,31 @@ class Game {
                     })
                     this.projectiles = this.projectiles.filter((p) => p.life > 0)
 
-                    const wp = document.getElementById('wave-progress')
-                    if (wp) wp.innerText = `Tiêu diệt: ${this.waveKills}/${this.waveTotal}`
-                    if (
-                        this.waveKills >= this.waveTotal &&
-                        this.spawnQueue.length === 0 &&
-                        alive === 0 &&
-                        this.player.state !== 'DEAD'
-                    ) {
-                        if (this.exitGateX === null) {
-                            this.exitGateX = this.player.x + 800
-                            this.camera.shake(8, 0.4)
-                            audio.playSynth('square', 200, 0.5, 0.2, 800)
+                    const currentAlive = this.enemies.filter((e) => e.state !== 'DEAD').length
+                    const totalInWave = this.waveKills + currentAlive + this.spawnQueue.length
+
+                    const isWaveCleared =
+                        this.waveKills >= totalInWave && this.spawnQueue.length === 0 && currentAlive === 0
+
+                    const gateHint = document.getElementById('gate-hint')
+                    if (isWaveCleared && this.player.state !== 'DEAD') {
+                        // Hiện chỉ dẫn nếu ở xa cổng (>400px)
+                        const distToGate = Math.abs(this.player.x - this.exitGateX)
+                        if (gateHint) {
+                            if (distToGate > 400) gateHint.classList.remove('hidden')
+                            else gateHint.classList.add('hidden')
                         }
+
+                        if (!this._gateVibrationTriggered) {
+                            this.camera.shake(10, 0.4)
+                            audio.playSynth('square', 200, 0.5, 0.2, 800)
+                            this._gateVibrationTriggered = true
+                        }
+                    } else if (gateHint) {
+                        gateHint.classList.add('hidden')
                     }
 
-                    if (this.exitGateX !== null && this.player.x > this.exitGateX - 50) {
+                    if (isWaveCleared && this.player.x > this.exitGateX - 50) {
                         this._nextWave()
                     }
                 }
@@ -700,6 +911,7 @@ class Game {
             }
         }
         this.drawBG()
+        this.drawLevel()
         this.ctx.save()
         this.camera.apply(this.ctx)
         if (this.state === 'GAME' || this.state === 'GAMEOVER' || this.state === 'OVER') {
@@ -752,11 +964,11 @@ class Game {
                     this.ctx.fillStyle = '#ff0'
                     this.ctx.shadowBlur = 10
                     this.ctx.shadowColor = '#f0f'
-                    this.ctx.font = 'bold 26px "Orbitron", sans-serif'
+                    this.ctx.font = 'bold 26px "Montserrat", sans-serif'
                 } else {
                     this.ctx.fillStyle = '#fff'
                     this.ctx.shadowBlur = 0
-                    this.ctx.font = 'bold 18px "Orbitron", sans-serif'
+                    this.ctx.font = 'bold 18px "Montserrat", sans-serif'
                 }
 
                 this.ctx.fillText(dt.text, Math.round(dt.x), Math.round(dt.y))
@@ -793,40 +1005,7 @@ class Game {
                 ctx.restore()
             }
 
-            if (this.exitGateX !== null && Math.abs(this.player.x - this.exitGateX) > 800) {
-                const ctx = this.ctx
-                ctx.save()
-                ctx.translate(Math.round(this.player.x), Math.round(this.player.getDrawY() - this.player.h - 80))
-
-                const pulse = 0.5 + Math.abs(Math.sin(performance.now() * 0.005)) * 0.5
-                ctx.globalAlpha = pulse
-                
-                const useEffects = this.currentFps > 45
-                if (useEffects) {
-                    ctx.shadowBlur = 15
-                    ctx.shadowColor = '#f0f'
-                }
-
-                ctx.fillStyle = '#f0f'
-                ctx.font = 'bold 16px "Orbitron", sans-serif'
-                ctx.textAlign = 'center'
-                ctx.textBaseline = 'middle'
-
-                const label = 'TỚI CỔNG DỊCH CHUYỂN'
-                ctx.fillText(label, 0, 0)
-
-                const tw = ctx.measureText(label).width
-                ctx.beginPath()
-                ctx.moveTo(tw / 2 + 10, 0)
-                ctx.lineTo(tw / 2 + 25, 0)
-                ctx.lineTo(tw / 2 + 20, -6)
-                ctx.moveTo(tw / 2 + 25, 0)
-                ctx.lineTo(tw / 2 + 20, 6)
-                ctx.lineWidth = 3
-                ctx.strokeStyle = '#f0f'
-                ctx.stroke()
-                ctx.restore()
-            }
+            // Đoạn code vẽ chữ hướng dẫn cũ đã được thay thế bằng hệ thống gate-hint trong HUD
         }
         this.ctx.restore()
 

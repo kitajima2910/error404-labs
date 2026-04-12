@@ -17,6 +17,7 @@ class Entity {
         this.color = '#fff'
         this.hitFlicker = 0
         this.weaponType = 'sword'
+        this.onPlatform = false
     }
     getDrawY() {
         return this.y - this.z
@@ -26,19 +27,31 @@ class Entity {
     }
     updatePhysics(dt) {
         this.x += this.vx * dt
+
+        const game = window._gameInstance
+        if (game && game.exitGateX !== null) {
+            this.x = Utils.clamp(this.x, 0, game.exitGateX)
+        }
+
         this.y += this.vy * dt
         this.z += this.vz * dt
-        if (this.z > 0) this.vz -= CONFIG.gravity * dt
-        else {
-            this.z = 0
+
+        let groundZ = 0
+        if (this.z > groundZ) {
+            this.vz -= CONFIG.gravity * dt
+        } else {
+            this.z = groundZ
             this.vz = 0
         }
+
         if (this.state !== 'DASH') {
             this.vx *= Math.pow(0.001, dt)
             this.vy *= Math.pow(0.001, dt)
         }
-        this.y = CONFIG.floorY
-        this.vy = 0
+
+        if (!this.onPlatform) {
+            this.y = CONFIG.floorY
+        }
     }
     changeState(s) {
         if (this.state === s) return
@@ -54,6 +67,15 @@ class Entity {
             this.hp = 0
             this.changeState('DEAD')
             this.vz = 300
+
+            const game = window._gameInstance
+            if (game && this.constructor.name === 'Enemy') {
+                game.waveKills++
+                if (this.type === 'boss') game.money += 500 + game.wave * 100
+                else game.money += 10 + Math.floor(Math.random() * 15)
+                game.updateHUD()
+            }
+
             audio.playSynth('sawtooth', 80, 0.4, 0.4)
         } else {
             this.changeState('HURT')
@@ -85,7 +107,7 @@ class Entity {
                 const totalDur = atk.startup + atk.active + atk.recover
                 const totalFrames = 5
                 sprite = SPRITES.attack[0][Math.min(Math.floor((t / totalDur) * totalFrames), totalFrames - 1)]
-            } else if (e.z > 0) {
+            } else if (e.z > 0 && !e.onPlatform) {
                 const totalFrames = 7
                 sprite = SPRITES.jump[0][Math.floor(t * 12) % totalFrames]
             } else if (e.state === 'IDLE') {

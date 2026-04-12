@@ -73,7 +73,7 @@ canvas {
 }
 
 h1 {
-    font-family: 'Orbitron', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     font-size: 5rem;
     font-weight: 900;
     color: var(--ui-color);
@@ -137,7 +137,7 @@ button {
     color: var(--ui-color);
     padding: 20px 40px;
     font-size: 1.2rem;
-    font-family: 'Orbitron', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     font-weight: 700;
     cursor: pointer;
     margin: 15px;
@@ -249,13 +249,13 @@ button:disabled {
     text-shadow: 1px 1px 2px #000;
     pointer-events: none;
     z-index: 5;
-    font-family: 'Orbitron', sans-serif;
+    font-family: 'Montserrat', sans-serif;
 }
 
 .stats-row {
     display: flex;
     gap: 15px;
-    font-family: 'Orbitron', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     font-size: 0.8rem;
     color: #aaa;
 }
@@ -421,7 +421,7 @@ button:disabled {
 }
 
 .skill-name {
-    font-family: 'Orbitron', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     font-size: 1rem;
     margin-bottom: 2px;
     color: #fff;
@@ -543,5 +543,37 @@ button:disabled {
 @media (min-width: 768px) {
     #touch-controls {
         display: none;
+    }
+}
+
+#gate-hint {
+    position: absolute;
+    top: 120px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #ff00ff;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    font-size: 1.5rem;
+    text-shadow:
+        0 0 10px #f0f,
+        0 0 20px #f0f;
+    letter-spacing: 4px;
+    animation: hintPulse 1.2s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 60;
+}
+
+@keyframes hintPulse {
+    0%,
+    100% {
+        opacity: 0.4;
+        transform: translateX(-50%) scale(1);
+        filter: brightness(1);
+    }
+    50% {
+        opacity: 1;
+        transform: translateX(-50%) scale(1.1);
+        filter: brightness(1.5);
     }
 }

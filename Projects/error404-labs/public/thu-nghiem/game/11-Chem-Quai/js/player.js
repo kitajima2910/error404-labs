@@ -36,14 +36,19 @@ class Player extends Entity {
                 this.vx = Utils.lerp(this.vx, ax * this.speed, 20 * dt)
                 this.dir = ax > 0 ? 1 : -1
                 this.changeState('RUN')
+                const game = window._gameInstance
+                if (game) game.hasPlayerMoved = true
             } else {
                 this.vx *= 0.5
                 this.changeState('IDLE')
             }
 
             // Jump logic
-            if ((input.consume('KeyW') || input.consume('ArrowUp')) && this.z === 0) {
-                this.vz = 650
+            if ((input.consume('KeyW') || input.consume('ArrowUp')) && (this.z === 0 || this.onPlatform)) {
+                this.vz = 850
+                this.onPlatform = false
+                const game = window._gameInstance
+                if (game) game.hasPlayerMoved = true
                 audio.playJump()
             }
         }
@@ -93,6 +98,9 @@ class Player extends Entity {
         this._handleStates()
         this.updatePhysics(dt)
         if (this.x < 0) this.x = 0
+        const game = window._gameInstance
+        const maxX = game ? game.exitGateX : 5000
+        if (this.x > maxX) this.x = maxX
     }
     _handleStates() {
         if (this.state.startsWith('ATTACK_')) {
