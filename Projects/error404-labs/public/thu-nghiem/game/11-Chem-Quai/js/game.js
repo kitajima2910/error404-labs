@@ -188,11 +188,11 @@ class Game {
         this.camera.zoom = 1
         this.timeScale = 1.0
         this.waveKills = 0
+        this._generateLevel(this.wave)
         this.hasPlayerMoved = false
         this._gateVibrationTriggered = false
         this._buildSpawnQueue()
         this._spawnInitialBatch()
-        this._generateLevel(this.wave)
         document.getElementById('wave-display').innerText = `MÀN ${this.wave}/${this.maxWave}`
         this.updateHUD()
     }
@@ -230,8 +230,7 @@ class Game {
         this.spawnTimer = 0
     }
     _spawnInitialBatch() {
-        const batch = Math.min(Math.floor(2 + this.wave * 0.15), 5, this.spawnQueue.length)
-        for (let i = 0; i < batch; i++) {
+        while (this.spawnQueue.length > 0) {
             this._spawnOneEnemy(this.spawnQueue.shift())
         }
     }
@@ -270,11 +269,11 @@ class Game {
         this.player.y = CONFIG.floorY
         this.player.z = 0
         this.player.vz = 0
+        this._generateLevel(this.wave)
         this.hasPlayerMoved = false
         this._gateVibrationTriggered = false
         this._buildSpawnQueue()
         this._spawnInitialBatch()
-        this._generateLevel(this.wave)
 
         document.getElementById('wave-display').innerText = `MÀN ${this.wave}/${this.maxWave}`
         this.camera.shake(10, 0.4)
@@ -823,30 +822,32 @@ class Game {
                 this._checkPlatformCollision()
                 this.player.update(this.state === 'GAMEOVER' ? dt : ldt, this.input, this.particles)
                 if (this.state === 'GAME') {
-                    this.enemies.forEach((e) => {
-                        e.update(ldt, this.player)
-                        this._checkEnemyPlatformCollision(e)
-                    })
-                    this.particles.update(ldt)
+                    if (this.hasPlayerMoved) {
+                        this.enemies.forEach((e) => {
+                            e.update(ldt, this.player)
+                            this._checkEnemyPlatformCollision(e)
+                        })
 
-                    // Update and check traps
-                    for (const t of this.traps) {
-                        t.angle += t.speed * ldt
-                        if (this.player.state !== 'DEAD' && this.player.state !== 'DASH') {
-                            const trapY = CONFIG.floorY - t.z - t.r
-                            const dist = Math.hypot(
-                                this.player.x - t.x,
-                                this.player.getDrawY() - this.player.h / 2 - trapY,
-                            )
-                            if (dist < t.r + 20) {
-                                if (this.player.takeDamage(10, this.player.x > t.x ? 400 : -400)) {
-                                    this.camera.shake(15, 0.2)
-                                    this.particles.spawn(t.x, trapY, '#f00', 10)
-                                    this.updateHUD()
+                        // Update and check traps
+                        for (const t of this.traps) {
+                            t.angle += t.speed * ldt
+                            if (this.player.state !== 'DEAD' && this.player.state !== 'DASH') {
+                                const trapY = CONFIG.floorY - t.z - t.r
+                                const dist = Math.hypot(
+                                    this.player.x - t.x,
+                                    this.player.getDrawY() - this.player.h / 2 - trapY,
+                                )
+                                if (dist < t.r + 20) {
+                                    if (this.player.takeDamage(10, this.player.x > t.x ? 400 : -400)) {
+                                        this.camera.shake(15, 0.2)
+                                        this.particles.spawn(t.x, trapY, '#f00', 10)
+                                        this.updateHUD()
+                                    }
                                 }
                             }
                         }
                     }
+                    this.particles.update(ldt)
                     this.checkCombat()
                     if (this.combo > 0) {
                         this.comboT -= ldt

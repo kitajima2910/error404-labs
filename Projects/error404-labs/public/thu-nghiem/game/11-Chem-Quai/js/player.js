@@ -54,6 +54,8 @@ class Player extends Entity {
         }
         if (canM || (this.state.startsWith('ATTACK') && this.isCritWindow)) {
             if (input.consume('KeyJ')) {
+                const game = window._gameInstance
+                if (game) game.hasPlayerMoved = true
                 this.nextCrit = this.isCritWindow
                 this.changeState(`ATTACK_${this.attackStep}`)
                 this.vx = this.dir * 250
@@ -79,6 +81,8 @@ class Player extends Entity {
             }
         }
         if (canM && input.consume('Space') && this.dashCd <= 0) {
+            const game = window._gameInstance
+            if (game) game.hasPlayerMoved = true
             this.changeState('DASH')
             this.vx = this.dir * this.dashSpeed
             this.dashCd = 0.7 * SaveSystem.data.stats.dashCdMult
