@@ -54,10 +54,10 @@ class Game {
         this.groundSegments.push({ x: 0, w: levelLength })
 
         // Vị trí spawn quái cố định cho mỗi màn
-        this.waveTotal = Math.min(3 + Math.floor(wave * 0.7), 25)
+        this.waveTotal = 10
+        const stepX = (levelLength - 800) / this.waveTotal
         for (let i = 0; i < this.waveTotal; i++) {
-            const seed = wave * 500 + i
-            const x = 400 + Utils.seededRandom(seed) * (levelLength - 800)
+            const x = 400 + i * stepX + (Math.random() * 100 - 50)
             this._spawnPositions.push(x)
         }
 
