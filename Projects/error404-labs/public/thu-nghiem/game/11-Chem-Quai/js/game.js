@@ -53,14 +53,6 @@ class Game {
         // Mặt đất giới hạn từ điểm bắt đầu đến điểm dịch chuyển
         this.groundSegments.push({ x: 0, w: levelLength })
 
-        // Vị trí spawn quái cố định cho mỗi màn
-        this.waveTotal = 10
-        const stepX = (levelLength - 800) / this.waveTotal
-        for (let i = 0; i < this.waveTotal; i++) {
-            const x = 400 + i * stepX + (Math.random() * 100 - 50)
-            this._spawnPositions.push(x)
-        }
-
         // Platforms
         for (let i = 0; i < 10 + Math.min(wave, 10); i++) {
             const seed = wave * 200 + i
@@ -74,6 +66,21 @@ class Game {
                 w,
                 color: `hsl(${(wave * 60 + i * 30) % 360}, 100%, 70%)`,
             })
+        }
+
+        // Vị trí spawn quái cố định cho mỗi màn
+        this.waveTotal = 10
+        const stepX = (levelLength - 800) / this.waveTotal
+        for (let i = 0; i < this.waveTotal; i++) {
+            let x = 400 + i * stepX + (Math.random() * 100 - 50)
+            let z = 0
+            // Cho vị trí chẵn leo lên platform nếu có
+            if (i % 2 === 0 && this.platforms.length > 0) {
+                const plat = this.platforms[i % this.platforms.length]
+                x = plat.x // Đặt x trùng platform luôn cho chắc
+                z = plat.z
+            }
+            this._spawnPositions.push({ x, z })
         }
 
         // Traps (saws)
@@ -235,10 +242,14 @@ class Game {
         }
     }
     _spawnOneEnemy(type) {
-        const spawnX = this._spawnPositions[this.spawnIndex] || 400 + Math.random() * 2000
-        const spawnY = CONFIG.floorY - 50 + Math.random() * 100
+        const pos = this._spawnPositions[this.spawnIndex] || { x: 400 + Math.random() * 2000, z: 0 }
+        const spawnX = pos.x
+        const spawnY = CONFIG.floorY
+        const spawnZ = pos.z
         this.spawnIndex++
-        this.enemies.push(new Enemy(spawnX, spawnY, type, this.wave))
+        const enemy = new Enemy(spawnX, spawnY, type, this.wave)
+        enemy.z = spawnZ
+        this.enemies.push(enemy)
     }
     _nextWave() {
         this.items.forEach((item) => {
@@ -319,10 +330,15 @@ class Game {
                     enemy.y = CONFIG.floorY
                     enemy.vz = 0
                     enemy.onPlatform = true
+                    // Set patrol area based on platform bounds
+                    enemy.patrolL = plat.x - plat.w / 2 + 20
+                    enemy.patrolR = plat.x + plat.w / 2 - 20
                     return
                 }
             }
         }
+        enemy.patrolL = null
+        enemy.patrolR = null
     }
     checkCombat() {
         const pb = this.player.getCurrentAttackBox()

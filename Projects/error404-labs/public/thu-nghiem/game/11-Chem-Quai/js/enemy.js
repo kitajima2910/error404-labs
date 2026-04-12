@@ -69,6 +69,8 @@ class Enemy extends Entity {
             this.jumpCd = 0
         }
         this.dmgScale = scale
+        this.patrolL = null
+        this.patrolR = null
     }
     _tryDodge(player) {
         if (!this.canDodge || this.dodgeCd > 0 || this.state === 'ATTACK') return false
@@ -123,7 +125,14 @@ class Enemy extends Entity {
             const dx = player.x - this.x,
                 d = Math.abs(dx)
 
-            if (this.type === 'slime') {
+            // Patrol behavior if on platform and player is not on the same level
+            const onSameLevel = Math.abs(player.z - this.z) < 50
+            if (this.onPlatform && !onSameLevel && this.patrolL !== null) {
+                this.changeState('RUN')
+                if (this.x <= this.patrolL) this.dir = 1
+                else if (this.x >= this.patrolR) this.dir = -1
+                this.vx = this.dir * this.speed * 0.6
+            } else if (this.type === 'slime') {
                 if (this.z === 0 && this.jumpCd <= 0) {
                     this.vz = 400 + Math.random() * 200
                     this.vx = Math.sign(dx) * this.speed * 2
