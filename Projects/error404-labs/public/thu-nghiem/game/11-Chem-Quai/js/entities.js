@@ -74,7 +74,18 @@ class Entity {
         if (SPRITES.loaded && !isGhost && isPlayer) {
             const sSize = 110
             let sprite = null
-            if (e.z > 0) {
+            if (e.state === 'DEAD') {
+                const totalFrames = 8
+                sprite = SPRITES.dead[0][Math.min(Math.floor(t * 6), totalFrames - 1)]
+            } else if (e.state === 'HURT') {
+                sprite = SPRITES.hurt
+            } else if (e.state.startsWith('ATTACK')) {
+                const step = parseInt(e.state.split('_')[1])
+                const atk = e.attacks[step]
+                const totalDur = atk.startup + atk.active + atk.recover
+                const totalFrames = 5
+                sprite = SPRITES.attack[0][Math.min(Math.floor((t / totalDur) * totalFrames), totalFrames - 1)]
+            } else if (e.z > 0) {
                 const totalFrames = 7
                 sprite = SPRITES.jump[0][Math.floor(t * 12) % totalFrames]
             } else if (e.state === 'IDLE') {
@@ -83,17 +94,6 @@ class Entity {
             } else if (e.state === 'RUN') {
                 const totalFrames = 8
                 sprite = SPRITES.run[0][Math.floor(t * 12) % totalFrames]
-            } else if (e.state === 'HURT') {
-                sprite = SPRITES.hurt
-            } else if (e.state === 'DEAD') {
-                const totalFrames = 8
-                sprite = SPRITES.dead[0][Math.min(Math.floor(t * 6), totalFrames - 1)]
-            } else if (e.state.startsWith('ATTACK')) {
-                const step = parseInt(e.state.split('_')[1])
-                const atk = e.attacks[step]
-                const totalDur = atk.startup + atk.active + atk.recover
-                const totalFrames = 5
-                sprite = SPRITES.attack[0][Math.min(Math.floor((t / totalDur) * totalFrames), totalFrames - 1)]
             }
 
             if (sprite && sprite.complete) {
