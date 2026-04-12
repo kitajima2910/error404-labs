@@ -45,5 +45,8 @@ class AudioManager {
     playJump() {
         this.playSynth('sine', 300, 0.1, 0.1, 500)
     }
+    playClick() {
+        this.playSynth('sine', 600, 0.05, 0.05, 800)
+    }
 }
 const audio = new AudioManager()

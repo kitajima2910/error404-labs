@@ -35,6 +35,9 @@ class Game {
         this.traps = []
         window._gameInstance = this
         this._entitiesList = []
+        this.menuIndex = 0
+        this.menuCooldown = 0
+        this.lastState = 'MENU'
         this._createGridPattern()
         this.bindUI()
         this._generateLevel(this.wave)
@@ -829,6 +832,9 @@ class Game {
         }
 
         this.input.update()
+        if (this.state !== 'GAME') {
+            this._updateMenuNavigation(dt)
+        }
         if (this.state === 'GAME' || this.state === 'GAMEOVER') {
             let ldt = dt * this.timeScale
             if (this.hitStop > 0) {
@@ -1079,5 +1085,85 @@ class Game {
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
         }
         requestAnimationFrame((t) => this.loop(t))
+    }
+
+    _updateMenuNavigation(dt) {
+        if (this.menuCooldown > 0) {
+            this.menuCooldown -= dt
+            return
+        }
+
+        let buttons = []
+        let container = null
+        let highlightClass = 'btn-highlight'
+
+        if (this.state === 'MENU') {
+            if (!document.getElementById('instructions-menu').classList.contains('hidden')) {
+                container = document.getElementById('instructions-menu')
+                buttons = Array.from(container.querySelectorAll('button:not(.hidden)'))
+            } else if (!document.getElementById('main-menu').classList.contains('hidden')) {
+                container = document.getElementById('main-menu')
+                buttons = Array.from(container.querySelectorAll('button:not(.hidden)'))
+            }
+        } else if (this.state === 'SHOP') {
+            if (!document.getElementById('upgrades-menu').classList.contains('hidden')) {
+                container = document.getElementById('upgrades-menu')
+                buttons = Array.from(container.querySelectorAll('button.shop-btn:not(.hidden)'))
+            } else if (!document.getElementById('skills-menu').classList.contains('hidden')) {
+                container = document.getElementById('skills-menu')
+                buttons = Array.from(container.querySelectorAll('button.skill-btn:not(.hidden)'))
+                highlightClass = 'card-highlight'
+            }
+        } else if (this.state === 'OVER') {
+            if (!document.getElementById('game-over-menu').classList.contains('hidden')) {
+                container = document.getElementById('game-over-menu')
+                buttons = Array.from(container.querySelectorAll('button:not(.hidden)'))
+            }
+        } else if (this.state === 'VICTORY') {
+            if (!document.getElementById('victory-menu').classList.contains('hidden')) {
+                container = document.getElementById('victory-menu')
+                buttons = Array.from(container.querySelectorAll('button:not(.hidden)'))
+            }
+        }
+
+        if (!container || buttons.length === 0) return
+
+        if (container.id !== this.lastMenuContainerId) {
+            this.menuIndex = 0
+            this.lastMenuContainerId = container.id
+            
+            // Dọn dẹp highlight cũ
+            document.querySelectorAll('.btn-highlight, .card-highlight').forEach(el => {
+                el.classList.remove('btn-highlight', 'card-highlight')
+            })
+        }
+
+        const moveY = this.input.getAxisY()
+        const moveX = this.input.getAxisX()
+
+        // Handle index wrap
+        if (Math.abs(moveY) > 0.5 || Math.abs(moveX) > 0.5) {
+            const dir = moveY !== 0 ? Math.sign(moveY) : Math.sign(moveX)
+            this.menuIndex = (this.menuIndex + dir + buttons.length) % buttons.length
+            this.menuCooldown = 0.2
+            audio.playClick()
+        }
+
+        // Highlight
+        buttons.forEach((btn, i) => {
+            const target = highlightClass === 'card-highlight' ? (btn.closest('.skill-card') || btn) : btn
+            if (i === this.menuIndex) {
+                target.classList.add(highlightClass)
+            } else {
+                target.classList.remove(highlightClass)
+            }
+        })
+
+        // Select
+        if (this.input.keys['Enter']) {
+            this.input.keys['Enter'] = false
+            buttons[this.menuIndex].click()
+            this.menuCooldown = 0.3
+        }
     }
 }

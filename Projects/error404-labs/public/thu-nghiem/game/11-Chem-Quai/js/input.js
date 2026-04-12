@@ -23,6 +23,7 @@ class InputManager {
                     'KeyS',
                     'KeyD',
                     'KeyJ',
+                    'Enter',
                 ].includes(c)
             ) {
                 e.preventDefault()
