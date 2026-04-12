@@ -216,6 +216,7 @@ class Game {
             else if (w >= 4 && r < 0.42) t = 'ninja'
             else if (w >= 5 && r < 0.52) t = 'advanced'
             else if (w >= 6 && r < 0.62) t = 'slime'
+            else if (w >= 7 && r < 0.72) t = 'flyer'
             if (w >= 5 && i === 0 && this.spawnQueue.filter((q) => q === 'ranged').length === 0) t = 'ranged'
             if (w >= 4 && i === 1 && this.spawnQueue.filter((q) => q === 'ninja').length === 0) t = 'ninja'
             if (w >= 6 && i === 2 && this.spawnQueue.filter((q) => q === 'slime').length === 0) t = 'slime'
@@ -248,7 +249,7 @@ class Game {
         const spawnZ = pos.z
         this.spawnIndex++
         const enemy = new Enemy(spawnX, spawnY, type, this.wave)
-        enemy.z = spawnZ
+        enemy.z = type === 'flyer' ? 250 : spawnZ
         this.enemies.push(enemy)
     }
     _nextWave() {

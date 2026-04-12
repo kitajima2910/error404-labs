@@ -67,6 +67,16 @@ class Enemy extends Entity {
             this.weaponType = 'poison'
             this.bodyScale = 1.0
             this.jumpCd = 0
+        } else if (type === 'flyer') {
+            this.color = '#ff0'
+            this.hp = this.maxHp = Math.floor(35 * scale)
+            this.speed = 220 + wave * 4
+            this.atkR = 80
+            this.weaponType = 'claws'
+            this.bodyScale = 0.8
+            this.isFlyer = true
+            this.targetZ = 250
+            this.diveCd = 0
         }
         this.dmgScale = scale
         this.patrolL = null
@@ -91,6 +101,7 @@ class Enemy extends Entity {
         if (this.atkCd > 0) this.atkCd -= dt
         if (this.dodgeCd > 0) this.dodgeCd -= dt
         if (this.jumpCd >= 0) this.jumpCd -= dt
+        if (this.diveCd > 0) this.diveCd -= dt
         if (this.state === 'DEAD') {
             this.vx *= 0.95
             this.updatePhysics(dt)
@@ -132,6 +143,33 @@ class Enemy extends Entity {
                 if (this.x <= this.patrolL) this.dir = 1
                 else if (this.x >= this.patrolR) this.dir = -1
                 this.vx = this.dir * this.speed * 0.6
+            } else if (this.type === 'flyer') {
+                const dz = this.targetZ - this.z
+                this.vz = dz * 5 // Simple P-controller for height
+
+                const dx = player.x - this.x
+                const dist = Math.abs(dx)
+
+                if (this.state === 'ATTACK') {
+                    this.vx *= 0.5
+                } else if (this.targetZ < 100) {
+                    // Diving
+                    this.vx = Math.sign(dx) * this.speed * 1.5
+                    if (dist < 40 && Math.abs(dz) < 40) {
+                        this.changeState('ATTACK')
+                        this.targetZ = 250 // Fly back up after strike
+                        this.diveCd = 2.0
+                    }
+                } else {
+                    // Hovering above player
+                    this.dir = dx > 0 ? 1 : -1
+                    if (dist > 50) this.vx = Math.sign(dx) * this.speed
+                    else this.vx *= 0.8
+
+                    if (dist < 100 && this.diveCd <= 0) {
+                        this.targetZ = player.z + 20 // Start dive
+                    }
+                }
             } else if (this.type === 'slime') {
                 if (this.z === 0 && this.jumpCd <= 0) {
                     this.vz = 400 + Math.random() * 200

@@ -1383,7 +1383,10 @@ class Entity {
         this.z += this.vz * dt
 
         let groundZ = 0
-        if (this.z > groundZ) {
+        if (this.isFlyer && this.state !== 'DEAD') {
+            // Flyer handles its own Z movement or stays airborne
+            // Don't apply default gravity
+        } else if (this.z > groundZ) {
             this.vz -= CONFIG.gravity * dt
         } else {
             this.z = groundZ
@@ -1565,6 +1568,33 @@ class Entity {
             ctx.beginPath()
             ctx.arc(7, -15, 3, 0, Math.PI * 2)
             ctx.fill()
+            ctx.restore()
+            return
+        } else if (e.type === 'flyer') {
+            // Wing logic
+            const wingH = Math.sin(t * 15) * 20
+            ctx.fillStyle = e.color
+            ctx.beginPath()
+            ctx.moveTo(-10, -30)
+            ctx.quadraticCurveTo(-30, -30 - wingH, -40, -10)
+            ctx.lineTo(-10, -10)
+            ctx.fill()
+            ctx.beginPath()
+            ctx.moveTo(10, -30)
+            ctx.quadraticCurveTo(30, -30 - wingH, 40, -10)
+            ctx.lineTo(10, -10)
+            ctx.fill()
+
+            ctx.fillRect(-8, -40, 16, 25)
+            ctx.strokeRect(-8, -40, 16, 25)
+            ctx.beginPath()
+            ctx.arc(0, -45 + headBob, 8, 0, Math.PI * 2)
+            ctx.fill()
+            ctx.stroke()
+            if (!isGhost) {
+                ctx.fillStyle = '#fff'
+                ctx.fillRect(2, -48 + headBob, 5, 2)
+            }
             ctx.restore()
             return
         } else {
@@ -1896,6 +1926,16 @@ class Enemy extends Entity {
             this.weaponType = 'poison'
             this.bodyScale = 1.0
             this.jumpCd = 0
+        } else if (type === 'flyer') {
+            this.color = '#ff0'
+            this.hp = this.maxHp = Math.floor(35 * scale)
+            this.speed = 220 + wave * 4
+            this.atkR = 80
+            this.weaponType = 'claws'
+            this.bodyScale = 0.8
+            this.isFlyer = true
+            this.targetZ = 250
+            this.diveCd = 0
         }
         this.dmgScale = scale
         this.patrolL = null
@@ -1920,6 +1960,7 @@ class Enemy extends Entity {
         if (this.atkCd > 0) this.atkCd -= dt
         if (this.dodgeCd > 0) this.dodgeCd -= dt
         if (this.jumpCd >= 0) this.jumpCd -= dt
+        if (this.diveCd > 0) this.diveCd -= dt
         if (this.state === 'DEAD') {
             this.vx *= 0.95
             this.updatePhysics(dt)
@@ -1961,6 +2002,33 @@ class Enemy extends Entity {
                 if (this.x <= this.patrolL) this.dir = 1
                 else if (this.x >= this.patrolR) this.dir = -1
                 this.vx = this.dir * this.speed * 0.6
+            } else if (this.type === 'flyer') {
+                const dz = this.targetZ - this.z
+                this.vz = dz * 5 // Simple P-controller for height
+
+                const dx = player.x - this.x
+                const dist = Math.abs(dx)
+
+                if (this.state === 'ATTACK') {
+                    this.vx *= 0.5
+                } else if (this.targetZ < 100) {
+                    // Diving
+                    this.vx = Math.sign(dx) * this.speed * 1.5
+                    if (dist < 40 && Math.abs(dz) < 40) {
+                        this.changeState('ATTACK')
+                        this.targetZ = 250 // Fly back up after strike
+                        this.diveCd = 2.0
+                    }
+                } else {
+                    // Hovering above player
+                    this.dir = dx > 0 ? 1 : -1
+                    if (dist > 50) this.vx = Math.sign(dx) * this.speed
+                    else this.vx *= 0.8
+
+                    if (dist < 100 && this.diveCd <= 0) {
+                        this.targetZ = player.z + 20 // Start dive
+                    }
+                }
             } else if (this.type === 'slime') {
                 if (this.z === 0 && this.jumpCd <= 0) {
                     this.vz = 400 + Math.random() * 200
@@ -2426,6 +2494,7 @@ class Game {
             else if (w >= 4 && r < 0.42) t = 'ninja'
             else if (w >= 5 && r < 0.52) t = 'advanced'
             else if (w >= 6 && r < 0.62) t = 'slime'
+            else if (w >= 7 && r < 0.72) t = 'flyer'
             if (w >= 5 && i === 0 && this.spawnQueue.filter((q) => q === 'ranged').length === 0) t = 'ranged'
             if (w >= 4 && i === 1 && this.spawnQueue.filter((q) => q === 'ninja').length === 0) t = 'ninja'
             if (w >= 6 && i === 2 && this.spawnQueue.filter((q) => q === 'slime').length === 0) t = 'slime'
@@ -2458,7 +2527,7 @@ class Game {
         const spawnZ = pos.z
         this.spawnIndex++
         const enemy = new Enemy(spawnX, spawnY, type, this.wave)
-        enemy.z = spawnZ
+        enemy.z = type === 'flyer' ? 250 : spawnZ
         this.enemies.push(enemy)
     }
     _nextWave() {

@@ -37,7 +37,10 @@ class Entity {
         this.z += this.vz * dt
 
         let groundZ = 0
-        if (this.z > groundZ) {
+        if (this.isFlyer && this.state !== 'DEAD') {
+            // Flyer handles its own Z movement or stays airborne
+            // Don't apply default gravity
+        } else if (this.z > groundZ) {
             this.vz -= CONFIG.gravity * dt
         } else {
             this.z = groundZ
@@ -219,6 +222,33 @@ class Entity {
             ctx.beginPath()
             ctx.arc(7, -15, 3, 0, Math.PI * 2)
             ctx.fill()
+            ctx.restore()
+            return
+        } else if (e.type === 'flyer') {
+            // Wing logic
+            const wingH = Math.sin(t * 15) * 20
+            ctx.fillStyle = e.color
+            ctx.beginPath()
+            ctx.moveTo(-10, -30)
+            ctx.quadraticCurveTo(-30, -30 - wingH, -40, -10)
+            ctx.lineTo(-10, -10)
+            ctx.fill()
+            ctx.beginPath()
+            ctx.moveTo(10, -30)
+            ctx.quadraticCurveTo(30, -30 - wingH, 40, -10)
+            ctx.lineTo(10, -10)
+            ctx.fill()
+
+            ctx.fillRect(-8, -40, 16, 25)
+            ctx.strokeRect(-8, -40, 16, 25)
+            ctx.beginPath()
+            ctx.arc(0, -45 + headBob, 8, 0, Math.PI * 2)
+            ctx.fill()
+            ctx.stroke()
+            if (!isGhost) {
+                ctx.fillStyle = '#fff'
+                ctx.fillRect(2, -48 + headBob, 5, 2)
+            }
             ctx.restore()
             return
         } else {
