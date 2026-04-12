@@ -594,12 +594,17 @@ class Game {
     }
 
     loop(t) {
-        let dt = Math.min(0.05, (t - this.lastT) / 1000)
+        let dtRaw = (t - this.lastT) / 1000
+        if (dtRaw < 1 / (CONFIG.fps + 5)) {
+            requestAnimationFrame((t) => this.loop(t))
+            return
+        }
+        let dt = Math.min(0.05, dtRaw)
         this.lastT = t
 
         this.frameCount++
         if (t - this.lastFpsTime >= 1000) {
-            this.currentFps = this.frameCount
+            this.currentFps = Math.min(CONFIG.fps, this.frameCount)
             this.frameCount = 0
             this.lastFpsTime = t
             const fpsEl = document.getElementById('fps-display')
