@@ -3,7 +3,7 @@ const SaveSystem = {
     data: {
         money: 0,
         wave: 1,
-        stats: { dmgMult: 1, critWindowMult: 1, maxHp: 30000, dashCdMult: 1 },
+        stats: { dmgMult: 1, critWindowMult: 1, maxHp: 3000, dashCdMult: 1 },
         costs: { dmg: 50, crit: 75, hp: 100, dash: 60 },
         skills: { unlocked: ['vfx1'], active: 'vfx1' },
         skillCosts: { vfx2: 500, vfx3: 1000, vfx4: 2000, vfx5: 4000, vfx6: 8000 },
@@ -17,7 +17,7 @@ const SaveSystem = {
             if (s) {
                 const parsed = JSON.parse(s)
                 this.data = { ...this.data, ...parsed }
-                if (this.data.stats.maxHp < 30000) this.data.stats.maxHp = 30000
+                if (this.data.stats.maxHp < 3000) this.data.stats.maxHp = 3000
             }
         } catch (e) {}
     },
@@ -25,7 +25,7 @@ const SaveSystem = {
         this.data = {
             money: 0,
             wave: 1,
-            stats: { dmgMult: 1, critWindowMult: 1, maxHp: 30000, dashCdMult: 1 },
+            stats: { dmgMult: 1, critWindowMult: 1, maxHp: 3000, dashCdMult: 1 },
             costs: { dmg: 50, crit: 75, hp: 100, dash: 60 },
             skills: { unlocked: ['vfx1'], active: 'vfx1' },
             skillCosts: { vfx2: 500, vfx3: 1000, vfx4: 2000, vfx5: 4000, vfx6: 8000 },

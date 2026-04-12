@@ -81,6 +81,7 @@ class Enemy extends Entity {
         this.dmgScale = scale
         this.patrolL = null
         this.patrolR = null
+        this._hasShot = false
     }
     _tryDodge(player) {
         if (!this.canDodge || this.dodgeCd > 0 || this.state === 'ATTACK') return false
@@ -125,7 +126,7 @@ class Enemy extends Entity {
                         y: this.getDrawY() - 20,
                         vx: Math.sign(dx) * 500,
                         vy: 0,
-                        dmg: Math.floor((this.type === 'slime' ? 10 : 12) * (this.dmgScale || 1)),
+                        dmg: Math.floor((this.type === 'slime' ? 100 : 120) * (this.dmgScale || 1)),
                         color: this.type === 'slime' ? '#0f4' : '#fff',
                         life: 3,
                     })
@@ -281,14 +282,14 @@ class Enemy extends Entity {
             h,
             dmg: Math.floor(
                 (this.type === 'boss'
-                    ? 40
+                    ? 400
                     : this.type === 'advanced'
-                      ? 25
+                      ? 250
                       : this.type === 'shield'
-                        ? 20
+                        ? 200
                         : this.type === 'ninja'
-                          ? 12
-                          : 15) * (this.dmgScale || 1),
+                          ? 120
+                          : 150) * (this.dmgScale || 1),
             ),
         }
     }

@@ -606,7 +606,7 @@ button:disabled {
                     <div class="char-info-panel">
                         <div class="health-container">
                             <div id="health-bar"></div>
-                            <div id="health-text">0 / 30000</div>
+                            <div id="health-text">0 / 3000</div>
                         </div>
                         <div class="stats-row">
                             <div class="stat-item">
@@ -1011,7 +1011,7 @@ const SaveSystem = {
     data: {
         money: 0,
         wave: 1,
-        stats: { dmgMult: 1, critWindowMult: 1, maxHp: 30000, dashCdMult: 1 },
+        stats: { dmgMult: 1, critWindowMult: 1, maxHp: 3000, dashCdMult: 1 },
         costs: { dmg: 50, crit: 75, hp: 100, dash: 60 },
         skills: { unlocked: ['vfx1'], active: 'vfx1' },
         skillCosts: { vfx2: 500, vfx3: 1000, vfx4: 2000, vfx5: 4000, vfx6: 8000 },
@@ -1025,7 +1025,7 @@ const SaveSystem = {
             if (s) {
                 const parsed = JSON.parse(s)
                 this.data = { ...this.data, ...parsed }
-                if (this.data.stats.maxHp < 30000) this.data.stats.maxHp = 30000
+                if (this.data.stats.maxHp < 3000) this.data.stats.maxHp = 3000
             }
         } catch (e) {}
     },
@@ -1033,7 +1033,7 @@ const SaveSystem = {
         this.data = {
             money: 0,
             wave: 1,
-            stats: { dmgMult: 1, critWindowMult: 1, maxHp: 30000, dashCdMult: 1 },
+            stats: { dmgMult: 1, critWindowMult: 1, maxHp: 3000, dashCdMult: 1 },
             costs: { dmg: 50, crit: 75, hp: 100, dash: 60 },
             skills: { unlocked: ['vfx1'], active: 'vfx1' },
             skillCosts: { vfx2: 500, vfx3: 1000, vfx4: 2000, vfx5: 4000, vfx6: 8000 },
@@ -1940,6 +1940,7 @@ class Enemy extends Entity {
         this.dmgScale = scale
         this.patrolL = null
         this.patrolR = null
+        this._hasShot = false
     }
     _tryDodge(player) {
         if (!this.canDodge || this.dodgeCd > 0 || this.state === 'ATTACK') return false
@@ -1984,7 +1985,7 @@ class Enemy extends Entity {
                         y: this.getDrawY() - 20,
                         vx: Math.sign(dx) * 500,
                         vy: 0,
-                        dmg: Math.floor((this.type === 'slime' ? 10 : 12) * (this.dmgScale || 1)),
+                        dmg: Math.floor((this.type === 'slime' ? 100 : 120) * (this.dmgScale || 1)),
                         color: this.type === 'slime' ? '#0f4' : '#fff',
                         life: 3,
                     })
@@ -2140,14 +2141,14 @@ class Enemy extends Entity {
             h,
             dmg: Math.floor(
                 (this.type === 'boss'
-                    ? 40
+                    ? 400
                     : this.type === 'advanced'
-                      ? 25
+                      ? 250
                       : this.type === 'shield'
-                        ? 20
+                        ? 200
                         : this.type === 'ninja'
-                          ? 12
-                          : 15) * (this.dmgScale || 1),
+                          ? 120
+                          : 150) * (this.dmgScale || 1),
             ),
         }
     }
@@ -2355,7 +2356,7 @@ class Game {
             // Cho vị trí chẵn leo lên platform nếu có
             if (i % 2 === 0 && this.platforms.length > 0) {
                 const plat = this.platforms[i % this.platforms.length]
-                x = plat.x // Đặt x trùng platform luôn cho chắc
+                x = plat.x + (Math.random() * 80 - 40) // Phân tán các con quái trên cùng platform
                 z = plat.z
             }
             this._spawnPositions.push({ x, z })
@@ -3133,7 +3134,7 @@ class Game {
                                     this.player.getDrawY() - this.player.h / 2 - trapY,
                                 )
                                 if (dist < t.r + 20) {
-                                    if (this.player.takeDamage(10, this.player.x > t.x ? 400 : -400)) {
+                                    if (this.player.takeDamage(250, this.player.x > t.x ? 400 : -400)) {
                                         this.camera.shake(15, 0.2)
                                         this.particles.spawn(t.x, trapY, '#f00', 10)
                                         this.updateHUD()

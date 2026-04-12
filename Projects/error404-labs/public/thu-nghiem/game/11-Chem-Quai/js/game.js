@@ -77,7 +77,7 @@ class Game {
             // Cho vị trí chẵn leo lên platform nếu có
             if (i % 2 === 0 && this.platforms.length > 0) {
                 const plat = this.platforms[i % this.platforms.length]
-                x = plat.x // Đặt x trùng platform luôn cho chắc
+                x = plat.x + (Math.random() * 80 - 40) // Phân tán các con quái trên cùng platform
                 z = plat.z
             }
             this._spawnPositions.push({ x, z })
@@ -855,7 +855,7 @@ class Game {
                                     this.player.getDrawY() - this.player.h / 2 - trapY,
                                 )
                                 if (dist < t.r + 20) {
-                                    if (this.player.takeDamage(10, this.player.x > t.x ? 400 : -400)) {
+                                    if (this.player.takeDamage(250, this.player.x > t.x ? 400 : -400)) {
                                         this.camera.shake(15, 0.2)
                                         this.particles.spawn(t.x, trapY, '#f00', 10)
                                         this.updateHUD()
