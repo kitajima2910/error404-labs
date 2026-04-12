@@ -10,6 +10,7 @@ class Player extends Entity {
         this.dashCd = 0
         this.attackStep = 0
         this.ghostTimer = 0
+        this.hasSpawnedSkillVFX = false
         this.attacks = [
             { startup: 0.05, active: 0.08, recover: 0.12, dmg: 10, w: 85, h: 60, offset: 60, force: 180 },
             { startup: 0.05, active: 0.08, recover: 0.12, dmg: 15, w: 95, h: 70, offset: 70, force: 250 },
@@ -52,6 +53,17 @@ class Player extends Entity {
                 this.changeState(`ATTACK_${this.attackStep}`)
                 this.vx = this.dir * 250
                 audio.playSwing()
+                this.hasSpawnedSkillVFX = false
+            }
+        }
+
+        if (this.state.startsWith('ATTACK_')) {
+            const step = parseInt(this.state.split('_')[1])
+            const atk = this.attacks[step]
+            const total = atk.startup + atk.active + atk.recover
+            // Trigger VFX when reaching the last frame (frame 4 of 5 total frames)
+            if (!this.hasSpawnedSkillVFX && (this.stateTime / total) * 5 >= 4) {
+                this.hasSpawnedSkillVFX = true
                 if (particles.particles.length < 150) {
                     particles.spawnSkillVFX(
                         this.x + this.dir * 70,
