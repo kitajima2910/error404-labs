@@ -533,30 +533,35 @@ class Game {
         if (x < camX - 1000 || x > camX + CONFIG.canvasWidth + 1000) return
 
         ctx.save()
-        ctx.translate(x, CONFIG.floorY)
+        ctx.translate(Math.round(x), Math.round(CONFIG.floorY))
 
         const drawGatePillar = (side) => {
             ctx.save()
             ctx.translate(0, side * 150)
 
-            const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, 100)
-            glow.addColorStop(0, 'rgba(255, 0, 255, 0.4)')
-            glow.addColorStop(1, 'transparent')
-            ctx.fillStyle = glow
-            ctx.fillRect(-100, -100, 200, 200)
+            const useEffects = this.currentFps > 45
+            if (useEffects) {
+                const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, 100)
+                glow.addColorStop(0, 'rgba(255, 0, 255, 0.4)')
+                glow.addColorStop(1, 'transparent')
+                ctx.fillStyle = glow
+                ctx.fillRect(-100, -100, 200, 200)
+            }
 
             ctx.strokeStyle = '#f0f'
             ctx.lineWidth = 12
-            ctx.shadowBlur = 10
-            ctx.shadowColor = '#f0f'
+            if (useEffects) {
+                ctx.shadowBlur = 10
+                ctx.shadowColor = '#f0f'
+            }
             ctx.beginPath()
             ctx.moveTo(0, -100)
             ctx.lineTo(0, 50)
             ctx.stroke()
+            ctx.shadowBlur = 0
 
             ctx.strokeStyle = '#fff'
             ctx.lineWidth = 2
-            ctx.shadowBlur = 0
             ctx.strokeRect(-15, -120, 30, 20)
             ctx.strokeRect(-10, 50, 20, 10)
 
@@ -583,13 +588,19 @@ class Game {
         ctx.stroke()
         ctx.setLineDash([])
 
-        ctx.shadowBlur = 10
-        ctx.shadowColor = '#f0f'
-        ctx.fillStyle = '#f0f'
-        ctx.font = 'bold 30px "Orbitron", sans-serif'
+        const hue = (performance.now() * 0.1) % 360
+        ctx.fillStyle = `hsl(${hue}, 100%, 70%)`
+        if (this.currentFps > 45) {
+            ctx.shadowBlur = 15
+            ctx.shadowColor = `hsl(${hue}, 100%, 50%)`
+        }
+        ctx.font = 'bold 36px "Orbitron", sans-serif'
         ctx.textAlign = 'center'
-        ctx.fillText(label, -20, -120)
-
+        
+        const bounce = Math.sin(performance.now() * 0.005) * 10
+        ctx.fillText(label, 0, -180 + bounce)
+        
+        ctx.shadowBlur = 0
         ctx.restore()
     }
 
@@ -782,15 +793,20 @@ class Game {
                 ctx.restore()
             }
 
-            if (this.exitGateX !== null) {
+            if (this.exitGateX !== null && Math.abs(this.player.x - this.exitGateX) > 800) {
                 const ctx = this.ctx
                 ctx.save()
-                ctx.translate(this.player.x, this.player.getDrawY() - this.player.h - 80)
+                ctx.translate(Math.round(this.player.x), Math.round(this.player.getDrawY() - this.player.h - 80))
 
                 const pulse = 0.5 + Math.abs(Math.sin(performance.now() * 0.005)) * 0.5
                 ctx.globalAlpha = pulse
-                ctx.shadowBlur = 15
-                ctx.shadowColor = '#f0f'
+                
+                const useEffects = this.currentFps > 45
+                if (useEffects) {
+                    ctx.shadowBlur = 15
+                    ctx.shadowColor = '#f0f'
+                }
+
                 ctx.fillStyle = '#f0f'
                 ctx.font = 'bold 16px "Orbitron", sans-serif'
                 ctx.textAlign = 'center'
@@ -809,7 +825,6 @@ class Game {
                 ctx.lineWidth = 3
                 ctx.strokeStyle = '#f0f'
                 ctx.stroke()
-
                 ctx.restore()
             }
         }
