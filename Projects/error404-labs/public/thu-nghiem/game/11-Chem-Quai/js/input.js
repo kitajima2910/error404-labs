@@ -82,6 +82,8 @@ class InputManager {
             [
                 'KeyJ',
                 'Space',
+                'KeyW',
+                'ArrowUp',
             ].includes(c)
         )
             this.buffer.push({ code: c, time: performance.now() / 1000 })

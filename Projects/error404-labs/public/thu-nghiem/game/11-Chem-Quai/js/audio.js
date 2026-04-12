@@ -42,5 +42,8 @@ class AudioManager {
     playError() {
         this.playSynth('sawtooth', 100, 0.3, 0.2)
     }
+    playJump() {
+        this.playSynth('sine', 300, 0.1, 0.1, 500)
+    }
 }
 const audio = new AudioManager()

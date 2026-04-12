@@ -18,7 +18,6 @@ class Player extends Entity {
     }
     update(dt, input, particles) {
         this.stateTime += dt
-        this.y = CONFIG.floorY
         if (this.hitFlicker > 0) this.hitFlicker -= dt
         if (this.dashCd > 0) this.dashCd -= dt
         if (this.state === 'DEAD') {
@@ -39,6 +38,12 @@ class Player extends Entity {
             } else {
                 this.vx *= 0.5
                 this.changeState('IDLE')
+            }
+
+            // Jump logic
+            if ((input.consume('KeyW') || input.consume('ArrowUp')) && this.z === 0) {
+                this.vz = 650
+                audio.playJump()
             }
         }
         if (canM || (this.state.startsWith('ATTACK') && this.isCritWindow)) {
