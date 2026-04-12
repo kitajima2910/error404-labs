@@ -6,8 +6,27 @@ class InputManager {
         this.bufferTime = 0.15
         this.joystick = { x: 0, y: 0, active: false }
         window.addEventListener('keydown', (e) => {
-            this.keys[e.code] = true
-            this._registerAction(e.code)
+            const c = e.code
+            if (!this.keys[c]) {
+                this._registerAction(c)
+            }
+            this.keys[c] = true
+            if (
+                [
+                    'Space',
+                    'ArrowUp',
+                    'ArrowDown',
+                    'ArrowLeft',
+                    'ArrowRight',
+                    'KeyW',
+                    'KeyA',
+                    'KeyS',
+                    'KeyD',
+                    'KeyJ',
+                ].includes(c)
+            ) {
+                e.preventDefault()
+            }
         })
         window.addEventListener('keyup', (e) => {
             this.keys[e.code] = false
