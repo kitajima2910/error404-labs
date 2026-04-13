@@ -973,15 +973,18 @@ const SPRITES = {
 // AUDIO MANAGER
 class AudioManager {
     constructor() {
-        const AC = window.AudioContext || window.webkitAudioContext
-        this.ctx = new AC()
+        this.ctx = null
         this.enabled = true
     }
     init() {
+        if (!this.ctx) {
+            const AC = window.AudioContext || window.webkitAudioContext
+            this.ctx = new AC()
+        }
         if (this.ctx.state === 'suspended') this.ctx.resume()
     }
     playSynth(type, freq, duration, vol, slide = null) {
-        if (!this.enabled) return
+        if (!this.enabled || !this.ctx) return
         const osc = this.ctx.createOscillator()
         const gain = this.ctx.createGain()
         osc.type = type
@@ -1029,10 +1032,10 @@ const SaveSystem = {
     data: {
         money: 0,
         wave: 1,
-        stats: { dmgMult: 1, critWindowMult: 1, maxHp: 3000, dashCdMult: 1 },
-        costs: { dmg: 500, crit: 750, hp: 1000, dash: 600 },
+        stats: { dmgMult: 1, critWindowMult: 1, maxHp: 15000, dashCdMult: 1 },
+        costs: { dmg: 5000, crit: 7500, hp: 10000, dash: 6000 },
         skills: { unlocked: ['vfx1'], active: 'vfx1' },
-        skillCosts: { vfx2: 5000, vfx3: 10000, vfx4: 20000, vfx5: 40000, vfx6: 80000 },
+        skillCosts: { vfx2: 15000, vfx3: 30000, vfx4: 60000, vfx5: 120000, vfx6: 250000 },
     },
     save() {
         localStorage.setItem('neonStrikerSave', JSON.stringify(this.data))
@@ -1043,14 +1046,14 @@ const SaveSystem = {
             if (s) {
                 const parsed = JSON.parse(s)
                 this.data = { ...this.data, ...parsed }
-                if (this.data.stats.maxHp < 3000) this.data.stats.maxHp = 3000
-                // Force update costs for existing players
-                if (this.data.costs.dmg < 500) this.data.costs.dmg = 500
-                if (this.data.costs.crit < 750) this.data.costs.crit = 750
-                if (this.data.costs.hp < 1000) this.data.costs.hp = 1000
-                if (this.data.costs.dash < 600) this.data.costs.dash = 600
-                if (this.data.skillCosts.vfx2 < 5000) {
-                    this.data.skillCosts = { vfx2: 5000, vfx3: 10000, vfx4: 20000, vfx5: 40000, vfx6: 80000 }
+                if (this.data.stats.maxHp < 15000) this.data.stats.maxHp = 15000
+                // Force update costs for higher starting values
+                if (this.data.costs.dmg < 5000) this.data.costs.dmg = 5000
+                if (this.data.costs.crit < 7500) this.data.costs.crit = 7500
+                if (this.data.costs.hp < 10000) this.data.costs.hp = 10000
+                if (this.data.costs.dash < 6000) this.data.costs.dash = 6000
+                if (this.data.skillCosts.vfx2 < 15000) {
+                    this.data.skillCosts = { vfx2: 15000, vfx3: 30000, vfx4: 60000, vfx5: 120000, vfx6: 250000 }
                 }
             }
         } catch (e) {}
@@ -1059,10 +1062,10 @@ const SaveSystem = {
         this.data = {
             money: 0,
             wave: 1,
-            stats: { dmgMult: 1, critWindowMult: 1, maxHp: 3000, dashCdMult: 1 },
-            costs: { dmg: 500, crit: 750, hp: 1000, dash: 600 },
+            stats: { dmgMult: 1, critWindowMult: 1, maxHp: 15000, dashCdMult: 1 },
+            costs: { dmg: 5000, crit: 7500, hp: 10000, dash: 6000 },
             skills: { unlocked: ['vfx1'], active: 'vfx1' },
-            skillCosts: { vfx2: 5000, vfx3: 10000, vfx4: 20000, vfx5: 40000, vfx6: 80000 },
+            skillCosts: { vfx2: 15000, vfx3: 30000, vfx4: 60000, vfx5: 120000, vfx6: 250000 },
         }
         this.save()
     },
@@ -1212,43 +1215,60 @@ class ParticleSystem {
     constructor() {
         this.particles = []
         this.ghosts = []
+        this.pool = [] // Object pooling
+    }
+    _getParticle() {
+        return this.pool.pop() || {}
+    }
+    _releaseParticle(p) {
+        if (this.pool.length < 300) {
+            // Reset particle properties for reuse
+            for (let prop in p) delete p[prop]
+            this.pool.push(p)
+        }
     }
     spawn(x, y, color, count, speed = 1, life = 1) {
         if (this.particles.length > 200) return
         for (let i = 0; i < count; i++) {
             const a = Math.random() * Math.PI * 2,
                 s = Math.random() * 400 * speed
-            this.particles.push({
-                x,
-                y,
-                vx: Math.cos(a) * s,
-                vy: Math.sin(a) * s,
-                life: (0.2 + Math.random() * 0.3) * life,
-                maxLife: 0.5 * life,
-                size: Math.random() * 10 + 5,
-                color,
-            })
+            const p = this._getParticle()
+            p.type = null
+            p.x = x
+            p.y = y
+            p.vx = Math.cos(a) * s
+            p.vy = Math.sin(a) * s
+            p.life = (0.2 + Math.random() * 0.3) * life
+            p.maxLife = 0.5 * life
+            p.size = Math.random() * 10 + 5
+            p.color = color
+            this.particles.push(p)
         }
     }
     spawnSlash(x, y, dir, size, color) {
-        this.particles.push({ type: 'slash', x, y, dir, size, life: 0.2, maxLife: 0.2, color })
+        const s = this._getParticle()
+        s.type = 'slash'; s.x = x; s.y = y; s.dir = dir; s.size = size; s.life = 0.2; s.maxLife = 0.2; s.color = color
+        this.particles.push(s)
         for (let i = 0; i < 8; i++) {
             const a = Math.random() - 0.5 + (dir > 0 ? 0 : Math.PI)
-            const s = 400 + Math.random() * 400
-            this.particles.push({
-                x,
-                y,
-                vx: Math.cos(a) * s,
-                vy: Math.sin(a) * s,
-                life: 0.1 + Math.random() * 0.2,
-                maxLife: 0.3,
-                size: Math.random() * 4 + 2,
-                color,
-            })
+            const speed = 400 + Math.random() * 400
+            const p = this._getParticle()
+            p.type = null
+            p.x = x
+            p.y = y
+            p.vx = Math.cos(a) * speed
+            p.vy = Math.sin(a) * speed
+            p.life = 0.1 + Math.random() * 0.2
+            p.maxLife = 0.3
+            p.size = Math.random() * 4 + 2
+            p.color = color
+            this.particles.push(p)
         }
     }
     spawnSkillVFX(x, y, skillId) {
-        this.particles.push({ type: 'skill_vfx', skillId, x, y, life: 0.2, maxLife: 0.2 })
+        const p = this._getParticle()
+        p.type = 'skill_vfx'; p.skillId = skillId; p.x = x; p.y = y; p.life = 0.2; p.maxLife = 0.2
+        this.particles.push(p)
     }
     spawnGhost(entity) {
         this.ghosts.push({
@@ -1268,6 +1288,7 @@ class ParticleSystem {
             p.life -= dt
             if (p.life <= 0) {
                 this.particles.splice(i, 1)
+                this._releaseParticle(p)
                 continue
             }
             if (!p.type) {
@@ -1755,6 +1776,8 @@ class Player extends Entity {
         this.attackStep = 0
         this.ghostTimer = 0
         this.hasSpawnedSkillVFX = false
+        this.coyoteTime = 0
+        this.jumpBuffer = 0
         this.attacks = [
             { startup: 0.05, active: 0.08, recover: 0.12, dmg: 10, w: 85, h: 60, offset: 60, force: 180 },
             { startup: 0.05, active: 0.08, recover: 0.12, dmg: 15, w: 95, h: 70, offset: 70, force: 250 },
@@ -1765,6 +1788,9 @@ class Player extends Entity {
         this.stateTime += dt
         if (this.hitFlicker > 0) this.hitFlicker -= dt
         if (this.dashCd > 0) this.dashCd -= dt
+        if (this.jumpBuffer > 0) this.jumpBuffer -= dt
+        if (this.z === 0 || this.onPlatform) this.coyoteTime = 0.1 // 0.1s leniency
+        else if (this.coyoteTime > 0) this.coyoteTime -= dt
         if (this.state === 'DEAD') {
             this.updatePhysics(dt)
             return
@@ -1780,20 +1806,29 @@ class Player extends Entity {
                 this.vx = Utils.lerp(this.vx, ax * this.speed, 20 * dt)
                 this.dir = ax > 0 ? 1 : -1
                 this.changeState('RUN')
-                const game = window._gameInstance
-                if (game) game.hasPlayerMoved = true
             } else {
                 this.vx *= 0.5
                 this.changeState('IDLE')
             }
 
-            // Jump logic
-            if ((input.consume('KeyW') || input.consume('ArrowUp')) && (this.z === 0 || this.onPlatform)) {
+            // Jump logic with Buffer and Coyote time
+            if (input.consume('KeyW') || input.consume('ArrowUp')) {
+                this.jumpBuffer = 0.15 // 0.15s buffer
+            }
+
+            if (this.jumpBuffer > 0 && this.coyoteTime > 0) {
                 this.vz = 850
                 this.onPlatform = false
+                this.coyoteTime = 0
+                this.jumpBuffer = 0
                 const game = window._gameInstance
                 if (game) game.hasPlayerMoved = true
                 audio.playJump()
+            }
+            
+            // Variable jump height: release early to cut jump
+            if (!input.keys['KeyW'] && !input.keys['ArrowUp'] && this.vz > 300 && this.z > 0) {
+                this.vz *= 0.6
             }
         }
         if (canM || (this.state.startsWith('ATTACK') && this.isCritWindow)) {
@@ -2319,6 +2354,8 @@ class Game {
         window.addEventListener('resize', () => this.resize())
         this.state = 'MENU'
         this.lastT = performance.now()
+        this.accumulator = 0
+        this.fixedDt = 1 / 60
         this.timeScale = 1.0
         this.hitStop = 0
         this.player = null
@@ -2470,16 +2507,16 @@ class Game {
                 this.closeAllMenus()
             }
         })
-        const shop = (id, stat, key, step, max) => {
+        const shop = (id, stat, key, step, costStep) => {
             const btn = document.getElementById(id)
             if (btn) {
                 btn.addEventListener('click', () => {
                     let c = SaveSystem.data.costs[key]
-                    if (this.money >= c && SaveSystem.data.stats[stat] < max) {
+                    if (this.money >= c) {
                         this.money -= c
                         SaveSystem.data.money = this.money
                         SaveSystem.data.stats[stat] += step
-                        SaveSystem.data.costs[key] = Math.floor(c * 1.6)
+                        SaveSystem.data.costs[key] = c + costStep // Arithmetic progression
                         SaveSystem.save()
                         audio.playBuy()
                         this.updateShopUI()
@@ -2487,10 +2524,10 @@ class Game {
                 })
             }
         }
-        shop('upg-dmg', 'dmgMult', 'dmg', 0.25, 8)
-        shop('upg-crit', 'critWindowMult', 'crit', 0.2, 5)
-        shop('upg-hp', 'maxHp', 'hp', 2500, 100000)
-        shop('upg-dash', 'dashCdMult', 'dash', -0.1, 0.2)
+        shop('upg-dmg', 'dmgMult', 'dmg', 0.25, 2000)
+        shop('upg-crit', 'critWindowMult', 'crit', 0.2, 3000)
+        shop('upg-hp', 'maxHp', 'hp', 2500, 4000)
+        shop('upg-dash', 'dashCdMult', 'dash', -0.1, 2500)
     }
     startWave() {
         audio.init()
@@ -2752,34 +2789,12 @@ class Game {
     updateShopUI() {
         const d = SaveSystem.data
         document.querySelectorAll('.shop-funds').forEach((el) => (el.innerText = this.money))
-        const items = [
-            [
-                'dmgMult',
-                8,
-                'dmg',
-            ],
-            [
-                'critWindowMult',
-                5,
-                'crit',
-            ],
-            [
-                'maxHp',
-                1500,
-                'hp',
-            ],
-            [
-                'dashCdMult',
-                0.2,
-                'dash',
-            ],
-        ]
-        items.forEach((i) => {
-            const b = document.getElementById('upg-' + i[2])
+        const items = ['dmg', 'crit', 'hp', 'dash']
+        items.forEach((key) => {
+            const b = document.getElementById('upg-' + key)
             if (b) {
-                b.disabled = d.stats[i[0]] >= i[1] || this.money < d.costs[i[2]]
-                if (d.stats[i[0]] >= i[1]) b.innerText = 'TỐI ĐA'
-                else b.innerHTML = `Giá: <span id="cost-${i[2]}">${d.costs[i[2]]}</span> VNĐ`
+                b.disabled = this.money < d.costs[key]
+                b.innerHTML = `Giá: <span id="cost-${key}">${d.costs[key]}</span> VNĐ`
             }
         })
 
@@ -2977,23 +2992,66 @@ class Game {
         // Draw platforms
         for (const p of this.platforms) {
             if (p.x + p.w < this.camera.x - 200 || p.x > this.camera.x + CONFIG.canvasWidth + 200) continue
-            ctx.fillStyle = p.color
+
+            const px = p.x - p.w / 2
+            const py = p.y
+            const pw = p.w
+            const ph = 16
+
+            // Neon Glow
             if (useEffects) {
-                ctx.shadowBlur = 15
+                ctx.save()
+                ctx.shadowBlur = 20
                 ctx.shadowColor = p.color
+                ctx.strokeStyle = p.color
+                ctx.lineWidth = 2
+                ctx.strokeRect(px, py, pw, ph)
+                ctx.restore()
             }
-            ctx.fillRect(p.x - p.w / 2, p.y, p.w, 12)
-            ctx.shadowBlur = 0
+
+            // Glass/Hologram Body
+            const grad = ctx.createLinearGradient(px, py, px, py + ph)
+            grad.addColorStop(0, 'rgba(0, 255, 255, 0.15)')
+            grad.addColorStop(0.5, 'rgba(0, 200, 255, 0.05)')
+            grad.addColorStop(1, 'rgba(0, 255, 255, 0.15)')
+            ctx.fillStyle = grad
+            ctx.fillRect(px, py, pw, ph)
+
+            // Top Bright Ledge
+            ctx.fillStyle = p.color
+            ctx.fillRect(px, py, pw, 3)
+
+            // Decorative Scanlines
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)'
+            ctx.lineWidth = 1
+            for (let i = 4; i < ph; i += 4) {
+                ctx.beginPath()
+                ctx.moveTo(px, py + i)
+                ctx.lineTo(px + pw, py + i)
+                ctx.stroke()
+            }
+
+            // Side Accents
+            ctx.fillStyle = p.color
+            ctx.fillRect(px - 4, py, 4, ph)
+            ctx.fillRect(px + pw, py, 4, ph)
 
             // Support pillars
-            ctx.strokeStyle = 'rgba(255,255,255,0.2)'
+            ctx.strokeStyle = 'rgba(0, 255, 255, 0.3)'
             ctx.lineWidth = 2
             ctx.beginPath()
-            ctx.moveTo(p.x - p.w / 4, p.y + 12)
-            ctx.lineTo(p.x - p.w / 4, CONFIG.floorY)
-            ctx.moveTo(p.x + p.w / 4, p.y + 12)
-            ctx.lineTo(p.x + p.w / 4, CONFIG.floorY)
+            ctx.moveTo(px + pw * 0.2, py + ph)
+            ctx.lineTo(px + pw * 0.2, CONFIG.floorY)
+            ctx.moveTo(px + pw * 0.8, py + ph)
+            ctx.lineTo(px + pw * 0.8, CONFIG.floorY)
             ctx.stroke()
+
+            // Pillar Decorations
+            if (useEffects) {
+                ctx.fillStyle = '#0ff'
+                ctx.fillRect(px + pw * 0.2 - 4, py + ph + 10, 8, 4)
+                ctx.fillRect(px + pw * 0.8 - 4, py + ph + 10, 8, 4)
+            }
         }
 
         // Draw traps
@@ -3137,10 +3195,23 @@ class Game {
             }
         }
 
+        this.accumulator += dt
+        
+        while (this.accumulator >= this.fixedDt) {
+            this._updateLogic(this.fixedDt)
+            this.accumulator -= this.fixedDt
+        }
+
+        this._render(dt) // Pass dt for occasional interpolation if needed
+        requestAnimationFrame((t) => this.loop(t))
+    }
+
+    _updateLogic(dt) {
         this.input.update()
         if (this.state !== 'GAME') {
             this._updateMenuNavigation(dt)
         }
+
         if (this.state === 'GAME' || this.state === 'GAMEOVER') {
             let ldt = dt * this.timeScale
             if (this.hitStop > 0) {
@@ -3151,12 +3222,15 @@ class Game {
                 this._checkPlatformCollision()
                 this.player.update(this.state === 'GAMEOVER' ? dt : ldt, this.input, this.particles)
                 if (this.state === 'GAME') {
-                    if (this.hasPlayerMoved) {
-                        this.enemies.forEach((e) => {
+                    this.enemies.forEach((e) => {
+                        const inView = e.x > this.camera.x - 100 && e.x < this.camera.x + CONFIG.canvasWidth + 100
+                        if (this.hasPlayerMoved || inView) {
                             e.update(ldt, this.player)
                             this._checkEnemyPlatformCollision(e)
-                        })
+                        }
+                    })
 
+                    if (this.hasPlayerMoved) {
                         // Update and check traps
                         for (const t of this.traps) {
                             t.angle += t.speed * ldt
@@ -3241,6 +3315,9 @@ class Game {
                 this.updateTimingUI()
             }
         }
+    }
+
+    _render(dt) {
         this.drawBG()
         this.drawLevel()
         this.ctx.save()
