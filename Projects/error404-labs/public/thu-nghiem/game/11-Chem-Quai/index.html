@@ -1935,6 +1935,7 @@ class Enemy extends Entity {
         this.bodyScale = 1.0
         this.dodgeCd = 0
         this.canDodge = false
+        this.jumpAiCd = 0
         if (type === 'basic') {
             this.color = CONFIG.colors.enemy
             this.hp = this.maxHp = Math.floor(40 * scale)
@@ -2029,6 +2030,7 @@ class Enemy extends Entity {
         if (this.dodgeCd > 0) this.dodgeCd -= dt
         if (this.jumpCd >= 0) this.jumpCd -= dt
         if (this.diveCd > 0) this.diveCd -= dt
+        if (this.jumpAiCd > 0) this.jumpAiCd -= dt
         if (this.state === 'DEAD') {
             this.vx *= 0.95
             this.updatePhysics(dt)
@@ -2180,6 +2182,16 @@ class Enemy extends Entity {
                 }
             }
         }
+
+        // AI Logic: Jump to platforms if player is higher
+        if (this.type !== 'flyer' && this.state !== 'DEAD' && (this.z === 0 || this.onPlatform) && this.jumpAiCd <= 0 && player.z > this.z + 60 && Math.abs(player.x - this.x) < 300) {
+            // Check if there's a platform roughly above to jump to
+            this.vz = 850
+            this.onPlatform = false
+            this.jumpAiCd = 2.0 + Math.random() * 2.0
+            this.changeState('RUN')
+        }
+
         this.updatePhysics(dt)
     }
     takeDamage(a, kbx, src) {
