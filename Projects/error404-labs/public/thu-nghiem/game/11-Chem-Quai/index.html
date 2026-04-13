@@ -1280,6 +1280,7 @@ class ParticleSystem {
             color: entity.color,
             state: entity.state,
             stateTime: entity.stateTime,
+            isPlayer: entity.constructor.name === 'Player' || entity.isPlayer
         })
     }
     update(dt) {
@@ -1494,8 +1495,8 @@ class Entity {
 
         if (!isGhost && e.hitFlicker > 0) ctx.globalCompositeOperation = 'lighter'
 
-        const isPlayer = e.constructor.name === 'Player'
-        if (SPRITES.loaded && !isGhost && isPlayer) {
+        const isPlayer = e.isPlayer || e.constructor.name === 'Player'
+        if (SPRITES.loaded && isPlayer) {
             const sSize = 110
             let sprite = null
             if (e.state === 'DEAD') {
@@ -1515,9 +1516,9 @@ class Entity {
             } else if (e.state === 'IDLE') {
                 const totalFrames = 5
                 sprite = SPRITES.idle[0][Math.floor(t * 10) % totalFrames]
-            } else if (e.state === 'RUN') {
+            } else if (e.state === 'RUN' || e.state === 'DASH') {
                 const totalFrames = 8
-                sprite = SPRITES.run[0][Math.floor(t * 12) % totalFrames]
+                sprite = SPRITES.run[0][e.state === 'DASH' ? 4 : Math.floor(t * 12) % totalFrames]
             }
 
             if (sprite && sprite.complete) {
