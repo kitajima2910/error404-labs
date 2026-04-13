@@ -1316,18 +1316,23 @@ class ParticleSystem {
                 ctx.save()
                 ctx.translate(p.x, p.y)
                 ctx.scale(p.dir, 1)
-                const grad = ctx.createLinearGradient(0, 0, p.size, 0)
-                grad.addColorStop(0, '#fff')
-                grad.addColorStop(0.5, p.color)
-                grad.addColorStop(1, 'transparent')
-                ctx.fillStyle = grad
+                // Optimized: skip gradient creation for every slash particle if on weak device
+                if (this.currentFps < 50) {
+                    ctx.fillStyle = p.color
+                } else {
+                    const grad = ctx.createLinearGradient(0, 0, p.size, 0)
+                    grad.addColorStop(0, '#fff')
+                    grad.addColorStop(0.5, p.color)
+                    grad.addColorStop(1, 'transparent')
+                    ctx.fillStyle = grad
+                }
                 ctx.beginPath()
                 ctx.moveTo(0, -p.size * 0.4)
                 ctx.quadraticCurveTo(p.size * 1.2, 0, 0, p.size * 0.4)
                 ctx.lineTo(0, -p.size * 0.4)
                 ctx.fill()
                 ctx.strokeStyle = '#fff'
-                ctx.lineWidth = 2 * a
+                ctx.lineWidth = 1.5 * a
                 ctx.stroke()
                 ctx.restore()
             } else if (p.type === 'skill_vfx') {
@@ -2264,8 +2269,22 @@ class Item {
         this.vx *= 0.99
         this.angle += this.rotSpeed * dt
 
-        if (this.y > CONFIG.floorY) {
-            this.y = CONFIG.floorY
+        const game = window._gameInstance
+        let floorY = CONFIG.floorY
+        if (game) {
+            for (let plat of game.platforms) {
+                if (this.vy >= 0 && this.x > plat.x - plat.w / 2 && this.x < plat.x + plat.w / 2) {
+                    const platY = plat.y
+                    if (this.y >= platY - 10 && this.y <= platY + 20) {
+                        floorY = platY
+                        break
+                    }
+                }
+            }
+        }
+
+        if (this.y > floorY) {
+            this.y = floorY
             this.vy *= -0.6
             this.vx *= 0.7
             this.rotSpeed *= 0.6
@@ -2377,6 +2396,7 @@ class Game {
         this.groundSegments = []
         this.traps = []
         window._gameInstance = this
+        this.needsHudUpdate = true
         this._entitiesList = []
         this.menuIndex = 0
         this.menuCooldown = 0
@@ -2705,18 +2725,19 @@ class Game {
                     this.combo++
                     this.comboT = 4.0
                     this.money += Math.floor(1 + this.combo * 0.2)
+                    this.particles.spawn(e.x, e.getDrawY() - e.h / 2, '#f00', 10)
                     if (e.state === 'DEAD' && !e._killed) {
                         e._killed = true
                         this.waveKills++
                         this.money += e.type === 'boss' ? 200 : e.type === 'shield' ? 50 : 25
                         const roll = Math.random()
-                        if (roll < 0.12) this.items.push(new Item(e.x, e.y, 'hp', this.player.dir))
-                        else if (roll < 0.35) this.items.push(new Item(e.x, e.y, 'star', this.player.dir))
+                        if (roll < 0.12) this.items.push(new Item(e.x, e.getDrawY(), 'hp', this.player.dir))
+                        else if (roll < 0.35) this.items.push(new Item(e.x, e.getDrawY(), 'star', this.player.dir))
                     }
                 }
             if (hit) {
                 this.hasHit = true
-                this.updateHUD()
+                this.needsHudUpdate = true
             }
         }
         if (!pb) this.hasHit = false
@@ -2725,9 +2746,9 @@ class Game {
             if (eb && Utils.rectIntersect(eb, this.player.getHitbox())) {
                 if (this.player.takeDamage(eb.dmg, e.dir * 300, e)) {
                     this.camera.shake(20, 0.3)
-                    this.particles.spawn(this.player.x, this.player.y - this.player.h / 2, '#f00', 20)
+                    this.particles.spawn(this.player.x, this.player.getDrawY() - this.player.h / 2, '#f00', 20)
                     this.combo = 0
-                    this.updateHUD()
+                    this.needsHudUpdate = true
                 }
             }
         }
@@ -2740,17 +2761,19 @@ class Game {
                 continue
             }
 
-            const dist = Math.hypot(this.player.x - item.x, this.player.y - this.player.h / 2 - (item.y - 15))
-            if (item.collectDelay <= 0 && dist < 60) {
+            const dx = this.player.x - item.x
+            const dy = this.player.y - this.player.h / 2 - (item.y - 15)
+            const dSq = dx * dx + dy * dy
+            if (item.collectDelay <= 0 && dSq < 3600) {
                 if (item.type === 'hp') {
                     this.player.hp = Math.min(this.player.maxHp, this.player.hp + this.player.maxHp * 0.2)
-                    this.particles.spawn(this.player.x, this.player.y - 50, '#0f0', 15)
+                    this.particles.spawn(this.player.x, this.player.getDrawY() - 50, '#0f0', 15)
                 } else {
                     const bonus = 200 + Math.floor(Math.random() * 300)
                     this.money += bonus
-                    this.particles.spawn(this.player.x, this.player.y - 50, '#ff0', 15)
+                    this.particles.spawn(this.player.x, this.player.getDrawY() - 50, '#ff0', 15)
                 }
-                this.updateHUD()
+                this.needsHudUpdate = true
                 audio.playBuy()
                 this.items.splice(i, 1)
             }
@@ -3236,15 +3259,15 @@ class Game {
                             t.angle += t.speed * ldt
                             if (this.player.state !== 'DEAD' && this.player.state !== 'DASH') {
                                 const trapY = CONFIG.floorY - t.z - t.r
-                                const dist = Math.hypot(
-                                    this.player.x - t.x,
-                                    this.player.getDrawY() - this.player.h / 2 - trapY,
-                                )
-                                if (dist < t.r + 20) {
+                                const dx = this.player.x - t.x
+                                const dy = this.player.getDrawY() - this.player.h / 2 - trapY
+                                const dSq = dx * dx + dy * dy
+                                const rSum = t.r + 20
+                                if (dSq < rSum * rSum) {
                                     if (this.player.takeDamage(250, this.player.x > t.x ? 400 : -400)) {
                                         this.camera.shake(15, 0.2)
                                         this.particles.spawn(t.x, trapY, '#f00', 10)
-                                        this.updateHUD()
+                                        this.needsHudUpdate = true
                                     }
                                 }
                             }
@@ -3256,10 +3279,13 @@ class Game {
                         this.comboT -= ldt
                         if (this.comboT <= 0) {
                             this.combo = 0
-                            this.updateHUD()
+                            this.needsHudUpdate = true
                         }
                     }
-                    const alive = this.enemies.filter((e) => e.state !== 'DEAD').length
+                    let alive = 0
+                    for (let i = 0; i < this.enemies.length; i++) {
+                        if (this.enemies[i].state !== 'DEAD') alive++
+                    }
                     const maxOnScreen = Math.min(3 + Math.floor(this.wave * 0.2), 8)
                     if (this.hasPlayerMoved && this.spawnQueue.length > 0 && alive < maxOnScreen) {
                         this.spawnTimer -= ldt
@@ -3282,15 +3308,12 @@ class Game {
                     })
                     this.projectiles = this.projectiles.filter((p) => p.life > 0)
 
-                    const currentAlive = this.enemies.filter((e) => e.state !== 'DEAD').length
-                    const totalInWave = this.waveKills + currentAlive + this.spawnQueue.length
-
+                    const totalInWave = this.waveKills + alive + this.spawnQueue.length
                     const isWaveCleared =
-                        this.waveKills >= totalInWave && this.spawnQueue.length === 0 && currentAlive === 0
+                        this.waveKills >= totalInWave && this.spawnQueue.length === 0 && alive === 0
 
                     const gateHint = document.getElementById('gate-hint')
                     if (isWaveCleared && this.player.state !== 'DEAD') {
-                        // Hiện chỉ dẫn nếu ở xa cổng (>400px)
                         const distToGate = Math.abs(this.player.x - this.exitGateX)
                         if (gateHint) {
                             if (distToGate > 400) gateHint.classList.remove('hidden')
@@ -3309,6 +3332,10 @@ class Game {
                     if (isWaveCleared && this.player.x > this.exitGateX - 50) {
                         this._nextWave()
                     }
+                }
+                if (this.needsHudUpdate) {
+                    this.updateHUD()
+                    this.needsHudUpdate = false
                 }
                 this.enemies = this.enemies.filter((e) => e.state !== 'DEAD' || e.stateTime < 1.5)
                 this.camera.update(dt, this.player)
