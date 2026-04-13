@@ -1276,7 +1276,8 @@ class ParticleSystem {
             y: entity.y,
             z: entity.z,
             dir: entity.dir,
-            life: 0.4,
+            life: 0.6,
+            maxLife: 0.6,
             color: entity.color,
             state: entity.state,
             stateTime: entity.stateTime,
@@ -1306,7 +1307,7 @@ class ParticleSystem {
     draw(ctx, drawFn) {
         ctx.globalCompositeOperation = 'lighter'
         for (let g of this.ghosts) {
-            ctx.globalAlpha = (g.life / 0.4) * 0.3
+            ctx.globalAlpha = (g.life / (g.maxLife || 0.6)) * 0.5
             drawFn(ctx, g, true)
         }
         for (let p of this.particles) {
@@ -1777,7 +1778,7 @@ class Player extends Entity {
         this.maxHp = SaveSystem.data.stats.maxHp
         this.hp = this.maxHp
         this.speed = 400
-        this.dashSpeed = 1200
+        this.dashSpeed = 1500
         this.dashCd = 0
         this.attackStep = 0
         this.ghostTimer = 0
@@ -1873,14 +1874,14 @@ class Player extends Entity {
             this.dashCd = 0.7 * SaveSystem.data.stats.dashCdMult
             audio.playDash()
             particles.spawnGhost(this)
-            this.ghostTimer = 0.04
+            this.ghostTimer = 0.06
         }
 
         if (this.state === 'DASH') {
             this.ghostTimer -= dt
             if (this.ghostTimer <= 0) {
                 particles.spawnGhost(this)
-                this.ghostTimer = 0.04
+                this.ghostTimer = 0.06
             }
         }
 
@@ -1903,7 +1904,7 @@ class Player extends Entity {
                 this.changeState('IDLE')
                 this.isCritWindow = false
             }
-        } else if (this.state === 'DASH' && this.stateTime > 0.2) this.changeState('IDLE')
+        } else if (this.state === 'DASH' && this.stateTime > 0.35) this.changeState('IDLE')
         else if (this.state === 'HURT' && this.stateTime > 0.3) {
             this.changeState('IDLE')
             this.attackStep = 0
@@ -3176,7 +3177,6 @@ class Game {
             ctx.restore()
         }
 
-        drawGatePillar(1)
         drawGatePillar(-1)
 
         ctx.strokeStyle = 'rgba(255, 0, 255, 0.6)'
@@ -3187,7 +3187,7 @@ class Game {
         ])
         ctx.beginPath()
         ctx.moveTo(0, -150)
-        ctx.lineTo(0, 150)
+        ctx.lineTo(0, 0)
         ctx.stroke()
         ctx.setLineDash([])
 
