@@ -47,7 +47,8 @@ class ParticleSystem {
             y: entity.y,
             z: entity.z,
             dir: entity.dir,
-            life: 0.4,
+            life: 0.6,
+            maxLife: 0.6,
             color: entity.color,
             state: entity.state,
             stateTime: entity.stateTime,
@@ -73,11 +74,22 @@ class ParticleSystem {
         }
     }
     draw(ctx, drawFn) {
-        ctx.globalCompositeOperation = 'lighter'
+        ctx.save()
         for (let g of this.ghosts) {
-            ctx.globalAlpha = (g.life / 0.4) * 0.3
+            const ratio = g.life / (g.maxLife || 0.6)
+            ctx.globalAlpha = ratio * 0.4
+            
+            // Premium blur effect for ghosts if performance allows
+            if (window._gameInstance && window._gameInstance.currentFps > 50) {
+                ctx.shadowBlur = 10 * ratio
+                ctx.shadowColor = g.color
+            }
+            
             drawFn(ctx, g, true)
         }
+        ctx.restore()
+
+        ctx.globalCompositeOperation = 'lighter'
         for (let p of this.particles) {
             const a = Math.max(0, p.life / p.maxLife)
             ctx.fillStyle = p.color

@@ -367,8 +367,9 @@ class Game {
                         this.waveKills++
                         this.money += e.type === 'boss' ? 200 : e.type === 'shield' ? 50 : 25
                         const roll = Math.random()
-                        if (roll < 0.12) this.items.push(new Item(e.x, e.y, 'hp', this.player.dir))
-                        else if (roll < 0.35) this.items.push(new Item(e.x, e.y, 'star', this.player.dir))
+                        const spawnY = e.getDrawY()
+                        if (roll < 0.12) this.items.push(new Item(e.x, spawnY, 'hp', this.player.dir))
+                        else if (roll < 0.35) this.items.push(new Item(e.x, spawnY, 'star', this.player.dir))
                     }
                 }
             if (hit) {

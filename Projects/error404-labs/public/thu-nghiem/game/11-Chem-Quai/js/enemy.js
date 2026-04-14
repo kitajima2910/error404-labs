@@ -9,6 +9,8 @@ class Enemy extends Entity {
         this.bodyScale = 1.0
         this.dodgeCd = 0
         this.canDodge = false
+        this.jumpAiCd = 0
+        this.jumpChance = 0.02 + (wave * 0.005) // Scaling jump aggressiveness
         if (type === 'basic') {
             this.color = CONFIG.colors.enemy
             this.hp = this.maxHp = Math.floor(40 * scale)
@@ -137,9 +139,26 @@ class Enemy extends Entity {
             const dx = player.x - this.x,
                 d = Math.abs(dx)
 
-            // Patrol behavior if on platform and player is not on the same level
-            const onSameLevel = Math.abs(player.z - this.z) < 50
-            if (this.onPlatform && !onSameLevel && this.patrolL !== null) {
+            // Improved AI: Platform Navigation & Vertical Pursuit
+            const onSameLevel = Math.abs(player.z - this.z) < 60
+            const isAbove = player.z > this.z + 80
+            
+            if (isAbove && this.jumpAiCd <= 0 && this.onPlatform) {
+                // Determine if there's a platform above to jump to
+                const game = window._gameInstance
+                const platAbove = game ? game.platforms.find(p => 
+                    Math.abs(p.x - this.x) < 200 && p.z > this.z + 50 && p.z < this.z + 300
+                ) : null
+                
+                if (platAbove || Math.random() < this.jumpChance) {
+                    this.vz = 800
+                    this.onPlatform = false
+                    this.jumpAiCd = 1.0 + Math.random() * 2
+                    audio.playJump()
+                }
+            }
+
+            if (this.onPlatform && !onSameLevel && this.patrolL !== null && !isAbove) {
                 this.changeState('RUN')
                 if (this.x <= this.patrolL) this.dir = 1
                 else if (this.x >= this.patrolR) this.dir = -1

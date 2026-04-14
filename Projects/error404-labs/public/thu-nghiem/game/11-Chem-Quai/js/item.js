@@ -23,8 +23,22 @@ class Item {
         this.vx *= 0.99
         this.angle += this.rotSpeed * dt
 
-        if (this.y > CONFIG.floorY) {
-            this.y = CONFIG.floorY
+        const game = window._gameInstance
+        let floorY = CONFIG.floorY
+        if (game) {
+            for (let plat of game.platforms) {
+                if (this.vy >= 0 && this.x > plat.x - plat.w / 2 && this.x < plat.x + plat.w / 2) {
+                    const platY = plat.y
+                    if (this.y >= platY - 10 && this.y <= platY + 20) {
+                        floorY = platY
+                        break
+                    }
+                }
+            }
+        }
+
+        if (this.y > floorY) {
+            this.y = floorY
             this.vy *= -0.6
             this.vx *= 0.7
             this.rotSpeed *= 0.6
