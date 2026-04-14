@@ -399,7 +399,7 @@ class Game {
                 continue
             }
 
-            const dist = Math.hypot(this.player.x - item.x, this.player.y - this.player.h / 2 - (item.y - 15))
+            const dist = Math.hypot(this.player.x - item.x, this.player.getDrawY() - this.player.h / 2 - (item.y - 15))
             if (item.collectDelay <= 0 && dist < 60) {
                 if (item.type === 'hp') {
                     this.player.hp = Math.min(this.player.maxHp, this.player.hp + this.player.maxHp * 0.2)

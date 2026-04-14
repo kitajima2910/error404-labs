@@ -1286,8 +1286,8 @@ class ParticleSystem {
             y: entity.y,
             z: entity.z,
             dir: entity.dir,
-            life: 0.6,
-            maxLife: 0.6,
+            life: 0.85,
+            maxLife: 0.85,
             color: entity.color,
             state: entity.state,
             stateTime: entity.stateTime,
@@ -1318,7 +1318,7 @@ class ParticleSystem {
         ctx.save()
         for (let g of this.ghosts) {
             const ratio = g.life / (g.maxLife || 0.6)
-            ctx.globalAlpha = ratio * 0.4
+            ctx.globalAlpha = ratio * 0.7
             
             // Premium blur effect for ghosts if performance allows
             if (this.currentFps > 50) {
@@ -1894,23 +1894,37 @@ class Player extends Entity {
                 }
             }
         }
-        if (canM && input.consume('Space') && this.dashCd <= 0) {
-            const game = window._gameInstance
-            if (game) game.hasPlayerMoved = true
-            this.changeState('DASH')
-            this.vx = this.dir * this.dashSpeed
-            this.dashCd = 0.7 * SaveSystem.data.stats.dashCdMult
-            audio.playDash()
-            particles.spawnGhost(this)
-            this.ghostTimer = 0.06
+        if (canM && this.dashCd <= 0) {
+            if (input.keys['Space']) {
+                this.dashCharge = (this.dashCharge || 0) + dt
+                if (this.dashCharge > 0.8) this.dashCharge = 0.8
+                // Hiệu ứng vận sức (tụ năng lượng)
+                if (Math.random() < this.dashCharge * 0.8) {
+                    particles.spawn(this.x + (Math.random() - 0.5) * 40, this.y - Math.random() * this.h, '#0ff', 1, 0.2, 0.3)
+                }
+            } else if (this.dashCharge > 0) {
+                const game = window._gameInstance
+                if (game) game.hasPlayerMoved = true
+                this.changeState('DASH')
+                const chargeRatio = Math.min(1, this.dashCharge / 0.5)
+                this.currentDashDuration = 0.2 + 0.3 * chargeRatio
+                this.vx = this.dir * this.dashSpeed * (0.5 + 0.7 * chargeRatio)
+                this.dashCd = 0.7 * SaveSystem.data.stats.dashCdMult
+                audio.playDash()
+                particles.spawnGhost(this)
+                this.ghostTimer = 0.02
+                this.dashCharge = 0
+            }
+        } else if (!input.keys['Space']) {
+            this.dashCharge = 0
         }
 
         if (this.state === 'DASH') {
             this.ghostTimer -= dt
             if (this.ghostTimer <= 0) {
                 particles.spawnGhost(this)
-                // Density control: more ghosts for a smoother trail
-                this.ghostTimer = 0.04 
+                // Pulse ghosts: 15+ distinct shadows that fade beautifully
+                this.ghostTimer = 0.02 
             }
         }
 
@@ -1933,7 +1947,7 @@ class Player extends Entity {
                 this.changeState('IDLE')
                 this.isCritWindow = false
             }
-        } else if (this.state === 'DASH' && this.stateTime > 0.35) this.changeState('IDLE')
+        } else if (this.state === 'DASH' && this.stateTime > (this.currentDashDuration || 0.45)) this.changeState('IDLE')
         else if (this.state === 'HURT' && this.stateTime > 0.3) {
             this.changeState('IDLE')
             this.attackStep = 0
@@ -2318,7 +2332,7 @@ class Item {
         this.h = 35
         this.color = type === 'hp' ? '#ff2d2d' : '#ffd700'
         this.collected = false
-        this.life = 10.0
+        this.life = 300.0
         this.collectDelay = 0.6
         this.angle = Math.random() * Math.PI * 2
         this.rotSpeed = (Math.random() - 0.5) * 15
@@ -2826,7 +2840,7 @@ class Game {
             }
 
             const dx = this.player.x - item.x
-            const dy = this.player.y - this.player.h / 2 - (item.y - 15)
+            const dy = this.player.getDrawY() - this.player.h / 2 - (item.y - 15)
             const dSq = dx * dx + dy * dy
             if (item.collectDelay <= 0 && dSq < 3600) {
                 if (item.type === 'hp') {

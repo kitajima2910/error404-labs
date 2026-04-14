@@ -47,8 +47,8 @@ class ParticleSystem {
             y: entity.y,
             z: entity.z,
             dir: entity.dir,
-            life: 0.6,
-            maxLife: 0.6,
+            life: 0.85,
+            maxLife: 0.85,
             color: entity.color,
             state: entity.state,
             stateTime: entity.stateTime,
@@ -77,7 +77,7 @@ class ParticleSystem {
         ctx.save()
         for (let g of this.ghosts) {
             const ratio = g.life / (g.maxLife || 0.6)
-            ctx.globalAlpha = ratio * 0.4
+            ctx.globalAlpha = ratio * 0.7
             
             // Premium blur effect for ghosts if performance allows
             if (window._gameInstance && window._gameInstance.currentFps > 50) {

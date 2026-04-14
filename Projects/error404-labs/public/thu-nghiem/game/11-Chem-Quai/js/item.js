@@ -11,7 +11,7 @@ class Item {
         this.h = 35
         this.color = type === 'hp' ? '#ff2d2d' : '#ffd700'
         this.collected = false
-        this.life = 10.0
+        this.life = 300.0
         this.collectDelay = 0.6
         this.angle = Math.random() * Math.PI * 2
         this.rotSpeed = (Math.random() - 0.5) * 15

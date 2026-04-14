@@ -81,22 +81,36 @@ class Player extends Entity {
                 }
             }
         }
-        if (canM && input.consume('Space') && this.dashCd <= 0) {
-            const game = window._gameInstance
-            if (game) game.hasPlayerMoved = true
-            this.changeState('DASH')
-            this.vx = this.dir * this.dashSpeed
-            this.dashCd = 0.7 * SaveSystem.data.stats.dashCdMult
-            audio.playDash()
-            particles.spawnGhost(this)
-            this.ghostTimer = 0.04
+        if (canM && this.dashCd <= 0) {
+            if (input.keys['Space']) {
+                this.dashCharge = (this.dashCharge || 0) + dt
+                if (this.dashCharge > 0.8) this.dashCharge = 0.8
+                // Hiệu ứng vận sức (tụ năng lượng)
+                if (Math.random() < this.dashCharge * 0.8) {
+                    particles.spawn(this.x + (Math.random() - 0.5) * 40, this.getDrawY() - Math.random() * this.h, '#0ff', 1, 0.2, 0.3)
+                }
+            } else if (this.dashCharge > 0) {
+                const game = window._gameInstance
+                if (game) game.hasPlayerMoved = true
+                this.changeState('DASH')
+                const chargeRatio = Math.min(1, this.dashCharge / 0.5)
+                this.currentDashDuration = 0.2 + 0.3 * chargeRatio
+                this.vx = this.dir * this.dashSpeed * (0.5 + 0.7 * chargeRatio)
+                this.dashCd = 0.7 * SaveSystem.data.stats.dashCdMult
+                audio.playDash()
+                particles.spawnGhost(this)
+                this.ghostTimer = 0.02
+                this.dashCharge = 0
+            }
+        } else if (!input.keys['Space']) {
+            this.dashCharge = 0
         }
 
         if (this.state === 'DASH') {
             this.ghostTimer -= dt
             if (this.ghostTimer <= 0) {
                 particles.spawnGhost(this)
-                this.ghostTimer = 0.04
+                this.ghostTimer = 0.02
             }
         }
 
@@ -119,7 +133,7 @@ class Player extends Entity {
                 this.changeState('IDLE')
                 this.isCritWindow = false
             }
-        } else if (this.state === 'DASH' && this.stateTime > 0.2) this.changeState('IDLE')
+        } else if (this.state === 'DASH' && this.stateTime > (this.currentDashDuration || 0.45)) this.changeState('IDLE')
         else if (this.state === 'HURT' && this.stateTime > 0.3) {
             this.changeState('IDLE')
             this.attackStep = 0
