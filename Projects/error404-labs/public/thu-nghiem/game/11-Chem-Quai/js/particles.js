@@ -52,7 +52,9 @@ class ParticleSystem {
             color: entity.color,
             state: entity.state,
             stateTime: entity.stateTime,
+            isPlayer: entity.constructor.name === 'Player' || entity.isPlayer
         })
+        if (this.ghosts.length > 15) this.ghosts.shift()
     }
     update(dt) {
         for (let i = this.particles.length - 1; i >= 0; i--) {
@@ -73,7 +75,7 @@ class ParticleSystem {
             if (this.ghosts[i].life <= 0) this.ghosts.splice(i, 1)
         }
     }
-    draw(ctx, drawFn) {
+    drawGhosts(ctx, drawFn) {
         ctx.save()
         for (let g of this.ghosts) {
             const ratio = g.life / (g.maxLife || 0.6)
@@ -88,6 +90,8 @@ class ParticleSystem {
             drawFn(ctx, g, true)
         }
         ctx.restore()
+    }
+    draw(ctx) {
 
         ctx.globalCompositeOperation = 'lighter'
         for (let p of this.particles) {

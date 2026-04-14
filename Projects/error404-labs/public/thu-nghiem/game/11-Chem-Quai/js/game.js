@@ -959,6 +959,8 @@ class Game {
 
             const useShadow = this.currentFps > 40
 
+            this.particles.drawGhosts(this.ctx, Entity.drawEntity)
+
             for (let i = 0; i < this._entitiesList.length; i++) {
                 const ent = this._entitiesList[i]
                 if (ent.x > this.camera.x - 200 && ent.x < this.camera.x + CONFIG.canvasWidth + 200) {
@@ -972,7 +974,7 @@ class Game {
                     }
                 }
             }
-            this.particles.draw(this.ctx, Entity.drawEntity)
+            this.particles.draw(this.ctx)
 
             if (this.projectiles.length > 0) {
                 this.ctx.save()
