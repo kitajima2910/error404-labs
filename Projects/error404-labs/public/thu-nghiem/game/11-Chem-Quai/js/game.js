@@ -183,8 +183,9 @@ class Game {
         }
         shop('upg-dmg', 'dmgMult', 'dmg', 0.25, 8)
         shop('upg-crit', 'critWindowMult', 'crit', 0.2, 5)
-        shop('upg-hp', 'maxHp', 'hp', 2500, 100000)
+        shop('upg-hp', 'maxHp', 'hp', 2500, 500000)
         shop('upg-dash', 'dashCdMult', 'dash', -0.1, 0.2)
+        shop('upg-armor', 'armor', 'armor', 20, 1000)
     }
     startWave() {
         audio.init()
@@ -435,6 +436,9 @@ class Game {
             document.getElementById('stat-atk').innerText = Math.round(d.stats.dmgMult * 100) + '%'
             document.getElementById('stat-crit').innerText = Math.round(d.stats.critWindowMult * 100) + '%'
             document.getElementById('stat-dash').innerText = Math.round((1 / d.stats.dashCdMult) * 100) + '%'
+            if (document.getElementById('stat-armor')) {
+                document.getElementById('stat-armor').innerText = Math.round(d.stats.armor)
+            }
         }
 
         const cur = document.getElementById('currency-display')
@@ -467,6 +471,11 @@ class Game {
                 'dashCdMult',
                 0.2,
                 'dash',
+            ],
+            [
+                'armor',
+                1000,
+                'armor',
             ],
         ]
         items.forEach((i) => {

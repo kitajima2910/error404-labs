@@ -5,6 +5,7 @@ class Player extends Entity {
         this.color = CONFIG.colors.player
         this.maxHp = SaveSystem.data.stats.maxHp
         this.hp = this.maxHp
+        this.armor = SaveSystem.data.stats.armor || 0
         this.speed = 400
         this.dashSpeed = 1200
         this.dashCd = 0

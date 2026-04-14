@@ -18,6 +18,7 @@ class Entity {
         this.hitFlicker = 0
         this.weaponType = 'sword'
         this.onPlatform = false
+        this.armor = 0
     }
     getDrawY() {
         return this.y - this.z
@@ -63,7 +64,12 @@ class Entity {
     }
     takeDamage(a, kbx, src) {
         if (this.state === 'DEAD' || this.state === 'DASH') return false
-        this.hp -= a
+        
+        // Armor implementation: reduction = 100 / (100 + armor)
+        const reduction = 100 / (100 + (this.armor || 0))
+        const actualDamage = a * reduction
+        
+        this.hp -= actualDamage
         this.hitFlicker = 0.1
         this.vx = kbx
         if (this.hp <= 0) {

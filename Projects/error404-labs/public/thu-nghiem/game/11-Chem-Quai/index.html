@@ -636,6 +636,10 @@ button:disabled {
                                 <span>DASH:</span>
                                 <span class="stat-val" id="stat-dash">100%</span>
                             </div>
+                            <div class="stat-item">
+                                <span>ARM:</span>
+                                <span class="stat-val" id="stat-armor">0</span>
+                            </div>
                         </div>
                     </div>
                     <div id="wave-display">MÀN 1</div>
@@ -767,6 +771,10 @@ button:disabled {
                     <div class="shop-item">
                         <span>Hồi lướt (-15%)</span>
                         <button class="shop-btn" id="upg-dash">Giá: <span id="cost-dash">60</span> VNĐ</button>
+                    </div>
+                    <div class="shop-item">
+                        <span>Giáp (+20)</span>
+                        <button class="shop-btn" id="upg-armor">Giá: <span id="cost-armor">80</span> VNĐ</button>
                     </div>
                     <div
                         style="
@@ -1032,8 +1040,8 @@ const SaveSystem = {
     data: {
         money: 0,
         wave: 1,
-        stats: { dmgMult: 1, critWindowMult: 1, maxHp: 15000, dashCdMult: 1 },
-        costs: { dmg: 5000, crit: 7500, hp: 10000, dash: 6000 },
+        stats: { dmgMult: 1, critWindowMult: 1, maxHp: 100000, dashCdMult: 1, armor: 50 },
+        costs: { dmg: 5000, crit: 7500, hp: 10000, dash: 6000, armor: 8000 },
         skills: { unlocked: ['vfx1'], active: 'vfx1' },
         skillCosts: { vfx2: 15000, vfx3: 30000, vfx4: 60000, vfx5: 120000, vfx6: 250000 },
     },
@@ -1046,12 +1054,14 @@ const SaveSystem = {
             if (s) {
                 const parsed = JSON.parse(s)
                 this.data = { ...this.data, ...parsed }
-                if (this.data.stats.maxHp < 15000) this.data.stats.maxHp = 15000
+                if (this.data.stats.maxHp < 100000) this.data.stats.maxHp = 100000
+                if (this.data.stats.armor === undefined) this.data.stats.armor = 50
                 // Force update costs for higher starting values
                 if (this.data.costs.dmg < 5000) this.data.costs.dmg = 5000
                 if (this.data.costs.crit < 7500) this.data.costs.crit = 7500
                 if (this.data.costs.hp < 10000) this.data.costs.hp = 10000
                 if (this.data.costs.dash < 6000) this.data.costs.dash = 6000
+                if (this.data.costs.armor === undefined) this.data.costs.armor = 8000
                 if (this.data.skillCosts.vfx2 < 15000) {
                     this.data.skillCosts = { vfx2: 15000, vfx3: 30000, vfx4: 60000, vfx5: 120000, vfx6: 250000 }
                 }
@@ -1062,8 +1072,8 @@ const SaveSystem = {
         this.data = {
             money: 0,
             wave: 1,
-            stats: { dmgMult: 1, critWindowMult: 1, maxHp: 15000, dashCdMult: 1 },
-            costs: { dmg: 5000, crit: 7500, hp: 10000, dash: 6000 },
+            stats: { dmgMult: 1, critWindowMult: 1, maxHp: 100000, dashCdMult: 1, armor: 50 },
+            costs: { dmg: 5000, crit: 7500, hp: 10000, dash: 6000, armor: 8000 },
             skills: { unlocked: ['vfx1'], active: 'vfx1' },
             skillCosts: { vfx2: 15000, vfx3: 30000, vfx4: 60000, vfx5: 120000, vfx6: 250000 },
         }
@@ -1429,6 +1439,7 @@ class Entity {
         this.color = '#fff'
         this.hitFlicker = 0
         this.weaponType = 'sword'
+        this.armor = 0
         this.onPlatform = false
     }
     getDrawY() {
@@ -1475,7 +1486,12 @@ class Entity {
     }
     takeDamage(a, kbx, src) {
         if (this.state === 'DEAD' || this.state === 'DASH') return false
-        this.hp -= a
+        
+        // Armor implementation: reduction = 100 / (100 + armor)
+        const reduction = 100 / (100 + (this.armor || 0))
+        const actualDamage = a * reduction
+        
+        this.hp -= actualDamage
         this.hitFlicker = 0.1
         this.vx = kbx
         if (this.hp <= 0) {
@@ -1788,6 +1804,7 @@ class Player extends Entity {
         this.color = CONFIG.colors.player
         this.maxHp = SaveSystem.data.stats.maxHp
         this.hp = this.maxHp
+        this.armor = SaveSystem.data.stats.armor || 0
         this.speed = 400
         this.dashSpeed = 1500
         this.dashCd = 0
@@ -2592,6 +2609,7 @@ class Game {
         shop('upg-crit', 'critWindowMult', 'crit', 0.2, 3000)
         shop('upg-hp', 'maxHp', 'hp', 2500, 4000)
         shop('upg-dash', 'dashCdMult', 'dash', -0.1, 2500)
+        shop('upg-armor', 'armor', 'armor', 20, 2500)
     }
     startWave() {
         audio.init()
@@ -2846,6 +2864,9 @@ class Game {
             document.getElementById('stat-atk').innerText = Math.round(d.stats.dmgMult * 100) + '%'
             document.getElementById('stat-crit').innerText = Math.round(d.stats.critWindowMult * 100) + '%'
             document.getElementById('stat-dash').innerText = Math.round((1 / d.stats.dashCdMult) * 100) + '%'
+            if (document.getElementById('stat-armor')) {
+                document.getElementById('stat-armor').innerText = Math.round(d.stats.armor)
+            }
         }
 
         const cur = document.getElementById('currency-display')
@@ -2858,7 +2879,7 @@ class Game {
     updateShopUI() {
         const d = SaveSystem.data
         document.querySelectorAll('.shop-funds').forEach((el) => (el.innerText = this.money))
-        const items = ['dmg', 'crit', 'hp', 'dash']
+        const items = ['dmg', 'crit', 'hp', 'dash', 'armor']
         items.forEach((key) => {
             const b = document.getElementById('upg-' + key)
             if (b) {
