@@ -902,13 +902,18 @@
                 vfx5: [],
                 vfx6: [],
                 enemyWalk: [],
+                enemyHurt: [],
+                enemyAttack: [],
                 loaded: false,
                 load() {
                     if (this.loaded) return
                     let loadedCount = 0
                     const vfxCount = 6
                     const enemyWalkCount = 8
-                    const totalToLoad = 5 + 8 + 1 + 8 + 5 + 7 + vfxCount * 4 + enemyWalkCount
+                    const enemyHurtCount = 3
+                    const enemyAttackCount = 10
+                    const totalToLoad =
+                        5 + 8 + 1 + 8 + 5 + 7 + vfxCount * 4 + enemyWalkCount + enemyHurtCount + enemyAttackCount
                     const check = () => {
                         loadedCount++
                         if (loadedCount >= totalToLoad) this.loaded = true
@@ -976,12 +981,30 @@
                     }
 
                     this.enemyWalk[0] = []
-                    for (let c = 1; c <= enemyWalkCount; c++) {
+                    for (let c = 0; c < enemyWalkCount; c++) {
                         const img = new Image()
-                        img.src = `assets/quai/co-ban/Walk/Bringer-of-Death_Walk_${c}.png`
+                        img.src = `assets/quai/co-ban/Walk/Walk_${c.toString().padStart(3, '0')}.png`
                         img.onload = check
                         img.onerror = check
                         this.enemyWalk[0].push(img)
+                    }
+
+                    this.enemyHurt[0] = []
+                    for (let c = 0; c < enemyHurtCount; c++) {
+                        const img = new Image()
+                        img.src = `assets/quai/co-ban/Hurt/Hurt_${c.toString().padStart(3, '0')}.png`
+                        img.onload = check
+                        img.onerror = check
+                        this.enemyHurt[0].push(img)
+                    }
+
+                    this.enemyAttack[0] = []
+                    for (let c = 0; c < enemyAttackCount; c++) {
+                        const img = new Image()
+                        img.src = `assets/quai/co-ban/Attack/Attack_${c.toString().padStart(3, '0')}.png`
+                        img.onload = check
+                        img.onerror = check
+                        this.enemyAttack[0].push(img)
                     }
                 },
             }
@@ -1589,11 +1612,22 @@
 
                     const isEnemy = e.isEnemy || e.constructor.name === 'Enemy'
                     if (SPRITES.loaded && isEnemy && e.type === 'basic' && e.state !== 'DEAD') {
-                        const totalFrames = 8
+                        const drawDir = e.vx !== 0 ? Math.sign(e.vx) : e.dir
+                        const flipX = drawDir
+                        let sprite = null
+                        let totalFrames = 8
                         const sSize = 90
-                        const sprite = SPRITES.enemyWalk[0][Math.floor(t * 10) % totalFrames]
+                        if (e.state === 'HURT') {
+                            totalFrames = 3
+                            sprite = SPRITES.enemyHurt[0][Math.floor(t * 12) % totalFrames]
+                        } else if (e.state.startsWith('ATTACK')) {
+                            totalFrames = 10
+                            sprite = SPRITES.enemyAttack[0][Math.floor(t * 15) % totalFrames]
+                        } else {
+                            sprite = SPRITES.enemyWalk[0][Math.floor(t * 10) % totalFrames]
+                        }
                         if (sprite && sprite.complete) {
-                            ctx.drawImage(sprite, -sSize / 2, -sSize, sSize, sSize)
+                            ctx.drawImage(sprite, (-flipX * sSize) / 2, -sSize, flipX * sSize, sSize)
                             ctx.restore()
                             return
                         }
@@ -2380,11 +2414,24 @@
                     ctx.fillStyle = this.type === 'boss' ? '#f0f' : '#f00'
                     ctx.fillRect(x, y, barW * hpP, barH)
 
+                    const enemyNames = {
+                        basic: 'Quái Cơ Bản',
+                        ninja: 'Ninja',
+                        shield: 'Khiên Giáp',
+                        ranged: 'Tinh Nhuệ',
+                        advanced: 'Quái Nâng Cao',
+                        slime: 'Bọt Biển',
+                        flyer: 'Bay Lượn',
+                        boss: 'Boss',
+                    }
+                    const name = enemyNames[this.type] || this.type
                     ctx.fillStyle = '#fff'
-                    ctx.font = 'bold 10px "Orbitron", sans-serif'
+                    ctx.font = 'bold 11px "Orbitron", sans-serif'
                     ctx.textAlign = 'center'
                     ctx.shadowBlur = 0
-                    ctx.fillText(`${Math.ceil(this.hp)}/${this.maxHp}`, this.x, y - 5)
+                    ctx.fillText(name, this.x, y - 5)
+                    ctx.font = 'bold 10px "Orbitron", sans-serif'
+                    ctx.fillText(`${Math.ceil(this.hp)}/${this.maxHp}`, this.x, y - 18)
                 }
             }
 
@@ -3000,14 +3047,14 @@
                             const card = document.createElement('div')
                             card.className = `skill-card ${isActive ? 'active' : ''}`
                             card.innerHTML = `
-                <div class="skill-preview"><canvas id="preview-${id}"></canvas></div>
-                <div class="skill-name">SET BẬC ${v}</div>
-                <div class="skill-dmg">ST CỘNG: +${SKILLS_DATA[id].dmg}</div>
-                <div class="skill-cost">${isUnlocked ? (isActive ? 'ĐANG DÙNG' : 'ĐÃ SỞ HỮU') : cost + ' VNĐ'}</div>
-                <button class="shop-btn skill-btn" id="buy-${id}">
-                    ${isActive ? 'ĐANG DÙNG' : isUnlocked ? 'SỬ DỤNG' : `MUA NGAY`}
-                </button>
-            `
+                                        <div class="skill-preview"><canvas id="preview-${id}"></canvas></div>
+                                        <div class="skill-name">SET BẬC ${v}</div>
+                                        <div class="skill-dmg">ST CỘNG: +${SKILLS_DATA[id].dmg}</div>
+                                        <div class="skill-cost">${isUnlocked ? (isActive ? 'ĐANG DÙNG' : 'ĐÃ SỞ HỮU') : cost + ' VNĐ'}</div>
+                                        <button class="shop-btn skill-btn" id="buy-${id}">
+                                            ${isActive ? 'ĐANG DÙNG' : isUnlocked ? 'SỬ DỤNG' : `MUA NGAY`}
+                                        </button>
+                                    `
                             skillContainer.appendChild(card)
 
                             const canvas = document.getElementById(`preview-${id}`)
