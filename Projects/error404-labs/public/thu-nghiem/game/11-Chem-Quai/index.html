@@ -906,6 +906,8 @@
                 enemyAttack: [],
                 enemyDeath: [],
                 enemyTinhNhueWalk: [],
+                enemyTinhNhueAttack: [],
+                enemyTinhNhueSkill: [],
                 loaded: false,
                 load() {
                     if (this.loaded) return
@@ -916,6 +918,8 @@
                     const enemyAttackCount = 10
                     const enemyDeathCount = 10
                     const enemyTinhNhueWalkCount = 6
+                    const enemyTinhNhueAttackCount = 6
+                    const enemyTinhNhueSkillCount = 4
                     const totalToLoad =
                         5 +
                         8 +
@@ -928,7 +932,9 @@
                         enemyHurtCount +
                         enemyAttackCount +
                         enemyDeathCount +
-                        enemyTinhNhueWalkCount
+                        enemyTinhNhueWalkCount +
+                        enemyTinhNhueAttackCount +
+                        enemyTinhNhueSkillCount
                     const check = () => {
                         loadedCount++
                         if (loadedCount >= totalToLoad) this.loaded = true
@@ -1038,6 +1044,24 @@
                         img.onload = check
                         img.onerror = check
                         this.enemyTinhNhueWalk[0].push(img)
+                    }
+
+                    this.enemyTinhNhueAttack[0] = []
+                    for (let c = 0; c < enemyTinhNhueAttackCount; c++) {
+                        const img = new Image()
+                        img.src = `assets/quai/tinh-nhue/Attack_4/Attack_4_${c.toString().padStart(3, '0')}.png`
+                        img.onload = check
+                        img.onerror = check
+                        this.enemyTinhNhueAttack[0].push(img)
+                    }
+
+                    this.enemyTinhNhueSkill[0] = []
+                    for (let c = 0; c < enemyTinhNhueSkillCount; c++) {
+                        const img = new Image()
+                        img.src = `assets/quai/tinh-nhue/Blood_Charge_4/Blood_Charge_4_${c.toString().padStart(3, '0')}.png`
+                        img.onload = check
+                        img.onerror = check
+                        this.enemyTinhNhueSkill[0].push(img)
                     }
                 },
             }
@@ -1682,7 +1706,9 @@
                         } else if (e.state === 'HURT') {
                             sprite = SPRITES.enemyHurt[0][Math.floor(t * 12) % 3]
                         } else if (e.state.startsWith('ATTACK')) {
-                            sprite = SPRITES.enemyAttack[0][Math.floor(t * 15) % 10]
+                            sprite = SPRITES.enemyTinhNhueAttack[0][Math.floor(t * 12) % 6]
+                        } else if (e.state === 'SKILL') {
+                            sprite = SPRITES.enemyTinhNhueSkill[0][Math.floor(t * 10) % 4]
                         } else {
                             sprite = SPRITES.enemyTinhNhueWalk[0][Math.floor(t * 10) % totalFrames]
                         }
@@ -2116,6 +2142,7 @@
                     this.type = type
                     this.atkCd = Math.random() * 1.5
                     const scale = 1 + (wave - 1) * 0.12
+                    this.dmgScale = scale
                     this.weaponType = 'sword'
                     this.bodyScale = 1.0
                     this.dodgeCd = 0
@@ -2203,6 +2230,7 @@
                     this.patrolL = null
                     this.patrolR = null
                     this._hasShot = false
+                    this.skillCd = 0
                 }
                 _tryDodge(player) {
                     if (!this.canDodge || this.dodgeCd > 0 || this.state === 'ATTACK') return false
@@ -2221,6 +2249,7 @@
                     this.y = CONFIG.floorY
                     if (this.hitFlicker > 0) this.hitFlicker -= dt
                     if (this.atkCd > 0) this.atkCd -= dt
+                    if (this.skillCd > 0) this.skillCd -= dt
                     if (this.dodgeCd > 0) this.dodgeCd -= dt
                     if (this.jumpCd >= 0) this.jumpCd -= dt
                     if (this.diveCd > 0) this.diveCd -= dt
@@ -2240,24 +2269,34 @@
                         const atkDur = this.type === 'ninja' ? 0.4 : this.type === 'advanced' ? 0.9 : 0.7
                         if (this.stateTime > atkDur) this.changeState('IDLE')
                         if (
-                            (this.type === 'ranged' || this.type === 'slime') &&
+                            (this.type === 'ranged' || this.type === 'slime' || this.type === 'tinh-nhue') &&
                             this.stateTime > 0.35 &&
                             !this._hasShot
                         ) {
                             const game = window._gameInstance
                             if (game) {
                                 const dx = player.x - this.x
-                                game.projectiles.push({
-                                    x: this.x + this.dir * 20,
-                                    y: this.getDrawY() - 20,
-                                    vx: Math.sign(dx) * 500,
-                                    vy: 0,
-                                    dmg: Math.floor((this.type === 'slime' ? 100 : 120) * (this.dmgScale || 1)),
-                                    color: this.type === 'slime' ? '#0f4' : '#fff',
-                                    life: 3,
-                                })
+                                    game.projectiles.push({
+                                        x: this.x + this.dir * 20,
+                                        y: this.getDrawY() - 20,
+                                        vx: Math.sign(dx) * 500,
+                                        vy: 0,
+                                        dmg: Math.floor((this.type === 'slime' ? 100 : 120) * (this.dmgScale || 1)),
+                                        color: this.type === 'slime' ? '#0f4' : '#fff',
+                                        life: 3,
+                                        type: this.type,
+                                    })
                                 this._hasShot = true
                             }
+                        }
+                    } else if (this.state === 'SKILL') {
+                        const skillDur = 0.8
+                        if (this.stateTime > skillDur) {
+                            this.changeState('IDLE')
+                            this.vx = 0
+                        } else {
+                            // Blood Charge effect: Dash forward
+                            this.vx = this.dir * this.speed * 4
                         }
                     } else {
                         const dx = player.x - this.x,
@@ -2351,10 +2390,14 @@
                                     this.dir = dx > 0 ? 1 : -1
                                     this._hasShot = false
                                     this.atkCd = 1.2 + Math.random() * 0.8
-                                } else {
-                                    this.vx = Math.sin(this.stateTime * 3) * this.speed * 0.5
-                                    this.changeState('RUN')
                                 }
+                            }
+
+                            // Trigger Blood Charge skill for elite/ranged monsters
+                            if (this.skillCd <= 0 && d > 200 && d < 600 && Math.random() < 0.02) {
+                                this.changeState('SKILL')
+                                this.dir = dx > 0 ? 1 : -1
+                                this.skillCd = 5.0 + Math.random() * 3.0
                             }
                         } else if (this.type === 'ninja') {
                             if (d > this.atkR) {
@@ -3583,7 +3626,7 @@
                                     p.life -= ldt
                                     if (
                                         Utils.rectIntersect(
-                                            { x: p.x - 5, y: p.y - 5, w: 10, h: 10 },
+                                            { x: p.x - 15, y: p.y - 15, w: 30, h: 30 },
                                             this.player.getHitbox(),
                                         )
                                     ) {
@@ -3771,11 +3814,24 @@
 
                     this.projectiles.forEach((p) => {
                         this.ctx.save()
-                        this.ctx.translate(-this.camera.x, 0)
+                        this.ctx.translate(Math.round(p.x - this.camera.x), Math.round(p.y))
+
+                        if (SPRITES.loaded && (p.type === 'ranged' || p.type === 'tinh-nhue')) {
+                            const frames = SPRITES.enemyTinhNhueSkill[0]
+                            const sprite = frames[Math.floor(performance.now() * 0.01) % frames.length]
+                            if (sprite && sprite.complete) {
+                                const sSize = 60
+                                this.ctx.scale(p.vx > 0 ? 1 : -1, 1)
+                                this.ctx.drawImage(sprite, -sSize / 2, -sSize / 2, sSize, sSize)
+                                this.ctx.restore()
+                                return
+                            }
+                        }
+
                         this.ctx.fillStyle = p.color || '#fff'
                         this.ctx.shadowBlur = 5
                         this.ctx.shadowColor = p.color || '#fff'
-                        this.ctx.fillRect(p.x - 6, p.y - 4, 12, 8)
+                        this.ctx.fillRect(-6, -4, 12, 8)
                         this.ctx.restore()
                     })
 
