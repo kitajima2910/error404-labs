@@ -55,8 +55,6 @@ GAME 1 FILE
 
 - Nếu project game ban đầu có 1 file `index.html`, coi đó là file nguồn chính
 - Khi sửa game, ưu tiên sửa trực tiếp trong `index.html`
-- Đồng bộ `game.html` để chạy tương đương `index.html`
-- Nếu `index.html` đổi logic, `game.html` phải được cập nhật theo
 - Chỉ tách file khi thật sự giúp maintain tốt hơn, nhưng vẫn phải giữ logic đồng bộ
 
 =====================================

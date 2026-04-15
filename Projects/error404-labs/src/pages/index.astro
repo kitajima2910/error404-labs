@@ -45,7 +45,12 @@ const Facebook = 'https://www.facebook.com/kitajima2910'
     justify-self-center
     md:justify-self-start
     max-w-60
-    md:max-w-none"
+    md:max-w-none
+    cursor-pointer
+    transition-transform
+    duration-300
+    hover:scale-105"
+                onclick="openLightbox(this)"
             />
             <!--
             <video
@@ -122,6 +127,10 @@ const Facebook = 'https://www.facebook.com/kitajima2910'
             </div>
         </section>
     </div>
+
+    <div id="lightbox" class="lightbox" onclick="closeLightbox(event)" onkeydown="handleLightboxKey(event)" tabindex="-1">
+        <img id="lightbox-img" src="" alt="" />
+    </div>
 </MainLayout>
 
 <style>
@@ -132,4 +141,64 @@ const Facebook = 'https://www.facebook.com/kitajima2910'
         grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
         width: 100%;
     }
+
+    .lightbox {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: rgba(0, 0, 0, 0.95);
+        backdrop-filter: blur(8px);
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .lightbox.active {
+        display: flex;
+        opacity: 1;
+    }
+
+    .lightbox img {
+        max-width: 90%;
+        max-height: 90vh;
+        object-fit: contain;
+        border-radius: 8px;
+        transform: scale(0.9);
+        transition: transform 0.3s ease;
+    }
+
+    .lightbox.active img {
+        transform: scale(1);
+    }
+
+    body.lightbox-open {
+        overflow: hidden;
+    }
 </style>
+
+<script is:inline>
+    function openLightbox(img) {
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        lightboxImg.src = img.src;
+        lightboxImg.alt = img.alt;
+        lightbox.classList.add('active');
+        document.body.classList.add('lightbox-open');
+        lightbox.focus();
+    }
+
+    function closeLightbox(event) {
+        if (event && event.target !== event.currentTarget) return;
+        const lightbox = document.getElementById('lightbox');
+        lightbox.classList.remove('active');
+        document.body.classList.remove('lightbox-open');
+    }
+
+    function handleLightboxKey(event) {
+        if (event.key === 'Escape') {
+            closeLightbox(event);
+        }
+    }
+</script>
