@@ -905,6 +905,7 @@
                 enemyHurt: [],
                 enemyAttack: [],
                 enemyDeath: [],
+                enemyTinhNhueWalk: [],
                 loaded: false,
                 load() {
                     if (this.loaded) return
@@ -914,6 +915,7 @@
                     const enemyHurtCount = 3
                     const enemyAttackCount = 10
                     const enemyDeathCount = 10
+                    const enemyTinhNhueWalkCount = 6
                     const totalToLoad =
                         5 +
                         8 +
@@ -925,7 +927,8 @@
                         enemyWalkCount +
                         enemyHurtCount +
                         enemyAttackCount +
-                        enemyDeathCount
+                        enemyDeathCount +
+                        enemyTinhNhueWalkCount
                     const check = () => {
                         loadedCount++
                         if (loadedCount >= totalToLoad) this.loaded = true
@@ -1026,6 +1029,15 @@
                         img.onload = check
                         img.onerror = check
                         this.enemyDeath[0].push(img)
+                    }
+
+                    this.enemyTinhNhueWalk[0] = []
+                    for (let c = 0; c < enemyTinhNhueWalkCount; c++) {
+                        const img = new Image()
+                        img.src = `assets/quai/tinh-nhue/Walk/Walk_${c.toString().padStart(3, '0')}.png`
+                        img.onload = check
+                        img.onerror = check
+                        this.enemyTinhNhueWalk[0].push(img)
                     }
                 },
             }
@@ -1659,6 +1671,28 @@
                         }
                     }
 
+                    if (SPRITES.loaded && isEnemy && (e.type === 'tinh-nhue' || e.type === 'ranged')) {
+                        const drawDir = e.vx !== 0 ? Math.sign(e.vx) : e.dir
+                        const flipX = drawDir
+                        let sprite = null
+                        const totalFrames = 6
+                        const sSize = 90
+                        if (e.state === 'DEAD') {
+                            sprite = SPRITES.enemyDeath[0][Math.min(Math.floor(t * 8), 9)]
+                        } else if (e.state === 'HURT') {
+                            sprite = SPRITES.enemyHurt[0][Math.floor(t * 12) % 3]
+                        } else if (e.state.startsWith('ATTACK')) {
+                            sprite = SPRITES.enemyAttack[0][Math.floor(t * 15) % 10]
+                        } else {
+                            sprite = SPRITES.enemyTinhNhueWalk[0][Math.floor(t * 10) % totalFrames]
+                        }
+                        if (sprite && sprite.complete) {
+                            ctx.drawImage(sprite, (-flipX * sSize) / 2, -sSize, flipX * sSize, sSize)
+                            ctx.restore()
+                            return
+                        }
+                    }
+
                     let sX = 1,
                         sY = 1,
                         bOff = 0,
@@ -2156,6 +2190,14 @@
                         this.isFlyer = true
                         this.targetZ = 250
                         this.diveCd = 0
+                    } else if (type === 'tinh-nhue') {
+                        this.color = '#a0f'
+                        this.hp = this.maxHp = Math.floor(60 * scale)
+                        this.speed = 140 + wave * 3
+                        this.atkR = 80
+                        this.weaponType = 'sword'
+                        this.bodyScale = 0.9
+                        this.canDodge = true
                     }
                     this.dmgScale = scale
                     this.patrolL = null
@@ -2796,6 +2838,7 @@
                         else if (w >= 5 && r < 0.52) t = 'advanced'
                         else if (w >= 6 && r < 0.62) t = 'slime'
                         else if (w >= 7 && r < 0.72) t = 'flyer'
+                        else if (w >= 8 && r < 0.82) t = 'tinh-nhue'
                         if (w >= 5 && i === 0 && this.spawnQueue.filter((q) => q === 'ranged').length === 0)
                             t = 'ranged'
                         if (w >= 4 && i === 1 && this.spawnQueue.filter((q) => q === 'ninja').length === 0) t = 'ninja'
