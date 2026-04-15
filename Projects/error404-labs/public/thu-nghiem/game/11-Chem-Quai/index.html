@@ -1443,7 +1443,9 @@
                             }
                         } else {
                             const s = p.size * a
-                            ctx.fillRect(p.x - s / 2, p.y - s / 2, s, s)
+                            ctx.beginPath()
+                            ctx.arc(p.x, p.y, s / 2, 0, Math.PI * 2)
+                            ctx.fill()
                         }
                     }
                     ctx.globalAlpha = 1.0
