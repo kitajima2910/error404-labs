@@ -904,6 +904,7 @@
                 enemyWalk: [],
                 enemyHurt: [],
                 enemyAttack: [],
+                enemyDeath: [],
                 loaded: false,
                 load() {
                     if (this.loaded) return
@@ -912,8 +913,19 @@
                     const enemyWalkCount = 8
                     const enemyHurtCount = 3
                     const enemyAttackCount = 10
+                    const enemyDeathCount = 10
                     const totalToLoad =
-                        5 + 8 + 1 + 8 + 5 + 7 + vfxCount * 4 + enemyWalkCount + enemyHurtCount + enemyAttackCount
+                        5 +
+                        8 +
+                        1 +
+                        8 +
+                        5 +
+                        7 +
+                        vfxCount * 4 +
+                        enemyWalkCount +
+                        enemyHurtCount +
+                        enemyAttackCount +
+                        enemyDeathCount
                     const check = () => {
                         loadedCount++
                         if (loadedCount >= totalToLoad) this.loaded = true
@@ -1005,6 +1017,15 @@
                         img.onload = check
                         img.onerror = check
                         this.enemyAttack[0].push(img)
+                    }
+
+                    this.enemyDeath[0] = []
+                    for (let c = 0; c < enemyDeathCount; c++) {
+                        const img = new Image()
+                        img.src = `assets/quai/co-ban/Death/Death_${c.toString().padStart(3, '0')}.png`
+                        img.onload = check
+                        img.onerror = check
+                        this.enemyDeath[0].push(img)
                     }
                 },
             }
@@ -1611,13 +1632,16 @@
                     }
 
                     const isEnemy = e.isEnemy || e.constructor.name === 'Enemy'
-                    if (SPRITES.loaded && isEnemy && e.type === 'basic' && e.state !== 'DEAD') {
+                    if (SPRITES.loaded && isEnemy && e.type === 'basic') {
                         const drawDir = e.vx !== 0 ? Math.sign(e.vx) : e.dir
                         const flipX = drawDir
                         let sprite = null
                         let totalFrames = 8
                         const sSize = 90
-                        if (e.state === 'HURT') {
+                        if (e.state === 'DEAD') {
+                            totalFrames = 10
+                            sprite = SPRITES.enemyDeath[0][Math.min(Math.floor(t * 8), totalFrames - 1)]
+                        } else if (e.state === 'HURT') {
                             totalFrames = 3
                             sprite = SPRITES.enemyHurt[0][Math.floor(t * 12) % totalFrames]
                         } else if (e.state.startsWith('ATTACK')) {
