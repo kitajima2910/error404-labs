@@ -1392,7 +1392,7 @@
                         // Premium blur effect for ghosts if performance allows
                         const game = window._gameInstance
                         if (game && game.currentFps > 50) {
-                            ctx.shadowBlur = 10 * ratio
+                            ctx.shadowBlur = 0
                             ctx.shadowColor = g.color
                         }
 
@@ -1891,10 +1891,6 @@
                     ctx.restore()
                 }
                 draw(ctx) {
-                    ctx.fillStyle = 'rgba(0,0,0,0.3)'
-                    ctx.beginPath()
-                    ctx.ellipse(this.x, this.y, this.w / 1.1, this.w / 4, 0, 0, Math.PI * 2)
-                    ctx.fill()
                     Entity.drawEntity(ctx, this)
                 }
             }
