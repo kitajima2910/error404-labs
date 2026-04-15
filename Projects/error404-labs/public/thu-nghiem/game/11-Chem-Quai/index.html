@@ -1745,7 +1745,7 @@
                             sprite = SPRITES.enemyTinhNhueAttack[0][Math.floor(t * 12) % 6]
                         } else if (e.state === 'SKILL') {
                             sprite = SPRITES.enemyTinhNhueSkill[0][Math.floor(t * 10) % 4]
-                        } else if (e.z > 0) {
+                        } else if (e.z > 0 && !e.onPlatform) {
                             sprite = SPRITES.enemyTinhNhueJump[0][Math.floor(t * 10) % 6]
                         } else {
                             sprite = SPRITES.enemyTinhNhueWalk[0][Math.floor(t * 10) % totalFrames]
