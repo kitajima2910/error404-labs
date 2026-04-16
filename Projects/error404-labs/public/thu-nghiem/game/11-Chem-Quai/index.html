@@ -1834,58 +1834,59 @@
                         }
                     }
 
-                    if (SPRITES.loaded && isEnemy && e.type === 'shield' && e.state === 'RUN') {
-                        const drawDir = e.vx !== 0 ? Math.sign(e.vx) : e.dir
-                        const flipX = drawDir
-                        const totalFrames = 16
-                        const sSize = 100
-                        const sprite = SPRITES.enemyKhienGiapWalk[0][Math.floor(t * 10) % totalFrames]
+                    if (SPRITES.loaded && isEnemy && e.type === 'shield') {
+                        const drawDir = e.vx !== 0 ? Math.sign(e.vx) : e.dir,
+                            flipX = drawDir,
+                            sSize = 100
+                        let sprite = null
+                        if (e.state === 'DEAD') {
+                            sprite = SPRITES.enemyKhienGiapDead[0][Math.min(Math.floor(t * 10), 17)]
+                        } else if (e.state.startsWith('ATTACK')) {
+                            sprite = SPRITES.enemyKhienGiapAttack[0][Math.floor(t * 12) % 13]
+                        } else if (e.state === 'RUN') {
+                            sprite = SPRITES.enemyKhienGiapWalk[0][Math.floor(t * 10) % 16]
+                        } else {
+                            // IDLE hoặc HURT
+                            sprite = SPRITES.enemyKhienGiapIdle[0][Math.floor(t * 6) % 18]
+                        }
+
                         if (sprite && sprite.complete) {
+                            const cycle = e.hitFlicker > 0 ? Math.floor(e.hitFlicker * 60) % 6 : -1,
+                                isFlash = cycle === 0 || cycle === 1,
+                                isBlink = cycle === 4 || cycle === 5
+
+                            if (isFlash) ctx.translate((Math.random() - 0.5) * 8, (Math.random() - 0.5) * 4)
+
+                            // 1. Vẽ Sprite gốc
+                            ctx.save()
+                            if (isBlink) ctx.globalAlpha = 0.3
                             ctx.drawImage(sprite, (-flipX * sSize) / 2, -sSize, flipX * sSize, sSize)
+
+                            // 2. Hiệu ứng nháy trắng (Flash) - Chỉ khi là flash frame
+                            if (isFlash) {
+                                ctx.globalCompositeOperation = 'source-atop'
+                                ctx.fillStyle = 'rgba(255,255,255,0.85)'
+                                ctx.fillRect((-flipX * sSize) / 2, -sSize, flipX * sSize, sSize)
+                            }
+                            ctx.restore()
+
+                            // 3. Lớp phủ Neon Xanh (Neon Overlay) - Chỉ hiện khi bị hit và ko phải lúc flash/blink
+                            if (e.hitFlicker > 0 && !isBlink && !isFlash) {
+                                ctx.save()
+                                ctx.globalCompositeOperation = 'lighter'
+                                ctx.globalAlpha = 0.4
+                                ctx.drawImage(sprite, (-flipX * sSize) / 2, -sSize, flipX * sSize, sSize)
+                                ctx.globalCompositeOperation = 'source-atop'
+                                ctx.fillStyle = 'rgba(0,255,100,0.3)'
+                                ctx.fillRect((-flipX * sSize) / 2, -sSize, flipX * sSize, sSize)
+                                ctx.restore()
+                            }
+
                             ctx.restore()
                             return
                         }
                     }
 
-                    if (SPRITES.loaded && isEnemy && e.type === 'shield' && e.state.startsWith('ATTACK')) {
-                        const drawDir = e.vx !== 0 ? Math.sign(e.vx) : e.dir
-                        const flipX = drawDir
-                        const totalFrames = 13
-                        const sSize = 100
-                        const sprite = SPRITES.enemyKhienGiapAttack[0][Math.floor(t * 12) % totalFrames]
-                        if (sprite && sprite.complete) {
-                            ctx.drawImage(sprite, (-flipX * sSize) / 2, -sSize, flipX * sSize, sSize)
-                            ctx.restore()
-                            return
-                        }
-                    }
-
-                    if (SPRITES.loaded && isEnemy && e.type === 'shield' && e.state === 'IDLE') {
-                        const drawDir = e.vx !== 0 ? Math.sign(e.vx) : e.dir
-                        const flipX = drawDir
-                        const totalFrames = 18
-                        const sSize = 100
-                        const sprite = SPRITES.enemyKhienGiapIdle[0][Math.floor(t * 6) % totalFrames]
-                        if (sprite && sprite.complete) {
-                            ctx.drawImage(sprite, (-flipX * sSize) / 2, -sSize, flipX * sSize, sSize)
-                            ctx.restore()
-                            return
-                        }
-                    }
-
-                    if (SPRITES.loaded && isEnemy && e.type === 'shield' && e.state === 'DEAD') {
-                        const drawDir = e.vx !== 0 ? Math.sign(e.vx) : e.dir
-                        const flipX = drawDir
-                        const totalFrames = 18
-                        const sSize = 100
-                        const frameIdx = Math.min(Math.floor(t * 10), totalFrames - 1)
-                        const sprite = SPRITES.enemyKhienGiapDead[0][frameIdx]
-                        if (sprite && sprite.complete) {
-                            ctx.drawImage(sprite, (-flipX * sSize) / 2, -sSize, flipX * sSize, sSize)
-                            ctx.restore()
-                            return
-                        }
-                    }
 
                     let sX = 1,
                         sY = 1,
