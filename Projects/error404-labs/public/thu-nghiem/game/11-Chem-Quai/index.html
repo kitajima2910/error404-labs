@@ -930,6 +930,9 @@
                 enemyTinhNhueDead: [],
                 enemyTinhNhueJump: [],
                 enemyKhienGiapWalk: [],
+                enemyKhienGiapAttack: [],
+                enemyKhienGiapIdle: [],
+                enemyKhienGiapDead: [],
                 loaded: false,
                 load() {
                     if (this.loaded) return
@@ -946,6 +949,9 @@
                     const enemyTinhNhueDeadCount = 8
                     const enemyTinhNhueJumpCount = 6
                     const enemyKhienGiapWalkCount = 16
+                    const enemyKhienGiapAttackCount = 13
+                    const enemyKhienGiapIdleCount = 18
+                    const enemyKhienGiapDeadCount = 18
                     const totalToLoad =
                         5 +
                         8 +
@@ -964,7 +970,10 @@
                         enemyTinhNhueHurtCount +
                         enemyTinhNhueDeadCount +
                         enemyTinhNhueJumpCount +
-                        enemyKhienGiapWalkCount
+                        enemyKhienGiapWalkCount +
+                        enemyKhienGiapAttackCount +
+                        enemyKhienGiapIdleCount +
+                        enemyKhienGiapDeadCount
                     const check = () => {
                         loadedCount++
                         if (loadedCount >= totalToLoad) this.loaded = true
@@ -1128,6 +1137,33 @@
                         img.onload = check
                         img.onerror = check
                         this.enemyKhienGiapWalk[0].push(img)
+                    }
+
+                    this.enemyKhienGiapAttack[0] = []
+                    for (let c = 0; c < enemyKhienGiapAttackCount; c++) {
+                        const img = new Image()
+                        img.src = `assets/quai/khien-giap/taurusattack1/taurusattack1_${c.toString().padStart(3, '0')}.png`
+                        img.onload = check
+                        img.onerror = check
+                        this.enemyKhienGiapAttack[0].push(img)
+                    }
+
+                    this.enemyKhienGiapIdle[0] = []
+                    for (let c = 0; c < enemyKhienGiapIdleCount; c++) {
+                        const img = new Image()
+                        img.src = `assets/quai/khien-giap/taurusidle/taurusidle_${c.toString().padStart(3, '0')}.png`
+                        img.onload = check
+                        img.onerror = check
+                        this.enemyKhienGiapIdle[0].push(img)
+                    }
+
+                    this.enemyKhienGiapDead[0] = []
+                    for (let c = 0; c < enemyKhienGiapDeadCount; c++) {
+                        const img = new Image()
+                        img.src = `assets/quai/khien-giap/taurusdeath/taurusdeath_${c.toString().padStart(3, '0')}.png`
+                        img.onload = check
+                        img.onerror = check
+                        this.enemyKhienGiapDead[0].push(img)
                     }
                 },
             }
@@ -1811,6 +1847,46 @@
                         }
                     }
 
+                    if (SPRITES.loaded && isEnemy && e.type === 'shield' && e.state.startsWith('ATTACK')) {
+                        const drawDir = e.vx !== 0 ? Math.sign(e.vx) : e.dir
+                        const flipX = drawDir
+                        const totalFrames = 13
+                        const sSize = 100
+                        const sprite = SPRITES.enemyKhienGiapAttack[0][Math.floor(t * 12) % totalFrames]
+                        if (sprite && sprite.complete) {
+                            ctx.drawImage(sprite, (-flipX * sSize) / 2, -sSize, flipX * sSize, sSize)
+                            ctx.restore()
+                            return
+                        }
+                    }
+
+                    if (SPRITES.loaded && isEnemy && e.type === 'shield' && e.state === 'IDLE') {
+                        const drawDir = e.vx !== 0 ? Math.sign(e.vx) : e.dir
+                        const flipX = drawDir
+                        const totalFrames = 18
+                        const sSize = 100
+                        const sprite = SPRITES.enemyKhienGiapIdle[0][Math.floor(t * 6) % totalFrames]
+                        if (sprite && sprite.complete) {
+                            ctx.drawImage(sprite, (-flipX * sSize) / 2, -sSize, flipX * sSize, sSize)
+                            ctx.restore()
+                            return
+                        }
+                    }
+
+                    if (SPRITES.loaded && isEnemy && e.type === 'shield' && e.state === 'DEAD') {
+                        const drawDir = e.vx !== 0 ? Math.sign(e.vx) : e.dir
+                        const flipX = drawDir
+                        const totalFrames = 18
+                        const sSize = 100
+                        const frameIdx = Math.min(Math.floor(t * 10), totalFrames - 1)
+                        const sprite = SPRITES.enemyKhienGiapDead[0][frameIdx]
+                        if (sprite && sprite.complete) {
+                            ctx.drawImage(sprite, (-flipX * sSize) / 2, -sSize, flipX * sSize, sSize)
+                            ctx.restore()
+                            return
+                        }
+                    }
+
                     let sX = 1,
                         sY = 1,
                         bOff = 0,
@@ -2358,7 +2434,14 @@
                     if (this.state === 'HURT') {
                         if (this.stateTime > (this.type === 'boss' ? 0.15 : 0.25)) this.changeState('IDLE')
                     } else if (this.state === 'ATTACK') {
-                        const atkDur = this.type === 'ninja' ? 0.4 : this.type === 'advanced' ? 0.9 : 0.7
+                        const atkDur =
+                            this.type === 'ninja'
+                                ? 0.4
+                                : this.type === 'advanced'
+                                  ? 0.9
+                                  : this.type === 'shield'
+                                    ? 1.1
+                                    : 0.7
                         if (this.stateTime > atkDur) this.changeState('IDLE')
                         if (
                             (this.type === 'ranged' || this.type === 'slime' || this.type === 'tinh-nhue') &&
@@ -2568,6 +2651,8 @@
                         if (t < 0.1 || t > 0.3) return null
                     } else if (this.type === 'advanced') {
                         if (t < 0.3 || t > 0.7) return null
+                    } else if (this.type === 'shield') {
+                        if (t < 0.4 || t > 0.9) return null
                     } else if (this.type === 'ranged') {
                         return null
                     } else {
