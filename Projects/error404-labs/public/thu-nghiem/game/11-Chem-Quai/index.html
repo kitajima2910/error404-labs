@@ -1635,8 +1635,13 @@
                     const actualDamage = Math.min(requestedDamage, this.hp)
 
                     this.hp -= actualDamage
-                    this.hitFlicker = 0.1
+                    this.hitFlicker = 0.2 // Tăng thời gian nháy đỏ
                     this.vx = kbx
+                    
+                    // Console log để debug
+                    if (this.constructor.name === 'Player') {
+                        console.log(`[COMBAT] Player trúng đòn! Sát thương: ${Math.floor(actualDamage)}, HP còn lại: ${Math.floor(this.hp)}/${this.maxHp}`);
+                    }
 
                     const game = window._gameInstance
                     if (game && this.constructor.name === 'Enemy') {
@@ -3636,7 +3641,7 @@
                                                     this.needsHudUpdate = true
                                                 }
                                             }
-                                        }
+                                 }
                                     }
                                 }
                                 this.particles.update(ldt)
@@ -3666,16 +3671,18 @@
                                     p.y += p.vy * ldt
                                     p.life -= ldt
                                     
-                                    // Collision check với hitbox người chơi
-                                    const pBox = { x: p.x - 10, y: p.y - 10, w: 20, h: 20 }
+                                    if (this.player.state === 'DASH' || this.player.state === 'DEAD') return;
+
+                                    const pBox = { x: p.x - 15, y: p.y - 15, w: 30, h: 30 }
                                     const playerBox = this.player.getHitbox()
                                     
                                     if (Utils.rectIntersect(pBox, playerBox)) {
-                                        // Gây sát thương và tạo hiệu ứng khi trúng
-                                        if (this.player.takeDamage(p.dmg, p.vx > 0 ? 300 : -300)) {
-                                            p.life = 0 // Biến mất sau khi trúng
-                                            this.camera.shake(10, 0.15)
-                                            this.particles.spawn(p.x, p.y, p.color, 8) // Hiệu ứng tóe lửa
+                                        const baseDmg = p.dmg * 20;
+                                        if (this.player.takeDamage(baseDmg, p.vx > 0 ? 400 : -400)) {
+                                            p.life = 0 
+                                            this.camera.shake(15, 0.2)
+                                            this.particles.spawn(p.x, p.y, p.color, 12)
+                                            this.needsHudUpdate = true;
                                         }
                                     }
                                 })
