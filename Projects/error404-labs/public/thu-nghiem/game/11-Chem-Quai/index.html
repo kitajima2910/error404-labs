@@ -1705,15 +1705,9 @@
                     const actualDamage = Math.min(requestedDamage, this.hp)
 
                     this.hp -= actualDamage
-                    this.hitFlicker = 0.2 // Tăng thời gian nháy đỏ
+                    this.hitFlicker = 0.2
                     this.vx = kbx
 
-                    // Console log để debug
-                    if (this.constructor.name === 'Player') {
-                        console.log(
-                            `[COMBAT] Player trúng đòn! Sát thương: ${Math.floor(actualDamage)}, HP còn lại: ${Math.floor(this.hp)}/${this.maxHp}`,
-                        )
-                    }
 
                     const game = window._gameInstance
                     if (game && this.constructor.name === 'Enemy') {
@@ -1746,7 +1740,14 @@
                     ctx.translate(Math.round(e.x), Math.round(drawY))
                     ctx.scale(e.dir, 1)
 
-                    if (!isGhost && e.hitFlicker > 0) ctx.globalCompositeOperation = 'lighter'
+                    if (!isGhost && e.hitFlicker > 0) {
+                        const cycle = Math.floor(e.hitFlicker * 60) % 6
+                        if (cycle === 0 || cycle === 1) {
+                            ctx.filter = 'brightness(5)'
+                        } else {
+                            ctx.globalCompositeOperation = 'lighter'
+                        }
+                    }
 
                     const isPlayer = e.isPlayer || e.constructor.name === 'Player'
                     if (SPRITES.loaded && isPlayer) {
@@ -1857,34 +1858,27 @@
 
                             if (isFlash) ctx.translate((Math.random() - 0.5) * 8, (Math.random() - 0.5) * 4)
 
-                            // 1. Vẽ Sprite gốc
+                            // 1. Vẽ Sprite gốc và Hiệu ứng Nháy trắng (Silhouette Flash)
                             ctx.save()
                             if (isBlink) ctx.globalAlpha = 0.3
+                            if (isFlash) ctx.filter = 'brightness(5)' // Tạo flash trắng giữ đúng silhouette
                             ctx.drawImage(sprite, (-flipX * sSize) / 2, -sSize, flipX * sSize, sSize)
-
-                            // 2. Hiệu ứng nháy trắng (Flash) - Chỉ khi là flash frame
-                            if (isFlash) {
-                                ctx.globalCompositeOperation = 'source-atop'
-                                ctx.fillStyle = 'rgba(255,255,255,0.85)'
-                                ctx.fillRect((-flipX * sSize) / 2, -sSize, flipX * sSize, sSize)
-                            }
                             ctx.restore()
 
-                            // 3. Lớp phủ Neon Xanh (Neon Overlay) - Chỉ hiện khi bị hit và ko phải lúc flash/blink
+                            // 2. Lớp phủ Neon Xanh (Neon Overlay)
                             if (e.hitFlicker > 0 && !isBlink && !isFlash) {
                                 ctx.save()
                                 ctx.globalCompositeOperation = 'lighter'
-                                ctx.globalAlpha = 0.4
+                                ctx.globalAlpha = 0.5
+                                // Giả lập neon xanh bằng cách vẽ sáng vùng sprite
                                 ctx.drawImage(sprite, (-flipX * sSize) / 2, -sSize, flipX * sSize, sSize)
-                                ctx.globalCompositeOperation = 'source-atop'
-                                ctx.fillStyle = 'rgba(0,255,100,0.3)'
-                                ctx.fillRect((-flipX * sSize) / 2, -sSize, flipX * sSize, sSize)
                                 ctx.restore()
                             }
 
                             ctx.restore()
                             return
                         }
+
                     }
 
 
