@@ -2628,38 +2628,106 @@
                         }
                     }
 
-                    if (this.onPlatform && !onSameLevel && this.patrolL !== null && !isAbove) {
-                        this.changeState('RUN')
-                        if (this.x <= this.patrolL) this.dir = 1
-                        else if (this.x >= this.patrolR) this.dir = -1
-                        this.vx = this.dir * this.speed * 0.6
+                    // Priority AI Decision Logic
+                    if (this.type === 'ninja') {
+                        // Ninja Pursuit AI
+                        const detectR = 1200
+                        const chaseSpeed = this.speed * 1.25
+
+                        if (d < detectR) {
+                            if (d > this.atkR || Math.abs(player.z - this.z) > 40) {
+                                // CHASE MODE
+                                this.vx = Math.sign(dx) * chaseSpeed
+                                if (Math.abs(dx) < 15) this.vx = this.dir * 40 
+
+                                this.dir = dx > 0 ? 1 : -1
+                                if (this.state !== 'RUN') this.changeState('RUN')
+
+                                // Aggressive Hop-down/Pursuit logic
+                                if (this.onPlatform && player.z < this.z - 40 && this.jumpCd <= 0) {
+                                    const directlyAbove = Math.abs(dx) < 150
+                                    const atEdgeL = this.patrolL && this.x < this.patrolL + 30 && dx < 0
+                                    const atEdgeR = this.patrolR && this.x > this.patrolR - 30 && dx > 0
+                                    
+                                    if (directlyAbove || atEdgeL || atEdgeR) {
+                                        this.vz = 500 
+                                        this.vx = Math.sign(dx || this.dir) * chaseSpeed * 2.0 // Lao cực mạnh xuống
+                                        this.jumpCd = 1.0
+                                        this.onPlatform = false
+                                        this.isOnGround = false
+                                        console.log('[Ninja AI] Lunge Pursue Jump-down')
+                                    }
+                                }
+
+                                // Aggressive Jump-up logic: Nhảy lên platform để rượt theo player
+                                if (!this.onPlatform && player.z > this.z + 50 && this.jumpAiCd <= 0) {
+                                    const game = window._gameInstance
+                                    // Tìm platform phù hợp để nhảy lên
+                                    const platAbove = game ? game.platforms.find(
+                                        (p) => Math.abs(p.x - this.x) < 180 && p.z > this.z + 40 && p.z < this.z + 320,
+                                    ) : null
+
+                                    if (platAbove || (Math.abs(dx) < 50 && Math.random() < 0.05)) {
+                                        this.vz = 820 // Lực nhảy đủ để lên platform
+                                        this.onPlatform = false
+                                        this.isOnGround = false
+                                        this.jumpAiCd = 1.2 + Math.random()
+                                        this.changeState('RUN') // Sẽ chuyển sang Jump/Fall animation dựa trên vz
+                                        console.log('[Ninja AI] Parkour Jump-up for pursuit')
+                                    }
+                                }
+                            } else {
+                                // ATTACK MODE
+                                this.vx *= 0.3
+                                if (this.atkCd <= 0) {
+                                    this.changeState('ATTACK')
+                                    this.dir = dx > 0 ? 1 : -1
+                                    this.atkCd = 0.5 + Math.random() * 0.3
+                                } else if (this.state !== 'ATTACK') {
+                                    this.changeState('IDLE')
+                                }
+                            }
+                        } else {
+                            // PATROL MODE
+                            if (this.onPlatform) {
+                                if (!this.patrolDir) this.patrolDir = 1
+                                this.vx = this.patrolDir * this.speed * 0.7
+                                if (this.patrolR && this.x > this.patrolR - 10) this.patrolDir = -1
+                                if (this.patrolL && this.x < this.patrolL + 10) this.patrolDir = 1
+                                this.dir = this.patrolDir
+                                this.changeState('RUN')
+                            } else {
+                                this.vx *= 0.95
+                                if (Math.abs(this.vx) < 5) this.changeState('IDLE')
+                            }
+                        }
                     } else if (this.type === 'flyer') {
                         const dz = this.targetZ - this.z
-                        this.vz = dz * 5 // Simple P-controller for height
-
+                        this.vz = dz * 5 
                         const dx = player.x - this.x
                         const dist = Math.abs(dx)
 
                         if (this.state === 'ATTACK') {
                             this.vx *= 0.5
                         } else if (this.targetZ < 100) {
-                            // Diving
                             this.vx = Math.sign(dx) * this.speed * 1.5
                             if (dist < 40 && Math.abs(dz) < 40) {
                                 this.changeState('ATTACK')
-                                this.targetZ = 250 // Fly back up after strike
+                                this.targetZ = 250 
                                 this.diveCd = 2.0
                             }
                         } else {
-                            // Hovering above player
                             this.dir = dx > 0 ? 1 : -1
                             if (dist > 50) this.vx = Math.sign(dx) * this.speed
                             else this.vx *= 0.8
-
-                            if (dist < 100 && this.diveCd <= 0) {
-                                this.targetZ = player.z + 20 // Start dive
-                            }
+                            if (dist < 100 && this.diveCd <= 0) this.targetZ = player.z + 20 
                         }
+                    } else if (this.onPlatform && !onSameLevel && this.patrolL !== null && !isAbove) {
+                        // Generic Platform Enemy Patrol
+                        this.changeState('RUN')
+                        if (this.x <= this.patrolL) this.dir = 1
+                        else if (this.x >= this.patrolR) this.dir = -1
+                        this.vx = this.dir * this.speed * 0.6
                     } else if (this.type === 'slime') {
                         if (this.z === 0 && this.jumpCd <= 0) {
                             this.vz = 400 + Math.random() * 200
@@ -2673,18 +2741,17 @@
                             this._hasShot = false
                             this.atkCd = 2.0 + Math.random()
                         }
-                        if (this.z > 0) {
-                            this.changeState('RUN')
-                        } else if (this.state !== 'ATTACK') {
+                        if (this.z > 0) this.changeState('RUN')
+                        else if (this.state !== 'ATTACK') {
                             this.vx *= 0.8
                             if (Math.abs(this.vx) < 10) this.changeState('IDLE')
                         }
-                    } else if (this.type === 'ranged') {
+                    } else if (this.type === 'tinh-nhue' || this.type === 'ranged') {
                         if (d < 250) {
                             this.changeState('RUN')
                             this.dir = dx > 0 ? 1 : -1
-                            this.vx = -Math.sign(dx) * this.speed * 1.2
-                        } else if (d > 500) {
+                            this.vx = -Math.sign(dx) * this.speed * 1.3 
+                        } else if (d > 550) {
                             this.changeState('RUN')
                             this.dir = dx > 0 ? 1 : -1
                             this.vx = Math.sign(dx) * this.speed
@@ -2694,105 +2761,13 @@
                                 this.changeState('ATTACK')
                                 this.dir = dx > 0 ? 1 : -1
                                 this._hasShot = false
-                                this.atkCd = 1.2 + Math.random() * 0.8
-                            }
+                                this.atkCd = 1.0 + Math.random() * 0.5
+                            } else if (this.state !== 'ATTACK') this.changeState('IDLE')
                         }
-
-                        // Trigger Blood Charge skill for elite/ranged monsters
-                        if (this.skillCd <= 0 && d > 200 && d < 600 && Math.random() < 0.02) {
+                        if (this.skillCd <= 0 && d > 250 && d < 650 && Math.random() < 0.02) {
                             this.changeState('SKILL')
                             this.dir = dx > 0 ? 1 : -1
-                            this.skillCd = 5.0 + Math.random() * 3.0
-                        }
-                    } else if (this.type === 'ninja') {
-                        const prevState = this.state
-                        
-                        // Smarter Air/Ground detection for Ninja
-                        const wasInAir = (this.lastZ || 0) > 2
-                        this.lastZ = this.z
-                        
-                        // A Ninja is in air if it is not on a platform AND not on the floor floor
-                        const isInAir = !this.onPlatform && this.z > 2
-                        this.isOnGround = !isInAir
-
-                        // Safe Zone: Zero out tiny movements
-                        if (Math.abs(this.vz) < 15 && (this.onPlatform || this.z <= 10)) {
-                            this.vz = 0
-                            this.isOnGround = true
-                        }
-
-                        if (this.state === 'DEAD') {
-                            this.vx = 0
-                            this.vy = 0
-                            if (this.z > 0 && !this.onPlatform) {
-                                // Allow falling if dead in mid-air
-                                this.updatePhysics(dt)
-                            } else {
-                                this.vz = 0
-                                this.isOnGround = true
-                            }
-                            return
-                        }
-
-                        if (this.onPlatform) {
-                            // Hard Lock on platform
-                            if (this.vz < 0) this.vz = 0 
-                            this.isOnGround = true
-                        } else if (this.z <= 0) {
-                            // On floor
-                            this.y = CONFIG.floorY
-                        }
-                        
-                        if (this.state === 'HURT') {
-                            this.vx *= 0.85
-                            this.updatePhysics(dt)
-                            if (this.stateTime > 0.3) {
-                                this.changeState('IDLE')
-                            }
-                            return
-                        }
-                        if (d > this.atkR) {
-                            this.vx = Math.sign(dx) * this.speed
-                            this.dir = dx > 0 ? 1 : -1
-
-                            // Hop-down Logic: If moving off sub-platform towards lower player
-                            if (this.onPlatform && player.z < this.z - 40 && this.jumpCd <= 0) {
-                                const atEdgeL = this.patrolL && this.x < this.patrolL + 15 && this.vx < 0
-                                const atEdgeR = this.patrolR && this.x > this.patrolR - 15 && this.vx > 0
-                                if (atEdgeL || atEdgeR) {
-                                    console.log('[Ninja] Edge Hop-down Triggered')
-                                    this.vz = 400 // Higher arc for clear jump-down feel
-                                    this.jumpCd = 1.2 // Stun AI jump for a bit
-                                    this.onPlatform = false
-                                    this.isOnGround = false
-                                }
-                            }
-
-                            // Idle -> Run delay to prevent flicker
-                            if (this.state === 'IDLE') {
-                                this.runDelay = (this.runDelay || 0) + dt
-                                if (this.runDelay > 0.08) {
-                                    this.changeState('RUN')
-                                    this.runDelay = 0
-                                }
-                            } else {
-                                this.changeState('RUN')
-                                this.runDelay = 0
-                            }
-                        } else {
-                            this.vx = 0 // Lock movement during attack
-                            this.runDelay = 0
-                            if (this.atkCd <= 0) {
-                                console.log('[Ninja] Attack triggered')
-                                this.changeState('ATTACK')
-                                this.dir = dx > 0 ? 1 : -1
-                                this.atkCd = 0.8 + Math.random() * 0.4
-                            } else if (this.state !== 'ATTACK') {
-                                this.changeState('IDLE')
-                            }
-                        }
-                        if (this.state !== prevState) {
-                            console.log(`[Ninja State] ${prevState} -> ${this.state}`)
+                            this.skillCd = 6.0 + Math.random() * 3
                         }
                     } else if (this.type === 'shield') {
                         if (d > this.atkR) {
@@ -2808,6 +2783,7 @@
                             } else this.changeState('IDLE')
                         }
                     } else {
+                        // Basic Enemy AI
                         if (d > this.atkR) {
                             this.changeState('RUN')
                             this.dir = dx > 0 ? 1 : -1
