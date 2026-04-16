@@ -2313,17 +2313,20 @@
                         ) {
                             const game = window._gameInstance
                             if (game) {
-                                const dx = player.x - this.x
-                                    game.projectiles.push({
-                                        x: this.x + this.dir * 20,
-                                        y: this.getDrawY() - 20,
-                                        vx: Math.sign(dx) * 500,
-                                        vy: 0,
-                                        dmg: Math.floor((this.type === 'slime' ? 100 : 120) * (this.dmgScale || 1)),
-                                        color: this.type === 'slime' ? '#0f4' : '#fff',
-                                        life: 3,
-                                        type: this.type,
-                                    })
+                                // Tinh chỉnh vị trí bắn khớp với tay/vũ khí
+                                const spawnY = this.getDrawY() - 55 // Chiều cao ngang tay
+                                const muzzleX = this.x + this.dir * 45 // Offset nòng súng
+                                
+                                game.projectiles.push({
+                                    x: muzzleX,
+                                    y: spawnY,
+                                    vx: this.dir * 550, // Bay theo hướng enemy đang nhìn
+                                    vy: 0,
+                                    dmg: Math.floor((this.type === 'slime' ? 100 : 120) * (this.dmgScale || 1)),
+                                    color: this.type === 'slime' ? '#0f4' : '#0ff', // Màu Cyan cho đạn tinh nhuệ
+                                    life: 3,
+                                    type: this.type,
+                                })
                                 this._hasShot = true
                             }
                         }
@@ -3662,15 +3665,17 @@
                                     p.x += p.vx * ldt
                                     p.y += p.vy * ldt
                                     p.life -= ldt
-                                    if (
-                                        Utils.rectIntersect(
-                                            { x: p.x - 15, y: p.y - 15, w: 30, h: 30 },
-                                            this.player.getHitbox(),
-                                        )
-                                    ) {
+                                    
+                                    // Collision check với hitbox người chơi
+                                    const pBox = { x: p.x - 10, y: p.y - 10, w: 20, h: 20 }
+                                    const playerBox = this.player.getHitbox()
+                                    
+                                    if (Utils.rectIntersect(pBox, playerBox)) {
+                                        // Gây sát thương và tạo hiệu ứng khi trúng
                                         if (this.player.takeDamage(p.dmg, p.vx > 0 ? 300 : -300)) {
-                                            p.life = 0
-                                            this.camera.shake(15, 0.2)
+                                            p.life = 0 // Biến mất sau khi trúng
+                                            this.camera.shake(10, 0.15)
+                                            this.particles.spawn(p.x, p.y, p.color, 8) // Hiệu ứng tóe lửa
                                         }
                                     }
                                 })
@@ -3744,19 +3749,37 @@
                         }
                         this.particles.draw(this.ctx)
 
-                        if (this.projectiles.length > 0) {
+                        // Draw projectiles in world space
+                        this.projectiles.forEach((p) => {
                             this.ctx.save()
-                            this.ctx.shadowBlur = useShadow ? 8 : 0
-                            for (let i = 0; i < this.projectiles.length; i++) {
-                                const p = this.projectiles[i]
-                                this.ctx.fillStyle = p.color || '#fff'
-                                this.ctx.shadowColor = p.color || '#fff'
+                            this.ctx.translate(Math.round(p.x), Math.round(p.y))
+                            
+                            if (SPRITES.loaded && (p.type === 'ranged' || p.type === 'tinh-nhue')) {
+                                const frames = SPRITES.enemyTinhNhueSkill[0]
+                                const sprite = frames[Math.floor(performance.now() * 0.01) % frames.length]
+                                if (sprite && sprite.complete) {
+                                    const sSize = 75 // Tăng size đạn cho rõ
+                                    this.ctx.scale(p.vx > 0 ? 1 : -1, 1)
+                                    this.ctx.drawImage(sprite, -sSize / 2, -sSize / 2, sSize, sSize)
+                                    this.ctx.restore()
+                                    return
+                                }
+                            }
+
+                            // Fallback cho Slime hoặc khi chưa load sprite
+                            this.ctx.fillStyle = p.color || '#fff'
+                            this.ctx.shadowBlur = 10
+                            this.ctx.shadowColor = p.color || '#fff'
+                            if (p.type === 'slime') {
                                 this.ctx.beginPath()
-                                this.ctx.arc(p.x, p.y, 6, 0, Math.PI * 2)
+                                this.ctx.arc(0, 0, 8, 0, Math.PI * 2)
                                 this.ctx.fill()
+                            } else {
+                                this.ctx.fillRect(-8, -4, 16, 8)
                             }
                             this.ctx.restore()
-                        }
+                        })
+
 
                         this.ctx.save()
                         this.ctx.textAlign = 'center'
@@ -3850,28 +3873,7 @@
                             })
                     }
 
-                    this.projectiles.forEach((p) => {
-                        this.ctx.save()
-                        this.ctx.translate(Math.round(p.x - this.camera.x), Math.round(p.y))
 
-                        if (SPRITES.loaded && (p.type === 'ranged' || p.type === 'tinh-nhue')) {
-                            const frames = SPRITES.enemyTinhNhueSkill[0]
-                            const sprite = frames[Math.floor(performance.now() * 0.01) % frames.length]
-                            if (sprite && sprite.complete) {
-                                const sSize = 60
-                                this.ctx.scale(p.vx > 0 ? 1 : -1, 1)
-                                this.ctx.drawImage(sprite, -sSize / 2, -sSize / 2, sSize, sSize)
-                                this.ctx.restore()
-                                return
-                            }
-                        }
-
-                        this.ctx.fillStyle = p.color || '#fff'
-                        this.ctx.shadowBlur = 5
-                        this.ctx.shadowColor = p.color || '#fff'
-                        this.ctx.fillRect(-6, -4, 12, 8)
-                        this.ctx.restore()
-                    })
 
                     if (this.hitStop > 0) {
                         this.ctx.fillStyle = 'rgba(255,255,255,0.15)'
