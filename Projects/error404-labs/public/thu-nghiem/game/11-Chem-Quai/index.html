@@ -2814,14 +2814,15 @@
 
                         const platformZ = currentPlat ? currentPlat.z : 0
                         
-                        // Physics update: chỉ snap khi đang ở gần platform (tránh hụt khi nhảy)
-                        if (this.vz <= 0 && this.z >= platformZ - 10) {
+                        // Physics update: chỉ tiếp đất khi đang rơi VÀ ở rất gần platform (tránh snap quá sớm)
+                        if (this.vz <= 0 && Math.abs(this.z - platformZ) < 10) {
                             this.isOnGround = true
                             this.onPlatform = (platformZ > 0)
                             this.z = platformZ
                             this.vz = 0 
                             this.y = CONFIG.floorY
                         } else {
+                            // Đang trên không trung
                             this.onPlatform = false
                             this.isOnGround = false
                         }
