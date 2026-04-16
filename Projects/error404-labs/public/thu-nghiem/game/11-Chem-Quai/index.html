@@ -1693,9 +1693,10 @@
                     }
                 }
                 changeState(s) {
-                    if (this.state === s) return
+                    if (this.state === s && !s.startsWith('ATTACK')) return
                     this.state = s
                     this.stateTime = 0
+                    if (s === 'ATTACK') this.hasDealtDamage = false
                 }
                 takeDamage(a, kbx, src) {
                     if (this.state === 'DEAD' || this.state === 'DASH') return false
@@ -2393,6 +2394,7 @@
                     this.patrolL = null
                     this.patrolR = null
                     this._hasShot = false
+                    this.hasDealtDamage = false
                     this.skillCd = 0
                 }
                 _tryDodge(player) {
@@ -2647,7 +2649,8 @@
                     } else if (this.type === 'advanced') {
                         if (t < 0.3 || t > 0.7) return null
                     } else if (this.type === 'shield') {
-                        if (t < 0.4 || t > 0.9) return null
+                        const frame = Math.floor(t * 12) % 13
+                        if (frame < 7 || frame > 8 || this.hasDealtDamage) return null
                     } else if (this.type === 'ranged') {
                         return null
                     } else {
@@ -3239,8 +3242,9 @@
                     if (!pb) this.hasHit = false
                     for (let e of this.enemies) {
                         const eb = e.getCurrentAttackBox()
-                        if (eb && Utils.rectIntersect(eb, this.player.getHitbox())) {
+                        if (eb && !e.hasDealtDamage && Utils.rectIntersect(eb, this.player.getHitbox())) {
                             if (this.player.takeDamage(eb.dmg, e.dir * 300, e)) {
+                                e.hasDealtDamage = true // Đánh dấu đã gây sát thương trong cycle này
                                 this.camera.shake(20, 0.3)
                                 this.particles.spawn(
                                     this.player.x,
