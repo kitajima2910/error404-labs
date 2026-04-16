@@ -317,11 +317,28 @@
                     transform 0.1s,
                     opacity 0.2s;
                 letter-spacing: 2px;
+                position: absolute;
+                right: 20px;
+                top: 80px;
             }
 
             #combo-display.active {
                 opacity: 1;
-                transform: scale(1.1);
+                animation: comboPulse 0.3s ease-out;
+            }
+
+            #combo-display.crit {
+                color: #f0f !important;
+                text-shadow: 0 0 20px #f0f !important;
+            }
+
+            @keyframes comboPulse {
+                0% {
+                    transform: scale(1.5);
+                }
+                100% {
+                    transform: scale(1);
+                }
             }
 
             .crit-text {
@@ -645,6 +662,7 @@
                     <div class="stats">
                         <div id="currency-display">0 VNĐ</div>
                     </div>
+                    <div id="combo-display">x0 Combo</div>
                 </div>
                 <div id="gate-hint" class="hidden">TIẾN TỚI CỔNG DỊCH CHUYỂN »</div>
                 <div
@@ -911,6 +929,7 @@
                 enemyTinhNhueHurt: [],
                 enemyTinhNhueDead: [],
                 enemyTinhNhueJump: [],
+                enemyKhienGiapWalk: [],
                 loaded: false,
                 load() {
                     if (this.loaded) return
@@ -926,6 +945,7 @@
                     const enemyTinhNhueHurtCount = 2
                     const enemyTinhNhueDeadCount = 8
                     const enemyTinhNhueJumpCount = 6
+                    const enemyKhienGiapWalkCount = 16
                     const totalToLoad =
                         5 +
                         8 +
@@ -943,7 +963,8 @@
                         enemyTinhNhueSkillCount +
                         enemyTinhNhueHurtCount +
                         enemyTinhNhueDeadCount +
-                        enemyTinhNhueJumpCount
+                        enemyTinhNhueJumpCount +
+                        enemyKhienGiapWalkCount
                     const check = () => {
                         loadedCount++
                         if (loadedCount >= totalToLoad) this.loaded = true
@@ -1099,6 +1120,15 @@
                         img.onerror = check
                         this.enemyTinhNhueJump[0].push(img)
                     }
+
+                    this.enemyKhienGiapWalk[0] = []
+                    for (let c = 0; c < enemyKhienGiapWalkCount; c++) {
+                        const img = new Image()
+                        img.src = `assets/quai/khien-giap/tauruswalk/tauruswalk_${c.toString().padStart(3, '0')}.png`
+                        img.onload = check
+                        img.onerror = check
+                        this.enemyKhienGiapWalk[0].push(img)
+                    }
                 },
             }
 
@@ -1136,6 +1166,10 @@
                 playCrit() {
                     this.playSynth('sawtooth', 300, 0.2, 0.4, 100)
                     setTimeout(() => this.playSynth('square', 600, 0.2, 0.3, 200), 50)
+                }
+                playCombo(cnt) {
+                    const baseFreq = 400 + cnt * 30
+                    this.playSynth('triangle', baseFreq, 0.15, 0.25, 50)
                 }
                 playSwing() {
                     this.playSynth('sine', 400, 0.1, 0.1, 200)
@@ -1637,10 +1671,12 @@
                     this.hp -= actualDamage
                     this.hitFlicker = 0.2 // Tăng thời gian nháy đỏ
                     this.vx = kbx
-                    
+
                     // Console log để debug
                     if (this.constructor.name === 'Player') {
-                        console.log(`[COMBAT] Player trúng đòn! Sát thương: ${Math.floor(actualDamage)}, HP còn lại: ${Math.floor(this.hp)}/${this.maxHp}`);
+                        console.log(
+                            `[COMBAT] Player trúng đòn! Sát thương: ${Math.floor(actualDamage)}, HP còn lại: ${Math.floor(this.hp)}/${this.maxHp}`,
+                        )
                     }
 
                     const game = window._gameInstance
@@ -1755,6 +1791,19 @@
                         } else {
                             sprite = SPRITES.enemyTinhNhueWalk[0][Math.floor(t * 10) % totalFrames]
                         }
+                        if (sprite && sprite.complete) {
+                            ctx.drawImage(sprite, (-flipX * sSize) / 2, -sSize, flipX * sSize, sSize)
+                            ctx.restore()
+                            return
+                        }
+                    }
+
+                    if (SPRITES.loaded && isEnemy && e.type === 'shield' && e.state === 'RUN') {
+                        const drawDir = e.vx !== 0 ? Math.sign(e.vx) : e.dir
+                        const flipX = drawDir
+                        const totalFrames = 16
+                        const sSize = 100
+                        const sprite = SPRITES.enemyKhienGiapWalk[0][Math.floor(t * 10) % totalFrames]
                         if (sprite && sprite.complete) {
                             ctx.drawImage(sprite, (-flipX * sSize) / 2, -sSize, flipX * sSize, sSize)
                             ctx.restore()
@@ -2321,7 +2370,7 @@
                                 // Tinh chỉnh vị trí bắn khớp với tay/vũ khí
                                 const spawnY = this.getDrawY() - 55 // Chiều cao ngang tay
                                 const muzzleX = this.x + this.dir * 45 // Offset nòng súng
-                                
+
                                 game.projectiles.push({
                                     x: muzzleX,
                                     y: spawnY,
@@ -2724,6 +2773,8 @@
                     this.enemies = []
                     this.combo = 0
                     this.comboT = 0
+                    this.comboStep = 0.1
+                    this.comboTime = 2.0
                     this.wave = SaveSystem.data.wave
                     this.money = SaveSystem.data.money
                     this.waveKills = 0
@@ -3069,14 +3120,26 @@
                                 if (crit) d *= 3.0
                                 const drawY = e.getDrawY() - e.h / 2
                                 e.takeDamage(d, this.player.dir * pb.force, this.player)
-                                this.spawnDamageText(e.x, drawY, Math.floor(d), crit)
                                 this.particles.spawnSkillVFX(e.x, drawY, SaveSystem.data.skills.active)
                                 this.triggerHitEffect(e.x, drawY, crit)
                                 hit = true
+
                                 this.combo++
-                                this.comboT = 4.0
-                                this.money += Math.floor(1 + this.combo * 0.2)
+                                this.comboT = this.comboTime
+                                const comboMultiplier = 1 + this.combo * this.comboStep
+                                const baseGold = Math.floor(1 + this.combo * 0.2)
+                                const finalGold = Math.floor(baseGold * comboMultiplier)
+                                this.money += finalGold
+
                                 this.particles.spawn(e.x, drawY, '#f00', 10)
+                                this.updateComboDisplay()
+                                this.spawnDamageText(e.x, drawY, Math.floor(d), crit, this.combo, comboMultiplier)
+                                audio.playCombo(this.combo)
+
+                                if (this.combo >= 10) {
+                                    this.camera.shake(5, 0.1)
+                                }
+
                                 if (e.state === 'DEAD' && !e._killed) {
                                     e._killed = true
                                     this.waveKills++
@@ -3106,6 +3169,7 @@
                                     20,
                                 )
                                 this.combo = 0
+                                this.updateComboDisplay()
                                 this.needsHudUpdate = true
                             }
                         }
@@ -3170,6 +3234,19 @@
                 updateTimingUI() {
                     const ind = document.getElementById('timing-indicator')
                     if (ind) ind.style.opacity = 0
+                }
+                updateComboDisplay() {
+                    const el = document.getElementById('combo-display')
+                    if (el) {
+                        if (this.combo > 0) {
+                            const multiplier = (1 + this.combo * this.comboStep).toFixed(1)
+                            el.innerText = `x${this.combo} Combo (${multiplier}x)`
+                            el.classList.add('active')
+                        } else {
+                            el.classList.remove('active')
+                            el.innerText = 'x0 Combo'
+                        }
+                    }
                 }
                 updateShopUI() {
                     const d = SaveSystem.data
@@ -3286,13 +3363,19 @@
                     document.getElementById('final-wave').innerText = this.wave - 1
                 }
 
-                spawnDamageText(x, y, text, isCrit) {
+                spawnDamageText(x, y, text, isCrit, combo = 0, comboMult = 1) {
                     if (this.damageTexts.length > 25) this.damageTexts.shift()
+                    let displayText = Math.floor(text).toString()
+                    if (combo > 1 && comboMult > 1) {
+                        displayText = `+${Math.floor(text * comboMult)}`
+                    }
                     this.damageTexts.push({
                         x,
                         y,
-                        text,
+                        text: displayText,
                         isCrit,
+                        isCombo: combo > 1,
+                        comboMult: comboMult,
                         life: 1.0,
                         vx: (Math.random() - 0.5) * 120,
                         vy: -180 - Math.random() * 120,
@@ -3641,7 +3724,7 @@
                                                     this.needsHudUpdate = true
                                                 }
                                             }
-                                 }
+                                        }
                                     }
                                 }
                                 this.particles.update(ldt)
@@ -3650,6 +3733,7 @@
                                     this.comboT -= ldt
                                     if (this.comboT <= 0) {
                                         this.combo = 0
+                                        this.updateComboDisplay()
                                         this.needsHudUpdate = true
                                     }
                                 }
@@ -3670,19 +3754,19 @@
                                     p.x += p.vx * ldt
                                     p.y += p.vy * ldt
                                     p.life -= ldt
-                                    
-                                    if (this.player.state === 'DASH' || this.player.state === 'DEAD') return;
+
+                                    if (this.player.state === 'DASH' || this.player.state === 'DEAD') return
 
                                     const pBox = { x: p.x - 15, y: p.y - 15, w: 30, h: 30 }
                                     const playerBox = this.player.getHitbox()
-                                    
+
                                     if (Utils.rectIntersect(pBox, playerBox)) {
-                                        const baseDmg = p.dmg * 20;
+                                        const baseDmg = p.dmg * 20
                                         if (this.player.takeDamage(baseDmg, p.vx > 0 ? 400 : -400)) {
-                                            p.life = 0 
+                                            p.life = 0
                                             this.camera.shake(15, 0.2)
                                             this.particles.spawn(p.x, p.y, p.color, 12)
-                                            this.needsHudUpdate = true;
+                                            this.needsHudUpdate = true
                                         }
                                     }
                                 })
@@ -3760,7 +3844,7 @@
                         this.projectiles.forEach((p) => {
                             this.ctx.save()
                             this.ctx.translate(Math.round(p.x), Math.round(p.y))
-                            
+
                             if (SPRITES.loaded && (p.type === 'ranged' || p.type === 'tinh-nhue')) {
                                 const frames = SPRITES.enemyTinhNhueSkill[0]
                                 const sprite = frames[Math.floor(performance.now() * 0.01) % frames.length]
@@ -3787,7 +3871,6 @@
                             this.ctx.restore()
                         })
 
-
                         this.ctx.save()
                         this.ctx.textAlign = 'center'
                         for (let i = this.damageTexts.length - 1; i >= 0; i--) {
@@ -3800,6 +3883,11 @@
                                 this.ctx.shadowBlur = 10
                                 this.ctx.shadowColor = '#f0f'
                                 this.ctx.font = 'bold 26px "Montserrat", sans-serif'
+                            } else if (dt.isCombo) {
+                                this.ctx.fillStyle = '#ff0'
+                                this.ctx.shadowBlur = 8
+                                this.ctx.shadowColor = '#ff0'
+                                this.ctx.font = 'bold 22px "Montserrat", sans-serif'
                             } else {
                                 this.ctx.fillStyle = '#fff'
                                 this.ctx.shadowBlur = 0
@@ -3824,7 +3912,7 @@
                             ctx.font = '800 24px "Inter", sans-serif'
                             ctx.fontStyle = 'italic'
 
-                            const floatUp = (4.0 - this.comboT) * 20
+                            const floatUp = (this.comboTime - this.comboT) * 20
                             ctx.globalAlpha = Math.min(1, this.comboT * 1.5)
 
                             const pulse = 1 + Math.sin(performance.now() * 0.01) * 0.05
@@ -3836,7 +3924,8 @@
                             ctx.fillStyle = this.player.isCritWindow ? '#f0f' : '#ff0'
 
                             ctx.transform(1, 0, -0.2, 1, 0, 0)
-                            ctx.fillText('x' + this.combo + ' COMBO', 0, 0)
+                            const comboMult = (1 + this.combo * this.comboStep).toFixed(1)
+                            ctx.fillText('x' + this.combo + ' COMBO (' + comboMult + 'x)', 0, 0)
                             ctx.restore()
                         }
 
@@ -3879,8 +3968,6 @@
                                 }
                             })
                     }
-
-
 
                     if (this.hitStop > 0) {
                         this.ctx.fillStyle = 'rgba(255,255,255,0.15)'
