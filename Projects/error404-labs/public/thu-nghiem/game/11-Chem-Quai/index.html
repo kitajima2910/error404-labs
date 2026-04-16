@@ -1924,17 +1924,6 @@
                     const sSize = 70 * scale
                     const feetOffset = e.feetOffset || 15
 
-                    // Debug visual line
-                    if (window._debugNinja) {
-                        ctx.save()
-                        ctx.beginPath()
-                        ctx.strokeStyle = '#f0f'
-                        ctx.lineWidth = 2
-                        ctx.moveTo(-100, -feetOffset)
-                        ctx.lineTo(100, -feetOffset)
-                        ctx.stroke()
-                        ctx.restore()
-                    }
                     let sprite = null
 
                     ctx.imageSmoothingEnabled = false
@@ -1969,16 +1958,6 @@
 
                     if (sprite && sprite.complete) {
                         ctx.drawImage(sprite, (-flipX * sSize) / 2, -sSize - feetOffset, flipX * sSize, sSize)
-                        
-                        // Flash effect for Ninja when HURT
-                        if (e.state === 'HURT' && t < 0.15) {
-                            ctx.save()
-                            ctx.globalCompositeOperation = 'source-atop'
-                            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)'
-                            ctx.fillRect((-flipX * sSize) / 2, -sSize - feetOffset, flipX * sSize, sSize)
-                            ctx.restore()
-                        }
-                        
                         ctx.restore()
                         return
                     } else {
