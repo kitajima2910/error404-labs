@@ -1950,7 +1950,7 @@
                     const flipX = drawDir
                     const scale = 2.2
                     const sSize = 70 * scale
-                    const feetOffset = e.feetOffset || 15
+                    const feetOffset = (e.feetOffset !== undefined) ? e.feetOffset : 15
 
                     let sprite = null
                     // Hard Ground Check: Zero vertical velocity or floor level or platform flag
@@ -2000,7 +2000,7 @@
                     }
 
                     if (sprite && sprite.complete) {
-                        ctx.drawImage(sprite, (-flipX * sSize) / 2, -sSize - feetOffset, flipX * sSize, sSize)
+                        ctx.drawImage(sprite, (-flipX * sSize) / 2, -sSize + feetOffset, flipX * sSize, sSize)
                         ctx.restore()
                         return
                     } else {
@@ -2456,7 +2456,7 @@
                     this.h = 60
                     this.canDodge = true
                     this.isPlatformEnemy = true
-                    this.feetOffset = 18
+                    this.feetOffset = 0
                     this.isOnGround = true
                 } else if (type === 'shield') {
                     this.color = CONFIG.colors.shield
@@ -2549,7 +2549,8 @@
                 if (this.diveCd > 0) this.diveCd -= dt
                 if (this.jumpAiCd > 0) this.jumpAiCd -= dt
                 if (this.state === 'DEAD') {
-                    this.vx *= 0.9
+                    this.vx = 0 // Instant stop on x
+                    if (this.z <= 0) this.vz = 0 // Stop vz only if on floor
                     this.updatePhysics(dt)
                     return
                 }
@@ -2721,12 +2722,15 @@
                         }
 
                         if (this.state === 'DEAD') {
-                            // Hard stop all forces to prevent flying/falling
                             this.vx = 0
                             this.vy = 0
-                            this.vz = 0
-                            this.isOnGround = true
-                            // Skip physics and AI updates
+                            if (this.z > 0 && !this.onPlatform) {
+                                // Allow falling if dead in mid-air
+                                this.updatePhysics(dt)
+                            } else {
+                                this.vz = 0
+                                this.isOnGround = true
+                            }
                             return
                         }
 
@@ -2820,10 +2824,9 @@
                 }
 
                 // Ninja grounding logic: Luôn bám lề trên của platform cao nhất tại vị trí X
-                if (this.type === 'ninja' || this.isPlatformEnemy) {
+                if (this.state !== 'DEAD' && (this.type === 'ninja' || this.isPlatformEnemy)) {
                     const game = window._gameInstance
                     if (game && game.platforms.length > 0) {
-                        // getTopPlatformY(x) implementation
                         let currentPlat = null
                         for (let plat of game.platforms) {
                             if (this.x > plat.x - plat.w / 2 && this.x < plat.x + plat.w / 2) {
@@ -2834,22 +2837,20 @@
                         }
 
                         const platformZ = currentPlat ? currentPlat.z : 0
-                        const platformTopY = CONFIG.floorY - platformZ
-
-                        // Force grounding state: Sử dụng floorY + feetOffset làm gốc, z làm chiều cao platform
-                        this.isOnGround = true
-                        this.onPlatform = true // Luôn true để tránh updatePhysics reset y về floorY
-                        this.z = platformZ
-                        this.vz = 0 // Disable gravity effect
-
-                        // Snapping chuẩn: y gốc + 18, khi trừ đi z sẽ ra platformTopY + 18
-                        this.y = CONFIG.floorY + (this.feetOffset || 15)
-
-                        // Debug logging
-                        if (window._debugNinja) {
-                            const drawY = this.y - this.z
-                            console.log(`[Ninja Debug] x:${Math.round(this.x)} drawY:${Math.round(drawY)} targetY:${Math.round(platformTopY + 18)} offset:${this.feetOffset}`)
+                        
+                        // Physics update: chỉ snap khi đang ở gần platform (tránh hụt khi nhảy)
+                        if (this.vz <= 0 && this.z >= platformZ - 10) {
+                            this.isOnGround = true
+                            this.onPlatform = (platformZ > 0)
+                            this.z = platformZ
+                            this.vz = 0 
+                            this.y = CONFIG.floorY
+                        } else {
+                            this.onPlatform = false
+                            this.isOnGround = false
                         }
+                    } else {
+                        this.onPlatform = false
                     }
                 }
 
