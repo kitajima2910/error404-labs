@@ -915,7 +915,8 @@
             enemyNinjaIdle: [],
             enemyNinjaAttack: [],
             enemyNinjaDeath: [],
-            enemyNinjaHurt: [], // New asset property
+            enemyNinjaHurt: [],
+            enemyNinjaJump: [],
             loaded: false,
             load() {
                 if (this.loaded) return
@@ -938,7 +939,8 @@
                 const enemyNinjaRunCount = 8
                 const enemyNinjaIdleCount = 4
                 const enemyNinjaDeathCount = 7
-                const enemyNinjaHurtCount = 3 // 3 frames in assets/quai/ninja/Take_hit
+                const enemyNinjaHurtCount = 3
+                const enemyNinjaJumpCount = 2 // 2 frames in assets/quai/ninja/Jump
                 const totalToLoad =
                     5 +
                     8 +
@@ -1073,6 +1075,15 @@
                     img.onload = check
                     img.onerror = check
                     this.enemyNinjaHurt[0].push(img)
+                }
+
+                this.enemyNinjaJump[0] = []
+                for (let c = 0; c < enemyNinjaJumpCount; c++) {
+                    const img = new Image()
+                    img.src = `assets/quai/ninja/Jump/Jump_${c.toString().padStart(3, '0')}.png`
+                    img.onload = check
+                    img.onerror = check
+                    this.enemyNinjaJump[0].push(img)
                 }
 
                 this.enemyDeath[0] = []
@@ -1925,6 +1936,7 @@
                     const feetOffset = e.feetOffset || 15
 
                     let sprite = null
+                    const isOnGround = e.z <= 0.1 || e.onPlatform
 
                     ctx.imageSmoothingEnabled = false
 
@@ -1949,11 +1961,14 @@
                         const totalFrames = 4
                         const frame = Math.min(Math.floor(t * 10), totalFrames - 1)
                         sprite = SPRITES.enemyNinjaAttack[0][frame] // Play once
-                    } else if (e.state === 'RUN' || (e.vx !== 0 && e.state !== 'ATTACK')) {
+                    } else if (e.state === 'RUN' || (isOnGround && e.vx !== 0)) {
                         sprite = SPRITES.enemyNinjaRun[0][Math.floor(t * 10) % 8]
-                    } else {
-                        // Slower idle: ~6-7 FPS
+                    } else if (isOnGround) {
+                        // Priority: Idle over Jump if on ground/platform
                         sprite = SPRITES.enemyNinjaIdle[0][Math.floor(t * 6.5) % 4]
+                    } else {
+                        // Jump animation is LOWEST priority, strictly for air time
+                        sprite = SPRITES.enemyNinjaJump[0][e.vz > 0 ? 0 : 1]
                     }
 
                     if (sprite && sprite.complete) {
@@ -2662,6 +2677,24 @@
                         }
                     } else if (this.type === 'ninja') {
                         const prevState = this.state
+                        
+                        // Emergency Ground Detection: vz == 0 means on ground or platform
+                        const isInAir = Math.abs(this.vz) > 1 && !this.onPlatform && this.z > 0.5
+                        const wasInAir = (this.lastZ || 0) > 0.5
+                        this.lastZ = this.z
+                        this.isOnGround = !isInAir
+
+                        if (this.onPlatform) {
+                            this.isOnGround = true
+                            this.vz = 0 // Force stop falling on platform
+                        } else {
+                            this.y = CONFIG.floorY
+                        }
+                        
+                        if (!isInAir && wasInAir) {
+                            console.log('[Ninja] Landing fixed')
+                        }
+
                         if (this.state === 'DEAD') {
                             this.vx *= 0.9 // Slow down death knockback
                             this.updatePhysics(dt)
