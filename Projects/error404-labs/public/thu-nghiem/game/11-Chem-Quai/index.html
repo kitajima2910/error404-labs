@@ -951,6 +951,7 @@
                 enemyAdvancedHurt: [],
                 enemyAdvancedDeath: [],
                 enemySlimeWalk: [],
+                enemySlimeAttack: [],
                 loaded: false,
                 load() {
                     if (this.loaded) return
@@ -1317,6 +1318,22 @@
                         img.onload = check
                         img.onerror = check
                         this.enemySlimeWalk[0].push(img)
+                    }
+
+                    this.enemySlimeAttack[0] = []
+                    const attackFrames = [
+                        '1',
+                        '2',
+                        '3',
+                        '4',
+                        '5',
+                    ]
+                    for (const num of attackFrames) {
+                        const img = new Image()
+                        img.src = `assets/quai/bot-bien/Attack/KingSlimeAttack${num}.png`
+                        img.onload = check
+                        img.onerror = check
+                        this.enemySlimeAttack[0].push(img)
                     }
                 },
             }
@@ -2097,24 +2114,53 @@
                     if (SPRITES.loaded && isEnemy && e.type === 'boss') {
                         const drawDir = e.vx !== 0 ? Math.sign(e.vx) : e.dir
                         const flipX = drawDir
-                        let sprite = null
-                        const walkFrames = 12
-                        const attackFrames = 15
+                        const sSize = 250
                         const hurtFrames = 5
                         const deathFrames = 22
-                        const sSize = 250
+                        let sprite = null
                         if (e.state === 'DEAD') {
                             sprite = SPRITES.enemyBossDeath[0][Math.min(Math.floor(e.stateTime * 8), deathFrames - 1)]
                         } else if (e.state === 'HURT') {
                             sprite = SPRITES.enemyBossHurt[0][Math.min(Math.floor(e.stateTime * 10), hurtFrames - 1)]
-                        } else if (e.state.startsWith('ATTACK')) {
-                            sprite =
-                                SPRITES.enemyBossAttack[0][Math.min(Math.floor(e.stateTime * 10), attackFrames - 1)]
                         } else {
-                            sprite = SPRITES.enemyBossWalk[0][Math.floor(t * 8) % walkFrames]
+                            const animType = e.state === 'ATTACK' ? 'attack' : e.state === 'RUN' ? 'walk' : 'idle'
+                            const frames =
+                                animType === 'attack'
+                                    ? SPRITES.enemyBossAttack[0]
+                                    : animType === 'walk' || !SPRITES.enemyBossIdle
+                                      ? SPRITES.enemyBossWalk[0]
+                                      : SPRITES.enemyBossIdle[0]
+
+                            // Boss cấp 5 đánh 15 frames ở 15fps
+                            const fps = animType === 'attack' ? 15 : 10
+                            const frameIdx = Math.floor(e.stateTime * fps) % frames.length
+                            sprite = frames[frameIdx]
                         }
+
                         if (sprite && sprite.complete) {
-                            ctx.drawImage(sprite, (-flipX * sSize) / 2, -sSize, flipX * sSize, sSize)
+                            ctx.drawImage(sprite, (-flipX * sSize) / 2, -sSize + 8, flipX * sSize, sSize)
+                            ctx.restore()
+                            return
+                        }
+                    }
+
+                    if (SPRITES.loaded && isEnemy && e.type === 'slime') {
+                        const drawDir = e.vx !== 0 ? Math.sign(e.vx) : e.dir
+                        const flipX = drawDir
+                        const animType = e.state === 'ATTACK' ? 'attack' : e.state === 'RUN' ? 'walk' : 'idle'
+                        const frames =
+                            animType === 'attack'
+                                ? SPRITES.enemySlimeAttack[0]
+                                : animType === 'walk' || !SPRITES.enemySlimeIdle
+                                  ? SPRITES.enemySlimeWalk[0]
+                                  : SPRITES.enemySlimeIdle[0]
+
+                        const sSize = 90
+                        const frameIdx = Math.floor(e.stateTime * 10) % frames.length
+                        const sprite = frames[frameIdx]
+
+                        if (sprite && sprite.complete) {
+                            ctx.drawImage(sprite, (-flipX * sSize) / 2, -sSize + 25, flipX * sSize, sSize)
                             ctx.restore()
                             return
                         }
@@ -2123,21 +2169,22 @@
                     if (SPRITES.loaded && isEnemy && e.type === 'advanced') {
                         const drawDir = e.vx !== 0 ? Math.sign(e.vx) : e.dir
                         const flipX = drawDir
-                        let sprite = null
-                        const walkFrames = 12
-                        const attackFrames = 16
                         const sSize = 180
-                        if (e.state.startsWith('ATTACK')) {
-                            sprite =
-                                SPRITES.enemyAdvancedAttack[0][Math.min(Math.floor(e.stateTime * 12), attackFrames - 1)]
-                        } else if (e.state === 'RUN') {
-                            sprite = SPRITES.enemyAdvancedWalk[0][Math.floor(t * 10) % walkFrames]
-                        } else {
-                            sprite = SPRITES.enemyAdvancedWalk[0][Math.floor(t * 6) % walkFrames]
-                        }
+                        const animType = e.state === 'ATTACK' ? 'attack' : e.state === 'RUN' ? 'walk' : 'idle'
+                        const frames =
+                            animType === 'attack'
+                                ? SPRITES.enemyAdvancedAttack[0]
+                                : animType === 'walk' || !SPRITES.enemyAdvancedIdle
+                                  ? SPRITES.enemyAdvancedWalk[0]
+                                  : SPRITES.enemyAdvancedIdle[0]
+
+                        // Quái nâng cao đánh 16 frames ở 16fps
+                        const fps = animType === 'attack' ? 16 : 10
+                        const frameIdx = Math.floor(e.stateTime * fps) % frames.length
+                        const sprite = frames[frameIdx]
+
                         if (sprite && sprite.complete) {
-                            // Hạ quái xuống 40px để khớp với chân chạm đất (do frame bị dư khoảng trống bên dưới)
-                            ctx.drawImage(sprite, (-flipX * sSize) / 2, -sSize + 18, flipX * sSize, sSize)
+                            ctx.drawImage(sprite, (-flipX * sSize) / 2, -sSize + 28, flipX * sSize, sSize)
                             ctx.restore()
                             return
                         }
@@ -2208,11 +2255,19 @@
 
                     // Slime sprite drawing
                     if (SPRITES.loaded && isEnemy && e.type === 'slime') {
-                        const sSize = 60
+                        const sSize = 70
                         const walkFrames = 3
-                        const sprite = SPRITES.enemySlimeWalk[0][Math.floor(t * 8) % walkFrames]
+                        const attackFrames = 5
+                        let sprite
+                        if (e.state.startsWith('ATTACK')) {
+                            sprite =
+                                SPRITES.enemySlimeAttack[0][Math.min(Math.floor(e.stateTime * 10), attackFrames - 1)]
+                        } else {
+                            sprite = SPRITES.enemySlimeWalk[0][Math.floor(t * 8) % walkFrames]
+                        }
                         if (sprite && sprite.complete) {
-                            ctx.drawImage(sprite, -sSize / 2, -sSize + 10, sSize, sSize)
+                            // Tăng offset lên +40 để Slime chạm đất (frames cũ bị lửng lơ)
+                            ctx.drawImage(sprite, -sSize / 2, -sSize + 40, sSize, sSize)
                             ctx.restore()
                             return
                         }
@@ -2775,9 +2830,9 @@
                             this.type === 'ninja'
                                 ? 0.4
                                 : this.type === 'boss'
-                                  ? 1.5
+                                  ? 1.1 // Tăng nhẹ để bớt gắt
                                   : this.type === 'advanced'
-                                    ? 0.9
+                                    ? 1.0 // 16 frames ở 16fps
                                     : this.type === 'shield'
                                       ? 1.1
                                       : 0.7
@@ -2798,7 +2853,7 @@
                                     y: spawnY,
                                     vx: this.dir * 550, // Bay theo hướng enemy đang nhìn
                                     vy: 0,
-                                    dmg: Math.floor((this.type === 'slime' ? 100 : 120) * (this.dmgScale || 1)),
+                                    dmg: Math.floor((this.type === 'slime' ? 5 : 120) * (this.dmgScale || 1)),
                                     color: this.type === 'slime' ? '#0f4' : '#0ff', // Màu Cyan cho đạn tinh nhuệ
                                     life: 3,
                                     type: this.type,
@@ -2937,30 +2992,35 @@
                                 else this.vx *= 0.8
                                 if (dist < 100 && this.diveCd <= 0) this.targetZ = player.z + 20
                             }
+                        } else if (this.type === 'slime') {
+                            // Slime AI: Nhảy chậm lại và chủ động tấn công khi gần player
+                            if (this.z === 0 && this.jumpCd <= 0) {
+                                this.vz = 250 + Math.random() * 100
+                                this.vx = Math.sign(dx) * this.speed * 1.1
+                                this.jumpCd = 3.5 + Math.random() * 2.0 // Chậm lại nữa
+                                this.changeState('RUN')
+                            }
+                            
+                            if (d < this.atkR && this.atkCd <= 0 && this.z < 20) {
+                                this.changeState('ATTACK')
+                                this.dir = dx > 0 ? 1 : -1
+                                this.vx *= 0.2
+                                this._hasShot = false
+                                this.atkCd = 3.5 + Math.random() * 2.0
+                            }
+
+                            if (this.z > 0) {
+                                if (this.state !== 'ATTACK') this.changeState('RUN')
+                            } else if (this.state !== 'ATTACK') {
+                                this.vx *= 0.8
+                                if (Math.abs(this.vx) < 10) this.changeState('IDLE')
+                            }
                         } else if (this.onPlatform && !onSameLevel && this.patrolL !== null && !isAbove) {
                             // Generic Platform Enemy Patrol
                             this.changeState('RUN')
                             if (this.x <= this.patrolL) this.dir = 1
                             else if (this.x >= this.patrolR) this.dir = -1
                             this.vx = this.dir * this.speed * 0.6
-                        } else if (this.type === 'slime') {
-                            if (this.z === 0 && this.jumpCd <= 0) {
-                                this.vz = 400 + Math.random() * 200
-                                this.vx = Math.sign(dx) * this.speed * 2
-                                this.jumpCd = 1.0 + Math.random()
-                                this.changeState('RUN')
-                            }
-                            if (d < this.atkR && this.atkCd <= 0 && this.z === 0) {
-                                this.changeState('ATTACK')
-                                this.dir = dx > 0 ? 1 : -1
-                                this._hasShot = false
-                                this.atkCd = 2.0 + Math.random()
-                            }
-                            if (this.z > 0) this.changeState('RUN')
-                            else if (this.state !== 'ATTACK') {
-                                this.vx *= 0.8
-                                if (Math.abs(this.vx) < 10) this.changeState('IDLE')
-                            }
                         } else if (this.type === 'tinh-nhue' || this.type === 'ranged') {
                             if (d < 250) {
                                 this.changeState('RUN')
