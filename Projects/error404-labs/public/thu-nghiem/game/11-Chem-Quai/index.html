@@ -1422,6 +1422,8 @@
                         if (
                             [
                                 'Space',
+                                'ShiftLeft',
+                                'ShiftRight',
                                 'ArrowUp',
                                 'ArrowDown',
                                 'ArrowLeft',
@@ -1431,7 +1433,10 @@
                                 'KeyS',
                                 'KeyD',
                                 'KeyJ',
+                                'KeyK',
+                                'KeyL',
                                 'Enter',
+                                'Escape',
                             ].includes(c)
                         ) {
                             e.preventDefault()
@@ -2049,7 +2054,8 @@
                         } else if (e.state === 'HURT') {
                             sprite = SPRITES.enemyBossWalk[0][0]
                         } else if (e.state.startsWith('ATTACK')) {
-                            sprite = SPRITES.enemyBossAttack[0][Math.min(Math.floor(e.stateTime * 10), attackFrames - 1)]
+                            sprite =
+                                SPRITES.enemyBossAttack[0][Math.min(Math.floor(e.stateTime * 10), attackFrames - 1)]
                         } else {
                             sprite = SPRITES.enemyBossWalk[0][Math.floor(t * 8) % walkFrames]
                         }
@@ -3354,7 +3360,7 @@
                             if (this.state === 'GAME') this.openUpgrades()
                             else if (this.state === 'SHOP') this.closeAllMenus()
                         }
-                        if (e.code === 'Escape' && this.state === 'SHOP') {
+                        if (e.code === 'Escape') {
                             this.closeAllMenus()
                         }
                     })
@@ -4502,24 +4508,42 @@
                         this.menuIndex = 0
                         this.lastMenuContainerId = container.id
 
-                        // Dọn dẹp highlight cũ
                         document.querySelectorAll('.btn-highlight, .card-highlight').forEach((el) => {
                             el.classList.remove('btn-highlight', 'card-highlight')
                         })
                     }
 
-                    const moveY = this.input.getAxisY()
-                    const moveX = this.input.getAxisX()
+                    const keys = this.input.keys
+                    const upPressed = keys['ArrowUp'] || keys['KeyW']
+                    const downPressed = keys['ArrowDown'] || keys['KeyS']
+                    const leftPressed = keys['ArrowLeft'] || keys['KeyA']
+                    const rightPressed = keys['ArrowRight'] || keys['KeyD']
 
-                    // Handle index wrap
-                    if (Math.abs(moveY) > 0.5 || Math.abs(moveX) > 0.5) {
-                        const dir = moveY !== 0 ? Math.sign(moveY) : Math.sign(moveX)
-                        this.menuIndex = (this.menuIndex + dir + buttons.length) % buttons.length
+                    if (!this._menuLastUp && upPressed) {
+                        this.menuIndex = (this.menuIndex - 1 + buttons.length) % buttons.length
                         this.menuCooldown = 0.2
                         audio.playClick()
                     }
+                    if (!this._menuLastDown && downPressed) {
+                        this.menuIndex = (this.menuIndex + 1) % buttons.length
+                        this.menuCooldown = 0.2
+                        audio.playClick()
+                    }
+                    if (!this._menuLastLeft && leftPressed) {
+                        this.menuIndex = (this.menuIndex - 1 + buttons.length) % buttons.length
+                        this.menuCooldown = 0.2
+                        audio.playClick()
+                    }
+                    if (!this._menuLastRight && rightPressed) {
+                        this.menuIndex = (this.menuIndex + 1) % buttons.length
+                        this.menuCooldown = 0.2
+                        audio.playClick()
+                    }
+                    this._menuLastUp = upPressed
+                    this._menuLastDown = downPressed
+                    this._menuLastLeft = leftPressed
+                    this._menuLastRight = rightPressed
 
-                    // Highlight
                     buttons.forEach((btn, i) => {
                         const target = highlightClass === 'card-highlight' ? btn.closest('.skill-card') || btn : btn
                         if (i === this.menuIndex) {
@@ -4529,11 +4553,19 @@
                         }
                     })
 
-                    // Select
-                    if (this.input.consumeAction('enter')) {
+                    const selectPressed = keys['Enter']
+                    if (!this._menuLastSelect && selectPressed) {
                         buttons[this.menuIndex].click()
                         this.menuCooldown = 0.3
                     }
+                    this._menuLastSelect = selectPressed
+
+                    const backPressed = keys['Escape']
+                    if (!this._menuLastBack && backPressed) {
+                        this.closeAllMenus()
+                        this.menuCooldown = 0.3
+                    }
+                    this._menuLastBack = backPressed
                 }
             }
         </script>
