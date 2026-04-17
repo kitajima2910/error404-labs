@@ -2820,59 +2820,54 @@
 
                         // Priority AI Decision Logic
                         if (this.type === 'ninja') {
-                            // Ninja Pursuit AI
-                            const detectR = 1200
+                            const detectR = 800
                             const chaseSpeed = this.speed * 1.25
 
+                            // Jump UP: Ninja trên mặt đất/platform thấp, player ở trên
+                            if (player.z > this.z + 40 && this.jumpAiCd <= 0 && d < 400) {
+                                const game = window._gameInstance
+                                const platAbove = game
+                                    ? game.platforms.find(
+                                          (p) =>
+                                              Math.abs(p.x - this.x) < 200 && p.z > this.z + 30 && p.z < this.z + 350,
+                                      )
+                                    : null
+
+                                if (platAbove || Math.random() < 0.15) {
+                                    this.vz = 850
+                                    this.vx = Math.sign(dx) * chaseSpeed
+                                    this.onPlatform = false
+                                    this.isOnGround = false
+                                    this.jumpAiCd = 1.5 + Math.random()
+                                    this.changeState('RUN')
+                                    audio.playJump()
+                                }
+                            }
+
+                            // Jump DOWN: Ninja ở trên platform, player xuống dưới đất
+                            if (this.onPlatform && player.z < this.z - 60 && d < 500 && this.jumpCd <= 0) {
+                                const atEdgeL = this.patrolL && this.x < this.patrolL + 40
+                                const atEdgeR = this.patrolR && this.x > this.patrolR - 40
+                                const directlyAbove = Math.abs(dx) < 150
+
+                                if ((atEdgeL || atEdgeR || directlyAbove) && player.z < 50) {
+                                    this.vz = -100
+                                    this.vx = Math.sign(dx) * chaseSpeed * 2.5
+                                    this.jumpCd = 1.0
+                                    this.onPlatform = false
+                                    this.isOnGround = false
+                                    audio.playJump()
+                                }
+                            }
+
+                            // Pursuit logic
                             if (d < detectR) {
                                 if (d > this.atkR || Math.abs(player.z - this.z) > 40) {
-                                    // CHASE MODE
                                     this.vx = Math.sign(dx) * chaseSpeed
                                     if (Math.abs(dx) < 15) this.vx = this.dir * 40
-
                                     this.dir = dx > 0 ? 1 : -1
                                     if (this.state !== 'RUN') this.changeState('RUN')
-
-                                    // Aggressive Hop-down/Pursuit logic
-                                    if (this.onPlatform && player.z < this.z - 40 && this.jumpCd <= 0) {
-                                        const directlyAbove = Math.abs(dx) < 150
-                                        const atEdgeL = this.patrolL && this.x < this.patrolL + 30 && dx < 0
-                                        const atEdgeR = this.patrolR && this.x > this.patrolR - 30 && dx > 0
-
-                                        if (directlyAbove || atEdgeL || atEdgeR) {
-                                            this.vz = 500
-                                            this.vx = Math.sign(dx || this.dir) * chaseSpeed * 2.0 // Lao cực mạnh xuống
-                                            this.jumpCd = 1.0
-                                            this.onPlatform = false
-                                            this.isOnGround = false
-                                            console.log('[Ninja AI] Lunge Pursue Jump-down')
-                                        }
-                                    }
-
-                                    // Aggressive Jump-up logic: Nhảy lên platform để rượt theo player
-                                    if (!this.onPlatform && player.z > this.z + 50 && this.jumpAiCd <= 0) {
-                                        const game = window._gameInstance
-                                        // Tìm platform phù hợp để nhảy lên
-                                        const platAbove = game
-                                            ? game.platforms.find(
-                                                  (p) =>
-                                                      Math.abs(p.x - this.x) < 180 &&
-                                                      p.z > this.z + 40 &&
-                                                      p.z < this.z + 320,
-                                              )
-                                            : null
-
-                                        if (platAbove || (Math.abs(dx) < 50 && Math.random() < 0.05)) {
-                                            this.vz = 820 // Lực nhảy đủ để lên platform
-                                            this.onPlatform = false
-                                            this.isOnGround = false
-                                            this.jumpAiCd = 1.2 + Math.random()
-                                            this.changeState('RUN') // Sẽ chuyển sang Jump/Fall animation dựa trên vz
-                                            console.log('[Ninja AI] Parkour Jump-up for pursuit')
-                                        }
-                                    }
                                 } else {
-                                    // ATTACK MODE
                                     this.vx *= 0.3
                                     if (this.atkCd <= 0) {
                                         this.changeState('ATTACK')
@@ -2891,6 +2886,9 @@
                                     if (this.patrolL && this.x < this.patrolL + 10) this.patrolDir = 1
                                     this.dir = this.patrolDir
                                     this.changeState('RUN')
+                                } else if (this.z > 10) {
+                                    // Đang ở trên không - rơi xuống ground
+                                    this.vx *= 0.9
                                 } else {
                                     this.vx *= 0.95
                                     if (Math.abs(this.vx) < 5) this.changeState('IDLE')
