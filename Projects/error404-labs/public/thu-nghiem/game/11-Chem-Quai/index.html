@@ -2184,7 +2184,7 @@
                         const sprite = frames[frameIdx]
 
                         if (sprite && sprite.complete) {
-                            ctx.drawImage(sprite, (-flipX * sSize) / 2, -sSize + 28, flipX * sSize, sSize)
+                            ctx.drawImage(sprite, (-flipX * sSize) / 2, -sSize + 18, flipX * sSize, sSize)
                             ctx.restore()
                             return
                         }
@@ -3000,7 +3000,7 @@
                                 this.jumpCd = 3.5 + Math.random() * 2.0 // Chậm lại nữa
                                 this.changeState('RUN')
                             }
-                            
+
                             if (d < this.atkR && this.atkCd <= 0 && this.z < 20) {
                                 this.changeState('ATTACK')
                                 this.dir = dx > 0 ? 1 : -1
@@ -3056,6 +3056,39 @@
                                     this.dir = dx > 0 ? 1 : -1
                                     this.atkCd = 1.5 + Math.random()
                                 } else this.changeState('IDLE')
+                            }
+                        } else if (this.type === 'advanced') {
+                            // Advanced Enemy AI - mạnh hơn basic, có thể nhảy xuống
+                            const chaseR = 600
+
+                            // Jump down logic
+                            if (this.onPlatform && player.z < this.z - 60 && d < chaseR && this.jumpCd <= 0) {
+                                const atEdgeL = this.patrolL && this.x < this.patrolL + 50 && dx < 0
+                                const atEdgeR = this.patrolR && this.x > this.patrolR - 50 && dx > 0
+                                const directlyBelow = Math.abs(dx) < 120
+
+                                if ((atEdgeL || atEdgeR || directlyBelow) && player.z < 50) {
+                                    this.vz = -80
+                                    this.vx = Math.sign(dx) * this.speed * 2
+                                    this.jumpCd = 1.2
+                                    this.onPlatform = false
+                                    this.isOnGround = false
+                                    audio.playJump()
+                                }
+                            }
+
+                            // Chase logic
+                            if (d > this.atkR) {
+                                this.changeState('RUN')
+                                this.dir = dx > 0 ? 1 : -1
+                                this.vx = Math.sign(dx) * this.speed * 1.1
+                            } else {
+                                this.vx *= 0.3
+                                if (this.atkCd <= 0) {
+                                    this.changeState('ATTACK')
+                                    this.dir = dx > 0 ? 1 : -1
+                                    this.atkCd = 0.8 + Math.random() * 0.4
+                                } else if (this.state !== 'ATTACK') this.changeState('IDLE')
                             }
                         } else {
                             // Basic Enemy AI
