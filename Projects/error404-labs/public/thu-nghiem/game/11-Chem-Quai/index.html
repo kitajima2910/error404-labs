@@ -1795,16 +1795,18 @@
                             ctx.stroke()
                             ctx.restore()
                         } else if (p.type === 'skill_vfx') {
-                            const frames = SPRITES[p.skillId][0]
-                            const frameIdx = Math.min(Math.floor((1 - a) * frames.length), frames.length - 1)
-                            const sprite = frames[frameIdx]
-                            if (sprite && sprite.complete) {
-                                ctx.save()
-                                ctx.globalCompositeOperation = 'source-over'
-                                ctx.translate(p.x, p.y)
-                                const sz = 200
-                                ctx.drawImage(sprite, -sz / 2, -sz / 2, sz, sz)
-                                ctx.restore()
+                            if (SPRITES[p.skillId] && SPRITES[p.skillId][0]) {
+                                const frames = SPRITES[p.skillId][0]
+                                const frameIdx = Math.min(Math.floor((1 - a) * frames.length), frames.length - 1)
+                                const sprite = frames[frameIdx]
+                                if (sprite && sprite.complete) {
+                                    ctx.save()
+                                    ctx.globalCompositeOperation = 'source-over'
+                                    ctx.translate(p.x, p.y)
+                                    const sz = 200
+                                    ctx.drawImage(sprite, -sz / 2, -sz / 2, sz, sz)
+                                    ctx.restore()
+                                }
                             }
                         } else {
                             const s = p.size * a
@@ -2523,12 +2525,13 @@
                     this.attackStep = 0
                     this.ghostTimer = 0
                     this.hasSpawnedSkillVFX = false
+                    this.hasAdvancedCombo = false
                     this.coyoteTime = 0
                     this.jumpBuffer = 0
                     this.attacks = [
-                        { startup: 0.05, active: 0.08, recover: 0.12, dmg: 10, w: 85, h: 60, offset: 60, force: 180 },
-                        { startup: 0.05, active: 0.08, recover: 0.12, dmg: 15, w: 95, h: 70, offset: 70, force: 250 },
-                        { startup: 0.08, active: 0.12, recover: 0.25, dmg: 35, w: 120, h: 100, offset: 80, force: 600 },
+                        { startup: 0.08, active: 0.1, recover: 0.15, dmg: 10, w: 85, h: 60, offset: 60, force: 180 },
+                        { startup: 0.08, active: 0.1, recover: 0.15, dmg: 15, w: 95, h: 70, offset: 70, force: 250 },
+                        { startup: 0.1, active: 0.15, recover: 0.3, dmg: 35, w: 120, h: 100, offset: 80, force: 600 },
                     ]
                 }
                 update(dt, input, particles) {
@@ -2549,6 +2552,7 @@
                             'IDLE',
                             'RUN',
                         ].includes(this.state) || !this.state.startsWith('ATTACK')
+                    const canAttack = canM || this.z > 0 // Allow attacking while in air
                     if (canM) {
                         const ax = input.getAxisX()
                         if (ax !== 0) {
@@ -2580,7 +2584,7 @@
                             this.vz *= 0.6
                         }
                     }
-                    if (canM || (this.state.startsWith('ATTACK') && this.isCritWindow)) {
+                    if (canAttack || (this.state.startsWith('ATTACK') && this.isCritWindow)) {
                         if (input.consumeAction('attack')) {
                             const game = window._gameInstance
                             if (game) game.hasPlayerMoved = true
@@ -2589,6 +2593,20 @@
                             this.vx = this.dir * 250
                             audio.playSwing()
                             this.hasSpawnedSkillVFX = false
+                            this.hasAdvancedCombo = false // Reset combo advance flag
+                        }
+                    } else if (this.state.startsWith('ATTACK_')) {
+                        // Allow attack transition during recovery phase
+                        const step = parseInt(this.state.split('_')[1])
+                        const atk = this.attacks[step]
+                        const inRecovery = this.stateTime >= atk.startup + atk.active
+                        if (inRecovery && !this.hasAdvancedCombo && input.consumeAction('attack')) {
+                            this.attackStep = (this.attackStep + 1) % 3
+                            this.changeState(`ATTACK_${this.attackStep}`)
+                            this.vx = this.dir * 250
+                            audio.playSwing()
+                            this.hasSpawnedSkillVFX = false
+                            this.hasAdvancedCombo = true // Mark as advanced
                         }
                     }
 
@@ -2596,15 +2614,19 @@
                         const step = parseInt(this.state.split('_')[1])
                         const atk = this.attacks[step]
                         const total = atk.startup + atk.active + atk.recover
-                        // Trigger VFX when reaching the last frame (frame 4 of 5 total frames)
                         if (!this.hasSpawnedSkillVFX && (this.stateTime / total) * 5 >= 4) {
                             this.hasSpawnedSkillVFX = true
                             if (particles.particles.length < 150) {
-                                particles.spawnSkillVFX(
-                                    this.x + this.dir * 70,
-                                    this.getDrawY() - this.h / 2,
-                                    SaveSystem.data.skills.active,
-                                )
+                                const game = window._gameInstance
+                                const skillId = SaveSystem.data.skills.active
+                                const vfxX = this.x + this.dir * 70
+                                const vfxY = this.getDrawY() - this.h / 2
+
+                                // Always spawn skill VFX at player attack position
+                                particles.spawnSkillVFX(vfxX, vfxY, skillId)
+
+                                // Also spawn slash effect for visual feedback
+                                particles.spawn(vfxX, vfxY, '#fff', 8, 0.3, 0.4)
                             }
                         }
                     }
@@ -2664,9 +2686,12 @@
                             critW = 0.2 * SaveSystem.data.stats.critWindowMult
                         this.isCritWindow = this.stateTime >= critStart && this.stateTime <= critStart + critW
                         if (this.stateTime > total) {
-                            this.attackStep = (this.attackStep + 1) % 3
+                            if (!this.hasAdvancedCombo) {
+                                this.attackStep = (this.attackStep + 1) % 3
+                            }
                             this.changeState('IDLE')
                             this.isCritWindow = false
+                            this.hasAdvancedCombo = false
                         }
                     } else if (this.state === 'DASH' && this.stateTime > (this.currentDashDuration || 0.45))
                         this.changeState('IDLE')
