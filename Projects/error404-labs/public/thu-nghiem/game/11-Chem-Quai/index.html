@@ -943,7 +943,10 @@
                 enemyNinjaJump: [],
                 enemyNinjaFall: [],
                 enemyBossWalk: [],
+<<<<<<< HEAD
                 enemyBossAttack: [],
+=======
+>>>>>>> ad8fda021c01b7079aad1b281eb3e7e53f4d6398
                 loaded: false,
                 load() {
                     if (this.loaded) return
@@ -1257,6 +1260,7 @@
                         img.onerror = check
                         this.enemyBossWalk[0].push(img)
                     }
+<<<<<<< HEAD
 
                     this.enemyBossAttack[0] = []
                     for (let c = 0; c < 15; c++) {
@@ -1266,6 +1270,8 @@
                         img.onerror = check
                         this.enemyBossAttack[0].push(img)
                     }
+=======
+>>>>>>> ad8fda021c01b7079aad1b281eb3e7e53f4d6398
                 },
             }
 
@@ -1388,6 +1394,7 @@
                     this.buffer = []
                     this.bufferTime = 0.15
                     this.joystick = { x: 0, y: 0, active: false }
+<<<<<<< HEAD
                     this.mapping = {
                         jump: [
                             'KeyW',
@@ -1413,6 +1420,8 @@
                         ],
                         enter: ['Enter'],
                     }
+=======
+>>>>>>> ad8fda021c01b7079aad1b281eb3e7e53f4d6398
                     window.addEventListener('keydown', (e) => {
                         const c = e.code
                         if (!this.keys[c]) {
@@ -1440,6 +1449,7 @@
                     window.addEventListener('keyup', (e) => {
                         this.keys[e.code] = false
                     })
+<<<<<<< HEAD
                     this._handleVisibility()
                     this._setupJoystick()
                 }
@@ -1458,6 +1468,10 @@
                         }
                     })
                 }
+=======
+                    this._setupJoystick()
+                }
+>>>>>>> ad8fda021c01b7079aad1b281eb3e7e53f4d6398
                 _setupJoystick() {
                     const joy = document.getElementById('joy-area'),
                         base = document.getElementById('joy-base'),
@@ -1544,6 +1558,7 @@
                     }
                     return false
                 }
+<<<<<<< HEAD
                 isActionPressed(action) {
                     const keys = this.mapping[action]
                     if (!keys) return false
@@ -1564,6 +1579,21 @@
                 getAxisY() {
                     if (this.joystick.active) return this.joystick.y > 0.3 ? 1 : this.joystick.y < -0.3 ? -1 : 0
                     return (this.isActionPressed('down') ? 1 : 0) - (this.isActionPressed('up') ? 1 : 0)
+=======
+                getAxisX() {
+                    if (this.joystick.active) return this.joystick.x > 0.3 ? 1 : this.joystick.x < -0.3 ? -1 : 0
+                    return (
+                        (this.keys['ArrowRight'] || this.keys['KeyD'] ? 1 : 0) -
+                        (this.keys['ArrowLeft'] || this.keys['KeyA'] ? 1 : 0)
+                    )
+                }
+                getAxisY() {
+                    if (this.joystick.active) return this.joystick.y > 0.3 ? 1 : this.joystick.y < -0.3 ? -1 : 0
+                    return (
+                        (this.keys['ArrowDown'] || this.keys['KeyS'] ? 1 : 0) -
+                        (this.keys['ArrowUp'] || this.keys['KeyW'] ? 1 : 0)
+                    )
+>>>>>>> ad8fda021c01b7079aad1b281eb3e7e53f4d6398
                 }
             }
 
@@ -2041,17 +2071,27 @@
                         const drawDir = e.vx !== 0 ? Math.sign(e.vx) : e.dir
                         const flipX = drawDir
                         let sprite = null
+<<<<<<< HEAD
                         const walkFrames = 12
                         const attackFrames = 15
+=======
+                        const totalFrames = 12
+>>>>>>> ad8fda021c01b7079aad1b281eb3e7e53f4d6398
                         const sSize = 250
                         if (e.state === 'DEAD') {
                             sprite = SPRITES.enemyBossWalk[0][0]
                         } else if (e.state === 'HURT') {
                             sprite = SPRITES.enemyBossWalk[0][0]
                         } else if (e.state.startsWith('ATTACK')) {
+<<<<<<< HEAD
                             sprite = SPRITES.enemyBossAttack[0][Math.min(Math.floor(e.stateTime * 10), attackFrames - 1)]
                         } else {
                             sprite = SPRITES.enemyBossWalk[0][Math.floor(t * 8) % walkFrames]
+=======
+                            sprite = SPRITES.enemyBossWalk[0][Math.floor(t * 8) % totalFrames]
+                        } else {
+                            sprite = SPRITES.enemyBossWalk[0][Math.floor(t * 10) % totalFrames]
+>>>>>>> ad8fda021c01b7079aad1b281eb3e7e53f4d6398
                         }
                         if (sprite && sprite.complete) {
                             ctx.drawImage(sprite, (-flipX * sSize) / 2, -sSize, flipX * sSize, sSize)
@@ -2411,7 +2451,11 @@
                         }
 
                         // Jump logic with Buffer and Coyote time
+<<<<<<< HEAD
                         if (input.consumeAction('jump')) {
+=======
+                        if (input.consume('KeyW') || input.consume('ArrowUp')) {
+>>>>>>> ad8fda021c01b7079aad1b281eb3e7e53f4d6398
                             this.jumpBuffer = 0.15 // 0.15s buffer
                         }
 
@@ -2426,12 +2470,20 @@
                         }
 
                         // Variable jump height: release early to cut jump
+<<<<<<< HEAD
                         if (!input.isActionPressed('jump') && this.vz > 300 && this.z > 0) {
+=======
+                        if (!input.keys['KeyW'] && !input.keys['ArrowUp'] && this.vz > 300 && this.z > 0) {
+>>>>>>> ad8fda021c01b7079aad1b281eb3e7e53f4d6398
                             this.vz *= 0.6
                         }
                     }
                     if (canM || (this.state.startsWith('ATTACK') && this.isCritWindow)) {
+<<<<<<< HEAD
                         if (input.consumeAction('attack')) {
+=======
+                        if (input.consume('KeyJ')) {
+>>>>>>> ad8fda021c01b7079aad1b281eb3e7e53f4d6398
                             const game = window._gameInstance
                             if (game) game.hasPlayerMoved = true
                             this.nextCrit = this.isCritWindow
@@ -2459,7 +2511,11 @@
                         }
                     }
                     if (canM && this.dashCd <= 0) {
+<<<<<<< HEAD
                         if (input.isActionPressed('dash')) {
+=======
+                        if (input.keys['Space']) {
+>>>>>>> ad8fda021c01b7079aad1b281eb3e7e53f4d6398
                             this.dashCharge = (this.dashCharge || 0) + dt
                             if (this.dashCharge > 0.8) this.dashCharge = 0.8
                             // Hiệu ứng vận sức (tụ năng lượng)
@@ -2486,7 +2542,11 @@
                             this.ghostTimer = 0.02
                             this.dashCharge = 0
                         }
+<<<<<<< HEAD
                     } else if (!input.isActionPressed('dash')) {
+=======
+                    } else if (!input.keys['Space']) {
+>>>>>>> ad8fda021c01b7079aad1b281eb3e7e53f4d6398
                         this.dashCharge = 0
                     }
 
@@ -2679,6 +2739,7 @@
                         const atkDur =
                             this.type === 'ninja'
                                 ? 0.4
+<<<<<<< HEAD
                                 : this.type === 'boss'
                                   ? 1.5
                                   : this.type === 'advanced'
@@ -2686,6 +2747,13 @@
                                     : this.type === 'shield'
                                       ? 1.1
                                       : 0.7
+=======
+                                : this.type === 'advanced'
+                                  ? 0.9
+                                  : this.type === 'shield'
+                                    ? 1.1
+                                    : 0.7
+>>>>>>> ad8fda021c01b7079aad1b281eb3e7e53f4d6398
                         if (this.stateTime > atkDur) this.changeState('IDLE')
                         if (
                             (this.type === 'ranged' || this.type === 'slime' || this.type === 'tinh-nhue') &&
@@ -2915,7 +2983,11 @@
                                 if (this.atkCd <= 0) {
                                     this.changeState('ATTACK')
                                     this.dir = dx > 0 ? 1 : -1
+<<<<<<< HEAD
                                     this.atkCd = this.type === 'boss' ? 2.5 + Math.random() * 1.0 : 1.0 + Math.random()
+=======
+                                    this.atkCd = this.type === 'boss' ? 0.8 + Math.random() * 0.5 : 1.0 + Math.random()
+>>>>>>> ad8fda021c01b7079aad1b281eb3e7e53f4d6398
                                 } else this.changeState('IDLE')
                             }
                         }
@@ -3000,11 +3072,15 @@
                     } else if (this.type === 'shield') {
                         const frame = Math.floor(t * 12) % 13
                         if (frame < 7 || frame > 8 || this.hasDealtDamage) return null
+<<<<<<< HEAD
                     } else if (this.type === 'boss') {
                         // Boss có 15 frames, cleave mạnh nhất ở giữa animation (frame 8-13)
                         // Với 1.5s duration, Frame 8 là ~0.8s, Frame 13 là ~1.3s
                         if (t < 0.8 || t > 1.3) return null
                     } else if (this.type === 'ranged' || this.type === 'slime' || this.type === 'tinh-nhue') {
+=======
+                    } else if (this.type === 'ranged') {
+>>>>>>> ad8fda021c01b7079aad1b281eb3e7e53f4d6398
                         return null
                     } else {
                         if (t < 0.2 || t > 0.6) return null
@@ -3219,7 +3295,10 @@
                     this.spawnTimer = 0
                     this.items = []
                     this.damageTexts = []
+<<<<<<< HEAD
                     this.damageTextPool = [] // Object pooling
+=======
+>>>>>>> ad8fda021c01b7079aad1b281eb3e7e53f4d6398
                     this.exitGateX = null
                     this.maxWave = 1000
                     this.projectiles = []
@@ -3639,6 +3718,7 @@
                                 this.updateComboDisplay()
                                 this.needsHudUpdate = true
                             }
+<<<<<<< HEAD
                         }
                     }
 
@@ -3760,6 +3840,129 @@
                             canvas.width = 120
                             canvas.height = 120
 
+=======
+                        }
+                    }
+
+                    for (let i = this.items.length - 1; i >= 0; i--) {
+                        const item = this.items[i]
+                        item.update(0.016)
+                        if (item.life <= 0) {
+                            this.items.splice(i, 1)
+                            continue
+                        }
+
+                        const dx = this.player.x - item.x
+                        const dy = this.player.getDrawY() - this.player.h / 2 - (item.y - 15)
+                        const dSq = dx * dx + dy * dy
+                        if (item.collectDelay <= 0 && dSq < 3600) {
+                            if (item.type === 'hp') {
+                                this.player.hp = Math.min(this.player.maxHp, this.player.hp + this.player.maxHp * 0.2)
+                                this.particles.spawn(this.player.x, this.player.getDrawY() - 50, '#0f0', 15)
+                            } else {
+                                const bonus = 200 + Math.floor(Math.random() * 300)
+                                this.money += bonus
+                                this.particles.spawn(this.player.x, this.player.getDrawY() - 50, '#ff0', 15)
+                            }
+                            this.needsHudUpdate = true
+                            audio.playBuy()
+                            this.items.splice(i, 1)
+                        }
+                    }
+
+                    if (this.player.state === 'DEAD' && this.state !== 'GAMEOVER') {
+                        this.state = 'GAMEOVER'
+                        setTimeout(() => this.gameOver(), 2500)
+                    }
+                }
+                updateHUD() {
+                    const d = SaveSystem.data
+                    const hp = Math.max(0, (this.player.hp / this.player.maxHp) * 100)
+                    const hbar = document.getElementById('health-bar')
+                    if (hbar) {
+                        hbar.style.width = hp + '%'
+                        hbar.style.background =
+                            hp > 30 ? 'linear-gradient(90deg, #0f0, #0a0)' : 'linear-gradient(90deg, #f00, #a00)'
+                    }
+                    const htext = document.getElementById('health-text')
+                    if (htext) htext.innerText = `${Math.ceil(this.player.hp)} / ${this.player.maxHp}`
+
+                    if (document.getElementById('stat-atk')) {
+                        document.getElementById('stat-atk').innerText = Math.round(d.stats.dmgMult * 100) + '%'
+                        document.getElementById('stat-crit').innerText = Math.round(d.stats.critWindowMult * 100) + '%'
+                        document.getElementById('stat-dash').innerText =
+                            Math.round((1 / d.stats.dashCdMult) * 100) + '%'
+                        if (document.getElementById('stat-armor')) {
+                            document.getElementById('stat-armor').innerText = Math.round(d.stats.armor)
+                        }
+                    }
+
+                    const cur = document.getElementById('currency-display')
+                    if (cur) cur.innerText = this.money + ' VNĐ'
+                }
+                updateTimingUI() {
+                    const ind = document.getElementById('timing-indicator')
+                    if (ind) ind.style.opacity = 0
+                }
+                updateComboDisplay() {
+                    const el = document.getElementById('combo-display')
+                    if (el) {
+                        if (this.combo > 0) {
+                            const multiplier = (1 + this.combo * this.comboStep).toFixed(1)
+                            el.innerText = `x${this.combo} Combo (${multiplier}x)`
+                            el.classList.add('active')
+                        } else {
+                            el.classList.remove('active')
+                            el.innerText = 'x0 Combo'
+                        }
+                    }
+                }
+                updateShopUI() {
+                    const d = SaveSystem.data
+                    document.querySelectorAll('.shop-funds').forEach((el) => (el.innerText = this.money))
+                    const items = [
+                        'dmg',
+                        'crit',
+                        'hp',
+                        'dash',
+                        'armor',
+                    ]
+                    items.forEach((key) => {
+                        const b = document.getElementById('upg-' + key)
+                        if (b) {
+                            b.disabled = this.money < d.costs[key]
+                            b.innerHTML = `Giá: <span id="cost-${key}">${d.costs[key]}</span> VNĐ`
+                        }
+                    })
+
+                    const skillContainer = document.getElementById('skills-list')
+                    if (skillContainer) {
+                        skillContainer.innerHTML = ''
+                        for (let v = 1; v <= 6; v++) {
+                            const id = `vfx${v}`
+                            const isUnlocked = d.skills.unlocked.includes(id)
+                            const isActive = d.skills.active === id
+                            const cost = d.skillCosts[id] || 0
+
+                            const card = document.createElement('div')
+                            card.className = `skill-card ${isActive ? 'active' : ''}`
+                            card.innerHTML = `
+                                        <div class="skill-preview"><canvas id="preview-${id}"></canvas></div>
+                                        <div class="skill-name">SET BẬC ${v}</div>
+                                        <div class="skill-dmg">ST CỘNG: +${SKILLS_DATA[id].dmg}</div>
+                                        <div class="skill-cost">${isUnlocked ? (isActive ? 'ĐANG DÙNG' : 'ĐÃ SỞ HỮU') : cost + ' VNĐ'}</div>
+                                        <button class="shop-btn skill-btn" id="buy-${id}">
+                                            ${isActive ? 'ĐANG DÙNG' : isUnlocked ? 'SỬ DỤNG' : `MUA NGAY`}
+                                        </button>
+                                    `
+                            skillContainer.appendChild(card)
+
+                            const canvas = document.getElementById(`preview-${id}`)
+                            const ctx = canvas.getContext('2d')
+                            canvas.width = 120
+                            canvas.height = 120
+
+>>>>>>> ad8fda021c01b7079aad1b281eb3e7e53f4d6398
                             let frame = 0
                             const animate = () => {
                                 if (!this.state || this.state !== 'SHOP' || !document.getElementById(`preview-${id}`))
@@ -3831,14 +4034,19 @@
                 }
 
                 spawnDamageText(x, y, text, isCrit, combo = 0, comboMult = 1) {
+<<<<<<< HEAD
                     if (this.damageTexts.length > 30) {
                         const old = this.damageTexts.shift()
                         this.damageTextPool.push(old)
                     }
+=======
+                    if (this.damageTexts.length > 25) this.damageTexts.shift()
+>>>>>>> ad8fda021c01b7079aad1b281eb3e7e53f4d6398
                     let displayText = Math.floor(text).toString()
                     if (combo > 1 && comboMult > 1) {
                         displayText = `+${Math.floor(text * comboMult)}`
                     }
+<<<<<<< HEAD
                     const dtObj = this.damageTextPool.pop() || {}
                     dtObj.x = x
                     dtObj.y = y
@@ -3850,6 +4058,19 @@
                     dtObj.vx = (Math.random() - 0.5) * 120
                     dtObj.vy = -180 - Math.random() * 120
                     this.damageTexts.push(dtObj)
+=======
+                    this.damageTexts.push({
+                        x,
+                        y,
+                        text: displayText,
+                        isCrit,
+                        isCombo: combo > 1,
+                        comboMult: comboMult,
+                        life: 1.0,
+                        vx: (Math.random() - 0.5) * 120,
+                        vy: -180 - Math.random() * 120,
+                    })
+>>>>>>> ad8fda021c01b7079aad1b281eb3e7e53f4d6398
                 }
 
                 drawBG() {
@@ -4168,15 +4389,20 @@
                             this._checkPlatformCollision()
                             this.player.update(this.state === 'GAMEOVER' ? dt : ldt, this.input, this.particles)
                             if (this.state === 'GAME') {
+<<<<<<< HEAD
                                 let aliveCount = 0
                                 for (let i = this.enemies.length - 1; i >= 0; i--) {
                                     const e = this.enemies[i]
+=======
+                                this.enemies.forEach((e) => {
+>>>>>>> ad8fda021c01b7079aad1b281eb3e7e53f4d6398
                                     const inView =
                                         e.x > this.camera.x - 100 && e.x < this.camera.x + CONFIG.canvasWidth + 100
                                     if (this.hasPlayerMoved || inView) {
                                         e.update(ldt, this.player)
                                         this._checkEnemyPlatformCollision(e)
                                     }
+<<<<<<< HEAD
                                     if (e.state !== 'DEAD') aliveCount++
 
                                     // Cleanup dead enemies or ones finished animation
@@ -4184,6 +4410,12 @@
                                         this.enemies.splice(i, 1)
                                     }
                                 }
+=======
+                                })
+
+                                // Cleanup removed enemies (like Ninja after death animation)
+                                this.enemies = this.enemies.filter((e) => !e.isDone)
+>>>>>>> ad8fda021c01b7079aad1b281eb3e7e53f4d6398
 
                                 if (this.hasPlayerMoved) {
                                     // Update and check traps
@@ -4216,7 +4448,14 @@
                                         this.needsHudUpdate = true
                                     }
                                 }
+<<<<<<< HEAD
                                 const alive = aliveCount
+=======
+                                let alive = 0
+                                for (let i = 0; i < this.enemies.length; i++) {
+                                    if (this.enemies[i].state !== 'DEAD') alive++
+                                }
+>>>>>>> ad8fda021c01b7079aad1b281eb3e7e53f4d6398
                                 const maxOnScreen = Math.min(3 + Math.floor(this.wave * 0.2), 8)
                                 if (this.hasPlayerMoved && this.spawnQueue.length > 0 && alive < maxOnScreen) {
                                     this.spawnTimer -= ldt
@@ -4233,7 +4472,11 @@
 
                                     if (this.player.state === 'DASH' || this.player.state === 'DEAD') return
 
+<<<<<<< HEAD
                                     const pBox = { x: p.x - 20, y: p.y - 20, w: 40, h: 40 }
+=======
+                                    const pBox = { x: p.x - 15, y: p.y - 15, w: 30, h: 30 }
+>>>>>>> ad8fda021c01b7079aad1b281eb3e7e53f4d6398
                                     const playerBox = this.player.getHitbox()
 
                                     if (Utils.rectIntersect(pBox, playerBox)) {
@@ -4242,13 +4485,18 @@
                                             this.player.hitCooldown = 0.3
                                             p.life = 0
                                             this.camera.shake(2, 0.1)
+<<<<<<< HEAD
                                             this.particles.spawn(p.x, p.y, p.color, 12, 0.5)
+=======
+                                            this.particles.spawn(p.x, p.y, p.color, 12)
+>>>>>>> ad8fda021c01b7079aad1b281eb3e7e53f4d6398
                                             this.needsHudUpdate = true
                                         }
                                     }
                                 })
                                 this.projectiles = this.projectiles.filter((p) => p.life > 0)
 
+<<<<<<< HEAD
                                 // Update damage texts logic here (moved from render)
                                 for (let i = this.damageTexts.length - 1; i >= 0; i--) {
                                     const dtText = this.damageTexts[i]
@@ -4263,6 +4511,8 @@
                                     dtText.vy += CONFIG.gravity * 0.3 * dt
                                 }
 
+=======
+>>>>>>> ad8fda021c01b7079aad1b281eb3e7e53f4d6398
                                 const totalInWave = this.waveKills + alive + this.spawnQueue.length
                                 const isWaveCleared =
                                     this.waveKills >= totalInWave && this.spawnQueue.length === 0 && alive === 0
@@ -4292,6 +4542,10 @@
                                 this.updateHUD()
                                 this.needsHudUpdate = false
                             }
+<<<<<<< HEAD
+=======
+                            this.enemies = this.enemies.filter((e) => e.state !== 'DEAD' || e.stateTime < 1.5)
+>>>>>>> ad8fda021c01b7079aad1b281eb3e7e53f4d6398
                             this.camera.update(dt, this.player)
                             this.updateTimingUI()
                         }
@@ -4364,16 +4618,28 @@
                         this.ctx.save()
                         this.ctx.textAlign = 'center'
                         for (let i = this.damageTexts.length - 1; i >= 0; i--) {
+<<<<<<< HEAD
                             const dtText = this.damageTexts[i]
                             const alpha = Math.min(1, dtText.life * 2)
                             this.ctx.globalAlpha = alpha
 
                             if (dtText.isCrit) {
+=======
+                            const dt = this.damageTexts[i]
+                            const alpha = Math.min(1, dt.life * 2)
+                            this.ctx.globalAlpha = alpha
+
+                            if (dt.isCrit) {
+>>>>>>> ad8fda021c01b7079aad1b281eb3e7e53f4d6398
                                 this.ctx.fillStyle = '#ff0'
                                 this.ctx.shadowBlur = 10
                                 this.ctx.shadowColor = '#f0f'
                                 this.ctx.font = 'bold 26px "Montserrat", sans-serif'
+<<<<<<< HEAD
                             } else if (dtText.isCombo) {
+=======
+                            } else if (dt.isCombo) {
+>>>>>>> ad8fda021c01b7079aad1b281eb3e7e53f4d6398
                                 this.ctx.fillStyle = '#ff0'
                                 this.ctx.shadowBlur = 8
                                 this.ctx.shadowColor = '#ff0'
@@ -4383,7 +4649,19 @@
                                 this.ctx.shadowBlur = 0
                                 this.ctx.font = 'bold 18px "Montserrat", sans-serif'
                             }
+<<<<<<< HEAD
                             this.ctx.fillText(dtText.text, Math.round(dtText.x), Math.round(dtText.y))
+=======
+
+                            this.ctx.fillText(dt.text, Math.round(dt.x), Math.round(dt.y))
+
+                            const ldt = 0.016
+                            dt.x += dt.vx * ldt
+                            dt.y += dt.vy * ldt
+                            dt.vy += 450 * ldt
+                            dt.life -= ldt
+                            if (dt.life <= 0) this.damageTexts.splice(i, 1)
+>>>>>>> ad8fda021c01b7079aad1b281eb3e7e53f4d6398
                         }
                         this.ctx.restore()
 
@@ -4530,7 +4808,12 @@
                     })
 
                     // Select
+<<<<<<< HEAD
                     if (this.input.consumeAction('enter')) {
+=======
+                    if (this.input.keys['Enter']) {
+                        this.input.keys['Enter'] = false
+>>>>>>> ad8fda021c01b7079aad1b281eb3e7e53f4d6398
                         buttons[this.menuIndex].click()
                         this.menuCooldown = 0.3
                     }
