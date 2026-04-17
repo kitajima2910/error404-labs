@@ -2155,12 +2155,12 @@
                                   ? SPRITES.enemySlimeWalk[0]
                                   : SPRITES.enemySlimeIdle[0]
 
-                        const sSize = 90
+                        const sSize = 50
                         const frameIdx = Math.floor(e.stateTime * 10) % frames.length
                         const sprite = frames[frameIdx]
 
                         if (sprite && sprite.complete) {
-                            ctx.drawImage(sprite, (-flipX * sSize) / 2, -sSize + 25, flipX * sSize, sSize)
+                            ctx.drawImage(sprite, (-flipX * sSize) / 2, -sSize + 5, flipX * sSize, sSize)
                             ctx.restore()
                             return
                         }
