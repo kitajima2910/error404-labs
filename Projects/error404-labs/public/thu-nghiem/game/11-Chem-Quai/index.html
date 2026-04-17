@@ -2993,51 +2993,52 @@
                                 if (dist < 100 && this.diveCd <= 0) this.targetZ = player.z + 20
                             }
                         } else if (this.type === 'slime') {
-                            // Slime AI: Nhảy qua nhảy lại trên platform hoặc đuổi theo player
-                            if (this.onPlatform && this.jumpCd <= 0) {
-                                // Trên platform - nhảy qua lại
-                                const atEdgeL = this.patrolL && this.x < this.patrolL + 60
-                                const atEdgeR = this.patrolR && this.x > this.patrolR - 60
+                            // Slime AI: Nhảy qua nhảy lại tấn công player
+                            const atkRange = 250
+
+                            if (d < atkRange && this.atkCd <= 0 && this.z < 40) {
+                                // Gần player - nhảy tấn công
+                                this.changeState('ATTACK')
+                                this.dir = dx > 0 ? 1 : -1
+                                this.vx = Math.sign(dx) * this.speed * 2.5
+                                this.vz = 200 + Math.random() * 100
+                                this._hasShot = false
+                                this.atkCd = 0.6 + Math.random() * 0.3
+                                audio.playJump()
+                            } else if (this.onPlatform && this.jumpCd <= 0) {
+                                // Trên platform - nhảy qua lại về phía player
+                                const atEdgeL = this.patrolL && this.x < this.patrolL + 40
+                                const atEdgeR = this.patrolR && this.x > this.patrolR - 40
 
                                 if (atEdgeL || atEdgeR) {
-                                    // Nhảy ngang qua platform
-                                    this.vz = 350 + Math.random() * 150
-                                    this.vx = (atEdgeL ? 1 : -1) * this.speed * 2
-                                    this.jumpCd = 0.8 + Math.random() * 0.6
+                                    // Đổi hướng nhảy
+                                    this.vz = 300 + Math.random() * 150
+                                    this.vx = Math.sign(dx) * this.speed * 2
+                                    this.jumpCd = 0.4 + Math.random() * 0.3
                                     this.changeState('RUN')
                                     audio.playJump()
-                                } else if (d < 300 && Math.abs(player.z - this.z) < 100) {
-                                    // Gần player - nhảy xuống
-                                    this.vz = -50
+                                } else {
+                                    // Nhảy về phía player
+                                    this.vz = 250 + Math.random() * 100
                                     this.vx = Math.sign(dx) * this.speed * 1.5
-                                    this.jumpCd = 1.0 + Math.random() * 0.5
-                                    this.onPlatform = false
-                                    this.isOnGround = false
+                                    this.jumpCd = 0.5 + Math.random() * 0.3
                                     this.changeState('RUN')
                                     audio.playJump()
                                 }
-                            } else if (this.z === 0 && this.jumpCd <= 0) {
-                                // Trên mặt đất - nhảy theo hướng player
-                                this.vz = 300 + Math.random() * 150
-                                this.vx = Math.sign(dx) * this.speed * 1.2
-                                this.jumpCd = 1.5 + Math.random() * 1.0
+                            } else if (this.z === 0 && this.jumpCd <= 0 && d < 400) {
+                                // Trên mặt đất - nhảy về phía player
+                                this.vz = 350 + Math.random() * 150
+                                this.vx = Math.sign(dx) * this.speed * 1.5
+                                this.jumpCd = 0.5 + Math.random() * 0.3
                                 this.changeState('RUN')
                                 audio.playJump()
-                            }
-
-                            if (d < this.atkR && this.atkCd <= 0 && this.z < 30) {
-                                this.changeState('ATTACK')
-                                this.dir = dx > 0 ? 1 : -1
-                                this.vx *= 0.2
-                                this._hasShot = false
-                                this.atkCd = 0.8 + Math.random() * 0.5
                             }
 
                             if (this.z > 0) {
                                 if (this.state !== 'ATTACK') this.changeState('RUN')
                             } else if (this.state !== 'ATTACK') {
-                                this.vx *= 0.85
-                                if (Math.abs(this.vx) < 10) this.changeState('IDLE')
+                                this.vx *= 0.9
+                                if (Math.abs(this.vx) < 15) this.changeState('IDLE')
                             }
                         } else if (this.onPlatform && !onSameLevel && this.patrolL !== null && !isAbove) {
                             // Generic Platform Enemy Patrol
@@ -3848,6 +3849,26 @@
                                 this.combo = 0
                                 this.updateComboDisplay()
                                 this.needsHudUpdate = true
+                            }
+                        }
+
+                        // Slime direct touch damage
+                        if (e.type === 'slime' && !e.hasDealtDamage && e.state !== 'DEAD' && e.hp > 0) {
+                            const playerHitbox = this.player.getHitbox()
+                            const slimeHitbox = { x: e.x - 30, y: e.y - 50, w: 60, h: 50 }
+                            if (Utils.rectIntersect(playerHitbox, slimeHitbox)) {
+                                if (this.player.takeDamage(15, this.player.x > e.x ? 200 : -200, e)) {
+                                    this.player.hitCooldown = 0.4
+                                    e.hasDealtDamage = true
+                                    this.camera.shake(2, 0.1)
+                                    this.particles.spawn(
+                                        this.player.x,
+                                        this.player.getDrawY() - this.player.h / 2,
+                                        '#0f0',
+                                        15,
+                                    )
+                                    this.needsHudUpdate = true
+                                }
                             }
                         }
                     }
