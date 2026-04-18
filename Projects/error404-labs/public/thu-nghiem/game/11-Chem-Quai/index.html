@@ -3004,7 +3004,7 @@
 
                             if (this.state === 'ATTACK') {
                                 this.vx *= 0.5
-                            } else if (this.targetZ < 100) {
+                            } else if (this.z - player.z < 50) {
                                 this.vx = Math.sign(dx) * this.speed * 1.5
                                 if (dist < 40 && Math.abs(dz) < 40) {
                                     this.changeState('ATTACK')
