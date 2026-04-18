@@ -954,6 +954,7 @@
                 enemySlimeAttack: [],
                 enemyFlyerFlying: [],
                 enemyFlyerAttack: [],
+                enemyFlyerHurt: [],
                 loaded: false,
                 load() {
                     if (this.loaded) return
@@ -1007,7 +1008,8 @@
                         enemyNinjaIdleCount +
                         4 + // enemyNinjaAttackCount
                         enemyFlyerFlyingCount +
-                        enemyFlyerAttackCount
+                        enemyFlyerAttackCount +
+                        4
                     const check = () => {
                         loadedCount++
                         if (loadedCount >= totalToLoad) this.loaded = true
@@ -1358,6 +1360,15 @@
                         img.onload = check
                         img.onerror = check
                         this.enemyFlyerAttack[0].push(img)
+                    }
+
+                    this.enemyFlyerHurt[0] = []
+                    for (let c = 0; c < 4; c++) {
+                        const img = new Image()
+                        img.src = `assets/quai/bay-luon/HURT/HURT_00${c}.png`
+                        img.onload = check
+                        img.onerror = check
+                        this.enemyFlyerHurt[0].push(img)
                     }
                 },
             }
@@ -2397,8 +2408,9 @@
                         return
                     } else if (e.type === 'flyer') {
                         const isAttack = e.state === 'ATTACK'
-                        const flyerSprites = isAttack ? SPRITES.enemyFlyerAttack[0] : SPRITES.enemyFlyerFlying[0]
-                        const frameCount = isAttack ? 8 : 4
+                        const isHurt = e.state === 'HURT'
+                        const flyerSprites = isAttack ? SPRITES.enemyFlyerAttack[0] : isHurt ? SPRITES.enemyFlyerHurt[0] : SPRITES.enemyFlyerFlying[0]
+                        const frameCount = isAttack ? 8 : isHurt ? 4 : 4
                         if (flyerSprites && flyerSprites.length > 0) {
                             const frame = Math.floor(t * 10) % frameCount
                             const sSize = 90
