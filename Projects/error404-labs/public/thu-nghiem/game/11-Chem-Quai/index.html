@@ -2390,10 +2390,7 @@
                             const sSize = 90
                             const sprite = flyerSprites[frame]
                             if (sprite && sprite.complete) {
-                                ctx.save()
-                                ctx.scale(e.dir, 1)
                                 ctx.drawImage(sprite, -sSize / 2, -sSize, sSize, sSize)
-                                ctx.restore()
                                 ctx.restore()
                                 return
                             }
@@ -3025,6 +3022,7 @@
                             const dz = this.targetZ - this.z
                             this.vz = dz * 5
                             const dx = player.x - this.x
+                            this.dir = dx > 0 ? 1 : -1
                             const dist = Math.abs(dx)
 
                             if (this.state === 'ATTACK') {
@@ -3038,7 +3036,6 @@
                                     this.diveCd = 2.0
                                 }
                             } else {
-                                this.dir = dx > 0 ? 1 : -1
                                 if (dist > 150) this.vx = Math.sign(dx) * this.speed
                                 else if (dist > 100) this.vx = Math.sign(dx) * this.speed * 0.3
                                 else this.vx = -Math.sign(dx) * this.speed * 1.2
