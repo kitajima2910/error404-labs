@@ -3014,10 +3014,10 @@
                                 }
                             } else {
                                 this.dir = dx > 0 ? 1 : -1
-                                if (dist > 100) this.vx = Math.sign(dx) * this.speed
-                                else if (dist > 80) this.vx = Math.sign(dx) * this.speed * 0.3
-                                else this.vx = -Math.sign(dx) * this.speed * 0.8
-                                if (dist < 120 && this.diveCd <= 0) this.targetZ = player.z + 20
+                                if (dist > 150) this.vx = Math.sign(dx) * this.speed
+                                else if (dist > 100) this.vx = Math.sign(dx) * this.speed * 0.3
+                                else this.vx = -Math.sign(dx) * this.speed * 1.2
+                                if (dist < 150 && this.diveCd <= 0) this.targetZ = player.z + 50
                             }
                         } else if (this.type === 'slime') {
                             // Slime AI: Nhảy qua nhảy lại tấn công player
