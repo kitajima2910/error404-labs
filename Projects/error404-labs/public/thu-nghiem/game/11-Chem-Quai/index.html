@@ -2737,7 +2737,7 @@
                         this.bodyScale = 0.9
                     } else if (type === 'ninja') {
                         this.color = '#0ff'
-                        this.hp = this.maxHp = Math.floor(25 * scale)
+                        this.hp = this.maxHp = Math.floor(300 * scale)
                         this.speed = 180 + wave * 3.5
                         this.atkR = 65
                         this.weaponType = 'dagger'
@@ -3785,6 +3785,7 @@
                     }
                 }
                 _checkEnemyPlatformCollision(enemy) {
+                    if (enemy.isFlyer) return
                     enemy.onPlatform = false
                     const footY = enemy.y - enemy.z
                     for (const plat of this.platforms) {
