@@ -3003,7 +3003,8 @@
                             const dist = Math.abs(dx)
 
                             if (this.state === 'ATTACK') {
-                                this.vx *= 0.5
+                                this.vx = Math.sign(dx) * this.speed * 2
+                                this.targetZ = 300
                             } else if (this.z - player.z < 50) {
                                 this.vx = Math.sign(dx) * this.speed * 1.5
                                 if (dist < 40 && Math.abs(dz) < 40) {
@@ -3013,9 +3014,10 @@
                                 }
                             } else {
                                 this.dir = dx > 0 ? 1 : -1
-                                if (dist > 50) this.vx = Math.sign(dx) * this.speed
-                                else this.vx *= 0.8
-                                if (dist < 100 && this.diveCd <= 0) this.targetZ = player.z + 20
+                                if (dist > 100) this.vx = Math.sign(dx) * this.speed
+                                else if (dist > 80) this.vx = Math.sign(dx) * this.speed * 0.3
+                                else this.vx = -Math.sign(dx) * this.speed * 0.8
+                                if (dist < 120 && this.diveCd <= 0) this.targetZ = player.z + 20
                             }
                         } else if (this.type === 'slime') {
                             // Slime AI: Nhảy qua nhảy lại tấn công player
