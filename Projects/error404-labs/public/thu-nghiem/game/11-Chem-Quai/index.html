@@ -952,6 +952,7 @@
                 enemyAdvancedDeath: [],
                 enemySlimeWalk: [],
                 enemySlimeAttack: [],
+                enemyFlyerFlying: [],
                 loaded: false,
                 load() {
                     if (this.loaded) return
@@ -977,6 +978,7 @@
                     const enemyNinjaHurtCount = 3
                     const enemyNinjaJumpCount = 2 // 2 frames in assets/quai/ninja/Jump
                     const enemyNinjaFallCount = 2 // 2 frames in assets/quai/ninja/Fall
+                    const enemyFlyerFlyingCount = 4
                     const totalToLoad =
                         5 +
                         8 +
@@ -1001,7 +1003,8 @@
                         enemyKhienGiapDeadCount +
                         enemyNinjaRunCount +
                         enemyNinjaIdleCount +
-                        4 // enemyNinjaAttackCount
+                        4 + // enemyNinjaAttackCount
+                        enemyFlyerFlyingCount
                     const check = () => {
                         loadedCount++
                         if (loadedCount >= totalToLoad) this.loaded = true
@@ -1334,6 +1337,15 @@
                         img.onload = check
                         img.onerror = check
                         this.enemySlimeAttack[0].push(img)
+                    }
+
+                    this.enemyFlyerFlying[0] = []
+                    for (let c = 0; c < 4; c++) {
+                        const img = new Image()
+                        img.src = `assets/quai/bay-luon/FLYING/FLYING_00${c}.png`
+                        img.onload = check
+                        img.onerror = check
+                        this.enemyFlyerFlying[0].push(img)
                     }
                 },
             }
@@ -2372,7 +2384,20 @@
                         ctx.restore()
                         return
                     } else if (e.type === 'flyer') {
-                        // Wing logic
+                        const flyerSprites = SPRITES.enemyFlyerFlying[0]
+                        if (flyerSprites && flyerSprites.length > 0) {
+                            const frame = Math.floor(t * 10) % 4
+                            const sSize = 90
+                            const sprite = flyerSprites[frame]
+                            if (sprite && sprite.complete) {
+                                ctx.save()
+                                ctx.scale(e.dir, 1)
+                                ctx.drawImage(sprite, -sSize / 2, -sSize, sSize, sSize)
+                                ctx.restore()
+                                ctx.restore()
+                                return
+                            }
+                        }
                         const wingH = Math.sin(t * 15) * 20
                         ctx.fillStyle = e.color
                         ctx.beginPath()
