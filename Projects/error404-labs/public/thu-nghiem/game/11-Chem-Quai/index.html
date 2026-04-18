@@ -953,6 +953,7 @@
                 enemySlimeWalk: [],
                 enemySlimeAttack: [],
                 enemyFlyerFlying: [],
+                enemyFlyerAttack: [],
                 loaded: false,
                 load() {
                     if (this.loaded) return
@@ -979,6 +980,7 @@
                     const enemyNinjaJumpCount = 2 // 2 frames in assets/quai/ninja/Jump
                     const enemyNinjaFallCount = 2 // 2 frames in assets/quai/ninja/Fall
                     const enemyFlyerFlyingCount = 4
+                    const enemyFlyerAttackCount = 8
                     const totalToLoad =
                         5 +
                         8 +
@@ -1004,7 +1006,8 @@
                         enemyNinjaRunCount +
                         enemyNinjaIdleCount +
                         4 + // enemyNinjaAttackCount
-                        enemyFlyerFlyingCount
+                        enemyFlyerFlyingCount +
+                        enemyFlyerAttackCount
                     const check = () => {
                         loadedCount++
                         if (loadedCount >= totalToLoad) this.loaded = true
@@ -1346,6 +1349,15 @@
                         img.onload = check
                         img.onerror = check
                         this.enemyFlyerFlying[0].push(img)
+                    }
+
+                    this.enemyFlyerAttack[0] = []
+                    for (let c = 0; c < 8; c++) {
+                        const img = new Image()
+                        img.src = `assets/quai/bay-luon/ATTACK/ATTACK_00${c}.png`
+                        img.onload = check
+                        img.onerror = check
+                        this.enemyFlyerAttack[0].push(img)
                     }
                 },
             }
@@ -2384,9 +2396,11 @@
                         ctx.restore()
                         return
                     } else if (e.type === 'flyer') {
-                        const flyerSprites = SPRITES.enemyFlyerFlying[0]
+                        const isAttack = e.state === 'ATTACK'
+                        const flyerSprites = isAttack ? SPRITES.enemyFlyerAttack[0] : SPRITES.enemyFlyerFlying[0]
+                        const frameCount = isAttack ? 8 : 4
                         if (flyerSprites && flyerSprites.length > 0) {
-                            const frame = Math.floor(t * 10) % 4
+                            const frame = Math.floor(t * 10) % frameCount
                             const sSize = 90
                             const sprite = flyerSprites[frame]
                             if (sprite && sprite.complete) {
