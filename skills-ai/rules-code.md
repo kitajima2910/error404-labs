@@ -80,6 +80,20 @@ OUTPUT FORMAT
 - Không giải thích lan man
 - Không viết nội dung ngoài phạm vi TASK
 
+- Cuối cùng luôn thêm:
+  Gợi ý commit message: <1 dòng commit ngắn, chuẩn Conventional Commits, bám sát đúng nội dung đã sửa>
+
+- Commit message phải:
+  - ngắn gọn
+  - đúng nội dung patch
+  - ưu tiên format:
+    - feat: khi thêm tính năng mới
+    - fix: khi sửa bug
+    - refactor: khi thay đổi cấu trúc nội bộ
+    - chore: khi thay đổi kỹ thuật/phụ trợ
+  - không viết chung chung như "update code", "fix bug", "change file"
+  - không giải thích thêm ngoài chính message commit
+
 =====================================
 TỰ KIỂM TRA
 =====================================
