@@ -955,6 +955,7 @@
                 enemyFlyerFlying: [],
                 enemyFlyerAttack: [],
                 enemyFlyerHurt: [],
+                enemyFlyerDeath: [],
                 loaded: false,
                 load() {
                     if (this.loaded) return
@@ -982,6 +983,7 @@
                     const enemyNinjaFallCount = 2 // 2 frames in assets/quai/ninja/Fall
                     const enemyFlyerFlyingCount = 4
                     const enemyFlyerAttackCount = 8
+                    const enemyFlyerDeathCount = 6
                     const totalToLoad =
                         5 +
                         8 +
@@ -1009,7 +1011,7 @@
                         4 + // enemyNinjaAttackCount
                         enemyFlyerFlyingCount +
                         enemyFlyerAttackCount +
-                        4
+                        enemyFlyerDeathCount
                     const check = () => {
                         loadedCount++
                         if (loadedCount >= totalToLoad) this.loaded = true
@@ -1369,6 +1371,15 @@
                         img.onload = check
                         img.onerror = check
                         this.enemyFlyerHurt[0].push(img)
+                    }
+
+                    this.enemyFlyerDeath[0] = []
+                    for (let c = 0; c < enemyFlyerDeathCount; c++) {
+                        const img = new Image()
+                        img.src = `assets/quai/bay-luon/DEATH/DEATH_00${c}.png`
+                        img.onload = check
+                        img.onerror = check
+                        this.enemyFlyerDeath[0].push(img)
                     }
                 },
             }
@@ -2409,12 +2420,14 @@
                     } else if (e.type === 'flyer') {
                         const isAttack = e.state === 'ATTACK'
                         const isHurt = e.state === 'HURT'
-                        const flyerSprites = isAttack ? SPRITES.enemyFlyerAttack[0] : isHurt ? SPRITES.enemyFlyerHurt[0] : SPRITES.enemyFlyerFlying[0]
-                        const frameCount = isAttack ? 8 : isHurt ? 4 : 4
+                        const isDead = e.state === 'DEAD'
+                        const flyerSprites = isDead ? SPRITES.enemyFlyerDeath[0] : isAttack ? SPRITES.enemyFlyerAttack[0] : isHurt ? SPRITES.enemyFlyerHurt[0] : SPRITES.enemyFlyerFlying[0]
+                        const frameCount = isDead ? 6 : isAttack ? 8 : isHurt ? 4 : 4
                         if (flyerSprites && flyerSprites.length > 0) {
                             const frame = Math.floor(t * 10) % frameCount
                             const sSize = 90
                             const sprite = flyerSprites[frame]
+                            if (isDead && t > 1.5) e.isDone = true
                             if (sprite && sprite.complete) {
                                 ctx.drawImage(sprite, -sSize / 2, -sSize, sSize, sSize)
                                 ctx.restore()
