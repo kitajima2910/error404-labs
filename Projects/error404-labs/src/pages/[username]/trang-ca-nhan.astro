@@ -1,6 +1,7 @@
 ---
 import MainLayout from '../../layouts/MainLayout.astro'
 import { neon } from '@neondatabase/serverless'
+import jwt from 'jsonwebtoken'
 
 export const prerender = false
 
@@ -19,8 +20,10 @@ let pages: Array<{
     title: string
     thumbnail_url: string | null
     display_mode: string
+    is_public: boolean
     created_at: string
 }> = []
+let isOwner = false
 let error = ''
 
 try {
@@ -33,10 +36,33 @@ try {
         `
         if (members.length > 0) {
             member = members[0]
+
+            const authHeader = Astro.request.headers.get('Authorization')
+            const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null
+            if (token) {
+                try {
+                    const jwtSecret = import.meta.env.JWT_SECRET
+                    if (jwtSecret) {
+                        const decoded = jwt.verify(token, jwtSecret) as { id: number; member: string; sessionToken: string }
+                        const user = (await sql`
+                            SELECT logined, session_token, session_fingerprint 
+                            FROM error404labs.members 
+                            WHERE id = ${decoded.id}
+                        `)[0]
+                        const fingerprint = Astro.request.headers.get('user-agent') || 'unknown'
+                        if (user && user.logined === 1 && user.session_token === decoded.sessionToken && user.session_fingerprint === fingerprint) {
+                            if (decoded.id === member!.id) {
+                                isOwner = true
+                            }
+                        }
+                    }
+                } catch {}
+            }
+
             const result = await sql`
-                SELECT id, url, title, thumbnail_url, COALESCE(display_mode, 'direct') as display_mode, created_at
+                SELECT id, url, title, thumbnail_url, COALESCE(display_mode, 'direct') as display_mode, is_public, created_at
                 FROM error404labs.page_store
-                WHERE member_id = ${member!.id}
+                WHERE member_id = ${member!.id} ${isOwner ? sql`` : sql`AND is_public = TRUE`}
                 ORDER BY created_at DESC
             `
             pages = result
@@ -52,6 +78,7 @@ try {
 }
 
 const displayName = member?.display_name || member?.member || username
+const isServerOwner = isOwner
 ---
 
 <MainLayout title={`Trang Cá Nhân - ${displayName} | Error404-Labs`} description={`Trang cá nhân lưu trữ bài học tập và sản phẩm của ${displayName}`}>
@@ -72,6 +99,65 @@ const displayName = member?.display_name || member?.member || username
         </div>
     </div>
 
+    <!-- Edit Modal -->
+    <div id="editModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm">
+        <div class="w-full max-w-lg m-4 rounded-2xl bg-white shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div class="flex items-center justify-between p-4 border-b border-slate-200">
+                <h3 class="text-lg font-bold text-slate-800">Sửa bài tập</h3>
+                <button id="closeEditModal" class="text-slate-400 hover:text-slate-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <form id="editPageForm" class="p-4 space-y-4">
+                <input type="hidden" id="editPageId" />
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Tiêu đề</label>
+                    <input type="text" id="editPageTitle" required class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Liên kết (URL)</label>
+                    <input type="url" id="editPageUrl" required class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Ảnh thumbnail</label>
+                    <input type="url" id="editPageThumbnail" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="https://.../image.jpg" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Chế độ hiển thị</label>
+                    <div class="flex gap-3 mt-2">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="editDisplayMode" value="direct" class="w-4 h-4 text-indigo-600" />
+                            <span class="text-sm text-slate-600">Chơi trực tiếp</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="editDisplayMode" value="newtab" class="w-4 h-4 text-indigo-600" />
+                            <span class="text-sm text-slate-600">Mở tab mới</span>
+                        </label>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Quyền riêng tư</label>
+                    <div class="flex gap-3 mt-2">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="editIsPublic" value="true" class="w-4 h-4 text-indigo-600" />
+                            <span class="text-sm text-slate-600">Công khai</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="editIsPublic" value="false" class="w-4 h-4 text-indigo-600" />
+                            <span class="text-sm text-slate-600">Riêng tư</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="submit" class="flex-1 px-4 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 font-medium">Lưu thay đổi</button>
+                    <button type="button" id="cancelEditBtn" class="px-4 py-3 border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50">Hủy</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="max-w-6xl mx-auto px-4 py-8">
         {error ? (
             <div class="text-center py-20">
@@ -89,110 +175,141 @@ const displayName = member?.display_name || member?.member || username
                     </div>
                     <h1 class="text-4xl font-bold text-slate-800">Trang Cá Nhân</h1>
                     <p class="text-slate-600 mt-2 text-lg">Kho bài học tập & sản phẩm của <span class="font-semibold text-indigo-600">{displayName}</span></p>
+                    {!isOwner && pages.length > 0 && <p class="text-sm text-slate-400 mt-1">Hiển thị {pages.length} bài công khai</p>}
                 </div>
 
-                <!-- Admin Panel -->
-                <div id="adminPanel" class="hidden mb-8 p-6 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-2xl border border-indigo-500/20 backdrop-blur-sm">
-                    <h3 class="font-bold text-lg text-slate-800 mb-4 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                        </svg>
-                        Thêm bài mới
-                    </h3>
-                    <form id="addPageForm" class="space-y-4">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-1">Tiêu đề</label>
-                                <input type="text" id="pageTitle" required class="w-full px-4 py-3 bg-white/80 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 backdrop-blur-sm" placeholder="Tên bài học tập" />
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-1">Liên kết (URL)</label>
-                                <input type="url" id="pageUrl" required class="w-full px-4 py-3 bg-white/80 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 backdrop-blur-sm" placeholder="https://..." />
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-1">Ảnh thumbnail (tùy chọn)</label>
-                                <input type="url" id="pageThumbnail" class="w-full px-4 py-3 bg-white/80 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 backdrop-blur-sm" placeholder="https://.../image.jpg" />
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-1">Chế độ hiển thị</label>
-                                <div class="flex gap-3 mt-2">
-                                    <label class="flex items-center gap-2 cursor-pointer">
-                                        <input type="radio" name="displayMode" value="direct" checked class="w-4 h-4 text-indigo-600 focus:ring-indigo-500" />
-                                        <span class="text-sm text-slate-600">Chơi trực tiếp</span>
-                                    </label>
-                                    <label class="flex items-center gap-2 cursor-pointer">
-                                        <input type="radio" name="displayMode" value="newtab" class="w-4 h-4 text-indigo-600 focus:ring-indigo-500" />
-                                        <span class="text-sm text-slate-600">Mở tab mới</span>
-                                    </label>
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    <!-- Admin Panel - Luôn render nhưng ẩn, hiển thị khi là chủ sở hữu -->
+                    <div id="adminPanel" class="hidden lg:col-span-1">
+                        <div class="sticky top-24 p-5 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-2xl border border-indigo-500/20 backdrop-blur-sm">
+                            <h3 class="font-bold text-lg text-slate-800 mb-4 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                </svg>
+                                Thêm bài mới
+                            </h3>
+                            <form id="addPageForm" class="space-y-3">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Tiêu đề</label>
+                                    <input type="text" id="pageTitle" required class="w-full px-3 py-2 bg-white/80 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 backdrop-blur-sm text-sm" placeholder="Tên bài học tập" />
                                 </div>
-                            </div>
-                        </div>
-                        <button type="submit" class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all font-medium shadow-lg shadow-indigo-500/25">
-                            Thêm liên kết
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Posts Grid -->
-                {pages.length === 0 ? (
-                    <div class="text-center py-16 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200">
-                        <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-slate-200 flex items-center justify-center">
-                            <svg class="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
-                            </svg>
-                        </div>
-                        <p class="text-slate-500 text-lg">Chưa có bài nào</p>
-                        <p class="text-sm text-slate-400 mt-1">Hãy thêm bài học tập của bạn!</p>
-                    </div>
-                ) : (
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {pages.map((page) => (
-                            <div class="pageCard group relative bg-white rounded-2xl shadow-md border border-slate-100 overflow-hidden hover:shadow-2xl hover:shadow-indigo-500/20 transition-all duration-300 hover:-translate-y-1" data-url={page.url} data-mode={page.display_mode}>
-                                <div class="aspect-[16/10] bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden relative">
-                                    {page.thumbnail_url ? (
-                                        <img src={page.thumbnail_url} alt={page.title} class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
-                                    ) : (
-                                        <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-100 to-purple-100">
-                                            <img src="/og-image.avif" alt={page.title} class="w-20 h-20 rounded-full shadow-lg" />
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">Liên kết</label>
+                                    <input type="url" id="pageUrl" required class="w-full px-3 py-2 bg-white/80 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 backdrop-blur-sm text-sm" placeholder="https://..." />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">Thumbnail</label>
+                                        <input type="url" id="pageThumbnail" class="w-full px-3 py-2 bg-white/80 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 backdrop-blur-sm text-sm" placeholder="https://.../image.jpg" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">Chế độ hiển thị</label>
+                                        <div class="flex gap-2 mt-1">
+                                            <label class="flex items-center gap-1 cursor-pointer">
+                                                <input type="radio" name="displayMode" value="direct" checked class="w-3 h-3 text-indigo-600" />
+                                                <span class="text-xs text-slate-600">Trực tiếp</span>
+                                            </label>
+                                            <label class="flex items-center gap-1 cursor-pointer">
+                                                <input type="radio" name="displayMode" value="newtab" class="w-3 h-3 text-indigo-600" />
+                                                <span class="text-xs text-slate-600">Tab mới</span>
+                                            </label>
                                         </div>
-                                    )}
-                                    <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
-                                        <button class="playBtn px-4 py-2 bg-white/90 backdrop-blur-sm rounded-full text-sm font-medium text-slate-800 hover:bg-white transition-colors">
-                                            {page.display_mode === 'direct' ? '🎮 Chơi ngay' : '🔗 Mở liên kết'}
-                                        </button>
                                     </div>
-                                </div>
-                                <div class="p-4">
-                                    <h4 class="font-bold text-slate-800 line-clamp-2 group-hover:text-indigo-600 transition-colors">{page.title}</h4>
-                                    <div class="flex items-center justify-between mt-3">
-                                        <span class="text-xs text-slate-400">
-                                            {new Date(page.created_at).toLocaleDateString('vi-VN')}
-                                        </span>
-                                        <button class="deletePageBtn hidden text-red-500 hover:text-red-700 text-sm hover:underline" data-page-id={page.id}>
-                                            Xóa
-                                        </button>
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">Quyền riêng tư</label>
+                                        <div class="flex gap-2 mt-1">
+                                            <label class="flex items-center gap-1 cursor-pointer">
+                                                <input type="radio" name="isPublic" value="true" class="w-3 h-3 text-indigo-600" />
+                                                <span class="text-xs text-slate-600">Công khai</span>
+                                            </label>
+                                            <label class="flex items-center gap-1 cursor-pointer">
+                                                <input type="radio" name="isPublic" value="false" checked class="w-3 h-3 text-indigo-600" />
+                                                <span class="text-xs text-slate-600">Riêng tư</span>
+                                            </label>
+                                        </div>
                                     </div>
-                                </div>
+                                    <button type="submit" class="w-full px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all font-medium text-sm shadow-md">
+                                        Thêm bài
+                                    </button>
+                                </form>
                             </div>
-                        ))}
+                        </div>
                     </div>
-                )}
+
+                    <!-- Posts Grid -->
+                    <div class="lg:col-span-3">
+                        {pages.length === 0 ? (
+                            <div class="text-center py-16 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200">
+                                <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-slate-200 flex items-center justify-center">
+                                    <svg class="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+                                    </svg>
+                                </div>
+                                <p class="text-slate-500 text-lg">{isOwner ? 'Chưa có bài nào' : 'Không có bài công khai'}</p>
+                                {isOwner && <p class="text-sm text-slate-400 mt-1">Hãy thêm bài học tập của bạn!</p>}
+                            </div>
+                        ) : (
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {pages.map((page) => (
+                                    <div class="pageCard group relative bg-white rounded-2xl shadow-md border border-slate-100 overflow-hidden hover:shadow-2xl hover:shadow-indigo-500/20 transition-all duration-300 hover:-translate-y-1" data-url={page.url} data-mode={page.display_mode} data-title={page.title}>
+                                        <div class="aspect-[16/10] bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden relative">
+                                            {page.thumbnail_url ? (
+                                                <img src={page.thumbnail_url} alt={page.title} class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+                                            ) : (
+                                                <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-100 to-purple-100">
+                                                    <img src="/og-image.avif" alt={page.title} class="w-16 h-16 rounded-full shadow-lg" />
+                                                </div>
+                                            )}
+                                            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-3">
+                                                <button class="playBtn px-3 py-1.5 bg-white/90 backdrop-blur-sm rounded-full text-xs font-medium text-slate-800 hover:bg-white">
+                                                    {page.display_mode === 'direct' ? '🎮 Chơi' : '🔗 Mở'}
+                                                </button>
+                                            </div>
+                                            {!isOwner && (
+                                                <div class="absolute top-2 right-2">
+                                                    <span class="px-2 py-0.5 bg-green-500 text-white text-xs rounded-full font-medium">
+                                                        Công khai
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div class="p-3">
+                                            <h4 class="font-bold text-slate-800 line-clamp-2 group-hover:text-indigo-600 transition-colors text-sm">{page.title}</h4>
+                                            <div class="flex items-center justify-between mt-2">
+                                                <span class="text-xs text-slate-400">{new Date(page.created_at).toLocaleDateString('vi-VN')}</span>
+                                                    <div class="ownerActions hidden flex items-center gap-2">
+                                                        <span class={`text-xs px-1.5 py-0.5 rounded-full ${page.is_public ? 'bg-green-100 text-green-600' : 'bg-slate-100 text-slate-500'}`}>
+                                                            {page.is_public ? 'Public' : 'Private'}
+                                                        </span>
+                                                        <button class="editPageBtn text-blue-500 hover:text-blue-700 text-xs font-medium" data-id={page.id} data-title={page.title} data-url={page.url} data-thumbnail={page.thumbnail_url} data-mode={page.display_mode} data-public={page.is_public}>
+                                                            Sửa
+                                                        </button>
+                                                        <button class="deletePageBtn text-red-500 hover:text-red-700 text-xs" data-page-id={page.id}>
+                                                            Xóa
+                                                        </button>
+                                                    </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
             </>
         )}
     </div>
 </MainLayout>
 
 <script>
-    const adminPanel = document.getElementById('adminPanel')
-    const deleteBtns = document.querySelectorAll('.deletePageBtn') as NodeListOf<HTMLButtonElement>
     const currentUser = localStorage.getItem('user_session')
     const currentUsername = window.location.pathname.split('/')[1]
+    const isPageOwner = currentUser === currentUsername
 
-    if (currentUser === currentUsername && adminPanel) {
-        adminPanel.classList.remove('hidden')
-        deleteBtns.forEach(btn => btn.classList.remove('hidden'))
+    if (isPageOwner) {
+        const adminPanel = document.getElementById('adminPanel')
+        if (adminPanel) adminPanel.classList.remove('hidden')
+
+        document.querySelectorAll('.ownerActions').forEach(el => el.classList.remove('hidden'))
     }
 
     const playerModal = document.getElementById('playerModal')
@@ -229,12 +346,13 @@ const displayName = member?.display_name || member?.member || username
     document.querySelectorAll('.pageCard').forEach(card => {
         const url = (card as HTMLElement).dataset.url
         const mode = (card as HTMLElement).dataset.mode
-        const title = card.querySelector('h4')?.textContent || ''
+        const title = (card as HTMLElement).dataset.title || ''
         const playBtn = card.querySelector('.playBtn')
 
         if (playBtn && url) {
             playBtn.addEventListener('click', (e) => {
                 e.preventDefault()
+                e.stopPropagation()
                 if (mode === 'direct') {
                     openPlayer(url, title)
                 } else {
@@ -244,7 +362,7 @@ const displayName = member?.display_name || member?.member || username
         }
 
         card.addEventListener('click', (e) => {
-            if ((e.target as HTMLElement).closest('.deletePageBtn')) return
+            if ((e.target as HTMLElement).closest('.editPageBtn') || (e.target as HTMLElement).closest('.deletePageBtn')) return
             if (mode === 'direct' && url) {
                 openPlayer(url, title)
             } else if (url) {
@@ -253,14 +371,108 @@ const displayName = member?.display_name || member?.member || username
         })
     })
 
+    const editModal = document.getElementById('editModal')
+    const editPageForm = document.getElementById('editPageForm') as HTMLFormElement
+    const closeEditModal = document.getElementById('closeEditModal')
+    const cancelEditBtn = document.getElementById('cancelEditBtn')
+
+    const openEditModal = (page: { id: string; title: string; url: string; thumbnail: string | null; mode: string; isPublic: boolean }) => {
+        if (editModal) {
+            ;(document.getElementById('editPageId') as HTMLInputElement).value = page.id
+            ;(document.getElementById('editPageTitle') as HTMLInputElement).value = page.title
+            ;(document.getElementById('editPageUrl') as HTMLInputElement).value = page.url
+            ;(document.getElementById('editPageThumbnail') as HTMLInputElement).value = page.thumbnail || ''
+
+            const modeRadios = document.getElementsByName('editDisplayMode') as RadioNodeList
+            for (const radio of modeRadios) {
+                radio instanceof HTMLInputElement && (radio.checked = radio.value === page.mode)
+            }
+
+            const publicRadios = document.getElementsByName('editIsPublic') as RadioNodeList
+            for (const radio of publicRadios) {
+                radio instanceof HTMLInputElement && (radio.checked = radio.value === (page.isPublic ? 'true' : 'false'))
+            }
+
+            editModal.classList.remove('hidden')
+            editModal.classList.add('flex')
+            document.body.classList.add('overflow-hidden')
+        }
+    }
+
+    const closeEditModalFn = () => {
+        if (editModal) {
+            editModal.classList.add('hidden')
+            editModal.classList.remove('flex')
+            document.body.classList.remove('overflow-hidden')
+        }
+    }
+
+    if (closeEditModal) closeEditModal.onclick = closeEditModalFn
+    if (cancelEditBtn) cancelEditBtn.onclick = closeEditModalFn
+    if (editModal) {
+        editModal.onclick = (e) => {
+            if (e.target === editModal) closeEditModalFn()
+        }
+    }
+
+    document.querySelectorAll('.editPageBtn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            const page = {
+                id: (btn as HTMLElement).dataset.id || '',
+                title: (btn as HTMLElement).dataset.title || '',
+                url: (btn as HTMLElement).dataset.url || '',
+                thumbnail: (btn as HTMLElement).dataset.thumbnail || null,
+                mode: (btn as HTMLElement).dataset.mode || 'direct',
+                isPublic: (btn as HTMLElement).dataset.public === 'true',
+            }
+            openEditModal(page)
+        })
+    })
+
+    if (editPageForm && isPageOwner) {
+        editPageForm.addEventListener('submit', async (e) => {
+            e.preventDefault()
+            const pageId = (document.getElementById('editPageId') as HTMLInputElement).value
+            const url = (document.getElementById('editPageUrl') as HTMLInputElement).value
+            const title = (document.getElementById('editPageTitle') as HTMLInputElement).value
+            const thumbnailUrl = (document.getElementById('editPageThumbnail') as HTMLInputElement).value
+            const displayMode = (document.querySelector('input[name="editDisplayMode"]:checked') as HTMLInputElement)?.value || 'direct'
+            const isPublic = (document.querySelector('input[name="editIsPublic"]:checked') as HTMLInputElement)?.value === 'true'
+
+            try {
+                const token = localStorage.getItem('auth_token')
+                const res = await fetch(`/api/user/page-store/${currentUsername}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ pageId, url, title, thumbnailUrl, displayMode, isPublic }),
+                })
+                const data = await res.json()
+                if (data.success) {
+                    closeEditModalFn()
+                    window.location.reload()
+                } else {
+                    alert(data.error || 'Failed to update page')
+                }
+            } catch {
+                alert('Error updating page')
+            }
+        })
+    }
+
     const addPageForm = document.getElementById('addPageForm') as HTMLFormElement
-    if (addPageForm) {
+    if (addPageForm && isPageOwner) {
         addPageForm.addEventListener('submit', async (e) => {
             e.preventDefault()
             const title = (document.getElementById('pageTitle') as HTMLInputElement).value
             const url = (document.getElementById('pageUrl') as HTMLInputElement).value
             const thumbnailUrl = (document.getElementById('pageThumbnail') as HTMLInputElement).value
             const displayMode = (document.querySelector('input[name="displayMode"]:checked') as HTMLInputElement)?.value || 'direct'
+            const isPublic = (document.querySelector('input[name="isPublic"]:checked') as HTMLInputElement)?.value === 'true'
 
             try {
                 const token = localStorage.getItem('auth_token')
@@ -270,7 +482,7 @@ const displayName = member?.display_name || member?.member || username
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${token}`,
                     },
-                    body: JSON.stringify({ url, title, thumbnailUrl, displayMode }),
+                    body: JSON.stringify({ url, title, thumbnailUrl, displayMode, isPublic }),
                 })
                 const data = await res.json()
                 if (data.success) {
@@ -284,6 +496,7 @@ const displayName = member?.display_name || member?.member || username
         })
     }
 
+    const deleteBtns = document.querySelectorAll('.deletePageBtn') as NodeListOf<HTMLButtonElement>
     deleteBtns.forEach(btn => {
         btn.addEventListener('click', async (e) => {
             e.stopPropagation()

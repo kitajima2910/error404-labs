@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS error404labs.page_store (
     title VARCHAR(500) NOT NULL,
     thumbnail_url TEXT,
     display_mode VARCHAR(20) DEFAULT 'direct',
+    is_public BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -20,3 +21,6 @@ COMMENT ON TABLE error404labs.page_store IS 'Lưu trữ danh sách link sản ph
 
 -- 4. Thêm cột display_mode nếu bảng đã tồn tại (migration bổ sung)
 -- ALTER TABLE error404labs.page_store ADD COLUMN IF NOT EXISTS display_mode VARCHAR(20) DEFAULT 'direct';
+
+-- 5. Thêm cột is_public cho quyền riêng tư
+-- ALTER TABLE error404labs.page_store ADD COLUMN IF NOT EXISTS is_public BOOLEAN DEFAULT FALSE;

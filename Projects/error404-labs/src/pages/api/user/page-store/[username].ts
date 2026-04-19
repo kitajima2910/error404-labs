@@ -35,6 +35,14 @@ async function verifySession(sql: any, decoded: any, userAgent: string): Promise
     return user[0].logined === 1 && user[0].session_token === decoded.sessionToken && user[0].session_fingerprint === userAgent
 }
 
+async function checkOwnership(sql: any, pageId: number, memberId: number): Promise<boolean> {
+    const result = await sql`
+        SELECT id FROM error404labs.page_store
+        WHERE id = ${pageId} AND member_id = ${memberId}
+    `
+    return result.length > 0
+}
+
 export const GET: APIRoute = async ({ request, params }) => {
     const origin = request.headers.get('origin')
     if (origin && !allowedOrigins.includes(origin)) {
@@ -66,10 +74,19 @@ export const GET: APIRoute = async ({ request, params }) => {
         const memberId = members[0].id
         const displayName = members[0].display_name || members[0].member
 
+        const decoded = getMemberFromToken(request)
+        let isOwner = false
+
+        if (decoded) {
+            const userAgent = request.headers.get('user-agent') || 'unknown'
+            const isValid = await verifySession(sql, decoded, userAgent)
+            isValid && decoded.id === memberId && (isOwner = true)
+        }
+
         const pages = await sql`
-            SELECT id, url, title, thumbnail_url, display_mode, created_at
+            SELECT id, url, title, thumbnail_url, COALESCE(display_mode, 'direct') as display_mode, is_public, created_at
             FROM error404labs.page_store
-            WHERE member_id = ${memberId}
+            WHERE member_id = ${memberId} ${isOwner ? sql`` : sql`AND is_public = TRUE`}
             ORDER BY created_at DESC
         `
 
@@ -77,12 +94,14 @@ export const GET: APIRoute = async ({ request, params }) => {
             JSON.stringify({
                 username,
                 displayName,
+                isOwner,
                 pages: pages.map(p => ({
                     id: p.id,
                     url: p.url,
                     title: p.title,
                     thumbnailUrl: p.thumbnail_url,
-                    displayMode: p.display_mode || 'direct',
+                    displayMode: p.display_mode,
+                    isPublic: p.is_public || false,
                     createdAt: p.created_at,
                 })),
             }),
@@ -105,7 +124,7 @@ export const POST: APIRoute = async ({ request }) => {
         return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } })
     }
 
-    const { url, title, thumbnailUrl, displayMode } = await request.json()
+    const { url, title, thumbnailUrl, displayMode, isPublic } = await request.json()
     if (!url || !title) {
         return new Response(JSON.stringify({ error: 'URL and title are required' }), { status: 400, headers: { 'Content-Type': 'application/json' } })
     }
@@ -115,6 +134,7 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     const mode = displayMode === 'newtab' ? 'newtab' : 'direct'
+    const publicStatus = isPublic === true
 
     try {
         const dbUrl = import.meta.env.DATABASE_URL
@@ -130,9 +150,9 @@ export const POST: APIRoute = async ({ request }) => {
         }
 
         const result = await sql`
-            INSERT INTO error404labs.page_store (member_id, url, title, thumbnail_url, display_mode)
-            VALUES (${decoded.id}, ${url}, ${title}, ${thumbnailUrl || null}, ${mode})
-            RETURNING id, url, title, thumbnail_url, display_mode, created_at
+            INSERT INTO error404labs.page_store (member_id, url, title, thumbnail_url, display_mode, is_public)
+            VALUES (${decoded.id}, ${url}, ${title}, ${thumbnailUrl || null}, ${mode}, ${publicStatus})
+            RETURNING id, url, title, thumbnail_url, display_mode, is_public, created_at
         `
 
         return new Response(
@@ -144,6 +164,7 @@ export const POST: APIRoute = async ({ request }) => {
                     title: result[0].title,
                     thumbnailUrl: result[0].thumbnail_url,
                     displayMode: result[0].display_mode,
+                    isPublic: result[0].is_public,
                     createdAt: result[0].created_at,
                 },
             }),
@@ -152,6 +173,75 @@ export const POST: APIRoute = async ({ request }) => {
     } catch (err) {
         console.error('Page store POST error:', err)
         return new Response(JSON.stringify({ error: 'Failed to add page' }), { status: 500, headers: { 'Content-Type': 'application/json' } })
+    }
+}
+
+export const PUT: APIRoute = async ({ request }) => {
+    const origin = request.headers.get('origin')
+    if (origin && !allowedOrigins.includes(origin)) {
+        return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403, headers: { 'Content-Type': 'application/json' } })
+    }
+
+    const decoded = getMemberFromToken(request)
+    if (!decoded) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } })
+    }
+
+    const { pageId, url, title, thumbnailUrl, displayMode, isPublic } = await request.json()
+    if (!pageId) {
+        return new Response(JSON.stringify({ error: 'Page ID required' }), { status: 400, headers: { 'Content-Type': 'application/json' } })
+    }
+
+    try {
+        const dbUrl = import.meta.env.DATABASE_URL
+        if (!dbUrl) {
+            return new Response(JSON.stringify({ error: 'Server configuration error' }), { status: 500, headers: { 'Content-Type': 'application/json' } })
+        }
+
+        const sql = neon(dbUrl)
+        const userAgent = request.headers.get('user-agent') || 'unknown'
+        const isValid = await verifySession(sql, decoded, userAgent)
+        if (!isValid) {
+            return new Response(JSON.stringify({ error: 'Session invalid or expired' }), { status: 401, headers: { 'Content-Type': 'application/json' } })
+        }
+
+        const isOwner = await checkOwnership(sql, pageId, decoded.id)
+        if (!isOwner) {
+            return new Response(JSON.stringify({ error: 'Page not found or access denied' }), { status: 404, headers: { 'Content-Type': 'application/json' } })
+        }
+
+        const mode = displayMode === 'newtab' ? 'newtab' : 'direct'
+        const publicStatus = isPublic === true
+
+        const result = await sql`
+            UPDATE error404labs.page_store
+            SET url = COALESCE(${url}, url),
+                title = COALESCE(${title}, title),
+                thumbnail_url = ${thumbnailUrl !== undefined ? thumbnailUrl : null},
+                display_mode = COALESCE(${mode}, display_mode),
+                is_public = ${publicStatus}
+            WHERE id = ${pageId}
+            RETURNING id, url, title, thumbnail_url, display_mode, is_public, created_at
+        `
+
+        return new Response(
+            JSON.stringify({
+                success: true,
+                page: {
+                    id: result[0].id,
+                    url: result[0].url,
+                    title: result[0].title,
+                    thumbnailUrl: result[0].thumbnail_url,
+                    displayMode: result[0].display_mode,
+                    isPublic: result[0].is_public,
+                    createdAt: result[0].created_at,
+                },
+            }),
+            { status: 200, headers: { 'Content-Type': 'application/json' } }
+        )
+    } catch (err) {
+        console.error('Page store PUT error:', err)
+        return new Response(JSON.stringify({ error: 'Failed to update page' }), { status: 500, headers: { 'Content-Type': 'application/json' } })
     }
 }
 
@@ -184,11 +274,8 @@ export const DELETE: APIRoute = async ({ request }) => {
             return new Response(JSON.stringify({ error: 'Session invalid or expired' }), { status: 401, headers: { 'Content-Type': 'application/json' } })
         }
 
-        const existing = await sql`
-            SELECT id FROM error404labs.page_store
-            WHERE id = ${pageId} AND member_id = ${decoded.id}
-        `
-        if (existing.length === 0) {
+        const isOwner = await checkOwnership(sql, pageId, decoded.id)
+        if (!isOwner) {
             return new Response(JSON.stringify({ error: 'Page not found or access denied' }), { status: 404, headers: { 'Content-Type': 'application/json' } })
         }
 
