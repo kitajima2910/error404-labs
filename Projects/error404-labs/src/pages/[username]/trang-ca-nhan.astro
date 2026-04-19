@@ -117,6 +117,25 @@ const displayName = member?.display_name || member?.member || username
         </div>
     </div>
 
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm">
+        <div class="w-full max-w-md m-4 rounded-2xl bg-white shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div class="p-6 text-center">
+                <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 flex items-center justify-center">
+                    <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-slate-800 mb-2">Xóa bài tập?</h3>
+                <p class="text-slate-600 mb-6">Hành động này không thể hoàn tác. Bạn có chắc muốn xóa bài tập này?</p>
+                <div class="flex gap-3">
+                    <button id="cancelDeleteBtn" class="flex-1 px-4 py-3 border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 font-medium">Hủy</button>
+                    <button id="confirmDeleteBtn" class="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 font-medium">Xóa</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="max-w-6xl mx-auto px-4 py-8">
         {error ? (
             <div class="text-center py-20">
@@ -484,12 +503,16 @@ const displayName = member?.display_name || member?.member || username
                 const data = await res.json()
                 if (data.success) {
                     closeEditModalFn()
+                    // @ts-ignore
+                    window.showToast('Cập nhật thành công!', 'success')
                     fetchPages()
                 } else {
-                    alert(data.error || 'Failed to update page')
+                    // @ts-ignore
+                    window.showToast(data.error || 'Lỗi cập nhật', 'error')
                 }
             } catch {
-                alert('Error updating page')
+                // @ts-ignore
+                window.showToast('Lỗi kết nối', 'error')
             }
         })
     }
@@ -516,14 +539,80 @@ const displayName = member?.display_name || member?.member || username
                 const data = await res.json()
                 if (data.success) {
                     addPageForm.reset()
+                    // @ts-ignore
+                    window.showToast('Thêm bài thành công!', 'success')
                     fetchPages()
                 } else {
-                    alert(data.error || 'Failed to add page')
+                    // @ts-ignore
+                    window.showToast(data.error || 'Lỗi thêm bài', 'error')
                 }
             } catch {
-                alert('Error adding page')
+                // @ts-ignore
+                window.showToast('Lỗi kết nối', 'error')
             }
         })
+    }
+
+    const deleteModal = document.getElementById('deleteModal')
+    const cancelDeleteBtn = document.getElementById('cancelDeleteBtn')
+    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn')
+    let pendingDeleteId: string | null = null
+
+    const openDeleteModal = (pageId: string) => {
+        pendingDeleteId = pageId
+        if (deleteModal) {
+            deleteModal.classList.remove('hidden')
+            deleteModal.classList.add('flex')
+            document.body.classList.add('overflow-hidden')
+        }
+    }
+
+    const closeDeleteModal = () => {
+        pendingDeleteId = null
+        if (deleteModal) {
+            deleteModal.classList.add('hidden')
+            deleteModal.classList.remove('flex')
+            document.body.classList.remove('overflow-hidden')
+        }
+    }
+
+    if (cancelDeleteBtn) cancelDeleteBtn.onclick = closeDeleteModal
+    if (deleteModal) {
+        deleteModal.onclick = (e) => {
+            if (e.target === deleteModal) closeDeleteModal()
+        }
+    }
+
+    if (confirmDeleteBtn) {
+        confirmDeleteBtn.onclick = () => {
+            if (!pendingDeleteId) return
+
+            fetch(`/api/user/page-store/${currentUsername}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ pageId: pendingDeleteId }),
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        closeDeleteModal()
+                        // @ts-ignore
+                        window.showToast('Xóa thành công!', 'success')
+                        fetchPages()
+                    } else {
+                        // @ts-ignore
+                        window.showToast(data.error || 'Lỗi xóa', 'error')
+                    }
+                })
+                .catch(() => {
+                    closeDeleteModal()
+                    // @ts-ignore
+                    window.showToast('Lỗi kết nối', 'error')
+                })
+        }
     }
 
     document.addEventListener('click', (e) => {
@@ -532,33 +621,8 @@ const displayName = member?.display_name || member?.member || username
         if (deleteBtn && isPageOwner) {
             e.preventDefault()
             e.stopPropagation()
-            if (!confirm('Bạn có chắc muốn xóa liên kết này?')) return
             const pageId = (deleteBtn as HTMLElement).dataset.pageId
-            const deleteCard = deleteBtn.closest('.pageCard') as HTMLElement
-
-            fetch(`/api/user/page-store/${currentUsername}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({ pageId }),
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        if (deleteCard) {
-                            deleteCard.style.opacity = '0'
-                            deleteCard.style.transform = 'scale(0.9)'
-                            setTimeout(() => fetchPages(), 300)
-                        } else {
-                            fetchPages()
-                        }
-                    } else {
-                        alert(data.error || 'Failed to delete page')
-                    }
-                })
-                .catch(() => alert('Error deleting page'))
+            if (pageId) openDeleteModal(pageId)
         }
     })
 </script>
