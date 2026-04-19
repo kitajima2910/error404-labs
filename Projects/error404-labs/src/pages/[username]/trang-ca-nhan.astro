@@ -1,0 +1,191 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro'
+import { neon } from '@neondatabase/serverless'
+
+export const prerender = false
+
+const { username } = Astro.params
+
+if (!username) {
+    return Astro.redirect('/404')
+}
+
+const dbUrl = import.meta.env.DATABASE_URL
+
+let member: { id: number; member: string; display_name: string } | null = null
+let pages: Array<{
+    id: number
+    url: string
+    title: string
+    thumbnail_url: string | null
+    created_at: string
+}> = []
+let error = ''
+
+try {
+    if (dbUrl) {
+        const sql = neon(dbUrl)
+        const members = await sql`
+            SELECT id, member, display_name
+            FROM error404labs.members
+            WHERE member = ${username}
+        `
+        if (members.length > 0) {
+            member = members[0]
+            const result = await sql`
+                SELECT id, url, title, thumbnail_url, created_at
+                FROM error404labs.page_store
+                WHERE member_id = ${member!.id}
+                ORDER BY created_at DESC
+            `
+            pages = result
+        } else {
+            error = 'Thành viên không tồn tại'
+        }
+    } else {
+        error = 'Database not configured'
+    }
+} catch (e: any) {
+    console.error('Page store error:', e)
+    error = 'Failed to load data'
+}
+
+const displayName = member?.display_name || member?.member || username
+---
+
+<MainLayout title={`Trang Cá Nhân - ${displayName} | Error404-Labs`} description={`Trang cá nhân lưu trữ bài học tập và sản phẩm của ${displayName}`}>
+    <div class="max-w-5xl mx-auto px-4 py-8">
+        {error ? (
+            <div class="text-center py-20">
+                <h1 class="text-2xl font-bold text-red-600">{error}</h1>
+                <a href="/" class="inline-block mt-4 text-blue-600 hover:underline">← Về trang chủ</a>
+            </div>
+        ) : (
+            <>
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-slate-800">Trang Cá Nhân</h1>
+                    <p class="text-slate-600 mt-2">Danh sách bài học tập và sản phẩm của <span class="font-semibold text-indigo-600">{displayName}</span></p>
+                </div>
+
+                <div id="adminPanel" class="hidden mb-6 p-4 bg-indigo-50 rounded-xl border border-indigo-100">
+                    <h3 class="font-semibold text-indigo-800 mb-3">Thêm liên kết mới</h3>
+                    <form id="addPageForm" class="space-y-3">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Tiêu đề</label>
+                            <input type="text" id="pageTitle" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Nhập tiêu đề bài học tập" />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Liên kết (URL)</label>
+                            <input type="url" id="pageUrl" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="https://..." />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Ảnh thumbnail (tùy chọn)</label>
+                            <input type="url" id="pageThumbnail" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="https://.../thumbnail.jpg" />
+                        </div>
+                        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium">Thêm liên kết</button>
+                    </form>
+                </div>
+
+                {pages.length === 0 ? (
+                    <div class="text-center py-12 bg-slate-50 rounded-xl">
+                        <p class="text-slate-500">Chưa có liên kết nào.</p>
+                        <p class="text-sm text-slate-400 mt-1">Hãy thêm bài học tập của bạn!</p>
+                    </div>
+                ) : (
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {pages.map((page) => (
+                            <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-md transition-shadow">
+                                {page.thumbnail_url && (
+                                    <div class="aspect-video bg-slate-100 overflow-hidden">
+                                        <img src={page.thumbnail_url} alt={page.title} class="w-full h-full object-cover" loading="lazy" />
+                                    </div>
+                                )}
+                                <div class="p-4">
+                                    <a href={page.url} target="_blank" rel="noopener noreferrer" class="font-semibold text-slate-800 hover:text-indigo-600 line-clamp-2">
+                                        {page.title}
+                                    </a>
+                                    <div class="flex items-center justify-between mt-3">
+                                        <span class="text-xs text-slate-400">
+                                            {new Date(page.created_at).toLocaleDateString('vi-VN')}
+                                        </span>
+                                        <button class="deletePageBtn hidden text-red-500 hover:text-red-700 text-sm" data-page-id={page.id}>
+                                            Xóa
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </>
+        )}
+    </div>
+</MainLayout>
+
+<script>
+    const adminPanel = document.getElementById('adminPanel')
+    const deleteBtns = document.querySelectorAll('.deletePageBtn') as NodeListOf<HTMLButtonElement>
+    const currentUser = localStorage.getItem('user_session')
+    const currentUsername = window.location.pathname.split('/')[1]
+
+    if (currentUser === currentUsername && adminPanel) {
+        adminPanel.classList.remove('hidden')
+        deleteBtns.forEach(btn => btn.classList.remove('hidden'))
+    }
+
+    const addPageForm = document.getElementById('addPageForm') as HTMLFormElement
+    if (addPageForm) {
+        addPageForm.addEventListener('submit', async (e) => {
+            e.preventDefault()
+            const title = (document.getElementById('pageTitle') as HTMLInputElement).value
+            const url = (document.getElementById('pageUrl') as HTMLInputElement).value
+            const thumbnailUrl = (document.getElementById('pageThumbnail') as HTMLInputElement).value
+
+            try {
+                const token = localStorage.getItem('auth_token')
+                const res = await fetch(`/api/user/page-store/${currentUsername}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ url, title, thumbnailUrl }),
+                })
+                const data = await res.json()
+                if (data.success) {
+                    window.location.reload()
+                } else {
+                    alert(data.error || 'Failed to add page')
+                }
+            } catch {
+                alert('Error adding page')
+            }
+        })
+    }
+
+    deleteBtns.forEach(btn => {
+        btn.addEventListener('click', async () => {
+            if (!confirm('Bạn có chắc muốn xóa liên kết này?')) return
+            const pageId = btn.dataset.pageId
+            try {
+                const token = localStorage.getItem('auth_token')
+                const res = await fetch(`/api/user/page-store/${currentUsername}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ pageId }),
+                })
+                const data = await res.json()
+                if (data.success) {
+                    window.location.reload()
+                } else {
+                    alert(data.error || 'Failed to delete page')
+                }
+            } catch {
+                alert('Error deleting page')
+            }
+        })
+    })
+</script>
