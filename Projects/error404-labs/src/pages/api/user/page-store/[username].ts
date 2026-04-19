@@ -67,7 +67,7 @@ export const GET: APIRoute = async ({ request, params }) => {
         const displayName = members[0].display_name || members[0].member
 
         const pages = await sql`
-            SELECT id, url, title, thumbnail_url, created_at
+            SELECT id, url, title, thumbnail_url, display_mode, created_at
             FROM error404labs.page_store
             WHERE member_id = ${memberId}
             ORDER BY created_at DESC
@@ -82,6 +82,7 @@ export const GET: APIRoute = async ({ request, params }) => {
                     url: p.url,
                     title: p.title,
                     thumbnailUrl: p.thumbnail_url,
+                    displayMode: p.display_mode || 'direct',
                     createdAt: p.created_at,
                 })),
             }),
@@ -104,7 +105,7 @@ export const POST: APIRoute = async ({ request }) => {
         return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } })
     }
 
-    const { url, title, thumbnailUrl } = await request.json()
+    const { url, title, thumbnailUrl, displayMode } = await request.json()
     if (!url || !title) {
         return new Response(JSON.stringify({ error: 'URL and title are required' }), { status: 400, headers: { 'Content-Type': 'application/json' } })
     }
@@ -112,6 +113,8 @@ export const POST: APIRoute = async ({ request }) => {
     if (url.length > 2000 || title.length > 500) {
         return new Response(JSON.stringify({ error: 'Data too long' }), { status: 400, headers: { 'Content-Type': 'application/json' } })
     }
+
+    const mode = displayMode === 'newtab' ? 'newtab' : 'direct'
 
     try {
         const dbUrl = import.meta.env.DATABASE_URL
@@ -127,9 +130,9 @@ export const POST: APIRoute = async ({ request }) => {
         }
 
         const result = await sql`
-            INSERT INTO error404labs.page_store (member_id, url, title, thumbnail_url)
-            VALUES (${decoded.id}, ${url}, ${title}, ${thumbnailUrl || null})
-            RETURNING id, url, title, thumbnail_url, created_at
+            INSERT INTO error404labs.page_store (member_id, url, title, thumbnail_url, display_mode)
+            VALUES (${decoded.id}, ${url}, ${title}, ${thumbnailUrl || null}, ${mode})
+            RETURNING id, url, title, thumbnail_url, display_mode, created_at
         `
 
         return new Response(
@@ -140,6 +143,7 @@ export const POST: APIRoute = async ({ request }) => {
                     url: result[0].url,
                     title: result[0].title,
                     thumbnailUrl: result[0].thumbnail_url,
+                    displayMode: result[0].display_mode,
                     createdAt: result[0].created_at,
                 },
             }),

@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS error404labs.page_store (
     url TEXT NOT NULL,
     title VARCHAR(500) NOT NULL,
     thumbnail_url TEXT,
+    display_mode VARCHAR(20) DEFAULT 'direct',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -16,3 +17,6 @@ CREATE INDEX IF NOT EXISTS idx_page_store_member_id ON error404labs.page_store(m
 
 -- 3. Thêm comment cho bảng
 COMMENT ON TABLE error404labs.page_store IS 'Lưu trữ danh sách link sản phẩm/bài tập của từng thành viên';
+
+-- 4. Thêm cột display_mode nếu bảng đã tồn tại (migration bổ sung)
+-- ALTER TABLE error404labs.page_store ADD COLUMN IF NOT EXISTS display_mode VARCHAR(20) DEFAULT 'direct';

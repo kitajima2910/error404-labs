@@ -18,6 +18,7 @@ let pages: Array<{
     url: string
     title: string
     thumbnail_url: string | null
+    display_mode: string
     created_at: string
 }> = []
 let error = ''
@@ -33,7 +34,7 @@ try {
         if (members.length > 0) {
             member = members[0]
             const result = await sql`
-                SELECT id, url, title, thumbnail_url, created_at
+                SELECT id, url, title, thumbnail_url, COALESCE(display_mode, 'direct') as display_mode, created_at
                 FROM error404labs.page_store
                 WHERE member_id = ${member!.id}
                 ORDER BY created_at DESC
@@ -54,7 +55,24 @@ const displayName = member?.display_name || member?.member || username
 ---
 
 <MainLayout title={`Trang Cá Nhân - ${displayName} | Error404-Labs`} description={`Trang cá nhân lưu trữ bài học tập và sản phẩm của ${displayName}`}>
-    <div class="max-w-5xl mx-auto px-4 py-8">
+    <!-- Player Modal -->
+    <div id="playerModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm">
+        <div class="w-full max-w-4xl m-4 rounded-2xl bg-slate-900 shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div class="flex items-center justify-between p-4 border-b border-slate-700">
+                <h3 id="playerTitle" class="text-white font-semibold truncate"></h3>
+                <button id="closePlayer" class="text-slate-400 hover:text-white transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="aspect-[16/9] bg-black">
+                <iframe id="playerIframe" class="w-full h-full border-0" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-6xl mx-auto px-4 py-8">
         {error ? (
             <div class="text-center py-20">
                 <h1 class="text-2xl font-bold text-red-600">{error}</h1>
@@ -62,53 +80,97 @@ const displayName = member?.display_name || member?.member || username
             </div>
         ) : (
             <>
-                <div class="mb-8">
-                    <h1 class="text-3xl font-bold text-slate-800">Trang Cá Nhân</h1>
-                    <p class="text-slate-600 mt-2">Danh sách bài học tập và sản phẩm của <span class="font-semibold text-indigo-600">{displayName}</span></p>
+                <!-- Header -->
+                <div class="mb-10 text-center">
+                    <div class="inline-flex items-center gap-3 mb-3">
+                        <div class="w-16 h-16 rounded-full overflow-hidden ring-4 ring-indigo-500/30 shadow-lg">
+                            <img src="/avatar_v2.avif" alt={displayName} class="w-full h-full object-cover" />
+                        </div>
+                    </div>
+                    <h1 class="text-4xl font-bold text-slate-800">Trang Cá Nhân</h1>
+                    <p class="text-slate-600 mt-2 text-lg">Kho bài học tập & sản phẩm của <span class="font-semibold text-indigo-600">{displayName}</span></p>
                 </div>
 
-                <div id="adminPanel" class="hidden mb-6 p-4 bg-indigo-50 rounded-xl border border-indigo-100">
-                    <h3 class="font-semibold text-indigo-800 mb-3">Thêm liên kết mới</h3>
-                    <form id="addPageForm" class="space-y-3">
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1">Tiêu đề</label>
-                            <input type="text" id="pageTitle" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Nhập tiêu đề bài học tập" />
+                <!-- Admin Panel -->
+                <div id="adminPanel" class="hidden mb-8 p-6 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-2xl border border-indigo-500/20 backdrop-blur-sm">
+                    <h3 class="font-bold text-lg text-slate-800 mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        Thêm bài mới
+                    </h3>
+                    <form id="addPageForm" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Tiêu đề</label>
+                                <input type="text" id="pageTitle" required class="w-full px-4 py-3 bg-white/80 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 backdrop-blur-sm" placeholder="Tên bài học tập" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Liên kết (URL)</label>
+                                <input type="url" id="pageUrl" required class="w-full px-4 py-3 bg-white/80 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 backdrop-blur-sm" placeholder="https://..." />
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1">Liên kết (URL)</label>
-                            <input type="url" id="pageUrl" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="https://..." />
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Ảnh thumbnail (tùy chọn)</label>
+                                <input type="url" id="pageThumbnail" class="w-full px-4 py-3 bg-white/80 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 backdrop-blur-sm" placeholder="https://.../image.jpg" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Chế độ hiển thị</label>
+                                <div class="flex gap-3 mt-2">
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="displayMode" value="direct" checked class="w-4 h-4 text-indigo-600 focus:ring-indigo-500" />
+                                        <span class="text-sm text-slate-600">Chơi trực tiếp</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="displayMode" value="newtab" class="w-4 h-4 text-indigo-600 focus:ring-indigo-500" />
+                                        <span class="text-sm text-slate-600">Mở tab mới</span>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-1">Ảnh thumbnail (tùy chọn)</label>
-                            <input type="url" id="pageThumbnail" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="https://.../thumbnail.jpg" />
-                        </div>
-                        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium">Thêm liên kết</button>
+                        <button type="submit" class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all font-medium shadow-lg shadow-indigo-500/25">
+                            Thêm liên kết
+                        </button>
                     </form>
                 </div>
 
+                <!-- Posts Grid -->
                 {pages.length === 0 ? (
-                    <div class="text-center py-12 bg-slate-50 rounded-xl">
-                        <p class="text-slate-500">Chưa có liên kết nào.</p>
+                    <div class="text-center py-16 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200">
+                        <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-slate-200 flex items-center justify-center">
+                            <svg class="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+                            </svg>
+                        </div>
+                        <p class="text-slate-500 text-lg">Chưa có bài nào</p>
                         <p class="text-sm text-slate-400 mt-1">Hãy thêm bài học tập của bạn!</p>
                     </div>
                 ) : (
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {pages.map((page) => (
-                            <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-md transition-shadow">
-                                {page.thumbnail_url && (
-                                    <div class="aspect-video bg-slate-100 overflow-hidden">
-                                        <img src={page.thumbnail_url} alt={page.title} class="w-full h-full object-cover" loading="lazy" />
+                            <div class="pageCard group relative bg-white rounded-2xl shadow-md border border-slate-100 overflow-hidden hover:shadow-2xl hover:shadow-indigo-500/20 transition-all duration-300 hover:-translate-y-1" data-url={page.url} data-mode={page.display_mode}>
+                                <div class="aspect-[16/10] bg-gradient-to-br from-slate-100 to-slate-200 overflow-hidden relative">
+                                    {page.thumbnail_url ? (
+                                        <img src={page.thumbnail_url} alt={page.title} class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+                                    ) : (
+                                        <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-100 to-purple-100">
+                                            <img src="/og-image.avif" alt={page.title} class="w-20 h-20 rounded-full shadow-lg" />
+                                        </div>
+                                    )}
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
+                                        <button class="playBtn px-4 py-2 bg-white/90 backdrop-blur-sm rounded-full text-sm font-medium text-slate-800 hover:bg-white transition-colors">
+                                            {page.display_mode === 'direct' ? '🎮 Chơi ngay' : '🔗 Mở liên kết'}
+                                        </button>
                                     </div>
-                                )}
+                                </div>
                                 <div class="p-4">
-                                    <a href={page.url} target="_blank" rel="noopener noreferrer" class="font-semibold text-slate-800 hover:text-indigo-600 line-clamp-2">
-                                        {page.title}
-                                    </a>
+                                    <h4 class="font-bold text-slate-800 line-clamp-2 group-hover:text-indigo-600 transition-colors">{page.title}</h4>
                                     <div class="flex items-center justify-between mt-3">
                                         <span class="text-xs text-slate-400">
                                             {new Date(page.created_at).toLocaleDateString('vi-VN')}
                                         </span>
-                                        <button class="deletePageBtn hidden text-red-500 hover:text-red-700 text-sm" data-page-id={page.id}>
+                                        <button class="deletePageBtn hidden text-red-500 hover:text-red-700 text-sm hover:underline" data-page-id={page.id}>
                                             Xóa
                                         </button>
                                     </div>
@@ -133,6 +195,64 @@ const displayName = member?.display_name || member?.member || username
         deleteBtns.forEach(btn => btn.classList.remove('hidden'))
     }
 
+    const playerModal = document.getElementById('playerModal')
+    const playerIframe = document.getElementById('playerIframe') as HTMLIFrameElement
+    const playerTitle = document.getElementById('playerTitle')
+    const closePlayer = document.getElementById('closePlayer')
+
+    const openPlayer = (url: string, title: string) => {
+        if (playerModal && playerIframe && playerTitle) {
+            playerTitle.textContent = title
+            playerIframe.src = url
+            playerModal.classList.remove('hidden')
+            playerModal.classList.add('flex')
+            document.body.classList.add('overflow-hidden')
+        }
+    }
+
+    const closePlayerFn = () => {
+        if (playerModal) {
+            playerModal.classList.add('hidden')
+            playerModal.classList.remove('flex')
+            document.body.classList.remove('overflow-hidden')
+        }
+        if (playerIframe) playerIframe.src = ''
+    }
+
+    if (closePlayer) closePlayer.onclick = closePlayerFn
+    if (playerModal) {
+        playerModal.onclick = (e) => {
+            if (e.target === playerModal) closePlayerFn()
+        }
+    }
+
+    document.querySelectorAll('.pageCard').forEach(card => {
+        const url = (card as HTMLElement).dataset.url
+        const mode = (card as HTMLElement).dataset.mode
+        const title = card.querySelector('h4')?.textContent || ''
+        const playBtn = card.querySelector('.playBtn')
+
+        if (playBtn && url) {
+            playBtn.addEventListener('click', (e) => {
+                e.preventDefault()
+                if (mode === 'direct') {
+                    openPlayer(url, title)
+                } else {
+                    window.open(url, '_blank')
+                }
+            })
+        }
+
+        card.addEventListener('click', (e) => {
+            if ((e.target as HTMLElement).closest('.deletePageBtn')) return
+            if (mode === 'direct' && url) {
+                openPlayer(url, title)
+            } else if (url) {
+                window.open(url, '_blank')
+            }
+        })
+    })
+
     const addPageForm = document.getElementById('addPageForm') as HTMLFormElement
     if (addPageForm) {
         addPageForm.addEventListener('submit', async (e) => {
@@ -140,6 +260,7 @@ const displayName = member?.display_name || member?.member || username
             const title = (document.getElementById('pageTitle') as HTMLInputElement).value
             const url = (document.getElementById('pageUrl') as HTMLInputElement).value
             const thumbnailUrl = (document.getElementById('pageThumbnail') as HTMLInputElement).value
+            const displayMode = (document.querySelector('input[name="displayMode"]:checked') as HTMLInputElement)?.value || 'direct'
 
             try {
                 const token = localStorage.getItem('auth_token')
@@ -149,7 +270,7 @@ const displayName = member?.display_name || member?.member || username
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${token}`,
                     },
-                    body: JSON.stringify({ url, title, thumbnailUrl }),
+                    body: JSON.stringify({ url, title, thumbnailUrl, displayMode }),
                 })
                 const data = await res.json()
                 if (data.success) {
@@ -164,7 +285,8 @@ const displayName = member?.display_name || member?.member || username
     }
 
     deleteBtns.forEach(btn => {
-        btn.addEventListener('click', async () => {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation()
             if (!confirm('Bạn có chắc muốn xóa liên kết này?')) return
             const pageId = btn.dataset.pageId
             try {
