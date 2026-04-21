@@ -225,19 +225,46 @@ const displayName = member?.display_name || member?.member || username
 </MainLayout>
 
 <script>
-    const currentUser = localStorage.getItem('user_session')
     const currentUsername = window.location.pathname.split('/')[1]
-    const isPageOwner = currentUser === currentUsername
-    const token = localStorage.getItem('auth_token')
 
-    // Chặn truy cập nếu chưa đăng nhập
-    if (!token) {
-        window.location.href = '/?auth=required'
+    // Kiểm tra quyền quản lý: là chủ sở hữu HOẶC là admin
+    const getCanManage = () => {
+        const currentUser = localStorage.getItem('user_session')
+        const userRole = localStorage.getItem('user_roles')
+        const isPageOwner = currentUser === currentUsername
+        return isPageOwner || userRole === 'admin'
     }
 
-    if (isPageOwner) {
+    // Đồng bộ trạng thái xác thực (hiển thị/ẩn Admin Panel)
+    const syncAuthState = () => {
+        const canManage = getCanManage()
         const adminPanel = document.getElementById('adminPanel')
-        if (adminPanel) adminPanel.classList.remove('hidden')
+        if (adminPanel) {
+            if (canManage) {
+                adminPanel.classList.remove('hidden')
+            } else {
+                adminPanel.classList.add('hidden')
+            }
+        }
+    }
+
+    // Reset UI trước khi fetch (tránh flash data cũ)
+    const resetLoadingState = () => {
+        const grid = document.getElementById('postsGrid')
+        if (grid) {
+            grid.innerHTML = `
+                <div class="flex items-center justify-center py-20">
+                    <div class="animate-pulse text-slate-400">Đang tải...</div>
+                </div>
+            `
+        }
+    }
+
+    // Làm mới toàn bộ trang: sync auth + reset + fetch
+    const refreshPage = () => {
+        syncAuthState()
+        resetLoadingState()
+        fetchPages()
     }
 
     const renderPages = (pages: any[], isOwner: boolean) => {
@@ -316,6 +343,7 @@ const displayName = member?.display_name || member?.member || username
     }
 
     const fetchPages = async () => {
+        const token = localStorage.getItem('auth_token')
         try {
             const headers: Record<string, string> = { 'Content-Type': 'application/json' }
             if (token) {
@@ -351,7 +379,25 @@ const displayName = member?.display_name || member?.member || username
         }
     }
 
-    fetchPages()
+    // Khởi tạo trang khi load
+    refreshPage()
+
+    // Lắng nghe sự kiện đăng nhập
+    window.addEventListener('user-login', () => {
+        refreshPage()
+    })
+
+    // Lắng nghe sự kiện đăng xuất: redirect về trang chủ
+    window.addEventListener('user-logout', () => {
+        window.location.href = '/'
+    })
+
+    // Fix Back button (BFCache): force reload trang khi load từ cache
+    window.addEventListener('pageshow', (event) => {
+        if (event.persisted) {
+            window.location.reload()
+        }
+    })
 
     const playerModal = document.getElementById('playerModal')
     const playerIframe = document.getElementById('playerIframe') as HTMLIFrameElement
@@ -473,6 +519,13 @@ const displayName = member?.display_name || member?.member || username
         const target = e.target as HTMLElement
         const editBtn = target.closest('.editPageBtn')
         if (editBtn) {
+            // Kiểm tra token và quyền quản lý
+            const freshToken = localStorage.getItem('auth_token')
+            const canManage = getCanManage()
+            if (!freshToken || !canManage) {
+                window.location.reload()
+                return
+            }
             e.preventDefault()
             const page = {
                 id: (editBtn as HTMLElement).dataset.id || '',
@@ -486,7 +539,8 @@ const displayName = member?.display_name || member?.member || username
         }
     })
 
-    if (editPageForm && isPageOwner) {
+    if (editPageForm) {
+        const currentUsername = window.location.pathname.split('/')[1]
         editPageForm.addEventListener('submit', async (e) => {
             e.preventDefault()
             const pageId = (document.getElementById('editPageId') as HTMLInputElement).value
@@ -495,6 +549,15 @@ const displayName = member?.display_name || member?.member || username
             const thumbnailUrl = (document.getElementById('editPageThumbnail') as HTMLInputElement).value
             const displayMode = (document.querySelector('input[name="editDisplayMode"]:checked') as HTMLInputElement)?.value || 'direct'
             const isPublic = (document.querySelector('input[name="editIsPublic"]:checked') as HTMLInputElement)?.value === 'true'
+
+            const token = localStorage.getItem('auth_token')
+            const currentUser = localStorage.getItem('user_session')
+            const canManage = getCanManage()
+            if (!canManage || !token) {
+                // @ts-ignore
+                window.showToast('Không có quyền sửa', 'error')
+                return
+            }
 
             try {
                 const res = await fetch(`/api/user/page-store/${currentUsername}`, {
@@ -510,7 +573,7 @@ const displayName = member?.display_name || member?.member || username
                     closeEditModalFn()
                     // @ts-ignore
                     window.showToast('Cập nhật thành công!', 'success')
-                    fetchPages()
+                    refreshPage()
                 } else {
                     // @ts-ignore
                     window.showToast(data.error || 'Lỗi cập nhật', 'error')
@@ -523,7 +586,8 @@ const displayName = member?.display_name || member?.member || username
     }
 
     const addPageForm = document.getElementById('addPageForm') as HTMLFormElement
-    if (addPageForm && isPageOwner) {
+    if (addPageForm) {
+        const currentUsername = window.location.pathname.split('/')[1]
         addPageForm.addEventListener('submit', async (e) => {
             e.preventDefault()
             const title = (document.getElementById('pageTitle') as HTMLInputElement).value
@@ -531,6 +595,15 @@ const displayName = member?.display_name || member?.member || username
             const thumbnailUrl = (document.getElementById('pageThumbnail') as HTMLInputElement).value
             const displayMode = (document.querySelector('input[name="displayMode"]:checked') as HTMLInputElement)?.value || 'direct'
             const isPublic = (document.querySelector('input[name="isPublic"]:checked') as HTMLInputElement)?.value === 'true'
+
+            const token = localStorage.getItem('auth_token')
+            const currentUser = localStorage.getItem('user_session')
+            const canManage = getCanManage()
+            if (!canManage || !token) {
+                // @ts-ignore
+                window.showToast('Không có quyền thêm bài', 'error')
+                return
+            }
 
             try {
                 const res = await fetch(`/api/user/page-store/${currentUsername}`, {
@@ -546,7 +619,7 @@ const displayName = member?.display_name || member?.member || username
                     addPageForm.reset()
                     // @ts-ignore
                     window.showToast('Thêm bài thành công!', 'success')
-                    fetchPages()
+                    refreshPage()
                 } else {
                     // @ts-ignore
                     window.showToast(data.error || 'Lỗi thêm bài', 'error')
@@ -592,6 +665,16 @@ const displayName = member?.display_name || member?.member || username
         confirmDeleteBtn.onclick = () => {
             if (!pendingDeleteId) return
 
+            const token = localStorage.getItem('auth_token')
+            const currentUser = localStorage.getItem('user_session')
+            const canManage = getCanManage()
+            if (!canManage || !token) {
+                // @ts-ignore
+                window.showToast('Không có quyền xóa', 'error')
+                closeDeleteModal()
+                return
+            }
+
             fetch(`/api/user/page-store/${currentUsername}`, {
                 method: 'DELETE',
                 headers: {
@@ -606,7 +689,7 @@ const displayName = member?.display_name || member?.member || username
                         closeDeleteModal()
                         // @ts-ignore
                         window.showToast('Xóa thành công!', 'success')
-                        fetchPages()
+                        refreshPage()
                     } else {
                         // @ts-ignore
                         window.showToast(data.error || 'Lỗi xóa', 'error')
@@ -623,7 +706,14 @@ const displayName = member?.display_name || member?.member || username
     document.addEventListener('click', (e) => {
         const target = e.target as HTMLElement
         const deleteBtn = target.closest('.deletePageBtn')
-        if (deleteBtn && isPageOwner) {
+        if (deleteBtn) {
+            // Kiểm tra token và quyền quản lý
+            const freshToken = localStorage.getItem('auth_token')
+            const canManage = getCanManage()
+            if (!freshToken || !canManage) {
+                window.location.reload()
+                return
+            }
             e.preventDefault()
             e.stopPropagation()
             const pageId = (deleteBtn as HTMLElement).dataset.pageId
