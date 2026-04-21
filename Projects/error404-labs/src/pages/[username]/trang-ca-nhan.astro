@@ -230,6 +230,11 @@ const displayName = member?.display_name || member?.member || username
     const isPageOwner = currentUser === currentUsername
     const token = localStorage.getItem('auth_token')
 
+    // Chặn truy cập nếu chưa đăng nhập
+    if (!token) {
+        window.location.href = '/?auth=required'
+    }
+
     if (isPageOwner) {
         const adminPanel = document.getElementById('adminPanel')
         if (adminPanel) adminPanel.classList.remove('hidden')
