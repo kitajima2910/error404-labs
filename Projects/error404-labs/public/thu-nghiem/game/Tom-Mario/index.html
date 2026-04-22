@@ -1,0 +1,1534 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Super Canvas Bros</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            html,
+            body {
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+                background: #000;
+            }
+            canvas {
+                display: block;
+                width: 100%;
+                height: 100%;
+                image-rendering: pixelated;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="gameCanvas"></canvas>
+        <script>
+            'use strict'
+
+            // ─── AUDIO ENGINE ───────────────────────────────────────────
+            class AudioEngine {
+                constructor() {
+                    this.ctx = null
+                    this.enabled = true
+                }
+                init() {
+                    if (this.ctx) return
+                    try {
+                        this.ctx = new (window.AudioContext || window.webkitAudioContext)()
+                    } catch (e) {
+                        this.enabled = false
+                    }
+                }
+                play(type) {
+                    if (!this.enabled || !this.ctx) return
+                    const t = this.ctx.currentTime
+                    const osc = this.ctx.createOscillator()
+                    const gain = this.ctx.createGain()
+                    osc.connect(gain)
+                    gain.connect(this.ctx.destination)
+                    switch (type) {
+                        case 'jump':
+                            osc.type = 'square'
+                            osc.frequency.setValueAtTime(250, t)
+                            osc.frequency.exponentialRampToValueAtTime(600, t + 0.12)
+                            gain.gain.setValueAtTime(0.15, t)
+                            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.15)
+                            osc.start(t)
+                            osc.stop(t + 0.15)
+                            break
+                        case 'coin':
+                            osc.type = 'square'
+                            osc.frequency.setValueAtTime(988, t)
+                            osc.frequency.setValueAtTime(1319, t + 0.07)
+                            gain.gain.setValueAtTime(0.12, t)
+                            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2)
+                            osc.start(t)
+                            osc.stop(t + 0.2)
+                            break
+                        case 'stomp':
+                            osc.type = 'sawtooth'
+                            osc.frequency.setValueAtTime(400, t)
+                            osc.frequency.exponentialRampToValueAtTime(80, t + 0.15)
+                            gain.gain.setValueAtTime(0.18, t)
+                            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2)
+                            osc.start(t)
+                            osc.stop(t + 0.2)
+                            break
+                        case 'hurt':
+                            osc.type = 'sawtooth'
+                            osc.frequency.setValueAtTime(300, t)
+                            osc.frequency.exponentialRampToValueAtTime(60, t + 0.4)
+                            gain.gain.setValueAtTime(0.2, t)
+                            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.5)
+                            osc.start(t)
+                            osc.stop(t + 0.5)
+                            break
+                        case 'win':
+                            osc.type = 'square'
+                            ;[
+                                523,
+                                659,
+                                784,
+                                1047,
+                            ].forEach((f, i) => {
+                                osc.frequency.setValueAtTime(f, t + i * 0.15)
+                            })
+                            gain.gain.setValueAtTime(0.15, t)
+                            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.7)
+                            osc.start(t)
+                            osc.stop(t + 0.7)
+                            break
+                        case 'die':
+                            osc.type = 'square'
+                            osc.frequency.setValueAtTime(400, t)
+                            osc.frequency.exponentialRampToValueAtTime(40, t + 0.8)
+                            gain.gain.setValueAtTime(0.2, t)
+                            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.9)
+                            osc.start(t)
+                            osc.stop(t + 0.9)
+                            break
+                    }
+                }
+            }
+
+            // ─── PARTICLE POOL ──────────────────────────────────────────
+            class Particle {
+                constructor() {
+                    this.reset()
+                }
+                reset() {
+                    this.x = 0
+                    this.y = 0
+                    this.vx = 0
+                    this.vy = 0
+                    this.life = 0
+                    this.maxLife = 0
+                    this.size = 0
+                    this.r = 255
+                    this.g = 255
+                    this.b = 255
+                    this.active = false
+                }
+                init(x, y, vx, vy, life, size, r, g, b) {
+                    this.x = x
+                    this.y = y
+                    this.vx = vx
+                    this.vy = vy
+                    this.life = life
+                    this.maxLife = life
+                    this.size = size
+                    this.r = r
+                    this.g = g
+                    this.b = b
+                    this.active = true
+                }
+                update(dt) {
+                    if (!this.active) return
+                    this.x += this.vx * dt
+                    this.y += this.vy * dt
+                    this.vy += 400 * dt
+                    this.life -= dt
+                    if (this.life <= 0) this.active = false
+                }
+            }
+
+            class ParticlePool {
+                constructor(size) {
+                    this.pool = []
+                    for (let i = 0; i < size; i++) this.pool.push(new Particle())
+                }
+                emit(x, y, vx, vy, life, size, r, g, b) {
+                    for (let p of this.pool) {
+                        if (!p.active) {
+                            p.init(x, y, vx, vy, life, size, r, g, b)
+                            return
+                        }
+                    }
+                }
+                burst(x, y, count, speed, life, size, r, g, b) {
+                    for (let i = 0; i < count; i++) {
+                        const angle = Math.random() * Math.PI * 2
+                        const spd = Math.random() * speed
+                        this.emit(
+                            x,
+                            y,
+                            Math.cos(angle) * spd,
+                            Math.sin(angle) * spd - speed * 0.3,
+                            life * (0.5 + Math.random() * 0.5),
+                            size * (0.5 + Math.random() * 0.5),
+                            r,
+                            g,
+                            b,
+                        )
+                    }
+                }
+                update(dt) {
+                    for (let p of this.pool) p.update(dt)
+                }
+            }
+
+            // ─── INPUT HANDLER ──────────────────────────────────────────
+            class InputHandler {
+                constructor() {
+                    this.keys = {}
+                    this.justPressed = {}
+                    this.prevKeys = {}
+                    window.addEventListener('keydown', (e) => {
+                        this.keys[e.code] = true
+                        e.preventDefault()
+                    })
+                    window.addEventListener('keyup', (e) => {
+                        this.keys[e.code] = false
+                        e.preventDefault()
+                    })
+                }
+                update() {
+                    for (let k in this.keys) {
+                        this.justPressed[k] = this.keys[k] && !this.prevKeys[k]
+                        this.prevKeys[k] = this.keys[k]
+                    }
+                }
+                isDown(code) {
+                    return !!this.keys[code]
+                }
+                isJustPressed(code) {
+                    return !!this.justPressed[code]
+                }
+                get moveLeft() {
+                    return this.isDown('ArrowLeft') || this.isDown('KeyA')
+                }
+                get moveRight() {
+                    return this.isDown('ArrowRight') || this.isDown('KeyD')
+                }
+                get jump() {
+                    return this.isDown('ArrowUp') || this.isDown('KeyW') || this.isDown('Space')
+                }
+                get jumpJustPressed() {
+                    return this.isJustPressed('ArrowUp') || this.isJustPressed('KeyW') || this.isJustPressed('Space')
+                }
+                get action() {
+                    return this.isJustPressed('Space') || this.isJustPressed('Enter')
+                }
+            }
+
+            // ─── CAMERA ─────────────────────────────────────────────────
+            class Camera {
+                constructor() {
+                    this.x = 0
+                    this.y = 0
+                    this.shakeX = 0
+                    this.shakeY = 0
+                    this.shakeTime = 0
+                    this.shakeIntensity = 0
+                }
+                shake(intensity, duration) {
+                    this.shakeIntensity = intensity
+                    this.shakeTime = duration
+                }
+                update(dt, targetX, targetY, levelW, levelH, viewW, viewH) {
+                    const tx = targetX - viewW / 2
+                    const ty = targetY - viewH / 2
+                    this.x += (tx - this.x) * 5 * dt
+                    this.y += (ty - this.y) * 5 * dt
+                    this.x = Math.max(0, Math.min(this.x, levelW - viewW))
+                    this.y = Math.max(0, Math.min(this.y, levelH - viewH))
+                    if (this.shakeTime > 0) {
+                        this.shakeTime -= dt
+                        this.shakeX = (Math.random() - 0.5) * this.shakeIntensity * 2
+                        this.shakeY = (Math.random() - 0.5) * this.shakeIntensity * 2
+                        this.shakeIntensity *= 0.9
+                    } else {
+                        this.shakeX = 0
+                        this.shakeY = 0
+                    }
+                }
+            }
+
+            // ─── ENTITIES ───────────────────────────────────────────────
+            class Entity {
+                constructor(x, y, w, h) {
+                    this.x = x
+                    this.y = y
+                    this.w = w
+                    this.h = h
+                    this.vx = 0
+                    this.vy = 0
+                    this.onGround = false
+                    this.alive = true
+                }
+                get left() {
+                    return this.x - this.w / 2
+                }
+                get right() {
+                    return this.x + this.w / 2
+                }
+                get top() {
+                    return this.y - this.h / 2
+                }
+                get bottom() {
+                    return this.y + this.h / 2
+                }
+                overlaps(other) {
+                    return (
+                        this.left < other.right &&
+                        this.right > other.left &&
+                        this.top < other.bottom &&
+                        this.bottom > other.top
+                    )
+                }
+            }
+
+            class Player extends Entity {
+                constructor(x, y) {
+                    super(x, y, 28, 36)
+                    this.speed = 0
+                    this.maxSpeed = 280
+                    this.accel = 1800
+                    this.decel = 1400
+                    this.jumpForce = -520
+                    this.gravity = 1200
+                    this.facing = 1
+                    this.squashX = 1
+                    this.squashY = 1
+                    this.squashTarget = 1
+                    this.bounceTime = 0
+                    this.invincible = 0
+                    this.coyoteTime = 0
+                    this.jumpBufferTimer = 0
+                    this.runFrame = 0
+                    this.runTimer = 0
+                    this.lives = 3
+                    this.score = 0
+                    this.coins = 0
+                    this.deadTimer = 0
+                    this.winTimer = 0
+                }
+                update(dt, input, platforms) {
+                    if (!this.alive) {
+                        this.deadTimer += dt
+                        this.vy += this.gravity * dt
+                        this.y += this.vy * dt
+                        return
+                    }
+                    if (this.winTimer > 0) {
+                        this.winTimer += dt
+                        this.bounceTime += dt * 5
+                        return
+                    }
+
+                    // Horizontal movement
+                    if (input.moveLeft) {
+                        this.speed -= this.accel * dt
+                        this.facing = -1
+                    } else if (input.moveRight) {
+                        this.speed += this.accel * dt
+                        this.facing = 1
+                    } else {
+                        if (this.speed > 0) this.speed = Math.max(0, this.speed - this.decel * dt)
+                        else this.speed = Math.min(0, this.speed + this.decel * dt)
+                    }
+                    this.speed = Math.max(-this.maxSpeed, Math.min(this.maxSpeed, this.speed))
+
+                    // Coyote time
+                    if (this.onGround) this.coyoteTime = 0.1
+                    else this.coyoteTime -= dt
+
+                    // Jump buffer
+                    if (input.jumpJustPressed) this.jumpBufferTimer = 0.1
+                    if (this.jumpBufferTimer > 0) {
+                        this.jumpBufferTimer -= dt
+                        if (this.coyoteTime > 0) {
+                            this.vy = this.jumpForce
+                            this.onGround = false
+                            this.coyoteTime = 0
+                            this.jumpBufferTimer = 0
+                            this.squashX = 0.6
+                            this.squashY = 1.4
+                            return 'jump'
+                        }
+                    }
+
+                    // Variable jump height
+                    if (!input.jump && this.vy < -100) {
+                        this.vy *= 0.85
+                    }
+
+                    // Gravity
+                    this.vy += this.gravity * dt
+                    if (this.vy > 600) this.vy = 600
+
+                    // Move X
+                    this.x += this.speed * dt
+                    this.onGround = false
+
+                    // Collide X with platforms
+                    for (let p of platforms) {
+                        if (this.overlaps(p)) {
+                            if (this.speed > 0) this.x = p.left - this.w / 2
+                            else if (this.speed < 0) this.x = p.right + this.w / 2
+                            this.speed = 0
+                        }
+                    }
+
+                    // Move Y
+                    this.y += this.vy * dt
+
+                    // Collide Y with platforms
+                    for (let p of platforms) {
+                        if (this.overlaps(p)) {
+                            if (this.vy > 0) {
+                                this.y = p.top - this.h / 2
+                                const impactVy = this.vy
+                                this.vy = 0
+                                this.onGround = true
+                                if (impactVy > 200) {
+                                    this.squashX = 1.3
+                                    this.squashY = 0.7
+                                    return 'land'
+                                }
+                            } else if (this.vy < 0) {
+                                this.y = p.bottom + this.h / 2
+                                this.vy = 0
+                            }
+                        }
+                    }
+
+                    // Squash recovery
+                    this.squashX += (1 - this.squashX) * 12 * dt
+                    this.squashY += (1 - this.squashY) * 12 * dt
+
+                    // Idle bounce
+                    if (this.onGround && Math.abs(this.speed) < 10) {
+                        this.bounceTime += dt * 4
+                    } else if (Math.abs(this.speed) > 10) {
+                        this.runTimer += dt * Math.abs(this.speed) * 0.03
+                        this.runFrame = Math.floor(this.runTimer) % 4
+                    }
+
+                    // Invincibility
+                    if (this.invincible > 0) this.invincible -= dt
+
+                    return null
+                }
+            }
+
+            class Enemy extends Entity {
+                constructor(x, y, patrolLeft, patrolRight) {
+                    super(x, y, 30, 28)
+                    this.patrolLeft = patrolLeft
+                    this.patrolRight = patrolRight
+                    this.speed = 60
+                    this.dir = 1
+                    this.gravity = 1200
+                    this.flashTime = 0
+                    this.deathTimer = 0
+                    this.eyeBlink = 0
+                    this.blinkTimer = Math.random() * 3
+                    this.type = Math.random() > 0.5 ? 'goomba' : 'koopa'
+                    this.baseColor = this.type === 'goomba' ? '#c0392b' : '#8e44ad'
+                    this.darkColor = this.type === 'goomba' ? '#922b21' : '#6c3483'
+                }
+                update(dt, platforms) {
+                    if (!this.alive) {
+                        this.deathTimer += dt
+                        return
+                    }
+                    this.flashTime = Math.max(0, this.flashTime - dt)
+                    this.blinkTimer -= dt
+                    if (this.blinkTimer <= 0) {
+                        this.eyeBlink = 0.15
+                        this.blinkTimer = 2 + Math.random() * 3
+                    }
+                    this.eyeBlink = Math.max(0, this.eyeBlink - dt)
+
+                    this.vx = this.speed * this.dir
+                    this.x += this.vx * dt
+                    this.vy += this.gravity * dt
+                    this.y += this.vy * dt
+
+                    // Platform collision
+                    for (let p of platforms) {
+                        if (this.overlaps(p)) {
+                            if (this.vy > 0) {
+                                this.y = p.top - this.h / 2
+                                this.vy = 0
+                            }
+                        }
+                    }
+
+                    // Patrol bounds
+                    if (this.x < this.patrolLeft) {
+                        this.x = this.patrolLeft
+                        this.dir = 1
+                    }
+                    if (this.x > this.patrolRight) {
+                        this.x = this.patrolRight
+                        this.dir = -1
+                    }
+                }
+            }
+
+            class Platform {
+                constructor(x, y, w, h, type) {
+                    this.x = x
+                    this.y = y
+                    this.w = w
+                    this.h = h || 24
+                    this.type = type || 'normal' // normal, grass, brick, question
+                }
+                get left() {
+                    return this.x
+                }
+                get right() {
+                    return this.x + this.w
+                }
+                get top() {
+                    return this.y
+                }
+                get bottom() {
+                    return this.y + this.h
+                }
+            }
+
+            class Coin {
+                constructor(x, y) {
+                    this.x = x
+                    this.y = y
+                    this.w = 16
+                    this.h = 16
+                    this.collected = false
+                    this.bobTime = Math.random() * Math.PI * 2
+                    this.collectAnim = 0
+                    this.sparkle = Math.random() * Math.PI * 2
+                }
+                get left() {
+                    return this.x - this.w / 2
+                }
+                get right() {
+                    return this.x + this.w / 2
+                }
+                get top() {
+                    return this.y - this.h / 2
+                }
+                get bottom() {
+                    return this.y + this.h / 2
+                }
+                update(dt) {
+                    this.bobTime += dt * 3
+                    this.sparkle += dt * 5
+                    if (this.collected) this.collectAnim += dt * 4
+                }
+            }
+
+            class Goal {
+                constructor(x, y) {
+                    this.x = x
+                    this.y = y
+                    this.w = 20
+                    this.h = 80
+                    this.pulseTime = 0
+                }
+                update(dt) {
+                    this.pulseTime += dt * 3
+                }
+                get left() {
+                    return this.x - this.w / 2
+                }
+                get right() {
+                    return this.x + this.w / 2
+                }
+                get top() {
+                    return this.y - this.h / 2
+                }
+                get bottom() {
+                    return this.y + this.h / 2
+                }
+            }
+
+            // ─── LEVEL BUILDER ──────────────────────────────────────────
+            class LevelBuilder {
+                static build() {
+                    const platforms = []
+                    const enemies = []
+                    const coins = []
+                    let goal
+
+                    // Ground segments
+                    const addGround = (x, w) => platforms.push(new Platform(x, 500, w, 60, 'grass'))
+                    const addPlat = (x, y, w, type) => platforms.push(new Platform(x, y, w, 24, type || 'brick'))
+                    const addEnemy = (x, pl, pr) => enemies.push(new Enemy(x, 470, pl, pr))
+                    const addCoin = (x, y) => coins.push(new Coin(x, y))
+
+                    // Section 1: Starting area
+                    addGround(0, 500)
+                    addCoin(150, 440)
+                    addCoin(200, 440)
+                    addCoin(250, 440)
+                    addPlat(200, 380, 100, 'question')
+                    addCoin(230, 340)
+                    addCoin(260, 340)
+
+                    // Section 2: Gap with platforms
+                    addGround(560, 200)
+                    addPlat(520, 400, 80, 'brick')
+                    addEnemy(620, 570, 740)
+                    addCoin(600, 350)
+
+                    // Section 3: Elevated area
+                    addGround(820, 300)
+                    addPlat(850, 380, 80, 'question')
+                    addPlat(960, 300, 100, 'brick')
+                    addCoin(880, 340)
+                    addCoin(990, 260)
+                    addCoin(1020, 260)
+                    addEnemy(900, 830, 1100)
+
+                    // Section 4: Big gap
+                    addGround(1200, 150)
+                    addPlat(1160, 420, 60, 'brick')
+                    addPlat(1250, 340, 60, 'brick')
+                    addCoin(1180, 380)
+                    addCoin(1270, 300)
+
+                    // Section 5: Enemy gauntlet
+                    addGround(1400, 400)
+                    addEnemy(1480, 1410, 1600)
+                    addEnemy(1600, 1410, 1780)
+                    addPlat(1500, 380, 120, 'question')
+                    addCoin(1530, 340)
+                    addCoin(1560, 340)
+                    addCoin(1590, 340)
+                    addPlat(1650, 300, 80, 'brick')
+                    addCoin(1680, 260)
+
+                    // Section 6: Staircase
+                    addGround(1860, 100)
+                    for (let i = 0; i < 5; i++) {
+                        addPlat(1960 + i * 40, 470 - i * 40, 40, 'brick')
+                    }
+                    addGround(2160, 300)
+                    addEnemy(2250, 2170, 2440)
+                    addCoin(2200, 440)
+                    addCoin(2250, 440)
+                    addCoin(2300, 440)
+
+                    // Section 7: Floating platforms
+                    addPlat(2500, 400, 80, 'brick')
+                    addPlat(2620, 340, 80, 'brick')
+                    addPlat(2740, 280, 80, 'brick')
+                    addCoin(2530, 360)
+                    addCoin(2650, 300)
+                    addCoin(2770, 240)
+
+                    // Section 8: Final area
+                    addGround(2860, 500)
+                    addEnemy(2950, 2870, 3100)
+                    addEnemy(3100, 2950, 3300)
+                    addPlat(2950, 380, 100, 'question')
+                    addPlat(3100, 300, 100, 'brick')
+                    addCoin(2980, 340)
+                    addCoin(3010, 340)
+                    addCoin(3130, 260)
+                    addCoin(3160, 260)
+
+                    // Goal
+                    goal = new Goal(3300, 460)
+
+                    return { platforms, enemies, coins, goal, width: 3400, height: 560 }
+                }
+            }
+
+            // ─── UI MANAGER ─────────────────────────────────────────────
+            class UIManager {
+                constructor(canvas) {
+                    this.canvas = canvas
+                }
+                drawHUD(ctx, player) {
+                    ctx.save()
+                    ctx.shadowColor = 'rgba(0,0,0,0.5)'
+                    ctx.shadowBlur = 4
+                    ctx.shadowOffsetY = 2
+
+                    // Score
+                    ctx.fillStyle = '#fff'
+                    ctx.font = 'bold 20px "Segoe UI", Arial, sans-serif'
+                    ctx.textAlign = 'left'
+                    ctx.fillText(`SCORE  ${String(player.score).padStart(6, '0')}`, 20, 35)
+
+                    // Coins
+                    ctx.fillStyle = '#ffd700'
+                    ctx.fillText(`🪙 × ${player.coins}`, 20, 62)
+
+                    // Lives
+                    ctx.fillStyle = '#ff6b6b'
+                    ctx.textAlign = 'right'
+                    ctx.fillText(`♥ ${player.lives}`, this.canvas.width - 20, 35)
+
+                    ctx.restore()
+                }
+                drawMenu(ctx, w, h, time) {
+                    // Overlay
+                    ctx.fillStyle = 'rgba(0,0,0,0.4)'
+                    ctx.fillRect(0, 0, w, h)
+
+                    ctx.save()
+                    ctx.textAlign = 'center'
+
+                    // Title
+                    const bounce = Math.sin(time * 2) * 8
+                    ctx.shadowColor = '#ff6b6b'
+                    ctx.shadowBlur = 30
+                    ctx.fillStyle = '#ff6b6b'
+                    ctx.font = `bold ${Math.min(64, w * 0.08)}px "Segoe UI", Arial, sans-serif`
+                    ctx.fillText('SUPER CANVAS BROS', w / 2, h * 0.3 + bounce)
+
+                    ctx.shadowBlur = 0
+                    ctx.fillStyle = '#ffd700'
+                    ctx.font = `bold ${Math.min(24, w * 0.035)}px "Segoe UI", Arial, sans-serif`
+                    ctx.fillText('A Platformer Adventure', w / 2, h * 0.3 + bounce + 40)
+
+                    // Instructions
+                    const alpha = 0.5 + Math.sin(time * 4) * 0.5
+                    ctx.globalAlpha = alpha
+                    ctx.fillStyle = '#fff'
+                    ctx.font = `${Math.min(22, w * 0.03)}px "Segoe UI", Arial, sans-serif`
+                    ctx.fillText('Press SPACE or ENTER to Start', w / 2, h * 0.55)
+                    ctx.globalAlpha = 1
+
+                    ctx.fillStyle = '#aaa'
+                    ctx.font = `${Math.min(16, w * 0.022)}px "Segoe UI", Arial, sans-serif`
+                    ctx.fillText('Arrow Keys / WASD to Move  •  Space / Up / W to Jump', w / 2, h * 0.68)
+                    ctx.fillText('Stomp enemies from above  •  Collect coins  •  Reach the flag!', w / 2, h * 0.73)
+
+                    ctx.restore()
+                }
+                drawGameOver(ctx, w, h, player, time) {
+                    ctx.fillStyle = 'rgba(0,0,0,0.6)'
+                    ctx.fillRect(0, 0, w, h)
+
+                    ctx.save()
+                    ctx.textAlign = 'center'
+
+                    ctx.shadowColor = '#ff0000'
+                    ctx.shadowBlur = 20
+                    ctx.fillStyle = '#ff4444'
+                    ctx.font = `bold ${Math.min(56, w * 0.07)}px "Segoe UI", Arial, sans-serif`
+                    ctx.fillText('GAME OVER', w / 2, h * 0.35)
+
+                    ctx.shadowBlur = 0
+                    ctx.fillStyle = '#fff'
+                    ctx.font = `${Math.min(24, w * 0.035)}px "Segoe UI", Arial, sans-serif`
+                    ctx.fillText(`Final Score: ${player.score}`, w / 2, h * 0.48)
+                    ctx.fillText(`Coins: ${player.coins}`, w / 2, h * 0.54)
+
+                    const alpha = 0.5 + Math.sin(time * 4) * 0.5
+                    ctx.globalAlpha = alpha
+                    ctx.fillText('Press SPACE or ENTER to Retry', w / 2, h * 0.68)
+
+                    ctx.restore()
+                }
+                drawWin(ctx, w, h, player, time) {
+                    ctx.fillStyle = 'rgba(0,0,0,0.4)'
+                    ctx.fillRect(0, 0, w, h)
+
+                    ctx.save()
+                    ctx.textAlign = 'center'
+
+                    const bounce = Math.sin(time * 3) * 5
+                    ctx.shadowColor = '#ffd700'
+                    ctx.shadowBlur = 30
+                    ctx.fillStyle = '#ffd700'
+                    ctx.font = `bold ${Math.min(56, w * 0.07)}px "Segoe UI", Arial, sans-serif`
+                    ctx.fillText('★ LEVEL COMPLETE! ★', w / 2, h * 0.3 + bounce)
+
+                    ctx.shadowBlur = 0
+                    ctx.fillStyle = '#fff'
+                    ctx.font = `${Math.min(24, w * 0.035)}px "Segoe UI", Arial, sans-serif`
+                    ctx.fillText(`Score: ${player.score}`, w / 2, h * 0.48)
+                    ctx.fillText(`Coins: ${player.coins}`, w / 2, h * 0.54)
+                    ctx.fillText(`Lives: ${player.lives}`, w / 2, h * 0.6)
+
+                    const alpha = 0.5 + Math.sin(time * 4) * 0.5
+                    ctx.globalAlpha = alpha
+                    ctx.fillText('Press SPACE or ENTER to Play Again', w / 2, h * 0.74)
+
+                    ctx.restore()
+                }
+            }
+
+            // ─── GAME MANAGER ───────────────────────────────────────────
+            class GameManager {
+                constructor() {
+                    this.canvas = document.getElementById('gameCanvas')
+                    this.ctx = this.canvas.getContext('2d')
+                    this.input = new InputHandler()
+                    this.audio = new AudioEngine()
+                    this.particles = new ParticlePool(200)
+                    this.camera = new Camera()
+                    this.ui = new UIManager(this.canvas)
+                    this.state = 'menu' // menu, playing, gameover, win
+                    this.stateTime = 0
+                    this.lastTime = 0
+                    this.level = null
+                    this.player = null
+                    this.clouds = []
+                    this.bgMountains = []
+                    this.resize()
+                    window.addEventListener('resize', () => this.resize())
+                    this.generateBackground()
+                    this.requestLoop()
+                }
+                resize() {
+                    const dpr = window.devicePixelRatio || 1
+                    this.canvas.width = window.innerWidth * dpr
+                    this.canvas.height = window.innerHeight * dpr
+                    this.viewW = this.canvas.width
+                    this.viewH = this.canvas.height
+                    this.scale = dpr
+                }
+                generateBackground() {
+                    this.clouds = []
+                    for (let i = 0; i < 20; i++) {
+                        this.clouds.push({
+                            x: Math.random() * 4000,
+                            y: 30 + Math.random() * 150,
+                            w: 60 + Math.random() * 100,
+                            h: 25 + Math.random() * 30,
+                            speed: 5 + Math.random() * 15,
+                        })
+                    }
+                    this.bgMountains = []
+                    for (let i = 0; i < 15; i++) {
+                        this.bgMountains.push({
+                            x: i * 300 - 100,
+                            w: 200 + Math.random() * 200,
+                            h: 80 + Math.random() * 120,
+                        })
+                    }
+                }
+                startGame() {
+                    this.audio.init()
+                    this.level = LevelBuilder.build()
+                    this.player = new Player(80, 400)
+                    this.state = 'playing'
+                    this.stateTime = 0
+                    this.camera.x = 0
+                    this.camera.y = 0
+                    this.particles = new ParticlePool(200)
+                }
+                requestLoop() {
+                    requestAnimationFrame((t) => this.loop(t))
+                }
+                loop(timestamp) {
+                    const dt = Math.min((timestamp - this.lastTime) / 1000, 0.05)
+                    this.lastTime = timestamp
+                    this.stateTime += dt
+                    this.input.update()
+
+                    switch (this.state) {
+                        case 'menu':
+                            this.updateMenu(dt)
+                            break
+                        case 'playing':
+                            this.updatePlaying(dt)
+                            break
+                        case 'gameover':
+                            this.updateGameOver(dt)
+                            break
+                        case 'win':
+                            this.updateWin(dt)
+                            break
+                    }
+
+                    this.render()
+                    this.requestLoop()
+                }
+
+                updateMenu(dt) {
+                    if (this.input.action) this.startGame()
+                }
+
+                updatePlaying(dt) {
+                    const p = this.player
+                    const lvl = this.level
+
+                    // Update player
+                    const result = p.update(dt, this.input, lvl.platforms)
+                    if (result === 'jump') this.audio.play('jump')
+                    if (result === 'land') {
+                        this.camera.shake(4, 0.15)
+                        this.particles.burst(p.x, p.bottom, 6, 100, 0.3, 3, 180, 160, 120)
+                    }
+
+                    // Fall death
+                    if (p.y > lvl.height + 100 && p.alive && p.winTimer <= 0) {
+                        this.killPlayer()
+                    }
+
+                    // Update enemies
+                    for (let e of lvl.enemies) {
+                        e.update(dt, lvl.platforms)
+                        if (!e.alive || !p.alive || p.invincible > 0 || p.winTimer > 0) continue
+
+                        if (p.overlaps(e)) {
+                            // Check stomp
+                            if (p.vy > 0 && p.bottom < e.top + e.h * 0.5) {
+                                e.alive = false
+                                e.flashTime = 0.3
+                                p.vy = -350
+                                p.score += 100
+                                this.audio.play('stomp')
+                                this.camera.shake(5, 0.2)
+                                this.particles.burst(e.x, e.y, 15, 200, 0.5, 5, 255, 200, 50)
+                                this.particles.burst(e.x, e.y, 8, 150, 0.4, 4, 200, 80, 80)
+                            } else {
+                                this.killPlayer()
+                            }
+                        }
+                    }
+
+                    // Update coins
+                    for (let c of lvl.coins) {
+                        c.update(dt)
+                        if (!c.collected && p.alive && p.winTimer <= 0) {
+                            if (p.left < c.right && p.right > c.left && p.top < c.bottom && p.bottom > c.top) {
+                                c.collected = true
+                                p.coins++
+                                p.score += 50
+                                this.audio.play('coin')
+                                this.particles.burst(c.x, c.y, 10, 150, 0.4, 4, 255, 215, 0)
+                            }
+                        }
+                    }
+
+                    // Goal check
+                    if (p.alive && p.winTimer <= 0) {
+                        if (
+                            p.left < lvl.goal.right &&
+                            p.right > lvl.goal.left &&
+                            p.top < lvl.goal.bottom &&
+                            p.bottom > lvl.goal.top
+                        ) {
+                            p.winTimer = 0.01
+                            p.score += 500
+                            this.audio.play('win')
+                            this.particles.burst(lvl.goal.x, lvl.goal.y - 30, 30, 250, 1, 6, 255, 215, 0)
+                            setTimeout(() => {
+                                this.state = 'win'
+                                this.stateTime = 0
+                            }, 1500)
+                        }
+                    }
+                    lvl.goal.update(dt)
+
+                    // Particles
+                    this.particles.update(dt)
+
+                    // Camera
+                    this.camera.update(dt, p.x, p.y - 50, lvl.width, lvl.height, this.viewW, this.viewH)
+                }
+
+                killPlayer() {
+                    const p = this.player
+                    p.alive = false
+                    p.vy = -400
+                    p.deadTimer = 0
+                    p.lives--
+                    this.audio.play('die')
+                    this.camera.shake(8, 0.3)
+                    this.particles.burst(p.x, p.y, 20, 200, 0.6, 5, 255, 100, 100)
+                    setTimeout(() => {
+                        if (p.lives <= 0) {
+                            this.state = 'gameover'
+                            this.stateTime = 0
+                        } else {
+                            // Respawn
+                            p.alive = true
+                            p.x = 80
+                            p.y = 400
+                            p.vx = 0
+                            p.vy = 0
+                            p.speed = 0
+                            p.invincible = 2
+                            p.deadTimer = 0
+                            this.camera.x = 0
+                            this.camera.y = 0
+                        }
+                    }, 1000)
+                }
+
+                updateGameOver(dt) {
+                    this.particles.update(dt)
+                    if (this.stateTime > 1 && this.input.action) {
+                        this.startGame()
+                    }
+                }
+
+                updateWin(dt) {
+                    this.particles.update(dt)
+                    if (this.stateTime > 1 && this.input.action) {
+                        this.startGame()
+                    }
+                }
+
+                // ─── RENDERING ──────────────────────────────────────────
+                render() {
+                    const ctx = this.ctx
+                    const w = this.viewW
+                    const h = this.viewH
+
+                    ctx.clearRect(0, 0, w, h)
+
+                    // Sky gradient
+                    const skyGrad = ctx.createLinearGradient(0, 0, 0, h)
+                    skyGrad.addColorStop(0, '#4a90d9')
+                    skyGrad.addColorStop(0.5, '#87ceeb')
+                    skyGrad.addColorStop(1, '#b8e6f0')
+                    ctx.fillStyle = skyGrad
+                    ctx.fillRect(0, 0, w, h)
+
+                    if (this.state === 'menu') {
+                        this.drawBackground(ctx, w, h, 0)
+                        this.ui.drawMenu(ctx, w, h, this.stateTime)
+                        return
+                    }
+
+                    const cam = this.camera
+                    ctx.save()
+                    ctx.translate(-cam.x + cam.shakeX, -cam.y + cam.shakeY)
+
+                    // Background elements (parallax)
+                    this.drawBackground(ctx, w, h, cam.x)
+
+                    // Level rendering
+                    if (this.level) {
+                        this.drawPlatforms(ctx)
+                        this.drawCoins(ctx)
+                        this.drawGoal(ctx)
+                        this.drawEnemies(ctx)
+                        this.drawPlayer(ctx)
+                        this.drawParticles(ctx)
+                    }
+
+                    ctx.restore()
+
+                    // HUD
+                    if (this.player) {
+                        this.ui.drawHUD(ctx, this.player)
+                    }
+
+                    // Overlays
+                    if (this.state === 'gameover') this.ui.drawGameOver(ctx, w, h, this.player, this.stateTime)
+                    if (this.state === 'win') this.ui.drawWin(ctx, w, h, this.player, this.stateTime)
+                }
+
+                drawBackground(ctx, w, h, camX) {
+                    // Mountains (parallax)
+                    const mx = camX * 0.3
+                    for (let m of this.bgMountains) {
+                        const x = m.x - (mx % (300 * 15))
+                        ctx.fillStyle = 'rgba(100, 140, 100, 0.3)'
+                        ctx.beginPath()
+                        ctx.moveTo(x, h * 0.7)
+                        ctx.lineTo(x + m.w / 2, h * 0.7 - m.h)
+                        ctx.lineTo(x + m.w, h * 0.7)
+                        ctx.fill()
+                    }
+
+                    // Clouds (parallax)
+                    const cx = camX * 0.15
+                    ctx.fillStyle = 'rgba(255,255,255,0.7)'
+                    for (let c of this.clouds) {
+                        const x = ((c.x - cx) % (w + 200)) - 100
+                        ctx.beginPath()
+                        ctx.ellipse(x, c.y, c.w / 2, c.h / 2, 0, 0, Math.PI * 2)
+                        ctx.fill()
+                        ctx.beginPath()
+                        ctx.ellipse(x - c.w * 0.25, c.y + 5, c.w * 0.3, c.h * 0.4, 0, 0, Math.PI * 2)
+                        ctx.fill()
+                        ctx.beginPath()
+                        ctx.ellipse(x + c.w * 0.25, c.y + 3, c.w * 0.35, c.h * 0.45, 0, 0, Math.PI * 2)
+                        ctx.fill()
+                    }
+                }
+
+                drawPlatforms(ctx) {
+                    for (let p of this.level.platforms) {
+                        // Skip if off screen
+                        if (p.right < this.camera.x - 50 || p.left > this.camera.x + this.viewW + 50) continue
+                        if (p.bottom < this.camera.y - 50 || p.top > this.camera.y + this.viewH + 50) continue
+
+                        ctx.save()
+
+                        // Shadow
+                        ctx.shadowColor = 'rgba(0,0,0,0.3)'
+                        ctx.shadowBlur = 8
+                        ctx.shadowOffsetY = 4
+
+                        if (p.type === 'grass') {
+                            // Ground with grass top
+                            const grad = ctx.createLinearGradient(p.x, p.y, p.x, p.y + p.h)
+                            grad.addColorStop(0, '#4a8c3f')
+                            grad.addColorStop(0.15, '#3d7a34')
+                            grad.addColorStop(0.3, '#8B6914')
+                            grad.addColorStop(1, '#6B4F12')
+                            ctx.fillStyle = grad
+                            ctx.beginPath()
+                            ctx.roundRect(
+                                p.x,
+                                p.y,
+                                p.w,
+                                p.h,
+                                [
+                                    4,
+                                    4,
+                                    6,
+                                    6,
+                                ],
+                            )
+                            ctx.fill()
+
+                            // Grass blades
+                            ctx.shadowBlur = 0
+                            ctx.fillStyle = '#5cb85c'
+                            for (let gx = p.x + 5; gx < p.x + p.w - 5; gx += 12) {
+                                ctx.beginPath()
+                                ctx.ellipse(gx, p.y + 2, 6, 3, 0, Math.PI, Math.PI * 2)
+                                ctx.fill()
+                            }
+                        } else if (p.type === 'question') {
+                            // Question block
+                            const grad = ctx.createLinearGradient(p.x, p.y, p.x, p.y + p.h)
+                            grad.addColorStop(0, '#f5c842')
+                            grad.addColorStop(1, '#d4a017')
+                            ctx.fillStyle = grad
+                            ctx.beginPath()
+                            ctx.roundRect(p.x, p.y, p.w, p.h, 4)
+                            ctx.fill()
+
+                            // Question mark
+                            ctx.shadowBlur = 0
+                            ctx.fillStyle = '#fff'
+                            ctx.font = 'bold 16px Arial'
+                            ctx.textAlign = 'center'
+                            ctx.textBaseline = 'middle'
+                            ctx.fillText('?', p.x + p.w / 2, p.y + p.h / 2)
+
+                            // Shine
+                            ctx.fillStyle = 'rgba(255,255,255,0.3)'
+                            ctx.fillRect(p.x + 3, p.y + 3, p.w * 0.3, 3)
+                        } else {
+                            // Brick
+                            const grad = ctx.createLinearGradient(p.x, p.y, p.x, p.y + p.h)
+                            grad.addColorStop(0, '#c0704a')
+                            grad.addColorStop(1, '#8B4513')
+                            ctx.fillStyle = grad
+                            ctx.beginPath()
+                            ctx.roundRect(p.x, p.y, p.w, p.h, 3)
+                            ctx.fill()
+
+                            // Brick lines
+                            ctx.shadowBlur = 0
+                            ctx.strokeStyle = 'rgba(0,0,0,0.2)'
+                            ctx.lineWidth = 1
+                            for (let bx = p.x + 20; bx < p.x + p.w; bx += 20) {
+                                ctx.beginPath()
+                                ctx.moveTo(bx, p.y)
+                                ctx.lineTo(bx, p.y + p.h)
+                                ctx.stroke()
+                            }
+                        }
+
+                        ctx.restore()
+                    }
+                }
+
+                drawCoins(ctx) {
+                    for (let c of this.level.coins) {
+                        if (c.collected && c.collectAnim > 1) continue
+                        if (c.x < this.camera.x - 50 || c.x > this.camera.x + this.viewW + 50) continue
+
+                        const bob = Math.sin(c.bobTime) * 4
+                        const cy = c.y + bob
+
+                        ctx.save()
+
+                        if (c.collected) {
+                            ctx.globalAlpha = Math.max(0, 1 - c.collectAnim)
+                            ctx.translate(c.x, cy)
+                            ctx.scale(1 + c.collectAnim * 2, 1 + c.collectAnim * 2)
+                            ctx.translate(-c.x, -cy)
+                        }
+
+                        // Glow
+                        const glowSize = 20 + Math.sin(c.sparkle) * 4
+                        const glow = ctx.createRadialGradient(c.x, cy, 2, c.x, cy, glowSize)
+                        glow.addColorStop(0, 'rgba(255,215,0,0.5)')
+                        glow.addColorStop(1, 'rgba(255,215,0,0)')
+                        ctx.fillStyle = glow
+                        ctx.fillRect(c.x - glowSize, cy - glowSize, glowSize * 2, glowSize * 2)
+
+                        // Coin body
+                        const scaleX = Math.abs(Math.cos(c.sparkle * 0.5))
+                        ctx.fillStyle = '#ffd700'
+                        ctx.beginPath()
+                        ctx.ellipse(c.x, cy, 8 * Math.max(0.2, scaleX), 8, 0, 0, Math.PI * 2)
+                        ctx.fill()
+
+                        ctx.fillStyle = '#ffec80'
+                        ctx.beginPath()
+                        ctx.ellipse(c.x - 1, cy - 1, 5 * Math.max(0.2, scaleX), 5, 0, 0, Math.PI * 2)
+                        ctx.fill()
+
+                        ctx.restore()
+                    }
+                }
+
+                drawGoal(ctx) {
+                    const g = this.level.goal
+                    const pulse = Math.sin(g.pulseTime) * 0.3 + 0.7
+
+                    ctx.save()
+
+                    // Glow
+                    const glow = ctx.createRadialGradient(g.x, g.y - 20, 5, g.x, g.y - 20, 60)
+                    glow.addColorStop(0, `rgba(255,215,0,${0.4 * pulse})`)
+                    glow.addColorStop(1, 'rgba(255,215,0,0)')
+                    ctx.fillStyle = glow
+                    ctx.fillRect(g.x - 60, g.y - 80, 120, 120)
+
+                    // Pole
+                    ctx.fillStyle = '#ddd'
+                    ctx.fillRect(g.x - 3, g.y - 40, 6, 80)
+
+                    // Flag
+                    const flagWave = Math.sin(g.pulseTime * 2) * 5
+                    ctx.fillStyle = '#ff4444'
+                    ctx.beginPath()
+                    ctx.moveTo(g.x + 3, g.y - 38)
+                    ctx.lineTo(g.x + 35 + flagWave, g.y - 25)
+                    ctx.lineTo(g.x + 3, g.y - 12)
+                    ctx.fill()
+
+                    // Star on top
+                    ctx.fillStyle = '#ffd700'
+                    ctx.font = '16px Arial'
+                    ctx.textAlign = 'center'
+                    ctx.fillText('★', g.x, g.y - 42)
+
+                    ctx.restore()
+                }
+
+                drawEnemies(ctx) {
+                    for (let e of this.level.enemies) {
+                        if (e.deathTimer > 0.5) continue
+                        if (e.x < this.camera.x - 100 || e.x > this.camera.x + this.viewW + 100) continue
+
+                        ctx.save()
+
+                        if (!e.alive) {
+                            ctx.globalAlpha = Math.max(0, 1 - e.deathTimer * 2)
+                            ctx.translate(e.x, e.y)
+                            ctx.scale(1 + e.deathTimer, 1 - e.deathTimer * 0.5)
+                            ctx.translate(-e.x, -e.y)
+                        }
+
+                        if (e.flashTime > 0) {
+                            ctx.globalAlpha = 0.5 + Math.sin(e.flashTime * 30) * 0.5
+                        }
+
+                        // Body
+                        const bodyGrad = ctx.createRadialGradient(e.x - 3, e.y - 5, 2, e.x, e.y, 18)
+                        bodyGrad.addColorStop(0, e.baseColor)
+                        bodyGrad.addColorStop(1, e.darkColor)
+                        ctx.fillStyle = bodyGrad
+
+                        if (e.type === 'goomba') {
+                            // Round body
+                            ctx.beginPath()
+                            ctx.ellipse(e.x, e.y + 2, 15, 13, 0, 0, Math.PI * 2)
+                            ctx.fill()
+                        } else {
+                            // Shell shape
+                            ctx.beginPath()
+                            ctx.ellipse(e.x, e.y + 4, 14, 11, 0, 0, Math.PI * 2)
+                            ctx.fill()
+                            // Shell pattern
+                            ctx.strokeStyle = 'rgba(0,0,0,0.2)'
+                            ctx.lineWidth = 1.5
+                            ctx.beginPath()
+                            ctx.ellipse(e.x, e.y + 4, 8, 7, 0, 0, Math.PI * 2)
+                            ctx.stroke()
+                        }
+
+                        // Feet
+                        ctx.fillStyle = '#333'
+                        const footOffset = Math.sin(this.stateTime * 8) * 2
+                        ctx.beginPath()
+                        ctx.ellipse(e.x - 8, e.y + 13, 5, 3, 0, 0, Math.PI * 2)
+                        ctx.fill()
+                        ctx.beginPath()
+                        ctx.ellipse(e.x + 8, e.y + 13, 5, 3, 0, 0, Math.PI * 2)
+                        ctx.fill()
+
+                        // Eyes
+                        if (e.alive) {
+                            const eyeH = e.eyeBlink > 0 ? 1 : 5
+                            ctx.fillStyle = '#fff'
+                            ctx.beginPath()
+                            ctx.ellipse(e.x - 5, e.y - 3, 4, eyeH, 0, 0, Math.PI * 2)
+                            ctx.fill()
+                            ctx.beginPath()
+                            ctx.ellipse(e.x + 5, e.y - 3, 4, eyeH, 0, 0, Math.PI * 2)
+                            ctx.fill()
+
+                            if (e.eyeBlink <= 0) {
+                                ctx.fillStyle = '#000'
+                                ctx.beginPath()
+                                ctx.ellipse(e.x - 5 + e.dir * 1.5, e.y - 3, 2, 2.5, 0, 0, Math.PI * 2)
+                                ctx.fill()
+                                ctx.beginPath()
+                                ctx.ellipse(e.x + 5 + e.dir * 1.5, e.y - 3, 2, 2.5, 0, 0, Math.PI * 2)
+                                ctx.fill()
+                            }
+
+                            // Eyebrows (angry)
+                            ctx.strokeStyle = e.darkColor
+                            ctx.lineWidth = 2
+                            ctx.beginPath()
+                            ctx.moveTo(e.x - 9, e.y - 9)
+                            ctx.lineTo(e.x - 2, e.y - 7)
+                            ctx.stroke()
+                            ctx.beginPath()
+                            ctx.moveTo(e.x + 9, e.y - 9)
+                            ctx.lineTo(e.x + 2, e.y - 7)
+                            ctx.stroke()
+                        }
+
+                        ctx.restore()
+                    }
+                }
+
+                drawPlayer(ctx) {
+                    const p = this.player
+                    if (p.deadTimer > 2) return
+
+                    ctx.save()
+
+                    if (!p.alive) {
+                        ctx.globalAlpha = Math.max(0, 1 - p.deadTimer * 0.8)
+                        ctx.translate(p.x, p.y)
+                        ctx.rotate(p.deadTimer * 5)
+                        ctx.translate(-p.x, -p.y)
+                    }
+
+                    if (p.invincible > 0 && Math.sin(p.invincible * 20) > 0) {
+                        ctx.globalAlpha = 0.4
+                    }
+
+                    ctx.translate(p.x, p.y)
+                    ctx.scale(p.squashX * p.facing, p.squashY)
+
+                    const idleBounce = p.onGround && Math.abs(p.speed) < 10 ? Math.sin(p.bounceTime) * 2 : 0
+
+                    // Body
+                    const bodyGrad = ctx.createRadialGradient(-3, -8 + idleBounce, 2, 0, 0, 20)
+                    bodyGrad.addColorStop(0, '#ff6b6b')
+                    bodyGrad.addColorStop(1, '#c0392b')
+                    ctx.fillStyle = bodyGrad
+                    ctx.beginPath()
+                    ctx.ellipse(0, 0 + idleBounce, 14, 17, 0, 0, Math.PI * 2)
+                    ctx.fill()
+
+                    // Hat
+                    ctx.fillStyle = '#e74c3c'
+                    ctx.beginPath()
+                    ctx.ellipse(0, -14 + idleBounce, 16, 6, 0, Math.PI, Math.PI * 2)
+                    ctx.fill()
+                    ctx.fillRect(-12, -18 + idleBounce, 24, 6)
+                    ctx.beginPath()
+                    ctx.roundRect(-10, -22 + idleBounce, 20, 6, 3)
+                    ctx.fill()
+
+                    // Hat brim
+                    ctx.fillStyle = '#c0392b'
+                    ctx.fillRect(-16, -14 + idleBounce, 32, 3)
+
+                    // Eyes
+                    const eyeY = -5 + idleBounce
+                    ctx.fillStyle = '#fff'
+                    ctx.beginPath()
+                    ctx.ellipse(-5, eyeY, 4.5, 5.5, 0, 0, Math.PI * 2)
+                    ctx.fill()
+                    ctx.beginPath()
+                    ctx.ellipse(5, eyeY, 4.5, 5.5, 0, 0, Math.PI * 2)
+                    ctx.fill()
+
+                    // Pupils
+                    const lookX = p.speed * 0.005
+                    ctx.fillStyle = '#2c3e50'
+                    ctx.beginPath()
+                    ctx.ellipse(-5 + lookX, eyeY + 1, 2.5, 3, 0, 0, Math.PI * 2)
+                    ctx.fill()
+                    ctx.beginPath()
+                    ctx.ellipse(5 + lookX, eyeY + 1, 2.5, 3, 0, 0, Math.PI * 2)
+                    ctx.fill()
+
+                    // Eye shine
+                    ctx.fillStyle = '#fff'
+                    ctx.beginPath()
+                    ctx.ellipse(-4 + lookX, eyeY - 1, 1.2, 1.2, 0, 0, Math.PI * 2)
+                    ctx.fill()
+                    ctx.beginPath()
+                    ctx.ellipse(6 + lookX, eyeY - 1, 1.2, 1.2, 0, 0, Math.PI * 2)
+                    ctx.fill()
+
+                    // Mouth
+                    if (!p.alive) {
+                        ctx.strokeStyle = '#2c3e50'
+                        ctx.lineWidth = 1.5
+                        ctx.beginPath()
+                        ctx.arc(0, 6 + idleBounce, 4, 0, Math.PI)
+                        ctx.stroke()
+                    } else if (Math.abs(p.speed) > 100) {
+                        ctx.fillStyle = '#2c3e50'
+                        ctx.beginPath()
+                        ctx.ellipse(0, 7 + idleBounce, 4, 3, 0, 0, Math.PI * 2)
+                        ctx.fill()
+                    } else {
+                        ctx.fillStyle = '#2c3e50'
+                        ctx.beginPath()
+                        ctx.arc(0, 6 + idleBounce, 3, 0, Math.PI)
+                        ctx.fill()
+                    }
+
+                    // Overalls
+                    ctx.fillStyle = '#2980b9'
+                    ctx.beginPath()
+                    ctx.roundRect(
+                        -10,
+                        6 + idleBounce,
+                        20,
+                        12,
+                        [
+                            0,
+                            0,
+                            4,
+                            4,
+                        ],
+                    )
+                    ctx.fill()
+
+                    // Overall buttons
+                    ctx.fillStyle = '#f1c40f'
+                    ctx.beginPath()
+                    ctx.arc(-4, 12 + idleBounce, 2, 0, Math.PI * 2)
+                    ctx.fill()
+                    ctx.beginPath()
+                    ctx.arc(4, 12 + idleBounce, 2, 0, Math.PI * 2)
+                    ctx.fill()
+
+                    // Feet
+                    const footAnim = Math.abs(p.speed) > 10 ? Math.sin(p.runTimer * 2) * 4 : 0
+                    ctx.fillStyle = '#8B4513'
+                    ctx.beginPath()
+                    ctx.ellipse(-7, 18 + idleBounce + footAnim, 6, 4, 0, 0, Math.PI * 2)
+                    ctx.fill()
+                    ctx.beginPath()
+                    ctx.ellipse(7, 18 + idleBounce - footAnim, 6, 4, 0, 0, Math.PI * 2)
+                    ctx.fill()
+
+                    ctx.restore()
+                }
+
+                drawParticles(ctx) {
+                    for (let p of this.particles.pool) {
+                        if (!p.active) continue
+                        const alpha = p.life / p.maxLife
+                        ctx.save()
+                        ctx.globalAlpha = alpha
+                        ctx.fillStyle = `rgb(${p.r},${p.g},${p.b})`
+                        ctx.shadowColor = `rgb(${p.r},${p.g},${p.b})`
+                        ctx.shadowBlur = 6
+                        ctx.beginPath()
+                        ctx.arc(p.x, p.y, p.size * alpha, 0, Math.PI * 2)
+                        ctx.fill()
+                        ctx.restore()
+                    }
+                }
+            }
+
+            // ─── POLYFILL roundRect ─────────────────────────────────────
+            if (!CanvasRenderingContext2D.prototype.roundRect) {
+                CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, radii) {
+                    let r
+                    if (typeof radii === 'number')
+                        r = [
+                            radii,
+                            radii,
+                            radii,
+                            radii,
+                        ]
+                    else if (Array.isArray(radii)) {
+                        r =
+                            radii.length === 4
+                                ? radii
+                                : [
+                                      radii[0] || 0,
+                                      radii[1] || 0,
+                                      radii[2] || 0,
+                                      radii[3] || 0,
+                                  ]
+                    } else
+                        r = [
+                            0,
+                            0,
+                            0,
+                            0,
+                        ]
+                    this.moveTo(x + r[0], y)
+                    this.lineTo(x + w - r[1], y)
+                    this.quadraticCurveTo(x + w, y, x + w, y + r[1])
+                    this.lineTo(x + w, y + h - r[2])
+                    this.quadraticCurveTo(x + w, y + h, x + w - r[2], y + h)
+                    this.lineTo(x + r[3], y + h)
+                    this.quadraticCurveTo(x, y + h, x, y + h - r[3])
+                    this.lineTo(x, y + r[0])
+                    this.quadraticCurveTo(x, y, x + r[0], y)
+                    this.closePath()
+                    return this
+                }
+            }
+
+            // ─── START ──────────────────────────────────────────────────
+            window.addEventListener('DOMContentLoaded', () => {
+                new GameManager()
+            })
+        </script>
+    </body>
+</html>
