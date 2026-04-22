@@ -43,6 +43,51 @@
                 SHAKE_INTENSITY: 8,
                 MAX_PARTICLES: 200,
                 JUMP_DUST_MAX: 20,
+                BIOME_DISTANCE: 500,
+                BIOMES: {
+                    ice: {
+                        name: 'ICE',
+                        bg1: '#0a1a2e',
+                        bg2: '#1a2a4e',
+                        bg3: '#2a3a5e',
+                        platform: '#66ccff',
+                        platformGlow: '#88ddff',
+                        particle: '#aaddff',
+                        text: '#cceeff',
+                        fogColor: 'rgba(150, 200, 255, 0.15)',
+                        gameSpeed: 1.0,
+                        friction: 0.92,
+                        enemyMult: 1.0,
+                    },
+                    lava: {
+                        name: 'LAVA',
+                        bg1: '#2e0a0a',
+                        bg2: '#4e1a1a',
+                        bg3: '#5e2a1a',
+                        platform: '#ff6622',
+                        platformGlow: '#ff8844',
+                        particle: '#ffaa44',
+                        text: '#ffcc88',
+                        fogColor: 'rgba(255, 100, 50, 0.2)',
+                        gameSpeed: 1.0,
+                        friction: 1.0,
+                        enemyMult: 1.2,
+                    },
+                    cyber: {
+                        name: 'CYBER',
+                        bg1: '#1a0a2e',
+                        bg2: '#2a1a4e',
+                        bg3: '#3a2a5e',
+                        platform: '#ff44aa',
+                        platformGlow: '#ff66cc',
+                        particle: '#ff88ff',
+                        text: '#ffaaff',
+                        fogColor: 'rgba(200, 100, 255, 0.15)',
+                        gameSpeed: 1.15,
+                        friction: 1.0,
+                        enemyMult: 1.4,
+                    },
+                },
                 COLORS: {
                     bg1: '#0a0a2e',
                     bg2: '#1a0a3e',
@@ -471,26 +516,33 @@
                         this.trailAlpha = (Math.abs(displacement) / originalRange) * 0.3
                     }
                 }
-                draw(ctx, camX, camY) {
+                draw(ctx, camX, camY, biomeKey = 'cyber') {
                     const sx = this.x - camX
                     const sy = this.y - camY
                     const glowAmount = 0.5 + 0.5 * Math.sin(this.glowPulse)
 
+                    // Get biome colors
+                    const biome = CONFIG.BIOMES[biomeKey] || CONFIG.BIOMES.cyber
+                    const platformColor = biome.platform
+                    const platformGlow = biome.platformGlow
+
                     // Draw glow trail for moving platforms
                     if (this.moveConfig && this.moveOffset > 0) {
                         const trailX = sx + (this.startX - this.x)
-                        ctx.fillStyle = `rgba(123, 104, 238, ${this.trailAlpha * 0.3})`
+                        ctx.fillStyle = platformGlow.replace(')', ', 0.3)')
+                        ctx.globalAlpha = this.trailAlpha * 0.3
                         ctx.fillRect(trailX + 4, sy + 2, this.w - 8, this.h - 4)
+                        ctx.globalAlpha = 1
                     }
 
-                    // Shadow
-                    ctx.shadowColor = CONFIG.COLORS.platformGlow
-                    ctx.shadowBlur = 10 + glowAmount * 10
+                    // Shadow with biome color
+                    ctx.shadowColor = platformGlow
+                    ctx.shadowBlur = 10 + glowAmount * 12
 
                     // Platform body
                     const grad = ctx.createLinearGradient(sx, sy, sx, sy + this.h)
-                    grad.addColorStop(0, `rgba(123, 104, 238, ${0.8 + glowAmount * 0.2})`)
-                    grad.addColorStop(1, `rgba(100, 80, 200, ${0.7 + glowAmount * 0.2})`)
+                    grad.addColorStop(0, platformColor)
+                    grad.addColorStop(1, platformColor)
                     ctx.fillStyle = grad
 
                     // Rounded rect
@@ -510,10 +562,10 @@
 
                     // Top highlight
                     ctx.shadowBlur = 0
-                    ctx.fillStyle = `rgba(180, 160, 255, ${0.3 + glowAmount * 0.2})`
+                    ctx.fillStyle = platformGlow
+                    ctx.globalAlpha = 0.5 + glowAmount * 0.3
                     ctx.fillRect(sx + 2, sy, this.w - 4, 3)
-
-                    ctx.shadowBlur = 0
+                    ctx.globalAlpha = 1
                 }
             }
 
@@ -559,8 +611,11 @@
                     this.justJumped = false
                     this.currentPlatform = null
                 }
-                update(dt, input, platforms) {
+                update(dt, input, platforms, friction = 1.0) {
                     if (!this.alive) return
+
+                    // Apply friction (lower = more slide on ice)
+                    const frictionMult = friction
 
                     // Horizontal movement
                     let moveX = 0
@@ -569,6 +624,11 @@
 
                     this.vx = moveX * CONFIG.PLAYER_SPEED
                     if (moveX !== 0) this.facing = moveX
+
+                    // Apply momentum-based friction for ice biome
+                    if (friction < 1.0 && this.onGround && Math.abs(moveX) < 0.5) {
+                        this.vx *= frictionMult
+                    }
 
                     // Coyote time
                     if (this.onGround) {
@@ -1183,9 +1243,11 @@
                     this.distanceTraveled = 0
                     this.lastPlatformY = 460
                     this.lastPlatformRight = 0
+                    this.enemyMultiplier = 1.0
                 }
-                updateDifficulty(distance) {
+                updateDifficulty(distance, enemyMult = 1.0) {
                     this.difficulty = 1 + Math.floor(distance / 1000) * 0.2
+                    this.enemyMultiplier = enemyMult
                 }
                 generateChunk(startX) {
                     const chunk = { platforms: [], enemies: [], fish: [] }
@@ -1220,7 +1282,7 @@
 
                         x += w
 
-                        if (Math.random() < 0.4 + this.difficulty * 0.1) {
+                        if (Math.random() < (0.4 + this.difficulty * 0.1) * (this.enemyMultiplier || 1)) {
                             const enemyX = x - w / 2
                             chunk.enemies.push({
                                 x: enemyX,
@@ -1316,7 +1378,25 @@
                         this.drawOverlay(ctx, '💀 GAME OVER 💀', 'Score: ' + this.score, '#ff6b6b')
                     }
                 }
-                drawHUD(ctx, distance = 0) {
+                drawHUD(ctx, distance = 0, biomeKey = 'cyber') {
+                    const biome = CONFIG.BIOMES[biomeKey] || CONFIG.BIOMES.cyber
+
+                    // Biome indicator (top center)
+                    ctx.save()
+                    ctx.textAlign = 'center'
+                    ctx.font = "bold 24px 'Segoe UI'"
+
+                    // Glow effect
+                    ctx.shadowColor = biome.text
+                    ctx.shadowBlur = 15 + Math.sin(Date.now() / 200) * 5
+
+                    // Text with fade
+                    ctx.fillStyle = biome.text
+                    ctx.globalAlpha = 0.7 + Math.sin(Date.now() / 500) * 0.3
+                    ctx.fillText(biome.name + ' ZONE', CONFIG.WIDTH / 2, 32)
+                    ctx.globalAlpha = 1
+                    ctx.restore()
+
                     // Score background
                     ctx.fillStyle = 'rgba(10, 10, 30, 0.6)'
                     ctx.beginPath()
@@ -1513,6 +1593,13 @@
                     this.lastGeneratedX = 0
                     this.playableArea = { left: 0, right: 1000 }
 
+                    // Biome system
+                    this.biomeKey = 'cyber'
+                    this.biome = CONFIG.BIOMES[this.biomeKey]
+                    this.biomeTransition = 0
+                    this.biomeTransitionSpeed = 0.5
+                    this.nextBiomeDistance = CONFIG.BIOME_DISTANCE
+
                     for (let i = 0; i < 80; i++) {
                         this.bgParticles.push(new BackgroundParticle())
                     }
@@ -1589,12 +1676,12 @@
                         return true
                     })
                 }
-                updateLevel(cameraX, dt) {
+                updateLevel(cameraX, dt, enemyMult = 1.0) {
                     // Update distance
                     this.distance = Math.max(this.distance, this.player.x)
 
-                    // Update difficulty
-                    this.levelGenerator.updateDifficulty(this.distance)
+                    // Update difficulty (apply biome enemy multiplier)
+                    this.levelGenerator.updateDifficulty(this.distance, enemyMult)
 
                     // Generate new chunks ahead
                     this.generateAhead(cameraX, 800)
@@ -1672,8 +1759,12 @@
                     // Update platforms
                     for (const p of this.platforms) p.update(dt)
 
+                    // Apply biome speed modifier
+                    const gameSpeed = this.biome.gameSpeed
+                    const adjustedDt = dt * gameSpeed
+
                     // Update player
-                    this.player.update(dt, this.input, this.platforms)
+                    this.player.update(adjustedDt, this.input, this.platforms, this.biome.friction)
                     if (this.player.justJumped) {
                         this.player.justJumped = false
                         this.audio.jump()
@@ -1747,7 +1838,31 @@
                     for (const bp of this.bgParticles) bp.update(dt)
 
                     // Procedural level generation
-                    this.updateLevel(this.camera.x, dt)
+                    this.updateLevel(this.camera.x, dt, this.biome.enemyMult)
+
+                    // Biome transition
+                    if (this.distance > this.nextBiomeDistance) {
+                        this.nextBiomeDistance += CONFIG.BIOME_DISTANCE
+                        this.biomeTransition = 1.0
+
+                        // Pick next biome
+                        const biomeKeys = Object.keys(CONFIG.BIOMES)
+                        const currentIdx = biomeKeys.indexOf(this.biomeKey)
+                        let nextIdx = Math.floor(Math.random() * biomeKeys.length)
+                        while (nextIdx === currentIdx && biomeKeys.length > 1) {
+                            nextIdx = Math.floor(Math.random() * biomeKeys.length)
+                        }
+                        this.biomeKey = biomeKeys[nextIdx]
+                    }
+
+                    // Smooth biome transition
+                    if (this.biomeTransition > 0) {
+                        this.biomeTransition -= dt * this.biomeTransitionSpeed
+                        if (this.biomeTransition < 0) this.biomeTransition = 0
+                    }
+
+                    // Apply current biome
+                    this.biome = CONFIG.BIOMES[this.biomeKey]
 
                     // Camera
                     this.camera.targetX = this.player.x + this.player.w / 2 - CONFIG.WIDTH / 2
@@ -1780,13 +1895,25 @@
                     this.ui.setState('win')
                 }
                 draw() {
-                    // Background gradient
+                    // Background gradient with biome
                     const bgGrad = ctx.createLinearGradient(0, 0, 0, CONFIG.HEIGHT)
-                    bgGrad.addColorStop(0, CONFIG.COLORS.bg1)
-                    bgGrad.addColorStop(0.5, CONFIG.COLORS.bg2)
-                    bgGrad.addColorStop(1, CONFIG.COLORS.bg3)
+                    const transition = this.biomeTransition
+                    const b = this.biome
+
+                    // Interpolate colors for transition effect
+                    bgGrad.addColorStop(0, b.bg1)
+                    bgGrad.addColorStop(0.5, b.bg2)
+                    bgGrad.addColorStop(1, b.bg3)
                     ctx.fillStyle = bgGrad
                     ctx.fillRect(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT)
+
+                    // Fog effect per biome
+                    if (b.fogColor && transition > 0) {
+                        ctx.fillStyle = b.fogColor
+                        ctx.globalAlpha = transition * 0.3 * Math.sin(this.time * 2)
+                        ctx.fillRect(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT)
+                        ctx.globalAlpha = 1
+                    }
 
                     // Background particles (parallax)
                     for (const bp of this.bgParticles) {
@@ -1798,7 +1925,7 @@
 
                     // Game objects
                     for (const p of this.platforms) {
-                        p.draw(ctx, this.camera.x, this.camera.y)
+                        p.draw(ctx, this.camera.x, this.camera.y, this.biomeKey)
                     }
                     for (const f of this.fish) {
                         f.draw(ctx, this.camera.x, this.camera.y)
@@ -1813,7 +1940,7 @@
                     this.particles.draw(ctx, this.camera.x, this.camera.y)
 
                     // UI overlay
-                    this.ui.draw(ctx, this.distance)
+                    this.ui.draw(ctx, this.distance, this.biomeKey)
                 }
                 drawBackgroundMountains() {
                     const camX = this.camera.x
