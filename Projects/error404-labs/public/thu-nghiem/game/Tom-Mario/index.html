@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Neon Cat Platformer</title>
+        <title>Mèo Neon - Game Platform</title>
         <link
             rel="icon"
             href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%23ff69b4'/><stop offset='100%25' stop-color='%23ff44aa'/></linearGradient></defs><ellipse cx='16' cy='18' rx='10' ry='11' fill='url(%23g)'/><ellipse cx='10' cy='10' rx='4' ry='5' fill='url(%23g)'/><ellipse cx='22' cy='10' rx='4' ry='5' fill='url(%23g)'/><circle cx='9' cy='9' r='1.5' fill='%230a0a1a'/><circle cx='21' cy='9' r='1.5' fill='%230a0a1a'/><ellipse cx='16' cy='15' rx='1.5' ry='1' fill='%230a0a1a'/></svg>"
@@ -51,7 +51,7 @@
                 BIOME_DISTANCE: 500,
                 BIOMES: {
                     ice: {
-                        name: 'ICE',
+                        name: 'BĂNG',
                         bg1: '#0a1a2e',
                         bg2: '#1a2a4e',
                         bg3: '#2a3a5e',
@@ -676,10 +676,31 @@
                         'doubleScore',
                         'attack',
                     ]
+                    const buffNames = {
+                        magnet: 'NAM CHÂM',
+                        shield: 'GIÁP HỘ THÂN',
+                        doubleScore: 'X2 ĐIỂM',
+                        attack: 'PHÓNG ĐẠN',
+                    }
                     this.buffType = buffs[Math.floor(Math.random() * buffs.length)]
                     this.buffActive = true
                     this.buffDuration = this.maxDuration
                     this.buffCooldown = this.maxCooldown
+
+                    // Emit text popup
+                    if (this.owner.game) {
+                        this.owner.game.particles.emitScorePopup(this.x, this.y - 20, buffNames[this.buffType])
+                    }
+                }
+                reset() {
+                    this.x = this.owner.x
+                    this.y = this.owner.y - 60
+                    this.buffType = null
+                    this.buffActive = false
+                    this.buffCooldown = 0
+                    this.buffDuration = 0
+                    this.projectiles = []
+                    this.trail = []
                 }
                 activate(key) {
                     if (this.buffCooldown <= 0 && !this.buffActive) {
@@ -1612,10 +1633,10 @@
                         this.drawMenu(ctx)
                     }
                     if (this.state === 'win') {
-                        this.drawOverlay(ctx, '🎉 YOU WIN! 🎉', 'Score: ' + this.score, '#00ff88')
+                        this.drawOverlay(ctx, '🎉 BẠN THẮNG! 🎉', 'Điểm: ' + this.score, '#00ff88')
                     }
                     if (this.state === 'lose') {
-                        this.drawOverlay(ctx, '💀 GAME OVER 💀', 'Score: ' + this.score, '#ff6b6b')
+                        this.drawOverlay(ctx, '💀 THUA RỒI 💀', 'Điểm: ' + this.score, '#ff6b6b')
                     }
                 }
                 drawHUD(ctx, distance = 0, biomeKey = 'cyber') {
@@ -1633,7 +1654,7 @@
                     // Text with fade
                     ctx.fillStyle = biome.text
                     ctx.globalAlpha = 0.7 + Math.sin(Date.now() / 500) * 0.3
-                    ctx.fillText(biome.name + ' ZONE', CONFIG.WIDTH / 2, 32)
+                    ctx.fillText('KHU VỰC: ' + biome.name, CONFIG.WIDTH / 2, 32)
                     ctx.globalAlpha = 1
                     ctx.restore()
 
@@ -1700,25 +1721,26 @@
                     ctx.fillStyle = CONFIG.COLORS.neonPink
                     ctx.font = "bold 56px 'Segoe UI'"
                     ctx.textAlign = 'center'
-                    ctx.fillText('NEON CAT', CONFIG.WIDTH / 2, 160)
+                    ctx.fillText('MÈO NEON', CONFIG.WIDTH / 2, 160)
 
                     ctx.shadowColor = CONFIG.COLORS.neonBlue
                     ctx.shadowBlur = 20
                     ctx.fillStyle = CONFIG.COLORS.neonBlue
                     ctx.font = "bold 28px 'Segoe UI'"
-                    ctx.fillText('🐱 Platform Adventure 🐱', CONFIG.WIDTH / 2, 200)
+                    ctx.fillText('🐱 Cuộc phiêu lưu 🐱', CONFIG.WIDTH / 2, 200)
                     ctx.restore()
 
                     // Instructions
                     ctx.fillStyle = '#bbaadd'
                     ctx.font = "16px 'Segoe UI'"
                     ctx.textAlign = 'center'
-                    ctx.fillText('Arrow Keys / WASD to move', CONFIG.WIDTH / 2, 260)
-                    ctx.fillText('W / Space / Up to jump', CONFIG.WIDTH / 2, 285)
-                    ctx.fillText('Collect fish 🐟 • Stomp enemies 👾 • Reach the flag 🚩', CONFIG.WIDTH / 2, 315)
+                    ctx.fillText('MŨI TÊN / A-D để di chuyển', CONFIG.WIDTH / 2, 260)
+                    ctx.fillText('W / SPACE / MŨI LÊN để nhảy', CONFIG.WIDTH / 2, 285)
+                    ctx.fillText('Phím E để dùng kỹ năng Pet 🐾', CONFIG.WIDTH / 2, 310)
+                    ctx.fillText('Thu thập cá 🐟 • Đạp quái 👾 • Chạm cờ 🚩', CONFIG.WIDTH / 2, 340)
 
                     // Start button
-                    this.drawButton(ctx, CONFIG.WIDTH / 2, 400, '▶ START GAME')
+                    this.drawButton(ctx, CONFIG.WIDTH / 2, 420, '▶ BẮT ĐẦU')
 
                     ctx.globalAlpha = 1
                 }
@@ -1745,7 +1767,7 @@
                     ctx.textAlign = 'center'
                     ctx.fillText(subtitle, CONFIG.WIDTH / 2, 260)
 
-                    this.drawButton(ctx, CONFIG.WIDTH / 2, 370, '🔄 PLAY AGAIN')
+                    this.drawButton(ctx, CONFIG.WIDTH / 2, 370, '🔄 CHƠI LẠI')
 
                     ctx.globalAlpha = 1
                 }
@@ -1816,6 +1838,7 @@
                     this.particles = new ParticleSystem(CONFIG.MAX_PARTICLES)
                     this.ui = new UIManager()
                     this.player = new Player(80, 300)
+                    this.player.game = this
                     this.pet = new Pet(this.player)
                     this.camera = { x: 0, y: 0, targetX: 0, targetY: 0 }
                     this.shake = { timer: 0, intensity: 0 }
@@ -1966,6 +1989,7 @@
                     this.ui.score = 0
                     this.score = 0
                     this.player.reset()
+                    this.pet.reset()
                     this.buildLevel()
                     this.camera.x = 0
                     this.camera.y = 0
@@ -1975,6 +1999,7 @@
                     this.ui.score = 0
                     this.score = 0
                     this.player.reset()
+                    this.pet.reset()
                     this.buildLevel()
                     this.camera.x = 0
                     this.camera.y = 0
