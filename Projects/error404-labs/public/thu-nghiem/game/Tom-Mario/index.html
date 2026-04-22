@@ -4,6 +4,11 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Neon Cat Platformer</title>
+        <link
+            rel="icon"
+            href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%23ff69b4'/><stop offset='100%25' stop-color='%23ff44aa'/></linearGradient></defs><ellipse cx='16' cy='18' rx='10' ry='11' fill='url(%23g)'/><ellipse cx='10' cy='10' rx='4' ry='5' fill='url(%23g)'/><ellipse cx='22' cy='10' rx='4' ry='5' fill='url(%23g)'/><circle cx='9' cy='9' r='1.5' fill='%230a0a1a'/><circle cx='21' cy='9' r='1.5' fill='%230a0a1a'/><ellipse cx='16' cy='15' rx='1.5' ry='1' fill='%230a0a1a'/></svg>"
+            type="image/svg+xml"
+        />
         <style>
             * {
                 margin: 0;
@@ -246,6 +251,10 @@
                     ].forEach((d, i) => {
                         setTimeout(() => this.playTone(400 - i * 100, 0.3, 'sawtooth', 0.1), d)
                     })
+                }
+                petBuff() {
+                    this.playTone(600, 0.1, 'sine', 0.08, 200)
+                    this.playTone(800, 0.1, 'sine', 0.08, 300)
                 }
             }
 
@@ -566,6 +575,237 @@
                     ctx.globalAlpha = 0.5 + glowAmount * 0.3
                     ctx.fillRect(sx + 2, sy, this.w - 4, 3)
                     ctx.globalAlpha = 1
+                }
+            }
+
+            // ============================================================
+            // PET CLASS (Jerry Companion)
+            // ============================================================
+            class Pet {
+                constructor(owner) {
+                    this.owner = owner
+                    this.x = owner.x
+                    this.y = owner.y - 60
+                    this.targetX = this.x
+                    this.targetY = this.y
+                    this.w = 20
+                    this.h = 20
+                    this.floatOffset = 0
+                    this.trailAlpha = 0
+                    this.active = true
+
+                    // Buff system
+                    this.buffType = null
+                    this.buffActive = false
+                    this.buffCooldown = 0
+                    this.buffDuration = 0
+                    this.maxCooldown = 15
+                    this.maxDuration = 8
+
+                    // Buff colors
+                    this.buffColors = {
+                        magnet: '#00ffff',
+                        shield: '#88ff88',
+                        doubleScore: '#ffdd00',
+                        attack: '#ff4444',
+                    }
+
+                    // Projectiles
+                    this.projectiles = []
+                    this.maxProjectiles = 5
+
+                    // Trail particles
+                    this.trail = []
+                    this.maxTrail = 8
+                }
+                update(dt) {
+                    if (!this.active || !this.owner.alive) return
+
+                    // Float animation
+                    this.floatOffset += dt * 3
+
+                    // Follow owner with lerp delay
+                    const followDist = 35
+                    this.targetX = this.owner.x + followDist * this.owner.facing
+                    this.targetY = this.owner.y - 40
+
+                    const lerpSpeed = 6
+                    this.x += (this.targetX - this.x) * lerpSpeed * dt
+                    this.y += (this.targetY - this.y) * lerpSpeed * dt
+
+                    // Trail effect when moving fast
+                    const dx = this.targetX - this.x
+                    if (Math.abs(dx) > 3) {
+                        if (this.trail.length < this.maxTrail) {
+                            this.trail.push({ x: this.x, y: this.y, alpha: 0.5 })
+                        }
+                    }
+
+                    // Fade trail
+                    for (let i = this.trail.length - 1; i >= 0; i--) {
+                        this.trail[i].alpha -= dt * 2
+                        if (this.trail[i].alpha <= 0) {
+                            this.trail.splice(i, 1)
+                        }
+                    }
+
+                    // Buff cooldown and duration
+                    if (this.buffCooldown > 0) {
+                        this.buffCooldown -= dt
+                    }
+                    if (this.buffActive && this.buffDuration > 0) {
+                        this.buffDuration -= dt
+                        if (this.buffDuration <= 0) {
+                            this.buffActive = false
+                            this.buffType = null
+                        }
+                    }
+
+                    // Auto activate magnet periodically
+                    if (!this.buffActive && this.buffCooldown <= 0 && Math.random() < 0.001) {
+                        this.activateRandomBuff()
+                    }
+
+                    // Update projectiles
+                    this.updateProjectiles(dt)
+                }
+                activateRandomBuff() {
+                    const buffs = [
+                        'magnet',
+                        'shield',
+                        'doubleScore',
+                        'attack',
+                    ]
+                    this.buffType = buffs[Math.floor(Math.random() * buffs.length)]
+                    this.buffActive = true
+                    this.buffDuration = this.maxDuration
+                    this.buffCooldown = this.maxCooldown
+                }
+                activate(key) {
+                    if (this.buffCooldown <= 0 && !this.buffActive) {
+                        this.activateRandomBuff()
+                    }
+                }
+                updateProjectiles(dt) {
+                    for (let i = this.projectiles.length - 1; i >= 0; i--) {
+                        const p = this.projectiles[i]
+                        p.x += p.vx * dt
+                        p.y += p.vy * dt
+                        p.life -= dt
+                        p.trailAlpha -= dt * 2
+
+                        if (p.life <= 0 || p.x > 3000) {
+                            this.projectiles.splice(i, 1)
+                        }
+                    }
+                }
+                shoot() {
+                    if (this.projectiles.length < this.maxProjectiles) {
+                        const target = this.findNearestEnemy()
+                        if (target) {
+                            const dx = target.x - this.x
+                            const dy = target.y - this.y
+                            const dist = Math.sqrt(dx * dx + dy * dy)
+                            const speed = 400
+
+                            this.projectiles.push({
+                                x: this.x,
+                                y: this.y,
+                                vx: (dx / dist) * speed,
+                                vy: (dy / dist) * speed,
+                                life: 3,
+                                trailAlpha: 1,
+                            })
+                        }
+                    }
+                }
+                findNearestEnemy() {
+                    let nearest = null
+                    let nearestDist = 400
+
+                    return nearest
+                }
+                draw(ctx, camX, camY) {
+                    if (!this.active) return
+
+                    const sx = this.x - camX
+                    const sy = this.y - camY + Math.sin(this.floatOffset) * 3
+
+                    // Draw trail
+                    for (const t of this.trail) {
+                        ctx.fillStyle = this.buffType ? this.buffColors[this.buffType] : '#ff88aa'
+                        ctx.globalAlpha = t.alpha * 0.3
+                        ctx.beginPath()
+                        ctx.arc(t.x - camX, t.y - camY, 4, 0, Math.PI * 2)
+                        ctx.fill()
+                    }
+                    ctx.globalAlpha = 1
+
+                    // Glow
+                    const glowColor = this.buffType ? this.buffColors[this.buffType] : '#ff88aa'
+                    ctx.shadowColor = glowColor
+                    ctx.shadowBlur = 15 + Math.sin(Date.now() / 200) * 5
+
+                    // Body (circular pet)
+                    ctx.fillStyle = '#ff99bb'
+                    ctx.beginPath()
+                    ctx.arc(sx, sy, 10, 0, Math.PI * 2)
+                    ctx.fill()
+
+                    // Eyes
+                    ctx.fillStyle = '#ffffff'
+                    ctx.beginPath()
+                    ctx.arc(sx - 3, sy - 2, 3, 0, Math.PI * 2)
+                    ctx.fill()
+                    ctx.beginPath()
+                    ctx.arc(sx + 3, sy - 2, 3, 0, Math.PI * 2)
+                    ctx.fill()
+
+                    // Pupils
+                    ctx.fillStyle = '#1a1a2a'
+                    ctx.beginPath()
+                    ctx.arc(sx - 3, sy - 2, 1.5, 0, Math.PI * 2)
+                    ctx.fill()
+                    ctx.beginPath()
+                    ctx.arc(sx + 3, sy - 2, 1.5, 0, Math.PI * 2)
+                    ctx.fill()
+
+                    // Shield effect when active
+                    if (this.buffType === 'shield' && this.buffActive) {
+                        ctx.strokeStyle = glowColor
+                        ctx.lineWidth = 2
+                        ctx.globalAlpha = 0.5 + Math.sin(Date.now() / 100) * 0.5
+                        ctx.beginPath()
+                        ctx.arc(sx, sy, 16, 0, Math.PI * 2)
+                        ctx.stroke()
+                        ctx.globalAlpha = 1
+                    }
+
+                    ctx.shadowBlur = 0
+
+                    // Draw projectiles
+                    for (const p of this.projectiles) {
+                        ctx.fillStyle = '#ff4444'
+                        ctx.globalAlpha = p.trailAlpha
+                        ctx.beginPath()
+                        ctx.arc(p.x - camX, p.y - camY, 4, 0, Math.PI * 2)
+                        ctx.fill()
+                        ctx.globalAlpha = 1
+                    }
+
+                    // Cooldown indicator
+                    if (this.buffCooldown > 0) {
+                        const ratio = this.buffCooldown / this.maxCooldown
+                        ctx.strokeStyle = '#444466'
+                        ctx.lineWidth = 2
+                        ctx.beginPath()
+                        ctx.arc(sx + 12, sy - 12, 6, 0, Math.PI * 2)
+                        ctx.stroke()
+                        ctx.strokeStyle = '#ff88aa'
+                        ctx.beginPath()
+                        ctx.arc(sx + 12, sy - 12, 6, -Math.PI / 2, Math.PI * 2 * (1 - ratio) - Math.PI / 2)
+                        ctx.stroke()
+                    }
                 }
             }
 
@@ -1576,6 +1816,7 @@
                     this.particles = new ParticleSystem(CONFIG.MAX_PARTICLES)
                     this.ui = new UIManager()
                     this.player = new Player(80, 300)
+                    this.pet = new Pet(this.player)
                     this.camera = { x: 0, y: 0, targetX: 0, targetY: 0 }
                     this.shake = { timer: 0, intensity: 0 }
                     this.bgParticles = []
@@ -1769,6 +2010,29 @@
                         this.particles.emitJumpDust(this.player.x + this.player.w / 2, this.player.y + this.player.h)
                     }
 
+                    // Update pet
+                    this.pet.update(dt)
+                    if (this.input.isJustPressed('KeyE')) {
+                        this.pet.activate('KeyE')
+                        this.audio.petBuff()
+                        if (this.pet.buffType === 'attack') {
+                            this.pet.shoot()
+                        }
+                    }
+
+                    // Apply magnet buff
+                    if (this.pet.buffType === 'magnet' && this.pet.buffActive) {
+                        this.applyMagnet(dt)
+                    }
+
+                    // Apply double score buff
+                    if (this.pet.buffType === 'doubleScore' && this.pet.buffActive) {
+                        // Score multiplier handled in fish collection
+                    }
+
+                    // Check projectile hits
+                    this.checkProjectileHits()
+
                     // Fall death
                     if (this.player.y > CONFIG.HEIGHT + 100) {
                         this.playerDie()
@@ -1792,8 +2056,19 @@
                                 this.particles.emitScorePopup(e.x + e.w / 2, e.y - 10, '+50')
                                 this.triggerShake(5)
                             } else {
-                                // Hit by enemy
-                                this.playerDie()
+                                // Hit by enemy - check shield
+                                if (this.pet.buffType === 'shield' && this.pet.buffActive) {
+                                    // Shield blocks the hit
+                                    this.pet.buffActive = false
+                                    this.pet.buffType = null
+                                    this.pet.buffDuration = 0
+                                    this.pet.buffCooldown = 5
+                                    this.triggerShake(3)
+                                    // Push enemy away
+                                    e.x = e.x - 50
+                                } else {
+                                    this.playerDie()
+                                }
                             }
                         }
                     }
@@ -1804,11 +2079,14 @@
                         if (!f.collected && this.player.alive && this.player.overlaps(f)) {
                             f.collected = true
                             f.collectTimer = 0.5
-                            this.score += 10
+
+                            // Double score buff
+                            const scoreGain = this.pet.buffType === 'doubleScore' && this.pet.buffActive ? 20 : 10
+                            this.score += scoreGain
                             this.ui.score = this.score
                             this.audio.collect()
                             this.particles.emitCollectBurst(f.x + f.w / 2, f.y + f.h / 2)
-                            this.particles.emitScorePopup(f.x + f.w / 2, f.y - 10, '+10')
+                            this.particles.emitScorePopup(f.x + f.w / 2, f.y - 10, '+' + scoreGain)
                         }
                     }
 
@@ -1892,6 +2170,44 @@
                     this.triggerShake(6)
                     this.ui.setState('win')
                 }
+                applyMagnet(dt) {
+                    const magnetRange = 150
+                    const magnetSpeed = 300
+
+                    for (const f of this.fish) {
+                        if (f.collected) continue
+
+                        const dx = this.player.x - f.x
+                        const dy = this.player.y - f.y
+                        const dist = Math.sqrt(dx * dx + dy * dy)
+
+                        if (dist < magnetRange) {
+                            f.x += (dx / dist) * magnetSpeed * dt * (1 - dist / magnetRange)
+                            f.y += (dy / dist) * magnetSpeed * dt * (1 - dist / magnetRange)
+                        }
+                    }
+                }
+                checkProjectileHits() {
+                    for (const p of this.pet.projectiles) {
+                        for (const e of this.enemies) {
+                            if (!e.alive || e.dying) continue
+
+                            const dx = p.x - (e.x + e.w / 2)
+                            const dy = p.y - (e.y + e.h / 2)
+                            const dist = Math.sqrt(dx * dx + dy * dy)
+
+                            if (dist < 15) {
+                                e.stomp()
+                                this.score += 50
+                                this.ui.score = this.score
+                                this.audio.stomp()
+                                p.life = 0
+                                this.particles.emitStompBurst(e.x + e.w / 2, e.y + e.h / 2)
+                                break
+                            }
+                        }
+                    }
+                }
                 draw() {
                     // Background gradient with biome
                     const bgGrad = ctx.createLinearGradient(0, 0, 0, CONFIG.HEIGHT)
@@ -1935,6 +2251,7 @@
                         e.draw(ctx, this.camera.x, this.camera.y)
                     }
                     this.player.draw(ctx, this.camera.x, this.camera.y)
+                    this.pet.draw(ctx, this.camera.x, this.camera.y)
                     this.particles.draw(ctx, this.camera.x, this.camera.y)
 
                     // UI overlay
