@@ -454,39 +454,74 @@
                 },
             }
 
-            // Path waypoints (grid coords)
-            const PATH_GRID = [
-                { x: -1, y: 2 },
-                { x: 3, y: 2 },
-                { x: 3, y: 6 },
-                { x: 7, y: 6 },
-                { x: 7, y: 1 },
-                { x: 11, y: 1 },
-                { x: 11, y: 8 },
-                { x: 15, y: 8 },
-                { x: 15, y: 4 },
-                { x: 17, y: 4 },
+            // Multi-lane paths (grid coords): Top, Middle, Bottom converge to Base
+            const PATHS_GRID = [
+                // Lane 0: Top
+                [
+                    { x: -1, y: 1 },
+                    { x: 4, y: 1 },
+                    { x: 4, y: 3 },
+                    { x: 8, y: 3 },
+                    { x: 8, y: 1 },
+                    { x: 11, y: 1 },
+                    { x: 11, y: 4 },
+                    { x: 15, y: 4 },
+                    { x: 15, y: 4 },
+                    { x: 17, y: 4 },
+                ],
+                // Lane 1: Middle
+                [
+                    { x: -1, y: 4 },
+                    { x: 3, y: 4 },
+                    { x: 3, y: 6 },
+                    { x: 7, y: 6 },
+                    { x: 7, y: 2 },
+                    { x: 11, y: 2 },
+                    { x: 11, y: 4 },
+                    { x: 15, y: 4 },
+                    { x: 15, y: 4 },
+                    { x: 17, y: 4 },
+                ],
+                // Lane 2: Bottom
+                [
+                    { x: -1, y: 7 },
+                    { x: 4, y: 7 },
+                    { x: 4, y: 5 },
+                    { x: 8, y: 5 },
+                    { x: 8, y: 8 },
+                    { x: 11, y: 8 },
+                    { x: 11, y: 4 },
+                    { x: 15, y: 4 },
+                    { x: 15, y: 4 },
+                    { x: 17, y: 4 },
+                ],
             ]
-            const PATH = PATH_GRID.map((p) => ({ x: p.x * CELL + CELL / 2, y: p.y * CELL + CELL / 2 }))
+            const PATHS = PATHS_GRID.map((lane) =>
+                lane.map((p) => ({ x: p.x * CELL + CELL / 2, y: p.y * CELL + CELL / 2 })),
+            )
 
-            // Determine path cells
+            // Determine path cells for all lanes
             const pathCells = new Set()
             function markPathCells() {
-                for (let i = 0; i < PATH_GRID.length - 1; i++) {
-                    const a = PATH_GRID[i],
-                        b = PATH_GRID[i + 1]
-                    const dx = Math.sign(b.x - a.x),
-                        dy = Math.sign(b.y - a.y)
-                    let cx = a.x,
-                        cy = a.y
-                    while (cx !== b.x || cy !== b.y) {
-                        if (cx >= 0 && cx < COLS && cy >= 0 && cy < ROWS) pathCells.add(cx + ',' + cy)
-                        if (cx !== b.x) cx += dx
-                        else cy += dy
+                pathCells.clear()
+                for (const lane of PATHS_GRID) {
+                    for (let i = 0; i < lane.length - 1; i++) {
+                        const a = lane[i],
+                            b = lane[i + 1]
+                        const dx = Math.sign(b.x - a.x),
+                            dy = Math.sign(b.y - a.y)
+                        let cx = a.x,
+                            cy = a.y
+                        while (cx !== b.x || cy !== b.y) {
+                            if (cx >= 0 && cx < COLS && cy >= 0 && cy < ROWS) pathCells.add(cx + ',' + cy)
+                            if (cx !== b.x) cx += dx
+                            else cy += dy
+                        }
+                        if (b.x >= 0 && b.x < COLS && b.y >= 0 && b.y < ROWS) pathCells.add(b.x + ',' + b.y)
                     }
-                    if (b.x >= 0 && b.x < COLS && b.y >= 0 && b.y < ROWS) pathCells.add(b.x + ',' + b.y)
                 }
             }
+
             markPathCells()
 
             // ============ AUDIO ============
@@ -617,11 +652,12 @@
             }
 
             // ============ ENEMY ============
-            function createEnemy(type) {
+            function createEnemy(type, laneID) {
                 const def = ENEMY_DEFS[type]
                 let e = getFromPool(enemyPool)
                 if (!e) e = {}
                 e.type = type
+                e.laneID = laneID !== undefined ? laneID : 1
                 e.hp = def.hp
                 e.maxHp = def.hp
                 e.speed = def.speed
@@ -631,8 +667,9 @@
                 e.reward = def.reward
                 e.glowColor = def.glowColor
                 e.pathIndex = 0
-                e.x = PATH[0].x
-                e.y = PATH[0].y
+                const lanePath = PATHS[e.laneID]
+                e.x = lanePath[0].x
+                e.y = lanePath[0].y
                 e.alive = true
                 e.reachedBase = false
                 e.hitFlash = 0
@@ -661,9 +698,10 @@
                 for (let t of e.trail) t.a -= dt * 2
                 e.trail = e.trail.filter((t) => t.a > 0)
 
-                // Movement
-                if (e.pathIndex < PATH.length - 1) {
-                    const target = PATH[e.pathIndex + 1]
+                // Movement using lane-specific path
+                const lanePath = PATHS[e.laneID]
+                if (e.pathIndex < lanePath.length - 1) {
+                    const target = lanePath[e.pathIndex + 1]
                     const dx = target.x - e.x,
                         dy = target.y - e.y
                     const dist = Math.sqrt(dx * dx + dy * dy)
@@ -677,11 +715,12 @@
                         e.y += (dy / dist) * move
                     }
                 }
-                if (e.pathIndex >= PATH.length - 1) {
+                if (e.pathIndex >= lanePath.length - 1) {
                     e.reachedBase = true
                     e.alive = false
                     game.hp -= 1
-                    game.shakeAmount = 6
+                    // Tăng shakeAmount nếu nhiều enemy vào base cùng lúc
+                    game.shakeAmount = Math.min(12, game.shakeAmount + 2)
                     game.shakeDuration = 0.25
                     playSound('baseHit')
                     updateUI()
@@ -705,6 +744,12 @@
                 }
             }
 
+            // Lane tint colors (applied to enemy body)
+            const LANE_TINT = [
+                'rgba(80,200,255,0.25)',
+                'rgba(200,140,255,0.25)',
+                'rgba(255,180,80,0.25)',
+            ]
             function drawEnemy(e) {
                 if (!e.alive) return
                 const def = ENEMY_DEFS[e.type]
@@ -736,12 +781,20 @@
                     ctx.shadowBlur = 20
                 }
 
-                // Body
+                // Body with lane tint
                 const flash = e.hitFlash
                 ctx.fillStyle = flash > 0 ? lerpColor(e.color, '#ffffff', flash) : e.color
                 ctx.beginPath()
                 ctx.arc(e.x, e.y, r, 0, Math.PI * 2)
                 ctx.fill()
+
+                // Lane tint overlay
+                if (e.laneID !== undefined && LANE_TINT[e.laneID]) {
+                    ctx.fillStyle = LANE_TINT[e.laneID]
+                    ctx.beginPath()
+                    ctx.arc(e.x, e.y, r, 0, Math.PI * 2)
+                    ctx.fill()
+                }
                 ctx.restore()
 
                 // Inner highlight
@@ -1174,6 +1227,24 @@
                 ],
             ]
 
+            const MAX_ENEMY_PER_LANE = 8
+            function assignLaneID() {
+                // 50% chia đều, 50% dồn 1-2 làn ngẫu nhiên
+                const roll = Math.random()
+                if (roll < 0.5) {
+                    return Math.floor(Math.random() * 3)
+                } else {
+                    // Dồn vào 1-2 làn
+                    const lanes = [
+                        0,
+                        1,
+                        2,
+                    ]
+                    const activeLanes = lanes.sort(() => Math.random() - 0.5).slice(0, Math.random() < 0.5 ? 1 : 2)
+                    return activeLanes[Math.floor(Math.random() * activeLanes.length)]
+                }
+            }
+
             function startNextWave() {
                 if (game.waveActive || game.wave >= game.maxWaves) return
                 game.wave++
@@ -1183,7 +1254,7 @@
                 let timeOffset = 0
                 for (const group of waveDef) {
                     for (let i = 0; i < group.count; i++) {
-                        game.spawnQueue.push({ type: group.type, time: timeOffset })
+                        game.spawnQueue.push({ type: group.type, time: timeOffset, laneID: assignLaneID() })
                         timeOffset += group.interval
                     }
                 }
@@ -1199,12 +1270,101 @@
                 game.spawnTimer += dt
                 while (game.spawnQueue.length > 0 && game.spawnQueue[0].time <= game.spawnTimer) {
                     const next = game.spawnQueue.shift()
-                    const e = createEnemy(next.type)
-                    game.enemies.push(e)
+                    // Giới hạn số lượng enemy mỗi làn
+                    const countInLane = game.enemies.filter((e) => e.alive && e.laneID === next.laneID).length
+                    if (countInLane < MAX_ENEMY_PER_LANE) {
+                        const e = createEnemy(next.type, next.laneID)
+                        game.enemies.push(e)
+                    }
                 }
                 if (game.spawnQueue.length === 0) {
                     // Wave complete check happens in update
                 }
+            }
+
+            // Lane colors for drawing (gradient + glow)
+            const LANE_COLORS = [
+                { stroke: 'rgba(80,200,255,0.09)', glow: 'rgba(80,200,255,0.04)', label: 'Top', spawnY: null },
+                { stroke: 'rgba(200,140,255,0.09)', glow: 'rgba(200,140,255,0.04)', label: 'Mid', spawnY: null },
+                { stroke: 'rgba(255,180,80,0.09)', glow: 'rgba(255,180,80,0.04)', label: 'Bot', spawnY: null },
+            ]
+            // Store spawn positions for each lane
+            function getSpawnPos(laneID) {
+                const p = PATHS[laneID][0]
+                return { x: p.x, y: p.y }
+            }
+            function getBasePos() {
+                return PATHS[0][PATHS[0].length - 2]
+            }
+
+            // Ambient particles for lanes
+            const ambientParticles = []
+            const MAX_AMBIENT = 15
+            function updateAmbientParticles(dt) {
+                for (const p of ambientParticles) {
+                    p.life -= dt
+                    if (p.life <= 0) {
+                        p.alive = false
+                        continue
+                    }
+                    // Move along lane path
+                    p.segTimer += dt
+                    const lanePath = PATHS[p.laneID]
+                    if (p.segIndex < lanePath.length - 1) {
+                        const a = lanePath[p.segIndex]
+                        const b = lanePath[p.segIndex + 1]
+                        const dx = b.x - a.x,
+                            dy = b.y - a.y
+                        const dist = Math.sqrt(dx * dx + dy * dy)
+                        const move = p.speed * dt
+                        p.segDist += move
+                        if (p.segDist >= dist && dist > 0) {
+                            p.segIndex++
+                            p.segDist = 0
+                            if (p.segIndex >= lanePath.length - 1) {
+                                p.alive = false
+                                continue
+                            }
+                        } else {
+                            const t = dist > 0 ? p.segDist / dist : 0
+                            p.x = a.x + dx * t
+                            p.y = a.y + dy * t
+                        }
+                    } else {
+                        p.alive = false
+                    }
+                }
+                // Spawn new ambient particles
+                if (ambientParticles.length < MAX_AMBIENT && Math.random() < 0.03) {
+                    const laneID = Math.floor(Math.random() * 3)
+                    const lanePath = PATHS[laneID]
+                    ambientParticles.push({
+                        laneID,
+                        x: lanePath[0].x,
+                        y: lanePath[0].y,
+                        segIndex: 0,
+                        segDist: 0,
+                        speed: 20 + Math.random() * 30,
+                        life: 3 + Math.random() * 4,
+                        alive: true,
+                        size: 1 + Math.random() * 1.5,
+                        alpha: 0.15 + Math.random() * 0.15,
+                    })
+                }
+                // Cleanup
+                for (let i = ambientParticles.length - 1; i >= 0; i--) {
+                    if (!ambientParticles[i].alive) ambientParticles.splice(i, 1)
+                }
+            }
+            function drawAmbientParticles() {
+                for (const p of ambientParticles) {
+                    ctx.globalAlpha = p.alpha * (p.life < 1 ? p.life : 1)
+                    ctx.fillStyle = LANE_COLORS[p.laneID].stroke.replace('0.09', '0.6')
+                    ctx.beginPath()
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2)
+                    ctx.fill()
+                }
+                ctx.globalAlpha = 1
             }
 
             // ============ MAP DRAWING ============
@@ -1232,46 +1392,50 @@
                     ctx.stroke()
                 }
 
-                // Path
-                ctx.strokeStyle = 'rgba(255,255,255,0.06)'
-                ctx.lineWidth = CELL * 0.7
-                ctx.lineCap = 'round'
-                ctx.lineJoin = 'round'
-                ctx.beginPath()
-                ctx.moveTo(PATH[0].x, PATH[0].y)
-                for (let i = 1; i < PATH.length; i++) ctx.lineTo(PATH[i].x, PATH[i].y)
-                ctx.stroke()
+                // Draw 3 lanes with different colors
+                for (let laneID = 0; laneID < 3; laneID++) {
+                    const lanePath = PATHS[laneID]
+                    const colors = LANE_COLORS[laneID]
 
-                // Path border
-                ctx.strokeStyle = 'rgba(255,255,255,0.03)'
-                ctx.lineWidth = CELL * 0.85
-                ctx.beginPath()
-                ctx.moveTo(PATH[0].x, PATH[0].y)
-                for (let i = 1; i < PATH.length; i++) ctx.lineTo(PATH[i].x, PATH[i].y)
-                ctx.stroke()
+                    // Lane glow (broad stroke)
+                    ctx.strokeStyle = colors.glow
+                    ctx.lineWidth = CELL * 0.9
+                    ctx.lineCap = 'round'
+                    ctx.lineJoin = 'round'
+                    ctx.beginPath()
+                    ctx.moveTo(lanePath[0].x, lanePath[0].y)
+                    for (let i = 1; i < lanePath.length; i++) ctx.lineTo(lanePath[i].x, lanePath[i].y)
+                    ctx.stroke()
 
-                // Path dots
-                ctx.fillStyle = 'rgba(255,255,255,0.04)'
-                for (let i = 0; i < PATH.length - 1; i++) {
-                    const a = PATH[i],
-                        b = PATH[i + 1]
-                    const dx = Math.sign(b.x - a.x),
-                        dy = Math.sign(b.y - a.y)
-                    let cx = a.x,
-                        cy = a.y
-                    while (cx !== b.x || cy !== b.y) {
-                        if (cx >= 0 && cx < W && cy >= 0 && cy < H) {
+                    // Lane stroke (main)
+                    ctx.strokeStyle = colors.stroke
+                    ctx.lineWidth = CELL * 0.65
+                    ctx.beginPath()
+                    ctx.moveTo(lanePath[0].x, lanePath[0].y)
+                    for (let i = 1; i < lanePath.length; i++) ctx.lineTo(lanePath[i].x, lanePath[i].y)
+                    ctx.stroke()
+
+                    // Lane dots
+                    ctx.fillStyle = colors.stroke.replace('0.09', '0.05')
+                    for (let i = 0; i < lanePath.length - 1; i++) {
+                        const a = lanePath[i],
+                            b = lanePath[i + 1]
+                        const dx = Math.sign(b.x - a.x),
+                            dy = Math.sign(b.y - a.y)
+                        let cx = a.x,
+                            cy = a.y
+                        while (cx !== b.x || cy !== b.y) {
                             ctx.beginPath()
                             ctx.arc(cx, cy, 2, 0, Math.PI * 2)
                             ctx.fill()
+                            if (cx !== b.x) cx += dx * CELL
+                            else cy += dy * CELL
                         }
-                        if (cx !== b.x) cx += dx * CELL
-                        else cy += dy * CELL
                     }
                 }
 
                 // Base
-                const basePos = PATH[PATH.length - 2]
+                const basePos = getBasePos()
                 ctx.save()
                 ctx.shadowColor = 'rgba(100,180,255,0.5)'
                 ctx.shadowBlur = 25
@@ -1289,15 +1453,35 @@
                 ctx.textAlign = 'center'
                 ctx.fillText('CĂN CỨ', basePos.x, basePos.y + 4)
 
-                // Spawn point
-                const spawnPos = PATH[0]
-                ctx.fillStyle = 'rgba(255,80,80,0.3)'
-                ctx.beginPath()
-                ctx.arc(spawnPos.x, spawnPos.y, CELL * 0.4, 0, Math.PI * 2)
-                ctx.fill()
+                // Spawn points for each lane with pulse warning
+                for (let laneID = 0; laneID < 3; laneID++) {
+                    const spawnPos = getSpawnPos(laneID)
+                    const colors = LANE_COLORS[laneID]
+                    // Count enemies in this lane
+                    const countInLane = game.enemies.filter((e) => e.alive && e.laneID === laneID).length
+                    // Pulse red if > 5 enemies
+                    if (countInLane > 5) {
+                        ctx.save()
+                        ctx.shadowColor = 'rgba(255,60,60,0.6)'
+                        ctx.shadowBlur = 18
+                        ctx.fillStyle = `rgba(255,60,60,${0.15 + 0.1 * Math.sin(game.time * 6)})`
+                        ctx.beginPath()
+                        ctx.arc(spawnPos.x, spawnPos.y, CELL * 0.5, 0, Math.PI * 2)
+                        ctx.fill()
+                        ctx.restore()
+                    }
+                    ctx.fillStyle = colors.stroke.replace('0.09', '0.3')
+                    ctx.beginPath()
+                    ctx.arc(spawnPos.x, spawnPos.y, CELL * 0.4, 0, Math.PI * 2)
+                    ctx.fill()
+                }
+                // Spawn label
                 ctx.fillStyle = 'rgba(255,255,255,0.6)'
                 ctx.font = 'bold 10px sans-serif'
-                ctx.fillText('ĐIỂM XUẤT PHÁT', spawnPos.x, spawnPos.y + 4)
+                ctx.fillText('ĐIỂM XUẤT PHÁT', PATHS[1][0].x, PATHS[1][0].y + 4)
+
+                // Draw ambient particles
+                drawAmbientParticles()
             }
 
             function drawHoverPreview() {
@@ -1523,6 +1707,9 @@
                     if (game.shakeDuration <= 0) game.shakeAmount = 0
                 }
 
+                // Ambient particles
+                updateAmbientParticles(dt)
+
                 // Spawning
                 updateSpawning(dt)
 
@@ -1559,6 +1746,62 @@
                 game.particles = game.particles.filter((p) => p.alive)
             }
 
+            // UI: Mini lane indicator (3 dots + density bar)
+            function drawLaneIndicator() {
+                const ix = W - 60,
+                    iy = 60
+                const dotR = 6
+                const gap = 18
+                for (let laneID = 0; laneID < 3; laneID++) {
+                    const colors = LANE_COLORS[laneID]
+                    const count = game.enemies.filter((e) => e.alive && e.laneID === laneID).length
+                    const maxCount = MAX_ENEMY_PER_LANE
+                    const ratio = Math.min(1, count / maxCount)
+
+                    // Dot background
+                    ctx.fillStyle = 'rgba(0,0,0,0.5)'
+                    ctx.beginPath()
+                    ctx.arc(ix, iy + laneID * gap, dotR + 2, 0, Math.PI * 2)
+                    ctx.fill()
+
+                    // Dot color by lane
+                    ctx.fillStyle = colors.stroke.replace('0.09', '0.8')
+                    ctx.beginPath()
+                    ctx.arc(ix, iy + laneID * gap, dotR, 0, Math.PI * 2)
+                    ctx.fill()
+
+                    // Pulse if > 5 enemies
+                    if (count > 5) {
+                        ctx.save()
+                        ctx.shadowColor = 'rgba(255,60,60,0.7)'
+                        ctx.shadowBlur = 12
+                        ctx.strokeStyle = `rgba(255,60,60,${0.4 + 0.3 * Math.sin(game.time * 6)})`
+                        ctx.lineWidth = 2
+                        ctx.beginPath()
+                        ctx.arc(ix, iy + laneID * gap, dotR + 4, 0, Math.PI * 2)
+                        ctx.stroke()
+                        ctx.restore()
+                    }
+
+                    // Count text
+                    ctx.fillStyle = '#fff'
+                    ctx.font = 'bold 9px sans-serif'
+                    ctx.textAlign = 'left'
+                    ctx.fillText(count, ix + 12, iy + laneID * gap + 3)
+
+                    // Small density bar
+                    ctx.fillStyle = 'rgba(255,255,255,0.1)'
+                    ctx.fillRect(ix + 22, iy + laneID * gap - 3, 30, 4)
+                    ctx.fillStyle = count > 5 ? 'rgba(255,80,80,0.7)' : colors.stroke.replace('0.09', '0.6')
+                    ctx.fillRect(ix + 22, iy + laneID * gap - 3, 30 * ratio, 4)
+                }
+                // Label
+                ctx.fillStyle = 'rgba(255,255,255,0.5)'
+                ctx.font = 'bold 8px sans-serif'
+                ctx.textAlign = 'left'
+                ctx.fillText('LANES', ix - 2, iy - 12)
+            }
+
             function draw() {
                 ctx.save()
 
@@ -1584,6 +1827,9 @@
 
                 // Particles
                 for (const p of game.particles) drawParticle(p)
+
+                // Lane indicator UI
+                drawLaneIndicator()
 
                 ctx.restore()
             }
@@ -1636,6 +1882,7 @@
                 game.selectedPlacedTower = null
                 game.shakeAmount = 0
                 game.time = 0
+                ambientParticles.length = 0
                 updateUI()
             }
 
