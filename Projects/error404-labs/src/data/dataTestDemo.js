@@ -1,5 +1,10 @@
 export const DATA_DEMO = [
     {
+        name: '12. Bảo Vệ Tháp',
+        link: '/thu-nghiem/game/12-Bao-Ve-Thap/index.html',
+        image: '/thu-nghiem/game/12-Bao-Ve-Thap/12-Bao-Ve-Thap.avif',
+    },
+    {
         name: 'Tom Mario',
         link: '/thu-nghiem/game/Tom-Mario/index.html',
         image: '/thu-nghiem/game/Tom-Mario/Tom-Mario.avif',
