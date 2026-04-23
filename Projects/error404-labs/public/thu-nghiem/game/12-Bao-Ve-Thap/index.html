@@ -274,6 +274,46 @@
             #sellInfo button:hover {
                 background: rgba(255, 100, 100, 0.3);
             }
+
+            #upgradeBtn {
+                margin-left: 8px;
+                padding: 3px 10px;
+                border: 1px solid rgba(100, 255, 100, 0.4);
+                border-radius: 5px;
+                background: rgba(100, 255, 100, 0.15);
+                color: #88ff88;
+                cursor: pointer;
+                font-size: 11px;
+                transition: all 0.2s;
+            }
+
+            #upgradeBtn:hover {
+                background: rgba(100, 255, 100, 0.3);
+                box-shadow: 0 0 12px rgba(100, 255, 100, 0.4);
+                animation: upgradePulse 1s infinite;
+            }
+
+            #upgradeBtn.max-level {
+                border-color: rgba(255, 215, 0, 0.4);
+                color: #ffd700;
+                cursor: default;
+            }
+
+            #upgradeBtn.max-level:hover {
+                background: rgba(100, 255, 100, 0.15);
+                box-shadow: none;
+                animation: none;
+            }
+
+            @keyframes upgradePulse {
+                0%,
+                100% {
+                    box-shadow: 0 0 12px rgba(100, 255, 100, 0.4);
+                }
+                50% {
+                    box-shadow: 0 0 20px rgba(100, 255, 100, 0.7);
+                }
+            }
         </style>
     </head>
 
@@ -309,7 +349,11 @@
                 </div>
             </div>
             <button id="waveBtn" onclick="startNextWave()">▶ ĐỢT TIẾP THEO</button>
-            <div id="sellInfo">Lv.<span id="sellLv"></span> <button onclick="sellTower()">BÁN</button></div>
+            <div id="sellInfo">
+                <span id="sellLv"></span>
+                <button id="upgradeBtn" onclick="upgradeTower()">NÂNG CẤP</button>
+                <button onclick="sellTower()">BÁN</button>
+            </div>
             <div id="overlay">
                 <h1>🏰 TOWER DEFENSE</h1>
                 <p>Đặt các tòa tháp để bảo vệ căn cứ của bạn khỏi kẻ thù!</p>
@@ -332,33 +376,51 @@
             const TOWER_DEFS = {
                 basic: {
                     cost: 50,
+                    upgradeCost: [
+                        0,
+                        40,
+                        60,
+                    ],
                     damage: 18,
                     range: 130,
                     fireRate: 1.0,
                     color: '#5599ff',
                     bulletColor: '#88bbff',
                     bulletSpeed: 320,
-                    name: 'Basic',
+                    name: 'Cơ Bản',
+                    pierce: 1,
                 },
                 rapid: {
                     cost: 75,
+                    upgradeCost: [
+                        0,
+                        50,
+                        75,
+                    ],
                     damage: 8,
                     range: 110,
                     fireRate: 3.5,
                     color: '#ffcc33',
                     bulletColor: '#ffe066',
                     bulletSpeed: 380,
-                    name: 'Rapid',
+                    name: 'Tốc Độ',
+                    burst: 1,
                 },
                 heavy: {
                     cost: 120,
+                    upgradeCost: [
+                        0,
+                        80,
+                        120,
+                    ],
                     damage: 55,
                     range: 150,
                     fireRate: 0.45,
                     color: '#ff5555',
                     bulletColor: '#ff8888',
                     bulletSpeed: 260,
-                    name: 'Heavy',
+                    name: 'Hạng Nặng',
+                    splash: 0,
                 },
             }
 
@@ -504,6 +566,15 @@
                         g.gain.exponentialRampToValueAtTime(0.001, now + 0.1)
                         o.start(now)
                         o.stop(now + 0.1)
+                        break
+                    case 'upgrade':
+                        o.type = 'sine'
+                        o.frequency.setValueAtTime(400, now)
+                        o.frequency.exponentialRampToValueAtTime(1200, now + 0.15)
+                        g.gain.setValueAtTime(0.1, now)
+                        g.gain.exponentialRampToValueAtTime(0.001, now + 0.2)
+                        o.start(now)
+                        o.stop(now + 0.2)
                         break
                 }
             }
@@ -702,32 +773,38 @@
             }
 
             // ============ TOWER ============
-            function createTower(type, col, row) {
+            function createTower(type, col, row, level = 1) {
                 const def = TOWER_DEFS[type]
+                const dmgMul = level === 1 ? 1 : level === 2 ? 1.4 : 1.8
+                const rangeMul = level === 1 ? 1 : level === 2 ? 1.1 : 1.2
+                const fireMul = level === 1 ? 1 : level === 2 ? 1.15 : 1.3
+                const spdMul = level === 1 ? 1 : level === 2 ? 1.05 : 1.1
                 return {
                     type,
                     col,
                     row,
                     x: col * CELL + CELL / 2,
                     y: row * CELL + CELL / 2,
-                    damage: def.damage,
-                    range: def.range,
-                    fireRate: def.fireRate,
+                    level,
+                    damage: def.damage * dmgMul,
+                    range: def.range * rangeMul,
+                    fireRate: def.fireRate * fireMul,
                     color: def.color,
                     bulletColor: def.bulletColor,
-                    bulletSpeed: def.bulletSpeed,
+                    bulletSpeed: def.bulletSpeed * spdMul,
                     cooldown: 0,
                     target: null,
                     angle: 0,
-                    level: 1,
-                    totalCost: def.cost,
+                    totalCost: def.cost + (level > 1 ? def.upgradeCost.slice(1, level).reduce((a, b) => a + b, 0) : 0),
                     muzzleFlash: 0,
                     scaleAnim: 0,
+                    upgradeAnim: 0,
                 }
             }
 
             function updateTower(t, dt) {
                 t.scaleAnim = Math.min(1, t.scaleAnim + dt * 5)
+                t.upgradeAnim = Math.max(0, t.upgradeAnim - dt * 4)
                 t.muzzleFlash = Math.max(0, t.muzzleFlash - dt * 8)
                 t.cooldown -= dt
 
@@ -755,26 +832,37 @@
             }
 
             function fireBullet(t) {
-                let b = getFromPool(bulletPool)
-                if (!b) b = {}
-                b.x = t.x
-                b.y = t.y
-                b.target = t.target
-                b.damage = t.damage
-                b.speed = t.bulletSpeed
-                b.color = t.bulletColor
-                b.alive = true
-                b.trail = []
-                b.trailTimer = 0
-                game.bullets.push(b)
-                t.muzzleFlash = 1
-                playSound('shoot')
+                const def = TOWER_DEFS[t.type]
+                const burstCount = t.level >= 3 && def.burst ? 3 : 1
+                for (let b = 0; b < burstCount; b++) {
+                    setTimeout(() => {
+                        if (!t.target || !t.target.alive) return
+                        let bullet = getFromPool(bulletPool)
+                        if (!bullet) bullet = {}
+                        bullet.x = t.x
+                        bullet.y = t.y
+                        bullet.target = t.target
+                        bullet.damage = t.damage
+                        bullet.speed = t.bulletSpeed
+                        bullet.color = t.bulletColor
+                        bullet.alive = true
+                        bullet.trail = []
+                        bullet.trailTimer = 0
+                        bullet.pierce = t.level >= 3 && def.pierce ? def.pierce + 1 : def.pierce || 1
+                        bullet.hitList = []
+                        game.bullets.push(bullet)
+                        t.muzzleFlash = 1
+                        if (b === 0) playSound('shoot')
+                    }, b * 80)
+                }
             }
 
             function drawTower(t) {
                 const def = TOWER_DEFS[t.type]
                 const s = t.scaleAnim
-                const r = CELL * 0.35 * s
+                const upgradePulse = t.upgradeAnim > 0 ? t.upgradeAnim * 0.2 : 0
+                const lv3 = t.level >= 3
+                const r = (CELL * 0.35 + (lv3 ? 3 : 0) + upgradePulse) * s
 
                 // Range indicator when hovered or selected
                 if (
@@ -790,10 +878,28 @@
                     ctx.stroke()
                 }
 
+                // Lv3 energy ring
+                if (lv3) {
+                    ctx.save()
+                    ctx.translate(t.x, t.y)
+                    ctx.rotate(game.time * 2)
+                    ctx.strokeStyle = def.color
+                    ctx.lineWidth = 2
+                    ctx.shadowColor = def.color
+                    ctx.shadowBlur = 12
+                    ctx.beginPath()
+                    ctx.arc(0, 0, r + 6, 0, Math.PI * 1.5)
+                    ctx.stroke()
+                    ctx.beginPath()
+                    ctx.arc(0, 0, r + 6, Math.PI * 1.5, Math.PI * 2)
+                    ctx.stroke()
+                    ctx.restore()
+                }
+
                 // Base
                 ctx.save()
                 ctx.shadowColor = def.color
-                ctx.shadowBlur = 12
+                ctx.shadowBlur = 12 + (lv3 ? 8 : 0)
                 ctx.fillStyle = 'rgba(20,20,40,0.9)'
                 ctx.beginPath()
                 ctx.arc(t.x, t.y, r + 4, 0, Math.PI * 2)
@@ -846,6 +952,9 @@
             function updateBullet(b, dt) {
                 if (!b.alive) return
                 if (!b.target || !b.target.alive) {
+                    if (b.target && !b.target.alive && b.splash) {
+                        applySplash(b)
+                    }
                     b.alive = false
                     return
                 }
@@ -855,8 +964,14 @@
                 const move = b.speed * dt
                 if (dist <= move + b.target.size) {
                     damageEnemy(b.target, b.damage)
-                    b.alive = false
-                    spawnHitParticles(b.x, b.y, b.color)
+                    b.hitList.push(b.target)
+                    if (b.pierce > b.hitList.length) {
+                        b.alive = true
+                    } else {
+                        if (b.splash) applySplash(b)
+                        b.alive = false
+                        spawnHitParticles(b.x, b.y, b.color)
+                    }
                     return
                 }
                 b.x += (dx / dist) * move
@@ -864,35 +979,68 @@
 
                 // Trail
                 b.trailTimer += dt
+                const trailLimit = b.pierce > 1 ? 10 : 6
                 if (b.trailTimer > 0.02) {
                     b.trailTimer = 0
                     b.trail.push({ x: b.x, y: b.y, a: 0.6 })
-                    if (b.trail.length > 6) b.trail.shift()
+                    if (b.trail.length > trailLimit) b.trail.shift()
                 }
                 for (let t of b.trail) t.a -= dt * 3
                 b.trail = b.trail.filter((t) => t.a > 0)
             }
 
+            function applySplash(b) {
+                for (const e of game.enemies) {
+                    if (!e.alive) continue
+                    const dx = e.x - b.x,
+                        dy = e.y - b.y
+                    if (Math.sqrt(dx * dx + dy * dy) <= b.splash && !b.hitList.includes(e)) {
+                        damageEnemy(e, b.damage * 0.5)
+                    }
+                }
+            }
+
             function drawBullet(b) {
                 if (!b.alive) return
                 // Trail
+                const trailAlpha = b.pierce > 1 ? 0.7 : 0.5
+                const trailSize = b.splash ? 3 : 2
                 for (let t of b.trail) {
-                    ctx.globalAlpha = t.a * 0.5
+                    ctx.globalAlpha = t.a * trailAlpha
                     ctx.fillStyle = b.color
                     ctx.beginPath()
-                    ctx.arc(t.x, t.y, 2, 0, Math.PI * 2)
+                    ctx.arc(t.x, t.y, trailSize, 0, Math.PI * 2)
                     ctx.fill()
                 }
                 ctx.globalAlpha = 1
 
                 ctx.save()
                 ctx.shadowColor = b.color
-                ctx.shadowBlur = 8
+                ctx.shadowBlur = b.pierce > 1 ? 16 : 8
                 ctx.fillStyle = b.color
                 ctx.beginPath()
-                ctx.arc(b.x, b.y, 3.5, 0, Math.PI * 2)
+                ctx.arc(b.x, b.y, b.splash ? 5 : 3.5, 0, Math.PI * 2)
                 ctx.fill()
+                // Lv3 glow
+                if (b.pierce > 1 || b.splash) {
+                    ctx.fillStyle = 'rgba(255,255,255,0.6)'
+                    ctx.beginPath()
+                    ctx.arc(b.x, b.y, 1.5, 0, Math.PI * 2)
+                    ctx.fill()
+                }
                 ctx.restore()
+
+                // Small particles for Lv3
+                if (b.pierce > 1 || b.splash) {
+                    for (let i = 0; i < 2; i++) {
+                        ctx.globalAlpha = 0.4
+                        ctx.fillStyle = b.color
+                        ctx.beginPath()
+                        ctx.arc(b.x + (Math.random() - 0.5) * 6, b.y + (Math.random() - 0.5) * 6, 1, 0, Math.PI * 2)
+                        ctx.fill()
+                    }
+                    ctx.globalAlpha = 1
+                }
 
                 ctx.fillStyle = 'rgba(255,255,255,0.7)'
                 ctx.beginPath()
@@ -1221,6 +1369,23 @@
                     else btn.classList.remove('selected')
                 })
 
+                // Upgrade button
+                const upgradeBtn = document.getElementById('upgradeBtn')
+                if (game.selectedPlacedTower && game.selectedPlacedTower.level < 3) {
+                    const t = game.selectedPlacedTower
+                    const def = TOWER_DEFS[t.type]
+                    const cost = def.upgradeCost[t.level]
+                    upgradeBtn.textContent = `NÂNG CẤP (💰${cost})`
+                    upgradeBtn.classList.remove('max-level')
+                    upgradeBtn.disabled = game.gold < cost
+                } else if (game.selectedPlacedTower && game.selectedPlacedTower.level >= 3) {
+                    upgradeBtn.textContent = 'TỐI ĐA'
+                    upgradeBtn.classList.add('max-level')
+                } else {
+                    upgradeBtn.textContent = 'NÂNG CẤP'
+                    upgradeBtn.classList.remove('max-level')
+                }
+
                 // Wave button
                 const waveBtn = document.getElementById('waveBtn')
                 if (game.waveActive || game.wave >= game.maxWaves) {
@@ -1251,6 +1416,30 @@
                 game.selectedPlacedTower = null
                 document.getElementById('sellInfo').style.display = 'none'
                 playSound('sell')
+                updateUI()
+            }
+
+            function upgradeTower() {
+                if (!game.selectedPlacedTower) return
+                const t = game.selectedPlacedTower
+                if (t.level >= 3) return
+                const def = TOWER_DEFS[t.type]
+                const cost = def.upgradeCost[t.level]
+                if (game.gold < cost) return
+                game.gold -= cost
+                t.level++
+                t.damage = def.damage * (t.level === 2 ? 1.4 : 1.8)
+                t.range = def.range * (t.level === 2 ? 1.1 : 1.2)
+                t.fireRate = def.fireRate * (t.level === 2 ? 1.15 : 1.3)
+                t.bulletSpeed = def.bulletSpeed * (t.level === 2 ? 1.05 : 1.1)
+                t.totalCost += cost
+                t.upgradeAnim = 1
+                if (t.level === 3) {
+                    if (def.pierce) t.pierce = def.pierce + 1
+                    if (def.burst) t.burst = def.burst + 2
+                    if (def.splash !== undefined) t.splash = 30
+                }
+                playSound('upgrade')
                 updateUI()
             }
 
@@ -1288,11 +1477,19 @@
                 if (existing && !game.selectedTowerType) {
                     game.selectedPlacedTower = existing
                     const sellInfo = document.getElementById('sellInfo')
+                    const def = TOWER_DEFS[existing.type]
                     const refund = Math.floor(existing.totalCost * 0.6)
-                    document.getElementById('sellLv').textContent = existing.level + ' (💰' + refund + ')'
+                    let lvText = 'Lv.' + existing.level
+                    if (existing.level < 3) {
+                        lvText += ' → ' + (existing.level + 1) + ' (💰' + def.upgradeCost[existing.level] + ')'
+                    } else {
+                        lvText += ' (MAX)'
+                    }
+                    document.getElementById('sellLv').textContent = lvText + ' | Bán: 💰' + refund
                     sellInfo.style.display = 'block'
                     sellInfo.style.left = e.clientX - rect.left + 'px'
                     sellInfo.style.top = e.clientY - rect.top - 40 + 'px'
+                    updateUI()
                     return
                 }
 
