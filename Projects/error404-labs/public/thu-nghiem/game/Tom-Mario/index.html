@@ -3065,7 +3065,8 @@
                             const isOutro = this.cutsceneText === chapter.outroText
 
                             if (isOutro) {
-                                // After outro, go back to chapter select
+                                // After outro, complete chapter and go back to chapter select
+                                this.completeChapter(true) // skip outro since we're already in it
                                 this.cutsceneText = []
                                 this.cutsceneIndex = 0
                                 this.ui.setState('chapterSelect')
@@ -3085,7 +3086,7 @@
                         }
                     }
                 }
-                completeChapter() {
+                completeChapter(skipOutro = false) {
                     if (this.currentChapter > this.highestChapter) {
                         this.highestChapter = this.currentChapter
                         localStorage.setItem('highestChapter', this.highestChapter.toString())
@@ -3103,9 +3104,10 @@
                     if (this.currentChapter === 5) {
                         // Game completed
                         this.ui.setState('win')
-                    } else {
+                    } else if (!skipOutro) {
                         this.startChapterOutro()
                     }
+                    // If skipOutro is true, don't start outro (already in it)
                 }
                 draw() {
                     // Background gradient with biome
