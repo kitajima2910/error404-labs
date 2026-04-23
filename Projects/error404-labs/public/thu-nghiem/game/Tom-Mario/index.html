@@ -36,7 +36,7 @@
             // ============================================================
             // CONFIGURATION
             // ============================================================
-            const CONFIG = {
+            const DEFAULT_CONFIG = {
                 WIDTH: 960,
                 HEIGHT: 540,
                 GRAVITY: 1200,
@@ -277,6 +277,9 @@
                     },
                 },
             }
+
+            // Deep clone for working config
+            const CONFIG = JSON.parse(JSON.stringify(DEFAULT_CONFIG))
 
             // ============================================================
             // POLYFILL for roundRect
@@ -1952,7 +1955,7 @@
             class UIManager {
                 constructor() {
                     this.score = 0
-                    this.state = 'menu' // menu, modeSelect, chapterSelect, skinMenu, cutscene, playing, paused, win, lose
+                    this.state = 'menu' // menu, modeSelect, chapterSelect, skinMenu, cutscene, playing, paused, win, lose, modMenu
                     this.fadeAlpha = 0
                     this.targetFade = 1
                     this.message = ''
@@ -1960,6 +1963,13 @@
                     this.scorePopups = []
                     this.settings = { music: true, sfx: true, volume: 0.5 }
                     this.showSettings = false
+                    this.modStatus = ''
+                    this.modList = [
+                        { name: 'Siêu Nhảy', key: 'superJump', enabled: false, config: { PLAYER_JUMP: -900 } },
+                        { name: 'Siêu Tốc Độ', key: 'superSpeed', enabled: false, config: { PLAYER_SPEED: 600 } },
+                        { name: 'Trọng Lực Thấp', key: 'lowGravity', enabled: false, config: { GRAVITY: 800 } },
+                        { name: 'Bất Tử', key: 'invincible', enabled: false, config: { INVINCIBLE: true } },
+                    ]
                 }
                 setState(state) {
                     this.state = state
@@ -1976,7 +1986,7 @@
                         this.state === 'chapterSelect' ||
                         this.state === 'skinMenu'
                     ) {
-                        this.drawHUD(ctx, distance)
+                        this.drawHUD(ctx, distance, biomeKey, game)
                     }
                     if (this.state === 'menu') {
                         this.drawMenu(ctx)
@@ -2005,9 +2015,24 @@
                     if (this.state === 'paused') {
                         this.drawPauseMenu(ctx)
                     }
+                    if (this.state === 'modMenu') {
+                        this.drawModMenu(ctx, game)
+                    }
                 }
-                drawHUD(ctx, distance = 0, biomeKey = 'cyber') {
+                drawHUD(ctx, distance = 0, biomeKey = 'cyber', game = null) {
                     const biome = CONFIG.BIOMES[biomeKey] || CONFIG.BIOMES.cyber
+
+                    // MODDED indicator
+                    if (game && game.activeMods.length > 0) {
+                        ctx.save()
+                        ctx.textAlign = 'left'
+                        ctx.font = "bold 14px 'Segoe UI'"
+                        ctx.shadowColor = '#ff6ec7'
+                        ctx.shadowBlur = 10 + Math.sin(Date.now() / 150) * 5
+                        ctx.fillStyle = '#ff6ec7'
+                        ctx.fillText('MODDED', 12, CONFIG.HEIGHT - 12)
+                        ctx.restore()
+                    }
 
                     // Biome indicator (top center)
                     ctx.save()
@@ -2197,12 +2222,18 @@
                     ctx.fillText('🐾 E: Kỹ Năng Pet', CONFIG.WIDTH / 2, 290)
                     ctx.fillText('🐟 Thu Thập Cá • 👾 Đạp Quái • 🚩 Chạm Cờ', CONFIG.WIDTH / 2, 320)
 
-                    // Horizontal button layout
-                    const buttonY = 450
-                    const buttonSpacingX = 220
-                    this.drawButton(ctx, CONFIG.WIDTH / 2 - buttonSpacingX, buttonY, '🎨 SKIN')
-                    this.drawButton(ctx, CONFIG.WIDTH / 2, buttonY, '🎮 CHẾ ĐỘ')
-                    this.drawButton(ctx, CONFIG.WIDTH / 2 + buttonSpacingX, buttonY, '⚙️ CÀI ĐẶT')
+                    // Play Button
+                    this.drawButton(ctx, CONFIG.WIDTH / 2, 370, '🚀 BẮT ĐẦU', 240)
+
+                    // Grid layout 2x2
+                    const gridY = 435
+                    const gridSpacingX = 180
+                    const gridSpacingY = 65
+                    const btnW = 160
+                    this.drawButton(ctx, CONFIG.WIDTH / 2 - gridSpacingX / 2, gridY, '🎨 SKIN', btnW)
+                    this.drawButton(ctx, CONFIG.WIDTH / 2 + gridSpacingX / 2, gridY, '🎮 CHẾ ĐỘ', btnW)
+                    this.drawButton(ctx, CONFIG.WIDTH / 2 - gridSpacingX / 2, gridY + gridSpacingY, '⚙️ CÀI ĐẶT', btnW)
+                    this.drawButton(ctx, CONFIG.WIDTH / 2 + gridSpacingX / 2, gridY + gridSpacingY, '🔧 MOD', btnW)
 
                     ctx.globalAlpha = 1
                 }
@@ -2407,6 +2438,112 @@
 
                     ctx.globalAlpha = 1
                 }
+
+                drawModMenu(ctx, game) {
+                    // Cyberpunk overlay with gradient
+                    const overlayGrad = ctx.createLinearGradient(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT)
+                    overlayGrad.addColorStop(0, 'rgba(10, 10, 30, 0.95)')
+                    overlayGrad.addColorStop(0.5, 'rgba(26, 26, 42, 0.9)')
+                    overlayGrad.addColorStop(1, 'rgba(10, 10, 30, 0.95)')
+                    ctx.fillStyle = overlayGrad
+                    ctx.fillRect(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT)
+
+                    // Panel background
+                    const panelW = 720
+                    const panelH = 540
+                    const panelX = CONFIG.WIDTH / 2 - panelW / 2
+                    const panelY = CONFIG.HEIGHT / 2 - panelH / 2
+                    const panelGrad = ctx.createLinearGradient(panelX, panelY, panelX + panelW, panelY + panelH)
+                    panelGrad.addColorStop(0, 'rgba(26, 26, 42, 0.98)')
+                    panelGrad.addColorStop(0.5, 'rgba(42, 42, 64, 0.95)')
+                    panelGrad.addColorStop(1, 'rgba(26, 26, 42, 0.98)')
+                    ctx.fillStyle = panelGrad
+                    ctx.shadowColor = '#00f3ff'
+                    ctx.shadowBlur = 30
+                    ctx.beginPath()
+                    ctx.roundRect(panelX, panelY, panelW, panelH, 20)
+                    ctx.fill()
+
+                    // Neon border
+                    ctx.shadowBlur = 0
+                    const borderGrad = ctx.createLinearGradient(panelX, panelY, panelX + panelW, panelY + panelH)
+                    borderGrad.addColorStop(0, '#00f3ff')
+                    borderGrad.addColorStop(0.5, '#ff6ec7')
+                    borderGrad.addColorStop(1, '#00f3ff')
+                    ctx.strokeStyle = borderGrad
+                    ctx.lineWidth = 4
+                    ctx.stroke()
+
+                    // Title
+                    ctx.fillStyle = '#00f3ff'
+                    ctx.font = "bold 32px 'Segoe UI'"
+                    ctx.textAlign = 'center'
+                    ctx.shadowColor = '#00f3ff'
+                    ctx.shadowBlur = 15
+                    ctx.fillText('🔧 QUẢN LÝ MOD', CONFIG.WIDTH / 2, panelY + 50)
+                    ctx.shadowBlur = 0
+
+                    // Mod list
+                    ctx.fillStyle = '#ffffff'
+                    ctx.font = "bold 18px 'Segoe UI'"
+                    ctx.textAlign = 'left'
+                    ctx.fillText('Chọn Mod:', panelX + 40, panelY + 90)
+
+                    const modStartY = panelY + 130
+                    const modSpacing = 60
+                    const toggleW = 120
+                    const toggleH = 40
+                    const toggleX = panelX + panelW - 180
+
+                    this.modList.forEach((mod, i) => {
+                        const modY = modStartY + i * modSpacing
+
+                        // Mod name
+                        ctx.fillStyle = mod.enabled ? '#88ffbb' : '#aaaaaa'
+                        ctx.font = "bold 18px 'Segoe UI'"
+                        ctx.textAlign = 'left'
+                        ctx.fillText(`🔧 ${mod.name}`, panelX + 60, modY + 25)
+
+                        // Toggle button background
+                        ctx.fillStyle = mod.enabled ? 'rgba(0, 243, 255, 0.3)' : 'rgba(68, 68, 68, 0.3)'
+                        ctx.beginPath()
+                        ctx.roundRect(toggleX, modY + 5, toggleW, toggleH, 8)
+                        ctx.fill()
+                        ctx.strokeStyle = mod.enabled ? '#00f3ff' : '#444444'
+                        ctx.lineWidth = 2
+                        ctx.stroke()
+
+                        // Toggle text
+                        ctx.fillStyle = mod.enabled ? '#00f3ff' : '#444444'
+                        ctx.font = "bold 16px 'Segoe UI'"
+                        ctx.textAlign = 'center'
+                        ctx.fillText(mod.enabled ? '[ BẬT ]' : '[ TẮT ]', toggleX + toggleW / 2, modY + 30)
+                    })
+
+                    // Status message
+                    if (this.modStatus) {
+                        ctx.fillStyle = this.modStatus.includes('Đã bật') ? '#88ffbb' : '#ff6b6b'
+                        ctx.font = "bold 14px 'Segoe UI'"
+                        ctx.textAlign = 'left'
+                        ctx.fillText(this.modStatus, panelX + 40, panelY + 370)
+                    }
+
+                    // Buttons
+                    const btnH = 48
+                    const fixedWidth = 180
+                    const disableY = panelY + 430
+                    const backY = panelY + 500
+                    const backWidth = 220
+
+                    // Disable all mods button
+                    this.drawButton(ctx, CONFIG.WIDTH / 2, disableY, '❌ TẮT TẤT CẢ', fixedWidth, btnH)
+
+                    // Back button
+                    this.drawButton(ctx, CONFIG.WIDTH / 2, backY, '⬅ QUAY LẠI', backWidth, btnH)
+
+                    ctx.globalAlpha = 1
+                }
+
                 drawCutscene(ctx, game) {
                     // Semi-transparent overlay
                     ctx.fillStyle = `rgba(0, 0, 0, ${this.fadeAlpha * 0.7})`
@@ -2735,13 +2872,13 @@
 
                     ctx.globalAlpha = 1
                 }
-                drawButton(ctx, x, y, text) {
+                drawButton(ctx, x, y, text, fixedWidth, fixedHeight) {
                     ctx.font = "bold 24px 'Segoe UI'"
                     ctx.textAlign = 'center'
                     const padding = 40
-                    let w = ctx.measureText(text).width + padding
-                    if (w < 140) w = 140 // minimum width
-                    const h = 56
+                    let w = fixedWidth || ctx.measureText(text).width + padding
+                    if (!fixedWidth && w < 140) w = 140 // minimum width only if not fixed
+                    const h = fixedHeight || 56
                     const bx = x - w / 2,
                         by = y - h / 2
 
@@ -2796,29 +2933,36 @@
                         return mx >= x - w / 2 && mx <= x + w / 2 && my >= y - h / 2 && my <= y + h / 2
                     }
                     const bx = CONFIG.WIDTH / 2
-                    const by = this.state === 'menu' ? 400 : 370
+                    const by = 370 // Same for menu and pause for consistency
                     const bw = 240,
                         bh = 56
                     return mx >= bx - bw / 2 && mx <= bx + bw / 2 && my >= by - bh / 2 && my <= by + bh / 2
                 }
                 isSkinButtonClicked(mx, my) {
-                    const x = CONFIG.WIDTH / 2 - 220
-                    const y = 450
-                    const w = 120,
+                    const x = CONFIG.WIDTH / 2 - 90
+                    const y = 435
+                    const w = 160,
                         h = 56
                     return mx >= x - w / 2 && mx <= x + w / 2 && my >= y - h / 2 && my <= y + h / 2
                 }
                 isModeButtonClicked(mx, my) {
-                    const x = CONFIG.WIDTH / 2
-                    const y = 450
-                    const w = 140,
+                    const x = CONFIG.WIDTH / 2 + 90
+                    const y = 435
+                    const w = 160,
                         h = 56
                     return mx >= x - w / 2 && mx <= x + w / 2 && my >= y - h / 2 && my <= y + h / 2
                 }
                 isSettingsButtonClicked(mx, my) {
-                    const x = CONFIG.WIDTH / 2 + 220
-                    const y = 450
-                    const w = 150,
+                    const x = CONFIG.WIDTH / 2 - 90
+                    const y = 500
+                    const w = 160,
+                        h = 56
+                    return mx >= x - w / 2 && mx <= x + w / 2 && my >= y - h / 2 && my <= y + h / 2
+                }
+                isModButtonClicked(mx, my) {
+                    const x = CONFIG.WIDTH / 2 + 90
+                    const y = 500
+                    const w = 160,
                         h = 56
                     return mx >= x - w / 2 && mx <= x + w / 2 && my >= y - h / 2 && my <= y + h / 2
                 }
@@ -2866,7 +3010,47 @@
 
                     // Back button
                     if (this.isBackButtonClicked(mx, my)) {
-                        this.setState('modeSelect')
+                        this.setState('menu')
+                    }
+                }
+                handleModMenuClick(mx, my, game) {
+                    const panelY = CONFIG.HEIGHT / 2 - 270
+                    const btnH = 48
+                    const fixedWidth = 180
+                    const modStartY = panelY + 130
+                    const modSpacing = 60
+                    const toggleW = 120
+                    const toggleH = 40
+                    const panelX = CONFIG.WIDTH / 2 - 360
+                    const toggleX = panelX + 720 - 180
+                    const disableY = panelY + 430
+                    const backY = panelY + 500
+                    const backWidth = 220
+
+                    // Toggle mod buttons
+                    for (let i = 0; i < this.modList.length; i++) {
+                        const mod = this.modList[i]
+                        const modY = modStartY + i * modSpacing
+                        if (this.isButtonClicked(mx, my, toggleX, modY + 5, toggleW, toggleH)) {
+                            mod.enabled = !mod.enabled
+                            this.modStatus = mod.enabled ? `Đã bật mod ${mod.name}` : `Đã tắt mod ${mod.name}`
+                            game.applyMods(this.modList)
+                            return
+                        }
+                    }
+
+                    // Disable all mods button
+                    if (this.isButtonClicked(mx, my, CONFIG.WIDTH / 2, disableY, fixedWidth, btnH)) {
+                        this.modList.forEach((mod) => (mod.enabled = false))
+                        game.restoreDefaultConfig()
+                        this.modStatus = '✅ Đã tắt tất cả mod'
+                        return
+                    }
+
+                    // Back button
+                    if (this.isButtonClicked(mx, my, CONFIG.WIDTH / 2, backY, backWidth, btnH)) {
+                        this.setState('menu')
+                        return
                     }
                 }
                 handleSkinMenuClick(mx, my, game) {
@@ -2969,6 +3153,10 @@
                     this.screenPulse = 0
                     this.glowIntensity = 0
 
+                    // Mod System
+                    this.activeMods = []
+                    this.customChunks = null
+
                     for (let i = 0; i < 80; i++) {
                         this.bgParticles.push(new BackgroundParticle())
                     }
@@ -3002,6 +3190,46 @@
                     this.playableArea = { left: 0, right: this.lastGeneratedX }
                 }
                 generateAhead(cameraX, distance) {
+                    // Check for custom chunks from mods
+                    if (this.customChunks && this.customChunks.length > 0) {
+                        const currentChunkIndex = Math.floor(this.lastGeneratedX / this.levelGenerator.chunkSize)
+                        if (currentChunkIndex < this.customChunks.length) {
+                            const customChunk = this.customChunks[currentChunkIndex]
+                            if (
+                                customChunk &&
+                                this.lastGeneratedX < customChunk.startX + this.levelGenerator.chunkSize
+                            ) {
+                                // Use custom chunk instead of generating
+                                this.generatedChunks.push(customChunk)
+
+                                for (const p of customChunk.platforms) {
+                                    this.platforms.push(
+                                        new Platform(p.x, p.y, p.w, p.h, p.type || 'normal', p.moveConfig || null),
+                                    )
+                                }
+
+                                for (const e of customChunk.enemies || []) {
+                                    if (this.gameMode === 'story') {
+                                        const chapter = CONFIG.CHAPTERS[this.currentChapter]
+                                        if (e.x > chapter.targetDistance) continue
+                                    }
+                                    this.enemies.push(new Enemy(e.x, e.y, e.minX, e.maxX))
+                                }
+
+                                for (const f of customChunk.fish || []) {
+                                    if (this.gameMode === 'story') {
+                                        const chapter = CONFIG.CHAPTERS[this.currentChapter]
+                                        if (f.x > chapter.targetDistance) continue
+                                    }
+                                    this.fish.push(new Fish(f.x, f.y))
+                                }
+
+                                this.lastGeneratedX = customChunk.startX + this.levelGenerator.chunkSize
+                                return
+                            }
+                        }
+                    }
+
                     let generateUntil = cameraX + distance + CONFIG.WIDTH
 
                     if (this.gameMode === 'story') {
@@ -3218,6 +3446,8 @@
                                     this.ui.setState('modeSelect')
                                 } else if (this.ui.isSettingsButtonClicked(mx, my)) {
                                     this.ui.showSettings = true
+                                } else if (this.ui.isModButtonClicked(mx, my)) {
+                                    this.ui.setState('modMenu')
                                 } else if (this.ui.isButtonClicked(mx, my)) {
                                     this.gameMode = 'endless'
                                     this.startGame()
@@ -3236,6 +3466,8 @@
                             this.ui.handleChapterSelectClick(mx, my, this)
                         } else if (this.ui.state === 'skinMenu') {
                             this.ui.handleSkinMenuClick(mx, my, this)
+                        } else if (this.ui.state === 'modMenu') {
+                            this.ui.handleModMenuClick(mx, my, this)
                         } else if (this.ui.state === 'cutscene') {
                             this.advanceCutscene()
                         } else if (
@@ -3604,6 +3836,92 @@
                         this.camera.y += shakeY
                     }
                 }
+
+                // ============================================================
+                // MOD SYSTEM
+                // ============================================================
+                loadMod(jsonString) {
+                    try {
+                        const mod = JSON.parse(jsonString)
+
+                        // Validate mod structure
+                        if (!mod || typeof mod !== 'object') {
+                            return { success: false, error: 'Mod phải là object JSON hợp lệ' }
+                        }
+
+                        // Restore default config first
+                        this.restoreDefaultConfig()
+
+                        // Apply gameplay overrides
+                        if (mod.gameplay) {
+                            if (typeof mod.gameplay.GRAVITY === 'number') CONFIG.GRAVITY = mod.gameplay.GRAVITY
+                            if (typeof mod.gameplay.PLAYER_SPEED === 'number')
+                                CONFIG.PLAYER_SPEED = mod.gameplay.PLAYER_SPEED
+                            if (typeof mod.gameplay.PLAYER_JUMP === 'number')
+                                CONFIG.PLAYER_JUMP = mod.gameplay.PLAYER_JUMP
+                        }
+
+                        // Add custom skins
+                        if (mod.skins && typeof mod.skins === 'object') {
+                            for (const [
+                                key,
+                                skin,
+                            ] of Object.entries(mod.skins)) {
+                                CONFIG.SKINS[key] = { ...skin, isModded: true }
+                            }
+                        }
+
+                        // Load custom chunks
+                        if (mod.customChunks && Array.isArray(mod.customChunks)) {
+                            this.customChunks = mod.customChunks
+                        }
+
+                        // Add to active mods
+                        this.activeMods.push({
+                            id: mod.id || `mod_${Date.now()}`,
+                            name: mod.name || 'Mod không tên',
+                            author: mod.author || 'Ẩn danh',
+                            ...mod,
+                        })
+
+                        return { success: true, mod: mod }
+                    } catch (e) {
+                        return { success: false, error: e.message }
+                    }
+                }
+
+                restoreDefaultConfig() {
+                    // Restore core config
+                    CONFIG.GRAVITY = DEFAULT_CONFIG.GRAVITY
+                    CONFIG.PLAYER_SPEED = DEFAULT_CONFIG.PLAYER_SPEED
+                    CONFIG.PLAYER_JUMP = DEFAULT_CONFIG.PLAYER_JUMP
+
+                    // Restore skins (keep default ones only)
+                    CONFIG.SKINS = JSON.parse(JSON.stringify(DEFAULT_CONFIG.SKINS))
+
+                    // Clear custom chunks
+                    this.customChunks = null
+
+                    // Clear active mods
+                    this.activeMods = []
+                }
+
+                applyMods(modList) {
+                    // Restore default first
+                    this.restoreDefaultConfig()
+
+                    // Apply enabled mods
+                    modList.forEach((mod) => {
+                        if (!mod.enabled) return
+                        if (mod.config) {
+                            if (typeof mod.config.GRAVITY === 'number') CONFIG.GRAVITY = mod.config.GRAVITY
+                            if (typeof mod.config.PLAYER_SPEED === 'number')
+                                CONFIG.PLAYER_SPEED = mod.config.PLAYER_SPEED
+                            if (typeof mod.config.PLAYER_JUMP === 'number') CONFIG.PLAYER_JUMP = mod.config.PLAYER_JUMP
+                        }
+                    })
+                }
+
                 playerDie() {
                     if (!this.player.alive) return
                     this.player.alive = false
