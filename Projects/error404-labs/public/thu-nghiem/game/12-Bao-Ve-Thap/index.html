@@ -57,6 +57,53 @@
                 z-index: 10;
             }
 
+            #heroStats {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                color: #e0e4f0;
+                font-size: 12px;
+            }
+
+            #heroHpBar {
+                width: 80px;
+                height: 6px;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 3px;
+                overflow: hidden;
+                margin: 0 4px;
+            }
+
+            #heroHpFill {
+                height: 100%;
+                background: linear-gradient(90deg, #44ff88, #88ffaa);
+                border-radius: 3px;
+                transition: width 0.3s;
+                box-shadow: 0 0 6px rgba(68, 255, 136, 0.4);
+            }
+
+            #heroLevel {
+                font-size: 12px;
+                color: #ffd700;
+                margin-left: 4px;
+            }
+
+            #heroExpBar {
+                width: 60px;
+                height: 4px;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 2px;
+                overflow: hidden;
+                margin-left: 4px;
+            }
+
+            #heroExpFill {
+                height: 100%;
+                background: linear-gradient(90deg, #ffaa44, #ffdd66);
+                border-radius: 2px;
+                transition: width 0.3s;
+            }
+
             #ui > * {
                 pointer-events: auto;
             }
@@ -317,6 +364,147 @@
                 animation: none;
             }
 
+            #skillPanel {
+                position: absolute;
+                bottom: 120px;
+                right: 30px;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                z-index: 20;
+            }
+
+            .skill-btn {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 2px;
+                padding: 8px;
+                border: 1px solid rgba(255, 215, 0, 0.3);
+                border-radius: 8px;
+                background: rgba(255, 255, 255, 0.08);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                color: #c0c4d0;
+                cursor: pointer;
+                transition: all 0.2s;
+                min-width: 60px;
+                position: relative;
+                box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+            }
+
+            .skill-btn:hover {
+                border-color: rgba(255, 200, 100, 0.6);
+                background: rgba(255, 200, 100, 0.15);
+                color: #fff;
+                transform: scale(1.05);
+                box-shadow: 0 0 20px rgba(255, 200, 100, 0.4);
+            }
+
+            .skill-btn.on-cooldown {
+                opacity: 0.6;
+                cursor: not-allowed;
+            }
+
+            .skill-btn .s-icon {
+                width: 24px;
+                height: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 16px;
+            }
+
+            .skill-btn .s-name {
+                font-size: 9px;
+                font-weight: 700;
+            }
+
+            .skill-btn .s-cooldown {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                border-radius: 6px;
+                background: rgba(0, 0, 0, 0.85);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 12px;
+                color: #fff;
+                pointer-events: none;
+                opacity: 0;
+                transition: opacity 0.2s;
+            }
+
+            .skill-btn.on-cooldown .s-cooldown {
+                opacity: 1;
+            }
+
+            .skill-btn {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 2px;
+                padding: 8px;
+                border: 2px solid rgba(255, 255, 255, 0.12);
+                border-radius: 8px;
+                background: rgba(255, 255, 255, 0.05);
+                color: #c0c4d0;
+                cursor: pointer;
+                transition: all 0.2s;
+                min-width: 60px;
+                position: relative;
+            }
+
+            .skill-btn:hover {
+                border-color: rgba(255, 200, 100, 0.5);
+                background: rgba(255, 200, 100, 0.1);
+                color: #fff;
+                transform: scale(1.05);
+            }
+
+            .skill-btn.on-cooldown {
+                opacity: 0.5;
+            }
+
+            .skill-btn .s-icon {
+                width: 24px;
+                height: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 16px;
+            }
+
+            .skill-btn .s-name {
+                font-size: 9px;
+                font-weight: 700;
+            }
+
+            .skill-btn .s-cooldown {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                border-radius: 6px;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 12px;
+                color: #fff;
+                pointer-events: none;
+                opacity: 0;
+                transition: opacity 0.2s;
+            }
+
+            .skill-btn.on-cooldown .s-cooldown {
+                opacity: 1;
+            }
+
             @keyframes upgradePulse {
                 0%,
                 100% {
@@ -342,6 +530,17 @@
                 </div>
                 <div class="stat"><span class="icon">🌊</span><span class="val" id="waveText">Đợt 0/10</span></div>
                 <div class="stat"><span class="icon">💰</span><span class="val" id="goldText">100</span></div>
+                <div id="heroStats">
+                    <span class="icon">🛡️</span>
+                    <div id="heroHpBar">
+                        <div id="heroHpFill"></div>
+                    </div>
+                    <span class="val" id="heroHpText">100</span>
+                    <span id="heroLevel">Lv1</span>
+                    <div id="heroExpBar">
+                        <div id="heroExpFill"></div>
+                    </div>
+                </div>
             </div>
             <div id="towerPanel">
                 <div class="tower-btn" data-type="basic" onclick="selectTower('basic')">
@@ -395,6 +594,18 @@
                 <span id="sellLv"></span>
                 <button id="upgradeBtn" onclick="upgradeTower()">NÂNG CẤP</button>
                 <button onclick="sellTower()">BÁN</button>
+            </div>
+            <div id="skillPanel">
+                <div class="skill-btn" data-skill="dash" onclick="useSkill('dash')">
+                    <div class="s-icon">💨</div>
+                    <div class="s-name">DASH</div>
+                    <div class="s-cooldown" id="dashCooldown"></div>
+                </div>
+                <div class="skill-btn" data-skill="aoe" onclick="useSkill('aoe')">
+                    <div class="s-icon">💥</div>
+                    <div class="s-name">AOE</div>
+                    <div class="s-cooldown" id="aoeCooldown"></div>
+                </div>
             </div>
             <div id="overlay">
                 <h1>🏰 TOWER DEFENSE</h1>
@@ -668,6 +879,42 @@
                 },
             }
 
+            function lerp(a, b, t) {
+                return a + (b - a) * t
+            }
+
+            function createHero() {
+                return {
+                    x: W / 2,
+                    y: H / 2,
+                    vx: 0,
+                    vy: 0,
+                    hp: 100,
+                    maxHp: 100,
+                    level: 1,
+                    exp: 0,
+                    expToNext: 100,
+                    damage: 25,
+                    range: 120,
+                    fireRate: 1.5,
+                    cooldown: 0,
+                    speed: 150,
+                    dashCooldown: 0,
+                    dashDuration: 0.2,
+                    dashSpeed: 600,
+                    invincible: false,
+                    invincibilityTimer: 0,
+                    afterImages: [],
+                    aoeCooldown: 0,
+                    aoeRadius: 80,
+                    aoeDamage: 50,
+                    aoeKnockback: 100,
+                    scaleAnim: 1,
+                    idleTimer: 0,
+                    flashFrames: 0,
+                }
+            }
+
             // Multi-lane paths (grid coords): Top, Middle, Bottom converge to Base
             const PATHS_GRID = [
                 // Lane 0: Top
@@ -859,7 +1106,15 @@
                 time: 0,
                 lastTime: 0,
                 auraUpdateTimer: 0,
+                hero: null,
+                cameraX: W / 2,
+                cameraY: H / 2,
             }
+
+            let keys = {}
+            let isDragging = false
+            let dragStartX = 0,
+                dragStartY = 0
 
             // ============ ENEMY ============
             function createEnemy(type, laneID) {
@@ -953,6 +1208,19 @@
                         e.y += (dy / dist) * move
                     }
                 }
+
+                // Check collision with Hero
+                if (game.hero && !game.hero.invincible) {
+                    const dx = e.x - game.hero.x,
+                        dy = e.y - game.hero.y
+                    const dist = Math.sqrt(dx * dx + dy * dy)
+                    if (dist < e.size + 20) {
+                        game.hero.hp -= 10
+                        game.hero.flashFrames = 5
+                        if (game.hero.hp <= 0) endGame(false)
+                        updateUI()
+                    }
+                }
                 if (e.pathIndex >= lanePath.length - 1) {
                     e.reachedBase = true
                     e.alive = false
@@ -997,6 +1265,7 @@
                 if (e.hp <= 0) {
                     e.alive = false
                     game.gold += e.reward
+                    if (game.hero) game.hero.exp += e.reward * 2
                     playSound('kill')
                     const deathEffect = e.statusList.length > 0 ? STATUS_DEFS[e.statusList[0].type].deathEffect : null
                     spawnDeathParticles(e, deathEffect)
@@ -2005,6 +2274,31 @@
                 document.getElementById('waveText').textContent = `Đợt ${game.wave}/${game.maxWaves}`
                 document.getElementById('goldText').textContent = game.gold
 
+                // Update Hero UI
+                if (game.hero) {
+                    document.getElementById('heroHpFill').style.width = (game.hero.hp / game.hero.maxHp) * 100 + '%'
+                    document.getElementById('heroHpText').textContent = Math.max(0, game.hero.hp)
+                    document.getElementById('heroLevel').textContent = 'Lv' + game.hero.level
+                    document.getElementById('heroExpFill').style.width =
+                        (game.hero.exp / game.hero.expToNext) * 100 + '%'
+
+                    // Skills
+                    const dashBtn = document.querySelector('.skill-btn[data-skill="dash"]')
+                    const aoeBtn = document.querySelector('.skill-btn[data-skill="aoe"]')
+                    if (game.hero.dashCooldown > 0) {
+                        dashBtn.classList.add('on-cooldown')
+                        document.getElementById('dashCooldown').textContent = game.hero.dashCooldown.toFixed(1)
+                    } else {
+                        dashBtn.classList.remove('on-cooldown')
+                    }
+                    if (game.hero.aoeCooldown > 0) {
+                        aoeBtn.classList.add('on-cooldown')
+                        document.getElementById('aoeCooldown').textContent = game.hero.aoeCooldown.toFixed(1)
+                    } else {
+                        aoeBtn.classList.remove('on-cooldown')
+                    }
+                }
+
                 // Update tower buttons
                 document.querySelectorAll('.tower-btn').forEach((btn) => {
                     const type = btn.dataset.type
@@ -2038,6 +2332,17 @@
                     waveBtn.classList.add('hidden')
                 } else {
                     waveBtn.classList.remove('hidden')
+                }
+            }
+
+            function useSkill(skill) {
+                if (!game.hero) return
+                if (skill === 'dash' && game.hero.dashCooldown <= 0) {
+                    keys[' '] = true
+                    setTimeout(() => (keys[' '] = false), 100)
+                } else if (skill === 'aoe' && game.hero.aoeCooldown <= 0) {
+                    keys['q'] = true
+                    setTimeout(() => (keys['q'] = false), 100)
                 }
             }
 
@@ -2091,6 +2396,19 @@
             }
 
             // ============ INPUT ============
+            window.addEventListener('keydown', (e) => {
+                keys[e.key.toLowerCase()] = true
+            })
+            window.addEventListener('keyup', (e) => {
+                keys[e.key.toLowerCase()] = false
+            })
+
+            canvas.addEventListener('mousedown', (e) => {
+                isDragging = true
+                dragStartX = e.clientX
+                dragStartY = e.clientY
+            })
+
             canvas.addEventListener('mousemove', (e) => {
                 const rect = canvas.getBoundingClientRect()
                 const scaleX = W / rect.width,
@@ -2100,10 +2418,19 @@
                 const col = Math.floor(mx / CELL)
                 const row = Math.floor(my / CELL)
                 game.hoveredCell = { col, row, mx, my }
+
+                if (isDragging && game.hero) {
+                    game.hero.x = mx
+                    game.hero.y = my
+                }
             })
 
             canvas.addEventListener('mouseleave', () => {
                 game.hoveredCell = null
+            })
+
+            canvas.addEventListener('mouseup', () => {
+                isDragging = false
             })
 
             canvas.addEventListener('click', (e) => {
@@ -2166,6 +2493,149 @@
             })
 
             // ============ GAME LOOP ============
+            function updateHero(hero, dt) {
+                // Input movement
+                hero.vx = 0
+                hero.vy = 0
+                if (keys['w'] || keys['arrowup']) hero.vy -= hero.speed
+                if (keys['s'] || keys['arrowdown']) hero.vy += hero.speed
+                if (keys['a'] || keys['arrowleft']) hero.vx -= hero.speed
+                if (keys['d'] || keys['arrowright']) hero.vx += hero.speed
+                // Normalize diagonal
+                if (hero.vx !== 0 && hero.vy !== 0) {
+                    hero.vx *= 0.707
+                    hero.vy *= 0.707
+                }
+                // Update position
+                hero.x += hero.vx * dt
+                hero.y += hero.vy * dt
+                // Clamp to map
+                hero.x = Math.max(20, Math.min(W - 20, hero.x))
+                hero.y = Math.max(20, Math.min(H - 20, hero.y))
+
+                // Auto attack
+                hero.cooldown -= dt
+                if (hero.cooldown <= 0) {
+                    let target = null
+                    let minDist = Infinity
+                    for (const e of game.enemies) {
+                        if (!e.alive) continue
+                        const dx = e.x - hero.x,
+                            dy = e.y - hero.y
+                        const dist = dx * dx + dy * dy
+                        if (dist <= hero.range * hero.range && dist < minDist) {
+                            minDist = dist
+                            target = e
+                        }
+                    }
+                    if (target) {
+                        hero.cooldown = 1 / hero.fireRate
+                        const bullet = {
+                            x: hero.x,
+                            y: hero.y,
+                            target,
+                            damage: hero.damage,
+                            speed: 300,
+                            color: '#ffaa44',
+                            alive: true,
+                            trail: [],
+                            trailTimer: 0,
+                        }
+                        game.bullets.push(bullet)
+                    }
+                }
+
+                // Skills
+                hero.dashCooldown -= dt
+                hero.aoeCooldown -= dt
+                hero.invincibilityTimer -= dt
+                if (hero.invincibilityTimer <= 0) hero.invincible = false
+
+                // Dash
+                if (keys[' '] && hero.dashCooldown <= 0) {
+                    hero.dashCooldown = 5
+                    hero.invincible = true
+                    hero.invincibilityTimer = 0.2
+                    // Store after images
+                    hero.afterImages = []
+                    const dashDist = hero.dashSpeed * 0.2
+                    const dirX = hero.vx || Math.random() - 0.5
+                    const dirY = hero.vy || Math.random() - 0.5
+                    const len = Math.sqrt(dirX * dirX + dirY * dirY)
+                    if (len > 0) {
+                        const dx = (dirX / len) * dashDist
+                        const dy = (dirY / len) * dashDist
+                        hero.x += dx
+                        hero.y += dy
+                        // After images
+                        for (let i = 1; i <= 3; i++) {
+                            hero.afterImages.push({
+                                x: hero.x - dx * i * 0.3,
+                                y: hero.y - dy * i * 0.3,
+                                alpha: 0.5 - i * 0.1,
+                            })
+                        }
+                    }
+                }
+
+                // AoE
+                if (keys['q'] && hero.aoeCooldown <= 0) {
+                    hero.aoeCooldown = 8
+                    for (const e of game.enemies) {
+                        if (!e.alive) continue
+                        const dx = e.x - hero.x,
+                            dy = e.y - hero.y
+                        const dist = Math.sqrt(dx * dx + dy * dy)
+                        if (dist <= hero.aoeRadius) {
+                            damageEnemy(e, hero.aoeDamage)
+                            const knockback = hero.aoeKnockback / dist
+                            e.x += (dx / dist) * knockback
+                            e.y += (dy / dist) * knockback
+                        }
+                    }
+                    // Particles for AoE
+                    for (let i = 0; i < 10; i++) {
+                        const angle = (i / 10) * Math.PI * 2
+                        const px = hero.x + Math.cos(angle) * hero.aoeRadius
+                        const py = hero.y + Math.sin(angle) * hero.aoeRadius
+                        spawnHitParticles(px, py, '#ff4466')
+                    }
+                }
+
+                // Level up
+                if (hero.exp >= hero.expToNext) {
+                    hero.exp -= hero.expToNext
+                    hero.level++
+                    hero.expToNext = hero.level * 100
+                    hero.damage += 5
+                    hero.range += 10
+                    hero.fireRate += 0.1
+                    hero.maxHp += 20
+                    hero.hp = hero.maxHp
+                    hero.dashCooldown = Math.max(3, hero.dashCooldown - 0.5)
+                    hero.aoeCooldown = Math.max(5, hero.aoeCooldown - 0.5)
+                }
+
+                // Animations
+                hero.scaleAnim += (1 - hero.scaleAnim) * dt * 8
+                hero.idleTimer += dt
+                if (hero.idleTimer > 1) {
+                    hero.idleTimer = 0
+                    hero.scaleAnim = 1.05
+                }
+
+                // After images fade
+                for (let ai of hero.afterImages) ai.alpha -= dt * 2
+                hero.afterImages = hero.afterImages.filter((ai) => ai.alpha > 0)
+
+                // Flash
+                if (hero.flashFrames > 0) {
+                    hero.flashFrames--
+                    game.shakeAmount = Math.min(8, game.shakeAmount + 1)
+                    game.shakeDuration = 0.15
+                }
+            }
+
             function updateAuraBuffs() {
                 // Reset buffs
                 for (const t of game.towers) {
@@ -2241,6 +2711,9 @@
                 // Towers
                 for (const t of game.towers) updateTower(t, dt)
 
+                // Hero
+                if (game.hero) updateHero(game.hero, dt)
+
                 // Bullets
                 for (const b of game.bullets) updateBullet(b, dt)
                 const deadBullets = game.bullets.filter((b) => !b.alive)
@@ -2255,6 +2728,34 @@
             }
 
             // UI: Mini lane indicator (3 dots + density bar)
+            function drawHero(hero) {
+                // After images
+                for (const ai of hero.afterImages) {
+                    ctx.globalAlpha = ai.alpha * 0.3
+                    ctx.fillStyle = '#ffaa44'
+                    ctx.shadowColor = '#ffaa44'
+                    ctx.shadowBlur = 15
+                    ctx.beginPath()
+                    ctx.arc(ai.x, ai.y, 20 * ai.alpha, 0, Math.PI * 2)
+                    ctx.fill()
+                }
+                ctx.globalAlpha = 1
+
+                // Hero body
+                ctx.shadowColor = '#ffaa44'
+                ctx.shadowBlur = 20
+                ctx.fillStyle = hero.invincible ? '#ffffff' : '#ffaa44'
+                ctx.beginPath()
+                ctx.arc(hero.x, hero.y, 20 * hero.scaleAnim, 0, Math.PI * 2)
+                ctx.fill()
+
+                // Inner highlight
+                ctx.fillStyle = 'rgba(255,255,255,0.5)'
+                ctx.beginPath()
+                ctx.arc(hero.x - 5, hero.y - 5, 10, 0, Math.PI * 2)
+                ctx.fill()
+            }
+
             function drawLaneIndicator() {
                 const ix = W - 60,
                     iy = 60
@@ -2311,6 +2812,10 @@
             }
 
             function draw() {
+                // Clear entire canvas to prevent trailing artifacts
+                ctx.fillStyle = '#0a0a1a'
+                ctx.fillRect(0, 0, canvas.width, canvas.height)
+
                 ctx.save()
 
                 // Camera shake
@@ -2318,6 +2823,13 @@
                     const sx = (Math.random() - 0.5) * game.shakeAmount * 2
                     const sy = (Math.random() - 0.5) * game.shakeAmount * 2
                     ctx.translate(sx, sy)
+                }
+
+                // Camera follow Hero
+                if (game.hero) {
+                    game.cameraX = lerp(game.cameraX, game.hero.x, 0.05)
+                    game.cameraY = lerp(game.cameraY, game.hero.y, 0.05)
+                    ctx.translate(-game.cameraX + W / 2, -game.cameraY + H / 2)
                 }
 
                 drawMap()
@@ -2330,16 +2842,19 @@
                 // Enemies
                 for (const e of game.enemies) drawEnemy(e)
 
+                // Hero (drawn after enemies for proper layering)
+                if (game.hero) drawHero(game.hero)
+
                 // Bullets
                 for (const b of game.bullets) drawBullet(b)
 
                 // Particles
                 for (const p of game.particles) drawParticle(p)
 
-                // Lane indicator UI
-                drawLaneIndicator()
-
                 ctx.restore()
+
+                // Lane indicator UI (outside camera)
+                drawLaneIndicator()
             }
 
             function lerpColor(color1, color2, amount) {
@@ -2391,6 +2906,9 @@
                 game.shakeAmount = 0
                 game.time = 0
                 game.auraUpdateTimer = 0
+                game.hero = createHero()
+                game.cameraX = W / 2
+                game.cameraY = H / 2
                 ambientParticles.length = 0
                 updateUI()
             }
