@@ -2057,22 +2057,30 @@
 
                     // Distance meter
                     const distMeters = Math.floor(distance / 10)
+                    const distX = CONFIG.WIDTH - 155
+                    const distY = 12
+                    const distW = 85
+                    const distH = 40
                     ctx.fillStyle = 'rgba(10, 10, 30, 0.6)'
                     ctx.beginPath()
-                    ctx.roundRect(CONFIG.WIDTH - 160, 12, 88, 40, 10)
+                    ctx.roundRect(distX, distY, distW, distH, 10)
                     ctx.fill()
                     ctx.strokeStyle = 'rgba(123, 104, 238, 0.5)'
                     ctx.beginPath()
-                    ctx.roundRect(CONFIG.WIDTH - 160, 12, 88, 40, 10)
+                    ctx.roundRect(distX, distY, distW, distH, 10)
                     ctx.stroke()
 
+                    // Running icon + distance text centered
                     ctx.fillStyle = '#88ffbb'
+                    ctx.shadowColor = '#88ffbb'
+                    ctx.shadowBlur = 10
                     ctx.font = "bold 16px 'Segoe UI'"
-                    ctx.textAlign = 'right'
-                    ctx.fillText(distMeters + 'm', CONFIG.WIDTH - 178, 39)
+                    ctx.textAlign = 'center'
+                    ctx.fillText('🏃 ' + distMeters + 'm', distX + distW / 2, 39)
+                    ctx.shadowBlur = 0
 
                     // Pause button
-                    const pauseBtnX = CONFIG.WIDTH - 52
+                    const pauseBtnX = CONFIG.WIDTH - 60
                     const pauseBtnY = 12
                     const pauseBtnW = 40
                     const pauseBtnH = 40
