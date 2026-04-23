@@ -2026,6 +2026,61 @@
                 drawHUD(ctx, distance = 0, biomeKey = 'cyber', game = null) {
                     const biome = CONFIG.BIOMES[biomeKey] || CONFIG.BIOMES.cyber
 
+                    // Boss warning
+                    if (game && game.bossWarningTimer > 0) {
+                        ctx.save()
+                        ctx.textAlign = 'center'
+                        ctx.font = "bold 48px 'Segoe UI'"
+                        ctx.shadowColor = '#ff0000'
+                        ctx.shadowBlur = 20 + Math.sin(Date.now() / 50) * 10
+                        ctx.fillStyle = `rgba(255, 0, 0, ${game.bossWarningTimer / 2})`
+                        ctx.fillText('⚠ BOSS INCOMING! ⚠', CONFIG.WIDTH / 2, CONFIG.HEIGHT / 2 - 50)
+                        ctx.shadowBlur = 0
+                        ctx.restore()
+                    }
+
+                    // Boss HP bar
+                    if (game && game.activeBoss && game.activeBoss.alive) {
+                        const boss = game.activeBoss
+                        const barW = CONFIG.WIDTH * 0.6
+                        const barH = 20
+                        const barX = (CONFIG.WIDTH - barW) / 2
+                        const barY = 60
+
+                        // Background
+                        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)'
+                        ctx.beginPath()
+                        ctx.roundRect(barX, barY, barW, barH, 10)
+                        ctx.fill()
+
+                        // HP fill
+                        const hpRatio = boss.hp / boss.maxHp
+                        const hpGrad = ctx.createLinearGradient(barX, 0, barX + barW, 0)
+                        hpGrad.addColorStop(0, '#ff0000')
+                        hpGrad.addColorStop(1, '#ff6666')
+                        ctx.fillStyle = hpGrad
+                        ctx.beginPath()
+                        ctx.roundRect(barX, barY, barW * hpRatio, barH, 10)
+                        ctx.fill()
+
+                        // Glow
+                        ctx.shadowColor = '#ff0000'
+                        ctx.shadowBlur = 15 + Math.sin(Date.now() / 100) * 5
+                        ctx.strokeStyle = '#ff4444'
+                        ctx.lineWidth = 2
+                        ctx.beginPath()
+                        ctx.roundRect(barX, barY, barW, barH, 10)
+                        ctx.stroke()
+                        ctx.shadowBlur = 0
+
+                        // Boss name
+                        ctx.fillStyle = '#ffffff'
+                        ctx.font = "bold 16px 'Segoe UI'"
+                        ctx.textAlign = 'center'
+                        const bossNames = { iceGolem: 'FROZEN GOLEM', fireSerpent: 'FIRE SERPENT', aiDrone: 'AI DRONE' }
+                        ctx.fillText(bossNames[boss.type] || 'BOSS', CONFIG.WIDTH / 2, barY - 8)
+                    }
+
                     // MODDED indicator
                     if (game && game.activeMods.length > 0) {
                         ctx.save()
@@ -3098,6 +3153,342 @@
             }
 
             // ============================================================
+            // BOSS BASE CLASS
+            // ============================================================
+            class Boss {
+                constructor(x, y, type, biomeKey) {
+                    this.x = x
+                    this.y = y
+                    this.w = 80
+                    this.h = 80
+                    this.hp = 100
+                    this.maxHp = 100
+                    this.type = type
+                    this.biomeKey = biomeKey
+                    this.state = 'idle' // idle, attack, hit, dying
+                    this.vx = 0
+                    this.vy = 0
+                    this.timer = 0
+                    this.hitFlash = 0
+                    this.projectiles = []
+                    this.alive = true
+                }
+                takeDamage(dmg) {
+                    if (!this.alive) return
+                    this.hp -= dmg
+                    this.hitFlash = 0.2
+                    this.state = 'hit'
+                    if (this.hp <= 0) {
+                        this.hp = 0
+                        this.alive = false
+                        this.state = 'dying'
+                    }
+                }
+                update(dt, playerX, playerY, platforms) {
+                    if (!this.alive) return
+                    this.timer += dt
+                    if (this.hitFlash > 0) this.hitFlash -= dt
+                    if (this.state === 'hit') {
+                        if (this.hitFlash <= 0) this.state = 'idle'
+                    }
+                    this.aiUpdate(dt, playerX, playerY, platforms)
+                    // Update projectiles
+                    for (let i = this.projectiles.length - 1; i >= 0; i--) {
+                        const p = this.projectiles[i]
+                        p.x += (p.vx || 0) * dt
+                        p.y += (p.vy || 0) * dt
+                        p.life -= dt
+                        if (p.life <= 0) this.projectiles.splice(i, 1)
+                    }
+                }
+                aiUpdate(dt, playerX, playerY, platforms) {}
+                draw(ctx, camX, camY) {
+                    if (!this.alive && this.state !== 'dying') return
+                    const sx = this.x - camX
+                    const sy = this.y - camY
+                    ctx.save()
+                    ctx.translate(sx + this.w / 2, sy + this.h / 2)
+                    if (this.hitFlash > 0) {
+                        ctx.globalAlpha = 0.5 + Math.random() * 0.5
+                    }
+                    this.drawBody(ctx)
+                    ctx.restore()
+                    // Draw projectiles
+                    for (const p of this.projectiles) {
+                        ctx.fillStyle = p.color || '#ff4444'
+                        ctx.beginPath()
+                        ctx.arc(p.x - camX, p.y - camY, p.r || 4, 0, Math.PI * 2)
+                        ctx.fill()
+                    }
+                }
+                drawBody(ctx) {}
+            }
+
+            // ============================================================
+            // ICE BOSS (Frozen Golem)
+            // ============================================================
+            class IceBoss extends Boss {
+                constructor(x, y) {
+                    super(x, y, 'iceGolem', 'ice')
+                    this.hp = 150
+                    this.maxHp = 150
+                    this.w = 90
+                    this.h = 100
+                    this.speed = 60
+                    this.attackCooldown = 0
+                    this.spikeTimer = 0
+                }
+                aiUpdate(dt, playerX, playerY, platforms) {
+                    // Move slowly toward player X
+                    const dx = playerX - (this.x + this.w / 2)
+                    if (Math.abs(dx) > 10) {
+                        this.vx = dx > 0 ? this.speed : -this.speed
+                    } else {
+                        this.vx = 0
+                    }
+                    this.x += this.vx * dt
+
+                    // Stomp attack: dậm chân tạo băng gai
+                    this.attackCooldown -= dt
+                    this.spikeTimer -= dt
+                    if (this.attackCooldown <= 0) {
+                        this.state = 'attack'
+                        this.attackCooldown = 3
+                        // Tạo ice spikes dưới chân
+                        this.spikeTimer = 1.5
+                        // Spikes sẽ được vẽ riêng qua drawSpikes
+                    }
+                    if (this.spikeTimer > 0) {
+                        // Spikes active
+                    }
+                }
+                drawBody(ctx) {
+                    // Body - Frozen Golem
+                    ctx.fillStyle = '#88ccff'
+                    ctx.beginPath()
+                    ctx.arc(0, 0, 40, 0, Math.PI * 2)
+                    ctx.fill()
+                    ctx.strokeStyle = '#aaddff'
+                    ctx.lineWidth = 3
+                    ctx.stroke()
+                    // Eyes
+                    ctx.fillStyle = '#ffffff'
+                    ctx.beginPath()
+                    ctx.arc(-12, -8, 6, 0, Math.PI * 2)
+                    ctx.arc(12, -8, 6, 0, Math.PI * 2)
+                    ctx.fill()
+                    ctx.fillStyle = '#0066cc'
+                    ctx.beginPath()
+                    ctx.arc(-12, -8, 3, 0, Math.PI * 2)
+                    ctx.arc(12, -8, 3, 0, Math.PI * 2)
+                    ctx.fill()
+                    // Spikes when attacking
+                    if (this.spikeTimer > 0) {
+                        ctx.fillStyle = '#aaddff'
+                        for (let i = 0; i < 5; i++) {
+                            const angle = (i / 5) * Math.PI - Math.PI / 2
+                            const len = 20 + Math.sin(this.timer * 10 + i) * 5
+                            ctx.beginPath()
+                            ctx.moveTo(Math.cos(angle) * 35, Math.sin(angle) * 35)
+                            ctx.lineTo(Math.cos(angle) * (35 + len), Math.sin(angle) * (35 + len))
+                            ctx.lineTo(Math.cos(angle + 0.2) * 35, Math.sin(angle + 0.2) * 35)
+                            ctx.closePath()
+                            ctx.fill()
+                        }
+                    }
+                }
+                drawSpikes(ctx, camX, camY) {
+                    if (this.spikeTimer <= 0) return
+                    const sx = this.x - camX
+                    for (let i = 0; i < 6; i++) {
+                        const spikeX = this.x + (i / 5) * this.w
+                        ctx.fillStyle = 'rgba(170, 221, 255, 0.8)'
+                        ctx.beginPath()
+                        ctx.moveTo(spikeX - camX, this.y + this.h - camY)
+                        ctx.lineTo(spikeX + 8 - camX, this.y + this.h + 20 - camY)
+                        ctx.lineTo(spikeX + 16 - camX, this.y + this.h - camY)
+                        ctx.closePath()
+                        ctx.fill()
+                    }
+                }
+            }
+
+            // ============================================================
+            // LAVA BOSS (Fire Serpent)
+            // ============================================================
+            class LavaBoss extends Boss {
+                constructor(x, y) {
+                    super(x, y, 'fireSerpent', 'lava')
+                    this.hp = 120
+                    this.maxHp = 120
+                    this.w = 100
+                    this.h = 60
+                    this.baseY = y
+                    this.amplitude = 40
+                    this.frequency = 3
+                    this.attackCooldown = 0
+                    this.fireballTimer = 0
+                }
+                aiUpdate(dt, playerX, playerY, platforms) {
+                    // Move in wave pattern
+                    this.x += 100 * dt
+                    this.y = this.baseY + Math.sin(this.timer * this.frequency) * this.amplitude
+
+                    this.attackCooldown -= dt
+                    if (this.attackCooldown <= 0) {
+                        this.attackCooldown = 2.5
+                        // Bắn cầu lửa
+                        const angle = Math.atan2(playerY - this.y, playerX - this.x)
+                        this.projectiles.push({
+                            x: this.x,
+                            y: this.y,
+                            vx: Math.cos(angle) * 200,
+                            vy: Math.sin(angle) * 200,
+                            life: 3,
+                            r: 6,
+                            color: '#ff6622',
+                            type: 'fireball',
+                        })
+                    }
+                }
+                drawBody(ctx) {
+                    // Serpent body
+                    ctx.fillStyle = '#ff6622'
+                    ctx.beginPath()
+                    ctx.ellipse(0, 0, 50, 25, 0, 0, Math.PI * 2)
+                    ctx.fill()
+                    ctx.strokeStyle = '#ff8844'
+                    ctx.lineWidth = 2
+                    ctx.stroke()
+                    // Eyes
+                    ctx.fillStyle = '#ffffff'
+                    ctx.beginPath()
+                    ctx.arc(-15, -8, 5, 0, Math.PI * 2)
+                    ctx.arc(15, -8, 5, 0, Math.PI * 2)
+                    ctx.fill()
+                    ctx.fillStyle = '#ff0000'
+                    ctx.beginPath()
+                    ctx.arc(-15, -8, 2.5, 0, Math.PI * 2)
+                    ctx.arc(15, -8, 2.5, 0, Math.PI * 2)
+                    ctx.fill()
+                    // Glow
+                    ctx.shadowColor = '#ff6622'
+                    ctx.shadowBlur = 15 + Math.sin(this.timer * 5) * 5
+                }
+            }
+
+            // ============================================================
+            // CYBER BOSS (AI Drone)
+            // ============================================================
+            class CyberBoss extends Boss {
+                constructor(x, y) {
+                    super(x, y, 'aiDrone', 'cyber')
+                    this.hp = 100
+                    this.maxHp = 100
+                    this.w = 70
+                    this.h = 70
+                    this.floatY = y
+                    this.baseY = y
+                    this.laserWarning = 0
+                    this.laserActive = 0
+                    this.laserX = 0
+                    this.attackCooldown = 0
+                    this.droneTimer = 0
+                    this.drones = []
+                }
+                aiUpdate(dt, playerX, playerY, platforms) {
+                    // Fly hovering
+                    this.floatY = this.baseY + Math.sin(this.timer * 2) * 30
+                    this.y += (this.floatY - this.y) * 0.1
+
+                    // Follow player X slowly
+                    const dx = playerX - (this.x + this.w / 2)
+                    if (Math.abs(dx) > 5) {
+                        this.x += (dx > 0 ? 80 : -80) * dt
+                    }
+
+                    this.attackCooldown -= dt
+                    this.laserWarning -= dt
+                    this.laserActive -= dt
+
+                    if (this.attackCooldown <= 0) {
+                        this.attackCooldown = 4
+                        // Laser attack với cảnh báo
+                        this.laserWarning = 1.0
+                        this.laserActive = 0
+                        this.laserX = playerX
+                    }
+                    if (this.laserWarning > 0 && this.laserWarning < 0.2) {
+                        this.laserActive = 1.5
+                    }
+                    // Triệu hồi drone nhỏ
+                    this.droneTimer -= dt
+                    if (this.droneTimer <= 0) {
+                        this.droneTimer = 6
+                        this.drones.push({
+                            x: this.x + Math.random() * 100,
+                            y: this.y + 80,
+                            life: 5,
+                            vx: (Math.random() - 0.5) * 100,
+                        })
+                    }
+                    // Update drones
+                    for (let i = this.drones.length - 1; i >= 0; i--) {
+                        const d = this.drones[i]
+                        d.x += d.vx * dt
+                        d.y += 50 * dt
+                        d.life -= dt
+                        if (d.life <= 0) this.drones.splice(i, 1)
+                    }
+                }
+                drawBody(ctx) {
+                    // Main body - AI Drone
+                    ctx.fillStyle = '#ff44aa'
+                    ctx.beginPath()
+                    ctx.roundRect(-35, -35, 70, 70, 10)
+                    ctx.fill()
+                    ctx.strokeStyle = '#ff66cc'
+                    ctx.lineWidth = 2
+                    ctx.stroke()
+                    // Eye
+                    ctx.fillStyle = '#ffffff'
+                    ctx.beginPath()
+                    ctx.arc(0, 0, 10, 0, Math.PI * 2)
+                    ctx.fill()
+                    ctx.fillStyle = '#ff00ff'
+                    ctx.beginPath()
+                    ctx.arc(0, 0, 5, 0, Math.PI * 2)
+                    ctx.fill()
+                    // Laser warning line
+                    if (this.laserWarning > 0) {
+                        ctx.strokeStyle = 'rgba(255, 0, 255, 0.3)'
+                        ctx.lineWidth = 3
+                        ctx.setLineDash([
+                            10,
+                            10,
+                        ])
+                        ctx.beginPath()
+                        ctx.moveTo(this.laserX - this.x, -this.y)
+                        ctx.lineTo(this.laserX - this.x, 200)
+                        ctx.stroke()
+                        ctx.setLineDash([])
+                    }
+                    // Laser beam
+                    if (this.laserActive > 0) {
+                        ctx.fillStyle = 'rgba(255, 0, 255, 0.7)'
+                        ctx.fillRect(this.laserX - this.x - 5, 0, 10, 300)
+                    }
+                    // Draw drones
+                    for (const d of this.drones) {
+                        ctx.fillStyle = '#ff88ff'
+                        ctx.beginPath()
+                        ctx.arc(d.x - this.x, d.y - this.y, 8, 0, Math.PI * 2)
+                        ctx.fill()
+                    }
+                }
+            }
+
+            // ============================================================
             // GAME MANAGER
             // ============================================================
             class GameManager {
@@ -3154,6 +3545,16 @@
                     this.cutsceneStartTime = 0
                     this.cutsceneStartTime = 0
 
+                    // Boss system
+                    this.activeBoss = null
+                    this.bossMode = false
+                    this.bossWarningTimer = 0
+                    this.bossArenaX = 0
+                    this.bossArenaLeft = 0
+                    this.bossArenaRight = 0
+                    this.bossDefeated = false
+                    this.bossCooldown = 0
+
                     // Audio enhancements
                     this.currentBiomeKey = null
                     this.screenPulse = 0
@@ -3178,6 +3579,13 @@
                     this.lastGeneratedX = 0
                     this.distance = 0
                     this.levelGenerator = new LevelGenerator()
+
+                    // Reset boss state
+                    this.activeBoss = null
+                    this.bossMode = false
+                    this.bossWarningTimer = 0
+                    this.bossDefeated = false
+                    this.bossCooldown = 0
 
                     if (this.gameMode === 'story') {
                         const chapter = CONFIG.CHAPTERS[this.currentChapter]
@@ -3300,6 +3708,13 @@
                         }
                         return true
                     })
+
+                    // Cleanup boss projectiles behind camera
+                    if (this.activeBoss) {
+                        this.activeBoss.projectiles = this.activeBoss.projectiles.filter((p) => {
+                            return p.x > despawnX - 100
+                        })
+                    }
                 }
                 updateLevel(cameraX, dt, enemyMult = 1.0) {
                     // Update distance
@@ -3309,11 +3724,22 @@
                     this.skinStats.distance = Math.max(this.skinStats.distance, this.distance)
                     this.checkSkinUnlocks()
 
-                    // Update difficulty (apply biome enemy multiplier)
-                    this.levelGenerator.updateDifficulty(this.distance, enemyMult)
+                    // Check trigger boss fight every 500m
+                    if (
+                        !this.bossMode &&
+                        !this.bossDefeated &&
+                        this.distance > 0 &&
+                        Math.floor(this.distance / 5000) >
+                            Math.floor((this.distance - Math.abs(this.player.vx) * dt) / 5000)
+                    ) {
+                        this.triggerBossFight()
+                    }
 
-                    // Generate new chunks ahead
-                    this.generateAhead(cameraX, 800)
+                    // Generate new chunks ahead (skip if in boss mode)
+                    if (!this.bossMode) {
+                        this.levelGenerator.updateDifficulty(this.distance, enemyMult)
+                        this.generateAhead(cameraX, 800)
+                    }
 
                     // Clean up old entities
                     this.cleanupBehind(cameraX)
@@ -3585,6 +4011,13 @@
                     this.camera.x = 0
                     this.camera.y = 0
                     this.shake.timer = 0
+
+                    // Reset boss state
+                    this.activeBoss = null
+                    this.bossMode = false
+                    this.bossWarningTimer = 0
+                    this.bossDefeated = false
+                    this.bossCooldown = 0
                 }
                 triggerShake(intensity = CONFIG.SHAKE_INTENSITY) {
                     this.shake.timer = CONFIG.SHAKE_DURATION
@@ -3687,47 +4120,52 @@
                         this.playerDie()
                     }
 
-                    // Update enemies
-                    for (const e of this.enemies) {
-                        e.update(dt)
-                        if (!e.alive || e.dying) continue
+                    // Update enemies (skip if boss mode)
+                    if (!this.bossMode) {
+                        for (const e of this.enemies) {
+                            e.update(dt)
+                            if (!e.alive || e.dying) continue
 
-                        if (this.player.alive && this.player.invincible <= 0 && this.player.overlapsEnemy(e)) {
-                            // Check if stomping (player falling and player's feet above enemy center)
-                            if (this.player.vy > 0 && this.player.y + this.player.h < e.y + e.h * 0.5) {
-                                // Stomp!
-                                e.stomp()
-                                this.player.vy = CONFIG.PLAYER_JUMP * 0.6
-                                this.score += 50
-                                this.ui.score = this.score
-                                const pan = ((e.x - this.player.x) / CONFIG.WIDTH) * 2 - 1
-                                this.audio.playSFX('stomp', 0.15, pan)
-                                this.particles.emitStompBurst(e.x + e.w / 2, e.y + e.h / 2)
-                                this.particles.emitScorePopup(e.x + e.w / 2, e.y - 10, '+50')
-                                this.triggerShake(5)
-
-                                // Update skin stats - count as boss kill
-                                this.skinStats.bossKills++
-                                this.checkSkinUnlocks()
-                            } else if (!this.modInvincible) {
-                                // Hit by enemy - check shield
-                                if (this.pet.buffType === 'shield' && this.pet.buffActive) {
-                                    // Shield blocks the hit
-                                    this.pet.buffActive = false
-                                    this.pet.buffType = null
-                                    this.pet.buffDuration = 0
-                                    this.pet.buffCooldown = 5
-                                    this.triggerShake(3)
-                                    // Push enemy away
-                                    e.x = e.x - 50
-                                } else {
+                            if (this.player.alive && this.player.invincible <= 0 && this.player.overlapsEnemy(e)) {
+                                // Check if stomping (player falling and player's feet above enemy center)
+                                if (this.player.vy > 0 && this.player.y + this.player.h < e.y + e.h * 0.5) {
+                                    // Stomp!
+                                    e.stomp()
+                                    this.player.vy = CONFIG.PLAYER_JUMP * 0.6
+                                    this.score += 50
+                                    this.ui.score = this.score
                                     const pan = ((e.x - this.player.x) / CONFIG.WIDTH) * 2 - 1
-                                    this.audio.playSFX('hit', 0.15, pan)
-                                    this.playerDie()
+                                    this.audio.playSFX('stomp', 0.15, pan)
+                                    this.particles.emitStompBurst(e.x + e.w / 2, e.y + e.h / 2)
+                                    this.particles.emitScorePopup(e.x + e.w / 2, e.y - 10, '+50')
+                                    this.triggerShake(5)
+
+                                    // Update skin stats - count as boss kill
+                                    this.skinStats.bossKills++
+                                    this.checkSkinUnlocks()
+                                } else if (!this.modInvincible) {
+                                    // Hit by enemy - check shield
+                                    if (this.pet.buffType === 'shield' && this.pet.buffActive) {
+                                        // Shield blocks the hit
+                                        this.pet.buffActive = false
+                                        this.pet.buffType = null
+                                        this.pet.buffDuration = 0
+                                        this.pet.buffCooldown = 5
+                                        this.triggerShake(3)
+                                        // Push enemy away
+                                        e.x = e.x - 50
+                                    } else {
+                                        const pan = ((e.x - this.player.x) / CONFIG.WIDTH) * 2 - 1
+                                        this.audio.playSFX('hit', 0.15, pan)
+                                        this.playerDie()
+                                    }
                                 }
                             }
                         }
                     }
+
+                    // Update Boss
+                    this.updateBoss(dt)
 
                     // Update fish
                     for (const f of this.fish) {
@@ -3825,8 +4263,12 @@
                     this.screenPulse = Math.sin(this.time * 4) * 0.05
                     this.glowIntensity = 0.5 + Math.sin(this.time * 2) * 0.2
 
-                    // Camera
-                    this.camera.targetX = this.player.x + this.player.w / 2 - CONFIG.WIDTH / 2
+                    // Camera (lock during boss fight)
+                    if (this.bossMode && this.activeBoss) {
+                        this.camera.targetX = this.activeBoss.x + this.activeBoss.w / 2 - CONFIG.WIDTH / 2
+                    } else {
+                        this.camera.targetX = this.player.x + this.player.w / 2 - CONFIG.WIDTH / 2
+                    }
 
                     this.camera.x += (this.camera.targetX - this.camera.x) * CONFIG.CAMERA_SMOOTH
                     this.camera.y += (this.camera.targetY - this.camera.y) * CONFIG.CAMERA_SMOOTH
@@ -3948,6 +4390,152 @@
                         this.startChapterOutro()
                     } else {
                         this.ui.setState('win')
+                    }
+                }
+
+                triggerBossFight() {
+                    if (this.bossMode || this.activeBoss) return
+                    this.bossMode = true
+                    this.bossWarningTimer = 2.0
+                    this.bossArenaX = this.player.x + 400
+                    this.bossArenaLeft = this.bossArenaX - 200
+                    this.bossArenaRight = this.bossArenaX + 600
+
+                    // Khóa camera, tạo Arena cố định
+                    this.bossDefeated = false
+                    this.bossCooldown = 0
+
+                    // Chặn sinh platform/quái mới (đã xử lý trong updateLevel)
+                    // Hiển thị cảnh báo "BOSS INCOMING"
+                }
+
+                updateBoss(dt) {
+                    if (!this.activeBoss && this.bossWarningTimer > 0) {
+                        this.bossWarningTimer -= dt
+                        if (this.bossWarningTimer <= 0) {
+                            // Tạo Boss dựa trên biome hiện tại
+                            const bossX = this.bossArenaX
+                            const bossY = 350
+                            if (this.biomeKey === 'ice') {
+                                this.activeBoss = new IceBoss(bossX, bossY)
+                            } else if (this.biomeKey === 'lava') {
+                                this.activeBoss = new LavaBoss(bossX, bossY)
+                            } else {
+                                this.activeBoss = new CyberBoss(bossX, bossY)
+                            }
+                        }
+                        return
+                    }
+
+                    if (!this.activeBoss) return
+
+                    // Update Boss
+                    this.activeBoss.update(
+                        dt,
+                        this.player.x + this.player.w / 2,
+                        this.player.y + this.player.h / 2,
+                        this.platforms,
+                    )
+
+                    // Kiểm tra va chạm: Player giẫm lên điểm yếu
+                    if (this.player.alive && this.activeBoss.alive) {
+                        const bx = this.activeBoss.x
+                        const by = this.activeBoss.y
+                        const bw = this.activeBoss.w
+                        const bh = this.activeBoss.h
+
+                        // Player giẫm lên đầu boss
+                        if (
+                            this.player.vy > 0 &&
+                            this.player.y + this.player.h > by &&
+                            this.player.y < by + bh * 0.3 &&
+                            this.player.x + this.player.w > bx &&
+                            this.player.x < bx + bw
+                        ) {
+                            this.activeBoss.takeDamage(10)
+                            this.player.vy = CONFIG.PLAYER_JUMP * 0.5
+                            this.triggerShake(8)
+                            this.particles.emitStompBurst(this.player.x + this.player.w / 2, this.activeBoss.y)
+                        }
+
+                        // Va chạm gây sát thương player
+                        if (
+                            this.player.invincible <= 0 &&
+                            this.player.x + this.player.w > bx &&
+                            this.player.x < bx + bw &&
+                            this.player.y + this.player.h > by &&
+                            this.player.y < by + bh
+                        ) {
+                            if (this.pet.buffType === 'shield' && this.pet.buffActive) {
+                                this.pet.buffActive = false
+                                this.pet.buffType = null
+                                this.pet.buffDuration = 0
+                                this.pet.buffCooldown = 5
+                                this.triggerShake(3)
+                            } else {
+                                this.playerDie()
+                            }
+                        }
+
+                        // Va chạm với projectile của boss
+                        for (let i = this.activeBoss.projectiles.length - 1; i >= 0; i--) {
+                            const p = this.activeBoss.projectiles[i]
+                            const dx = this.player.x + this.player.w / 2 - p.x
+                            const dy = this.player.y + this.player.h / 2 - p.y
+                            if (Math.sqrt(dx * dx + dy * dy) < 20) {
+                                this.activeBoss.projectiles.splice(i, 1)
+                                if (this.player.invincible <= 0) {
+                                    if (this.pet.buffType === 'shield' && this.pet.buffActive) {
+                                        this.pet.buffActive = false
+                                        this.pet.buffType = null
+                                        this.pet.buffDuration = 0
+                                        this.pet.buffCooldown = 5
+                                    } else {
+                                        this.playerDie()
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Pet bắn trúng boss
+                    for (const p of this.pet.projectiles) {
+                        if (!this.activeBoss.alive) continue
+                        const dx = p.x - (this.activeBoss.x + this.activeBoss.w / 2)
+                        const dy = p.y - (this.activeBoss.y + this.activeBoss.h / 2)
+                        if (Math.sqrt(dx * dx + dy * dy) < 40) {
+                            this.activeBoss.takeDamage(5)
+                            p.life = 0
+                            this.triggerShake(5)
+                            this.particles.emitStompBurst(p.x, p.y)
+                        }
+                    }
+
+                    // Boss chết
+                    if (!this.activeBoss.alive && this.activeBoss.state === 'dying') {
+                        this.bossDefeated = true
+                        this.bossMode = false
+                        this.skinStats.bossKills++
+                        this.score += 500
+                        this.ui.score = this.score
+                        this.triggerShake(12)
+
+                        // Slow-motion effect (giả lập bằng cách tăng glow)
+                        // Bắn ra nhiều cá (reward)
+                        for (let i = 0; i < 10; i++) {
+                            this.fish.push(
+                                new Fish(
+                                    this.activeBoss.x + Math.random() * 100,
+                                    this.activeBoss.y - Math.random() * 100,
+                                ),
+                            )
+                        }
+
+                        // Sau 1.5s cleanup boss
+                        setTimeout(() => {
+                            this.activeBoss = null
+                            this.bossCooldown = 3
+                        }, 1500)
                     }
                 }
                 applyMagnet(dt) {
@@ -4144,9 +4732,33 @@
                     for (const e of this.enemies) {
                         e.draw(ctx, this.camera.x, this.camera.y)
                     }
+                    // Draw Boss
+                    if (this.activeBoss) {
+                        this.activeBoss.draw(ctx, this.camera.x, this.camera.y)
+                        // Draw IceBoss spikes
+                        if (this.activeBoss instanceof IceBoss) {
+                            this.activeBoss.drawSpikes(ctx, this.camera.x, this.camera.y)
+                        }
+                    }
                     this.player.draw(ctx, this.camera.x, this.camera.y, this.selectedSkin)
                     this.pet.draw(ctx, this.camera.x, this.camera.y, this.selectedSkin)
                     this.particles.draw(ctx, this.camera.x, this.camera.y)
+
+                    // Vignette effect when in boss fight
+                    if (this.bossMode || (this.activeBoss && this.activeBoss.alive)) {
+                        const vignetteGrad = ctx.createRadialGradient(
+                            CONFIG.WIDTH / 2,
+                            CONFIG.HEIGHT / 2,
+                            CONFIG.HEIGHT * 0.3,
+                            CONFIG.WIDTH / 2,
+                            CONFIG.HEIGHT / 2,
+                            CONFIG.HEIGHT * 0.8,
+                        )
+                        vignetteGrad.addColorStop(0, 'rgba(0,0,0,0)')
+                        vignetteGrad.addColorStop(1, 'rgba(0,0,0,0.6)')
+                        ctx.fillStyle = vignetteGrad
+                        ctx.fillRect(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT)
+                    }
 
                     // UI overlay
                     this.ui.draw(ctx, this.distance, this.biomeKey, this)
