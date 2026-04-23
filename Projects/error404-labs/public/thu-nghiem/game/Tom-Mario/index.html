@@ -2569,7 +2569,15 @@
                     this.playableArea = { left: 0, right: this.lastGeneratedX }
                 }
                 generateAhead(cameraX, distance) {
-                    const generateUntil = cameraX + distance + CONFIG.WIDTH
+                    let generateUntil = cameraX + distance + CONFIG.WIDTH
+
+                    if (this.gameMode === 'story') {
+                        const chapter = CONFIG.CHAPTERS[this.currentChapter]
+                        const maxGenerate = chapter.targetDistance + 1000 // buffer vùng kết thúc
+                        if (generateUntil > maxGenerate) {
+                            generateUntil = maxGenerate
+                        }
+                    }
 
                     while (this.lastGeneratedX < generateUntil) {
                         const chunk = this.levelGenerator.generateChunk(this.lastGeneratedX)
@@ -2581,10 +2589,18 @@
                         }
 
                         for (const e of chunk.enemies) {
+                            if (this.gameMode === 'story') {
+                                const chapter = CONFIG.CHAPTERS[this.currentChapter]
+                                if (e.x > chapter.targetDistance) continue // không sinh quái sau lá cờ
+                            }
                             this.enemies.push(new Enemy(e.x, e.y, e.minX, e.maxX))
                         }
 
                         for (const f of chunk.fish) {
+                            if (this.gameMode === 'story') {
+                                const chapter = CONFIG.CHAPTERS[this.currentChapter]
+                                if (f.x > chapter.targetDistance) continue // không sinh cá sau lá cờ
+                            }
                             this.fish.push(new Fish(f.x, f.y))
                         }
 
@@ -2765,6 +2781,16 @@
                             this.player.y + this.player.h,
                             this.selectedSkin,
                         )
+                    }
+
+                    // Kiểm tra nếu player đi quá xa lá cờ mà chưa thắng (chỉ trong Story Mode)
+                    if (
+                        this.gameMode === 'story' &&
+                        this.goal &&
+                        this.player.x > this.goal.x + 100 &&
+                        this.ui.state === 'playing'
+                    ) {
+                        this.winGame()
                     }
 
                     // Update pet
