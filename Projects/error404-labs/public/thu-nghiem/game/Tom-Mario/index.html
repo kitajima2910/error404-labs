@@ -2069,89 +2069,208 @@
                     ctx.fillText(distMeters + 'm', CONFIG.WIDTH - 18, 39)
                 }
                 drawMenu(ctx) {
-                    // Overlay
-                    ctx.fillStyle = `rgba(10, 10, 30, ${this.fadeAlpha * 0.85})`
+                    // Cyberpunk overlay
+                    const bgGrad = ctx.createRadialGradient(
+                        CONFIG.WIDTH / 2,
+                        CONFIG.HEIGHT / 2,
+                        0,
+                        CONFIG.WIDTH / 2,
+                        CONFIG.HEIGHT / 2,
+                        400,
+                    )
+                    bgGrad.addColorStop(0, 'rgba(10, 10, 30, 0.9)')
+                    bgGrad.addColorStop(1, 'rgba(26, 26, 42, 0.95)')
+                    ctx.fillStyle = bgGrad
                     ctx.fillRect(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT)
+
+                    // Decorative corner elements
+                    ctx.strokeStyle = '#ff6ec7'
+                    ctx.lineWidth = 2
+                    ctx.shadowColor = '#ff6ec7'
+                    ctx.shadowBlur = 10
+                    // Top-left
+                    ctx.beginPath()
+                    ctx.moveTo(50, 50)
+                    ctx.lineTo(100, 50)
+                    ctx.lineTo(50, 100)
+                    ctx.closePath()
+                    ctx.stroke()
+                    // Top-right
+                    ctx.beginPath()
+                    ctx.moveTo(CONFIG.WIDTH - 50, 50)
+                    ctx.lineTo(CONFIG.WIDTH - 100, 50)
+                    ctx.lineTo(CONFIG.WIDTH - 50, 100)
+                    ctx.closePath()
+                    ctx.stroke()
+                    // Bottom-left
+                    ctx.beginPath()
+                    ctx.moveTo(50, CONFIG.HEIGHT - 50)
+                    ctx.lineTo(100, CONFIG.HEIGHT - 50)
+                    ctx.lineTo(50, CONFIG.HEIGHT - 100)
+                    ctx.closePath()
+                    ctx.stroke()
+                    // Bottom-right
+                    ctx.beginPath()
+                    ctx.moveTo(CONFIG.WIDTH - 50, CONFIG.HEIGHT - 50)
+                    ctx.lineTo(CONFIG.WIDTH - 100, CONFIG.HEIGHT - 50)
+                    ctx.lineTo(CONFIG.WIDTH - 50, CONFIG.HEIGHT - 100)
+                    ctx.closePath()
+                    ctx.stroke()
+                    ctx.shadowBlur = 0
+
+                    // Fake barcode
+                    ctx.strokeStyle = '#00f3ff'
+                    ctx.lineWidth = 1
+                    for (let i = 0; i < 20; i++) {
+                        const x = 20 + i * 10
+                        const height = Math.random() * 50 + 20
+                        ctx.beginPath()
+                        ctx.moveTo(x, CONFIG.HEIGHT - 20 - height)
+                        ctx.lineTo(x, CONFIG.HEIGHT - 20)
+                        ctx.stroke()
+                    }
 
                     if (this.fadeAlpha < 0.3) return
 
                     const alpha = Math.min(1, this.fadeAlpha * 2)
                     ctx.globalAlpha = alpha
 
-                    // Title
+                    // Title with enhanced glow
                     ctx.save()
-                    ctx.shadowColor = CONFIG.COLORS.neonPink
-                    ctx.shadowBlur = 30
-                    ctx.fillStyle = CONFIG.COLORS.neonPink
-                    ctx.font = "bold 56px 'Segoe UI'"
+                    ctx.shadowColor = '#ff6ec7'
+                    ctx.shadowBlur = 40
+                    ctx.fillStyle = '#ff6ec7'
+                    ctx.font = "bold 64px 'Segoe UI'"
                     ctx.textAlign = 'center'
-                    ctx.fillText('MÈO NEON', CONFIG.WIDTH / 2, 160)
+                    ctx.fillText('MÈO NEON', CONFIG.WIDTH / 2, 140)
 
-                    ctx.shadowColor = CONFIG.COLORS.neonBlue
-                    ctx.shadowBlur = 20
-                    ctx.fillStyle = CONFIG.COLORS.neonBlue
-                    ctx.font = "bold 28px 'Segoe UI'"
-                    ctx.fillText('🐱 Cuộc phiêu lưu 🐱', CONFIG.WIDTH / 2, 200)
+                    ctx.shadowColor = '#00f3ff'
+                    ctx.shadowBlur = 25
+                    ctx.fillStyle = '#00f3ff'
+                    ctx.font = "bold 32px 'Segoe UI'"
+                    ctx.fillText('🐱 Cuộc Phiêu Lưu 🐱', CONFIG.WIDTH / 2, 180)
                     ctx.restore()
 
-                    // Instructions
-                    ctx.fillStyle = '#bbaadd'
-                    ctx.font = "16px 'Segoe UI'"
+                    // Instructions with better typography
+                    ctx.fillStyle = 'rgba(187, 170, 221, 0.9)'
+                    ctx.font = "18px 'Segoe UI'"
                     ctx.textAlign = 'center'
-                    ctx.fillText('MŨI TÊN / A-D để di chuyển', CONFIG.WIDTH / 2, 260)
-                    ctx.fillText('W / SPACE / MŨI LÊN để nhảy', CONFIG.WIDTH / 2, 285)
-                    ctx.fillText('Phím E để dùng kỹ năng Pet 🐾', CONFIG.WIDTH / 2, 310)
-                    ctx.fillText('Thu thập cá 🐟 • Đạp quái 👾 • Chạm cờ 🚩', CONFIG.WIDTH / 2, 340)
+                    ctx.fillText('🎮 MŨI TÊN / A-D: Di Chuyển', CONFIG.WIDTH / 2, 240)
+                    ctx.fillText('⬆️ W / SPACE: Nhảy', CONFIG.WIDTH / 2, 265)
+                    ctx.fillText('🐾 E: Kỹ Năng Pet', CONFIG.WIDTH / 2, 290)
+                    ctx.fillText('🐟 Thu Thập Cá • 👾 Đạp Quái • 🚩 Chạm Cờ', CONFIG.WIDTH / 2, 320)
 
-                    // Skin button
-                    this.drawButton(ctx, CONFIG.WIDTH / 2 - 120, 420, '🎨 SKIN')
-
-                    // Mode button
-                    this.drawButton(ctx, CONFIG.WIDTH / 2 + 120, 420, '🎮 CHẾ ĐỘ')
-
-                    // Settings button
-                    this.drawButton(ctx, CONFIG.WIDTH / 2, 480, '⚙️ CÀI ĐẶT')
+                    // Horizontal button layout
+                    const buttonY = 450
+                    const buttonSpacingX = 220
+                    this.drawButton(ctx, CONFIG.WIDTH / 2 - buttonSpacingX, buttonY, '🎨 SKIN')
+                    this.drawButton(ctx, CONFIG.WIDTH / 2, buttonY, '🎮 CHẾ ĐỘ')
+                    this.drawButton(ctx, CONFIG.WIDTH / 2 + buttonSpacingX, buttonY, '⚙️ CÀI ĐẶT')
 
                     ctx.globalAlpha = 1
                 }
                 drawSettingsMenu(ctx) {
-                    // Overlay
-                    ctx.fillStyle = 'rgba(10, 10, 30, 0.9)'
+                    // Cyberpunk overlay with gradient
+                    const overlayGrad = ctx.createLinearGradient(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT)
+                    overlayGrad.addColorStop(0, 'rgba(10, 10, 30, 0.95)')
+                    overlayGrad.addColorStop(0.5, 'rgba(26, 26, 42, 0.9)')
+                    overlayGrad.addColorStop(1, 'rgba(10, 10, 30, 0.95)')
+                    ctx.fillStyle = overlayGrad
                     ctx.fillRect(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT)
 
+                    // Panel background
+                    const panelW = 600
+                    const panelH = 400
+                    const panelX = CONFIG.WIDTH / 2 - panelW / 2
+                    const panelY = CONFIG.HEIGHT / 2 - panelH / 2
+                    const panelGrad = ctx.createLinearGradient(panelX, panelY, panelX + panelW, panelY + panelH)
+                    panelGrad.addColorStop(0, 'rgba(26, 26, 42, 0.98)')
+                    panelGrad.addColorStop(0.5, 'rgba(42, 42, 64, 0.95)')
+                    panelGrad.addColorStop(1, 'rgba(26, 26, 42, 0.98)')
+                    ctx.fillStyle = panelGrad
+                    ctx.shadowColor = '#ff6ec7'
+                    ctx.shadowBlur = 30
+                    ctx.beginPath()
+                    ctx.roundRect(panelX, panelY, panelW, panelH, 20)
+                    ctx.fill()
+
+                    // Neon border
+                    ctx.shadowBlur = 0
+                    const borderGrad = ctx.createLinearGradient(panelX, panelY, panelX + panelW, panelY + panelH)
+                    borderGrad.addColorStop(0, '#7b68ee')
+                    borderGrad.addColorStop(0.5, '#ff6ec7')
+                    borderGrad.addColorStop(1, '#00f3ff')
+                    ctx.strokeStyle = borderGrad
+                    ctx.lineWidth = 4
+                    ctx.stroke()
+
+                    // Scanlines effect
+                    ctx.strokeStyle = 'rgba(255, 110, 199, 0.1)'
+                    ctx.lineWidth = 1
+                    for (let i = panelY + 20; i < panelY + panelH; i += 10) {
+                        ctx.beginPath()
+                        ctx.moveTo(panelX + 20, i)
+                        ctx.lineTo(panelX + panelW - 20, i)
+                        ctx.stroke()
+                    }
+
                     // Title
-                    ctx.fillStyle = '#ffffff'
-                    ctx.font = "bold 32px 'Segoe UI'"
+                    ctx.fillStyle = '#ff6ec7'
+                    ctx.font = "bold 36px 'Segoe UI'"
                     ctx.textAlign = 'center'
-                    ctx.fillText('CÀI ĐẶT ÂM THANH', CONFIG.WIDTH / 2, 100)
+                    ctx.shadowColor = '#ff6ec7'
+                    ctx.shadowBlur = 15
+                    ctx.fillText('⚙️ CÀI ĐẶT ÂM THANH', CONFIG.WIDTH / 2, panelY + 60)
+                    ctx.shadowBlur = 0
 
                     // Music button
-                    const musicX = CONFIG.WIDTH / 2 - 120
-                    const musicY = 180
+                    const musicX = CONFIG.WIDTH / 2 - 130
+                    const musicY = panelY + 120
                     this.drawButton(ctx, musicX, musicY, this.settings.music ? '🎵 NHẠC: BẬT' : '🔇 NHẠC: TẮT')
 
                     // SFX button
-                    const sfxX = CONFIG.WIDTH / 2 + 120
-                    const sfxY = 180
+                    const sfxX = CONFIG.WIDTH / 2 + 130
+                    const sfxY = panelY + 120
                     this.drawButton(ctx, sfxX, sfxY, this.settings.sfx ? '🔊 HIỆU ỨNG: BẬT' : '🔇 HIỆU ỨNG: TẮT')
 
-                    // Volume slider
-                    const sliderY = 260
-                    ctx.fillStyle = '#666'
-                    ctx.fillRect(CONFIG.WIDTH / 2 - 100, sliderY, 200, 10)
-                    ctx.fillStyle = '#ff6ec7'
-                    ctx.fillRect(CONFIG.WIDTH / 2 - 100, sliderY, this.settings.volume * 200, 10)
+                    // Volume slider (Power Bar)
+                    const sliderX = CONFIG.WIDTH / 2 - 150
+                    const sliderY = panelY + 200
+                    const sliderW = 300
+                    const sliderH = 20
+                    // Background bar
+                    ctx.fillStyle = 'rgba(64, 64, 80, 0.8)'
+                    ctx.beginPath()
+                    ctx.roundRect(sliderX, sliderY, sliderW, sliderH, 10)
+                    ctx.fill()
+                    // Fill gradient
+                    const fillGrad = ctx.createLinearGradient(sliderX, sliderY, sliderX + sliderW, sliderY)
+                    fillGrad.addColorStop(0, '#00f3ff')
+                    fillGrad.addColorStop(1, '#ff6ec7')
+                    ctx.fillStyle = fillGrad
+                    ctx.fillRect(sliderX, sliderY, this.settings.volume * sliderW, sliderH)
+                    // Tick marks
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)'
+                    ctx.lineWidth = 2
+                    for (let i = 0; i <= 10; i++) {
+                        const tickX = sliderX + (i / 10) * sliderW
+                        ctx.beginPath()
+                        ctx.moveTo(tickX, sliderY - 5)
+                        ctx.lineTo(tickX, sliderY + sliderH + 5)
+                        ctx.stroke()
+                    }
+                    // Label
                     ctx.fillStyle = '#ffffff'
-                    ctx.font = "16px 'Segoe UI'"
+                    ctx.font = "18px 'Segoe UI'"
                     ctx.fillText(
                         'ÂM LƯỢNG: ' + Math.round(this.settings.volume * 100) + '%',
                         CONFIG.WIDTH / 2,
-                        sliderY - 10,
+                        sliderY - 15,
                     )
 
                     // Back button
                     const backX = CONFIG.WIDTH / 2
-                    const backY = 360
+                    const backY = panelY + 320
                     this.drawButton(ctx, backX, backY, '⬅️ QUAY LẠI')
                 }
                 drawModeSelect(ctx) {
@@ -2516,7 +2635,7 @@
                     ctx.textAlign = 'center'
                     const padding = 40
                     let w = ctx.measureText(text).width + padding
-                    if (w < 100) w = 100 // minimum width
+                    if (w < 140) w = 140 // minimum width
                     const h = 56
                     const bx = x - w / 2,
                         by = y - h / 2
@@ -2526,40 +2645,44 @@
                         my = this._mouseY || 0
                     this.buttonHover = mx >= bx && mx <= bx + w && my >= by && my <= by + h
 
-                    const scale = this.buttonHover ? 1.05 : 1
-                    const glow = this.buttonHover ? 25 : 15
+                    const scale = this.buttonHover ? 1.08 : 1
+                    const glow = this.buttonHover ? 35 : 20
+                    const borderColor = this.buttonHover ? '#ff6ec7' : '#7b68ee'
 
                     ctx.save()
                     ctx.translate(x, y)
                     ctx.scale(scale, scale)
 
-                    ctx.shadowColor = CONFIG.COLORS.neonPurple
+                    // Glassmorphism background
+                    const bgGrad = ctx.createLinearGradient(-w / 2, -h / 2, w / 2, h / 2)
+                    bgGrad.addColorStop(0, 'rgba(26, 26, 42, 0.95)') // deep purple
+                    bgGrad.addColorStop(0.5, 'rgba(123, 104, 238, 0.7)') // neon purple
+                    bgGrad.addColorStop(1, 'rgba(255, 110, 199, 0.6)') // cyber pink
+                    ctx.fillStyle = bgGrad
+                    ctx.shadowColor = borderColor
                     ctx.shadowBlur = glow
 
-                    // Button bg
-                    const grad = ctx.createLinearGradient(-w / 2, -h / 2, w / 2, h / 2)
-                    grad.addColorStop(0, 'rgba(123, 104, 238, 0.8)')
-                    grad.addColorStop(1, 'rgba(180, 77, 255, 0.8)')
-                    ctx.fillStyle = grad
                     ctx.beginPath()
-                    ctx.roundRect(-w / 2, -h / 2, w, h, 14)
+                    ctx.roundRect(-w / 2, -h / 2, w, h, 16)
                     ctx.fill()
 
-                    // Border
-                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)'
-                    ctx.lineWidth = 1.5
-                    ctx.beginPath()
-                    ctx.roundRect(-w / 2, -h / 2, w, h, 14)
+                    // Inner highlight
+                    ctx.shadowBlur = 0
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.2)'
+                    ctx.fillRect(-w / 2 + 6, -h / 2 + 6, w - 12, 12)
+
+                    // Neon border
+                    ctx.strokeStyle = borderColor
+                    ctx.lineWidth = 3
                     ctx.stroke()
 
-                    ctx.shadowBlur = 0
-
-                    // Text
-                    ctx.fillStyle = '#ffffff'
-                    ctx.font = "bold 20px 'Segoe UI'"
-                    ctx.textAlign = 'center'
+                    // Text with glow
                     ctx.textBaseline = 'middle'
+                    ctx.shadowColor = '#ffffff'
+                    ctx.shadowBlur = 8
+                    ctx.fillStyle = '#ffffff'
                     ctx.fillText(text, 0, 0)
+                    ctx.shadowBlur = 0
 
                     ctx.restore()
                 }
@@ -2574,23 +2697,23 @@
                     return mx >= bx - bw / 2 && mx <= bx + bw / 2 && my >= by - bh / 2 && my <= by + bh / 2
                 }
                 isSkinButtonClicked(mx, my) {
-                    const x = CONFIG.WIDTH / 2 - 120
-                    const y = 420
-                    const w = 100,
+                    const x = CONFIG.WIDTH / 2 - 220
+                    const y = 450
+                    const w = 120,
                         h = 56
                     return mx >= x - w / 2 && mx <= x + w / 2 && my >= y - h / 2 && my <= y + h / 2
                 }
                 isModeButtonClicked(mx, my) {
-                    const x = CONFIG.WIDTH / 2 + 120
-                    const y = 420
-                    const w = 100,
+                    const x = CONFIG.WIDTH / 2
+                    const y = 450
+                    const w = 140,
                         h = 56
                     return mx >= x - w / 2 && mx <= x + w / 2 && my >= y - h / 2 && my <= y + h / 2
                 }
                 isSettingsButtonClicked(mx, my) {
-                    const x = CONFIG.WIDTH / 2
-                    const y = 480
-                    const w = 100,
+                    const x = CONFIG.WIDTH / 2 + 220
+                    const y = 450
+                    const w = 150,
                         h = 56
                     return mx >= x - w / 2 && mx <= x + w / 2 && my >= y - h / 2 && my <= y + h / 2
                 }
@@ -2879,12 +3002,13 @@
 
                         if (this.ui.state === 'menu') {
                             if (this.ui.showSettings) {
-                                const musicX = CONFIG.WIDTH / 2 - 120
-                                const musicY = 180
-                                const sfxX = CONFIG.WIDTH / 2 + 120
-                                const sfxY = 180
+                                const panelY = CONFIG.HEIGHT / 2 - 200 // 70
+                                const musicX = CONFIG.WIDTH / 2 - 130
+                                const musicY = panelY + 120
+                                const sfxX = CONFIG.WIDTH / 2 + 130
+                                const sfxY = panelY + 120
                                 const backX = CONFIG.WIDTH / 2
-                                const backY = 360
+                                const backY = panelY + 320
                                 const btnW = 200
                                 const btnH = 56
                                 if (this.ui.isButtonClicked(mx, my, musicX, musicY, btnW, btnH)) {
@@ -2896,28 +3020,16 @@
                                 } else if (this.ui.isButtonClicked(mx, my, backX, backY, btnW, btnH)) {
                                     this.ui.showSettings = false
                                 }
-                                const sliderY = 260
+                                const sliderY = panelY + 200
                                 if (
                                     my >= sliderY &&
-                                    my <= sliderY + 10 &&
-                                    mx >= CONFIG.WIDTH / 2 - 100 &&
-                                    mx <= CONFIG.WIDTH / 2 + 100
+                                    my <= sliderY + 20 &&
+                                    mx >= CONFIG.WIDTH / 2 - 150 &&
+                                    mx <= CONFIG.WIDTH / 2 + 150
                                 ) {
                                     this.ui.settings.volume = Math.max(
                                         0,
-                                        Math.min(1, (mx - (CONFIG.WIDTH / 2 - 100)) / 200),
-                                    )
-                                    this.audio.setVolume(this.ui.settings.volume)
-                                }
-                                if (
-                                    my >= 280 &&
-                                    my <= 290 &&
-                                    mx >= CONFIG.WIDTH / 2 - 100 &&
-                                    mx <= CONFIG.WIDTH / 2 + 100
-                                ) {
-                                    this.ui.settings.volume = Math.max(
-                                        0,
-                                        Math.min(1, (mx - (CONFIG.WIDTH / 2 - 100)) / 200),
+                                        Math.min(1, (mx - (CONFIG.WIDTH / 2 - 150)) / 300),
                                     )
                                     this.audio.setVolume(this.ui.settings.volume)
                                 }
