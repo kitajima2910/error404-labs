@@ -354,6 +354,21 @@
                     <div class="t-name">HẠNG NẶNG</div>
                     <div class="t-cost">💰 120</div>
                 </div>
+                <div class="tower-btn" data-type="aura" onclick="selectTower('aura')">
+                    <div class="t-icon" style="background: rgba(255, 68, 102, 0.2)">💢</div>
+                    <div class="t-name">AURA DMG</div>
+                    <div class="t-cost">💰 80</div>
+                </div>
+                <div class="tower-btn" data-type="aura_speed" onclick="selectTower('aura_speed')">
+                    <div class="t-icon" style="background: rgba(68, 136, 255, 0.2)">💨</div>
+                    <div class="t-name">AURA SPD</div>
+                    <div class="t-cost">💰 80</div>
+                </div>
+                <div class="tower-btn" data-type="aura_range" onclick="selectTower('aura_range')">
+                    <div class="t-icon" style="background: rgba(170, 68, 255, 0.2)">🎯</div>
+                    <div class="t-name">AURA RNG</div>
+                    <div class="t-cost">💰 80</div>
+                </div>
             </div>
             <button id="waveBtn" onclick="startNextWave()">▶ ĐỢT TIẾP THEO</button>
             <div id="sellInfo">
@@ -428,6 +443,87 @@
                     bulletSpeed: 260,
                     name: 'Hạng Nặng',
                     splash: 0,
+                },
+                aura: {
+                    cost: 80,
+                    upgradeCost: [
+                        0,
+                        60,
+                        90,
+                    ],
+                    range: 120,
+                    radius: [
+                        0,
+                        120,
+                        180,
+                        250,
+                    ],
+                    buffValue: [
+                        { damage: 0, speed: 0, range: 0 },
+                        { damage: 0.2, speed: 0.2, range: 0.2 },
+                        { damage: 0.3, speed: 0.3, range: 0.3 },
+                        { damage: 0.4, speed: 0.4, range: 0.4 },
+                    ],
+                    color: '#ff4466',
+                    bulletColor: '#ff6688',
+                    bulletSpeed: 0,
+                    fireRate: 0,
+                    name: 'Aura Dmg',
+                    auraType: 'damage',
+                },
+                aura_speed: {
+                    cost: 80,
+                    upgradeCost: [
+                        0,
+                        60,
+                        90,
+                    ],
+                    range: 120,
+                    radius: [
+                        0,
+                        120,
+                        180,
+                        250,
+                    ],
+                    buffValue: [
+                        { damage: 0, speed: 0, range: 0 },
+                        { damage: 0.2, speed: 0.2, range: 0.2 },
+                        { damage: 0.3, speed: 0.3, range: 0.3 },
+                        { damage: 0.4, speed: 0.4, range: 0.4 },
+                    ],
+                    color: '#4488ff',
+                    bulletColor: '#66aaff',
+                    bulletSpeed: 0,
+                    fireRate: 0,
+                    name: 'Aura Spd',
+                    auraType: 'speed',
+                },
+                aura_range: {
+                    cost: 80,
+                    upgradeCost: [
+                        0,
+                        60,
+                        90,
+                    ],
+                    range: 120,
+                    radius: [
+                        0,
+                        120,
+                        180,
+                        250,
+                    ],
+                    buffValue: [
+                        { damage: 0, speed: 0, range: 0 },
+                        { damage: 0.2, speed: 0.2, range: 0.2 },
+                        { damage: 0.3, speed: 0.3, range: 0.3 },
+                        { damage: 0.4, speed: 0.4, range: 0.4 },
+                    ],
+                    color: '#aa44ff',
+                    bulletColor: '#cc66ff',
+                    bulletSpeed: 0,
+                    fireRate: 0,
+                    name: 'Aura Rng',
+                    auraType: 'range',
                 },
             }
 
@@ -650,6 +746,7 @@
                 shakeDuration: 0,
                 time: 0,
                 lastTime: 0,
+                auraUpdateTimer: 0,
             }
 
             // ============ ENEMY ============
@@ -840,12 +937,12 @@
                     x: col * CELL + CELL / 2,
                     y: row * CELL + CELL / 2,
                     level,
-                    damage: def.damage * dmgMul,
+                    damage: def.damage ? def.damage * dmgMul : 0,
                     range: def.range * rangeMul,
-                    fireRate: def.fireRate * fireMul,
+                    fireRate: def.fireRate ? def.fireRate * fireMul : 0,
                     color: def.color,
                     bulletColor: def.bulletColor,
-                    bulletSpeed: def.bulletSpeed * spdMul,
+                    bulletSpeed: def.bulletSpeed ? def.bulletSpeed * spdMul : 0,
                     cooldown: 0,
                     target: null,
                     angle: 0,
@@ -853,6 +950,8 @@
                     muzzleFlash: 0,
                     scaleAnim: 0,
                     upgradeAnim: 0,
+                    buffs: { damage: 0, speed: 0, range: 0 },
+                    scaleBuffAnim: 0,
                 }
             }
 
@@ -860,7 +959,17 @@
                 t.scaleAnim = Math.min(1, t.scaleAnim + dt * 5)
                 t.upgradeAnim = Math.max(0, t.upgradeAnim - dt * 4)
                 t.muzzleFlash = Math.max(0, t.muzzleFlash - dt * 8)
+                t.scaleBuffAnim = Math.max(0, t.scaleBuffAnim - dt * 6)
+                if (t.type.startsWith('aura')) {
+                    t.cooldown = 0
+                    return
+                }
                 t.cooldown -= dt
+
+                const def = TOWER_DEFS[t.type]
+                const finalDamage = (def.damage || 0) * (1 + (t.buffs ? t.buffs.damage : 0))
+                const finalRange = (def.range || 0) * (1 + (t.buffs ? t.buffs.range : 0))
+                const finalFireRate = (def.fireRate || 0) * (1 + (t.buffs ? t.buffs.speed : 0))
 
                 // Find target
                 t.target = null
@@ -869,9 +978,9 @@
                     if (!e.alive) continue
                     const dx = e.x - t.x,
                         dy = e.y - t.y
-                    const dist = Math.sqrt(dx * dx + dy * dy)
-                    if (dist <= t.range && dist < minDist) {
-                        minDist = dist
+                    const distSq = dx * dx + dy * dy
+                    if (distSq <= finalRange * finalRange && distSq < minDist) {
+                        minDist = distSq
                         t.target = e
                     }
                 }
@@ -879,14 +988,15 @@
                 if (t.target) {
                     t.angle = Math.atan2(t.target.y - t.y, t.target.x - t.x)
                     if (t.cooldown <= 0) {
-                        t.cooldown = 1 / t.fireRate
-                        fireBullet(t)
+                        t.cooldown = 1 / finalFireRate
+                        fireBullet(t, finalDamage)
                     }
                 }
             }
 
-            function fireBullet(t) {
+            function fireBullet(t, finalDamage) {
                 const def = TOWER_DEFS[t.type]
+                const dmg = finalDamage !== undefined ? finalDamage : t.damage
                 const burstCount = t.level >= 3 && def.burst ? 3 : 1
                 for (let b = 0; b < burstCount; b++) {
                     setTimeout(() => {
@@ -896,7 +1006,7 @@
                         bullet.x = t.x
                         bullet.y = t.y
                         bullet.target = t.target
-                        bullet.damage = t.damage
+                        bullet.damage = dmg
                         bullet.speed = t.bulletSpeed
                         bullet.color = t.bulletColor
                         bullet.alive = true
@@ -904,6 +1014,7 @@
                         bullet.trailTimer = 0
                         bullet.pierce = t.level >= 3 && def.pierce ? def.pierce + 1 : def.pierce || 1
                         bullet.hitList = []
+                        bullet.splash = t.level >= 3 && def.splash ? 30 : 0
                         game.bullets.push(bullet)
                         t.muzzleFlash = 1
                         if (b === 0) playSound('shoot')
@@ -918,21 +1029,41 @@
                 const lv3 = t.level >= 3
                 const r = (CELL * 0.35 + (lv3 ? 3 : 0) + upgradePulse) * s
 
+                // Aura range preview / Aura zone
+                if (t.type.startsWith('aura')) {
+                    const radius = def.radius[t.level]
+                    const pulse = 0.5 + 0.5 * Math.sin(game.time * 3)
+                    const grad = ctx.createRadialGradient(t.x, t.y, r, t.x, t.y, radius)
+                    grad.addColorStop(0, def.color + '30')
+                    grad.addColorStop(1, def.color + '05')
+                    ctx.fillStyle = grad
+                    ctx.beginPath()
+                    ctx.arc(t.x, t.y, radius, 0, Math.PI * 2)
+                    ctx.fill()
+                    // Pulse ring
+                    ctx.strokeStyle = def.color + '40'
+                    ctx.lineWidth = 1.5
+                    ctx.beginPath()
+                    ctx.arc(t.x, t.y, radius * (0.9 + 0.1 * pulse), 0, Math.PI * 2)
+                    ctx.stroke()
+                }
+
                 // Range indicator when hovered or selected
                 if (
                     game.selectedPlacedTower === t ||
                     (game.hoveredCell && game.hoveredCell.col === t.col && game.hoveredCell.row === t.row)
                 ) {
+                    const showRange = t.type.startsWith('aura') ? def.radius[t.level] : t.range
                     ctx.strokeStyle = 'rgba(255,255,255,0.08)'
                     ctx.fillStyle = 'rgba(255,255,255,0.02)'
                     ctx.lineWidth = 1
                     ctx.beginPath()
-                    ctx.arc(t.x, t.y, t.range, 0, Math.PI * 2)
+                    ctx.arc(t.x, t.y, showRange, 0, Math.PI * 2)
                     ctx.fill()
                     ctx.stroke()
                 }
 
-                // Lv3 energy ring
+                // Lv3 energy ring (both normal tower & aura)
                 if (lv3) {
                     ctx.save()
                     ctx.translate(t.x, t.y)
@@ -950,6 +1081,35 @@
                     ctx.restore()
                 }
 
+                // Aura Lv3 small particles
+                if (lv3 && t.type.startsWith('aura')) {
+                    for (let i = 0; i < 3; i++) {
+                        const angle = game.time * 2 + (i * Math.PI * 2) / 3
+                        const px = t.x + Math.cos(angle) * (r + 10)
+                        const py = t.y + Math.sin(angle) * (r + 10)
+                        ctx.fillStyle = def.color + '80'
+                        ctx.beginPath()
+                        ctx.arc(px, py, 2, 0, Math.PI * 2)
+                        ctx.fill()
+                    }
+                }
+
+                // Buff glow on tower (non-aura only)
+                if (!t.type.startsWith('aura') && t.buffs) {
+                    const glowColors = []
+                    if (t.buffs.damage > 0) glowColors.push('#ff4466')
+                    if (t.buffs.speed > 0) glowColors.push('#4488ff')
+                    if (t.buffs.range > 0) glowColors.push('#aa44ff')
+                    if (glowColors.length > 0) {
+                        const glowR = r + 6 + 3 * Math.sin(game.time * 4)
+                        ctx.strokeStyle = glowColors[0] + '50'
+                        ctx.lineWidth = 2
+                        ctx.beginPath()
+                        ctx.arc(t.x, t.y, glowR, 0, Math.PI * 2)
+                        ctx.stroke()
+                    }
+                }
+
                 // Base
                 ctx.save()
                 ctx.shadowColor = def.color
@@ -965,13 +1125,15 @@
                 ctx.fill()
                 ctx.restore()
 
-                // Turret barrel
-                ctx.save()
-                ctx.translate(t.x, t.y)
-                ctx.rotate(t.angle)
-                ctx.fillStyle = 'rgba(255,255,255,0.3)'
-                ctx.fillRect(0, -3, r + 8, 6)
-                ctx.restore()
+                // Turret barrel (only non-aura)
+                if (!t.type.startsWith('aura')) {
+                    ctx.save()
+                    ctx.translate(t.x, t.y)
+                    ctx.rotate(t.angle)
+                    ctx.fillStyle = 'rgba(255,255,255,0.3)'
+                    ctx.fillRect(0, -3, r + 8, 6)
+                    ctx.restore()
+                }
 
                 // Muzzle flash
                 if (t.muzzleFlash > 0) {
@@ -985,6 +1147,19 @@
                         Math.PI * 2,
                     )
                     ctx.fill()
+                }
+
+                // Scale pop when buffed
+                if (t.scaleBuffAnim > 0) {
+                    ctx.save()
+                    ctx.translate(t.x, t.y)
+                    ctx.scale(1 + t.scaleBuffAnim * 0.3, 1 + t.scaleBuffAnim * 0.3)
+                    ctx.strokeStyle = '#ffffff55'
+                    ctx.lineWidth = 1.5
+                    ctx.beginPath()
+                    ctx.arc(0, 0, r + 5, 0, Math.PI * 2)
+                    ctx.stroke()
+                    ctx.restore()
                 }
 
                 // Center dot
@@ -1585,11 +1760,12 @@
                 if (valid) {
                     const cx = col * CELL + CELL / 2,
                         cy = row * CELL + CELL / 2
-                    // Range preview
+                    // Range / Aura radius preview
+                    const showRadius = def.radius ? def.radius[1] : def.range
                     ctx.strokeStyle = 'rgba(255,255,255,0.06)'
                     ctx.fillStyle = 'rgba(255,255,255,0.02)'
                     ctx.beginPath()
-                    ctx.arc(cx, cy, def.range, 0, Math.PI * 2)
+                    ctx.arc(cx, cy, showRadius, 0, Math.PI * 2)
                     ctx.fill()
                     ctx.stroke()
 
@@ -1655,6 +1831,7 @@
                     game.selectedPlacedTower = null
                     document.getElementById('sellInfo').style.display = 'none'
                 }
+                // Show aura radius preview in UI when selecting aura type
                 updateUI()
             }
 
@@ -1736,7 +1913,13 @@
                     } else {
                         lvText += ' (MAX)'
                     }
-                    document.getElementById('sellLv').textContent = lvText + ' | Bán: 💰' + refund
+                    // Show buff info for aura towers
+                    let buffInfo = ''
+                    if (existing.type.startsWith('aura')) {
+                        const bv = def.buffValue[existing.level]
+                        buffInfo = ` | Buff: Dmg+${bv.damage} Spd+${bv.speed} Rng+${bv.range}`
+                    }
+                    document.getElementById('sellLv').textContent = lvText + ' | Bán: 💰' + refund + buffInfo
                     sellInfo.style.display = 'block'
                     sellInfo.style.left = e.clientX - rect.left + 'px'
                     sellInfo.style.top = e.clientY - rect.top - 40 + 'px'
@@ -1764,6 +1947,31 @@
             })
 
             // ============ GAME LOOP ============
+            function updateAuraBuffs() {
+                // Reset buffs
+                for (const t of game.towers) {
+                    t.buffs = { damage: 0, speed: 0, range: 0 }
+                }
+                // Apply aura buffs
+                for (const aura of game.towers) {
+                    if (!aura.type.startsWith('aura')) continue
+                    const def = TOWER_DEFS[aura.type]
+                    const radius = def.radius[aura.level]
+                    const buffs = def.buffValue[aura.level]
+                    for (const t of game.towers) {
+                        if (t === aura) continue
+                        const dx = t.x - aura.x,
+                            dy = t.y - aura.y
+                        if (dx * dx + dy * dy <= radius * radius) {
+                            t.buffs.damage = Math.max(t.buffs.damage, buffs.damage)
+                            t.buffs.speed = Math.max(t.buffs.speed, buffs.speed)
+                            t.buffs.range = Math.max(t.buffs.range, buffs.range)
+                            if (t.scaleBuffAnim <= 0) t.scaleBuffAnim = 1
+                        }
+                    }
+                }
+            }
+
             function update(dt) {
                 if (game.gameOver) return
                 game.time += dt
@@ -1796,6 +2004,13 @@
                 // Enemies
                 for (const e of game.enemies) updateEnemy(e, dt)
                 game.enemies = game.enemies.filter((e) => e.alive)
+
+                // Aura buffs (cache 0.5s)
+                game.auraUpdateTimer += dt
+                if (game.auraUpdateTimer >= 0.5) {
+                    game.auraUpdateTimer = 0
+                    updateAuraBuffs()
+                }
 
                 // Towers
                 for (const t of game.towers) updateTower(t, dt)
@@ -1949,6 +2164,7 @@
                 game.selectedPlacedTower = null
                 game.shakeAmount = 0
                 game.time = 0
+                game.auraUpdateTimer = 0
                 ambientParticles.length = 0
                 updateUI()
             }
@@ -1967,6 +2183,11 @@
             // ============ START ============
             updateUI()
             requestAnimationFrame(gameLoop)
+
+            // Init buffs for existing towers (backward compatible)
+            for (const t of game.towers) {
+                if (!t.buffs) t.buffs = { damage: 0, speed: 0, range: 0 }
+            }
         </script>
     </body>
 </html>
