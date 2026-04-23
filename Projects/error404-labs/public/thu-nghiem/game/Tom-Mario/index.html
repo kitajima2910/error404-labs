@@ -177,6 +177,104 @@
                         unlockRequirements: { bossKills: 5 },
                         effects: ['glitch'],
                     },
+                    legendary: {
+                        name: 'Huyền Thoại',
+                        primaryColor: '#ffd700',
+                        accentColor: '#ff6b35',
+                        trailColor: '#ffffff',
+                        particleColor: '#ffd700',
+                        unlockRequirements: { storyComplete: true },
+                        effects: [
+                            'rainbowTrail',
+                            'goldenGlow',
+                        ],
+                    },
+                },
+                CHAPTERS: {
+                    1: {
+                        name: 'Cánh Đồng Băng Giá',
+                        biomes: ['ice'],
+                        targetDistance: 5000,
+                        bossType: 'iceGolem',
+                        introText: [
+                            'Tom: "Nơi này lạnh quá! Nhưng chúng ta phải đi tiếp..."',
+                            'Jerry: "Meo meo! (Đúng vậy, hãy chiến đấu!)"',
+                        ],
+                        outroText: [
+                            'Tom: "Thắng rồi! Nhưng đường còn dài..."',
+                            'Jerry: "Meo meo! (Chúng ta sẽ mạnh hơn!)"',
+                        ],
+                        reward: { unlockSkin: 'ice' },
+                    },
+                    2: {
+                        name: 'Hang Động Lửa',
+                        biomes: ['lava'],
+                        targetDistance: 10000,
+                        bossType: 'fireElemental',
+                        introText: [
+                            'Tom: "Nóng quá! Nhưng không thể quay đầu..."',
+                            'Jerry: "Meo meo! (Tiếp tục chiến đấu!)"',
+                        ],
+                        outroText: [
+                            'Tom: "Quái vật lửa đã bị đánh bại!"',
+                            'Jerry: "Meo meo! (Chúng ta làm được rồi!)"',
+                        ],
+                        reward: { unlockSkin: 'lava' },
+                    },
+                    3: {
+                        name: 'Thế Giới Cyber',
+                        biomes: ['cyber'],
+                        targetDistance: 15000,
+                        bossType: 'cyberGuardian',
+                        introText: [
+                            'Tom: "Máy móc kỳ lạ... Nhưng chúng ta sẽ vượt qua!"',
+                            'Jerry: "Meo meo! (Hãy hack chúng!)"',
+                        ],
+                        outroText: [
+                            'Tom: "Cyber Guardian đã bị hạ!"',
+                            'Jerry: "Meo meo! (Công nghệ không thắng được lòng dũng cảm!)"',
+                        ],
+                        reward: { unlockSkin: 'cyber' },
+                    },
+                    4: {
+                        name: 'Thách Thức Hỗn Hợp',
+                        biomes: [
+                            'ice',
+                            'lava',
+                            'cyber',
+                        ],
+                        targetDistance: 20000,
+                        bossType: 'chaosBeast',
+                        introText: [
+                            'Tom: "Bây giờ là hỗn hợp của mọi thứ... Sẵn sàng chưa?"',
+                            'Jerry: "Meo meo! (Sẵn sàng chiến đấu!)"',
+                        ],
+                        outroText: [
+                            'Tom: "Quái vật hỗn loạn đã bị tiêu diệt!"',
+                            'Jerry: "Meo meo! (Chúng ta gần đến đích rồi!)"',
+                        ],
+                        reward: { unlockPet: 'superJerry' },
+                    },
+                    5: {
+                        name: 'Trái Tim Thế Giới',
+                        biomes: [
+                            'cyber',
+                            'ice',
+                            'lava',
+                        ],
+                        targetDistance: 25000,
+                        bossType: 'worldCore',
+                        introText: [
+                            'Tom: "Đây là cuối cùng... Trái tim của thế giới!"',
+                            'Jerry: "Meo meo! (Hãy kết thúc nó!)"',
+                        ],
+                        outroText: [
+                            'Tom: "Chúng ta đã cứu thế giới!"',
+                            'Jerry: "Meo meo! (Nhiệm vụ hoàn thành!)"',
+                            'CẢ HAI: "Cảm ơn bạn đã chơi cùng chúng tôi!"',
+                        ],
+                        reward: { unlockSkin: 'legendary', gameCompleted: true },
+                    },
                 },
             }
 
@@ -1716,7 +1814,7 @@
             class UIManager {
                 constructor() {
                     this.score = 0
-                    this.state = 'menu' // menu, skinMenu, playing, win, lose
+                    this.state = 'menu' // menu, modeSelect, chapterSelect, skinMenu, cutscene, playing, win, lose
                     this.fadeAlpha = 0
                     this.targetFade = 1
                     this.message = ''
@@ -1731,14 +1829,29 @@
                     this.fadeAlpha += (this.targetFade - this.fadeAlpha) * dt * 4
                 }
                 draw(ctx, distance = 0, biomeKey = 'cyber', game = null) {
-                    if (this.state === 'playing' || this.state === 'menu') {
+                    if (
+                        this.state === 'playing' ||
+                        this.state === 'menu' ||
+                        this.state === 'modeSelect' ||
+                        this.state === 'chapterSelect' ||
+                        this.state === 'skinMenu'
+                    ) {
                         this.drawHUD(ctx, distance)
                     }
                     if (this.state === 'menu') {
                         this.drawMenu(ctx)
                     }
+                    if (this.state === 'modeSelect') {
+                        this.drawModeSelect(ctx)
+                    }
+                    if (this.state === 'chapterSelect') {
+                        this.drawChapterSelect(ctx, game)
+                    }
                     if (this.state === 'skinMenu') {
                         this.drawSkinMenu(ctx, game)
+                    }
+                    if (this.state === 'cutscene') {
+                        this.drawCutscene(ctx, game)
                     }
                     if (this.state === 'win') {
                         this.drawOverlay(ctx, '🎉 BẠN THẮNG! 🎉', 'Điểm: ' + this.score, '#00ff88')
@@ -1850,10 +1963,227 @@
                     // Skin button
                     this.drawButton(ctx, CONFIG.WIDTH / 2 - 120, 420, '🎨 SKIN')
 
-                    // Start button
-                    this.drawButton(ctx, CONFIG.WIDTH / 2 + 120, 420, '▶ BẮT ĐẦU')
+                    // Mode button
+                    this.drawButton(ctx, CONFIG.WIDTH / 2 + 120, 420, '🎮 CHẾ ĐỘ')
 
                     ctx.globalAlpha = 1
+                }
+                drawModeSelect(ctx) {
+                    // Overlay
+                    ctx.fillStyle = `rgba(10, 10, 30, ${this.fadeAlpha * 0.85})`
+                    ctx.fillRect(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT)
+
+                    if (this.fadeAlpha < 0.3) return
+
+                    const alpha = Math.min(1, this.fadeAlpha * 2)
+                    ctx.globalAlpha = alpha
+
+                    // Title
+                    ctx.save()
+                    ctx.shadowColor = CONFIG.COLORS.neonPink
+                    ctx.shadowBlur = 30
+                    ctx.fillStyle = CONFIG.COLORS.neonPink
+                    ctx.font = "bold 48px 'Segoe UI'"
+                    ctx.textAlign = 'center'
+                    ctx.fillText('CHỌN CHẾ ĐỘ', CONFIG.WIDTH / 2, 100)
+                    ctx.restore()
+
+                    // Story Mode button
+                    this.drawButton(ctx, CONFIG.WIDTH / 2, 250, '📖 STORY MODE')
+
+                    // Endless Mode button
+                    this.drawButton(ctx, CONFIG.WIDTH / 2, 350, '♾️ ENDLESS MODE')
+
+                    // Back button
+                    this.drawButton(ctx, CONFIG.WIDTH / 2, 480, '⬅ QUAY LẠI')
+
+                    ctx.globalAlpha = 1
+                }
+                drawChapterSelect(ctx, game) {
+                    // Overlay
+                    ctx.fillStyle = `rgba(10, 10, 30, ${this.fadeAlpha * 0.85})`
+                    ctx.fillRect(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT)
+
+                    if (this.fadeAlpha < 0.3) return
+
+                    const alpha = Math.min(1, this.fadeAlpha * 2)
+                    ctx.globalAlpha = alpha
+
+                    // Title
+                    ctx.save()
+                    ctx.shadowColor = CONFIG.COLORS.neonBlue
+                    ctx.shadowBlur = 30
+                    ctx.fillStyle = CONFIG.COLORS.neonBlue
+                    ctx.font = "bold 40px 'Segoe UI'"
+                    ctx.textAlign = 'center'
+                    ctx.fillText('CHỌN CHƯƠNG', CONFIG.WIDTH / 2, 80)
+                    ctx.restore()
+
+                    // Chapters grid
+                    const cols = 3
+                    const startX = (CONFIG.WIDTH - cols * 150) / 2 + 75
+                    const startY = 150
+
+                    for (let i = 1; i <= 5; i++) {
+                        const col = (i - 1) % cols
+                        const row = Math.floor((i - 1) / cols)
+                        const x = startX + col * 150
+                        const y = startY + row * 100
+
+                        const chapter = CONFIG.CHAPTERS[i]
+                        const unlocked = i <= game.highestChapter + 1
+
+                        // Card
+                        ctx.fillStyle = unlocked ? 'rgba(123, 104, 238, 0.8)' : 'rgba(50, 50, 50, 0.8)'
+                        ctx.strokeStyle = unlocked ? 'rgba(255, 255, 255, 0.3)' : 'rgba(100, 100, 100, 0.3)'
+                        ctx.lineWidth = 2
+                        ctx.beginPath()
+                        ctx.roundRect(x - 60, y - 35, 120, 70, 10)
+                        ctx.fill()
+                        ctx.stroke()
+
+                        // Chapter number
+                        ctx.fillStyle = unlocked ? '#ffffff' : '#666666'
+                        ctx.font = "bold 18px 'Segoe UI'"
+                        ctx.textAlign = 'center'
+                        ctx.fillText('CHƯƠNG ' + i, x, y - 10)
+
+                        // Chapter name
+                        ctx.font = "12px 'Segoe UI'"
+                        ctx.fillText(chapter.name, x, y + 10)
+
+                        // Lock
+                        if (!unlocked) {
+                            ctx.fillStyle = '#666666'
+                            ctx.font = "24px 'Segoe UI'"
+                            ctx.fillText('🔒', x + 40, y - 15)
+                        }
+                    }
+
+                    // Back button
+                    this.drawButton(ctx, CONFIG.WIDTH / 2, 480, '⬅ QUAY LẠI')
+
+                    ctx.globalAlpha = 1
+                }
+                drawCutscene(ctx, game) {
+                    // Semi-transparent overlay
+                    ctx.fillStyle = `rgba(0, 0, 0, ${this.fadeAlpha * 0.7})`
+                    ctx.fillRect(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT)
+
+                    if (this.fadeAlpha < 0.3) return
+
+                    const alpha = Math.min(1, this.fadeAlpha * 2)
+                    ctx.globalAlpha = alpha
+
+                    // Dialogue box (bottom)
+                    const boxHeight = 120
+                    const boxY = CONFIG.HEIGHT - boxHeight
+                    ctx.fillStyle = 'rgba(10, 10, 30, 0.9)'
+                    ctx.beginPath()
+                    ctx.roundRect(20, boxY, CONFIG.WIDTH - 40, boxHeight, 10)
+                    ctx.fill()
+                    ctx.strokeStyle = 'rgba(123, 104, 238, 0.5)'
+                    ctx.lineWidth = 2
+                    ctx.stroke()
+
+                    // Character portrait
+                    const portraitX = 50
+                    const portraitY = boxY + 20
+                    this.drawCharacterPortrait(ctx, game.cutsceneSpeaker, portraitX, portraitY)
+
+                    // Dialogue text
+                    ctx.fillStyle = '#ffffff'
+                    ctx.font = "16px 'Segoe UI'"
+                    ctx.textAlign = 'left'
+                    const textX = portraitX + 80
+                    const textY = boxY + 30
+                    const maxWidth = CONFIG.WIDTH - textX - 30
+
+                    if (game.cutsceneIndex < game.cutsceneText.length) {
+                        const currentText = game.cutsceneText[game.cutsceneIndex]
+                        const elapsed = Date.now() - game.cutsceneStartTime
+                        const charCount = Math.floor(elapsed / 40)
+                        const displayText = currentText.substring(0, Math.min(currentText.length, charCount))
+                        this.drawWrappedText(ctx, displayText, textX, textY, maxWidth, 20)
+
+                        // Draw skip/next hint
+                        if (charCount > currentText.length + 5) {
+                            ctx.save()
+                            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'
+                            ctx.font = "italic 12px 'Segoe UI'"
+                            ctx.textAlign = 'right'
+                            ctx.fillText('Click hoặc Space để tiếp tục...', CONFIG.WIDTH - 40, boxY + boxHeight - 15)
+                            ctx.restore()
+                        }
+                    }
+
+                    ctx.globalAlpha = 1
+                }
+                drawCharacterPortrait(ctx, speaker, x, y) {
+                    ctx.save()
+                    ctx.translate(x, y)
+
+                    if (speaker === 'tom') {
+                        // Tom portrait
+                        ctx.fillStyle = CONFIG.COLORS.player
+                        ctx.beginPath()
+                        ctx.ellipse(0, -10, 25, 20, 0, 0, Math.PI * 2)
+                        ctx.fill()
+
+                        // Eyes
+                        ctx.fillStyle = '#2a2a4a'
+                        ctx.beginPath()
+                        ctx.ellipse(-8, -15, 4, 6, 0, 0, Math.PI * 2)
+                        ctx.fill()
+                        ctx.beginPath()
+                        ctx.ellipse(8, -15, 4, 6, 0, 0, Math.PI * 2)
+                        ctx.fill()
+                    } else if (speaker === 'jerry') {
+                        // Jerry portrait
+                        ctx.fillStyle = '#ff99bb'
+                        ctx.beginPath()
+                        ctx.arc(0, -10, 20, 0, Math.PI * 2)
+                        ctx.fill()
+
+                        // Eyes
+                        ctx.fillStyle = '#ffffff'
+                        ctx.beginPath()
+                        ctx.arc(-6, -12, 6, 0, Math.PI * 2)
+                        ctx.fill()
+                        ctx.beginPath()
+                        ctx.arc(6, -12, 6, 0, Math.PI * 2)
+                        ctx.fill()
+
+                        ctx.fillStyle = '#1a1a2a'
+                        ctx.beginPath()
+                        ctx.arc(-6, -12, 3, 0, Math.PI * 2)
+                        ctx.fill()
+                        ctx.beginPath()
+                        ctx.arc(6, -12, 3, 0, Math.PI * 2)
+                        ctx.fill()
+                    }
+
+                    ctx.restore()
+                }
+                drawWrappedText(ctx, text, x, y, maxWidth, lineHeight) {
+                    const words = text.split(' ')
+                    let line = ''
+                    let currentY = y
+
+                    for (let i = 0; i < words.length; i++) {
+                        const testLine = line + words[i] + ' '
+                        const metrics = ctx.measureText(testLine)
+                        const testWidth = metrics.width
+
+                        if (testWidth > maxWidth && i > 0) {
+                            ctx.fillText(line, x, currentY)
+                            line = words[i] + ' '
+                            currentY += lineHeight
+                        } else {
+                            line = testLine
+                        }
+                    }
+                    ctx.fillText(line, x, currentY)
                 }
                 drawSkinMenu(ctx, game) {
                     // Overlay
@@ -2057,6 +2387,60 @@
                         h = 56
                     return mx >= x - w / 2 && mx <= x + w / 2 && my >= y - h / 2 && my <= y + h / 2
                 }
+                isModeButtonClicked(mx, my) {
+                    const x = CONFIG.WIDTH / 2 + 120
+                    const y = 420
+                    const w = 100,
+                        h = 56
+                    return mx >= x - w / 2 && mx <= x + w / 2 && my >= y - h / 2 && my <= y + h / 2
+                }
+                isStoryButtonClicked(mx, my) {
+                    const x = CONFIG.WIDTH / 2
+                    const y = 250
+                    const w = 240,
+                        h = 56
+                    return mx >= x - w / 2 && mx <= x + w / 2 && my >= y - h / 2 && my <= y + h / 2
+                }
+                isEndlessButtonClicked(mx, my) {
+                    const x = CONFIG.WIDTH / 2
+                    const y = 350
+                    const w = 240,
+                        h = 56
+                    return mx >= x - w / 2 && mx <= x + w / 2 && my >= y - h / 2 && my <= y + h / 2
+                }
+                isBackButtonClicked(mx, my) {
+                    const x = CONFIG.WIDTH / 2
+                    const y = 480
+                    const w = 240,
+                        h = 56
+                    return mx >= x - w / 2 && mx <= x + w / 2 && my >= y - h / 2 && my <= y + h / 2
+                }
+                handleChapterSelectClick(mx, my, game) {
+                    const cols = 3
+                    const startX = (CONFIG.WIDTH - cols * 150) / 2 + 75
+                    const startY = 150
+
+                    for (let i = 1; i <= 5; i++) {
+                        const col = (i - 1) % cols
+                        const row = Math.floor((i - 1) / cols)
+                        const x = startX + col * 150
+                        const y = startY + row * 100
+
+                        if (mx >= x - 60 && mx <= x + 60 && my >= y - 35 && my <= y + 35) {
+                            if (i <= game.highestChapter + 1) {
+                                game.currentChapter = i
+                                game.gameMode = 'story'
+                                game.startChapterIntro()
+                                break
+                            }
+                        }
+                    }
+
+                    // Back button
+                    if (this.isBackButtonClicked(mx, my)) {
+                        this.setState('modeSelect')
+                    }
+                }
                 handleSkinMenuClick(mx, my, game) {
                     const skinKeys = Object.keys(CONFIG.SKINS)
                     const cols = 4
@@ -2142,6 +2526,16 @@
                     }
                     this.skinStats = JSON.parse(localStorage.getItem('skinStats')) || this.skinStats
 
+                    // Story mode system
+                    this.gameMode = 'endless' // 'story' or 'endless'
+                    this.currentChapter = 1
+                    this.highestChapter = parseInt(localStorage.getItem('highestChapter')) || 0
+                    this.cutsceneIndex = 0
+                    this.cutsceneText = []
+                    this.cutsceneSpeaker = 'tom' // 'tom' or 'jerry'
+                    this.cutsceneStartTime = 0
+                    this.cutsceneStartTime = 0
+
                     for (let i = 0; i < 80; i++) {
                         this.bgParticles.push(new BackgroundParticle())
                     }
@@ -2157,6 +2551,12 @@
                     this.lastGeneratedX = 0
                     this.distance = 0
                     this.levelGenerator = new LevelGenerator()
+
+                    if (this.gameMode === 'story') {
+                        const chapter = CONFIG.CHAPTERS[this.currentChapter]
+                        // Force specific biomes for story mode
+                        this.levelGenerator.enemyMultiplier = 1.0 + (this.currentChapter - 1) * 0.2
+                    }
 
                     // Generate initial ground
                     this.platforms.push(new Platform(0, 460, 400, 80, 'grass'))
@@ -2259,11 +2659,27 @@
                         if (this.ui.state === 'menu') {
                             if (this.ui.isSkinButtonClicked(mx, my)) {
                                 this.ui.setState('skinMenu')
+                            } else if (this.ui.isModeButtonClicked(mx, my)) {
+                                this.ui.setState('modeSelect')
                             } else if (this.ui.isButtonClicked(mx, my)) {
+                                this.gameMode = 'endless'
                                 this.startGame()
                             }
+                        } else if (this.ui.state === 'modeSelect') {
+                            if (this.ui.isStoryButtonClicked(mx, my)) {
+                                this.ui.setState('chapterSelect')
+                            } else if (this.ui.isEndlessButtonClicked(mx, my)) {
+                                this.gameMode = 'endless'
+                                this.startGame()
+                            } else if (this.ui.isBackButtonClicked(mx, my)) {
+                                this.ui.setState('menu')
+                            }
+                        } else if (this.ui.state === 'chapterSelect') {
+                            this.ui.handleChapterSelectClick(mx, my, this)
                         } else if (this.ui.state === 'skinMenu') {
                             this.ui.handleSkinMenuClick(mx, my, this)
+                        } else if (this.ui.state === 'cutscene') {
+                            this.advanceCutscene()
                         } else if (
                             (this.ui.state === 'win' || this.ui.state === 'lose') &&
                             this.ui.isButtonClicked(mx, my)
@@ -2283,6 +2699,16 @@
                     this.camera.y = 0
                     // Reset skin stats for this session
                     this.skinStats = { fish: 0, distance: 0, bossKills: 0, biomeVisits: {} }
+
+                    if (this.gameMode === 'story') {
+                        const chapter = CONFIG.CHAPTERS[this.currentChapter]
+                        // Add goal flag for story mode - place on the last platform
+                        const lastPlatform = this.platforms[this.platforms.length - 1]
+                        const flagY = lastPlatform ? lastPlatform.y - 80 : 400
+                        this.goal = new GoalFlag(chapter.targetDistance, flagY)
+                    } else {
+                        this.goal = null
+                    }
                 }
                 restartGame() {
                     this.ui.setState('playing')
@@ -2303,6 +2729,18 @@
                     this.time += dt
                     this.input.update()
                     this.ui.update(dt)
+
+                    if (this.ui.state === 'cutscene') {
+                        if (
+                            this.input.isJustPressed('Space') ||
+                            this.input.isJustPressed('Enter') ||
+                            this.input.isJustPressed('KeyE')
+                        ) {
+                            this.advanceCutscene()
+                        }
+                        for (const bp of this.bgParticles) bp.update(dt)
+                        return
+                    }
 
                     if (this.ui.state !== 'playing') {
                         // Still update bg particles
@@ -2446,16 +2884,28 @@
                     // Biome transition
                     if (this.distance > this.nextBiomeDistance) {
                         this.nextBiomeDistance += CONFIG.BIOME_DISTANCE
-                        this.biomeTransition = 1.0
 
-                        // Pick next biome
-                        const biomeKeys = Object.keys(CONFIG.BIOMES)
-                        const currentIdx = biomeKeys.indexOf(this.biomeKey)
-                        let nextIdx = Math.floor(Math.random() * biomeKeys.length)
-                        while (nextIdx === currentIdx && biomeKeys.length > 1) {
-                            nextIdx = Math.floor(Math.random() * biomeKeys.length)
+                        if (this.gameMode === 'story') {
+                            const chapter = CONFIG.CHAPTERS[this.currentChapter]
+                            const biomes = chapter.biomes
+                            const currentIdx = biomes.indexOf(this.biomeKey)
+                            if (currentIdx < biomes.length - 1) {
+                                this.biomeKey = biomes[currentIdx + 1]
+                            } else {
+                                // Stay in last biome
+                                this.biomeKey = biomes[biomes.length - 1]
+                            }
+                        } else {
+                            // Endless mode: random biomes
+                            const biomeKeys = Object.keys(CONFIG.BIOMES)
+                            const currentIdx = biomeKeys.indexOf(this.biomeKey)
+                            let nextIdx = Math.floor(Math.random() * biomeKeys.length)
+                            while (nextIdx === currentIdx && biomeKeys.length > 1) {
+                                nextIdx = Math.floor(Math.random() * biomeKeys.length)
+                            }
+                            this.biomeKey = biomeKeys[nextIdx]
                         }
-                        this.biomeKey = biomeKeys[nextIdx]
+
                         // Update skin stats biome visits
                         this.skinStats.biomeVisits[this.biomeKey] = (this.skinStats.biomeVisits[this.biomeKey] || 0) + 1
                         this.checkSkinUnlocks()
@@ -2500,7 +2950,12 @@
                     this.audio.win()
                     this.triggerShake(6)
                     this.saveSkinStats()
-                    this.ui.setState('win')
+
+                    if (this.gameMode === 'story') {
+                        this.startChapterOutro()
+                    } else {
+                        this.ui.setState('win')
+                    }
                 }
                 applyMagnet(dt) {
                     const magnetRange = 150
@@ -2562,6 +3017,8 @@
                             this.skinStats.fish >= req.fish
                         ) {
                             unlocked = true
+                        } else if (req.storyComplete && this.highestChapter >= 5) {
+                            unlocked = true
                         }
 
                         if (unlocked) {
@@ -2578,6 +3035,77 @@
                 }
                 saveSkinStats() {
                     localStorage.setItem('skinStats', JSON.stringify(this.skinStats))
+                }
+                startChapterIntro() {
+                    const chapter = CONFIG.CHAPTERS[this.currentChapter]
+                    this.cutsceneText = chapter.introText
+                    this.cutsceneIndex = 0
+                    this.cutsceneStartTime = Date.now()
+                    this.cutsceneSpeaker = 'tom'
+                    this.ui.setState('cutscene')
+                }
+                startChapterOutro() {
+                    const chapter = CONFIG.CHAPTERS[this.currentChapter]
+                    this.cutsceneText = chapter.outroText
+                    this.cutsceneIndex = 0
+                    this.cutsceneStartTime = Date.now()
+                    this.cutsceneSpeaker = 'tom'
+                    this.ui.setState('cutscene')
+                }
+                advanceCutscene() {
+                    if (this.cutsceneIndex < this.cutsceneText.length - 1) {
+                        this.cutsceneIndex++
+                        this.cutsceneStartTime = Date.now()
+                        this.cutsceneSpeaker = this.cutsceneSpeaker === 'tom' ? 'jerry' : 'tom'
+                    } else {
+                        // End cutscene
+                        if (this.gameMode === 'story') {
+                            // Check if this is outro (after completing chapter)
+                            const chapter = CONFIG.CHAPTERS[this.currentChapter]
+                            const isOutro = this.cutsceneText === chapter.outroText
+
+                            if (isOutro) {
+                                // After outro, go back to chapter select
+                                this.cutsceneText = []
+                                this.cutsceneIndex = 0
+                                this.ui.setState('chapterSelect')
+                            } else if (this.distance >= chapter.targetDistance) {
+                                // Chapter completed, start outro
+                                this.completeChapter()
+                            } else {
+                                // Intro finished, start game
+                                this.cutsceneText = []
+                                this.cutsceneIndex = 0
+                                this.startGame()
+                            }
+                        } else {
+                            this.cutsceneText = []
+                            this.cutsceneIndex = 0
+                            this.ui.setState('menu')
+                        }
+                    }
+                }
+                completeChapter() {
+                    if (this.currentChapter > this.highestChapter) {
+                        this.highestChapter = this.currentChapter
+                        localStorage.setItem('highestChapter', this.highestChapter.toString())
+                    }
+
+                    // Apply rewards
+                    const reward = CONFIG.CHAPTERS[this.currentChapter].reward
+                    if (reward.unlockSkin) {
+                        if (!this.unlockedSkins.includes(reward.unlockSkin)) {
+                            this.unlockedSkins.push(reward.unlockSkin)
+                            localStorage.setItem('unlockedSkins', JSON.stringify(this.unlockedSkins))
+                        }
+                    }
+
+                    if (this.currentChapter === 5) {
+                        // Game completed
+                        this.ui.setState('win')
+                    } else {
+                        this.startChapterOutro()
+                    }
                 }
                 draw() {
                     // Background gradient with biome
