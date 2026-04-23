@@ -1026,28 +1026,76 @@
                     }
                 }
                 shoot() {
-                    if (this.projectiles.length < this.maxProjectiles) {
+                    const isAttackBuff = this.buffActive && this.buffType === 'attack'
+                    const currentMax = isAttackBuff ? 15 : 5
+
+                    if (this.projectiles.length < currentMax) {
                         const target = this.findNearestEnemy()
                         if (target) {
-                            const dx = target.x - this.x
-                            const dy = target.y - this.y
+                            const dx = target.x + (target.w || 0) / 2 - this.x
+                            const dy = target.y + (target.h || 0) / 2 - this.y
                             const dist = Math.sqrt(dx * dx + dy * dy)
-                            const speed = 400
+                            const speed = 450
 
-                            this.projectiles.push({
-                                x: this.x,
-                                y: this.y,
-                                vx: (dx / dist) * speed,
-                                vy: (dy / dist) * speed,
-                                life: 3,
-                                trailAlpha: 1,
-                            })
+                            if (isAttackBuff) {
+                                // Bắn 3 đạn lan khi có buff
+                                const angles = [-0.15, 0, 0.15]
+                                const baseAngle = Math.atan2(dy, dx)
+
+                                angles.forEach((angle) => {
+                                    this.projectiles.push({
+                                        x: this.x,
+                                        y: this.y,
+                                        vx: Math.cos(baseAngle + angle) * speed,
+                                        vy: Math.sin(baseAngle + angle) * speed,
+                                        life: 3,
+                                        trailAlpha: 1,
+                                    })
+                                })
+                            } else {
+                                // Bắn 1 đạn thường
+                                this.projectiles.push({
+                                    x: this.x,
+                                    y: this.y,
+                                    vx: (dx / dist) * speed,
+                                    vy: (dy / dist) * speed,
+                                    life: 3,
+                                    trailAlpha: 1,
+                                })
+                            }
                         }
                     }
                 }
                 findNearestEnemy() {
+                    if (!this.owner.game) return null
+                    const game = this.owner.game
                     let nearest = null
-                    let nearestDist = 400
+                    let nearestDist = 500 // Tầm bắn tối đa
+
+                    // 1. Kiểm tra Boss trước (ưu tiên boss)
+                    if (game.bossMode && game.activeBoss && game.activeBoss.alive) {
+                        const boss = game.activeBoss
+                        const dx = boss.x + boss.w / 2 - this.x
+                        const dy = boss.y + boss.h / 2 - this.y
+                        const dist = Math.sqrt(dx * dx + dy * dy)
+                        if (dist < nearestDist) {
+                            return boss // Trả về boss ngay nếu trong tầm
+                        }
+                    }
+
+                    // 2. Kiểm tra quái thường
+                    if (game.enemies) {
+                        for (const e of game.enemies) {
+                            if (!e.alive || e.dying) continue
+                            const dx = e.x + e.w / 2 - this.x
+                            const dy = e.y + e.h / 2 - this.y
+                            const dist = Math.sqrt(dx * dx + dy * dy)
+                            if (dist < nearestDist) {
+                                nearestDist = dist
+                                nearest = e
+                            }
+                        }
+                    }
 
                     return nearest
                 }
@@ -4097,9 +4145,8 @@
                     if (this.input.isJustPressed('KeyE')) {
                         this.pet.activate('KeyE')
                         this.audio.petBuff()
-                        if (this.pet.buffType === 'attack') {
-                            this.pet.shoot()
-                        }
+                        // Luôn bắn nếu có mục tiêu
+                        this.pet.shoot()
                     }
 
                     // Apply magnet buff
