@@ -2525,14 +2525,14 @@
                         ctx.fillStyle = this.modStatus.includes('Đã bật') ? '#88ffbb' : '#ff6b6b'
                         ctx.font = "bold 14px 'Segoe UI'"
                         ctx.textAlign = 'left'
-                        ctx.fillText(this.modStatus, panelX + 40, panelY + 370)
+                        ctx.fillText(this.modStatus, panelX + 40, panelY + 380)
                     }
 
                     // Buttons
                     const btnH = 48
                     const fixedWidth = 180
-                    const disableY = panelY + 430
-                    const backY = panelY + 500
+                    const disableY = panelY + 440
+                    const backY = panelY + 505
                     const backWidth = 220
 
                     // Disable all mods button
@@ -3023,15 +3023,17 @@
                     const toggleH = 40
                     const panelX = CONFIG.WIDTH / 2 - 360
                     const toggleX = panelX + 720 - 180
-                    const disableY = panelY + 430
-                    const backY = panelY + 500
+                    const disableY = panelY + 440
+                    const backY = panelY + 505
                     const backWidth = 220
 
-                    // Toggle mod buttons
+                    // Toggle mod buttons (pass center coordinates)
                     for (let i = 0; i < this.modList.length; i++) {
                         const mod = this.modList[i]
                         const modY = modStartY + i * modSpacing
-                        if (this.isButtonClicked(mx, my, toggleX, modY + 5, toggleW, toggleH)) {
+                        const centerX = toggleX + toggleW / 2
+                        const centerY = modY + 5 + toggleH / 2
+                        if (this.isButtonClicked(mx, my, centerX, centerY, toggleW, toggleH)) {
                             mod.enabled = !mod.enabled
                             this.modStatus = mod.enabled ? `Đã bật mod ${mod.name}` : `Đã tắt mod ${mod.name}`
                             game.applyMods(this.modList)
