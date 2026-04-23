@@ -1952,7 +1952,7 @@
             class UIManager {
                 constructor() {
                     this.score = 0
-                    this.state = 'menu' // menu, modeSelect, chapterSelect, skinMenu, cutscene, playing, win, lose
+                    this.state = 'menu' // menu, modeSelect, chapterSelect, skinMenu, cutscene, playing, paused, win, lose
                     this.fadeAlpha = 0
                     this.targetFade = 1
                     this.message = ''
@@ -2001,6 +2001,9 @@
                     }
                     if (this.state === 'lose') {
                         this.drawOverlay(ctx, '💀 THUA RỒI 💀', 'Điểm: ' + this.score, '#ff6b6b')
+                    }
+                    if (this.state === 'paused') {
+                        this.drawPauseMenu(ctx)
                     }
                 }
                 drawHUD(ctx, distance = 0, biomeKey = 'cyber') {
@@ -2056,17 +2059,43 @@
                     const distMeters = Math.floor(distance / 10)
                     ctx.fillStyle = 'rgba(10, 10, 30, 0.6)'
                     ctx.beginPath()
-                    ctx.roundRect(CONFIG.WIDTH - 100, 12, 88, 40, 10)
+                    ctx.roundRect(CONFIG.WIDTH - 160, 12, 88, 40, 10)
                     ctx.fill()
                     ctx.strokeStyle = 'rgba(123, 104, 238, 0.5)'
                     ctx.beginPath()
-                    ctx.roundRect(CONFIG.WIDTH - 100, 12, 88, 40, 10)
+                    ctx.roundRect(CONFIG.WIDTH - 160, 12, 88, 40, 10)
                     ctx.stroke()
 
                     ctx.fillStyle = '#88ffbb'
                     ctx.font = "bold 16px 'Segoe UI'"
                     ctx.textAlign = 'right'
-                    ctx.fillText(distMeters + 'm', CONFIG.WIDTH - 18, 39)
+                    ctx.fillText(distMeters + 'm', CONFIG.WIDTH - 178, 39)
+
+                    // Pause button
+                    const pauseBtnX = CONFIG.WIDTH - 52
+                    const pauseBtnY = 12
+                    const pauseBtnW = 40
+                    const pauseBtnH = 40
+                    const mx = this._mouseX || 0
+                    const my = this._mouseY || 0
+                    const isHovered =
+                        mx >= pauseBtnX && mx <= pauseBtnX + pauseBtnW && my >= pauseBtnY && my <= pauseBtnY + pauseBtnH
+
+                    ctx.fillStyle = isHovered ? 'rgba(255, 110, 199, 0.8)' : 'rgba(10, 10, 30, 0.6)'
+                    ctx.shadowColor = isHovered ? '#ff6ec7' : 'rgba(123, 104, 238, 0.3)'
+                    ctx.shadowBlur = isHovered ? 15 : 5
+                    ctx.beginPath()
+                    ctx.roundRect(pauseBtnX, pauseBtnY, pauseBtnW, pauseBtnH, 10)
+                    ctx.fill()
+                    ctx.strokeStyle = isHovered ? '#ff6ec7' : 'rgba(123, 104, 238, 0.5)'
+                    ctx.lineWidth = 2
+                    ctx.stroke()
+                    ctx.shadowBlur = 0
+
+                    // Pause icon
+                    ctx.fillStyle = '#ffffff'
+                    ctx.fillRect(pauseBtnX + 12, pauseBtnY + 10, 6, 20)
+                    ctx.fillRect(pauseBtnX + 22, pauseBtnY + 10, 6, 20)
                 }
                 drawMenu(ctx) {
                     // Cyberpunk overlay
@@ -2603,6 +2632,74 @@
                     ctx.ellipse(5, -15, 3, 4, 0, 0, Math.PI * 2)
                     ctx.fill()
                 }
+                drawPauseMenu(ctx) {
+                    // Cyberpunk overlay
+                    const bgGrad = ctx.createRadialGradient(
+                        CONFIG.WIDTH / 2,
+                        CONFIG.HEIGHT / 2,
+                        0,
+                        CONFIG.WIDTH / 2,
+                        CONFIG.HEIGHT / 2,
+                        400,
+                    )
+                    bgGrad.addColorStop(0, 'rgba(10, 10, 30, 0.92)')
+                    bgGrad.addColorStop(1, 'rgba(26, 26, 42, 0.95)')
+                    ctx.fillStyle = bgGrad
+                    ctx.fillRect(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT)
+
+                    // Decorative corner elements
+                    ctx.strokeStyle = '#ff6ec7'
+                    ctx.lineWidth = 2
+                    ctx.shadowColor = '#ff6ec7'
+                    ctx.shadowBlur = 10
+                    // Top-left
+                    ctx.beginPath()
+                    ctx.moveTo(50, 50)
+                    ctx.lineTo(100, 50)
+                    ctx.lineTo(50, 100)
+                    ctx.closePath()
+                    ctx.stroke()
+                    // Top-right
+                    ctx.beginPath()
+                    ctx.moveTo(CONFIG.WIDTH - 50, 50)
+                    ctx.lineTo(CONFIG.WIDTH - 100, 50)
+                    ctx.lineTo(CONFIG.WIDTH - 50, 100)
+                    ctx.closePath()
+                    ctx.stroke()
+                    // Bottom-left
+                    ctx.beginPath()
+                    ctx.moveTo(50, CONFIG.HEIGHT - 50)
+                    ctx.lineTo(100, CONFIG.HEIGHT - 50)
+                    ctx.lineTo(50, CONFIG.HEIGHT - 100)
+                    ctx.closePath()
+                    ctx.stroke()
+                    // Bottom-right
+                    ctx.beginPath()
+                    ctx.moveTo(CONFIG.WIDTH - 50, CONFIG.HEIGHT - 50)
+                    ctx.lineTo(CONFIG.WIDTH - 100, CONFIG.HEIGHT - 50)
+                    ctx.lineTo(CONFIG.WIDTH - 50, CONFIG.HEIGHT - 100)
+                    ctx.closePath()
+                    ctx.stroke()
+                    ctx.shadowBlur = 0
+
+                    // Title
+                    ctx.save()
+                    ctx.shadowColor = '#ff6ec7'
+                    ctx.shadowBlur = 40
+                    ctx.fillStyle = '#ff6ec7'
+                    ctx.font = "bold 56px 'Segoe UI'"
+                    ctx.textAlign = 'center'
+                    ctx.fillText('⏸️ TẠM DỪNG', CONFIG.WIDTH / 2, 150)
+                    ctx.restore()
+
+                    // Buttons (3 nút theo yêu cầu)
+                    const buttonY = 250
+                    const buttonSpacing = 90
+                    this.drawButton(ctx, CONFIG.WIDTH / 2, buttonY, '▶️ TIẾP TỤC')
+                    this.drawButton(ctx, CONFIG.WIDTH / 2, buttonY + buttonSpacing, '🔄 CHƠI LẠI')
+                    this.drawButton(ctx, CONFIG.WIDTH / 2, buttonY + buttonSpacing * 2, '🏠 THOÁT')
+                }
+
                 drawOverlay(ctx, title, subtitle, color) {
                     ctx.fillStyle = `rgba(10, 10, 30, ${this.fadeAlpha * 0.85})`
                     ctx.fillRect(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT)
@@ -2991,6 +3088,64 @@
                         this.ui._mouseY = (e.clientY - rect.top) * scaleY
                     })
 
+                    // Touch support for mobile
+                    canvas.addEventListener('touchstart', (e) => {
+                        e.preventDefault()
+                        const rect = canvas.getBoundingClientRect()
+                        const scaleX = CONFIG.WIDTH / rect.width
+                        const scaleY = CONFIG.HEIGHT / rect.height
+                        const touch = e.touches[0]
+                        const mx = (touch.clientX - rect.left) * scaleX
+                        const my = (touch.clientY - rect.top) * scaleY
+
+                        this.audio.init()
+
+                        if (this.ui.state === 'playing') {
+                            // Check pause button touch
+                            const pauseBtnX = CONFIG.WIDTH - 52
+                            const pauseBtnY = 12
+                            const pauseBtnW = 40
+                            const pauseBtnH = 40
+                            if (
+                                mx >= pauseBtnX &&
+                                mx <= pauseBtnX + pauseBtnW &&
+                                my >= pauseBtnY &&
+                                my <= pauseBtnY + pauseBtnH
+                            ) {
+                                this.ui.setState('paused')
+                                this.audio.duckMusic(0.3, 0.1)
+                            }
+                        } else if (this.ui.state === 'paused') {
+                            const btnW = 200
+                            const btnH = 56
+                            const buttonY = 250
+                            const buttonSpacing = 90
+                            // TIẾP TỤC
+                            if (this.ui.isButtonClicked(mx, my, CONFIG.WIDTH / 2, buttonY, btnW, btnH)) {
+                                this.ui.setState('playing')
+                            }
+                            // CHƠI LẠI
+                            else if (
+                                this.ui.isButtonClicked(mx, my, CONFIG.WIDTH / 2, buttonY + buttonSpacing, btnW, btnH)
+                            ) {
+                                this.restartGame()
+                            }
+                            // THOÁT
+                            else if (
+                                this.ui.isButtonClicked(
+                                    mx,
+                                    my,
+                                    CONFIG.WIDTH / 2,
+                                    buttonY + buttonSpacing * 2,
+                                    btnW,
+                                    btnH,
+                                )
+                            ) {
+                                this.ui.setState('menu')
+                            }
+                        }
+                    })
+
                     canvas.addEventListener('click', (e) => {
                         const rect = canvas.getBoundingClientRect()
                         const scaleX = CONFIG.WIDTH / rect.width
@@ -3000,7 +3155,22 @@
 
                         this.audio.init()
 
-                        if (this.ui.state === 'menu') {
+                        if (this.ui.state === 'playing') {
+                            // Check pause button click
+                            const pauseBtnX = CONFIG.WIDTH - 52
+                            const pauseBtnY = 12
+                            const pauseBtnW = 40
+                            const pauseBtnH = 40
+                            if (
+                                mx >= pauseBtnX &&
+                                mx <= pauseBtnX + pauseBtnW &&
+                                my >= pauseBtnY &&
+                                my <= pauseBtnY + pauseBtnH
+                            ) {
+                                this.ui.setState('paused')
+                                this.audio.duckMusic(0.3, 0.1)
+                            }
+                        } else if (this.ui.state === 'menu') {
                             if (this.ui.showSettings) {
                                 const panelY = CONFIG.HEIGHT / 2 - 200 // 70
                                 const musicX = CONFIG.WIDTH / 2 - 130
@@ -3065,6 +3235,75 @@
                             this.ui.isButtonClicked(mx, my)
                         ) {
                             this.restartGame()
+                        } else if (this.ui.state === 'paused') {
+                            if (this.ui.showSettings) {
+                                const panelY = CONFIG.HEIGHT / 2 - 200
+                                const musicX = CONFIG.WIDTH / 2 - 130
+                                const musicY = panelY + 120
+                                const sfxX = CONFIG.WIDTH / 2 + 130
+                                const sfxY = panelY + 120
+                                const backX = CONFIG.WIDTH / 2
+                                const backY = panelY + 320
+                                const btnW = 200
+                                const btnH = 56
+                                if (this.ui.isButtonClicked(mx, my, musicX, musicY, btnW, btnH)) {
+                                    this.ui.settings.music = !this.ui.settings.music
+                                    this.audio.toggleMusic()
+                                } else if (this.ui.isButtonClicked(mx, my, sfxX, sfxY, btnW, btnH)) {
+                                    this.ui.settings.sfx = !this.ui.settings.sfx
+                                    this.audio.toggleSFX()
+                                } else if (this.ui.isButtonClicked(mx, my, backX, backY, btnW, btnH)) {
+                                    this.ui.showSettings = false
+                                }
+                                const sliderY = panelY + 200
+                                if (
+                                    my >= sliderY &&
+                                    my <= sliderY + 20 &&
+                                    mx >= CONFIG.WIDTH / 2 - 150 &&
+                                    mx <= CONFIG.WIDTH / 2 + 150
+                                ) {
+                                    this.ui.settings.volume = Math.max(
+                                        0,
+                                        Math.min(1, (mx - (CONFIG.WIDTH / 2 - 150)) / 300),
+                                    )
+                                    this.audio.setVolume(this.ui.settings.volume)
+                                }
+                            } else {
+                                const btnW = 200
+                                const btnH = 56
+                                const buttonY = 250
+                                const buttonSpacing = 90
+                                // TIẾP TỤC
+                                if (this.ui.isButtonClicked(mx, my, CONFIG.WIDTH / 2, buttonY, btnW, btnH)) {
+                                    this.ui.setState('playing')
+                                }
+                                // CHƠI LẠI
+                                else if (
+                                    this.ui.isButtonClicked(
+                                        mx,
+                                        my,
+                                        CONFIG.WIDTH / 2,
+                                        buttonY + buttonSpacing,
+                                        btnW,
+                                        btnH,
+                                    )
+                                ) {
+                                    this.restartGame()
+                                }
+                                // THOÁT
+                                else if (
+                                    this.ui.isButtonClicked(
+                                        mx,
+                                        my,
+                                        CONFIG.WIDTH / 2,
+                                        buttonY + buttonSpacing * 2,
+                                        btnW,
+                                        btnH,
+                                    )
+                                ) {
+                                    this.ui.setState('menu')
+                                }
+                            }
                         }
                     })
                 }
@@ -3110,6 +3349,16 @@
                     this.input.update()
                     this.ui.update(dt)
 
+                    // Handle pause toggle
+                    if (this.input.isJustPressed('Escape') || this.input.isJustPressed('KeyP')) {
+                        if (this.ui.state === 'playing') {
+                            this.ui.setState('paused')
+                            this.audio.duckMusic(0.3, 0.1)
+                        } else if (this.ui.state === 'paused' && !this.ui.showSettings) {
+                            this.ui.setState('playing')
+                        }
+                    }
+
                     if (this.ui.state === 'cutscene') {
                         if (
                             this.input.isJustPressed('Space') ||
@@ -3118,6 +3367,13 @@
                         ) {
                             this.advanceCutscene()
                         }
+                        for (const bp of this.bgParticles) bp.update(dt)
+                        return
+                    }
+
+                    if (this.ui.state === 'paused') {
+                        // Still render particles and UI when paused
+                        this.particles.update(dt)
                         for (const bp of this.bgParticles) bp.update(dt)
                         return
                     }
