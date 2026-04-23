@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="vi">
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Tower Defense</title>
+        <title>Bảo Vệ Tháp</title>
         <link
             rel="icon"
             href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0%25' stop-color='%230a0a1a'/%3E%3Cstop offset='100%25' stop-color='%231a1a2e'/%3E%3C/linearGradient%3E%3ClinearGradient id='tower' x1='0' y1='1' x2='0' y2='0'%3E%3Cstop offset='0%25' stop-color='%230066ff'/%3E%3Cstop offset='100%25' stop-color='%2300ffcc'/%3E%3C/linearGradient%3E%3ClinearGradient id='gold' x1='0' y1='1' x2='0' y2='0'%3E%3Cstop offset='0%25' stop-color='%23ffd700'/%3E%3Cstop offset='100%25' stop-color='%23fff4b0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='4' fill='url(%23bg)'/%3E%3Crect x='13' y='18' width='6' height='12' rx='1' fill='url(%23tower)'/%3E%3Crect x='10' y='22' width='12' height='8' rx='1' fill='url(%23tower)' opacity='0.9'/%3E%3Crect x='14.5' y='12' width='3' height='6' fill='url(%23tower)'/%3E%3Crect x='6' y='25' width='20' height='5' rx='1' fill='url(%23tower)' opacity='0.7'/%3E%3Ccircle cx='16' cy='10' r='3' fill='url(%23gold)'/%3E%3Crect x='15' y='7' width='2' height='3' rx='0.5' fill='%23ffd700' opacity='0.8'/%3E%3C/svg%3E"
@@ -288,31 +288,31 @@
                     </div>
                     <span class="val" id="hpText">20</span>
                 </div>
-                <div class="stat"><span class="icon">🌊</span><span class="val" id="waveText">Wave 0/10</span></div>
+                <div class="stat"><span class="icon">🌊</span><span class="val" id="waveText">Đợt 0/10</span></div>
                 <div class="stat"><span class="icon">💰</span><span class="val" id="goldText">100</span></div>
             </div>
             <div id="towerPanel">
                 <div class="tower-btn" data-type="basic" onclick="selectTower('basic')">
                     <div class="t-icon" style="background: rgba(100, 180, 255, 0.2)">🔵</div>
-                    <div class="t-name">BASIC</div>
+                    <div class="t-name">CƠ BẢN</div>
                     <div class="t-cost">💰 50</div>
                 </div>
                 <div class="tower-btn" data-type="rapid" onclick="selectTower('rapid')">
                     <div class="t-icon" style="background: rgba(255, 200, 50, 0.2)">🟡</div>
-                    <div class="t-name">RAPID</div>
+                    <div class="t-name">TỐC ĐỘ</div>
                     <div class="t-cost">💰 75</div>
                 </div>
                 <div class="tower-btn" data-type="heavy" onclick="selectTower('heavy')">
                     <div class="t-icon" style="background: rgba(255, 80, 80, 0.2)">🔴</div>
-                    <div class="t-name">HEAVY</div>
+                    <div class="t-name">HẠNG NẶNG</div>
                     <div class="t-cost">💰 120</div>
                 </div>
             </div>
-            <button id="waveBtn" onclick="startNextWave()">▶ NEXT WAVE</button>
-            <div id="sellInfo">Lv.<span id="sellLv"></span> <button onclick="sellTower()">SELL</button></div>
+            <button id="waveBtn" onclick="startNextWave()">▶ ĐỢT TIẾP THEO</button>
+            <div id="sellInfo">Lv.<span id="sellLv"></span> <button onclick="sellTower()">BÁN</button></div>
             <div id="overlay">
                 <h1>🏰 TOWER DEFENSE</h1>
-                <p>Place towers to defend your base from incoming enemies!</p>
+                <p>Đặt các tòa tháp để bảo vệ căn cứ của bạn khỏi kẻ thù!</p>
                 <button onclick="startGame()">START GAME</button>
             </div>
         </div>
@@ -1139,7 +1139,7 @@
                 ctx.fillStyle = 'rgba(255,255,255,0.8)'
                 ctx.font = 'bold 11px sans-serif'
                 ctx.textAlign = 'center'
-                ctx.fillText('BASE', basePos.x, basePos.y + 4)
+                ctx.fillText('CĂN CỨ', basePos.x, basePos.y + 4)
 
                 // Spawn point
                 const spawnPos = PATH[0]
@@ -1149,7 +1149,7 @@
                 ctx.fill()
                 ctx.fillStyle = 'rgba(255,255,255,0.6)'
                 ctx.font = 'bold 10px sans-serif'
-                ctx.fillText('SPAWN', spawnPos.x, spawnPos.y + 4)
+                ctx.fillText('ĐIỂM XUẤT PHÁT', spawnPos.x, spawnPos.y + 4)
             }
 
             function drawHoverPreview() {
@@ -1208,7 +1208,7 @@
             function updateUI() {
                 document.getElementById('hpFill').style.width = Math.max(0, (game.hp / game.maxHp) * 100) + '%'
                 document.getElementById('hpText').textContent = Math.max(0, game.hp)
-                document.getElementById('waveText').textContent = `Wave ${game.wave}/${game.maxWaves}`
+                document.getElementById('waveText').textContent = `Đợt ${game.wave}/${game.maxWaves}`
                 document.getElementById('goldText').textContent = game.gold
 
                 // Update tower buttons
@@ -1446,11 +1446,11 @@
                 game.gameOver = true
                 const overlay = document.getElementById('overlay')
                 overlay.classList.remove('hidden')
-                overlay.querySelector('h1').textContent = won ? '🎉 VICTORY!' : '💀 GAME OVER'
+                overlay.querySelector('h1').textContent = won ? '🎉 CHIẾN THẮNG!' : '💀 TRÒ CHƠI KẾT THÚC'
                 overlay.querySelector('p').textContent = won
-                    ? `You survived all ${game.maxWaves} waves!`
+                    ? `Bạn đã sống sót qua tất cả ${game.maxWaves} đợt tấn công!`
                     : `You fell on wave ${game.wave}.`
-                overlay.querySelector('button').textContent = 'PLAY AGAIN'
+                overlay.querySelector('button').textContent = 'CHƠI LẠI'
             }
 
             // ============ START ============
