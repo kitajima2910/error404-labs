@@ -1245,6 +1245,10 @@
 
                     // Move Y
                     this.y += this.vy * dt
+                    if (this.y < 0) {
+                        this.y = 0
+                        this.vy = 0
+                    }
                     this.onGround = false
                     this.resolveCollisionY(platforms, dt)
 
@@ -3705,7 +3709,7 @@
                                 // Update skin stats - count as boss kill
                                 this.skinStats.bossKills++
                                 this.checkSkinUnlocks()
-                            } else {
+                            } else if (!this.modInvincible) {
                                 // Hit by enemy - check shield
                                 if (this.pet.buffType === 'shield' && this.pet.buffActive) {
                                     // Shield blocks the hit
@@ -3911,6 +3915,7 @@
                 applyMods(modList) {
                     // Restore default first
                     this.restoreDefaultConfig()
+                    this.modInvincible = false
 
                     // Apply enabled mods
                     modList.forEach((mod) => {
@@ -3920,6 +3925,7 @@
                             if (typeof mod.config.PLAYER_SPEED === 'number')
                                 CONFIG.PLAYER_SPEED = mod.config.PLAYER_SPEED
                             if (typeof mod.config.PLAYER_JUMP === 'number') CONFIG.PLAYER_JUMP = mod.config.PLAYER_JUMP
+                            if (mod.config.INVINCIBLE === true) this.modInvincible = true
                         }
                     })
                 }
