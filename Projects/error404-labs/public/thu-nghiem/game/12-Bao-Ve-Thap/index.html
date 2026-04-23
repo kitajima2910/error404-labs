@@ -2416,8 +2416,8 @@
                 const mx = (e.clientX - rect.left) * scaleX
                 const my = (e.clientY - rect.top) * scaleY
                 // Convert screen to world coordinates
-                const wx = mx - (W / 2 - game.cameraX)
-                const wy = my - (H / 2 - game.cameraY)
+                const wx = mx + (game.cameraX - W / 2)
+                const wy = my + (game.cameraY - H / 2)
                 const col = Math.floor(wx / CELL)
                 const row = Math.floor(wy / CELL)
                 game.hoveredCell = { col, row, mx, my, wx, wy }
@@ -2445,8 +2445,8 @@
                 const mx = (e.clientX - rect.left) * scaleX
                 const my = (e.clientY - rect.top) * scaleY
                 // Convert screen to world coordinates
-                const wx = mx - (W / 2 - game.cameraX)
-                const wy = my - (H / 2 - game.cameraY)
+                const wx = mx + (game.cameraX - W / 2)
+                const wy = my + (game.cameraY - H / 2)
                 const col = Math.floor(wx / CELL)
                 const row = Math.floor(wy / CELL)
 
@@ -2546,6 +2546,8 @@
                             alive: true,
                             trail: [],
                             trailTimer: 0,
+                            hitList: [],
+                            pierce: 1,
                         }
                         game.bullets.push(bullet)
                     }
