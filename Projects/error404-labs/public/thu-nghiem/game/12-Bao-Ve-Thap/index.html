@@ -473,8 +473,6 @@
                     { x: 11, y: 1 },
                     { x: 11, y: 4 },
                     { x: 15, y: 4 },
-                    { x: 15, y: 4 },
-                    { x: 17, y: 4 },
                 ],
                 // Lane 1: Middle
                 [
@@ -486,8 +484,6 @@
                     { x: 11, y: 2 },
                     { x: 11, y: 4 },
                     { x: 15, y: 4 },
-                    { x: 15, y: 4 },
-                    { x: 17, y: 4 },
                 ],
                 // Lane 2: Bottom
                 [
@@ -499,15 +495,13 @@
                     { x: 11, y: 8 },
                     { x: 11, y: 4 },
                     { x: 15, y: 4 },
-                    { x: 15, y: 4 },
-                    { x: 17, y: 4 },
                 ],
             ]
             const PATHS = PATHS_GRID.map((lane) =>
                 lane.map((p) => ({ x: p.x * CELL + CELL / 2, y: p.y * CELL + CELL / 2 })),
             )
 
-            // Determine path cells for all lanes
+            // Determine path cells for all lanes (safe, integer-only)
             const pathCells = new Set()
             function markPathCells() {
                 pathCells.clear()
@@ -517,14 +511,14 @@
                             b = lane[i + 1]
                         const dx = Math.sign(b.x - a.x),
                             dy = Math.sign(b.y - a.y)
-                        let cx = a.x,
-                            cy = a.y
-                        while (cx !== b.x || cy !== b.y) {
-                            if (cx >= 0 && cx < COLS && cy >= 0 && cy < ROWS) pathCells.add(cx + ',' + cy)
-                            if (cx !== b.x) cx += dx
-                            else cy += dy
+                        const steps = Math.max(Math.abs(b.x - a.x), Math.abs(b.y - a.y))
+                        for (let s = 0; s <= steps; s++) {
+                            const cx = a.x + dx * s,
+                                cy = a.y + dy * s
+                            const rx = Math.round(cx),
+                                ry = Math.round(cy)
+                            if (rx >= 0 && rx < COLS && ry >= 0 && ry < ROWS) pathCells.add(rx + ',' + ry)
                         }
-                        if (b.x >= 0 && b.x < COLS && b.y >= 0 && b.y < ROWS) pathCells.add(b.x + ',' + b.y)
                     }
                 }
             }
@@ -1374,7 +1368,7 @@
                 ctx.globalAlpha = 1
             }
 
-            // Helper: draw text with capsule background + glow
+            // Helper: draw text with capsule background + glow (clamped to canvas bounds)
             function drawTextWithBg(text, x, y, fontSize, color, bgAlpha, pulse) {
                 ctx.save()
                 const pulseY = pulse ? Math.sin(game.time * 4) * 2 : 0
@@ -1385,10 +1379,14 @@
                     padY = 6
                 const w = m.width + padX * 2
                 const h = fontSize + padY * 2
+                // Clamp x so capsule stays within canvas (left/right)
+                const clampX = Math.max(w / 2 + 4, Math.min(W - w / 2 - 4, x))
+                // Clamp y so capsule stays within canvas (top/bottom)
+                const clampY = Math.max(h / 2 + 4, Math.min(H - h / 2 - 4, y + pulseY))
                 // Capsule background (manual roundRect for compatibility)
                 ctx.fillStyle = `rgba(10,10,30,${bgAlpha || 0.55})`
-                const rx = x - w / 2,
-                    ry = y - h / 2 + pulseY,
+                const rx = clampX - w / 2,
+                    ry = clampY - h / 2,
                     r = h / 2
                 ctx.beginPath()
                 ctx.moveTo(rx + r, ry)
@@ -1406,7 +1404,7 @@
                 ctx.shadowColor = color
                 ctx.shadowBlur = 12
                 ctx.fillStyle = color
-                ctx.fillText(text, x, y + fontSize / 3 + pulseY)
+                ctx.fillText(text, clampX, clampY + fontSize / 3)
                 ctx.restore()
             }
 
@@ -1463,32 +1461,34 @@
                     for (let i = 0; i < lanePath.length - 1; i++) {
                         const a = lanePath[i],
                             b = lanePath[i + 1]
-                        const dx = Math.sign(b.x - a.x),
-                            dy = Math.sign(b.y - a.y)
-                        let cx = a.x,
-                            cy = a.y
-                        while (cx !== b.x || cy !== b.y) {
+                        const dx = Math.sign(b.x - a.x) * CELL,
+                            dy = Math.sign(b.y - a.y) * CELL
+                        const steps = Math.max(Math.abs(b.x - a.x), Math.abs(b.y - a.y)) / CELL
+                        for (let s = 0; s < steps; s++) {
+                            const cx = a.x + dx * s,
+                                cy = a.y + dy * s
                             ctx.beginPath()
                             ctx.arc(cx, cy, 2, 0, Math.PI * 2)
                             ctx.fill()
-                            if (cx !== b.x) cx += dx * CELL
-                            else cy += dy * CELL
                         }
                     }
                 }
 
-                // Base with premium badge
+                // Base with premium badge (clamped to canvas)
                 const basePos = getBasePos()
                 ctx.save()
                 ctx.shadowColor = 'rgba(100,180,255,0.6)'
                 ctx.shadowBlur = 30
+                // Clamp radius so glow doesn't get cut off at canvas edge
+                const maxR = Math.min(CELL * 0.65, W - basePos.x - 4)
+                const innerR = Math.min(CELL * 0.38, W - basePos.x - 4)
                 ctx.fillStyle = 'rgba(60,100,180,0.35)'
                 ctx.beginPath()
-                ctx.arc(basePos.x, basePos.y, CELL * 0.65, 0, Math.PI * 2)
+                ctx.arc(basePos.x, basePos.y, maxR, 0, Math.PI * 2)
                 ctx.fill()
                 ctx.fillStyle = 'rgba(100,160,255,0.65)'
                 ctx.beginPath()
-                ctx.arc(basePos.x, basePos.y, CELL * 0.38, 0, Math.PI * 2)
+                ctx.arc(basePos.x, basePos.y, innerR, 0, Math.PI * 2)
                 ctx.fill()
                 ctx.restore()
                 // Premium badge label with pulse
@@ -1527,7 +1527,7 @@
                         spawnPos.x,
                         spawnPos.y,
                         9,
-                        colors.stroke.replace('0.09', '0.9)'),
+                        colors.stroke.replace('0.09', '0.9'),
                         0.5,
                         false,
                     )
