@@ -355,11 +355,32 @@
                 constructor() {
                     this.ctx = null
                     this.initialized = false
+                    this.musicEnabled = true
+                    this.sfxEnabled = true
+                    this.volume = 0.5
+                    this.masterGain = null
+                    this.musicGain = null
+                    this.sfxGain = null
+                    this.sfxPanner = null
+                    this.currentBGM = null
+                    this.isPlayingBGM = false
+                    this.bgmInterval = null
                 }
                 init() {
                     if (this.initialized) return
                     try {
                         this.ctx = new (window.AudioContext || window.webkitAudioContext)()
+                        this.masterGain = this.ctx.createGain()
+                        this.musicGain = this.ctx.createGain()
+                        this.sfxGain = this.ctx.createGain()
+                        this.sfxPanner = this.ctx.createStereoPanner()
+                        this.masterGain.gain.value = this.volume
+                        this.musicGain.gain.value = 0.3
+                        this.sfxGain.gain.value = 0.8
+                        this.masterGain.connect(this.ctx.destination)
+                        this.musicGain.connect(this.masterGain)
+                        this.sfxGain.connect(this.sfxPanner)
+                        this.sfxPanner.connect(this.masterGain)
                         this.initialized = true
                     } catch (e) {
                         console.log('Audio not available')
@@ -375,49 +396,166 @@
                     gain.gain.setValueAtTime(volume, this.ctx.currentTime)
                     gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration)
                     osc.connect(gain)
-                    gain.connect(this.ctx.destination)
+                    gain.connect(this.sfxGain)
                     osc.start(this.ctx.currentTime)
                     osc.stop(this.ctx.currentTime + duration)
                 }
                 jump() {
-                    this.playTone(400, 0.15, 'square', 0.12, 300)
-                    this.playTone(600, 0.1, 'sine', 0.08, 200)
+                    this.playSFX('jump')
+                    this.playVoice('tom', 'jump')
                 }
                 collect() {
-                    this.playTone(800, 0.1, 'sine', 0.12, 400)
-                    setTimeout(() => this.playTone(1200, 0.15, 'sine', 0.1, 200), 60)
+                    this.playSFX('collect')
                 }
                 hit() {
-                    this.playTone(150, 0.3, 'sawtooth', 0.15, -100)
-                    this.playTone(100, 0.2, 'square', 0.1, -50)
+                    this.playSFX('hit')
+                    this.playVoice('tom', 'hit')
                 }
                 stomp() {
-                    this.playTone(300, 0.15, 'square', 0.12, -200)
-                    this.playTone(500, 0.1, 'sine', 0.08)
+                    this.playSFX('stomp')
                 }
                 win() {
-                    ;[
-                        0,
-                        100,
-                        200,
-                        300,
-                        400,
-                    ].forEach((d, i) => {
-                        setTimeout(() => this.playTone(500 + i * 100, 0.2, 'sine', 0.1), d)
-                    })
+                    this.playSFX('win')
+                    this.playVoice('tom', 'win')
                 }
                 lose() {
-                    ;[
-                        0,
-                        150,
-                        300,
-                    ].forEach((d, i) => {
-                        setTimeout(() => this.playTone(400 - i * 100, 0.3, 'sawtooth', 0.1), d)
-                    })
+                    this.playSFX('lose')
                 }
                 petBuff() {
-                    this.playTone(600, 0.1, 'sine', 0.08, 200)
-                    this.playTone(800, 0.1, 'sine', 0.08, 300)
+                    this.playSFX('petBuff')
+                    this.playVoice('jerry', 'buffReady')
+                }
+                setVolume(v) {
+                    this.volume = Math.max(0, Math.min(1, v))
+                    if (this.masterGain) this.masterGain.gain.value = this.volume
+                }
+                toggleMusic() {
+                    this.musicEnabled = !this.musicEnabled
+                    if (this.musicGain) {
+                        this.musicGain.gain.value = this.musicEnabled ? 0.3 : 0
+                    }
+                    if (!this.musicEnabled) {
+                        this.stopBGM()
+                    }
+                }
+                toggleSFX() {
+                    this.sfxEnabled = !this.sfxEnabled
+                    if (this.sfxGain) {
+                        this.sfxGain.gain.value = this.sfxEnabled ? 0.8 : 0
+                    }
+                }
+                stopBGM() {
+                    this.isPlayingBGM = false
+                    if (this.bgmInterval) {
+                        clearInterval(this.bgmInterval)
+                        this.bgmInterval = null
+                    }
+                }
+                playMusicTone(freq, dur, type = 'sine', vol = 0.1) {
+                    if (!this.initialized) return
+                    const osc = this.ctx.createOscillator()
+                    const gain = this.ctx.createGain()
+                    osc.type = type
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime)
+                    gain.gain.setValueAtTime(vol, this.ctx.currentTime)
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + dur)
+                    osc.connect(gain)
+                    gain.connect(this.musicGain)
+                    osc.start(this.ctx.currentTime)
+                    osc.stop(this.ctx.currentTime + dur)
+                }
+                playBGM(type) {
+                    this.stopBGM()
+                    if (!this.musicEnabled) return
+                    this.currentBGM = type
+                    this.isPlayingBGM = true
+                    const patterns = {
+                        ice: [
+                            { freq: 200, dur: 0.5, type: 'sine', vol: 0.1 },
+                            { freq: 250, dur: 0.5, type: 'sine', vol: 0.1 },
+                            { freq: 300, dur: 0.5, type: 'sine', vol: 0.1 },
+                        ],
+                        lava: [
+                            { freq: 150, dur: 0.3, type: 'sawtooth', vol: 0.15 },
+                            { freq: 180, dur: 0.3, type: 'sawtooth', vol: 0.15 },
+                        ],
+                        cyber: [
+                            { freq: 400, dur: 0.2, type: 'square', vol: 0.1 },
+                            { freq: 600, dur: 0.2, type: 'square', vol: 0.1 },
+                            { freq: 800, dur: 0.2, type: 'square', vol: 0.1 },
+                        ],
+                    }
+                    const pattern = patterns[type] || patterns.cyber
+                    let index = 0
+                    this.bgmInterval = setInterval(() => {
+                        if (!this.isPlayingBGM) return
+                        const note = pattern[index % pattern.length]
+                        this.playMusicTone(note.freq, note.dur, note.type, note.vol)
+                        index++
+                    }, 600)
+                }
+                duckMusic(duration = 0.5, reduction = 0.1) {
+                    if (!this.musicGain) return
+                    this.musicGain.gain.cancelScheduledValues(this.ctx.currentTime)
+                    this.musicGain.gain.setValueAtTime(this.musicGain.gain.value, this.ctx.currentTime)
+                    this.musicGain.gain.exponentialRampToValueAtTime(reduction, this.ctx.currentTime + 0.1)
+                    this.musicGain.gain.exponentialRampToValueAtTime(0.3, this.ctx.currentTime + duration)
+                }
+                playSFX(name, volume = 0.15, pan = 0) {
+                    if (!this.sfxEnabled) return
+                    this.sfxPanner.pan.value = Math.max(-1, Math.min(1, pan))
+                    switch (name) {
+                        case 'jump':
+                            this.playTone(400, 0.15, 'square', volume, 300)
+                            break
+                        case 'collect':
+                            this.playTone(800, 0.1, 'sine', volume, 400)
+                            setTimeout(() => this.playTone(1200, 0.15, 'sine', volume * 0.8, 200), 60)
+                            break
+                        case 'hit':
+                            this.playTone(150, 0.3, 'sawtooth', volume, -100)
+                            this.playTone(100, 0.2, 'square', volume * 0.7, -50)
+                            break
+                        case 'stomp':
+                            this.playTone(300, 0.15, 'square', volume, -200)
+                            this.playTone(500, 0.1, 'sine', volume * 0.7)
+                            break
+                        case 'win':
+                            ;[
+                                0,
+                                100,
+                                200,
+                                300,
+                                400,
+                            ].forEach((d, i) => setTimeout(() => this.playTone(500 + i * 100, 0.2, 'sine', volume), d))
+                            break
+                        case 'lose':
+                            ;[
+                                0,
+                                150,
+                                300,
+                            ].forEach((d, i) =>
+                                setTimeout(() => this.playTone(400 - i * 100, 0.3, 'sawtooth', volume), d),
+                            )
+                            break
+                        case 'petBuff':
+                            this.playTone(600, 0.1, 'sine', volume, 200)
+                            this.playTone(800, 0.1, 'sine', volume, 300)
+                            break
+                    }
+                }
+                playVoice(character, event) {
+                    if (!this.sfxEnabled) return
+                    this.duckMusic(0.5, 0.1)
+                    if (character === 'tom') {
+                        if (event === 'jump') this.playTone(300, 0.1, 'sine', 0.1)
+                        if (event === 'hit') this.playTone(200, 0.2, 'sawtooth', 0.15)
+                        if (event === 'win') this.playTone(500, 0.3, 'sine', 0.2)
+                    } else if (character === 'jerry') {
+                        if (event === 'buffReady') this.playTone(600, 0.15, 'sine', 0.1, 200)
+                    } else if (character === 'boss') {
+                        if (event === 'attack') this.playTone(100, 0.5, 'sawtooth', 0.2)
+                    }
                 }
             }
 
@@ -1820,6 +1958,8 @@
                     this.message = ''
                     this.buttonHover = false
                     this.scorePopups = []
+                    this.settings = { music: true, sfx: true, volume: 0.5 }
+                    this.showSettings = false
                 }
                 setState(state) {
                     this.state = state
@@ -1840,6 +1980,9 @@
                     }
                     if (this.state === 'menu') {
                         this.drawMenu(ctx)
+                        if (this.showSettings) {
+                            this.drawSettingsMenu(ctx)
+                        }
                     }
                     if (this.state === 'modeSelect') {
                         this.drawModeSelect(ctx)
@@ -1966,7 +2109,50 @@
                     // Mode button
                     this.drawButton(ctx, CONFIG.WIDTH / 2 + 120, 420, '🎮 CHẾ ĐỘ')
 
+                    // Settings button
+                    this.drawButton(ctx, CONFIG.WIDTH / 2, 480, '⚙️ CÀI ĐẶT')
+
                     ctx.globalAlpha = 1
+                }
+                drawSettingsMenu(ctx) {
+                    // Overlay
+                    ctx.fillStyle = 'rgba(10, 10, 30, 0.9)'
+                    ctx.fillRect(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT)
+
+                    // Title
+                    ctx.fillStyle = '#ffffff'
+                    ctx.font = "bold 32px 'Segoe UI'"
+                    ctx.textAlign = 'center'
+                    ctx.fillText('CÀI ĐẶT ÂM THANH', CONFIG.WIDTH / 2, 100)
+
+                    // Music button
+                    const musicX = CONFIG.WIDTH / 2 - 120
+                    const musicY = 180
+                    this.drawButton(ctx, musicX, musicY, this.settings.music ? '🎵 NHẠC: BẬT' : '🔇 NHẠC: TẮT')
+
+                    // SFX button
+                    const sfxX = CONFIG.WIDTH / 2 + 120
+                    const sfxY = 180
+                    this.drawButton(ctx, sfxX, sfxY, this.settings.sfx ? '🔊 HIỆU ỨNG: BẬT' : '🔇 HIỆU ỨNG: TẮT')
+
+                    // Volume slider
+                    const sliderY = 260
+                    ctx.fillStyle = '#666'
+                    ctx.fillRect(CONFIG.WIDTH / 2 - 100, sliderY, 200, 10)
+                    ctx.fillStyle = '#ff6ec7'
+                    ctx.fillRect(CONFIG.WIDTH / 2 - 100, sliderY, this.settings.volume * 200, 10)
+                    ctx.fillStyle = '#ffffff'
+                    ctx.font = "16px 'Segoe UI'"
+                    ctx.fillText(
+                        'ÂM LƯỢNG: ' + Math.round(this.settings.volume * 100) + '%',
+                        CONFIG.WIDTH / 2,
+                        sliderY - 10,
+                    )
+
+                    // Back button
+                    const backX = CONFIG.WIDTH / 2
+                    const backY = 360
+                    this.drawButton(ctx, backX, backY, '⬅️ QUAY LẠI')
                 }
                 drawModeSelect(ctx) {
                     // Overlay
@@ -2326,8 +2512,12 @@
                     ctx.globalAlpha = 1
                 }
                 drawButton(ctx, x, y, text) {
-                    const w = 240,
-                        h = 56
+                    ctx.font = "bold 24px 'Segoe UI'"
+                    ctx.textAlign = 'center'
+                    const padding = 40
+                    let w = ctx.measureText(text).width + padding
+                    if (w < 100) w = 100 // minimum width
+                    const h = 56
                     const bx = x - w / 2,
                         by = y - h / 2
 
@@ -2373,12 +2563,15 @@
 
                     ctx.restore()
                 }
-                isButtonClicked(mx, my) {
-                    const x = CONFIG.WIDTH / 2
-                    const y = this.state === 'menu' ? 400 : 370
-                    const w = 240,
-                        h = 56
-                    return mx >= x - w / 2 && mx <= x + w / 2 && my >= y - h / 2 && my <= y + h / 2
+                isButtonClicked(mx, my, x, y, w, h) {
+                    if (x !== undefined) {
+                        return mx >= x - w / 2 && mx <= x + w / 2 && my >= y - h / 2 && my <= y + h / 2
+                    }
+                    const bx = CONFIG.WIDTH / 2
+                    const by = this.state === 'menu' ? 400 : 370
+                    const bw = 240,
+                        bh = 56
+                    return mx >= bx - bw / 2 && mx <= bx + bw / 2 && my >= by - bh / 2 && my <= by + bh / 2
                 }
                 isSkinButtonClicked(mx, my) {
                     const x = CONFIG.WIDTH / 2 - 120
@@ -2390,6 +2583,13 @@
                 isModeButtonClicked(mx, my) {
                     const x = CONFIG.WIDTH / 2 + 120
                     const y = 420
+                    const w = 100,
+                        h = 56
+                    return mx >= x - w / 2 && mx <= x + w / 2 && my >= y - h / 2 && my <= y + h / 2
+                }
+                isSettingsButtonClicked(mx, my) {
+                    const x = CONFIG.WIDTH / 2
+                    const y = 480
                     const w = 100,
                         h = 56
                     return mx >= x - w / 2 && mx <= x + w / 2 && my >= y - h / 2 && my <= y + h / 2
@@ -2536,6 +2736,11 @@
                     this.cutsceneStartTime = 0
                     this.cutsceneStartTime = 0
 
+                    // Audio enhancements
+                    this.currentBiomeKey = null
+                    this.screenPulse = 0
+                    this.glowIntensity = 0
+
                     for (let i = 0; i < 80; i++) {
                         this.bgParticles.push(new BackgroundParticle())
                     }
@@ -2673,13 +2878,60 @@
                         this.audio.init()
 
                         if (this.ui.state === 'menu') {
-                            if (this.ui.isSkinButtonClicked(mx, my)) {
-                                this.ui.setState('skinMenu')
-                            } else if (this.ui.isModeButtonClicked(mx, my)) {
-                                this.ui.setState('modeSelect')
-                            } else if (this.ui.isButtonClicked(mx, my)) {
-                                this.gameMode = 'endless'
-                                this.startGame()
+                            if (this.ui.showSettings) {
+                                const musicX = CONFIG.WIDTH / 2 - 120
+                                const musicY = 180
+                                const sfxX = CONFIG.WIDTH / 2 + 120
+                                const sfxY = 180
+                                const backX = CONFIG.WIDTH / 2
+                                const backY = 360
+                                const btnW = 200
+                                const btnH = 56
+                                if (this.ui.isButtonClicked(mx, my, musicX, musicY, btnW, btnH)) {
+                                    this.ui.settings.music = !this.ui.settings.music
+                                    this.audio.toggleMusic()
+                                } else if (this.ui.isButtonClicked(mx, my, sfxX, sfxY, btnW, btnH)) {
+                                    this.ui.settings.sfx = !this.ui.settings.sfx
+                                    this.audio.toggleSFX()
+                                } else if (this.ui.isButtonClicked(mx, my, backX, backY, btnW, btnH)) {
+                                    this.ui.showSettings = false
+                                }
+                                const sliderY = 260
+                                if (
+                                    my >= sliderY &&
+                                    my <= sliderY + 10 &&
+                                    mx >= CONFIG.WIDTH / 2 - 100 &&
+                                    mx <= CONFIG.WIDTH / 2 + 100
+                                ) {
+                                    this.ui.settings.volume = Math.max(
+                                        0,
+                                        Math.min(1, (mx - (CONFIG.WIDTH / 2 - 100)) / 200),
+                                    )
+                                    this.audio.setVolume(this.ui.settings.volume)
+                                }
+                                if (
+                                    my >= 280 &&
+                                    my <= 290 &&
+                                    mx >= CONFIG.WIDTH / 2 - 100 &&
+                                    mx <= CONFIG.WIDTH / 2 + 100
+                                ) {
+                                    this.ui.settings.volume = Math.max(
+                                        0,
+                                        Math.min(1, (mx - (CONFIG.WIDTH / 2 - 100)) / 200),
+                                    )
+                                    this.audio.setVolume(this.ui.settings.volume)
+                                }
+                            } else {
+                                if (this.ui.isSkinButtonClicked(mx, my)) {
+                                    this.ui.setState('skinMenu')
+                                } else if (this.ui.isModeButtonClicked(mx, my)) {
+                                    this.ui.setState('modeSelect')
+                                } else if (this.ui.isSettingsButtonClicked(mx, my)) {
+                                    this.ui.showSettings = true
+                                } else if (this.ui.isButtonClicked(mx, my)) {
+                                    this.gameMode = 'endless'
+                                    this.startGame()
+                                }
                             }
                         } else if (this.ui.state === 'modeSelect') {
                             if (this.ui.isStoryButtonClicked(mx, my)) {
@@ -2834,7 +3086,8 @@
                                 this.player.vy = CONFIG.PLAYER_JUMP * 0.6
                                 this.score += 50
                                 this.ui.score = this.score
-                                this.audio.stomp()
+                                const pan = ((e.x - this.player.x) / CONFIG.WIDTH) * 2 - 1
+                                this.audio.playSFX('stomp', 0.15, pan)
                                 this.particles.emitStompBurst(e.x + e.w / 2, e.y + e.h / 2)
                                 this.particles.emitScorePopup(e.x + e.w / 2, e.y - 10, '+50')
                                 this.triggerShake(5)
@@ -2854,6 +3107,8 @@
                                     // Push enemy away
                                     e.x = e.x - 50
                                 } else {
+                                    const pan = ((e.x - this.player.x) / CONFIG.WIDTH) * 2 - 1
+                                    this.audio.playSFX('hit', 0.15, pan)
                                     this.playerDie()
                                 }
                             }
@@ -2945,6 +3200,16 @@
 
                     // Apply current biome
                     this.biome = CONFIG.BIOMES[this.biomeKey]
+
+                    // Update BGM on biome change
+                    if (this.biomeKey !== this.currentBiomeKey) {
+                        this.currentBiomeKey = this.biomeKey
+                        this.audio.playBGM(this.biomeKey)
+                    }
+
+                    // Screen pulse and glow for music sync
+                    this.screenPulse = Math.sin(this.time * 4) * 0.05
+                    this.glowIntensity = 0.5 + Math.sin(this.time * 2) * 0.2
 
                     // Camera
                     this.camera.targetX = this.player.x + this.player.w / 2 - CONFIG.WIDTH / 2
