@@ -369,6 +369,21 @@
                     <div class="t-name">AURA RNG</div>
                     <div class="t-cost">💰 80</div>
                 </div>
+                <div class="tower-btn" data-type="fire" onclick="selectTower('fire')">
+                    <div class="t-icon" style="background: rgba(255, 102, 0, 0.2)">🔥</div>
+                    <div class="t-name">FIRE</div>
+                    <div class="t-cost">💰 90</div>
+                </div>
+                <div class="tower-btn" data-type="poison" onclick="selectTower('poison')">
+                    <div class="t-icon" style="background: rgba(68, 255, 68, 0.2)">☠️</div>
+                    <div class="t-name">POISON</div>
+                    <div class="t-cost">💰 95</div>
+                </div>
+                <div class="tower-btn" data-type="ice" onclick="selectTower('ice')">
+                    <div class="t-icon" style="background: rgba(102, 170, 255, 0.2)">❄️</div>
+                    <div class="t-name">ICE</div>
+                    <div class="t-cost">💰 85</div>
+                </div>
             </div>
             <button id="waveBtn" onclick="startNextWave()">▶ ĐỢT TIẾP THEO</button>
             <div id="sellInfo">
@@ -537,6 +552,63 @@
                     name: 'Aura Rng',
                     auraType: 'range',
                 },
+                fire: {
+                    cost: 90,
+                    upgradeCost: [
+                        0,
+                        70,
+                        100,
+                    ],
+                    damage: 12,
+                    range: 140,
+                    fireRate: 1.2,
+                    color: '#ff6600',
+                    bulletColor: '#ffaa44',
+                    bulletSpeed: 300,
+                    name: 'Fire',
+                    pierce: 1,
+                    status: 'burn',
+                    statusDuration: 3,
+                    statusValue: 0,
+                },
+                poison: {
+                    cost: 95,
+                    upgradeCost: [
+                        0,
+                        75,
+                        110,
+                    ],
+                    damage: 10,
+                    range: 135,
+                    fireRate: 1.5,
+                    color: '#44ff44',
+                    bulletColor: '#88ff88',
+                    bulletSpeed: 280,
+                    name: 'Poison',
+                    pierce: 1,
+                    status: 'poison',
+                    statusDuration: 4,
+                    statusValue: 0,
+                },
+                ice: {
+                    cost: 85,
+                    upgradeCost: [
+                        0,
+                        65,
+                        95,
+                    ],
+                    damage: 14,
+                    range: 145,
+                    fireRate: 1.0,
+                    color: '#66aaff',
+                    bulletColor: '#aaccff',
+                    bulletSpeed: 320,
+                    name: 'Ice',
+                    pierce: 1,
+                    status: 'slow',
+                    statusDuration: 2.5,
+                    statusValue: -0.3,
+                },
             }
 
             const ENEMY_DEFS = {
@@ -566,6 +638,28 @@
                     size: 16,
                     reward: 20,
                     glowColor: 'rgba(255,68,102,0.4)',
+                },
+            }
+
+            const STATUS_DEFS = {
+                burn: {
+                    tickInterval: 0.5,
+                    color: 'rgba(255,100,50,0.6)',
+                    particleColor: '#ff6600',
+                    deathEffect: 'explosion',
+                },
+                poison: {
+                    tickInterval: 0.7,
+                    color: 'rgba(100,255,100,0.6)',
+                    particleColor: '#00ff00',
+                    deathEffect: 'fade',
+                    maxStacks: 3,
+                },
+                slow: {
+                    tickInterval: 0, // no tick
+                    color: 'rgba(100,150,255,0.6)',
+                    particleColor: '#66aaff',
+                    deathEffect: 'freeze',
                 },
             }
 
@@ -727,7 +821,8 @@
             const MAX_PARTICLES = 20
             const enemyPool = [],
                 bulletPool = [],
-                particlePool = []
+                particlePool = [],
+                statusPool = []
 
             function getFromPool(pool) {
                 return pool.length > 0 ? pool.pop() : null
@@ -787,6 +882,8 @@
                 e.trail = []
                 e.trailTimer = 0
                 e.spawnAnim = 0
+                e.statusList = []
+                e.speedMultiplier = 1
                 return e
             }
 
@@ -795,6 +892,32 @@
                 e.spawnAnim = Math.min(1, e.spawnAnim + dt * 4)
                 e.hitFlash = Math.max(0, e.hitFlash - dt * 6)
                 e.scaleAnim += (1 - e.scaleAnim) * dt * 8
+
+                // Update status effects
+                e.speedMultiplier = 1
+                for (let i = e.statusList.length - 1; i >= 0; i--) {
+                    const s = e.statusList[i]
+                    s.duration -= dt
+                    const def = STATUS_DEFS[s.type]
+                    if (def.tickInterval > 0) {
+                        s.tickTimer += dt
+                        if (s.tickTimer >= def.tickInterval) {
+                            s.tickTimer = 0
+                            if (s.type === 'burn') {
+                                damageEnemy(e, 2)
+                            } else if (s.type === 'poison') {
+                                const dmg = Math.floor(e.maxHp * 0.03 * s.value)
+                                damageEnemy(e, dmg)
+                            }
+                        }
+                    } else if (s.type === 'slow') {
+                        e.speedMultiplier += s.value
+                    }
+                    if (s.duration <= 0) {
+                        returnToPool(statusPool, s)
+                        e.statusList.splice(i, 1)
+                    }
+                }
 
                 // Trail for fast enemies
                 if (e.speed > 90) {
@@ -815,7 +938,7 @@
                     const dx = target.x - e.x,
                         dy = target.y - e.y
                     const dist = Math.sqrt(dx * dx + dy * dy)
-                    const move = e.speed * dt
+                    const move = e.speed * e.speedMultiplier * dt
                     if (dist <= move) {
                         e.x = target.x
                         e.y = target.y
@@ -838,6 +961,27 @@
                 }
             }
 
+            function applyStatus(enemy, type, duration, value) {
+                if (!enemy.alive) return
+                const existing = enemy.statusList.find((s) => s.type === type)
+                if (existing) {
+                    existing.duration = Math.max(existing.duration, duration)
+                    if (type === 'slow') {
+                        existing.value = Math.min(existing.value, value)
+                    } else if (type === 'poison') {
+                        existing.value = Math.min(existing.value + 1, STATUS_DEFS.poison.maxStacks)
+                    }
+                } else {
+                    let status = getFromPool(statusPool)
+                    if (!status) status = {}
+                    status.type = type
+                    status.duration = duration
+                    status.value = value
+                    status.tickTimer = 0
+                    enemy.statusList.push(status)
+                }
+            }
+
             function damageEnemy(e, dmg) {
                 if (!e.alive) return
                 const actual = Math.max(1, dmg - e.armor)
@@ -849,7 +993,8 @@
                     e.alive = false
                     game.gold += e.reward
                     playSound('kill')
-                    spawnDeathParticles(e)
+                    const deathEffect = e.statusList.length > 0 ? STATUS_DEFS[e.statusList[0].type].deathEffect : null
+                    spawnDeathParticles(e, deathEffect)
                     updateUI()
                 }
             }
@@ -903,6 +1048,32 @@
                     ctx.fillStyle = LANE_TINT[e.laneID]
                     ctx.beginPath()
                     ctx.arc(e.x, e.y, r, 0, Math.PI * 2)
+                    ctx.fill()
+                }
+
+                // Status effects tint and particles
+                const activeStatuses = e.statusList
+                    .filter((s) => s.duration > 0)
+                    .sort((a, b) => {
+                        const priority = { slow: 3, burn: 2, poison: 1 }
+                        return priority[b.type] - priority[a.type]
+                    })
+                    .slice(0, 2)
+                for (let i = 0; i < activeStatuses.length; i++) {
+                    const s = activeStatuses[i]
+                    const def = STATUS_DEFS[s.type]
+                    // Tint overlay
+                    ctx.fillStyle = def.color
+                    ctx.beginPath()
+                    ctx.arc(e.x, e.y, r * (0.8 - i * 0.2), 0, Math.PI * 2)
+                    ctx.fill()
+                    // Small particles
+                    const angle = game.time * 3 + i * Math.PI
+                    const px = e.x + Math.cos(angle) * (r + 5)
+                    const py = e.y + Math.sin(angle) * (r + 5)
+                    ctx.fillStyle = def.particleColor
+                    ctx.beginPath()
+                    ctx.arc(px, py, 2, 0, Math.PI * 2)
                     ctx.fill()
                 }
                 ctx.restore()
@@ -1027,6 +1198,7 @@
                         bullet.pierce = t.level >= 3 && def.pierce ? def.pierce + 1 : def.pierce || 1
                         bullet.hitList = []
                         bullet.splash = t.level >= 3 && def.splash ? 30 : 0
+                        bullet.towerType = t.type
                         game.bullets.push(bullet)
                         t.muzzleFlash = 1
                         if (b === 0) playSound('shoot')
@@ -1205,6 +1377,11 @@
                 const move = b.speed * dt
                 if (dist <= move + b.target.size) {
                     damageEnemy(b.target, b.damage)
+                    // Apply status effect if tower has one
+                    if (b.towerType && TOWER_DEFS[b.towerType].status) {
+                        const def = TOWER_DEFS[b.towerType]
+                        applyStatus(b.target, def.status, def.statusDuration, def.statusValue)
+                    }
                     b.hitList.push(b.target)
                     if (b.pierce > b.hitList.length) {
                         b.alive = true
@@ -1325,20 +1502,35 @@
                 game.particles.push(flash)
             }
 
-            function spawnDeathParticles(e) {
-                const count = Math.min(6, MAX_PARTICLES - game.particles.length)
+            function spawnDeathParticles(e, deathEffect) {
+                let count = Math.min(6, MAX_PARTICLES - game.particles.length)
+                let speedMultiplier = 1
+                let lifeMultiplier = 1
+                let color = e.color
+                if (deathEffect === 'explosion') {
+                    count = Math.min(10, MAX_PARTICLES - game.particles.length)
+                    speedMultiplier = 1.5
+                    color = '#ff6600'
+                } else if (deathEffect === 'fade') {
+                    lifeMultiplier = 0.5
+                    color = '#44ff44'
+                } else if (deathEffect === 'freeze') {
+                    speedMultiplier = 0.3
+                    lifeMultiplier = 1.5
+                    color = '#66aaff'
+                }
                 for (let i = 0; i < count; i++) {
                     let p = getFromPool(particlePool)
                     if (!p) p = {}
                     p.x = e.x
                     p.y = e.y
                     const angle = Math.random() * Math.PI * 2
-                    const speed = 30 + Math.random() * 60
+                    const speed = (30 + Math.random() * 60) * speedMultiplier
                     p.vx = Math.cos(angle) * speed
                     p.vy = Math.sin(angle) * speed
-                    p.life = 0.4 + Math.random() * 0.3
+                    p.life = (0.4 + Math.random() * 0.3) * lifeMultiplier
                     p.maxLife = p.life
-                    p.color = e.color
+                    p.color = color
                     p.size = 3 + Math.random() * 3
                     p.alive = true
                     p.isFlash = false
@@ -2025,6 +2217,13 @@
 
                 // Enemies
                 for (const e of game.enemies) updateEnemy(e, dt)
+                const deadEnemies = game.enemies.filter((e) => !e.alive)
+                for (const e of deadEnemies) {
+                    for (const s of e.statusList) {
+                        returnToPool(statusPool, s)
+                    }
+                    e.statusList.length = 0
+                }
                 game.enemies = game.enemies.filter((e) => e.alive)
 
                 // Aura buffs (cache 0.5s)
