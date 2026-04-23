@@ -173,26 +173,33 @@
 
             #waveBtn {
                 position: absolute;
-                right: 16px;
-                top: 50%;
-                transform: translateY(-50%);
-                padding: 10px 20px;
-                border: 2px solid rgba(100, 255, 140, 0.4);
-                border-radius: 10px;
-                background: rgba(100, 255, 140, 0.1);
+                right: 20px;
+                bottom: 80px;
+                padding: 12px 24px;
+                border: 1.5px solid rgba(100, 255, 140, 0.5);
+                border-radius: 12px;
+                background: rgba(100, 255, 140, 0.08);
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
                 color: #88ffaa;
                 font-size: 13px;
                 font-weight: 700;
                 cursor: pointer;
-                transition: all 0.2s;
+                transition: all 0.3s;
                 z-index: 10;
-                letter-spacing: 0.5px;
+                letter-spacing: 0.8px;
+                box-shadow:
+                    0 0 15px rgba(100, 255, 140, 0.1),
+                    inset 0 0 15px rgba(100, 255, 140, 0.05);
             }
 
             #waveBtn:hover {
-                background: rgba(100, 255, 140, 0.2);
-                transform: translateY(-50%) scale(1.05);
-                box-shadow: 0 0 20px rgba(100, 255, 140, 0.25);
+                background: rgba(100, 255, 140, 0.18);
+                border-color: rgba(100, 255, 140, 0.8);
+                transform: scale(1.08);
+                box-shadow:
+                    0 0 30px rgba(100, 255, 140, 0.35),
+                    inset 0 0 20px rgba(100, 255, 140, 0.1);
             }
 
             #waveBtn.hidden {
@@ -1367,6 +1374,42 @@
                 ctx.globalAlpha = 1
             }
 
+            // Helper: draw text with capsule background + glow
+            function drawTextWithBg(text, x, y, fontSize, color, bgAlpha, pulse) {
+                ctx.save()
+                const pulseY = pulse ? Math.sin(game.time * 4) * 2 : 0
+                ctx.font = `bold ${fontSize}px sans-serif`
+                ctx.textAlign = 'center'
+                const m = ctx.measureText(text)
+                const padX = 10,
+                    padY = 6
+                const w = m.width + padX * 2
+                const h = fontSize + padY * 2
+                // Capsule background (manual roundRect for compatibility)
+                ctx.fillStyle = `rgba(10,10,30,${bgAlpha || 0.55})`
+                const rx = x - w / 2,
+                    ry = y - h / 2 + pulseY,
+                    r = h / 2
+                ctx.beginPath()
+                ctx.moveTo(rx + r, ry)
+                ctx.lineTo(rx + w - r, ry)
+                ctx.arcTo(rx + w, ry, rx + w, ry + r, r)
+                ctx.lineTo(rx + w, ry + h - r)
+                ctx.arcTo(rx + w, ry + h, rx + w - r, ry + h, r)
+                ctx.lineTo(rx + r, ry + h)
+                ctx.arcTo(rx, ry + h, rx, ry + h - r, r)
+                ctx.lineTo(rx, ry + r)
+                ctx.arcTo(rx, ry, rx + r, ry, r)
+                ctx.closePath()
+                ctx.fill()
+                // Glow
+                ctx.shadowColor = color
+                ctx.shadowBlur = 12
+                ctx.fillStyle = color
+                ctx.fillText(text, x, y + fontSize / 3 + pulseY)
+                ctx.restore()
+            }
+
             // ============ MAP DRAWING ============
             function drawMap() {
                 // Background gradient
@@ -1434,51 +1477,75 @@
                     }
                 }
 
-                // Base
+                // Base with premium badge
                 const basePos = getBasePos()
                 ctx.save()
-                ctx.shadowColor = 'rgba(100,180,255,0.5)'
-                ctx.shadowBlur = 25
-                ctx.fillStyle = 'rgba(60,100,180,0.3)'
+                ctx.shadowColor = 'rgba(100,180,255,0.6)'
+                ctx.shadowBlur = 30
+                ctx.fillStyle = 'rgba(60,100,180,0.35)'
                 ctx.beginPath()
-                ctx.arc(basePos.x, basePos.y, CELL * 0.6, 0, Math.PI * 2)
+                ctx.arc(basePos.x, basePos.y, CELL * 0.65, 0, Math.PI * 2)
                 ctx.fill()
-                ctx.fillStyle = 'rgba(100,160,255,0.6)'
+                ctx.fillStyle = 'rgba(100,160,255,0.65)'
                 ctx.beginPath()
-                ctx.arc(basePos.x, basePos.y, CELL * 0.35, 0, Math.PI * 2)
+                ctx.arc(basePos.x, basePos.y, CELL * 0.38, 0, Math.PI * 2)
                 ctx.fill()
                 ctx.restore()
-                ctx.fillStyle = 'rgba(255,255,255,0.8)'
-                ctx.font = 'bold 11px sans-serif'
-                ctx.textAlign = 'center'
-                ctx.fillText('CĂN CỨ', basePos.x, basePos.y + 4)
+                // Premium badge label with pulse
+                const basePulse = Math.sin(game.time * 3) * 1.5
+                drawTextWithBg('🏰 CĂN CỨ', basePos.x, basePos.y + basePulse, 11, 'rgba(100,160,255,0.7)', 0.6, true)
 
-                // Spawn points for each lane with pulse warning
+                // Spawn points for each lane with premium labels
                 for (let laneID = 0; laneID < 3; laneID++) {
                     const spawnPos = getSpawnPos(laneID)
                     const colors = LANE_COLORS[laneID]
                     // Count enemies in this lane
                     const countInLane = game.enemies.filter((e) => e.alive && e.laneID === laneID).length
-                    // Pulse red if > 5 enemies
+                    // Pulse red warning if > 5 enemies
                     if (countInLane > 5) {
                         ctx.save()
-                        ctx.shadowColor = 'rgba(255,60,60,0.6)'
-                        ctx.shadowBlur = 18
-                        ctx.fillStyle = `rgba(255,60,60,${0.15 + 0.1 * Math.sin(game.time * 6)})`
+                        ctx.shadowColor = 'rgba(255,60,60,0.7)'
+                        ctx.shadowBlur = 22
+                        ctx.fillStyle = `rgba(255,60,60,${0.2 + 0.15 * Math.sin(game.time * 6)})`
                         ctx.beginPath()
-                        ctx.arc(spawnPos.x, spawnPos.y, CELL * 0.5, 0, Math.PI * 2)
+                        ctx.arc(spawnPos.x, spawnPos.y, CELL * 0.55, 0, Math.PI * 2)
                         ctx.fill()
                         ctx.restore()
                     }
-                    ctx.fillStyle = colors.stroke.replace('0.09', '0.3')
+                    // Spawn gate glow
+                    ctx.save()
+                    ctx.shadowColor = colors.stroke.replace('0.09', '0.7')
+                    ctx.shadowBlur = 16
+                    ctx.fillStyle = colors.stroke.replace('0.09', '0.35')
                     ctx.beginPath()
-                    ctx.arc(spawnPos.x, spawnPos.y, CELL * 0.4, 0, Math.PI * 2)
+                    ctx.arc(spawnPos.x, spawnPos.y, CELL * 0.42, 0, Math.PI * 2)
                     ctx.fill()
+                    ctx.restore()
+                    // Lane spawn badge "S1, S2, S3"
+                    drawTextWithBg(
+                        'S' + (laneID + 1),
+                        spawnPos.x,
+                        spawnPos.y,
+                        9,
+                        colors.stroke.replace('0.09', '0.9)'),
+                        0.5,
+                        false,
+                    )
                 }
-                // Spawn label
-                ctx.fillStyle = 'rgba(255,255,255,0.6)'
-                ctx.font = 'bold 10px sans-serif'
-                ctx.fillText('ĐIỂM XUẤT PHÁT', PATHS[1][0].x, PATHS[1][0].y + 4)
+                // Faint global spawn label (only visible before wave)
+                if (!game.waveActive && game.wave === 0) {
+                    ctx.globalAlpha = 0.25 + 0.1 * Math.sin(game.time * 2)
+                    drawTextWithBg(
+                        'ĐIỂM XUẤT PHÁT',
+                        PATHS[1][0].x,
+                        PATHS[1][0].y - CELL * 1.2,
+                        10,
+                        'rgba(255,255,255,0.3)',
+                        0.3,
+                        false,
+                    )
+                    ctx.globalAlpha = 1
+                }
 
                 // Draw ambient particles
                 drawAmbientParticles()
