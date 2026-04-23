@@ -113,6 +113,71 @@
                     neonPurple: '#b44dff',
                     particle: '#ffb6c1',
                 },
+                SKINS: {
+                    pink: {
+                        name: 'Hồng Mặc Định',
+                        primaryColor: '#ffb6c1',
+                        accentColor: '#ff69b4',
+                        trailColor: '#ff88aa',
+                        particleColor: '#ffb6c1',
+                        unlockRequirements: { default: true },
+                        effects: [],
+                    },
+                    neonBlue: {
+                        name: 'Xanh Neon',
+                        primaryColor: '#7b68ee',
+                        accentColor: '#9b88ff',
+                        trailColor: '#aaddff',
+                        particleColor: '#7b68ee',
+                        unlockRequirements: { fish: 50 },
+                        effects: [],
+                    },
+                    gold: {
+                        name: 'Vàng Kim',
+                        primaryColor: '#ffd700',
+                        accentColor: '#ffec80',
+                        trailColor: '#ffffaa',
+                        particleColor: '#ffd700',
+                        unlockRequirements: { fish: 150 },
+                        effects: [],
+                    },
+                    cyberGreen: {
+                        name: 'Xanh Cyber',
+                        primaryColor: '#00ff88',
+                        accentColor: '#88ffbb',
+                        trailColor: '#aaffcc',
+                        particleColor: '#00ff88',
+                        unlockRequirements: { distance: 2000 },
+                        effects: [],
+                    },
+                    ice: {
+                        name: 'Băng Giá',
+                        primaryColor: '#aaddff',
+                        accentColor: '#cceeff',
+                        trailColor: '#ffffff',
+                        particleColor: '#aaddff',
+                        unlockRequirements: { biome: 'ice', fish: 100 },
+                        effects: ['snowTrail'],
+                    },
+                    lava: {
+                        name: 'Lava Nóng',
+                        primaryColor: '#ff6622',
+                        accentColor: '#ff8844',
+                        trailColor: '#ffaa44',
+                        particleColor: '#ff6622',
+                        unlockRequirements: { biome: 'lava', fish: 100 },
+                        effects: ['fireTrail'],
+                    },
+                    cyber: {
+                        name: 'Cyber Glitch',
+                        primaryColor: '#ff44aa',
+                        accentColor: '#ff66cc',
+                        trailColor: '#ff88ff',
+                        particleColor: '#ff44aa',
+                        unlockRequirements: { bossKills: 5 },
+                        effects: ['glitch'],
+                    },
+                },
             }
 
             // ============================================================
@@ -388,8 +453,9 @@
                     if (p) p.init(x, y, vx, vy, life, size, color, gravity, type)
                     return p
                 }
-                emitJumpDust(x, y) {
+                emitJumpDust(x, y, skinKey = 'pink') {
                     if (this.jumpDustCount >= CONFIG.JUMP_DUST_MAX) return
+                    const skin = CONFIG.SKINS[skinKey] || CONFIG.SKINS.pink
                     for (let i = 0; i < 5; i++) {
                         const p = this.getInactive()
                         if (p) {
@@ -400,7 +466,7 @@
                                 -Math.random() * 80 - 20,
                                 0.3 + Math.random() * 0.2,
                                 3 + Math.random() * 3,
-                                CONFIG.COLORS.particle,
+                                skin.particleColor,
                                 200,
                             )
                             this.jumpDustCount++
@@ -746,15 +812,17 @@
 
                     return nearest
                 }
-                draw(ctx, camX, camY) {
+                draw(ctx, camX, camY, skinKey = 'pink') {
                     if (!this.active) return
 
                     const sx = this.x - camX
                     const sy = this.y - camY + Math.sin(this.floatOffset) * 3
 
+                    const skin = CONFIG.SKINS[skinKey] || CONFIG.SKINS.pink
+
                     // Draw trail
                     for (const t of this.trail) {
-                        ctx.fillStyle = this.buffType ? this.buffColors[this.buffType] : '#ff88aa'
+                        ctx.fillStyle = this.buffType ? this.buffColors[this.buffType] : skin.trailColor
                         ctx.globalAlpha = t.alpha * 0.3
                         ctx.beginPath()
                         ctx.arc(t.x - camX, t.y - camY, 4, 0, Math.PI * 2)
@@ -763,12 +831,12 @@
                     ctx.globalAlpha = 1
 
                     // Glow
-                    const glowColor = this.buffType ? this.buffColors[this.buffType] : '#ff88aa'
+                    const glowColor = this.buffType ? this.buffColors[this.buffType] : skin.accentColor
                     ctx.shadowColor = glowColor
                     ctx.shadowBlur = 15 + Math.sin(Date.now() / 200) * 5
 
                     // Body (circular pet)
-                    ctx.fillStyle = '#ff99bb'
+                    ctx.fillStyle = skin.primaryColor
                     ctx.beginPath()
                     ctx.arc(sx, sy, 10, 0, Math.PI * 2)
                     ctx.fill()
@@ -854,6 +922,8 @@
                     this.justJumped = false
                     this.startX = x
                     this.startY = y
+                    this.trail = []
+                    this.maxTrail = 10
                 }
                 reset(x, y) {
                     this.x = x || this.startX
@@ -871,8 +941,9 @@
                     this.jumpBufferCounter = 0
                     this.justJumped = false
                     this.currentPlatform = null
+                    this.trail = []
                 }
-                update(dt, input, platforms, friction = 1.0) {
+                update(dt, input, platforms, friction = 1.0, skinKey = 'pink') {
                     if (!this.alive) return
 
                     // Apply friction (lower = more slide on ice)
@@ -949,6 +1020,26 @@
                     if (this.invincible > 0) this.invincible -= dt
                     if (this.flashTimer > 0) this.flashTimer -= dt
 
+                    // Trail effects for special skins
+                    const skin = CONFIG.SKINS[skinKey] || CONFIG.SKINS.pink
+                    if (skin.effects && skin.effects.includes('snowTrail') && Math.abs(this.vx) > 50) {
+                        if (this.trail.length < this.maxTrail) {
+                            this.trail.push({ x: this.x, y: this.y, life: 1.0 })
+                        }
+                    } else if (skin.effects && skin.effects.includes('fireTrail') && Math.abs(this.vx) > 50) {
+                        if (this.trail.length < this.maxTrail) {
+                            this.trail.push({ x: this.x, y: this.y, life: 1.0 })
+                        }
+                    }
+
+                    // Update trail
+                    for (let i = this.trail.length - 1; i >= 0; i--) {
+                        this.trail[i].life -= dt * 2
+                        if (this.trail[i].life <= 0) {
+                            this.trail.splice(i, 1)
+                        }
+                    }
+
                     return null
                 }
                 resolveCollisionX(platforms) {
@@ -1000,11 +1091,38 @@
                         this.y + this.h > enemy.y
                     )
                 }
-                draw(ctx, camX, camY) {
+                lightenColor(color, amount) {
+                    // Simple color lightening - convert hex to rgb, lighten, back to hex
+                    const hex = color.replace('#', '')
+                    const r = Math.min(255, parseInt(hex.substr(0, 2), 16) + amount * 255)
+                    const g = Math.min(255, parseInt(hex.substr(2, 2), 16) + amount * 255)
+                    const b = Math.min(255, parseInt(hex.substr(4, 2), 16) + amount * 255)
+                    return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`
+                }
+                draw(ctx, camX, camY, skinKey = 'pink') {
                     if (!this.alive) return
+
+                    const skin = CONFIG.SKINS[skinKey] || CONFIG.SKINS.pink
 
                     const sx = this.x - camX + this.w / 2
                     const sy = this.y - camY + this.h / 2
+
+                    // Draw trail
+                    for (const t of this.trail) {
+                        ctx.globalAlpha = t.life * 0.5
+                        ctx.fillStyle = skin.trailColor
+                        if (skin.effects && skin.effects.includes('snowTrail')) {
+                            ctx.beginPath()
+                            ctx.arc(t.x - camX + this.w / 2, t.y - camY + this.h / 2, 3 * t.life, 0, Math.PI * 2)
+                            ctx.fill()
+                        } else if (skin.effects && skin.effects.includes('fireTrail')) {
+                            ctx.fillStyle = skin.trailColor
+                            ctx.beginPath()
+                            ctx.arc(t.x - camX + this.w / 2, t.y - camY + this.h / 2, 4 * t.life, 0, Math.PI * 2)
+                            ctx.fill()
+                        }
+                    }
+                    ctx.globalAlpha = 1
 
                     // Flash when invincible
                     if (this.invincible > 0 && Math.floor(this.flashTimer * 20) % 2 === 0) return
@@ -1032,34 +1150,21 @@
                     ctx.ellipse(0, this.h / 2 + 2, 16, 4, 0, 0, Math.PI * 2)
                     ctx.fill()
 
-                    // Tail
-                    const tailWag = Math.sin(this.idleTime * 4 + this.walkCycle) * 0.3
-                    ctx.save()
-                    ctx.translate(-14, -5 + bob)
-                    ctx.rotate(tailWag - 0.5)
-                    ctx.strokeStyle = CONFIG.COLORS.playerDark
-                    ctx.lineWidth = 4
-                    ctx.lineCap = 'round'
-                    ctx.beginPath()
-                    ctx.moveTo(0, 0)
-                    ctx.quadraticCurveTo(-12, -15, -8, -25)
-                    ctx.stroke()
-                    ctx.restore()
-
                     // Body
-                    ctx.fillStyle = CONFIG.COLORS.player
+                    ctx.fillStyle = skin.primaryColor
                     ctx.beginPath()
                     ctx.ellipse(0, 5 + bob, 14, 16, 0, 0, Math.PI * 2)
                     ctx.fill()
 
-                    // Belly
-                    ctx.fillStyle = '#ffe4e8'
+                    // Belly (lighter shade)
+                    const bellyColor = this.lightenColor(skin.primaryColor, 0.3)
+                    ctx.fillStyle = bellyColor
                     ctx.beginPath()
                     ctx.ellipse(2, 8 + bob, 8, 10, 0, 0, Math.PI * 2)
                     ctx.fill()
 
                     // Head
-                    ctx.fillStyle = CONFIG.COLORS.player
+                    ctx.fillStyle = skin.primaryColor
                     ctx.beginPath()
                     ctx.ellipse(0, -14 + bob, 13, 12, 0, 0, Math.PI * 2)
                     ctx.fill()
@@ -1082,7 +1187,7 @@
                     ctx.fill()
 
                     // Inner ears
-                    ctx.fillStyle = CONFIG.COLORS.playerDark
+                    ctx.fillStyle = skin.accentColor
                     ctx.beginPath()
                     ctx.moveTo(-8, -23 + bob)
                     ctx.lineTo(-12, -31 + bob)
@@ -1119,13 +1224,13 @@
                     }
 
                     // Nose
-                    ctx.fillStyle = CONFIG.COLORS.playerDark
+                    ctx.fillStyle = skin.accentColor
                     ctx.beginPath()
                     ctx.ellipse(0, -11 + bob, 2, 1.5, 0, 0, Math.PI * 2)
                     ctx.fill()
 
                     // Mouth
-                    ctx.strokeStyle = '#cc8899'
+                    ctx.strokeStyle = skin.accentColor
                     ctx.lineWidth = 1
                     ctx.beginPath()
                     ctx.moveTo(0, -10 + bob)
@@ -1135,7 +1240,7 @@
                     ctx.stroke()
 
                     // Whiskers
-                    ctx.strokeStyle = '#dda0b0'
+                    ctx.strokeStyle = this.lightenColor(skin.primaryColor, 0.2)
                     ctx.lineWidth = 0.8
                     for (let side = -1; side <= 1; side += 2) {
                         for (let i = -1; i <= 1; i++) {
@@ -1148,12 +1253,12 @@
 
                     // Legs
                     const legAnim = this.onGround && Math.abs(this.vx) > 10 ? Math.sin(this.walkCycle) * 5 : 0
-                    ctx.fillStyle = CONFIG.COLORS.player
+                    ctx.fillStyle = skin.primaryColor
                     // Back legs
                     ctx.fillRect(-10, 16 + bob, 7, 8 + legAnim * 0.3)
                     ctx.fillRect(3, 16 + bob, 7, 8 - legAnim * 0.3)
                     // Paws
-                    ctx.fillStyle = '#ffe4e8'
+                    ctx.fillStyle = bellyColor
                     ctx.beginPath()
                     ctx.ellipse(-6, 25 + bob + legAnim * 0.3, 4, 2, 0, 0, Math.PI * 2)
                     ctx.fill()
@@ -1611,7 +1716,7 @@
             class UIManager {
                 constructor() {
                     this.score = 0
-                    this.state = 'menu' // menu, playing, win, lose
+                    this.state = 'menu' // menu, skinMenu, playing, win, lose
                     this.fadeAlpha = 0
                     this.targetFade = 1
                     this.message = ''
@@ -1625,12 +1730,15 @@
                 update(dt) {
                     this.fadeAlpha += (this.targetFade - this.fadeAlpha) * dt * 4
                 }
-                draw(ctx, distance = 0) {
+                draw(ctx, distance = 0, biomeKey = 'cyber', game = null) {
                     if (this.state === 'playing' || this.state === 'menu') {
                         this.drawHUD(ctx, distance)
                     }
                     if (this.state === 'menu') {
                         this.drawMenu(ctx)
+                    }
+                    if (this.state === 'skinMenu') {
+                        this.drawSkinMenu(ctx, game)
                     }
                     if (this.state === 'win') {
                         this.drawOverlay(ctx, '🎉 BẠN THẮNG! 🎉', 'Điểm: ' + this.score, '#00ff88')
@@ -1739,10 +1847,126 @@
                     ctx.fillText('Phím E để dùng kỹ năng Pet 🐾', CONFIG.WIDTH / 2, 310)
                     ctx.fillText('Thu thập cá 🐟 • Đạp quái 👾 • Chạm cờ 🚩', CONFIG.WIDTH / 2, 340)
 
+                    // Skin button
+                    this.drawButton(ctx, CONFIG.WIDTH / 2 - 120, 420, '🎨 SKIN')
+
                     // Start button
-                    this.drawButton(ctx, CONFIG.WIDTH / 2, 420, '▶ BẮT ĐẦU')
+                    this.drawButton(ctx, CONFIG.WIDTH / 2 + 120, 420, '▶ BẮT ĐẦU')
 
                     ctx.globalAlpha = 1
+                }
+                drawSkinMenu(ctx, game) {
+                    // Overlay
+                    ctx.fillStyle = `rgba(10, 10, 30, ${this.fadeAlpha * 0.85})`
+                    ctx.fillRect(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT)
+
+                    if (this.fadeAlpha < 0.3) return
+
+                    const alpha = Math.min(1, this.fadeAlpha * 2)
+                    ctx.globalAlpha = alpha
+
+                    // Title
+                    ctx.save()
+                    ctx.shadowColor = CONFIG.COLORS.neonPink
+                    ctx.shadowBlur = 30
+                    ctx.fillStyle = CONFIG.COLORS.neonPink
+                    ctx.font = "bold 48px 'Segoe UI'"
+                    ctx.textAlign = 'center'
+                    ctx.fillText('CHỌN SKIN', CONFIG.WIDTH / 2, 80)
+                    ctx.restore()
+
+                    // Grid of skins
+                    const skinKeys = Object.keys(CONFIG.SKINS)
+                    const cols = 4
+                    const rows = Math.ceil(skinKeys.length / cols)
+                    const cellW = 140
+                    const cellH = 120
+                    const startX = (CONFIG.WIDTH - cols * cellW) / 2 + cellW / 2
+                    const startY = 150
+
+                    for (let i = 0; i < skinKeys.length; i++) {
+                        const col = i % cols
+                        const row = Math.floor(i / cols)
+                        const x = startX + col * cellW
+                        const y = startY + row * cellH
+                        const skinKey = skinKeys[i]
+                        const skin = CONFIG.SKINS[skinKey]
+                        const unlocked = game.unlockedSkins.includes(skinKey)
+                        const selected = game.selectedSkin === skinKey
+
+                        // Card background
+                        const cardW = 120,
+                            cardH = 100
+                        ctx.fillStyle = unlocked ? 'rgba(123, 104, 238, 0.8)' : 'rgba(50, 50, 50, 0.8)'
+                        ctx.strokeStyle = selected
+                            ? skin.accentColor
+                            : unlocked
+                              ? 'rgba(255, 255, 255, 0.3)'
+                              : 'rgba(100, 100, 100, 0.3)'
+                        ctx.lineWidth = selected ? 3 : 1
+                        ctx.beginPath()
+                        ctx.roundRect(x - cardW / 2, y - cardH / 2, cardW, cardH, 10)
+                        ctx.fill()
+                        ctx.stroke()
+
+                        // Pulse effect for selected
+                        if (selected) {
+                            ctx.strokeStyle = skin.accentColor
+                            ctx.lineWidth = 2 + Math.sin(Date.now() / 200) * 1
+                            ctx.beginPath()
+                            ctx.roundRect(x - cardW / 2 - 5, y - cardH / 2 - 5, cardW + 10, cardH + 10, 15)
+                            ctx.stroke()
+                        }
+
+                        // Preview player
+                        ctx.save()
+                        ctx.translate(x, y - 20)
+                        ctx.scale(0.5, 0.5)
+                        this.drawSkinPreview(ctx, skinKey, unlocked)
+                        ctx.restore()
+
+                        // Skin name
+                        ctx.fillStyle = unlocked ? '#ffffff' : '#666666'
+                        ctx.font = "bold 14px 'Segoe UI'"
+                        ctx.textAlign = 'center'
+                        ctx.fillText(skin.name, x, y + 35)
+
+                        // Lock icon
+                        if (!unlocked) {
+                            ctx.fillStyle = '#666666'
+                            ctx.font = "24px 'Segoe UI'"
+                            ctx.fillText('🔒', x + 40, y - 30)
+                        }
+                    }
+
+                    // Back button
+                    this.drawButton(ctx, CONFIG.WIDTH / 2, CONFIG.HEIGHT - 50, '⬅ QUAY LẠI')
+
+                    ctx.globalAlpha = 1
+                }
+                drawSkinPreview(ctx, skinKey, unlocked) {
+                    const skin = CONFIG.SKINS[skinKey]
+                    const color = unlocked ? skin.primaryColor : '#666666'
+
+                    // Simple player preview
+                    ctx.fillStyle = color
+                    ctx.beginPath()
+                    ctx.ellipse(0, 5, 14, 16, 0, 0, Math.PI * 2)
+                    ctx.fill()
+
+                    ctx.fillStyle = color
+                    ctx.beginPath()
+                    ctx.ellipse(0, -14, 13, 12, 0, 0, Math.PI * 2)
+                    ctx.fill()
+
+                    // Eyes
+                    ctx.fillStyle = '#2a2a4a'
+                    ctx.beginPath()
+                    ctx.ellipse(-5, -15, 3, 4, 0, 0, Math.PI * 2)
+                    ctx.fill()
+                    ctx.beginPath()
+                    ctx.ellipse(5, -15, 3, 4, 0, 0, Math.PI * 2)
+                    ctx.fill()
                 }
                 drawOverlay(ctx, title, subtitle, color) {
                     ctx.fillStyle = `rgba(10, 10, 30, ${this.fadeAlpha * 0.85})`
@@ -1826,6 +2050,49 @@
                         h = 56
                     return mx >= x - w / 2 && mx <= x + w / 2 && my >= y - h / 2 && my <= y + h / 2
                 }
+                isSkinButtonClicked(mx, my) {
+                    const x = CONFIG.WIDTH / 2 - 120
+                    const y = 420
+                    const w = 100,
+                        h = 56
+                    return mx >= x - w / 2 && mx <= x + w / 2 && my >= y - h / 2 && my <= y + h / 2
+                }
+                handleSkinMenuClick(mx, my, game) {
+                    const skinKeys = Object.keys(CONFIG.SKINS)
+                    const cols = 4
+                    const rows = Math.ceil(skinKeys.length / cols)
+                    const cellW = 140
+                    const cellH = 120
+                    const startX = (CONFIG.WIDTH - cols * cellW) / 2 + cellW / 2
+                    const startY = 150
+
+                    for (let i = 0; i < skinKeys.length; i++) {
+                        const col = i % cols
+                        const row = Math.floor(i / cols)
+                        const x = startX + col * cellW
+                        const y = startY + row * cellH
+
+                        if (mx >= x - cellW / 2 && mx <= x + cellW / 2 && my >= y - cellH / 2 && my <= y + cellH / 2) {
+                            const skinKey = skinKeys[i]
+                            if (game.unlockedSkins.includes(skinKey)) {
+                                game.selectedSkin = skinKey
+                                localStorage.setItem('selectedSkin', skinKey)
+                                this.setState('menu')
+                            }
+                            break
+                        }
+                    }
+
+                    // Back button
+                    if (
+                        my >= CONFIG.HEIGHT - 80 &&
+                        my <= CONFIG.HEIGHT - 20 &&
+                        mx >= CONFIG.WIDTH / 2 - 100 &&
+                        mx <= CONFIG.WIDTH / 2 + 100
+                    ) {
+                        this.setState('menu')
+                    }
+                }
             }
 
             // ============================================================
@@ -1863,6 +2130,17 @@
                     this.biomeTransition = 0
                     this.biomeTransitionSpeed = 0.5
                     this.nextBiomeDistance = CONFIG.BIOME_DISTANCE
+
+                    // Skin system
+                    this.selectedSkin = localStorage.getItem('selectedSkin') || 'pink'
+                    this.unlockedSkins = JSON.parse(localStorage.getItem('unlockedSkins')) || ['pink']
+                    this.skinStats = {
+                        fish: 0,
+                        distance: 0,
+                        bossKills: 0,
+                        biomeVisits: {},
+                    }
+                    this.skinStats = JSON.parse(localStorage.getItem('skinStats')) || this.skinStats
 
                     for (let i = 0; i < 80; i++) {
                         this.bgParticles.push(new BackgroundParticle())
@@ -1944,6 +2222,10 @@
                     // Update distance
                     this.distance = Math.max(this.distance, this.player.x)
 
+                    // Update skin stats distance
+                    this.skinStats.distance = Math.max(this.skinStats.distance, this.distance)
+                    this.checkSkinUnlocks()
+
                     // Update difficulty (apply biome enemy multiplier)
                     this.levelGenerator.updateDifficulty(this.distance, enemyMult)
 
@@ -1974,8 +2256,14 @@
 
                         this.audio.init()
 
-                        if (this.ui.state === 'menu' && this.ui.isButtonClicked(mx, my)) {
-                            this.startGame()
+                        if (this.ui.state === 'menu') {
+                            if (this.ui.isSkinButtonClicked(mx, my)) {
+                                this.ui.setState('skinMenu')
+                            } else if (this.ui.isButtonClicked(mx, my)) {
+                                this.startGame()
+                            }
+                        } else if (this.ui.state === 'skinMenu') {
+                            this.ui.handleSkinMenuClick(mx, my, this)
                         } else if (
                             (this.ui.state === 'win' || this.ui.state === 'lose') &&
                             this.ui.isButtonClicked(mx, my)
@@ -1993,6 +2281,8 @@
                     this.buildLevel()
                     this.camera.x = 0
                     this.camera.y = 0
+                    // Reset skin stats for this session
+                    this.skinStats = { fish: 0, distance: 0, bossKills: 0, biomeVisits: {} }
                 }
                 restartGame() {
                     this.ui.setState('playing')
@@ -2028,11 +2318,15 @@
                     const adjustedDt = dt * gameSpeed
 
                     // Update player
-                    this.player.update(adjustedDt, this.input, this.platforms, this.biome.friction)
+                    this.player.update(adjustedDt, this.input, this.platforms, this.biome.friction, this.selectedSkin)
                     if (this.player.justJumped) {
                         this.player.justJumped = false
                         this.audio.jump()
-                        this.particles.emitJumpDust(this.player.x + this.player.w / 2, this.player.y + this.player.h)
+                        this.particles.emitJumpDust(
+                            this.player.x + this.player.w / 2,
+                            this.player.y + this.player.h,
+                            this.selectedSkin,
+                        )
                     }
 
                     // Update pet
@@ -2080,6 +2374,10 @@
                                 this.particles.emitStompBurst(e.x + e.w / 2, e.y + e.h / 2)
                                 this.particles.emitScorePopup(e.x + e.w / 2, e.y - 10, '+50')
                                 this.triggerShake(5)
+
+                                // Update skin stats - count as boss kill
+                                this.skinStats.bossKills++
+                                this.checkSkinUnlocks()
                             } else {
                                 // Hit by enemy - check shield
                                 if (this.pet.buffType === 'shield' && this.pet.buffActive) {
@@ -2112,6 +2410,10 @@
                             this.audio.collect()
                             this.particles.emitCollectBurst(f.x + f.w / 2, f.y + f.h / 2)
                             this.particles.emitScorePopup(f.x + f.w / 2, f.y - 10, '+' + scoreGain)
+
+                            // Update skin stats
+                            this.skinStats.fish++
+                            this.checkSkinUnlocks()
                         }
                     }
 
@@ -2154,6 +2456,9 @@
                             nextIdx = Math.floor(Math.random() * biomeKeys.length)
                         }
                         this.biomeKey = biomeKeys[nextIdx]
+                        // Update skin stats biome visits
+                        this.skinStats.biomeVisits[this.biomeKey] = (this.skinStats.biomeVisits[this.biomeKey] || 0) + 1
+                        this.checkSkinUnlocks()
                     }
 
                     // Smooth biome transition
@@ -2188,11 +2493,13 @@
                     this.audio.lose()
                     this.particles.emitDeathBurst(this.player.x + this.player.w / 2, this.player.y + this.player.h / 2)
                     this.triggerShake(10)
+                    this.saveSkinStats()
                     setTimeout(() => this.ui.setState('lose'), 800)
                 }
                 winGame() {
                     this.audio.win()
                     this.triggerShake(6)
+                    this.saveSkinStats()
                     this.ui.setState('win')
                 }
                 applyMagnet(dt) {
@@ -2232,6 +2539,45 @@
                             }
                         }
                     }
+                }
+                checkSkinUnlocks() {
+                    for (const skinKey in CONFIG.SKINS) {
+                        if (this.unlockedSkins.includes(skinKey)) continue
+
+                        const req = CONFIG.SKINS[skinKey].unlockRequirements
+                        let unlocked = false
+
+                        if (req.default) {
+                            unlocked = true
+                        } else if (req.fish && this.skinStats.fish >= req.fish) {
+                            unlocked = true
+                        } else if (req.distance && this.skinStats.distance >= req.distance) {
+                            unlocked = true
+                        } else if (req.bossKills && this.skinStats.bossKills >= req.bossKills) {
+                            unlocked = true
+                        } else if (
+                            req.biome &&
+                            req.fish &&
+                            this.skinStats.biomeVisits[req.biome] &&
+                            this.skinStats.fish >= req.fish
+                        ) {
+                            unlocked = true
+                        }
+
+                        if (unlocked) {
+                            this.unlockedSkins.push(skinKey)
+                            localStorage.setItem('unlockedSkins', JSON.stringify(this.unlockedSkins))
+                            // Emit unlock effect
+                            this.particles.emitScorePopup(
+                                this.player.x + this.player.w / 2,
+                                this.player.y - 30,
+                                'SKIN MỚI!',
+                            )
+                        }
+                    }
+                }
+                saveSkinStats() {
+                    localStorage.setItem('skinStats', JSON.stringify(this.skinStats))
                 }
                 draw() {
                     // Background gradient with biome
@@ -2275,12 +2621,12 @@
                     for (const e of this.enemies) {
                         e.draw(ctx, this.camera.x, this.camera.y)
                     }
-                    this.player.draw(ctx, this.camera.x, this.camera.y)
-                    this.pet.draw(ctx, this.camera.x, this.camera.y)
+                    this.player.draw(ctx, this.camera.x, this.camera.y, this.selectedSkin)
+                    this.pet.draw(ctx, this.camera.x, this.camera.y, this.selectedSkin)
                     this.particles.draw(ctx, this.camera.x, this.camera.y)
 
                     // UI overlay
-                    this.ui.draw(ctx, this.distance, this.biomeKey)
+                    this.ui.draw(ctx, this.distance, this.biomeKey, this)
                 }
                 drawBackgroundMountains() {
                     const camX = this.camera.x
