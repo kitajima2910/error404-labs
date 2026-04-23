@@ -387,13 +387,25 @@
             // ============ CONFIG ============
             const COLS = 16,
                 ROWS = 10,
-                CELL = 48
+                CELL = 64
             const W = COLS * CELL,
                 H = ROWS * CELL
             const canvas = document.getElementById('gameCanvas')
             const ctx = canvas.getContext('2d')
             canvas.width = W
             canvas.height = H
+
+            // Scale canvas display to fit viewport while keeping aspect ratio
+            function resizeCanvas() {
+                const container = document.getElementById('gameContainer')
+                const maxW = window.innerWidth - 40
+                const maxH = window.innerHeight - 40
+                const scale = Math.min(maxW / W, maxH / H, 1)
+                canvas.style.width = W * scale + 'px'
+                canvas.style.height = H * scale + 'px'
+            }
+            resizeCanvas()
+            window.addEventListener('resize', resizeCanvas)
 
             const TOWER_DEFS = {
                 basic: {
@@ -728,9 +740,9 @@
             let game = {
                 hp: 20,
                 maxHp: 20,
-                gold: 100,
+                gold: 200,
                 wave: 0,
-                maxWaves: 10,
+                maxWaves: 100,
                 enemies: [],
                 towers: [],
                 bullets: [],
@@ -1426,7 +1438,17 @@
                 game.wave++
                 game.waveActive = true
                 game.spawnQueue = []
-                const waveDef = WAVE_DEFS[game.wave - 1]
+                let waveDef = WAVE_DEFS[game.wave - 1]
+                // Fallback for waves beyond WAVE_DEFS
+                if (!waveDef) {
+                    const lastDef = WAVE_DEFS[WAVE_DEFS.length - 1]
+                    const scale = 1 + (game.wave - WAVE_DEFS.length) / 10
+                    waveDef = lastDef.map((g) => ({
+                        type: g.type,
+                        count: Math.ceil(g.count * scale),
+                        interval: g.interval / scale,
+                    }))
+                }
                 let timeOffset = 0
                 for (const group of waveDef) {
                     for (let i = 0; i < group.count; i++) {
@@ -2151,7 +2173,7 @@
                 document.getElementById('overlay').classList.add('hidden')
                 game.hp = 20
                 game.maxHp = 20
-                game.gold = 100
+                game.gold = 200
                 game.wave = 0
                 game.enemies = []
                 game.towers = []
