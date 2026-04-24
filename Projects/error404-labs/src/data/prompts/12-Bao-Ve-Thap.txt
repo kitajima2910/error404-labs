@@ -1,209 +1,71 @@
-Create a complete HTML5 Tower Defense game in a SINGLE FILE index.html using Canvas (NOT heavy 3D engines).
+Create full game with:
+- core loop
+- gameplay
+- UI
+- enemy
+- effect
+- audio
+- performance optimized
+- clean architecture
+- MUST playable
+- MUST smooth
+- MUST visually clean
 
-=== CORE CONCEPT ===
-- Isometric 2.5D Tower Defense
-- Enemies have different stats:
-  - Armor (reduces damage)
-  - Speed (affects movement)
-  - HP
-- Player builds towers to counter enemy types
-- Includes progression, shop, boss, and basic multiplayer-ready structure
+Game: Tower Defense (Top-down 2D)
 
-=== GRAPHICS STYLE ===
-- Fake 2.5D using:
-  - isometric grid
-  - sprite scaling by Y position
-  - simple low-poly style (flat colors, minimal shading)
-- Use Canvas 2D (NOT Three.js)
-- Use rectangles / simple shapes as fallback assets
+CORE:
+- Player đặt tower để bảo vệ base
+- Enemy spawn theo wave, đi theo path
+- Mất máu nếu enemy vào base
 
-=== CORE GAME LOOP ===
-1. Start level
-2. Spawn waves of enemies
-3. Player places/upgrades towers
-4. Towers auto attack
-5. Enemies move along path
-6. If enemies reach base → lose HP
-7. Clear waves → win → reward → next level
+ENEMY SYSTEM:
+- Multiple enemy types:
+  - Light: speed cao, HP thấp, armor thấp
+  - Tank: speed chậm, HP cao, armor cao
+  - Balanced: trung bình
 
-=== CONTROLS ===
-- Mouse:
-  - Click to place tower
-  - Select tower to upgrade
-- Touch:
-  - Tap = click
-- UI buttons for build/upgrade
+- Armor mechanic:
+  - Damage thực nhận = damage - armor (min damage luôn > 1)
+  - Armor hiển thị bằng glow màu xanh nhẹ
 
-=== CAMERA ===
-- Isometric fixed camera
-- Allow slight pan by dragging
-- Optional zoom (wheel / pinch)
+- Speed:
+  - ảnh hưởng trực tiếp movement
+  - fast enemy có trail effect
 
-=== ENEMY SYSTEM ===
-Enemy types:
-- Tank:
-  - High armor, slow speed
-- Runner:
-  - Low armor, high speed
-- Balanced:
-  - Medium stats
-- Boss:
-  - Very high HP
-  - Multi-phase:
-    - Phase 1: slow
-    - Phase 2: faster + spawn minions
+TOWER SYSTEM:
+- Basic tower: damage ổn
+- Rapid tower: tốc độ bắn cao (khắc chế fast)
+- Heavy tower: damage cao (khắc chế tank)
 
-Movement:
-- Follow predefined path nodes
-- Smooth interpolation
+VISUAL:
+- Enemy:
+  - màu khác nhau theo type
+  - glow + shadow + scale animation
+- Projectile:
+  - có trail
+  - impact: flash trắng + particle nhỏ
 
-=== TOWER SYSTEM ===
-Tower types:
-- Cannon:
-  - High damage, slow fire rate
-  - Good vs armored enemies
-- Rapid:
-  - Low damage, fast fire rate
-  - Good vs fast enemies
-- Slow tower:
-  - Applies slow debuff
+UI:
+- HP base
+- Wave counter
+- Gold
+- Button build tower (hover + glow + scale)
 
-Upgrade system:
-- Increase damage / range / fire rate
-- Visual change per level (simple color change)
+EFFECT:
+- Hit feedback rõ:
+  - scale pop
+  - flash
+- Enemy chết:
+  - fade + particle
 
-=== COMBAT SYSTEM ===
-- Damage formula:
-  damage = baseDamage - enemyArmor (min 1)
-- Hit feedback:
-  - flash effect
-  - small shake
-- Projectile system:
-  - object pooling
-  - reuse bullets
+CAMERA:
+- nhẹ shake khi enemy vào base
 
-=== LEVEL & PROGRESSION ===
-- Multiple levels
-- Each level:
-  - different path
-  - increasing difficulty
-- Reward:
-  - gold
-- Unlock towers gradually
+PERFORMANCE:
+- object pooling enemy + bullet
+- limit particle <= 20
+- deltaTime movement
+- không tạo object trong loop
 
-=== SHOP SYSTEM ===
-- Between levels:
-  - upgrade base stats
-  - unlock new towers
-
-=== BOSS SYSTEM ===
-- Every 3–5 waves
-- Boss:
-  - big size
-  - phase-based behavior
-  - telegraphed attack (color flash before action)
-
-=== MULTIPLAYER (BASIC STRUCTURE ONLY) ===
-- Code structured to allow:
-  - syncing waves
-  - sending player actions
-- No real server required, just architecture hooks
-
-=== UI / HUD ===
-- Top bar:
-  - gold
-  - HP
-  - wave number
-- Bottom panel:
-  - tower buttons
-- Popup:
-  - upgrade menu
-- Start / pause / game over screen
-
-=== GAME STATES ===
-- Boot
-- Menu
-- Playing
-- Paused
-- GameOver
-- Victory
-- Shop
-
-=== SOUND SYSTEM ===
-- BGM loop
-- SFX:
-  - shoot
-  - hit
-  - explosion
-  - UI click
-- Volume control + mute
-- Fallback if audio fails
-
-=== EFFECT SYSTEM ===
-- Hit flash
-- Small explosion particles
-- Trail for bullets
-- Screen shake on heavy hit
-- Limit particle count
-
-=== PERFORMANCE STRATEGY ===
-- Use requestAnimationFrame
-- Delta time
-- Object pooling:
-  - bullets
-  - enemies
-  - particles
-- Avoid new object creation in loop
-- Frustum culling (skip off-screen)
-- Limit active enemies
-- Dynamic quality:
-  - reduce particles if FPS drops
-
-=== ASSET PIPELINE ===
-- Use placeholder:
-  - colored rectangles for towers/enemies
-- Config-driven assets:
-  - JSON object for stats
-- Easy to replace with:
-  - sprite sheet
-  - atlas
-
-=== CODE ARCHITECTURE (IN ONE FILE) ===
-- Config
-- Game class
-- SceneManager
-- InputManager
-- Entity system:
-  - Enemy class
-  - Tower class
-  - Projectile class
-- UI Manager
-- Audio Manager
-- Effect Manager
-- Save/Load system (localStorage)
-- Main game loop
-
-=== FILE STRUCTURE (INSIDE index.html) ===
-- <style> for UI
-- <canvas> for game
-- <script>:
-  - modules separated by classes
-  - no spaghetti
-
-=== SCALABILITY ===
-- Easy to add:
-  - new enemy types
-  - new towers
-  - new maps
-- All stats stored in config
-
-=== ACCEPTANCE CRITERIA ===
-- Runs in browser with no install
-- Smooth on low-end devices
-- Can place towers, enemies move, towers shoot
-- Has at least:
-  - 3 tower types
-  - 3 enemy types + boss
-- Has upgrade + shop system
-- Has sound + effects
-- No major FPS drop with 50+ entities
+IMPORTANT:
+Use soft shadows, glow effects, and color gradients to enhance visuals without using heavy assets.
