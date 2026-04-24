@@ -520,6 +520,75 @@
                     box-shadow: 0 0 20px rgba(100, 255, 100, 0.7);
                 }
             }
+
+            /* Equipment Inventory */
+            #inventoryPanel {
+                position: absolute;
+                top: 60px;
+                right: 10px;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                z-index: 10;
+                background: rgba(10, 10, 30, 0.7);
+                padding: 8px;
+                border-radius: 10px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .inventory-slot {
+                width: 50px;
+                height: 50px;
+                border-radius: 8px;
+                background: rgba(255, 255, 255, 0.05);
+                border: 2px solid rgba(255, 255, 255, 0.1);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: all 0.2s;
+                position: relative;
+            }
+
+            .inventory-slot:hover {
+                border-color: rgba(255, 255, 255, 0.3);
+                background: rgba(255, 255, 255, 0.1);
+            }
+
+            .inventory-slot .slot-icon {
+                font-size: 20px;
+                line-height: 1;
+            }
+
+            .inventory-slot .slot-name {
+                font-size: 8px;
+                color: #888;
+                margin-top: 2px;
+                font-weight: 600;
+            }
+
+            /* Rarity styles */
+            .rarity-common {
+                border-color: #c0c0c0 !important;
+                box-shadow: 0 0 8px rgba(192, 192, 192, 0.3);
+            }
+
+            .rarity-rare {
+                border-color: #4488ff !important;
+                box-shadow: 0 0 12px rgba(68, 136, 255, 0.5);
+                background: rgba(68, 136, 255, 0.15) !important;
+            }
+
+            .rarity-epic {
+                border-color: #aa44ff !important;
+                box-shadow: 0 0 16px rgba(170, 68, 255, 0.7);
+                background: rgba(170, 68, 255, 0.2) !important;
+            }
+
+            .inventory-slot.empty {
+                opacity: 0.5;
+            }
         </style>
     </head>
 
@@ -546,6 +615,21 @@
                     <div id="heroExpBar">
                         <div id="heroExpFill"></div>
                     </div>
+                </div>
+            </div>
+            <!-- Inventory Panel -->
+            <div id="inventoryPanel">
+                <div class="inventory-slot empty" id="slot-weapon" onclick="UnequipItem('weapon')">
+                    <span class="slot-icon">⚔️</span>
+                    <span class="slot-name">VŨ KHÍ</span>
+                </div>
+                <div class="inventory-slot empty" id="slot-armor" onclick="UnequipItem('armor')">
+                    <span class="slot-icon">🛡️</span>
+                    <span class="slot-name">GIÁP</span>
+                </div>
+                <div class="inventory-slot empty" id="slot-artifact" onclick="UnequipItem('artifact')">
+                    <span class="slot-icon">💎</span>
+                    <span class="slot-name">RELIC</span>
                 </div>
             </div>
             <div id="towerPanel">
@@ -627,6 +711,7 @@
                 CELL = 64
             const W = COLS * CELL,
                 H = ROWS * CELL
+            const ITEM_POOL_SIZE = 10
             const canvas = document.getElementById('gameCanvas')
             const ctx = canvas.getContext('2d')
             canvas.width = W
@@ -885,6 +970,31 @@
                 },
             }
 
+            // ============ ITEM SYSTEM ============
+            const RARITIES = {
+                common: { name: 'Common', color: '#c0c0c0', glow: 'rgba(192,192,192,0.6)', mult: 1.0 },
+                rare: { name: 'Rare', color: '#4488ff', glow: 'rgba(68,136,255,0.7)', mult: 1.5 },
+                epic: { name: 'Epic', color: '#aa44ff', glow: 'rgba(170,68,255,0.8)', mult: 2.0 },
+            }
+
+            const ITEM_DEFS = {
+                weapon: {
+                    name: 'Vũ Khí',
+                    icon: '⚔️',
+                    bonus: { damage: 10, fireRate: 0, speed: 0 },
+                },
+                armor: {
+                    name: 'Giáp',
+                    icon: '🛡️',
+                    bonus: { damage: 0, fireRate: 0, speed: 20 },
+                },
+                artifact: {
+                    name: 'Artifact',
+                    icon: '💎',
+                    bonus: { damage: 5, fireRate: 0.2, speed: 10 },
+                },
+            }
+
             function lerp(a, b, t) {
                 return a + (b - a) * t
             }
@@ -918,6 +1028,7 @@
                     scaleAnim: 1,
                     idleTimer: 0,
                     flashFrames: 0,
+                    equipment: { weapon: null, armor: null, artifact: null },
                 }
             }
 
@@ -1072,6 +1183,17 @@
                         o.start(now)
                         o.stop(now + 0.2)
                         break
+                    case 'powerup':
+                        o.type = 'sine'
+                        o.frequency.setValueAtTime(600, now)
+                        o.frequency.exponentialRampToValueAtTime(1200, now + 0.1)
+                        o.frequency.setValueAtTime(1200, now + 0.1)
+                        o.frequency.exponentialRampToValueAtTime(1800, now + 0.2)
+                        g.gain.setValueAtTime(0.12, now)
+                        g.gain.exponentialRampToValueAtTime(0.001, now + 0.25)
+                        o.start(now)
+                        o.stop(now + 0.25)
+                        break
                 }
             }
 
@@ -1080,13 +1202,54 @@
             const enemyPool = [],
                 bulletPool = [],
                 particlePool = [],
-                statusPool = []
+                statusPool = [],
+                itemPool = []
 
             function getFromPool(pool) {
                 return pool.length > 0 ? pool.pop() : null
             }
             function returnToPool(pool, obj) {
                 pool.push(obj)
+            }
+
+            // Item spawning with rarity based on enemy type
+            function spawnItem(x, y, isBoss = false) {
+                let item = getFromPool(itemPool)
+                if (!item) item = {}
+
+                // Determine rarity: Boss = 30% epic, 40% rare, 30% common; Tank = 15% epic, 35% rare, 50% common; Others = 5% epic, 25% rare, 70% common
+                let rarityRoll = Math.random()
+                let rarity = 'common'
+                if (isBoss) {
+                    if (rarityRoll < 0.3) rarity = 'epic'
+                    else if (rarityRoll < 0.7) rarity = 'rare'
+                } else {
+                    if (rarityRoll < 0.05) rarity = 'epic'
+                    else if (rarityRoll < 0.3) rarity = 'rare'
+                }
+
+                // Determine item type
+                const types = Object.keys(ITEM_DEFS)
+                const type = types[Math.floor(Math.random() * types.length)]
+
+                const def = ITEM_DEFS[type]
+                const rar = RARITIES[rarity]
+
+                item.type = type
+                item.rarity = rarity
+                item.x = x
+                item.y = y
+                item.icon = def.icon
+                item.name = def.name
+                item.bonus = { ...def.bonus } // Copy bonus values
+                // Apply rarity multiplier to bonus
+                item.bonus.damage = Math.floor(item.bonus.damage * rar.mult)
+                item.speed = 80 + Math.random() * 40
+                item.floatOffset = Math.random() * Math.PI * 2
+                item.alive = true
+                item.rotation = Math.random() * Math.PI * 2
+
+                game.droppedItems.push(item)
             }
 
             // ============ GAME STATE ============
@@ -1100,6 +1263,8 @@
                 towers: [],
                 bullets: [],
                 particles: [],
+                droppedItems: [],
+                inventory: { weapon: null, armor: null, artifact: null },
                 waveActive: false,
                 spawnQueue: [],
                 spawnTimer: 0,
@@ -1279,6 +1444,11 @@
                     playSound('kill')
                     const deathEffect = e.statusList.length > 0 ? STATUS_DEFS[e.statusList[0].type].deathEffect : null
                     spawnDeathParticles(e, deathEffect)
+                    // Spawn item drop (higher chance for tank/boss types)
+                    const isBoss = e.type === 'tank' // tank considered boss-like
+                    if (Math.random() < (isBoss ? 0.8 : 0.4)) {
+                        spawnItem(e.x, e.y, isBoss)
+                    }
                     updateUI()
                 }
             }
@@ -1855,6 +2025,172 @@
                 ctx.globalAlpha = 1
             }
 
+            // ============ ITEM SYSTEM ============
+            function updateDroppedItems(dt) {
+                for (const item of game.droppedItems) {
+                    if (!item.alive) continue
+                    // Float animation
+                    item.floatOffset += dt * 4
+                    item.y += Math.sin(item.floatOffset) * 0.3
+                    item.rotation += dt * 2
+                }
+            }
+
+            function drawDroppedItems() {
+                for (const item of game.droppedItems) {
+                    if (!item.alive) continue
+                    const rar = RARITIES[item.rarity]
+                    const floatY = Math.sin(item.floatOffset) * 3
+                    const drawX = item.x
+                    const drawY = item.y + floatY
+
+                    ctx.save()
+                    ctx.translate(drawX, drawY)
+                    ctx.rotate(item.rotation)
+
+                    // Glow
+                    ctx.shadowColor = rar.glow
+                    ctx.shadowBlur = 15
+
+                    // Background circle
+                    ctx.fillStyle = 'rgba(10,10,30,0.85)'
+                    ctx.beginPath()
+                    ctx.arc(0, 0, 14, 0, Math.PI * 2)
+                    ctx.fill()
+
+                    ctx.fillStyle = rar.color
+                    ctx.beginPath()
+                    ctx.arc(0, 0, 12, 0, Math.PI * 2)
+                    ctx.fill()
+
+                    // Icon
+                    ctx.font = '14px sans-serif'
+                    ctx.textAlign = 'center'
+                    ctx.textBaseline = 'middle'
+                    ctx.fillStyle = '#fff'
+                    ctx.fillText(item.icon, 0, 0)
+
+                    ctx.restore()
+                }
+            }
+
+            // Equipment handling
+            function equipItem(item) {
+                if (!game.hero) return
+
+                const slot = item.type // weapon, armor, artifact
+                const oldItem = game.inventory[slot]
+
+                // Replace item
+                game.inventory[slot] = item
+                game.hero.equipment[slot] = item
+
+                // Remove from ground
+                item.alive = false
+                game.droppedItems = game.droppedItems.filter((i) => i !== item)
+                // Note: item is kept in inventory, not returned to pool
+
+                // Sound effect
+                playSound('powerup')
+
+                // Show notification
+                showItemNotification(item, oldItem)
+
+                // Recalculate effective stats
+                updateHeroStats()
+                // Update UI to reflect inventory changes
+                updateUI()
+            }
+
+            function showItemNotification(newItem, oldItem) {
+                const notif = document.createElement('div')
+                notif.style.cssText = `
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    padding: 12px 24px;
+                    background: rgba(10,10,30,0.95);
+                    border: 2px solid ${RARITIES[newItem.rarity].color};
+                    border-radius: 12px;
+                    color: #fff;
+                    font-size: 16px;
+                    font-weight: bold;
+                    z-index: 1000;
+                    box-shadow: 0 0 30px ${RARITIES[newItem.rarity].glow};
+                    text-align: center;
+                    animation: itemNotifAnim 1.5s ease-out forwards;
+                `
+                let text = `<span style="color:${RARITIES[newItem.rarity].color}">[${RARITIES[newItem.rarity].name}]</span> ${newItem.icon} ${newItem.name}<br><span style="font-size:12px;color:#aaa">`
+                if (oldItem) {
+                    text += `Thay thế ${oldItem.icon} ${oldItem.name} (${RARITIES[oldItem.rarity].name})`
+                } else {
+                    text += `Nhặt ${newItem.name}`
+                }
+                text += '</span>'
+                notif.innerHTML = text
+
+                // Add animation keyframes if not exist
+                if (!document.getElementById('itemNotifStyle')) {
+                    const style = document.createElement('style')
+                    style.id = 'itemNotifStyle'
+                    style.textContent = `
+                        @keyframes itemNotifAnim {
+                            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+                            15% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+                            25% { transform: translate(-50%, -50%) scale(1); }
+                            85% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                            100% { opacity: 0; transform: translate(-50%, -60%) scale(0.9); }
+                        }
+                    `
+                    document.head.appendChild(style)
+                }
+
+                document.getElementById('gameContainer').appendChild(notif)
+                setTimeout(() => notif.remove(), 1500)
+            }
+
+            // Recalculate hero stats based on base + equipment bonuses
+            function updateHeroStats() {
+                if (!game.hero) return
+
+                // Start with base stats (from level-up bonuses stored in baseDamage, etc.)
+                // We'll compute on-the-fly from hero's base values plus equipment
+
+                // Base stats from level (recalculate from level 1 base)
+                const baseDamage = 25 + (game.hero.level - 1) * 5
+                const baseRange = 120 + (game.hero.level - 1) * 10
+                const baseFireRate = 1.5 + (game.hero.level - 1) * 0.1
+                const baseSpeed = 150
+                const baseMaxHp = 100 + (game.hero.level - 1) * 20
+
+                // Sum equipment bonuses
+                let bonusDamage = 0,
+                    bonusFireRate = 0,
+                    bonusSpeed = 0,
+                    bonusHp = 0
+                for (const slot of [
+                    'weapon',
+                    'armor',
+                    'artifact',
+                ]) {
+                    const eq = game.hero.equipment[slot]
+                    if (eq) {
+                        bonusDamage += eq.bonus.damage
+                        bonusFireRate += eq.bonus.fireRate
+                        bonusSpeed += eq.bonus.speed
+                    }
+                }
+
+                // Apply
+                game.hero.damage = baseDamage + bonusDamage
+                game.hero.range = baseRange // range không có bonus từ đồ
+                game.hero.fireRate = Math.max(0.1, baseFireRate + bonusFireRate)
+                game.hero.speed = baseSpeed + bonusSpeed
+                game.hero.maxHp = baseMaxHp + bonusHp
+                game.hero.hp = Math.min(game.hero.hp, game.hero.maxHp)
+            }
+
             // ============ WAVES ============
             const WAVE_DEFS = [
                 [{ type: 'light', count: 5, interval: 0.8 }],
@@ -2343,6 +2679,41 @@
                 } else {
                     waveBtn.classList.remove('hidden')
                 }
+
+                // Update inventory UI
+                updateInventoryUI()
+            }
+
+            function updateInventoryUI() {
+                for (const slot of [
+                    'weapon',
+                    'armor',
+                    'artifact',
+                ]) {
+                    const el = document.getElementById('slot-' + slot)
+                    const item = game.inventory[slot]
+                    el.className = 'inventory-slot'
+                    if (!item) {
+                        el.classList.add('empty')
+                        el.innerHTML = `<span class="slot-icon">${ITEM_DEFS[slot].icon}</span><span class="slot-name">${ITEM_DEFS[slot].name}</span>`
+                    } else {
+                        el.classList.add('rarity-' + item.rarity)
+                        el.innerHTML = `
+                            <span class="slot-icon">${item.icon}</span>
+                            <span class="slot-name" style="color:${RARITIES[item.rarity].color}">${item.name}</span>
+                        `
+                    }
+                }
+            }
+
+            function UnequipItem(slot) {
+                if (!game.inventory[slot]) return
+                // Only allow unequip if slot has item (remove it)
+                game.inventory[slot] = null
+                game.hero.equipment[slot] = null
+                playSound('sell')
+                updateHeroStats()
+                updateInventoryUI()
             }
 
             function useSkill(skill) {
@@ -2529,6 +2900,19 @@
                 hero.x = Math.max(20, Math.min(W - 20, hero.x))
                 hero.y = Math.max(20, Math.min(H - 20, hero.y))
 
+                // Auto-pickup items
+                for (let i = game.droppedItems.length - 1; i >= 0; i--) {
+                    const item = game.droppedItems[i]
+                    if (!item.alive) continue
+                    const dx = item.x - hero.x,
+                        dy = item.y - hero.y
+                    const dist = Math.sqrt(dx * dx + dy * dy)
+                    if (dist < 30) {
+                        equipItem(item)
+                        // item removal handled inside equipItem
+                    }
+                }
+
                 // Auto attack
                 hero.cooldown -= dt
                 if (hero.cooldown <= 0) {
@@ -2632,6 +3016,8 @@
                     hero.hp = hero.maxHp
                     hero.dashCooldown = Math.max(3, hero.dashCooldown - 0.5)
                     hero.aoeCooldown = Math.max(5, hero.aoeCooldown - 0.5)
+                    // Recalculate stats with equipment bonuses
+                    updateHeroStats()
                 }
 
                 // Animations
@@ -2729,6 +3115,9 @@
                 // Towers
                 for (const t of game.towers) updateTower(t, dt)
 
+                // Dropped items
+                updateDroppedItems(dt)
+
                 // Hero
                 if (game.hero) updateHero(game.hero, dt)
 
@@ -2759,9 +3148,18 @@
                 }
                 ctx.globalAlpha = 1
 
+                // Equipment glow (based on weapon rarity)
+                let glowColor = '#ffaa44'
+                let glowBlur = 20
+                const weaponEq = hero.equipment.weapon
+                if (weaponEq && (weaponEq.rarity === 'rare' || weaponEq.rarity === 'epic')) {
+                    glowColor = RARITIES[weaponEq.rarity].glow
+                    glowBlur = 28
+                }
+
                 // Hero body
-                ctx.shadowColor = '#ffaa44'
-                ctx.shadowBlur = 20
+                ctx.shadowColor = glowColor
+                ctx.shadowBlur = glowBlur
                 ctx.fillStyle = hero.invincible ? '#ffffff' : '#ffaa44'
                 ctx.beginPath()
                 ctx.arc(hero.x, hero.y, 20 * hero.scaleAnim, 0, Math.PI * 2)
@@ -2866,6 +3264,9 @@
                 // Towers
                 for (const t of game.towers) drawTower(t)
 
+                // Dropped items
+                drawDroppedItems()
+
                 // Enemies
                 for (const e of game.enemies) drawEnemy(e)
 
@@ -2925,6 +3326,8 @@
                 game.towers = []
                 game.bullets = []
                 game.particles = []
+                game.droppedItems = []
+                game.inventory = { weapon: null, armor: null, artifact: null }
                 game.waveActive = false
                 game.spawnQueue = []
                 game.gameOver = false
@@ -2934,9 +3337,18 @@
                 game.time = 0
                 game.auraUpdateTimer = 0
                 game.hero = createHero()
+                // Initialize hero stats with equipment (none at start)
+                updateHeroStats()
                 game.cameraX = W / 2
                 game.cameraY = H / 2
                 ambientParticles.length = 0
+                // Clear pools
+                enemyPool.length = 0
+                bulletPool.length = 0
+                particlePool.length = 0
+                statusPool.length = 0
+                itemPool.length = 0
+                updateInventoryUI()
                 updateUI()
             }
 
