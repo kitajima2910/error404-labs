@@ -1,0 +1,90 @@
+<div
+    id="roadmapPromptModal"
+    class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/75 px-4 py-6 backdrop-blur-sm"
+    aria-hidden="true"
+>
+    <div class="w-full max-w-3xl overflow-hidden rounded-xl border border-indigo-200 bg-white shadow-2xl shadow-indigo-950/30">
+        <div class="bg-gradient-to-br from-slate-950 via-indigo-950 to-indigo-700 px-5 py-5 text-white">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <p id="roadmapPromptMeta" class="text-xs font-black uppercase tracking-[0.18em] text-emerald-200"></p>
+                    <h2 id="roadmapPromptTitle" class="mt-2 text-2xl font-black leading-tight"></h2>
+                </div>
+                <button
+                    type="button"
+                    class="roadmap-modal-close rounded-md border border-white/20 bg-white/10 px-3 py-2 text-sm font-black text-white transition hover:bg-white hover:text-indigo-700"
+                    aria-label="Đóng"
+                >
+                    Đóng
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-slate-100 p-5">
+            <div class="mb-3 flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-2">
+                <span class="text-xs font-black uppercase tracking-[0.16em] text-slate-500">Prompt mẫu</span>
+                <span class="grid h-6 w-6 place-items-center rounded bg-emerald-100 text-xs font-black text-emerald-700">AI</span>
+            </div>
+            <pre
+                id="roadmapPromptContent"
+                class="max-h-[55vh] overflow-auto whitespace-pre-wrap rounded-lg border border-slate-800 bg-slate-950 p-5 font-mono text-sm font-semibold leading-7 text-emerald-100 shadow-inner"
+            ></pre>
+            <button
+                type="button"
+                id="roadmapCopyPrompt"
+                class="mt-4 w-full rounded-lg bg-gradient-to-r from-indigo-600 to-emerald-500 px-4 py-3 text-sm font-black uppercase tracking-[0.12em] text-white shadow-lg shadow-indigo-300/50 transition hover:-translate-y-0.5 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-emerald-400"
+            >
+                Sao chép câu lệnh
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const modal = document.getElementById('roadmapPromptModal')
+    const title = document.getElementById('roadmapPromptTitle')
+    const meta = document.getElementById('roadmapPromptMeta')
+    const content = document.getElementById('roadmapPromptContent')
+    let currentPrompt = ''
+
+    const openModal = (button: HTMLElement) => {
+        currentPrompt = button.dataset.prompt || ''
+        if (title) title.textContent = button.dataset.game || ''
+        if (meta) {
+            meta.textContent = `${button.dataset.genre || ''} - Tháng ${button.dataset.month || ''} - Tuần ${button.dataset.week || ''}`
+        }
+        if (content) content.textContent = currentPrompt
+        modal?.classList.remove('hidden')
+        modal?.classList.add('flex')
+        modal?.setAttribute('aria-hidden', 'false')
+    }
+
+    const closeModal = () => {
+        modal?.classList.add('hidden')
+        modal?.classList.remove('flex')
+        modal?.setAttribute('aria-hidden', 'true')
+    }
+
+    document.addEventListener('click', async (event) => {
+        const target = event.target as HTMLElement
+        const gameButton = target.closest<HTMLElement>('.roadmap-game-cell')
+        if (gameButton) {
+            openModal(gameButton)
+            return
+        }
+
+        if (target.closest('.roadmap-modal-close') || target === modal) {
+            closeModal()
+            return
+        }
+
+        if (target.closest('#roadmapCopyPrompt') && currentPrompt) {
+            await navigator.clipboard.writeText(currentPrompt)
+            window.showToast?.('Đã sao chép prompt!', 'success')
+        }
+    })
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') closeModal()
+    })
+</script>

@@ -1,745 +1,311 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro'
 import { TC_TITLE } from '../common/TextConst'
+import GameCell from '../components/roadmap/GameCell.astro'
+import PromptModal from '../components/roadmap/PromptModal.astro'
 
 const methods = [
-    { icon: '🎮', title: 'Học qua dự án', text: 'Thực hành là chính' },
-    { icon: '🧠', title: 'Tư duy logic', text: 'Giải quyết vấn đề' },
-    { icon: '💡', title: 'Sáng tạo', text: 'Tự do ý tưởng' },
-    { icon: '🤖', title: 'Không cần code', text: 'Dùng AI như công cụ' },
-    { icon: '🏆', title: 'Sản phẩm cá nhân', text: 'Mỗi bé 1 game riêng' },
+    { icon: '◆', title: 'Project-first', text: 'Mỗi tuần hoàn thiện một game nhỏ', tone: 'bg-emerald-400 text-slate-950' },
+    { icon: '▣', title: 'Logic rõ ràng', text: 'Tách luật chơi, mục tiêu và trạng thái', tone: 'bg-indigo-400 text-white' },
+    { icon: '✦', title: 'AI prompt', text: 'Bắt đầu nhanh bằng câu lệnh mẫu', tone: 'bg-amber-300 text-slate-950' },
+    { icon: '●', title: 'Portfolio', text: 'Cuối khóa có bộ game cá nhân', tone: 'bg-rose-400 text-white' },
 ]
 
 const months = [
-    { no: 1, title: 'Khởi động', sub: 'Làm quen', icon: '🌱', color: 'green' },
-    { no: 2, title: 'Né & phản xạ', sub: 'Phản xạ nhanh', icon: '⚡', color: 'orange' },
-    { no: 3, title: 'Bắn súng', sub: 'Shooter cơ bản', icon: '🎯', color: 'purple' },
-    { no: 4, title: 'Giải đố', sub: 'Logic cơ bản', icon: '🧊', color: 'blue' },
-    { no: 5, title: 'Chiến đấu', sub: 'Combat cơ bản', icon: '⚔️', color: 'red' },
-    { no: 6, title: 'Nhịp điệu', sub: 'Rhythm', icon: '🎵', color: 'cyan' },
-    { no: 7, title: 'Thu thập', sub: 'Collect', icon: '🪙', color: 'green' },
-    { no: 8, title: 'Hiệu ứng', sub: 'Effect & Skill', icon: '✨', color: 'orange' },
-    { no: 9, title: 'Nâng cấp', sub: 'Progression', icon: '⬆️', color: 'purple' },
-    { no: 10, title: 'Kẻ địch AI', sub: 'AI Enemy', icon: '🤖', color: 'blue' },
-    { no: 11, title: 'Game riêng', sub: 'Tự do sáng tạo', icon: '⭐', color: 'red' },
-    { no: 12, title: 'Hoàn thiện', sub: 'Polish & Showcase', icon: '👑', color: 'green' },
+    { no: 1, title: 'Khởi động', sub: 'Làm quen', accent: 'border-emerald-500 text-emerald-600' },
+    { no: 2, title: 'Phản xạ', sub: 'Né tránh', accent: 'border-indigo-500 text-indigo-600' },
+    { no: 3, title: 'Shooter', sub: 'Bắn súng', accent: 'border-slate-500 text-slate-700' },
+    { no: 4, title: 'Puzzle', sub: 'Logic', accent: 'border-emerald-500 text-emerald-600' },
+    { no: 5, title: 'Combat', sub: 'Chiến đấu', accent: 'border-indigo-500 text-indigo-600' },
+    { no: 6, title: 'Rhythm', sub: 'Nhịp điệu', accent: 'border-slate-500 text-slate-700' },
+    { no: 7, title: 'Collect', sub: 'Thu thập', accent: 'border-emerald-500 text-emerald-600' },
+    { no: 8, title: 'Effect', sub: 'Kỹ năng', accent: 'border-indigo-500 text-indigo-600' },
+    { no: 9, title: 'Progress', sub: 'Nâng cấp', accent: 'border-slate-500 text-slate-700' },
+    { no: 10, title: 'AI Enemy', sub: 'Kẻ địch', accent: 'border-emerald-500 text-emerald-600' },
+    { no: 11, title: 'Game riêng', sub: 'Sáng tạo', accent: 'border-indigo-500 text-indigo-600' },
+    { no: 12, title: 'Polish', sub: 'Showcase', accent: 'border-slate-500 text-slate-700' },
 ]
 
-const weeks = [
-    {
-        title: 'Tuần 1 - Thể loại A',
-        rows: [
-            { genre: 'Runner', games: ['Chạy & nhảy', 'Chạy nhặt coin', 'Chạy qua platform'] },
-            { genre: 'Runner', games: ['Né chướng ngại', 'Leo tường', 'Trượt xuống dốc'] },
-            { genre: 'Shooter', games: ['Bắn quái đơn', 'Bắn theo sóng', 'Bảo vệ căn cứ'] },
-            { genre: 'Puzzle', games: ['Ghép hình', 'Mê cung', 'Nút & cửa'] },
-            { genre: 'Action', games: ['Đánh thường', 'Combo cơ bản', 'Né & đánh'] },
-            { genre: 'Rhythm', games: ['Gõ nhịp', 'Nhảy theo nhạc', 'Dập beat'] },
-            { genre: 'Collect', games: ['Nhặt coin', 'Nhặt kim cương', 'Nhặt sao'] },
-            { genre: 'Effect', games: ['Hiệu ứng nổ', 'Trail bóng', 'Hiệu ứng băng'] },
-            { genre: 'Upgrade', games: ['Nâng cấp HP', 'Nâng cấp sát thương', 'Mở khóa skill'] },
-            { genre: 'AI Enemy', games: ['Enemy tuần tra', 'Enemy đuổi', 'Enemy bắn'] },
-            { genre: 'Free Build', games: ['Game platform', 'Game puzzle', 'Game bắn súng'] },
-            { genre: 'UI & Menu', games: ['Menu Start', 'Select Level', 'Cửa hàng UI'] },
-        ],
-    },
-    {
-        title: 'Tuần 2 - Thể loại B',
-        rows: [
-            { genre: 'Puzzle', games: ['Kéo thả khối', 'Đẩy hộp', 'Mở khóa cửa'] },
-            { genre: 'Action', games: ['Né dao xoay', 'Nhảy tường', 'Nổ laser'] },
-            { genre: 'Arcade', games: ['Bắn bong bóng', 'Bắn vịt', 'Bắn UFO'] },
-            { genre: 'Logic', games: ['Sắp xếp', 'Cân bằng', 'Bật công tắc'] },
-            { genre: 'Boss Fight', games: ['Boss Slime', 'Boss Robot', 'Boss Rồng'] },
-            { genre: 'Music', games: ['Piano Tiles', 'Bắt nốt nhạc', 'Nhạc cụ mini'] },
-            { genre: 'Adventure', games: ['Khám phá hang', 'Tìm chìa khóa', 'Đi tìm báu vật'] },
-            { genre: 'Skill', games: ['Skill lửa', 'Skill băng', 'Skill sét'] },
-            { genre: 'Shop', games: ['Shop vũ khí', 'Shop trang bị', 'Shop pet'] },
-            { genre: 'AI Pattern', games: ['Pattern đơn', 'Pattern xoay', 'Pattern phức tạp'] },
-            { genre: 'Theme Pack', games: ['Chủ đề rừng', 'Chủ đề biển', 'Chủ đề không gian'] },
-            { genre: 'Polish', games: ['Âm thanh', 'Hiệu ứng', 'Hoàn thiện'] },
-        ],
-    },
-    {
-        title: 'Tuần 3 - Thể loại A',
-        rows: [
-            { genre: 'Arcade', games: ['Trượt để né', 'Nhảy tránh gai', 'Bay qua ống'] },
-            { genre: 'Arcade', games: ['Tránh vật rơi', 'Xé xe', 'Tránh bom'] },
-            { genre: 'Shooter', games: ['Nâng cấp súng', 'Bắn boss nhỏ', 'Hỗ trợ đồng đội'] },
-            { genre: 'Puzzle', games: ['Sokoban mini', 'Kéo chốt', 'Thắp sáng'] },
-            { genre: 'Action', games: ['Nhảy tấn công', 'Dash attack', 'Chém xoay'] },
-            { genre: 'Rhythm', games: ['Tránh vật theo nhạc', 'Nhấn đúng lúc', 'Chuỗi combo'] },
-            { genre: 'Collect', games: ['Thu thập trái cây', 'Thu thập vật phẩm', 'Giao hàng'] },
-            { genre: 'Effect', games: ['Chữa lành', 'Hiệu ứng combo', 'Hiệu ứng đặc biệt'] },
-            { genre: 'Progression', games: ['Level & EXP', 'Cây kỹ năng', 'Thăng cấp'] },
-            { genre: 'Boss AI', games: ['Boss di chuyển', 'Boss pattern', 'Boss nhiều pha'] },
-            { genre: 'Game Idea', games: ['Ý tưởng riêng 1', 'Ý tưởng riêng 2', 'Ý tưởng riêng 3'] },
-            { genre: 'Test & Fix', games: ['Test gameplay', 'Cân bằng game', 'Sửa lỗi'] },
-        ],
-    },
-    {
-        title: 'Tuần 4 - Thể loại B',
-        rows: [
-            { genre: 'Simulation', games: ['Trồng cây', 'Nuôi pet', 'Cửa hàng mini'] },
-            { genre: 'Puzzle', games: ['Đi đúng đường', 'Xoay đường', 'Nối đường'] },
-            { genre: 'Action', games: ['Chém quái', 'Phi tiêu', 'Đấm bốc'] },
-            { genre: 'Arcade', games: ['Đưa bóng vào rổ', 'Ném bóng', 'Pinball mini'] },
-            { genre: 'Arcade', games: ['Sinh tồn', 'Đấu trường', 'Vượt ải'] },
-            { genre: 'Arcade', games: ['Khiêu vũ', 'Disco Ball', 'Nhạc bay'] },
-            { genre: 'Simulation', games: ['Nông thú', 'Câu cá', 'Nấu ăn'] },
-            { genre: 'Action', games: ['Skill dash', 'Skill nhảy', 'Skill AoE'] },
-            { genre: 'Adventure', games: ['Nhiệm vụ chính', 'Nhiệm vụ phụ', 'Nhiệm vụ hằng ngày'] },
-            { genre: 'Simulation', games: ['NPC thông minh', 'Kẻ địch phối hợp', 'Thế giới động'] },
-            { genre: 'Mechanic Mix', games: ['Kết hợp 2 cơ chế', 'Kết hợp 3 cơ chế', 'Kết hợp 4 cơ chế'] },
-            { genre: 'Showcase', games: ['Trailer game', 'Poster game', 'Trình diễn'] },
-        ],
-    },
+const weekLabels = ['Tuần 1', 'Tuần 2', 'Tuần 3', 'Tuần 4']
+
+const genreStyles: Record<string, string> = {
+    Runner: 'border-emerald-200 bg-emerald-50/80 text-emerald-700',
+    Puzzle: 'border-amber-200 bg-amber-50/80 text-amber-700',
+    Logic: 'border-yellow-200 bg-yellow-50/80 text-yellow-700',
+    Shooter: 'border-rose-200 bg-rose-50/80 text-rose-700',
+    Action: 'border-red-200 bg-red-50/80 text-red-700',
+    'Boss Fight': 'border-red-200 bg-red-50/80 text-red-700',
+    Rhythm: 'border-fuchsia-200 bg-fuchsia-50/80 text-fuchsia-700',
+    Music: 'border-fuchsia-200 bg-fuchsia-50/80 text-fuchsia-700',
+    Arcade: 'border-sky-200 bg-sky-50/80 text-sky-700',
+    Simulation: 'border-teal-200 bg-teal-50/80 text-teal-700',
+    Collect: 'border-lime-200 bg-lime-50/80 text-lime-700',
+    Adventure: 'border-cyan-200 bg-cyan-50/80 text-cyan-700',
+    Effect: 'border-violet-200 bg-violet-50/80 text-violet-700',
+    Skill: 'border-violet-200 bg-violet-50/80 text-violet-700',
+    Upgrade: 'border-indigo-200 bg-indigo-50/80 text-indigo-700',
+    Shop: 'border-indigo-200 bg-indigo-50/80 text-indigo-700',
+    Progression: 'border-indigo-200 bg-indigo-50/80 text-indigo-700',
+    'AI Enemy': 'border-slate-300 bg-slate-100 text-slate-800',
+    'AI Pattern': 'border-slate-300 bg-slate-100 text-slate-800',
+    'Boss AI': 'border-slate-300 bg-slate-100 text-slate-800',
+    'Free Build': 'border-orange-200 bg-orange-50/80 text-orange-700',
+    'Theme Pack': 'border-orange-200 bg-orange-50/80 text-orange-700',
+    'Game Idea': 'border-orange-200 bg-orange-50/80 text-orange-700',
+    'Mechanic Mix': 'border-orange-200 bg-orange-50/80 text-orange-700',
+    'UI & Menu': 'border-blue-200 bg-blue-50/80 text-blue-700',
+    Polish: 'border-blue-200 bg-blue-50/80 text-blue-700',
+    'Test & Fix': 'border-blue-200 bg-blue-50/80 text-blue-700',
+    Showcase: 'border-blue-200 bg-blue-50/80 text-blue-700',
+}
+
+const promptOf = (game: string, genre: string, month: number, week: number) => `Tạo game ${genre} 2D playable trên web.
+Tên game: ${game}
+Tháng: ${month}
+Tuần: ${week}
+Mục tiêu: Người chơi hiểu cơ chế chính trong 3 phút đầu.
+Nhân vật: Một nhân vật đơn giản, dễ điều khiển bằng bàn phím hoặc chạm.
+Cơ chế chính: Thiết kế gameplay đúng thể loại ${genre}, có điểm số, điều kiện thắng và thua rõ ràng.
+Độ khó: Dễ ở màn đầu, tăng dần qua từng màn.
+Màn chơi: 3 màn ngắn.
+Yêu cầu đặc biệt: Có hướng dẫn trong game, âm thanh phản hồi, hiệu ứng khi thắng/thua.
+Xuất bản: Chạy trực tiếp trên trình duyệt, ưu tiên HTML/CSS/JavaScript gọn nhẹ.`
+
+const roadmapRows = [
+    [
+        { genre: 'Runner', games: ['Chạy & nhảy', 'Chạy nhặt coin', 'Chạy qua platform'] },
+        { genre: 'Puzzle', games: ['Kéo thả khối', 'Đẩy hộp', 'Mở khóa cửa'] },
+        { genre: 'Arcade', games: ['Trượt để né', 'Nhảy tránh gai', 'Bay qua ống'] },
+        { genre: 'Simulation', games: ['Trồng cây', 'Nuôi pet', 'Cửa hàng mini'] },
+    ],
+    [
+        { genre: 'Runner', games: ['Né chướng ngại', 'Leo tường', 'Trượt xuống dốc'] },
+        { genre: 'Action', games: ['Né dao xoay', 'Nhảy tường', 'Nổ laser'] },
+        { genre: 'Arcade', games: ['Tránh vật rơi', 'Xé xe', 'Tránh bom'] },
+        { genre: 'Puzzle', games: ['Đi đúng đường', 'Xoay đường', 'Nối đường'] },
+    ],
+    [
+        { genre: 'Shooter', games: ['Bắn quái đơn', 'Bắn theo sóng', 'Bảo vệ căn cứ'] },
+        { genre: 'Arcade', games: ['Bắn bong bóng', 'Bắn vịt', 'Bắn UFO'] },
+        { genre: 'Shooter', games: ['Nâng cấp súng', 'Bắn boss nhỏ', 'Hỗ trợ đồng đội'] },
+        { genre: 'Action', games: ['Chém quái', 'Phi tiêu', 'Đấm bốc'] },
+    ],
+    [
+        { genre: 'Puzzle', games: ['Ghép hình', 'Mê cung', 'Nút & cửa'] },
+        { genre: 'Logic', games: ['Sắp xếp', 'Cân bằng', 'Bật công tắc'] },
+        { genre: 'Puzzle', games: ['Sokoban mini', 'Kéo chốt', 'Thắp sáng'] },
+        { genre: 'Arcade', games: ['Đưa bóng vào rổ', 'Ném bóng', 'Pinball mini'] },
+    ],
+    [
+        { genre: 'Action', games: ['Đánh thường', 'Combo cơ bản', 'Né & đánh'] },
+        { genre: 'Boss Fight', games: ['Boss Slime', 'Boss Robot', 'Boss Rồng'] },
+        { genre: 'Action', games: ['Nhảy tấn công', 'Dash attack', 'Chém xoay'] },
+        { genre: 'Arcade', games: ['Sinh tồn', 'Đấu trường', 'Vượt ải'] },
+    ],
+    [
+        { genre: 'Rhythm', games: ['Gõ nhịp', 'Nhảy theo nhạc', 'Dập beat'] },
+        { genre: 'Music', games: ['Piano Tiles', 'Bắt nốt nhạc', 'Nhạc cụ mini'] },
+        { genre: 'Rhythm', games: ['Tránh vật theo nhạc', 'Nhấn đúng lúc', 'Chuỗi combo'] },
+        { genre: 'Arcade', games: ['Khiêu vũ', 'Disco Ball', 'Nhạc bay'] },
+    ],
+    [
+        { genre: 'Collect', games: ['Nhặt coin', 'Nhặt kim cương', 'Nhặt sao'] },
+        { genre: 'Adventure', games: ['Khám phá hang', 'Tìm chìa khóa', 'Đi tìm báu vật'] },
+        { genre: 'Collect', games: ['Thu thập trái cây', 'Thu thập vật phẩm', 'Giao hàng'] },
+        { genre: 'Simulation', games: ['Nông thú', 'Câu cá', 'Nấu ăn'] },
+    ],
+    [
+        { genre: 'Effect', games: ['Hiệu ứng nổ', 'Trail bóng', 'Hiệu ứng băng'] },
+        { genre: 'Skill', games: ['Skill lửa', 'Skill băng', 'Skill sét'] },
+        { genre: 'Effect', games: ['Chữa lành', 'Hiệu ứng combo', 'Hiệu ứng đặc biệt'] },
+        { genre: 'Action', games: ['Skill dash', 'Skill nhảy', 'Skill AoE'] },
+    ],
+    [
+        { genre: 'Upgrade', games: ['Nâng cấp HP', 'Nâng cấp sát thương', 'Mở khóa skill'] },
+        { genre: 'Shop', games: ['Shop vũ khí', 'Shop trang bị', 'Shop pet'] },
+        { genre: 'Progression', games: ['Level & EXP', 'Cây kỹ năng', 'Thăng cấp'] },
+        { genre: 'Adventure', games: ['Nhiệm vụ chính', 'Nhiệm vụ phụ', 'Nhiệm vụ hằng ngày'] },
+    ],
+    [
+        { genre: 'AI Enemy', games: ['Enemy tuần tra', 'Enemy đuổi', 'Enemy bắn'] },
+        { genre: 'AI Pattern', games: ['Pattern đơn', 'Pattern xoay', 'Pattern phức tạp'] },
+        { genre: 'Boss AI', games: ['Boss di chuyển', 'Boss pattern', 'Boss nhiều pha'] },
+        { genre: 'Simulation', games: ['NPC thông minh', 'Kẻ địch phối hợp', 'Thế giới động'] },
+    ],
+    [
+        { genre: 'Free Build', games: ['Game platform', 'Game puzzle', 'Game bắn súng'] },
+        { genre: 'Theme Pack', games: ['Chủ đề rừng', 'Chủ đề biển', 'Chủ đề không gian'] },
+        { genre: 'Game Idea', games: ['Ý tưởng riêng 1', 'Ý tưởng riêng 2', 'Ý tưởng riêng 3'] },
+        { genre: 'Mechanic Mix', games: ['Kết hợp 2 cơ chế', 'Kết hợp 3 cơ chế', 'Kết hợp 4 cơ chế'] },
+    ],
+    [
+        { genre: 'UI & Menu', games: ['Menu Start', 'Select Level', 'Cửa hàng UI'] },
+        { genre: 'Polish', games: ['Âm thanh', 'Hiệu ứng', 'Hoàn thiện'] },
+        { genre: 'Test & Fix', games: ['Test gameplay', 'Cân bằng game', 'Sửa lỗi'] },
+        { genre: 'Showcase', games: ['Trailer game', 'Poster game', 'Trình diễn'] },
+    ],
 ]
 
-const genres = [
-    ['🎮', 'Runner', 'Vượt chướng ngại'],
-    ['🧩', 'Puzzle', 'Giải đố, logic'],
-    ['🎯', 'Shooter', 'Bắn súng'],
-    ['⚔️', 'Action', 'Đối kháng, chém'],
-    ['🕹️', 'Arcade', 'Phản xạ, kỹ năng'],
-    ['🌿', 'Simulation', 'Mô phỏng, nuôi dưỡng'],
-]
-
-const tools = [
-    ['✦', 'Gemini', 'Tư duy, viết prompt, tạo ý tưởng'],
-    ['◎', 'ChatGPT', 'Viết prompt, giải thích logic'],
-    ['☂', 'Astrocode', 'Tạo game 2D nhanh, không cần code'],
-    ['✦', 'AI Studio', 'Thử nghiệm nhanh'],
-    ['⬡', 'OpenCode', 'Hỗ trợ code, logic game'],
-]
-
-const benefits = [
-    'Phát triển tư duy logic & sáng tạo',
-    'Rèn kỹ năng giải quyết vấn đề',
-    'Tự tin tạo sản phẩm cá nhân',
-    'Không cần biết code vẫn làm game được',
-    'Chuẩn bị nền tảng cho tương lai',
-]
+const roadmap = months.map((month, monthIndex) => ({
+    ...month,
+    weeks: roadmapRows[monthIndex].map((week, weekIndex) => ({
+        ...week,
+        games: week.games.map((game) => ({
+            name: game,
+            prompt: promptOf(game, week.genre, month.no, weekIndex + 1),
+        })),
+    })),
+}))
 ---
 
-<MainLayout title={`Lộ trình 12 tháng học làm game với AI | ${TC_TITLE}`} description="Lộ trình 12 tháng học làm game với AI, mỗi tháng 4 tuần, mỗi tuần 2 thể loại và nhiều lựa chọn game thực hành." searchable={false}>
-    <section class="roadmap-page">
-        <div class="roadmap-shell">
-            <header class="hero">
-                <div class="pixel-kid" aria-hidden="true">
-                    <div class="kid-head">🙂</div>
-                    <div class="laptop">⌨</div>
-                    <div class="grass"></div>
-                </div>
-                <div class="hero-main">
-                    <h1>Lộ trình <span>12 tháng</span> - 4 game / tháng</h1>
-                    <p>Mỗi tuần 2 thể loại - mỗi buổi chọn 1 trong 3 game</p>
-                    <div class="method-grid">
+<MainLayout
+    title={`Lộ trình 12 tháng học làm game với AI | ${TC_TITLE}`}
+    description="Lộ trình 12 tháng học làm game với AI, mỗi tháng 4 tuần, mỗi tuần có prompt mẫu để thực hành."
+    searchable={false}
+>
+    <section class="roadmap-page bg-slate-100 text-slate-900">
+        <div class="mx-auto max-w-[1720px] px-4 py-8 sm:px-6 lg:px-8">
+            <header class="roadmap-hero relative overflow-hidden rounded-xl border border-indigo-300 bg-slate-950 shadow-2xl shadow-indigo-950/20">
+                <div class="relative z-10 grid gap-8 px-6 py-10 sm:px-8 lg:grid-cols-[1fr_460px] lg:items-end lg:px-10 lg:py-12">
+                    <div>
+                        <div class="inline-flex items-center gap-2 rounded-full border border-emerald-300/40 bg-emerald-300/10 px-4 py-2 text-xs font-black uppercase tracking-[0.2em] text-emerald-200">
+                            <span class="h-2 w-2 rounded-sm bg-emerald-300 shadow-[0_0_18px_rgba(110,231,183,0.9)]"></span>
+                            Error404-Labs Game Roadmap
+                        </div>
+                        <h1 class="mt-5 max-w-5xl text-4xl font-black leading-tight text-white sm:text-6xl lg:text-7xl">
+                            Lộ trình 12 tháng học làm game
+                        </h1>
+                        <p class="mt-5 max-w-3xl text-base font-semibold leading-8 text-slate-200 sm:text-lg">
+                            Bảng học game theo tháng, tuần và prompt mẫu. Chọn một game, mở prompt, sao chép và bắt đầu build ngay với AI.
+                        </p>
+                    </div>
+                    <div class="grid gap-3 sm:grid-cols-2">
                         {methods.map((item) => (
-                            <div class="method-card">
-                                <strong>{item.icon} {item.title}</strong>
-                                <small>{item.text}</small>
+                            <div class="rounded-lg border border-white/15 bg-white/10 p-4 shadow-lg shadow-slate-950/20 backdrop-blur">
+                                <span class={`mb-3 grid h-9 w-9 place-items-center rounded-md text-sm font-black shadow-md ${item.tone}`}>
+                                    {item.icon}
+                                </span>
+                                <strong class="block text-sm font-black text-white">{item.title}</strong>
+                                <span class="mt-1 block text-xs font-semibold leading-5 text-slate-300">{item.text}</span>
                             </div>
                         ))}
                     </div>
                 </div>
             </header>
 
-            <div class="content-grid">
-                <main class="table-wrap" aria-label="Bảng lộ trình 12 tháng học làm game với AI">
-                    <div class="roadmap-table">
-                        <div class="table-head month-head">Tháng</div>
-                        {weeks.map((week) => <div class="table-head">{week.title} (3 lựa chọn)</div>)}
-
-                        {months.map((month, monthIndex) => (
-                            <>
-                                <div class={`month-cell ${month.color}`}>
-                                    <span class="month-no">{month.no}</span>
-                                    <div>
-                                        <strong>{month.title}</strong>
-                                        <small>({month.sub})</small>
-                                    </div>
-                                    <span class="month-icon">{month.icon}</span>
-                                </div>
-                                {weeks.map((week) => {
-                                    const row = week.rows[monthIndex]
-                                    return (
-                                        <article class="week-cell">
-                                            <h3>{row.genre}</h3>
-                                            <div class="game-grid">
-                                                {row.games.map((game, gameIndex) => (
-                                                    <div class="game-card">
-                                                        <div class="game-scene" aria-hidden="true">
-                                                            <span class="sky-dot"></span>
-                                                            <span class="player">{gameIndex === 1 ? '🤖' : gameIndex === 2 ? '🧑' : '🏃'}</span>
-                                                            <span class="item">{month.icon}</span>
-                                                        </div>
-                                                        <p>{gameIndex + 1}. {game}</p>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </article>
-                                    )
-                                })}
-                            </>
-                        ))}
+            <div class="roadmap-scroll mt-8 overflow-x-auto rounded-xl border border-slate-200 bg-white/95 shadow-2xl shadow-slate-300/50">
+                <div class="grid min-w-[1320px] grid-cols-[190px_repeat(4,minmax(280px,1fr))]">
+                    <div class="sticky left-0 z-20 border-b border-r border-slate-700 bg-slate-950 px-5 py-4 text-sm font-black uppercase tracking-[0.16em] text-white">
+                        Tháng
                     </div>
-                </main>
+                    {weekLabels.map((label) => (
+                        <div class="border-b border-r border-indigo-400/40 bg-gradient-to-br from-indigo-600 to-slate-900 px-5 py-4 text-center text-sm font-black uppercase tracking-[0.16em] text-white last:border-r-0">
+                            {label}
+                        </div>
+                    ))}
 
-                <aside class="sidebars">
-                    <section class="panel">
-                        <h2>Thể loại game</h2>
-                        <ul class="genre-list">
-                            {genres.map(([icon, name, text]) => (
-                                <li><span>{icon}</span><strong>{name}</strong> - {text}</li>
+                    {roadmap.map((month) => (
+                        <>
+                            <div class={`sticky left-0 z-10 min-h-[190px] border-b border-r border-slate-200 bg-white p-4 shadow-[8px_0_24px_rgba(15,23,42,0.08)] ${month.accent}`}>
+                                <span class="grid h-12 w-12 place-items-center rounded-lg bg-slate-950 text-lg font-black text-white shadow-lg shadow-slate-300">
+                                    {month.no}
+                                </span>
+                                <strong class="mt-4 block text-lg font-black uppercase leading-tight">{month.title}</strong>
+                                <span class="mt-2 inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-black uppercase text-slate-500">{month.sub}</span>
+                            </div>
+                            {month.weeks.map((week, weekIndex) => (
+                                <article class={`min-h-[190px] border-b border-r p-3 last:border-r-0 ${genreStyles[week.genre] || 'border-slate-200 bg-slate-50 text-slate-700'}`}>
+                                    <h2 class="mb-3 rounded-md bg-white/80 px-3 py-2 text-center text-xs font-black uppercase tracking-[0.14em] shadow-sm">
+                                        {week.genre}
+                                    </h2>
+                                    <div class="grid gap-2">
+                                        {week.games.map((game, gameIndex) => (
+                                            <GameCell
+                                                game={game.name}
+                                                genre={week.genre}
+                                                month={month.no}
+                                                week={weekIndex + 1}
+                                                index={gameIndex + 1}
+                                                prompt={game.prompt}
+                                            />
+                                        ))}
+                                    </div>
+                                </article>
                             ))}
-                        </ul>
-                    </section>
-
-                    <section class="panel green-panel">
-                        <h2>Cách hoạt động mỗi buổi</h2>
-                        <ol class="step-list">
-                            <li>Chọn 1 trong 3 game gợi ý</li>
-                            <li>Đọc prompt mẫu</li>
-                            <li>Tạo game với AI tool</li>
-                            <li>Chơi thử - chỉnh sửa</li>
-                            <li>Thêm ý tưởng cá nhân</li>
-                            <li>Hoàn thành & chia sẻ</li>
-                        </ol>
-                    </section>
-
-                    <section class="panel">
-                        <h2>Tool sử dụng <span>(100% free)</span></h2>
-                        <ul class="tool-list">
-                            {tools.map(([icon, name, text]) => (
-                                <li><span>{icon}</span><div><strong>{name}</strong><small>{text}</small></div></li>
-                            ))}
-                        </ul>
-                    </section>
-
-                    <section class="panel prompt-panel">
-                        <h2>Cấu trúc prompt mẫu</h2>
-                        <pre>{`Tạo game [THỂ LOẠI] 2D
-Tên game: [TÊN GAME]
-Mục tiêu: [MỤC TIÊU]
-Nhân vật: [MÔ TẢ NHÂN VẬT]
-Cơ chế chính: [CƠ CHẾ]
-Độ khó: [DỄ / TRUNG BÌNH / KHÓ]
-Màn chơi: [SỐ MÀN]
-Yêu cầu đặc biệt: [ĐIỀU KIỆN]
-Xuất bản: playable trên web`}</pre>
-                    </section>
-
-                    <section class="panel benefit-panel">
-                        <h2>Lợi ích khóa học</h2>
-                        <ul>
-                            {benefits.map((benefit) => <li>✓ {benefit}</li>)}
-                        </ul>
-                        <div class="brand-pixel" aria-hidden="true">🏆 🧡 🙂</div>
-                    </section>
-                </aside>
+                        </>
+                    ))}
+                </div>
             </div>
 
-            <footer class="roadmap-footer">
-                <strong>⭐ Học - Chơi - Sáng tạo - Làm game dễ dàng với AI</strong>
-                <strong>❤️ Mỗi ý tưởng - Một trò chơi - Một thành công</strong>
-                <strong>🎮 Error404 Labs - Let's code, let's game!</strong>
-            </footer>
+            <div class="mt-8 grid gap-4 lg:grid-cols-3">
+                <section class="rounded-xl border border-slate-200 bg-white p-6 shadow-lg shadow-slate-200/70">
+                    <h2 class="text-base font-black uppercase text-indigo-700">Cách học mỗi tuần</h2>
+                    <ol class="mt-4 space-y-2 text-sm font-semibold text-slate-600">
+                        <li>1. Chọn một game phù hợp trong ô tuần.</li>
+                        <li>2. Mở prompt mẫu và sao chép câu lệnh.</li>
+                        <li>3. Tạo bản playable, test nhanh, rồi chỉnh theo ý tưởng riêng.</li>
+                    </ol>
+                </section>
+                <section class="rounded-xl border border-emerald-200 bg-emerald-50 p-6 shadow-lg shadow-emerald-100/70">
+                    <h2 class="text-base font-black uppercase text-emerald-700">Mục tiêu</h2>
+                    <p class="mt-4 text-sm font-semibold leading-6 text-slate-700">
+                        Giữ tiến độ nhỏ, đều và có sản phẩm thật sau từng tuần, phù hợp cách học bằng AI của Error404-Labs.
+                    </p>
+                </section>
+                <section class="rounded-xl border border-slate-200 bg-white p-6 shadow-lg shadow-slate-200/70">
+                    <h2 class="text-base font-black uppercase text-slate-800">Palette</h2>
+                    <div class="mt-4 flex gap-2">
+                        <span class="h-8 flex-1 rounded bg-indigo-600"></span>
+                        <span class="h-8 flex-1 rounded bg-slate-800"></span>
+                        <span class="h-8 flex-1 rounded bg-emerald-500"></span>
+                    </div>
+                </section>
+            </div>
         </div>
     </section>
+
+    <PromptModal />
 </MainLayout>
 
 <style>
-    .roadmap-page {
+    .roadmap-hero {
         background:
-            linear-gradient(90deg, rgba(7, 50, 112, 0.05) 1px, transparent 1px),
-            linear-gradient(rgba(7, 50, 112, 0.05) 1px, transparent 1px),
-            #f6fbff;
-        background-size: 18px 18px;
-        color: #08285a;
-        padding: 12px;
+            linear-gradient(135deg, rgba(79, 70, 229, 0.92), rgba(15, 23, 42, 0.98) 54%, rgba(16, 185, 129, 0.84)),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+            linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+        background-size: auto, 18px 18px, 18px 18px;
     }
 
-    .roadmap-shell {
-        width: min(1880px, 100%);
-        margin: 0 auto;
-        border: 3px solid #0b3b82;
-        box-shadow: 0 12px 0 #06275a, 0 18px 35px rgba(4, 29, 66, 0.18);
-        background: #ffffff;
-        overflow: hidden;
-    }
-
-    .hero {
-        display: grid;
-        grid-template-columns: 250px 1fr;
-        gap: 18px;
-        align-items: center;
-        padding: 14px 18px 10px;
-        background: linear-gradient(180deg, #ffffff, #eef7ff);
-        border-bottom: 3px solid #0b3b82;
-    }
-
-    .pixel-kid {
-        position: relative;
-        min-height: 150px;
-        display: grid;
-        place-items: center;
-    }
-
-    .kid-head {
-        position: absolute;
-        top: 4px;
-        left: 32px;
-        font-size: 76px;
-        filter: drop-shadow(4px 4px 0 #1f4c86);
-    }
-
-    .laptop {
-        position: absolute;
-        right: 18px;
-        top: 48px;
-        width: 96px;
-        height: 70px;
-        display: grid;
-        place-items: center;
-        color: #9eff64;
-        font-size: 42px;
-        background: #11243f;
-        border: 6px solid #071a31;
-        box-shadow: inset 0 0 0 4px #35658f, 6px 6px 0 #9cb8c8;
-    }
-
-    .grass {
-        position: absolute;
-        bottom: 0;
-        left: 16px;
-        width: 180px;
-        height: 46px;
-        background: linear-gradient(#35b956 0 42%, #80522c 43%);
-        border: 5px solid #123b25;
-        box-shadow: 10px 10px 0 #d5eef7;
-    }
-
-    .hero-main h1 {
-        margin: 0;
-        text-align: center;
-        text-transform: uppercase;
-        font-size: clamp(34px, 4vw, 68px);
-        line-height: 1;
-        font-weight: 1000;
-        color: #092963;
-        text-shadow: 3px 3px 0 #d9e8ff;
-    }
-
-    .hero-main h1 span {
-        color: #ff672f;
-    }
-
-    .hero-main p {
-        width: fit-content;
-        margin: 10px auto 12px;
-        padding: 7px 24px;
-        border-radius: 8px;
-        background: #0d3475;
-        color: #fff;
-        font-size: clamp(18px, 2vw, 30px);
-        font-weight: 900;
-        text-transform: uppercase;
-        box-shadow: 0 5px 0 #041f50;
-    }
-
-    .method-grid {
-        display: grid;
-        grid-template-columns: repeat(5, minmax(120px, 1fr));
-        gap: 10px;
-    }
-
-    .method-card,
-    .panel,
-    .game-card {
-        border: 2px solid #c7dcf5;
-        background: #fff;
-        box-shadow: 4px 4px 0 #d7e8fb;
-    }
-
-    .method-card {
-        min-height: 64px;
-        padding: 10px;
-        border-radius: 8px;
-    }
-
-    .method-card strong {
-        display: block;
-        font-size: 15px;
-        font-weight: 900;
-    }
-
-    .method-card small {
-        display: block;
-        margin-top: 3px;
-        color: #18376c;
-        font-weight: 700;
-    }
-
-    .content-grid {
-        display: grid;
-        grid-template-columns: minmax(960px, 1fr) 300px;
-        gap: 12px;
-        padding: 12px;
-    }
-
-    .table-wrap {
-        overflow-x: auto;
-        border: 2px solid #b7d3ef;
-        background: #eaf5ff;
-    }
-
-    .roadmap-table {
-        min-width: 1180px;
-        display: grid;
-        grid-template-columns: 160px repeat(4, minmax(245px, 1fr));
-        gap: 2px;
-        background: #b8d1ed;
-    }
-
-    .table-head {
-        padding: 10px 8px;
-        text-align: center;
-        color: #fff;
-        background: linear-gradient(180deg, #1265d8, #073682);
-        font-weight: 1000;
-        text-transform: uppercase;
-        font-size: 16px;
-    }
-
-    .month-head {
-        background: linear-gradient(180deg, #0d3475, #061f56);
-    }
-
-    .month-cell {
-        display: grid;
-        grid-template-columns: 42px 1fr 34px;
-        align-items: center;
-        gap: 8px;
-        min-height: 112px;
-        padding: 10px;
-        background: #f4fbff;
-        border-left: 8px solid var(--month-color);
-    }
-
-    .month-cell.green { --month-color: #22a855; }
-    .month-cell.orange { --month-color: #ff7b24; }
-    .month-cell.purple { --month-color: #684be4; }
-    .month-cell.blue { --month-color: #1d85e8; }
-    .month-cell.red { --month-color: #ef4b65; }
-    .month-cell.cyan { --month-color: #13abc3; }
-
-    .month-no {
-        width: 36px;
-        height: 36px;
-        display: grid;
-        place-items: center;
-        border-radius: 50%;
-        color: #fff;
-        background: var(--month-color);
-        font-size: 20px;
-        font-weight: 1000;
-    }
-
-    .month-cell strong {
-        display: block;
-        color: var(--month-color);
-        font-size: 15px;
-        font-weight: 1000;
-        text-transform: uppercase;
-    }
-
-    .month-cell small {
-        color: #001f4d;
-        font-size: 12px;
-        font-weight: 800;
-    }
-
-    .month-icon {
-        font-size: 26px;
-        filter: drop-shadow(2px 2px 0 #bdd9f5);
-    }
-
-    .week-cell {
-        min-height: 112px;
-        padding: 6px 8px 8px;
-        background: #fff;
-    }
-
-    .week-cell h3 {
-        margin: 0 0 5px;
-        color: #0b51bf;
-        text-align: center;
-        text-transform: uppercase;
-        font-size: 13px;
-        font-weight: 1000;
-    }
-
-    .game-grid {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 8px;
-    }
-
-    .game-card {
-        min-width: 0;
-        border-radius: 4px;
-        overflow: hidden;
-    }
-
-    .game-scene {
-        position: relative;
-        height: 44px;
-        background:
-            linear-gradient(#8dccff 0 62%, #58bf58 63% 78%, #7d4b2a 79%);
-        border-bottom: 2px solid #296ba3;
-        image-rendering: pixelated;
-    }
-
-    .game-scene::before,
-    .game-scene::after {
+    .roadmap-hero::after {
         content: '';
         position: absolute;
-        bottom: 11px;
-        width: 18px;
-        height: 10px;
-        background: #ffffffcc;
-        box-shadow: 10px 0 0 #ffffff99;
+        inset: auto 5% -46px auto;
+        width: 220px;
+        height: 220px;
+        background: rgba(16, 185, 129, 0.32);
+        box-shadow:
+            -180px -50px 0 rgba(79, 70, 229, 0.26),
+            -70px -120px 0 rgba(245, 158, 11, 0.2);
+        filter: blur(18px);
     }
 
-    .game-scene::before { left: 8px; }
-    .game-scene::after { right: 10px; }
-
-    .player,
-    .item,
-    .sky-dot {
-        position: absolute;
-        z-index: 1;
+    .roadmap-scroll {
+        scrollbar-color: #4f46e5 #e2e8f0;
+        scrollbar-width: thin;
     }
 
-    .player {
-        left: 12px;
-        bottom: 10px;
-        font-size: 20px;
+    .roadmap-scroll::-webkit-scrollbar {
+        height: 12px;
     }
 
-    .item {
-        right: 12px;
-        top: 9px;
-        font-size: 18px;
+    .roadmap-scroll::-webkit-scrollbar-track {
+        background: #e2e8f0;
+        border-radius: 999px;
     }
 
-    .sky-dot {
-        top: 8px;
-        left: 50%;
-        width: 9px;
-        height: 9px;
-        background: #ffd24f;
-        box-shadow: 2px 2px 0 #c48900;
-    }
-
-    .game-card p {
-        margin: 0;
-        padding: 4px 3px 5px;
-        color: #092963;
-        font-size: 10px;
-        font-weight: 900;
-        line-height: 1.15;
-        text-align: center;
-    }
-
-    .sidebars {
-        display: grid;
-        gap: 12px;
-        align-content: start;
-    }
-
-    .panel {
-        border-radius: 8px;
-        overflow: hidden;
-    }
-
-    .panel h2 {
-        margin: 0;
-        padding: 10px 12px;
-        background: #072d6f;
-        color: #fff;
-        font-size: 16px;
-        font-weight: 1000;
-        text-align: center;
-        text-transform: uppercase;
-    }
-
-    .panel h2 span {
-        color: #44f17a;
-        font-size: 12px;
-    }
-
-    .green-panel h2 {
-        background: #e8fff0;
-        color: #05713f;
-    }
-
-    .genre-list,
-    .tool-list,
-    .benefit-panel ul {
-        margin: 0;
-        padding: 12px;
-        list-style: none;
-    }
-
-    .genre-list li {
-        margin-bottom: 8px;
-        color: #0a2e65;
-        font-size: 12px;
-        font-weight: 800;
-    }
-
-    .genre-list span {
-        display: inline-block;
-        width: 24px;
-        font-size: 18px;
-    }
-
-    .genre-list strong {
-        text-transform: uppercase;
-    }
-
-    .step-list {
-        margin: 0;
-        padding: 12px 14px 12px 42px;
-        color: #08285a;
-        font-size: 13px;
-        font-weight: 800;
-    }
-
-    .step-list li {
-        margin: 0 0 9px;
-        padding-left: 4px;
-    }
-
-    .step-list li::marker {
-        color: #0a9c58;
-        font-weight: 1000;
-    }
-
-    .tool-list li {
-        display: grid;
-        grid-template-columns: 34px 1fr;
-        gap: 8px;
-        align-items: center;
-        margin-bottom: 11px;
-    }
-
-    .tool-list span {
-        color: #1769ff;
-        font-size: 30px;
-        text-align: center;
-    }
-
-    .tool-list strong,
-    .tool-list small {
-        display: block;
-    }
-
-    .tool-list strong {
-        font-size: 13px;
-        font-weight: 1000;
-    }
-
-    .tool-list small {
-        color: #17366c;
-        font-size: 11px;
-        font-weight: 700;
-    }
-
-    .prompt-panel pre {
-        margin: 12px;
-        padding: 12px;
-        white-space: pre-wrap;
-        color: #092963;
-        background: #fff7eb;
-        border: 2px solid #ffe0b8;
-        border-radius: 8px;
-        font-family: Montserrat, Arial, sans-serif;
-        font-size: 13px;
-        font-weight: 800;
-        line-height: 1.6;
-    }
-
-    .benefit-panel li {
-        margin-bottom: 10px;
-        color: #0b3d78;
-        font-size: 13px;
-        font-weight: 800;
-    }
-
-    .brand-pixel {
-        padding: 6px 12px 18px;
-        text-align: center;
-        font-size: 44px;
-        text-shadow: 4px 4px 0 #cfe5fb;
-    }
-
-    .roadmap-footer {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 12px;
-        padding: 10px 18px;
-        color: #fff;
-        background: #062d68;
-        border-top: 3px solid #0b3b82;
-        text-align: center;
-        text-transform: uppercase;
-    }
-
-    .roadmap-footer strong {
-        font-size: 15px;
-        font-weight: 1000;
-    }
-
-    @media (max-width: 1280px) {
-        .content-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .sidebars {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-    }
-
-    @media (max-width: 860px) {
-        .roadmap-page {
-            padding: 8px;
-        }
-
-        .hero {
-            grid-template-columns: 1fr;
-        }
-
-        .pixel-kid {
-            min-height: 120px;
-        }
-
-        .method-grid,
-        .sidebars,
-        .roadmap-footer {
-            grid-template-columns: 1fr;
-        }
-
-        .hero-main p {
-            width: 100%;
-            font-size: 16px;
-            text-align: center;
-        }
-
-        .content-grid {
-            padding: 8px;
-        }
+    .roadmap-scroll::-webkit-scrollbar-thumb {
+        background: linear-gradient(90deg, #4f46e5, #10b981);
+        border: 3px solid #e2e8f0;
+        border-radius: 999px;
     }
 </style>
