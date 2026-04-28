@@ -59,90 +59,91 @@ const genreStyles: Record<string, string> = {
     Showcase: 'border-blue-200 bg-blue-50/80 text-blue-700',
 }
 
-const promptOf = (game: string, genre: string, month: number, week: number) => `Tạo game ${genre} 2D playable trên web.
-Tên game: ${game}
-Tháng: ${month}
-Tuần: ${week}
-Mục tiêu: Người chơi hiểu cơ chế chính trong 3 phút đầu.
-Nhân vật: Một nhân vật đơn giản, dễ điều khiển bằng bàn phím hoặc chạm.
-Cơ chế chính: Thiết kế gameplay đúng thể loại ${genre}, có điểm số, điều kiện thắng và thua rõ ràng.
-Độ khó: Dễ ở màn đầu, tăng dần qua từng màn.
-Màn chơi: 3 màn ngắn.
-Yêu cầu đặc biệt: Có hướng dẫn trong game, âm thanh phản hồi, hiệu ứng khi thắng/thua.
-Xuất bản: Chạy trực tiếp trên trình duyệt, ưu tiên HTML/CSS/JavaScript gọn nhẹ.`
+const promptOf = (game: string, genre: string, month: number, week: number) => `=== CREATE GAME ===
+Tên: ${game}
+Style: Game 2D ${genre} hiện đại, màu sắc rõ, dễ đọc, playable trên web.
+Đối tượng: Người mới học làm game với AI, cần hiểu cơ chế chính trong 3 phút đầu.
+Gameplay: Thiết kế vòng chơi ngắn theo đúng chủ đề ${genre}; điều khiển đơn giản bằng bàn phím hoặc chạm; mỗi lượt chơi kéo dài 1-3 phút.
+Luật: Có mục tiêu thắng rõ ràng, điều kiện thua rõ ràng, điểm số hoặc tiến trình, độ khó tăng nhẹ theo thời gian hoặc theo màn.
+Hiển thị: Hiện nhân vật/vật thể chính, mục tiêu, điểm số, trạng thái thắng/thua và hướng dẫn ngắn ngay trong game.
+UI: Giao diện gọn, có màn hình bắt đầu, nút chơi lại, thông tin điều khiển và phản hồi trực quan khi người chơi tương tác.
+Hiệu ứng: Thêm hiệu ứng va chạm, thu thập, thắng/thua, chuyển màn và âm thanh phản hồi nhẹ nếu có thể.
+Build: Xuất bản thành một bản HTML/CSS/JavaScript chạy trực tiếp trên trình duyệt, ưu tiên code gọn, dễ sửa và không dùng asset ngoài bắt buộc.
+
+Thông tin bài học: Tháng ${month}, Tuần ${week}, thể loại ${genre}.`
 
 const roadmapRows = [
     [
-        { genre: 'Runner', games: ['Chạy & nhảy', 'Chạy nhặt coin', 'Chạy qua platform'] },
-        { genre: 'Puzzle', games: ['Kéo thả khối', 'Đẩy hộp', 'Mở khóa cửa'] },
-        { genre: 'Arcade', games: ['Trượt để né', 'Nhảy tránh gai', 'Bay qua ống'] },
-        { genre: 'Simulation', games: ['Trồng cây', 'Nuôi pet', 'Cửa hàng mini'] },
+        { genre: 'Runner', games: ['Neon Jump Runner', 'Coin Rush Alley', 'Sky Platform Sprint'] },
+        { genre: 'Puzzle', games: ['Block Shift Lab', 'Crate Push Quest', 'Door Key Circuit'] },
+        { genre: 'Arcade', games: ['Slide Dodge Arena', 'Spike Hop Panic', 'Pipe Flight Dash'] },
+        { genre: 'Simulation', games: ['Tiny Grove Builder', 'Pixel Pet Daycare', 'Mini Market Tycoon'] },
     ],
     [
-        { genre: 'Runner', games: ['Né chướng ngại', 'Leo tường', 'Trượt xuống dốc'] },
-        { genre: 'Action', games: ['Né dao xoay', 'Nhảy tường', 'Nổ laser'] },
-        { genre: 'Arcade', games: ['Tránh vật rơi', 'Xé xe', 'Tránh bom'] },
-        { genre: 'Puzzle', games: ['Đi đúng đường', 'Xoay đường', 'Nối đường'] },
+        { genre: 'Runner', games: ['Hazard Dash Reactor', 'Wall Climb Rush', 'Downhill Drift Runner'] },
+        { genre: 'Action', games: ['Blade Orbit Dodge', 'Wall Kick Ninja', 'Laser Burst Escape'] },
+        { genre: 'Arcade', games: ['Meteor Drop Panic', 'Turbo Traffic Split', 'Bomb Rain Reflex'] },
+        { genre: 'Puzzle', games: ['Path Finder Grid', 'Route Rotate Lab', 'Link Line Circuit'] },
     ],
     [
-        { genre: 'Shooter', games: ['Bắn quái đơn', 'Bắn theo sóng', 'Bảo vệ căn cứ'] },
-        { genre: 'Arcade', games: ['Bắn bong bóng', 'Bắn vịt', 'Bắn UFO'] },
-        { genre: 'Shooter', games: ['Nâng cấp súng', 'Bắn boss nhỏ', 'Hỗ trợ đồng đội'] },
-        { genre: 'Action', games: ['Chém quái', 'Phi tiêu', 'Đấm bốc'] },
+        { genre: 'Shooter', games: ['Slime Blaster Zero', 'Wave Defense Outpost', 'Base Guard Blitz'] },
+        { genre: 'Arcade', games: ['Bubble Pop Cannon', 'Duck Shot Carnival', 'UFO Zap Patrol'] },
+        { genre: 'Shooter', games: ['Arsenal Upgrade Run', 'Mini Boss Barrage', 'Squad Assist Strike'] },
+        { genre: 'Action', games: ['Monster Slash Dash', 'Shuriken Storm', 'Boxing Beatdown'] },
     ],
     [
-        { genre: 'Puzzle', games: ['Ghép hình', 'Mê cung', 'Nút & cửa'] },
-        { genre: 'Logic', games: ['Sắp xếp', 'Cân bằng', 'Bật công tắc'] },
-        { genre: 'Puzzle', games: ['Sokoban mini', 'Kéo chốt', 'Thắp sáng'] },
-        { genre: 'Arcade', games: ['Đưa bóng vào rổ', 'Ném bóng', 'Pinball mini'] },
+        { genre: 'Puzzle', games: ['Mosaic Mind Quest', 'Maze Core Escape', 'Switch Door Lab'] },
+        { genre: 'Logic', games: ['Sort Stack Factory', 'Balance Beam Logic', 'Power Switch Grid'] },
+        { genre: 'Puzzle', games: ['Sokoban Space Crates', 'Pin Pull Dungeon', 'Light Tower Circuit'] },
+        { genre: 'Arcade', games: ['Hoop Shot Puzzle', 'Trick Toss Arena', 'Neon Pinball Mini'] },
     ],
     [
-        { genre: 'Action', games: ['Đánh thường', 'Combo cơ bản', 'Né & đánh'] },
-        { genre: 'Boss Fight', games: ['Boss Slime', 'Boss Robot', 'Boss Rồng'] },
-        { genre: 'Action', games: ['Nhảy tấn công', 'Dash attack', 'Chém xoay'] },
-        { genre: 'Arcade', games: ['Sinh tồn', 'Đấu trường', 'Vượt ải'] },
+        { genre: 'Action', games: ['Street Combo Rookie', 'Combo Forge Arena', 'Dodge Counter Strike'] },
+        { genre: 'Boss Fight', games: ['Slime King Duel', 'Robot Core Raid', 'Dragon Flame Trial'] },
+        { genre: 'Action', games: ['Jump Strike Hero', 'Dash Blade Assault', 'Cyclone Slash'] },
+        { genre: 'Arcade', games: ['Survival Ring', 'Battle Dome Rush', 'Trial Gate Runner'] },
     ],
     [
-        { genre: 'Rhythm', games: ['Gõ nhịp', 'Nhảy theo nhạc', 'Dập beat'] },
-        { genre: 'Music', games: ['Piano Tiles', 'Bắt nốt nhạc', 'Nhạc cụ mini'] },
-        { genre: 'Rhythm', games: ['Tránh vật theo nhạc', 'Nhấn đúng lúc', 'Chuỗi combo'] },
-        { genre: 'Arcade', games: ['Khiêu vũ', 'Disco Ball', 'Nhạc bay'] },
+        { genre: 'Rhythm', games: ['Beat Tap Reactor', 'Dance Sync Hero', 'Bass Drop Strike'] },
+        { genre: 'Music', games: ['Piano Rush Tiles', 'Note Catcher Pop', 'Mini Synth Jam'] },
+        { genre: 'Rhythm', games: ['Beat Dodge Highway', 'Perfect Timing Dash', 'Combo Chain Groove'] },
+        { genre: 'Arcade', games: ['Neon Dance Floor', 'Disco Orb Chase', 'Melody Sky Ride'] },
     ],
     [
-        { genre: 'Collect', games: ['Nhặt coin', 'Nhặt kim cương', 'Nhặt sao'] },
-        { genre: 'Adventure', games: ['Khám phá hang', 'Tìm chìa khóa', 'Đi tìm báu vật'] },
-        { genre: 'Collect', games: ['Thu thập trái cây', 'Thu thập vật phẩm', 'Giao hàng'] },
-        { genre: 'Simulation', games: ['Nông thú', 'Câu cá', 'Nấu ăn'] },
+        { genre: 'Collect', games: ['Coin Magnet Quest', 'Diamond Drift Mine', 'Starfall Collector'] },
+        { genre: 'Adventure', games: ['Crystal Cave Scout', 'Lost Key Expedition', 'Treasure Trail Runner'] },
+        { genre: 'Collect', games: ['Fruit Frenzy Field', 'Relic Courier Run', 'Parcel Sprint Shift'] },
+        { genre: 'Simulation', games: ['Tiny Farm Loop', 'Cozy Fishing Dock', 'Chef Rush Kitchen'] },
     ],
     [
-        { genre: 'Effect', games: ['Hiệu ứng nổ', 'Trail bóng', 'Hiệu ứng băng'] },
-        { genre: 'Skill', games: ['Skill lửa', 'Skill băng', 'Skill sét'] },
-        { genre: 'Effect', games: ['Chữa lành', 'Hiệu ứng combo', 'Hiệu ứng đặc biệt'] },
-        { genre: 'Action', games: ['Skill dash', 'Skill nhảy', 'Skill AoE'] },
+        { genre: 'Effect', games: ['Blast FX Sandbox', 'Comet Trail Ball', 'Frost Burst Arena'] },
+        { genre: 'Skill', games: ['Flame Skill Forge', 'Ice Skill Weaver', 'Thunder Skill Circuit'] },
+        { genre: 'Effect', games: ['Heal Pulse Garden', 'Combo Spark Lab', 'Ultimate FX Trial'] },
+        { genre: 'Action', games: ['Dash Skill Runner', 'Leap Skill Quest', 'Area Blast Hero'] },
     ],
     [
-        { genre: 'Upgrade', games: ['Nâng cấp HP', 'Nâng cấp sát thương', 'Mở khóa skill'] },
-        { genre: 'Shop', games: ['Shop vũ khí', 'Shop trang bị', 'Shop pet'] },
-        { genre: 'Progression', games: ['Level & EXP', 'Cây kỹ năng', 'Thăng cấp'] },
-        { genre: 'Adventure', games: ['Nhiệm vụ chính', 'Nhiệm vụ phụ', 'Nhiệm vụ hằng ngày'] },
+        { genre: 'Upgrade', games: ['Vital Core Upgrade', 'Damage Forge Path', 'Skill Unlock Tower'] },
+        { genre: 'Shop', games: ['Weapon Shop Tycoon', 'Gear Merchant Lab', 'Pet Shop Companion'] },
+        { genre: 'Progression', games: ['Level XP Climb', 'Skill Tree Odyssey', 'Rank Up Reactor'] },
+        { genre: 'Adventure', games: ['Main Quest Signal', 'Side Quest Harbor', 'Daily Quest Loop'] },
     ],
     [
-        { genre: 'AI Enemy', games: ['Enemy tuần tra', 'Enemy đuổi', 'Enemy bắn'] },
-        { genre: 'AI Pattern', games: ['Pattern đơn', 'Pattern xoay', 'Pattern phức tạp'] },
-        { genre: 'Boss AI', games: ['Boss di chuyển', 'Boss pattern', 'Boss nhiều pha'] },
-        { genre: 'Simulation', games: ['NPC thông minh', 'Kẻ địch phối hợp', 'Thế giới động'] },
+        { genre: 'AI Enemy', games: ['Patrol Bot Alley', 'Chase Drone Maze', 'Sniper Bot Watch'] },
+        { genre: 'AI Pattern', games: ['Spiral Pattern Duel', 'Rotating Pattern Core', 'Complex Pattern Arena'] },
+        { genre: 'Boss AI', games: ['Moving Boss Protocol', 'Phase Pattern Titan', 'Multi Phase Overlord'] },
+        { genre: 'Simulation', games: ['Smart NPC Village', 'Enemy Squad Tactics', 'Dynamic World Engine'] },
     ],
     [
-        { genre: 'Free Build', games: ['Game platform', 'Game puzzle', 'Game bắn súng'] },
-        { genre: 'Theme Pack', games: ['Chủ đề rừng', 'Chủ đề biển', 'Chủ đề không gian'] },
-        { genre: 'Game Idea', games: ['Ý tưởng riêng 1', 'Ý tưởng riêng 2', 'Ý tưởng riêng 3'] },
-        { genre: 'Mechanic Mix', games: ['Kết hợp 2 cơ chế', 'Kết hợp 3 cơ chế', 'Kết hợp 4 cơ chế'] },
+        { genre: 'Free Build', games: ['Dream Platformer Lab', 'Custom Puzzle Forge', 'Personal Shooter Arena'] },
+        { genre: 'Theme Pack', games: ['Forest Spirit Run', 'Ocean Depth Quest', 'Space Colony Dash'] },
+        { genre: 'Game Idea', games: ['Original Game Spark', 'Signature Game Seed', 'Creator Mode Prototype'] },
+        { genre: 'Mechanic Mix', games: ['Dual Mechanic Fusion', 'Triple System Remix', 'Quad Combo Experiment'] },
     ],
     [
-        { genre: 'UI & Menu', games: ['Menu Start', 'Select Level', 'Cửa hàng UI'] },
-        { genre: 'Polish', games: ['Âm thanh', 'Hiệu ứng', 'Hoàn thiện'] },
-        { genre: 'Test & Fix', games: ['Test gameplay', 'Cân bằng game', 'Sửa lỗi'] },
-        { genre: 'Showcase', games: ['Trailer game', 'Poster game', 'Trình diễn'] },
+        { genre: 'UI & Menu', games: ['Start Menu Command', 'Level Select Nexus', 'Shop UI Console'] },
+        { genre: 'Polish', games: ['Sound Polish Studio', 'Juice FX Upgrade', 'Final Touch Build'] },
+        { genre: 'Test & Fix', games: ['Gameplay QA Arena', 'Balance Patch Lab', 'Bug Hunt Sprint'] },
+        { genre: 'Showcase', games: ['Game Trailer Cut', 'Launch Poster Maker', 'Demo Day Showcase'] },
     ],
 ]
 
