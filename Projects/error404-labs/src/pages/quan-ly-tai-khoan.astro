@@ -250,6 +250,10 @@ export const prerender = false
                         </button>
                     </div>
                 </div>
+                <div class="px-6 py-2 bg-slate-50/50 border-b border-slate-100 flex gap-2 shrink-0">
+                    <button id="tabTools" class="tab-button active px-4 py-2 rounded-lg text-sm font-bold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-all">Trình tạo Game</button>
+                    <button id="tabRoadmap" class="tab-button px-4 py-2 rounded-lg text-sm font-bold bg-slate-100 border border-slate-200 text-slate-500 hover:bg-slate-50 transition-all">Lộ trình 12 Tháng</button>
+                </div>
                 <div id="promptAccessList" class="flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar">
                     <!-- Prompt list will be rendered here -->
                 </div>
@@ -755,11 +759,14 @@ export const prerender = false
         const selectAllPrompts = document.getElementById('selectAllPrompts')
         const deselectAllPrompts = document.getElementById('deselectAllPrompts')
         const savePromptAccess = document.getElementById('savePromptAccess')
+        const tabTools = document.getElementById('tabTools')
+        const tabRoadmap = document.getElementById('tabRoadmap')
         const closePromptAccessModal = document.getElementById('closePromptAccessModal')
 
         let currentPromptAccessMemberId = null
         let currentPromptAccessList = []
         let allPromptsData = []
+        let currentTab = 'tools'
 
         // Lấy dữ liệu prompts từ data
         async function loadPromptsData() {
@@ -790,12 +797,18 @@ export const prerender = false
             renderPromptAccessList()
         }
 
-        function renderPromptAccessList(filterText = '') {
+        function renderPromptAccessList(filterText = '', tab = currentTab) {
             promptAccessList.innerHTML = ''
-            
+
             const filter = filterText.toLowerCase()
-            const filteredPrompts = allPromptsData.filter(p => 
-                p.text.toLowerCase().includes(filter) || 
+            let filteredByTab = allPromptsData
+            if (tab === 'tools') {
+                filteredByTab = allPromptsData.filter(p => typeof p.id === 'number' || !String(p.id).startsWith('roadmap_'))
+            } else if (tab === 'roadmap') {
+                filteredByTab = allPromptsData.filter(p => String(p.id).startsWith('roadmap_'))
+            }
+            const filteredPrompts = filteredByTab.filter(p =>
+                p.text.toLowerCase().includes(filter) ||
                 String(p.id).includes(filter)
             )
 
@@ -844,8 +857,14 @@ export const prerender = false
 
         selectAllPrompts.onclick = () => {
             const filter = promptAccessSearch.value.toLowerCase()
-            const filteredPrompts = allPromptsData.filter(p => 
-                p.text.toLowerCase().includes(filter) || 
+            let filteredByTab = allPromptsData
+            if (currentTab === 'tools') {
+                filteredByTab = allPromptsData.filter(p => typeof p.id === 'number' || !String(p.id).startsWith('roadmap_'))
+            } else if (currentTab === 'roadmap') {
+                filteredByTab = allPromptsData.filter(p => String(p.id).startsWith('roadmap_'))
+            }
+            const filteredPrompts = filteredByTab.filter(p =>
+                p.text.toLowerCase().includes(filter) ||
                 String(p.id).includes(filter)
             )
             filteredPrompts.forEach(p => {
@@ -858,6 +877,24 @@ export const prerender = false
 
         deselectAllPrompts.onclick = () => {
             currentPromptAccessList = []
+            renderPromptAccessList(promptAccessSearch.value)
+        }
+
+        tabTools.onclick = () => {
+            currentTab = 'tools'
+            tabTools.classList.add('active', 'bg-white', 'text-slate-700')
+            tabTools.classList.remove('bg-slate-100', 'text-slate-500')
+            tabRoadmap.classList.remove('active', 'bg-white', 'text-slate-700')
+            tabRoadmap.classList.add('bg-slate-100', 'text-slate-500')
+            renderPromptAccessList(promptAccessSearch.value)
+        }
+
+        tabRoadmap.onclick = () => {
+            currentTab = 'roadmap'
+            tabRoadmap.classList.add('active', 'bg-white', 'text-slate-700')
+            tabRoadmap.classList.remove('bg-slate-100', 'text-slate-500')
+            tabTools.classList.remove('active', 'bg-white', 'text-slate-700')
+            tabTools.classList.add('bg-slate-100', 'text-slate-500')
             renderPromptAccessList(promptAccessSearch.value)
         }
 
