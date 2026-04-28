@@ -669,25 +669,8 @@ export const categories = [
             },
         ],
     },
-    {
-        title: 'HỆ THỐNG',
-        icon: '🔒',
-        color: 'bg-[#DC2626]',
-        items: [
-            {
-                id: 'game_roadmap',
-                text: 'Quyền xem Lộ trình Game AI',
-            },
-        ],
-    },
-    {
-        title: 'LỘ TRÌNH HỌC (TỔNG QUAN)',
-        icon: '📅',
-        color: 'bg-[#7C3AED]',
-        items: [
-            { id: 'roadmap_overview', text: 'Quyền xem Tổng quan Lộ trình' },
-        ],
-    },
+
+
     {
         title: 'LỘ TRÌNH HỌC (THÁNG 1-4)',
         icon: '📅',
