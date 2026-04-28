@@ -93,29 +93,30 @@
 
             currentPrompt = data.content || ''
             if (content) {
-            if (!currentPrompt || currentPrompt === 'chưa có prompt') {
-                content.innerHTML = `
-                    <div class="flex flex-col items-center justify-center py-8 text-slate-400">
-                        <svg class="w-12 h-12 mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                        <p class="text-lg font-medium">Nội dung đang được cập nhật...</p>
-                        <p class="text-sm mt-1">Chưa có prompt cho game này</p>
-                    </div>
-                `
-                content.classList.remove('text-center', 'italic', 'text-slate-400')
-                const copyBtn = document.getElementById('roadmapCopyPrompt')
-                if (copyBtn) {
-                    copyBtn.textContent = "Nội dung trống"
-                    copyBtn.classList.add('opacity-50', 'cursor-not-allowed', 'pointer-events-none')
-                }
-            }
-                const copyBtn = document.getElementById('roadmapCopyPrompt')
-                if (copyBtn) {
-                    copyBtn.textContent = currentPrompt ? "Sao chép câu lệnh" : "Nội dung trống"
-                    copyBtn.classList.toggle('opacity-50', !currentPrompt)
-                    copyBtn.classList.toggle('cursor-not-allowed', !currentPrompt)
-                    copyBtn.classList.toggle('pointer-events-none', !currentPrompt)
+                if (!currentPrompt || currentPrompt === 'chưa có prompt') {
+                    content.innerHTML = `
+                        <div class="flex flex-col items-center justify-center py-8 text-slate-400">
+                            <svg class="w-12 h-12 mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            <p class="text-lg font-medium">Nội dung đang được cập nhật...</p>
+                            <p class="text-sm mt-1">Chưa có prompt cho game này</p>
+                        </div>
+                    `
+                    content.classList.remove('text-center', 'italic', 'text-slate-400', 'text-red-400')
+                    const copyBtn = document.getElementById('roadmapCopyPrompt')
+                    if (copyBtn) {
+                        copyBtn.textContent = "Nội dung trống"
+                        copyBtn.classList.add('opacity-50', 'cursor-not-allowed', 'pointer-events-none')
+                    }
+                } else {
+                    content.textContent = currentPrompt
+                    content.classList.remove('text-center', 'italic', 'text-slate-400', 'text-red-400')
+                    const copyBtn = document.getElementById('roadmapCopyPrompt')
+                    if (copyBtn) {
+                        copyBtn.textContent = "Sao chép câu lệnh"
+                        copyBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none')
+                    }
                 }
             }
         } catch (error) {
