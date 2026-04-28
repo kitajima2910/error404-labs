@@ -173,7 +173,7 @@ const roadmap = months.map((month, monthIndex) => ({
                             Tư Duy <span>Sáng Tạo</span> Game
                         </h1>
                         <p class="mt-5 max-w-3xl text-base font-bold leading-7 text-slate-200">
-                            Làm chủ quy trình thiết kế hệ thống và tư duy sản phẩm, biến mọi ý tưởng thành bản game hoàn chỉnh thông qua sức mạnh của AI.
+                            Làm chủ quy trình thiết kế và tư duy sản phẩm, biến mọi ý tưởng thành bản game hoàn chỉnh thông qua sức mạnh của AI.
                         </p>
                     </div>
                     <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -261,7 +261,7 @@ const roadmap = months.map((month, monthIndex) => ({
                 <aside class="roadmap-sidebar grid content-start gap-4 xl:sticky xl:top-5">
                     <section class="sidebar-card rounded-[24px] border border-white/15 bg-white/10 p-5 shadow-xl shadow-indigo-950/20 backdrop-blur-xl">
                         <h2 class="flex items-center gap-3 text-sm font-black uppercase tracking-[0.12em] text-emerald-200">
-                            <span class="sidebar-icon bg-emerald-400 text-slate-950">01</span>
+                            <span class="sidebar-icon bg-emerald-400 text-slate-950">C</span>
                             Cách hoạt động
                         </h2>
                         <ol class="mt-4 space-y-3 text-sm font-bold leading-6 text-slate-300">
@@ -288,23 +288,43 @@ const roadmap = months.map((month, monthIndex) => ({
                     </section>
 
                     <section class="sidebar-card prompt-card rounded-[24px] border border-white/15 bg-white/10 p-5 shadow-xl shadow-indigo-950/20 backdrop-blur-xl">
-                        <h2 class="flex items-center gap-3 text-sm font-black uppercase tracking-[0.12em] text-orange-200">
-                            <span class="sidebar-icon bg-orange-400 text-slate-950">P</span>
-                            Cấu trúc Prompt mẫu
-                        </h2>
-                        <div class="mt-4 rounded-2xl border border-orange-300/20 bg-orange-300/10 p-4 text-sm font-bold leading-7 text-slate-200 backdrop-blur">
-                            <p>Tạo game [THỂ LOẠI] 2D</p>
-                            <p>Tên game: [TÊN GAME]</p>
-                            <p>Mục tiêu: [MỤC TIÊU]</p>
-                            <p>Nhân vật: [MÔ TẢ NHÂN VẬT]</p>
-                            <p>Cơ chế chính: [CƠ CHẾ]</p>
-                            <p>Xuất bản: playable trên web</p>
+                        <div class="prompt-protocol-head flex items-start justify-between gap-3">
+                            <div>
+                                <h2 class="flex items-center gap-3 text-sm font-black uppercase tracking-[0.12em] text-orange-200">
+                                    <span class="sidebar-icon bg-orange-400 text-slate-950">M</span>
+                                    Mẹo Prompt cho Game
+                                </h2>
+                                <span class="protocol-code mt-2 inline-flex">PROTOCOL / AI-GAME-03</span>
+                            </div>
+                            <button class="prompt-copy-all-btn" type="button" aria-label="Copy prompt template">Copy All</button>
+                        </div>
+                        <p class="mt-2 text-xs font-bold uppercase tracking-[0.12em] text-orange-100/80">
+                            Giữ game ổn định – không bị hỏng logic
+                        </p>
+                        <div class="prompt-protocol-flow mt-4 grid gap-3 text-sm font-bold leading-6 text-slate-200">
+                            <div class="prompt-tip prompt-tip-rule">
+                                <span class="prompt-tip-node">01</span>
+                                <span class="prompt-tip-badge">RULE</span>
+                                <p>- Không rewrite game</p>
+                                <p>- Không sửa logic cũ</p>
+                                <p>- Chỉ tác động trong TARGET.</p>
+                            </div>
+                            <div class="prompt-tip prompt-tip-target">
+                                <span class="prompt-tip-node">02</span>
+                                <span class="prompt-tip-badge">TARGET</span>
+                                <p>(mô tả rõ chỗ cần sửa)</p>
+                            </div>
+                            <div class="prompt-tip prompt-tip-action">
+                                <span class="prompt-tip-node">03</span>
+                                <span class="prompt-tip-badge">ACTION</span>
+                                <p>(chỉ chọn 1: add / fix / update / remove)</p>
+                            </div>
                         </div>
                     </section>
 
                     <section class="sidebar-card rounded-[24px] border border-white/15 bg-white/10 p-5 shadow-xl shadow-indigo-950/20 backdrop-blur-xl">
                         <h2 class="flex items-center gap-3 text-sm font-black uppercase tracking-[0.12em] text-rose-200">
-                            <span class="sidebar-icon bg-rose-400 text-white">+</span>
+                            <span class="sidebar-icon bg-rose-400 text-white">L</span>
                             Lợi ích khóa học
                         </h2>
                         <ul class="mt-4 space-y-3 text-sm font-bold leading-6 text-slate-300">
@@ -319,6 +339,51 @@ const roadmap = months.map((month, monthIndex) => ({
         </div>
     </section>
     <PromptModal />
+    <script>
+        const initPromptTipCopy = () => {
+            const promptTemplate = `RULE:
+- Không rewrite game
+- Không sửa logic cũ
+- Chỉ tác động trong TARGET
+
+TARGET:
+(mô tả rõ chỗ cần sửa)
+
+ACTION:
+(chỉ chọn 1: add / fix / update / remove)`
+
+            document.querySelectorAll<HTMLButtonElement>('.prompt-copy-all-btn').forEach((button) => {
+                if (button.dataset.copyReady === 'true') return
+
+                button.dataset.copyReady = 'true'
+                button.addEventListener('click', async () => {
+                    try {
+                        await navigator.clipboard.writeText(promptTemplate)
+                    } catch {
+                        const textarea = document.createElement('textarea')
+                        textarea.value = promptTemplate
+                        textarea.setAttribute('readonly', '')
+                        textarea.style.position = 'fixed'
+                        textarea.style.opacity = '0'
+                        document.body.appendChild(textarea)
+                        textarea.select()
+                        document.execCommand('copy')
+                        textarea.remove()
+                    }
+
+                    button.textContent = 'Copied!'
+                    button.classList.add('is-copied')
+                    window.setTimeout(() => {
+                        button.textContent = 'Copy'
+                        button.classList.remove('is-copied')
+                    }, 1200)
+                })
+            })
+        }
+
+        initPromptTipCopy()
+        document.addEventListener('astro:page-load', initPromptTipCopy)
+    </script>
 </MainLayout>
 
 <style>
@@ -601,6 +666,184 @@ const roadmap = months.map((month, monthIndex) => ({
 
     .prompt-card p + p {
         margin-top: 2px;
+    }
+
+    .prompt-card {
+        background:
+            radial-gradient(circle at 92% 8%, rgba(34, 211, 238, 0.2), transparent 28%),
+            radial-gradient(circle at 4% 98%, rgba(249, 115, 22, 0.2), transparent 34%),
+            linear-gradient(135deg, rgba(15, 23, 42, 0.78), rgba(49, 46, 129, 0.34));
+    }
+
+    .prompt-protocol-head {
+        position: relative;
+        z-index: 1;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 14px;
+    }
+
+    .protocol-code {
+        border-radius: 999px;
+        border: 1px solid rgba(34, 211, 238, 0.26);
+        background: rgba(34, 211, 238, 0.08);
+        padding: 4px 9px;
+        color: #67e8f9;
+        font-size: 9px;
+        font-weight: 900;
+        letter-spacing: 0.18em;
+    }
+
+    .prompt-protocol-flow {
+        position: relative;
+    }
+
+    .prompt-protocol-flow::before {
+        content: '';
+        position: absolute;
+        top: 24px;
+        bottom: 24px;
+        left: 20px;
+        width: 2px;
+        background: linear-gradient(180deg, #38bdf8, #c084fc, #34d399);
+        box-shadow: 0 0 18px rgba(34, 211, 238, 0.36);
+        opacity: 0.72;
+    }
+
+    .prompt-tip {
+        position: relative;
+        display: grid;
+        gap: 8px;
+        min-height: 96px;
+        border-radius: 18px 8px 18px 8px;
+        border: 1px solid color-mix(in srgb, currentColor 56%, transparent);
+        background:
+            linear-gradient(90deg, color-mix(in srgb, currentColor 24%, transparent), transparent 58%),
+            linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(15, 23, 42, 0.3));
+        padding: 16px 14px 16px 58px;
+        overflow: hidden;
+        box-shadow:
+            0 14px 28px rgba(2, 6, 23, 0.22),
+            inset 0 1px 0 rgba(255, 255, 255, 0.18);
+        backdrop-filter: blur(18px);
+        transition:
+            border-color 180ms ease,
+            box-shadow 180ms ease,
+            transform 180ms ease;
+    }
+
+    .prompt-tip:hover {
+        border-color: currentColor;
+        box-shadow:
+            0 18px 34px rgba(2, 6, 23, 0.3),
+            0 0 28px color-mix(in srgb, currentColor 24%, transparent),
+            inset 0 1px 0 rgba(255, 255, 255, 0.26);
+        transform: translateX(3px);
+    }
+
+    .prompt-tip::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(circle at 10% 12%, currentColor 0 2px, transparent 3px),
+            radial-gradient(circle at 18% 76%, currentColor 0 1px, transparent 2px);
+        background-size: 18px 18px;
+        opacity: 0.18;
+        pointer-events: none;
+    }
+
+    .prompt-tip::after {
+        content: '';
+        position: absolute;
+        inset: auto -38px -42px auto;
+        width: 120px;
+        height: 120px;
+        border-radius: 999px;
+        background: currentColor;
+        filter: blur(42px);
+        opacity: 0.2;
+    }
+
+    .prompt-tip-node {
+        position: absolute;
+        top: 16px;
+        left: 0;
+        z-index: 2;
+        display: grid;
+        width: 40px;
+        height: 40px;
+        place-items: center;
+        border-radius: 14px;
+        background: #020617;
+        color: currentColor;
+        font-size: 11px;
+        font-weight: 900;
+        box-shadow:
+            0 0 0 1px color-mix(in srgb, currentColor 46%, transparent),
+            0 0 22px color-mix(in srgb, currentColor 32%, transparent);
+    }
+
+    .prompt-tip-badge {
+        display: inline-flex;
+        width: max-content;
+        border-radius: 8px;
+        border: 1px solid color-mix(in srgb, currentColor 44%, transparent);
+        background: color-mix(in srgb, currentColor 18%, transparent);
+        padding: 5px 10px;
+        color: #ffffff;
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.16em;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    .prompt-copy-all-btn {
+        flex-shrink: 0;
+        border-radius: 14px;
+        border: 1px solid rgba(251, 146, 60, 0.46);
+        background:
+            linear-gradient(135deg, rgba(251, 146, 60, 0.98), rgba(99, 102, 241, 0.92)),
+            rgba(2, 6, 23, 0.72);
+        padding: 9px 12px;
+        color: #fff7ed;
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.1em;
+        box-shadow:
+            0 12px 24px rgba(249, 115, 22, 0.2),
+            0 0 24px rgba(99, 102, 241, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.32);
+        transition:
+            box-shadow 160ms ease,
+            filter 160ms ease,
+            transform 160ms ease;
+    }
+
+    .prompt-copy-all-btn:hover,
+    .prompt-copy-all-btn.is-copied {
+        box-shadow:
+            0 16px 30px rgba(249, 115, 22, 0.34),
+            0 0 34px rgba(129, 140, 248, 0.42),
+            inset 0 1px 0 rgba(255, 255, 255, 0.4);
+        filter: saturate(1.18);
+        transform: translateY(-2px) scale(1.03);
+    }
+
+    .prompt-tip p {
+        position: relative;
+        z-index: 1;
+    }
+
+    .prompt-tip-rule {
+        color: #38bdf8;
+    }
+
+    .prompt-tip-target {
+        color: #c084fc;
+    }
+
+    .prompt-tip-action {
+        color: #34d399;
     }
 
     .roadmap-scroll {
