@@ -147,20 +147,13 @@ const roadmapRows = [
     ],
 ]
 
-const allPrompts: Record<string, string> = {}
-
 const roadmap = months.map((month, monthIndex) => ({
     ...month,
     weeks: roadmapRows[monthIndex].map((week, weekIndex) => ({
         ...week,
-        games: week.games.map((game, gameIndex) => {
-            const prompt = promptOf(game, week.genre, month.no, weekIndex + 1)
-            allPrompts[`${month.no}_${weekIndex + 1}_${gameIndex + 1}`] = prompt
-            return {
-                name: game,
-                prompt,
-            }
-        }),
+        games: week.games.map((game) => ({
+            name: game,
+        })),
     })),
 }))
 ---
@@ -195,29 +188,7 @@ const roadmap = months.map((month, monthIndex) => ({
                 const user = data.user;
                 window.user = user; // Lưu user để GameCell check
 
-                // Set prompts for accessible content
 
-                document.querySelectorAll('.roadmap-game-cell').forEach(cell => {
-
-                    const month = cell.getAttribute('data-month')
-
-                    const week = cell.getAttribute('data-week')
-
-                    const index = cell.getAttribute('data-index')
-
-                    const permission = `roadmap_m${month}_w${week}`
-
-                    if (user.roles === 'admin' || user.prompt_access.includes(permission)) {
-
-                        const promptKey = `${month}_${week}_${index}`
-
-                        const prompt = window.allPrompts[promptKey]
-
-                        if (prompt) cell.setAttribute('data-prompt', prompt)
-
-                    }
-
-                })
 
                 if (user.roles !== 'admin' && !user.prompt_access.includes('game_roadmap')) {
                     // Ẩn hoặc làm mờ phần prompt
@@ -424,9 +395,6 @@ const roadmap = months.map((month, monthIndex) => ({
         </div>
     </section>
     <PromptModal />
-    <script define:vars={{ allPrompts }}>
-        window.allPrompts = allPrompts
-    </script>
     <script>
         const initPromptTipCopy = () => {
             const promptTemplate = `RULE:

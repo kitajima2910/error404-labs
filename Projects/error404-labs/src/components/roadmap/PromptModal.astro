@@ -47,34 +47,58 @@
     const content = document.getElementById('roadmapPromptContent')
     let currentPrompt = ''
 
-    const openModal = (button: HTMLElement) => {
-        currentPrompt = button.dataset.prompt || ''
-        if (title) title.textContent = button.dataset.game || ''
+    const openModal = async (button: HTMLElement) => {
+        const gameName = button.dataset.game || ''
+        if (title) title.textContent = gameName
         if (meta) {
             meta.textContent = `${button.dataset.genre || ''} - Tháng ${button.dataset.month || ''} - Tuần ${button.dataset.week || ''}`
         }
-        if (content) {
-            if (!currentPrompt) {
-                content.textContent = "Cần có quyền cho phép hãy liên hệ Admin"
-                content.classList.add('text-center', 'italic', 'text-slate-400')
-                const copyBtn = document.getElementById('roadmapCopyPrompt')
-                if (copyBtn) {
-                    copyBtn.textContent = "Nội dung bị khóa"
-                    copyBtn.classList.add('opacity-50', 'cursor-not-allowed', 'pointer-events-none')
-                }
-            } else {
-                content.textContent = currentPrompt
-                content.classList.remove('text-center', 'italic', 'text-slate-400')
-                const copyBtn = document.getElementById('roadmapCopyPrompt')
-                if (copyBtn) {
-                    copyBtn.textContent = "Sao chép câu lệnh"
-                    copyBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none')
-                }
-            }
-        }
+        if (content) content.textContent = "Đang tải..."
         modal?.classList.remove('hidden')
         modal?.classList.add('flex')
         modal?.setAttribute('aria-hidden', 'false')
+
+        try {
+            const token = localStorage.getItem('auth_token')
+            if (!token) {
+                throw new Error('No auth token')
+            }
+
+            const response = await fetch(`/api/get-game-prompt?gameName=${encodeURIComponent(gameName)}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            })
+            const data = await response.json()
+
+            currentPrompt = data.content || ''
+            if (content) {
+                if (currentPrompt === 'Cần có quyền cho phép hãy liên hệ Admin' || !currentPrompt) {
+                    content.textContent = "Cần có quyền cho phép hãy liên hệ Admin"
+                    content.classList.add('text-center', 'italic', 'text-slate-400')
+                    const copyBtn = document.getElementById('roadmapCopyPrompt')
+                    if (copyBtn) {
+                        copyBtn.textContent = "Nội dung bị khóa"
+                        copyBtn.classList.add('opacity-50', 'cursor-not-allowed', 'pointer-events-none')
+                    }
+                } else {
+                    content.textContent = currentPrompt
+                    content.classList.remove('text-center', 'italic', 'text-slate-400')
+                    const copyBtn = document.getElementById('roadmapCopyPrompt')
+                    if (copyBtn) {
+                        copyBtn.textContent = "Sao chép câu lệnh"
+                        copyBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none')
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Failed to load prompt:', error)
+            if (content) {
+                content.textContent = "Lỗi tải nội dung"
+                content.classList.add('text-center', 'italic', 'text-red-400')
+            }
+        }
     }
 
     const closeModal = () => {
