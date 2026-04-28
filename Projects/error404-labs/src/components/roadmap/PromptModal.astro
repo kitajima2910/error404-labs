@@ -53,7 +53,25 @@
         if (meta) {
             meta.textContent = `${button.dataset.genre || ''} - Tháng ${button.dataset.month || ''} - Tuần ${button.dataset.week || ''}`
         }
-        if (content) content.textContent = currentPrompt
+        if (content) {
+            if (!currentPrompt) {
+                content.textContent = "Cần có quyền cho phép hãy liên hệ Admin"
+                content.classList.add('text-center', 'italic', 'text-slate-400')
+                const copyBtn = document.getElementById('roadmapCopyPrompt')
+                if (copyBtn) {
+                    copyBtn.textContent = "Nội dung bị khóa"
+                    copyBtn.classList.add('opacity-50', 'cursor-not-allowed', 'pointer-events-none')
+                }
+            } else {
+                content.textContent = currentPrompt
+                content.classList.remove('text-center', 'italic', 'text-slate-400')
+                const copyBtn = document.getElementById('roadmapCopyPrompt')
+                if (copyBtn) {
+                    copyBtn.textContent = "Sao chép câu lệnh"
+                    copyBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none')
+                }
+            }
+        }
         modal?.classList.remove('hidden')
         modal?.classList.add('flex')
         modal?.setAttribute('aria-hidden', 'false')
