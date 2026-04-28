@@ -163,31 +163,31 @@ const roadmap = months.map((month, monthIndex) => ({
     description="Lộ trình 12 tháng học làm game với AI, mỗi tháng 4 tuần, mỗi tuần có prompt mẫu để thực hành."
     searchable={false}
 >
-    <section class="roadmap-page min-h-screen bg-[#f5f8ff] text-slate-900">
+    <section class="roadmap-page min-h-screen overflow-hidden text-white">
         <div class="mx-auto max-w-[1840px] px-4 py-6 sm:px-6 lg:px-8">
-            <header class="roadmap-hero compact-hero relative overflow-hidden rounded-xl border border-white bg-white shadow-xl shadow-blue-200/40">
-                <div class="relative z-10 grid gap-5 px-5 py-5 lg:grid-cols-[minmax(360px,0.95fr)_minmax(620px,1.55fr)] lg:items-center">
+            <header class="roadmap-hero compact-hero relative overflow-hidden rounded-[28px] border border-white/15 shadow-2xl shadow-indigo-950/40">
+                <div class="relative z-10 grid gap-6 px-5 py-7 sm:px-7 lg:grid-cols-[minmax(360px,0.9fr)_minmax(620px,1.35fr)] lg:items-center xl:px-9 xl:py-9">
                     <div>
-                        <p class="text-xs font-black uppercase tracking-[0.22em] text-blue-700">Error404-Labs Game Roadmap</p>
-                        <h1 class="mt-2 text-3xl font-black leading-tight text-slate-950 sm:text-4xl xl:text-5xl">
-                            Lộ trình <span class="text-orange-500">12 tháng</span> - 4 game / tháng
+                        <p class="text-xs font-black uppercase tracking-[0.32em] text-orange-200">Error404-Labs Game Roadmap</p>
+                        <h1 class="hero-title mt-3 text-4xl font-black leading-[0.95] text-white sm:text-6xl xl:text-7xl">
+                            Lộ trình <span>12 tháng</span> - 4 game / tháng
                         </h1>
-                        <p class="mt-2 max-w-3xl text-sm font-bold leading-6 text-slate-600">
+                        <p class="mt-5 max-w-3xl text-base font-bold leading-7 text-slate-200">
                             Mỗi tuần 2 thể loại, mỗi buổi chọn 1 trong 3 game, mở prompt mẫu và build bản playable ngay với AI.
                         </p>
                     </div>
                     <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                         {
                             methods.map((item, methodIndex) => (
-                                <div class="method-card rounded-lg border border-slate-200 bg-white/90 p-3 shadow-lg shadow-blue-100/60 backdrop-blur">
+                                <div class="method-card rounded-2xl border border-white/15 bg-white/10 p-4 shadow-xl shadow-indigo-950/20 backdrop-blur-xl">
                                     <span
-                                        class={`method-icon mb-2 grid h-10 w-10 place-items-center rounded-lg text-sm font-black shadow-md ${item.tone}`}
+                                        class={`method-icon mb-3 grid h-11 w-11 place-items-center rounded-2xl text-sm font-black shadow-md ${item.tone}`}
                                         data-method={methodIndex + 1}
                                     >
                                         {item.icon}
                                     </span>
-                                    <strong class="block text-sm font-black text-slate-950">{item.title}</strong>
-                                    <span class="mt-1 block text-xs font-bold leading-5 text-slate-500">{item.text}</span>
+                                    <strong class="block text-sm font-black text-white">{item.title}</strong>
+                                    <span class="mt-1 block text-xs font-bold leading-5 text-slate-300">{item.text}</span>
                                 </div>
                             ))
                         }
@@ -195,21 +195,21 @@ const roadmap = months.map((month, monthIndex) => ({
                 </div>
             </header>
 
-            <div class="mt-5 grid gap-5 xl:grid-cols-[minmax(0,4fr)_minmax(300px,1fr)]">
+            <div class="mt-6 grid gap-5 xl:grid-cols-[minmax(0,4fr)_minmax(300px,1fr)]">
                 <main
-                    class="roadmap-scroll overflow-x-auto rounded-xl border border-blue-100 bg-white shadow-2xl shadow-blue-200/50"
+                    class="roadmap-scroll overflow-x-auto rounded-[28px] border border-white/10 bg-slate-950/45 p-3 shadow-2xl shadow-indigo-950/35 backdrop-blur-xl"
                     aria-label="Lộ trình game 12 tháng"
                 >
-                    <div class="roadmap-grid grid min-w-[1380px] grid-cols-[178px_repeat(4,minmax(290px,1fr))]">
+                    <div class="roadmap-grid grid min-w-[1380px] grid-cols-[178px_repeat(4,minmax(290px,1fr))] gap-3">
                         <div
-                            class="roadmap-corner sticky left-0 top-0 z-30 border-b border-r border-blue-900/30 bg-blue-950 px-5 py-4 text-sm font-black uppercase tracking-[0.16em] text-white"
+                            class="roadmap-corner sticky left-0 top-0 z-30 rounded-2xl border border-white/10 px-5 py-4 text-sm font-black uppercase tracking-[0.16em] text-white backdrop-blur-xl"
                         >
                             Tháng
                         </div>
                         {
                             weekLabels.map((label, weekLabelIndex) => (
                                 <div
-                                    class="roadmap-week-header sticky top-0 z-20 border-b border-r border-white/30 px-5 py-4 text-center text-sm font-black uppercase tracking-[0.16em] text-white last:border-r-0"
+                                    class="roadmap-week-header sticky top-0 z-20 rounded-2xl border border-white/10 px-5 py-4 text-center text-sm font-black uppercase tracking-[0.16em] text-white backdrop-blur-xl"
                                     data-week={weekLabelIndex + 1}
                                 >
                                     {label} - 3 lựa chọn
@@ -221,21 +221,21 @@ const roadmap = months.map((month, monthIndex) => ({
                             roadmap.map((month) => (
                                 <>
                                     <div
-                                        class={`roadmap-month sticky left-0 z-10 min-h-[188px] border-b border-r border-blue-100 bg-white p-4 shadow-[12px_0_26px_rgba(37,99,235,0.12)] ${month.accent}`}
+                                        class={`roadmap-month sticky left-0 z-10 min-h-[208px] rounded-2xl border border-white/10 p-4 shadow-[16px_0_30px_rgba(15,23,42,0.35)] backdrop-blur-xl ${month.accent}`}
                                     >
-                                        <span class="month-badge grid h-12 w-12 place-items-center rounded-lg text-lg font-black text-white shadow-lg">
+                                        <span class="month-badge grid h-14 w-14 place-items-center rounded-2xl text-xl font-black text-white shadow-lg">
                                             {month.no}
                                         </span>
-                                        <strong class="mt-4 block text-base font-black uppercase leading-tight">{month.title}</strong>
-                                        <span class="mt-2 inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-black uppercase text-slate-500">
+                                        <strong class="mt-4 block text-base font-black uppercase leading-tight text-white">{month.title}</strong>
+                                        <span class="mt-2 inline-flex rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs font-black uppercase text-slate-300">
                                             {month.sub}
                                         </span>
                                     </div>
                                     {month.weeks.map((week, weekIndex) => (
                                         <article
-                                            class={`roadmap-week min-h-[188px] border-b border-r p-3 last:border-r-0 ${genreStyles[week.genre] || 'border-slate-200 bg-slate-50 text-slate-700'}`}
+                                            class={`roadmap-week min-h-[208px] rounded-2xl border p-3 ${genreStyles[week.genre] || 'border-slate-200 bg-slate-50 text-slate-700'}`}
                                         >
-                                            <h2 class="genre-pill mb-3 rounded-lg bg-white/85 px-3 py-2 text-center text-xs font-black uppercase tracking-[0.14em] shadow-sm">
+                                            <h2 class="genre-pill mb-3 rounded-xl bg-white/10 px-3 py-2 text-center text-xs font-black uppercase tracking-[0.14em] shadow-sm backdrop-blur">
                                                 {week.genre}
                                             </h2>
                                             <div class="grid gap-2">
@@ -259,12 +259,12 @@ const roadmap = months.map((month, monthIndex) => ({
                 </main>
 
                 <aside class="roadmap-sidebar grid content-start gap-4 xl:sticky xl:top-5">
-                    <section class="sidebar-card rounded-xl border border-emerald-100 bg-white p-5 shadow-xl shadow-emerald-100/60">
-                        <h2 class="flex items-center gap-3 text-sm font-black uppercase tracking-[0.12em] text-emerald-700">
-                            <span class="sidebar-icon bg-emerald-500 text-white">01</span>
+                    <section class="sidebar-card rounded-[24px] border border-white/15 bg-white/10 p-5 shadow-xl shadow-indigo-950/20 backdrop-blur-xl">
+                        <h2 class="flex items-center gap-3 text-sm font-black uppercase tracking-[0.12em] text-emerald-200">
+                            <span class="sidebar-icon bg-emerald-400 text-slate-950">01</span>
                             Cách hoạt động
                         </h2>
-                        <ol class="mt-4 space-y-3 text-sm font-bold leading-6 text-slate-600">
+                        <ol class="mt-4 space-y-3 text-sm font-bold leading-6 text-slate-300">
                             <li>Chọn 1 trong 3 game gợi ý.</li>
                             <li>Đọc prompt mẫu và tạo game với AI tool.</li>
                             <li>Chơi thử, chỉnh sửa, thêm ý tưởng cá nhân.</li>
@@ -272,9 +272,9 @@ const roadmap = months.map((month, monthIndex) => ({
                         </ol>
                     </section>
 
-                    <section class="sidebar-card rounded-xl border border-blue-100 bg-white p-5 shadow-xl shadow-blue-100/70">
-                        <h2 class="flex items-center gap-3 text-sm font-black uppercase tracking-[0.12em] text-blue-700">
-                            <span class="sidebar-icon bg-blue-600 text-white">AI</span>
+                    <section class="sidebar-card rounded-[24px] border border-white/15 bg-white/10 p-5 shadow-xl shadow-indigo-950/20 backdrop-blur-xl">
+                        <h2 class="flex items-center gap-3 text-sm font-black uppercase tracking-[0.12em] text-indigo-200">
+                            <span class="sidebar-icon bg-indigo-400 text-white">AI</span>
                             Tool sử dụng
                         </h2>
                         <div class="mt-4 grid gap-3">
@@ -285,12 +285,12 @@ const roadmap = months.map((month, monthIndex) => ({
                         </div>
                     </section>
 
-                    <section class="sidebar-card prompt-card rounded-xl border border-amber-100 bg-white p-5 shadow-xl shadow-amber-100/70">
-                        <h2 class="flex items-center gap-3 text-sm font-black uppercase tracking-[0.12em] text-amber-700">
-                            <span class="sidebar-icon bg-amber-400 text-slate-950">P</span>
+                    <section class="sidebar-card prompt-card rounded-[24px] border border-white/15 bg-white/10 p-5 shadow-xl shadow-indigo-950/20 backdrop-blur-xl">
+                        <h2 class="flex items-center gap-3 text-sm font-black uppercase tracking-[0.12em] text-orange-200">
+                            <span class="sidebar-icon bg-orange-400 text-slate-950">P</span>
                             Cấu trúc Prompt mẫu
                         </h2>
-                        <div class="mt-4 rounded-lg border border-amber-100 bg-amber-50/70 p-4 text-sm font-bold leading-7 text-slate-700">
+                        <div class="mt-4 rounded-2xl border border-orange-300/20 bg-orange-300/10 p-4 text-sm font-bold leading-7 text-slate-200 backdrop-blur">
                             <p>Tạo game [THỂ LOẠI] 2D</p>
                             <p>Tên game: [TÊN GAME]</p>
                             <p>Mục tiêu: [MỤC TIÊU]</p>
@@ -300,12 +300,12 @@ const roadmap = months.map((month, monthIndex) => ({
                         </div>
                     </section>
 
-                    <section class="sidebar-card rounded-xl border border-rose-100 bg-white p-5 shadow-xl shadow-rose-100/70">
-                        <h2 class="flex items-center gap-3 text-sm font-black uppercase tracking-[0.12em] text-rose-700">
-                            <span class="sidebar-icon bg-rose-500 text-white">+</span>
+                    <section class="sidebar-card rounded-[24px] border border-white/15 bg-white/10 p-5 shadow-xl shadow-indigo-950/20 backdrop-blur-xl">
+                        <h2 class="flex items-center gap-3 text-sm font-black uppercase tracking-[0.12em] text-rose-200">
+                            <span class="sidebar-icon bg-rose-400 text-white">+</span>
                             Lợi ích khóa học
                         </h2>
-                        <ul class="mt-4 space-y-3 text-sm font-bold leading-6 text-slate-600">
+                        <ul class="mt-4 space-y-3 text-sm font-bold leading-6 text-slate-300">
                             <li>Phát triển tư duy logic và sáng tạo.</li>
                             <li>Rèn kỹ năng giải quyết vấn đề.</li>
                             <li>Tự tin tạo sản phẩm cá nhân.</li>
@@ -322,46 +322,105 @@ const roadmap = months.map((month, monthIndex) => ({
 <style>
     .roadmap-page {
         background:
-            radial-gradient(circle at 8% 0%, rgba(59, 130, 246, 0.18), transparent 34%),
-            radial-gradient(circle at 92% 10%, rgba(249, 115, 22, 0.16), transparent 30%),
-            linear-gradient(180deg, #f8fbff 0%, #eef5ff 48%, #f8fbff 100%);
+            radial-gradient(circle at 12% 5%, rgba(249, 115, 22, 0.38), transparent 28%),
+            radial-gradient(circle at 88% 4%, rgba(99, 102, 241, 0.44), transparent 30%),
+            radial-gradient(circle at 50% 52%, rgba(14, 165, 233, 0.2), transparent 34%),
+            linear-gradient(135deg, #020617 0%, #111827 44%, #312e81 100%);
+        position: relative;
+    }
+
+    .roadmap-page::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background:
+            linear-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.055) 1px, transparent 1px);
+        background-size: 38px 38px;
+        mask-image: linear-gradient(to bottom, black, transparent 82%);
+    }
+
+    .roadmap-page::after {
+        content: '';
+        position: fixed;
+        inset: auto -12% -26% 32%;
+        height: 420px;
+        pointer-events: none;
+        background: radial-gradient(circle, rgba(249, 115, 22, 0.28), transparent 64%);
+        filter: blur(8px);
     }
 
     .roadmap-hero {
         background:
-            linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(239, 246, 255, 0.94) 52%, rgba(255, 247, 237, 0.92)),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
-            linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+            radial-gradient(circle at 16% 16%, rgba(249, 115, 22, 0.42), transparent 24%),
+            radial-gradient(circle at 72% 10%, rgba(99, 102, 241, 0.5), transparent 28%),
+            radial-gradient(circle at 94% 82%, rgba(14, 165, 233, 0.28), transparent 28%),
+            linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.72));
         background-size:
             auto,
-            22px 22px,
-            22px 22px;
+            auto,
+            auto,
+            auto;
+        isolation: isolate;
+    }
+
+    .roadmap-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+            linear-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+        background-size: 26px 26px;
+        mask-image: radial-gradient(circle at 32% 20%, black, transparent 72%);
+        opacity: 0.9;
     }
 
     .roadmap-hero::after {
         content: '';
         position: absolute;
-        inset: auto 8% -58px auto;
-        width: 260px;
-        height: 160px;
-        background: rgba(59, 130, 246, 0.18);
+        inset: auto 6% -86px auto;
+        width: 360px;
+        height: 220px;
+        background: rgba(249, 115, 22, 0.32);
         box-shadow:
-            -210px -34px 0 rgba(249, 115, 22, 0.14),
-            -88px -98px 0 rgba(16, 185, 129, 0.12);
-        filter: blur(22px);
+            -260px -44px 0 rgba(99, 102, 241, 0.32),
+            -92px -136px 0 rgba(14, 165, 233, 0.18);
+        filter: blur(38px);
+        opacity: 0.9;
+    }
+
+    .hero-title span {
+        background: linear-gradient(90deg, #fb923c, #facc15 34%, #818cf8 78%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
     }
 
     .method-card {
+        position: relative;
+        overflow: hidden;
         transition:
             transform 180ms ease,
             box-shadow 180ms ease,
             border-color 180ms ease;
     }
 
+    .method-card::after {
+        content: '';
+        position: absolute;
+        inset: -40% auto auto -30%;
+        width: 96px;
+        height: 96px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.24), transparent 62%);
+        transform: rotate(18deg);
+    }
+
     .method-card:hover {
-        border-color: rgba(37, 99, 235, 0.32);
-        box-shadow: 0 18px 36px rgba(37, 99, 235, 0.16);
-        transform: translateY(-2px);
+        border-color: rgba(251, 146, 60, 0.42);
+        box-shadow: 0 22px 44px rgba(79, 70, 229, 0.24);
+        transform: translateY(-4px) scale(1.02);
     }
 
     .method-icon {
@@ -372,48 +431,97 @@ const roadmap = months.map((month, monthIndex) => ({
 
     .roadmap-grid {
         background:
-            linear-gradient(#dbeafe 1px, transparent 1px),
-            linear-gradient(90deg, #dbeafe 1px, transparent 1px);
-        background-size: 100% 188px, calc((100% - 178px) / 4) 100%;
+            radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.2), transparent 42%),
+            linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+        background-size:
+            auto,
+            34px 34px,
+            34px 34px;
     }
 
     .roadmap-corner,
     .roadmap-week-header {
-        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.2);
+        box-shadow:
+            0 16px 28px rgba(2, 6, 23, 0.28),
+            inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    }
+
+    .roadmap-corner {
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(79, 70, 229, 0.72));
     }
 
     .roadmap-week-header {
-        background: linear-gradient(135deg, #1d4ed8 0%, #4338ca 48%, #0f766e 100%);
+        background: linear-gradient(135deg, rgba(29, 78, 216, 0.8) 0%, rgba(67, 56, 202, 0.72) 48%, rgba(249, 115, 22, 0.58) 100%);
     }
 
     .roadmap-week-header[data-week='2'] {
-        background: linear-gradient(135deg, #2563eb 0%, #7c3aed 55%, #db2777 100%);
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.78) 0%, rgba(124, 58, 237, 0.74) 55%, rgba(249, 115, 22, 0.58) 100%);
     }
 
     .roadmap-week-header[data-week='3'] {
-        background: linear-gradient(135deg, #0891b2 0%, #2563eb 50%, #f97316 100%);
+        background: linear-gradient(135deg, rgba(8, 145, 178, 0.78) 0%, rgba(37, 99, 235, 0.72) 50%, rgba(249, 115, 22, 0.66) 100%);
     }
 
     .roadmap-week-header[data-week='4'] {
-        background: linear-gradient(135deg, #16a34a 0%, #0ea5e9 48%, #4f46e5 100%);
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.84) 0%, rgba(14, 165, 233, 0.68) 48%, rgba(79, 70, 229, 0.78) 100%);
     }
 
     .month-badge {
-        background: linear-gradient(135deg, #0f172a, #2563eb);
+        background: linear-gradient(135deg, #f97316, #4f46e5);
+        box-shadow:
+            0 16px 30px rgba(249, 115, 22, 0.28),
+            0 0 24px rgba(99, 102, 241, 0.28);
     }
 
     .roadmap-month {
         background:
-            linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.98)),
+            radial-gradient(circle at 18% 0%, rgba(249, 115, 22, 0.22), transparent 46%),
+            linear-gradient(180deg, rgba(15, 23, 42, 0.88), rgba(30, 41, 59, 0.72)),
             linear-gradient(90deg, currentColor 0 5px, transparent 5px);
     }
 
     .roadmap-week {
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        position: relative;
+        overflow: hidden;
+        color: #e2e8f0;
+        box-shadow:
+            0 16px 30px rgba(2, 6, 23, 0.22),
+            inset 0 1px 0 rgba(255, 255, 255, 0.34);
+        transition:
+            transform 180ms ease,
+            box-shadow 180ms ease,
+            border-color 180ms ease;
+    }
+
+    .roadmap-week::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+            linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.18)),
+            radial-gradient(circle at 100% 0%, rgba(249, 115, 22, 0.18), transparent 36%);
+        opacity: 0.72;
+        pointer-events: none;
+    }
+
+    .roadmap-week:hover {
+        border-color: rgba(251, 146, 60, 0.42);
+        box-shadow:
+            0 22px 42px rgba(79, 70, 229, 0.24),
+            0 0 36px rgba(249, 115, 22, 0.12),
+            inset 0 1px 0 rgba(255, 255, 255, 0.42);
+        transform: translateY(-2px);
+    }
+
+    .roadmap-week > * {
+        position: relative;
+        z-index: 1;
     }
 
     .genre-pill {
-        border: 1px solid rgba(255, 255, 255, 0.78);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        color: #0f172a;
         box-shadow:
             0 8px 18px rgba(15, 23, 42, 0.08),
             inset 0 1px 0 rgba(255, 255, 255, 0.92);
@@ -422,6 +530,16 @@ const roadmap = months.map((month, monthIndex) => ({
     .sidebar-card {
         position: relative;
         overflow: hidden;
+        transition:
+            transform 180ms ease,
+            box-shadow 180ms ease,
+            border-color 180ms ease;
+    }
+
+    .sidebar-card:hover {
+        border-color: rgba(251, 146, 60, 0.32);
+        box-shadow: 0 22px 44px rgba(79, 70, 229, 0.22);
+        transform: translateY(-3px);
     }
 
     .sidebar-card::before {
@@ -429,40 +547,54 @@ const roadmap = months.map((month, monthIndex) => ({
         position: absolute;
         inset: 0 0 auto 0;
         height: 4px;
-        background: linear-gradient(90deg, #2563eb, #10b981, #f97316, #e11d48);
+        background: linear-gradient(90deg, #4f46e5, #0ea5e9, #f97316, #fb7185);
+    }
+
+    .sidebar-card::after {
+        content: '';
+        position: absolute;
+        inset: -42px -36px auto auto;
+        width: 132px;
+        height: 132px;
+        border-radius: 999px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.18), transparent 68%);
+        pointer-events: none;
     }
 
     .sidebar-icon {
         display: grid;
-        width: 34px;
-        height: 34px;
+        width: 38px;
+        height: 38px;
         place-items: center;
-        border-radius: 8px;
+        border-radius: 14px;
         font-size: 12px;
         font-weight: 900;
-        box-shadow: 0 10px 18px rgba(15, 23, 42, 0.14);
+        box-shadow:
+            0 14px 24px rgba(15, 23, 42, 0.26),
+            inset 0 1px 0 rgba(255, 255, 255, 0.32);
     }
 
     .tool-row {
         display: grid;
         gap: 2px;
-        border-radius: 10px;
-        border: 1px solid #e0f2fe;
-        background: linear-gradient(135deg, #f8fbff, #eff6ff);
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(99, 102, 241, 0.12));
         padding: 10px 12px;
-        color: #334155;
+        color: #cbd5e1;
         font-size: 13px;
         font-weight: 800;
+        backdrop-filter: blur(14px);
     }
 
     .tool-row strong {
-        color: #0f172a;
+        color: #ffffff;
         font-size: 14px;
         font-weight: 900;
     }
 
     .tool-row span {
-        color: #64748b;
+        color: #94a3b8;
     }
 
     .prompt-card p + p {
@@ -470,7 +602,7 @@ const roadmap = months.map((month, monthIndex) => ({
     }
 
     .roadmap-scroll {
-        scrollbar-color: #2563eb #dbeafe;
+        scrollbar-color: #f97316 rgba(15, 23, 42, 0.8);
         scrollbar-width: thin;
     }
 
@@ -479,13 +611,13 @@ const roadmap = months.map((month, monthIndex) => ({
     }
 
     .roadmap-scroll::-webkit-scrollbar-track {
-        background: #dbeafe;
+        background: rgba(15, 23, 42, 0.8);
         border-radius: 999px;
     }
 
     .roadmap-scroll::-webkit-scrollbar-thumb {
-        background: linear-gradient(90deg, #2563eb, #10b981, #f97316);
-        border: 3px solid #dbeafe;
+        background: linear-gradient(90deg, #4f46e5, #0ea5e9, #f97316);
+        border: 3px solid rgba(15, 23, 42, 0.8);
         border-radius: 999px;
     }
 </style>

@@ -46,7 +46,7 @@ const theme = genreTheme[genre] || { card: 'hover:border-indigo-400 hover:bg-ind
 
 <button
     type="button"
-    class={`roadmap-game-cell group w-full rounded-lg border border-white/70 bg-white/95 px-3 py-3 text-left shadow-sm shadow-slate-300/40 transition duration-200 hover:-translate-y-1 hover:scale-[1.015] hover:shadow-lg hover:shadow-slate-400/30 focus:outline-none focus:ring-2 focus:ring-indigo-500 ${theme.card}`}
+    class={`roadmap-game-cell group relative w-full overflow-hidden rounded-2xl border border-white/45 bg-white/70 px-3 py-3 text-left shadow-lg shadow-slate-950/10 backdrop-blur-md transition duration-200 hover:-translate-y-1 hover:scale-[1.025] hover:border-orange-300/70 hover:shadow-xl hover:shadow-indigo-500/20 focus:outline-none focus:ring-2 focus:ring-orange-300 ${theme.card}`}
     data-game={game}
     data-genre={genre}
     data-month={month}
@@ -54,15 +54,62 @@ const theme = genreTheme[genre] || { card: 'hover:border-indigo-400 hover:bg-ind
     data-prompt={prompt}
 >
     <span class="flex items-center gap-3">
-        <span class={`grid h-10 w-10 shrink-0 place-items-center rounded-md shadow-inner transition group-hover:scale-105 ${theme.icon}`}>
+        <span class={`cell-icon grid h-11 w-11 shrink-0 place-items-center rounded-2xl shadow-inner transition group-hover:scale-110 ${theme.icon}`}>
             <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d={theme.mark}></path>
             </svg>
         </span>
         <span class="min-w-0 flex-1">
-            <span class="mb-1 inline-flex rounded bg-slate-950 px-1.5 py-0.5 text-[10px] font-black uppercase text-white">#{index}</span>
+            <span class="mb-1 inline-flex rounded-full bg-slate-950 px-2 py-0.5 text-[10px] font-black uppercase text-white shadow-sm shadow-slate-950/20">#{index}</span>
             <strong class="block truncate text-sm font-black text-slate-900">{game}</strong>
             <small class="block text-xs font-bold text-slate-500">Tháng {month} - Tuần {week}</small>
         </span>
     </span>
 </button>
+
+<style>
+    .roadmap-game-cell::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(circle at 14% 0%, rgba(249, 115, 22, 0.18), transparent 38%),
+            linear-gradient(135deg, rgba(255, 255, 255, 0.46), transparent 54%);
+        opacity: 0;
+        transition: opacity 180ms ease;
+    }
+
+    .roadmap-game-cell::after {
+        content: '';
+        position: absolute;
+        inset: auto 14px 9px auto;
+        width: 34px;
+        height: 4px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #4f46e5, #f97316);
+        opacity: 0.32;
+        transition:
+            opacity 180ms ease,
+            width 180ms ease;
+    }
+
+    .roadmap-game-cell:hover::before {
+        opacity: 1;
+    }
+
+    .roadmap-game-cell:hover::after {
+        width: 58px;
+        opacity: 0.76;
+    }
+
+    .roadmap-game-cell > span {
+        position: relative;
+        z-index: 1;
+    }
+
+    .cell-icon {
+        box-shadow:
+            0 12px 20px rgba(15, 23, 42, 0.14),
+            inset 0 1px 0 rgba(255, 255, 255, 0.48);
+    }
+</style>
