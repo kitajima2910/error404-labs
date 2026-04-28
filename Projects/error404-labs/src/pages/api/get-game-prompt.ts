@@ -67,10 +67,10 @@ export const GET: APIRoute = async ({ request, url }) => {
 
         // Read file
         const filePath = join(process.cwd(), 'src', 'data', 'game-roadmap', `${gameName}.txt`);
-        let content = 'chưa có prompt';
+        let content = 'Đang tải...';
         if (existsSync(filePath)) {
             content = readFileSync(filePath, 'utf-8').trim();
-            if (!content) content = 'chưa có prompt';
+            if (!content) content = 'Đang tải...';
         }
 
         return new Response(JSON.stringify({ content }), {
