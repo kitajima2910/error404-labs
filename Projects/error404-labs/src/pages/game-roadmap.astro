@@ -163,134 +163,314 @@ const roadmap = months.map((month, monthIndex) => ({
     description="Lộ trình 12 tháng học làm game với AI, mỗi tháng 4 tuần, mỗi tuần có prompt mẫu để thực hành."
     searchable={false}
 >
-    <section class="roadmap-page bg-slate-100 text-slate-900">
-        <div class="mx-auto max-w-[1720px] px-4 py-8 sm:px-6 lg:px-8">
-            <header class="roadmap-hero relative overflow-hidden rounded-xl border border-indigo-300 bg-slate-950 shadow-2xl shadow-indigo-950/20">
-                <div class="relative z-10 grid gap-8 px-6 py-10 sm:px-8 lg:grid-cols-[1fr_460px] lg:items-end lg:px-10 lg:py-12">
+    <section class="roadmap-page min-h-screen bg-[#f5f8ff] text-slate-900">
+        <div class="mx-auto max-w-[1840px] px-4 py-6 sm:px-6 lg:px-8">
+            <header class="roadmap-hero compact-hero relative overflow-hidden rounded-xl border border-white bg-white shadow-xl shadow-blue-200/40">
+                <div class="relative z-10 grid gap-5 px-5 py-5 lg:grid-cols-[minmax(360px,0.95fr)_minmax(620px,1.55fr)] lg:items-center">
                     <div>
-                        <div class="inline-flex items-center gap-2 rounded-full border border-emerald-300/40 bg-emerald-300/10 px-4 py-2 text-xs font-black uppercase tracking-[0.2em] text-emerald-200">
-                            <span class="h-2 w-2 rounded-sm bg-emerald-300 shadow-[0_0_18px_rgba(110,231,183,0.9)]"></span>
-                            Error404-Labs Game Roadmap
-                        </div>
-                        <h1 class="mt-5 max-w-5xl text-4xl font-black leading-tight text-white sm:text-6xl lg:text-7xl">
-                            Lộ trình 12 tháng học làm game
+                        <p class="text-xs font-black uppercase tracking-[0.22em] text-blue-700">Error404-Labs Game Roadmap</p>
+                        <h1 class="mt-2 text-3xl font-black leading-tight text-slate-950 sm:text-4xl xl:text-5xl">
+                            Lộ trình <span class="text-orange-500">12 tháng</span> - 4 game / tháng
                         </h1>
-                        <p class="mt-5 max-w-3xl text-base font-semibold leading-8 text-slate-200 sm:text-lg">
-                            Bảng học game theo tháng, tuần và prompt mẫu. Chọn một game, mở prompt, sao chép và bắt đầu build ngay với AI.
+                        <p class="mt-2 max-w-3xl text-sm font-bold leading-6 text-slate-600">
+                            Mỗi tuần 2 thể loại, mỗi buổi chọn 1 trong 3 game, mở prompt mẫu và build bản playable ngay với AI.
                         </p>
                     </div>
-                    <div class="grid gap-3 sm:grid-cols-2">
-                        {methods.map((item) => (
-                            <div class="rounded-lg border border-white/15 bg-white/10 p-4 shadow-lg shadow-slate-950/20 backdrop-blur">
-                                <span class={`mb-3 grid h-9 w-9 place-items-center rounded-md text-sm font-black shadow-md ${item.tone}`}>
-                                    {item.icon}
-                                </span>
-                                <strong class="block text-sm font-black text-white">{item.title}</strong>
-                                <span class="mt-1 block text-xs font-semibold leading-5 text-slate-300">{item.text}</span>
-                            </div>
-                        ))}
+                    <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                        {
+                            methods.map((item, methodIndex) => (
+                                <div class="method-card rounded-lg border border-slate-200 bg-white/90 p-3 shadow-lg shadow-blue-100/60 backdrop-blur">
+                                    <span
+                                        class={`method-icon mb-2 grid h-10 w-10 place-items-center rounded-lg text-sm font-black shadow-md ${item.tone}`}
+                                        data-method={methodIndex + 1}
+                                    >
+                                        {item.icon}
+                                    </span>
+                                    <strong class="block text-sm font-black text-slate-950">{item.title}</strong>
+                                    <span class="mt-1 block text-xs font-bold leading-5 text-slate-500">{item.text}</span>
+                                </div>
+                            ))
+                        }
                     </div>
                 </div>
             </header>
 
-            <div class="roadmap-scroll mt-8 overflow-x-auto rounded-xl border border-slate-200 bg-white/95 shadow-2xl shadow-slate-300/50">
-                <div class="grid min-w-[1320px] grid-cols-[190px_repeat(4,minmax(280px,1fr))]">
-                    <div class="sticky left-0 z-20 border-b border-r border-slate-700 bg-slate-950 px-5 py-4 text-sm font-black uppercase tracking-[0.16em] text-white">
-                        Tháng
-                    </div>
-                    {weekLabels.map((label) => (
-                        <div class="border-b border-r border-indigo-400/40 bg-gradient-to-br from-indigo-600 to-slate-900 px-5 py-4 text-center text-sm font-black uppercase tracking-[0.16em] text-white last:border-r-0">
-                            {label}
+            <div class="mt-5 grid gap-5 xl:grid-cols-[minmax(0,4fr)_minmax(300px,1fr)]">
+                <main
+                    class="roadmap-scroll overflow-x-auto rounded-xl border border-blue-100 bg-white shadow-2xl shadow-blue-200/50"
+                    aria-label="Lộ trình game 12 tháng"
+                >
+                    <div class="roadmap-grid grid min-w-[1380px] grid-cols-[178px_repeat(4,minmax(290px,1fr))]">
+                        <div
+                            class="roadmap-corner sticky left-0 top-0 z-30 border-b border-r border-blue-900/30 bg-blue-950 px-5 py-4 text-sm font-black uppercase tracking-[0.16em] text-white"
+                        >
+                            Tháng
                         </div>
-                    ))}
+                        {
+                            weekLabels.map((label, weekLabelIndex) => (
+                                <div
+                                    class="roadmap-week-header sticky top-0 z-20 border-b border-r border-white/30 px-5 py-4 text-center text-sm font-black uppercase tracking-[0.16em] text-white last:border-r-0"
+                                    data-week={weekLabelIndex + 1}
+                                >
+                                    {label} - 3 lựa chọn
+                                </div>
+                            ))
+                        }
 
-                    {roadmap.map((month) => (
-                        <>
-                            <div class={`sticky left-0 z-10 min-h-[190px] border-b border-r border-slate-200 bg-white p-4 shadow-[8px_0_24px_rgba(15,23,42,0.08)] ${month.accent}`}>
-                                <span class="grid h-12 w-12 place-items-center rounded-lg bg-slate-950 text-lg font-black text-white shadow-lg shadow-slate-300">
-                                    {month.no}
-                                </span>
-                                <strong class="mt-4 block text-lg font-black uppercase leading-tight">{month.title}</strong>
-                                <span class="mt-2 inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-black uppercase text-slate-500">{month.sub}</span>
-                            </div>
-                            {month.weeks.map((week, weekIndex) => (
-                                <article class={`min-h-[190px] border-b border-r p-3 last:border-r-0 ${genreStyles[week.genre] || 'border-slate-200 bg-slate-50 text-slate-700'}`}>
-                                    <h2 class="mb-3 rounded-md bg-white/80 px-3 py-2 text-center text-xs font-black uppercase tracking-[0.14em] shadow-sm">
-                                        {week.genre}
-                                    </h2>
-                                    <div class="grid gap-2">
-                                        {week.games.map((game, gameIndex) => (
-                                            <GameCell
-                                                game={game.name}
-                                                genre={week.genre}
-                                                month={month.no}
-                                                week={weekIndex + 1}
-                                                index={gameIndex + 1}
-                                                prompt={game.prompt}
-                                            />
-                                        ))}
+                        {
+                            roadmap.map((month) => (
+                                <>
+                                    <div
+                                        class={`roadmap-month sticky left-0 z-10 min-h-[188px] border-b border-r border-blue-100 bg-white p-4 shadow-[12px_0_26px_rgba(37,99,235,0.12)] ${month.accent}`}
+                                    >
+                                        <span class="month-badge grid h-12 w-12 place-items-center rounded-lg text-lg font-black text-white shadow-lg">
+                                            {month.no}
+                                        </span>
+                                        <strong class="mt-4 block text-base font-black uppercase leading-tight">{month.title}</strong>
+                                        <span class="mt-2 inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-black uppercase text-slate-500">
+                                            {month.sub}
+                                        </span>
                                     </div>
-                                </article>
-                            ))}
-                        </>
-                    ))}
-                </div>
-            </div>
-
-            <div class="mt-8 grid gap-4 lg:grid-cols-3">
-                <section class="rounded-xl border border-slate-200 bg-white p-6 shadow-lg shadow-slate-200/70">
-                    <h2 class="text-base font-black uppercase text-indigo-700">Cách học mỗi tuần</h2>
-                    <ol class="mt-4 space-y-2 text-sm font-semibold text-slate-600">
-                        <li>1. Chọn một game phù hợp trong ô tuần.</li>
-                        <li>2. Mở prompt mẫu và sao chép câu lệnh.</li>
-                        <li>3. Tạo bản playable, test nhanh, rồi chỉnh theo ý tưởng riêng.</li>
-                    </ol>
-                </section>
-                <section class="rounded-xl border border-emerald-200 bg-emerald-50 p-6 shadow-lg shadow-emerald-100/70">
-                    <h2 class="text-base font-black uppercase text-emerald-700">Mục tiêu</h2>
-                    <p class="mt-4 text-sm font-semibold leading-6 text-slate-700">
-                        Giữ tiến độ nhỏ, đều và có sản phẩm thật sau từng tuần, phù hợp cách học bằng AI của Error404-Labs.
-                    </p>
-                </section>
-                <section class="rounded-xl border border-slate-200 bg-white p-6 shadow-lg shadow-slate-200/70">
-                    <h2 class="text-base font-black uppercase text-slate-800">Palette</h2>
-                    <div class="mt-4 flex gap-2">
-                        <span class="h-8 flex-1 rounded bg-indigo-600"></span>
-                        <span class="h-8 flex-1 rounded bg-slate-800"></span>
-                        <span class="h-8 flex-1 rounded bg-emerald-500"></span>
+                                    {month.weeks.map((week, weekIndex) => (
+                                        <article
+                                            class={`roadmap-week min-h-[188px] border-b border-r p-3 last:border-r-0 ${genreStyles[week.genre] || 'border-slate-200 bg-slate-50 text-slate-700'}`}
+                                        >
+                                            <h2 class="genre-pill mb-3 rounded-lg bg-white/85 px-3 py-2 text-center text-xs font-black uppercase tracking-[0.14em] shadow-sm">
+                                                {week.genre}
+                                            </h2>
+                                            <div class="grid gap-2">
+                                                {week.games.map((game, gameIndex) => (
+                                                    <GameCell
+                                                        game={game.name}
+                                                        genre={week.genre}
+                                                        month={month.no}
+                                                        week={weekIndex + 1}
+                                                        index={gameIndex + 1}
+                                                        prompt={game.prompt}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </article>
+                                    ))}
+                                </>
+                            ))
+                        }
                     </div>
-                </section>
+                </main>
+
+                <aside class="roadmap-sidebar grid content-start gap-4 xl:sticky xl:top-5">
+                    <section class="sidebar-card rounded-xl border border-emerald-100 bg-white p-5 shadow-xl shadow-emerald-100/60">
+                        <h2 class="flex items-center gap-3 text-sm font-black uppercase tracking-[0.12em] text-emerald-700">
+                            <span class="sidebar-icon bg-emerald-500 text-white">01</span>
+                            Cách hoạt động
+                        </h2>
+                        <ol class="mt-4 space-y-3 text-sm font-bold leading-6 text-slate-600">
+                            <li>Chọn 1 trong 3 game gợi ý.</li>
+                            <li>Đọc prompt mẫu và tạo game với AI tool.</li>
+                            <li>Chơi thử, chỉnh sửa, thêm ý tưởng cá nhân.</li>
+                            <li>Hoàn thành và chia sẻ sản phẩm.</li>
+                        </ol>
+                    </section>
+
+                    <section class="sidebar-card rounded-xl border border-blue-100 bg-white p-5 shadow-xl shadow-blue-100/70">
+                        <h2 class="flex items-center gap-3 text-sm font-black uppercase tracking-[0.12em] text-blue-700">
+                            <span class="sidebar-icon bg-blue-600 text-white">AI</span>
+                            Tool sử dụng
+                        </h2>
+                        <div class="mt-4 grid gap-3">
+                            <p class="tool-row"><strong>Gemini</strong><span>Tư duy, viết prompt, tạo ý tưởng</span></p>
+                            <p class="tool-row"><strong>ChatGPT</strong><span>Viết prompt, giải thích logic</span></p>
+                            <p class="tool-row"><strong>Astrocode</strong><span>Tạo game 2D nhanh, không cần code</span></p>
+                            <p class="tool-row"><strong>AI Studio</strong><span>Thử nghiệm nhanh</span></p>
+                        </div>
+                    </section>
+
+                    <section class="sidebar-card prompt-card rounded-xl border border-amber-100 bg-white p-5 shadow-xl shadow-amber-100/70">
+                        <h2 class="flex items-center gap-3 text-sm font-black uppercase tracking-[0.12em] text-amber-700">
+                            <span class="sidebar-icon bg-amber-400 text-slate-950">P</span>
+                            Cấu trúc Prompt mẫu
+                        </h2>
+                        <div class="mt-4 rounded-lg border border-amber-100 bg-amber-50/70 p-4 text-sm font-bold leading-7 text-slate-700">
+                            <p>Tạo game [THỂ LOẠI] 2D</p>
+                            <p>Tên game: [TÊN GAME]</p>
+                            <p>Mục tiêu: [MỤC TIÊU]</p>
+                            <p>Nhân vật: [MÔ TẢ NHÂN VẬT]</p>
+                            <p>Cơ chế chính: [CƠ CHẾ]</p>
+                            <p>Xuất bản: playable trên web</p>
+                        </div>
+                    </section>
+
+                    <section class="sidebar-card rounded-xl border border-rose-100 bg-white p-5 shadow-xl shadow-rose-100/70">
+                        <h2 class="flex items-center gap-3 text-sm font-black uppercase tracking-[0.12em] text-rose-700">
+                            <span class="sidebar-icon bg-rose-500 text-white">+</span>
+                            Lợi ích khóa học
+                        </h2>
+                        <ul class="mt-4 space-y-3 text-sm font-bold leading-6 text-slate-600">
+                            <li>Phát triển tư duy logic và sáng tạo.</li>
+                            <li>Rèn kỹ năng giải quyết vấn đề.</li>
+                            <li>Tự tin tạo sản phẩm cá nhân.</li>
+                            <li>Chuẩn bị nền tảng cho tương lai AI.</li>
+                        </ul>
+                    </section>
+                </aside>
             </div>
         </div>
     </section>
-
     <PromptModal />
 </MainLayout>
 
 <style>
+    .roadmap-page {
+        background:
+            radial-gradient(circle at 8% 0%, rgba(59, 130, 246, 0.18), transparent 34%),
+            radial-gradient(circle at 92% 10%, rgba(249, 115, 22, 0.16), transparent 30%),
+            linear-gradient(180deg, #f8fbff 0%, #eef5ff 48%, #f8fbff 100%);
+    }
+
     .roadmap-hero {
         background:
-            linear-gradient(135deg, rgba(79, 70, 229, 0.92), rgba(15, 23, 42, 0.98) 54%, rgba(16, 185, 129, 0.84)),
+            linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(239, 246, 255, 0.94) 52%, rgba(255, 247, 237, 0.92)),
             linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
             linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
-        background-size: auto, 18px 18px, 18px 18px;
+        background-size:
+            auto,
+            22px 22px,
+            22px 22px;
     }
 
     .roadmap-hero::after {
         content: '';
         position: absolute;
-        inset: auto 5% -46px auto;
-        width: 220px;
-        height: 220px;
-        background: rgba(16, 185, 129, 0.32);
+        inset: auto 8% -58px auto;
+        width: 260px;
+        height: 160px;
+        background: rgba(59, 130, 246, 0.18);
         box-shadow:
-            -180px -50px 0 rgba(79, 70, 229, 0.26),
-            -70px -120px 0 rgba(245, 158, 11, 0.2);
-        filter: blur(18px);
+            -210px -34px 0 rgba(249, 115, 22, 0.14),
+            -88px -98px 0 rgba(16, 185, 129, 0.12);
+        filter: blur(22px);
+    }
+
+    .method-card {
+        transition:
+            transform 180ms ease,
+            box-shadow 180ms ease,
+            border-color 180ms ease;
+    }
+
+    .method-card:hover {
+        border-color: rgba(37, 99, 235, 0.32);
+        box-shadow: 0 18px 36px rgba(37, 99, 235, 0.16);
+        transform: translateY(-2px);
+    }
+
+    .method-icon {
+        box-shadow:
+            0 10px 18px rgba(15, 23, 42, 0.14),
+            inset 0 1px 0 rgba(255, 255, 255, 0.32);
+    }
+
+    .roadmap-grid {
+        background:
+            linear-gradient(#dbeafe 1px, transparent 1px),
+            linear-gradient(90deg, #dbeafe 1px, transparent 1px);
+        background-size: 100% 188px, calc((100% - 178px) / 4) 100%;
+    }
+
+    .roadmap-corner,
+    .roadmap-week-header {
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.2);
+    }
+
+    .roadmap-week-header {
+        background: linear-gradient(135deg, #1d4ed8 0%, #4338ca 48%, #0f766e 100%);
+    }
+
+    .roadmap-week-header[data-week='2'] {
+        background: linear-gradient(135deg, #2563eb 0%, #7c3aed 55%, #db2777 100%);
+    }
+
+    .roadmap-week-header[data-week='3'] {
+        background: linear-gradient(135deg, #0891b2 0%, #2563eb 50%, #f97316 100%);
+    }
+
+    .roadmap-week-header[data-week='4'] {
+        background: linear-gradient(135deg, #16a34a 0%, #0ea5e9 48%, #4f46e5 100%);
+    }
+
+    .month-badge {
+        background: linear-gradient(135deg, #0f172a, #2563eb);
+    }
+
+    .roadmap-month {
+        background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.98)),
+            linear-gradient(90deg, currentColor 0 5px, transparent 5px);
+    }
+
+    .roadmap-week {
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    }
+
+    .genre-pill {
+        border: 1px solid rgba(255, 255, 255, 0.78);
+        box-shadow:
+            0 8px 18px rgba(15, 23, 42, 0.08),
+            inset 0 1px 0 rgba(255, 255, 255, 0.92);
+    }
+
+    .sidebar-card {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .sidebar-card::before {
+        content: '';
+        position: absolute;
+        inset: 0 0 auto 0;
+        height: 4px;
+        background: linear-gradient(90deg, #2563eb, #10b981, #f97316, #e11d48);
+    }
+
+    .sidebar-icon {
+        display: grid;
+        width: 34px;
+        height: 34px;
+        place-items: center;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 900;
+        box-shadow: 0 10px 18px rgba(15, 23, 42, 0.14);
+    }
+
+    .tool-row {
+        display: grid;
+        gap: 2px;
+        border-radius: 10px;
+        border: 1px solid #e0f2fe;
+        background: linear-gradient(135deg, #f8fbff, #eff6ff);
+        padding: 10px 12px;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .tool-row strong {
+        color: #0f172a;
+        font-size: 14px;
+        font-weight: 900;
+    }
+
+    .tool-row span {
+        color: #64748b;
+    }
+
+    .prompt-card p + p {
+        margin-top: 2px;
     }
 
     .roadmap-scroll {
-        scrollbar-color: #4f46e5 #e2e8f0;
+        scrollbar-color: #2563eb #dbeafe;
         scrollbar-width: thin;
     }
 
@@ -299,13 +479,13 @@ const roadmap = months.map((month, monthIndex) => ({
     }
 
     .roadmap-scroll::-webkit-scrollbar-track {
-        background: #e2e8f0;
+        background: #dbeafe;
         border-radius: 999px;
     }
 
     .roadmap-scroll::-webkit-scrollbar-thumb {
-        background: linear-gradient(90deg, #4f46e5, #10b981);
-        border: 3px solid #e2e8f0;
+        background: linear-gradient(90deg, #2563eb, #10b981, #f97316);
+        border: 3px solid #dbeafe;
         border-radius: 999px;
     }
 </style>
