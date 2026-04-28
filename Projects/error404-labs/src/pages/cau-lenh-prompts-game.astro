@@ -9,15 +9,6 @@ const filteredCategories = categories.filter(cat =>
     !cat.items.some(item => String(item.id).startsWith('roadmap_'))
 )
 
-export const prerender = false;
-
-// Tự động load tất cả các file .txt trong thư mục prompts
-const promptFiles = import.meta.glob('../data/prompts/*.txt', {
-    query: '?raw',
-    import: 'default',
-    eager: true,
-})
-
 const titleTranslate: Record<string, string> = {
     '1. BASIC GAMES (EASIEST → ADD HOOK)': 'TRÒ CHƠI CƠ BẢN',
     '2. REFLEX GAMES (FAST + SKILL)': 'TRÒ CHƠI PHẢN XẠ',
@@ -30,6 +21,13 @@ const titleTranslate: Record<string, string> = {
     '9. ADVANCED (SYSTEM DESIGN)': 'HỆ THỐNG NÂNG CAO',
     '10. PRO LEVEL (GẦN GAME THẬT)': 'CẤP ĐỘ CHUYÊN NGHIỆP',
 }
+
+export const prerender = false;
+
+// Tự động load tất cả các file .txt trong thư mục prompts (chỉ để kiểm tra tồn tại)
+const promptFiles = import.meta.glob('../data/prompts/*.txt', {
+    eager: true,
+})
 ---
 
 <MainLayout title={`Câu lệnh prompts Game HTML5 | ${TC_TITLE}`}>
@@ -78,8 +76,7 @@ const titleTranslate: Record<string, string> = {
                                 const fileKey = Object.keys(promptFiles).find((key) =>
                                     key.split('/').pop()?.startsWith(`${item.id}-`),
                                 )
-                                const fileContent = fileKey ? promptFiles[fileKey] : null
-                                const hasPrompt = !!(fileContent || item.prompt_extends)
+                                const hasPrompt = !!fileKey
 
                                 // Tìm link demo từ DATA_DEMO
                                 const demoItem = DATA_DEMO.find((d) => d.name.startsWith(`${item.id}.`))
@@ -100,7 +97,7 @@ const titleTranslate: Record<string, string> = {
                                         <span class="text-sm md:text-base leading-tight hover:underline underline-offset-4 flex-1">
                                             {item.text}
                                         </span>
-                                        {fileContent && (
+                                        {hasPrompt && (
                                             <span class="text-emerald-500 text-xs bg-emerald-50 px-1.5 py-0.5 rounded-md border border-emerald-100 shadow-sm animate-pulse">
                                                 ✔
                                             </span>
@@ -183,7 +180,7 @@ const titleTranslate: Record<string, string> = {
     (async () => {
         const token = localStorage.getItem('auth_token');
         const authGuard = document.getElementById('auth-guard');
-        
+
         if (!token) {
             window.location.href = '/?auth=required';
             return;
@@ -194,7 +191,7 @@ const titleTranslate: Record<string, string> = {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await res.json();
-            
+
             if (data.authenticated) {
                 authGuard.classList.remove('hidden');
                 document.getElementById('page-skeleton')?.classList.add('hidden');

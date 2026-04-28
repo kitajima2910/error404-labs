@@ -1,53 +1,106 @@
 import type { APIRoute } from 'astro'
 import jwt from 'jsonwebtoken'
 import { categories } from '../../data/dataPromptsGame.js'
+import { neon } from '@neondatabase/serverless'
 
 export const prerender = false
 
-// Load tất cả file prompt tại build time
-const promptFiles = import.meta.glob('../../data/prompts/*.txt', {
-    query: '?raw',
-    import: 'default',
-    eager: true,
-})
+const sql = neon(import.meta.env.DATABASE_URL)
+
+const checkAdmin = async (request: Request) => {
+    const authHeader = request.headers.get('Authorization')
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null
+
+    if (!token) return null
+    try {
+        const decoded = jwt.verify(token, import.meta.env.JWT_SECRET) as any
+
+        const dbUser = (
+            await sql`
+            SELECT roles, logined, session_token, session_fingerprint
+            FROM error404labs.members
+            WHERE id = ${decoded.id}
+        `
+        )[0]
+
+        const currentFingerprint = request.headers.get('user-agent') || 'unknown'
+
+        if (
+            !dbUser ||
+            dbUser.logined !== 1 ||
+            dbUser.roles !== 'admin' ||
+            dbUser.session_token !== decoded.sessionToken ||
+            dbUser.session_fingerprint !== currentFingerprint
+        ) {
+            return null
+        }
+
+        return decoded
+    } catch {
+        return null
+    }
+}
+
+const checkMember = async (request: Request) => {
+    const authHeader = request.headers.get('Authorization')
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null
+
+    if (!token) return null
+    try {
+        const decoded = jwt.verify(token, import.meta.env.JWT_SECRET) as any
+
+        const dbUser = (
+            await sql`
+            SELECT id, member, roles, logined, session_token, session_fingerprint
+            FROM error404labs.members
+            WHERE id = ${decoded.id}
+        `
+        )[0]
+
+        const currentFingerprint = request.headers.get('user-agent') || 'unknown'
+
+        if (
+            !dbUser ||
+            dbUser.logined !== 1 ||
+            dbUser.session_token !== decoded.sessionToken ||
+            dbUser.session_fingerprint !== currentFingerprint
+        ) {
+            return null
+        }
+
+        return { ...decoded, dbUser }
+    } catch {
+        return null
+    }
+}
 
 export const GET: APIRoute = async ({ request, url }) => {
     const type = url.searchParams.get('type')
 
     // Return list of prompts for admin management
     if (type === 'list') {
-        const authHeader = request.headers.get('Authorization')
-        const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null
-
-        if (!token) {
+        const admin = await checkAdmin(request)
+        if (!admin) {
             return new Response(JSON.stringify({ error: 'Unauthorized' }), {
                 status: 401,
                 headers: { 'Content-Type': 'application/json' },
             })
         }
 
-        try {
-            jwt.verify(token, import.meta.env.JWT_SECRET)
-            const prompts = []
-            for (const cat of categories) {
-                for (const item of cat.items) {
-                    prompts.push({
-                        id: String(item.id),
-                        text: item.text,
-                        title: cat.title,
-                    })
-                }
+        const prompts = []
+        for (const cat of categories) {
+            for (const item of cat.items) {
+                prompts.push({
+                    id: String(item.id),
+                    text: item.text,
+                    title: cat.title,
+                })
             }
-            return new Response(JSON.stringify({ prompts }), {
-                status: 200,
-                headers: { 'Content-Type': 'application/json' },
-            })
-        } catch {
-            return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-                status: 401,
-                headers: { 'Content-Type': 'application/json' },
-            })
         }
+        return new Response(JSON.stringify({ prompts }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+        })
     }
     try {
         // Xác thực JWT từ Authorization header
