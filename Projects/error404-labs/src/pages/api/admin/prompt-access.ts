@@ -143,17 +143,8 @@ export const POST: APIRoute = async ({ request }) => {
         const memberData = (await sql`SELECT prompt_access FROM error404labs.members WHERE id = ${memberId}`)[0]
         let currentAccess = memberData?.prompt_access || []
 
-        if (action === 'grant') {
-            const newAccess = [
-                ...new Set([
-                    ...currentAccess,
-                    ...promptIds,
-                ]),
-            ]
-            await sql`UPDATE error404labs.members SET prompt_access = ${newAccess} WHERE id = ${memberId};`
-        } else if (action === 'revoke') {
-            const newAccess = currentAccess.filter((id: string) => !promptIds.includes(id))
-            await sql`UPDATE error404labs.members SET prompt_access = ${newAccess} WHERE id = ${memberId};`
+        if (action === 'update') {
+            await sql`UPDATE error404labs.members SET prompt_access = ${promptIds} WHERE id = ${memberId};`
         }
 
         return new Response(JSON.stringify({ success: true }), { status: 200 })
