@@ -5,10 +5,10 @@ interface Props {
     month: number
     week: number
     index: number
-    prompt: string
+    permission: string
 }
 
-const { game, genre, month, week, index, prompt } = Astro.props as Props
+const { game, genre, month, week, index, permission } = Astro.props as Props
 
 const genreTheme: Record<string, { card: string; icon: string; mark: string }> = {
     Runner: { card: 'hover:border-emerald-400 hover:bg-emerald-50', icon: 'bg-emerald-100 text-emerald-700', mark: 'M4 15h4l2-6 3 7 2-4h5' },
@@ -51,7 +51,8 @@ const theme = genreTheme[genre] || { card: 'hover:border-indigo-400 hover:bg-ind
     data-genre={genre}
     data-month={month}
     data-week={week}
-    data-prompt={prompt}
+    data-index={index}
+    data-permission={permission}
 >
     <span class="flex items-center gap-3">
         <span class={`cell-icon grid h-11 w-11 shrink-0 place-items-center rounded-2xl shadow-inner transition group-hover:scale-110 ${theme.icon}`}>
@@ -113,3 +114,39 @@ const theme = genreTheme[genre] || { card: 'hover:border-indigo-400 hover:bg-ind
             inset 0 1px 0 rgba(255, 255, 255, 0.48);
     }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.roadmap-game-cell').forEach((cell) => {
+            const permission = cell.getAttribute('data-permission');
+            if (!permission) return;
+
+            const user = window.user;
+            if (!user) return;
+
+            const hasAccess = user.roles === 'admin' || user.prompt_access.includes(permission);
+
+            if (!hasAccess) {
+                cell.classList.add('locked');
+                cell.setAttribute('disabled', 'true');
+                cell.style.pointerEvents = 'none';
+                cell.style.opacity = '0.6';
+
+                // Thêm icon khóa
+                const iconSpan = cell.querySelector('.cell-icon');
+                if (iconSpan) {
+                    iconSpan.innerHTML = '🔒';
+                }
+
+                // Làm mờ text
+                const textSpan = cell.querySelector('span:last-child');
+                if (textSpan) {
+                    textSpan.style.opacity = '0.5';
+                }
+
+                // Thêm tooltip
+                cell.setAttribute('title', 'Bài học này chưa được mở khóa. Vui lòng liên hệ Admin.');
+            }
+        });
+    });
+</script>

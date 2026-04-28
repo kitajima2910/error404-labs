@@ -147,14 +147,20 @@ const roadmapRows = [
     ],
 ]
 
+const allPrompts: Record<string, string> = {}
+
 const roadmap = months.map((month, monthIndex) => ({
     ...month,
     weeks: roadmapRows[monthIndex].map((week, weekIndex) => ({
         ...week,
-        games: week.games.map((game) => ({
-            name: game,
-            prompt: promptOf(game, week.genre, month.no, weekIndex + 1),
-        })),
+        games: week.games.map((game, gameIndex) => {
+            const prompt = promptOf(game, week.genre, month.no, weekIndex + 1)
+            allPrompts[`${month.no}_${weekIndex + 1}_${gameIndex + 1}`] = prompt
+            return {
+                name: game,
+                prompt,
+            }
+        }),
     })),
 }))
 ---
@@ -165,9 +171,82 @@ const roadmap = months.map((month, monthIndex) => ({
     searchable={false}
 >
     <script>
-        if (!localStorage.getItem('auth_token')) {
-            window.location.href = '/?auth=required';
+        async function checkAccess() {
+            const token = localStorage.getItem('auth_token');
+            if (!token) {
+                window.location.href = '/?auth=required';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/verify', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+
+                if (!data.authenticated || !data.user) {
+                    window.location.href = '/?auth=required';
+                    return;
+                }
+
+                const user = data.user;
+                window.user = user; // Lưu user để GameCell check
+
+                // Set prompts for accessible content
+
+                document.querySelectorAll('.roadmap-game-cell').forEach(cell => {
+
+                    const month = cell.getAttribute('data-month')
+
+                    const week = cell.getAttribute('data-week')
+
+                    const index = cell.getAttribute('data-index')
+
+                    const permission = `roadmap_m${month}_w${week}`
+
+                    if (user.roles === 'admin' || user.prompt_access.includes(permission)) {
+
+                        const promptKey = `${month}_${week}_${index}`
+
+                        const prompt = window.allPrompts[promptKey]
+
+                        if (prompt) cell.setAttribute('data-prompt', prompt)
+
+                    }
+
+                })
+
+                if (user.roles !== 'admin' && !user.prompt_access.includes('game_roadmap')) {
+                    // Ẩn hoặc làm mờ phần prompt
+                    const promptCard = document.querySelector('.prompt-card');
+                    if (promptCard) {
+                        promptCard.style.opacity = '0';
+                        promptCard.style.pointerEvents = 'none';
+                        // Thêm thông báo
+                        const notice = document.createElement('div');
+                        notice.className = 'absolute inset-0 flex items-center justify-center bg-black/50 rounded-[24px] text-white font-bold text-center p-4';
+                        notice.innerHTML = 'Bạn cần được Admin cấp quyền để xem nội dung này.';
+                        promptCard.style.position = 'relative';
+                        promptCard.appendChild(notice);
+                    }
+                } else {
+                    // Hiển thị prompt nếu có quyền
+                    const promptCard = document.querySelector('.prompt-card');
+                    if (promptCard) {
+                        promptCard.style.opacity = '1';
+                        promptCard.style.pointerEvents = 'auto';
+                    }
+                }
+            } catch (error) {
+                console.error('Access check failed:', error);
+                window.location.href = '/?auth=required';
+            }
         }
+
+        checkAccess();
     </script>
     <section class="roadmap-page min-h-screen overflow-hidden text-white">
         <div class="mx-auto max-w-[1840px] px-4 py-6 sm:px-6 lg:px-8">
@@ -245,16 +324,16 @@ const roadmap = months.map((month, monthIndex) => ({
                                                 {week.genre}
                                             </h2>
                                             <div class="grid gap-2">
-                                                {week.games.map((game, gameIndex) => (
-                                                    <GameCell
-                                                        game={game.name}
-                                                        genre={week.genre}
-                                                        month={month.no}
-                                                        week={weekIndex + 1}
-                                                        index={gameIndex + 1}
-                                                        prompt={game.prompt}
-                                                    />
-                                                ))}
+                                                 {week.games.map((game, gameIndex) => (
+                                                     <GameCell
+                                                         game={game.name}
+                                                         genre={week.genre}
+                                                         month={month.no}
+                                                         week={weekIndex + 1}
+                                                         index={gameIndex + 1}
+                                                         permission={`roadmap_m${month.no}_w${weekIndex + 1}`}
+                                                     />
+                                                 ))}
                                             </div>
                                         </article>
                                     ))}
@@ -293,7 +372,7 @@ const roadmap = months.map((month, monthIndex) => ({
                         </div>
                     </section>
 
-                    <section class="sidebar-card prompt-card rounded-[24px] border border-white/15 bg-white/10 p-5 shadow-xl shadow-indigo-950/20 backdrop-blur-xl">
+                    <section class="sidebar-card prompt-card rounded-[24px] border border-white/15 bg-white/10 p-5 shadow-xl shadow-indigo-950/20 backdrop-blur-xl opacity-0 pointer-events-none">
                         <div class="prompt-protocol-head flex items-start justify-between gap-3">
                             <div>
                                 <h2 class="flex items-center gap-3 text-sm font-black uppercase tracking-[0.12em] text-orange-200">
@@ -345,6 +424,9 @@ const roadmap = months.map((month, monthIndex) => ({
         </div>
     </section>
     <PromptModal />
+    <script define:vars={{ allPrompts }}>
+        window.allPrompts = allPrompts
+    </script>
     <script>
         const initPromptTipCopy = () => {
             const promptTemplate = `RULE:

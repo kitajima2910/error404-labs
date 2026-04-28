@@ -40,8 +40,8 @@ export const GET: APIRoute = async ({ request }) => {
         const { neon } = await import('@neondatabase/serverless');
         const sql = neon(dbUrl);
         const user = (await sql`
-            SELECT points, created_at, display_name, logined, session_token, session_fingerprint 
-            FROM error404labs.members 
+            SELECT points, created_at, display_name, logined, session_token, session_fingerprint, prompt_access
+            FROM error404labs.members
             WHERE id = ${decoded.id}
         `)[0];
 
@@ -65,15 +65,16 @@ export const GET: APIRoute = async ({ request }) => {
             });
         }
 
-        return new Response(JSON.stringify({ 
-            authenticated: true, 
-            user: { 
-                member: decoded.member, 
+        return new Response(JSON.stringify({
+            authenticated: true,
+            user: {
+                member: decoded.member,
                 roles: decoded.roles,
                 display_name: user?.display_name || decoded.member,
                 points: user?.points || 0,
-                created_at: user?.created_at
-            } 
+                created_at: user?.created_at,
+                prompt_access: user?.prompt_access || []
+            }
         }), { 
             status: 200, 
             headers: { 
