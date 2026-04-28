@@ -4,6 +4,11 @@ import { TC_TITLE } from '../common/TextConst'
 import { categories } from '../data/dataPromptsGame.js'
 import { DATA_DEMO } from '../data/dataTestDemo.js'
 
+const filteredCategories = categories.filter(cat =>
+    !cat.title.includes('LỘ TRÌNH HỌC') &&
+    !cat.items.some(item => String(item.id).startsWith('roadmap_'))
+)
+
 export const prerender = false;
 
 // Tự động load tất cả các file .txt trong thư mục prompts
@@ -56,7 +61,7 @@ const titleTranslate: Record<string, string> = {
 
         <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 pb-20">
             {
-                categories.map((cat) => (
+                filteredCategories.map((cat) => (
                     <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-200">
                         <div class={`${cat.color} py-4 px-6 text-white text-center`}>
                             <h3 class="text-xl font-black uppercase tracking-tight flex items-center justify-center gap-2">
