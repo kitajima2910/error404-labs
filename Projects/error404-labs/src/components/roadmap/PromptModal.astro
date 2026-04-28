@@ -49,14 +49,33 @@
 
     const openModal = async (button: HTMLElement) => {
         const gameName = button.dataset.game || ''
+        const permissionId = button.dataset.permission || ''
         if (title) title.textContent = gameName
         if (meta) {
             meta.textContent = `${button.dataset.genre || ''} - Tháng ${button.dataset.month || ''} - Tuần ${button.dataset.week || ''}`
         }
-        if (content) content.textContent = "Đang tải..."
         modal?.classList.remove('hidden')
         modal?.classList.add('flex')
         modal?.setAttribute('aria-hidden', 'false')
+
+        const user = window.user
+        const hasAccess = user?.roles === 'admin' || user?.prompt_access?.includes(permissionId)
+
+        if (!hasAccess) {
+            currentPrompt = ''
+            if (content) {
+                content.textContent = "Cần có quyền cho phép hãy liên hệ Admin"
+                content.classList.add('text-center', 'italic', 'text-slate-400')
+            }
+            const copyBtn = document.getElementById('roadmapCopyPrompt')
+            if (copyBtn) {
+                copyBtn.textContent = "Nội dung bị khóa"
+                copyBtn.classList.add('opacity-50', 'cursor-not-allowed', 'pointer-events-none')
+            }
+            return
+        }
+
+        if (content) content.textContent = "Đang tải..."
 
         try {
             const token = localStorage.getItem('auth_token')
@@ -64,7 +83,7 @@
                 throw new Error('No auth token')
             }
 
-            const response = await fetch(`/api/get-game-prompt?gameName=${encodeURIComponent(gameName)}`, {
+            const response = await fetch(`/api/get-game-prompt?gameName=${encodeURIComponent(gameName)}&permissionId=${encodeURIComponent(permissionId)}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -74,22 +93,19 @@
 
             currentPrompt = data.content || ''
             if (content) {
-                if (currentPrompt === 'Cần có quyền cho phép hãy liên hệ Admin' || !currentPrompt) {
-                    content.textContent = "Cần có quyền cho phép hãy liên hệ Admin"
+                if (!currentPrompt) {
+                    content.textContent = "chưa có prompt"
                     content.classList.add('text-center', 'italic', 'text-slate-400')
-                    const copyBtn = document.getElementById('roadmapCopyPrompt')
-                    if (copyBtn) {
-                        copyBtn.textContent = "Nội dung bị khóa"
-                        copyBtn.classList.add('opacity-50', 'cursor-not-allowed', 'pointer-events-none')
-                    }
                 } else {
                     content.textContent = currentPrompt
                     content.classList.remove('text-center', 'italic', 'text-slate-400')
-                    const copyBtn = document.getElementById('roadmapCopyPrompt')
-                    if (copyBtn) {
-                        copyBtn.textContent = "Sao chép câu lệnh"
-                        copyBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none')
-                    }
+                }
+                const copyBtn = document.getElementById('roadmapCopyPrompt')
+                if (copyBtn) {
+                    copyBtn.textContent = currentPrompt ? "Sao chép câu lệnh" : "Nội dung trống"
+                    copyBtn.classList.toggle('opacity-50', !currentPrompt)
+                    copyBtn.classList.toggle('cursor-not-allowed', !currentPrompt)
+                    copyBtn.classList.toggle('pointer-events-none', !currentPrompt)
                 }
             }
         } catch (error) {

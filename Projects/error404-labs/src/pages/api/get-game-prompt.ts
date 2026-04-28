@@ -48,15 +48,16 @@ export const GET: APIRoute = async ({ request, url }) => {
         }
 
         const gameName = url.searchParams.get('gameName');
-        if (!gameName) {
-            return new Response(JSON.stringify({ error: 'Missing gameName' }), {
+        const permissionId = url.searchParams.get('permissionId');
+        if (!gameName || !permissionId) {
+            return new Response(JSON.stringify({ error: 'Missing gameName or permissionId' }), {
                 status: 400,
                 headers: { 'Content-Type': 'application/json' }
             });
         }
 
         // Check permission
-        const hasAccess = decoded.roles === 'admin' || user.prompt_access?.includes('game_roadmap');
+        const hasAccess = decoded.roles === 'admin' || user.prompt_access?.includes(permissionId);
         if (!hasAccess) {
             return new Response(JSON.stringify({ content: 'Cần có quyền cho phép hãy liên hệ Admin' }), {
                 status: 200,
