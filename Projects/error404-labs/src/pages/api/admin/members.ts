@@ -16,11 +16,11 @@ const checkAdmin = async (request: Request) => {
     try {
         const decoded = jwt.verify(token, import.meta.env.JWT_SECRET) as any
 
-        // Kiểm tra logined, roles, session_token và fingerprint từ DB (Authority)
+        // Kiểm tra logined, roles, status, session_token và fingerprint từ DB (Authority)
         const dbUser = (
             await sql`
-            SELECT roles, logined, session_token, session_fingerprint 
-            FROM error404labs.members 
+            SELECT roles, status, logined, session_token, session_fingerprint
+            FROM error404labs.members
             WHERE id = ${decoded.id}
         `
         )[0]
@@ -31,6 +31,7 @@ const checkAdmin = async (request: Request) => {
             !dbUser ||
             dbUser.logined !== 1 ||
             dbUser.roles !== 'admin' ||
+            dbUser.status !== 'active' ||
             dbUser.session_token !== decoded.sessionToken ||
             dbUser.session_fingerprint !== currentFingerprint
         ) {
@@ -63,12 +64,14 @@ export const GET: APIRoute = async ({ request, url }) => {
         'display_name',
         'roles',
         'created_at',
+        'status',
     ]
     const finalSortBy = allowedSortColumns.includes(sortBy) ? sortBy : 'id'
 
     try {
         await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS display_name VARCHAR(100);`
         await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS prompt_access TEXT[] DEFAULT '{}';`
+        await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'active';`
 
         const searchQuery = `%${search}%`
 
@@ -78,45 +81,53 @@ export const GET: APIRoute = async ({ request, url }) => {
             switch (finalSortBy) {
                 case 'member':
                     members =
-                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) ORDER BY member DESC LIMIT ${limit} OFFSET ${offset}`
+                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) ORDER BY member DESC LIMIT ${limit} OFFSET ${offset}`
                     break
                 case 'display_name':
                     members =
-                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) ORDER BY display_name DESC LIMIT ${limit} OFFSET ${offset}`
+                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) ORDER BY display_name DESC LIMIT ${limit} OFFSET ${offset}`
                     break
                 case 'roles':
                     members =
-                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) ORDER BY roles DESC LIMIT ${limit} OFFSET ${offset}`
+                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) ORDER BY roles DESC LIMIT ${limit} OFFSET ${offset}`
                     break
                 case 'created_at':
                     members =
-                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`
+                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`
+                    break
+                case 'status':
+                    members =
+                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) ORDER BY status DESC LIMIT ${limit} OFFSET ${offset}`
                     break
                 default:
                     members =
-                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) ORDER BY id DESC LIMIT ${limit} OFFSET ${offset}`
+                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) ORDER BY id DESC LIMIT ${limit} OFFSET ${offset}`
             }
         } else {
             switch (finalSortBy) {
                 case 'member':
                     members =
-                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) ORDER BY member ASC LIMIT ${limit} OFFSET ${offset}`
+                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) ORDER BY member ASC LIMIT ${limit} OFFSET ${offset}`
                     break
                 case 'display_name':
                     members =
-                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) ORDER BY display_name ASC LIMIT ${limit} OFFSET ${offset}`
+                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) ORDER BY display_name ASC LIMIT ${limit} OFFSET ${offset}`
                     break
                 case 'roles':
                     members =
-                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) ORDER BY roles ASC LIMIT ${limit} OFFSET ${offset}`
+                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) ORDER BY roles ASC LIMIT ${limit} OFFSET ${offset}`
                     break
                 case 'created_at':
                     members =
-                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) ORDER BY created_at ASC LIMIT ${limit} OFFSET ${offset}`
+                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) ORDER BY created_at ASC LIMIT ${limit} OFFSET ${offset}`
+                    break
+                case 'status':
+                    members =
+                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) ORDER BY status ASC LIMIT ${limit} OFFSET ${offset}`
                     break
                 default:
                     members =
-                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) ORDER BY id ASC LIMIT ${limit} OFFSET ${offset}`
+                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) ORDER BY id ASC LIMIT ${limit} OFFSET ${offset}`
             }
         }
 
@@ -221,7 +232,7 @@ export const PUT: APIRoute = async ({ request }) => {
     }
 }
 
-// DELETE: Remove member
+// DELETE: Toggle member status (active/inactive)
 export const DELETE: APIRoute = async ({ request }) => {
     const admin = await checkAdmin(request)
     if (!admin) {
@@ -233,28 +244,30 @@ export const DELETE: APIRoute = async ({ request }) => {
         if (!id) return new Response(JSON.stringify({ error: 'Missing ID' }), { status: 400 })
 
         // Lấy thông tin user đích
-        const target = (await sql`SELECT member, roles FROM error404labs.members WHERE id = ${id}`)[0]
+        const target = (await sql`SELECT member, roles, status FROM error404labs.members WHERE id = ${id}`)[0]
         if (!target) return new Response(JSON.stringify({ error: 'User not found' }), { status: 404 })
 
-        // Không được tự xóa chính mình
+        // Không được tự khóa chính mình
         if (target.member === admin.member) {
-            return new Response(JSON.stringify({ error: 'Bạn không thể tự xóa tài khoản của chính mình.' }), {
+            return new Response(JSON.stringify({ error: 'Bạn không thể tự thay đổi trạng thái tài khoản của chính mình.' }), {
                 status: 403,
             })
         }
 
         // Bảo vệ Super Admin
         if (target.member === 'pxh2910') {
-            return new Response(JSON.stringify({ error: 'Không thể xóa Super Admin.' }), { status: 403 })
+            return new Response(JSON.stringify({ error: 'Không thể thay đổi trạng thái Super Admin.' }), { status: 403 })
         }
 
-        // Admin thường không được xóa Admin khác
+        // Admin thường không được thay đổi trạng thái Admin khác
         if (target.roles === 'admin' && admin.member !== 'pxh2910') {
-            return new Response(JSON.stringify({ error: 'Bạn không có quyền xóa Admin khác.' }), { status: 403 })
+            return new Response(JSON.stringify({ error: 'Bạn không có quyền thay đổi trạng thái Admin khác.' }), { status: 403 })
         }
 
-        await sql`DELETE FROM error404labs.members WHERE id = ${id}`
-        return new Response(JSON.stringify({ success: true }), { status: 200 })
+        // Toggle status
+        const newStatus = target.status === 'active' ? 'inactive' : 'active'
+        await sql`UPDATE error404labs.members SET status = ${newStatus} WHERE id = ${id}`
+        return new Response(JSON.stringify({ success: true, newStatus }), { status: 200 })
     } catch (error) {
         return new Response(JSON.stringify({ error: 'Database error' }), { status: 500 })
     }

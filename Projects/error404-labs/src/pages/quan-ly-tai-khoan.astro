@@ -175,13 +175,14 @@ export const prerender = false
                                         <th class="sortable px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group text-center" data-sort="created_at">
                                             Ngày tham gia <span class="sort-icon ml-1 opacity-20 group-hover:opacity-100">⇅</span>
                                         </th>
+                                        <th class="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center">Trạng thái</th>
                                         <th class="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center">Quyền truy cập</th>
                                         <th class="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-right">Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody id="memberTableBody" class="divide-y divide-slate-100">
                                     <tr>
-                                        <td colspan="7" class="px-6 py-12 text-center text-slate-400">Đang tải dữ liệu...</td>
+                                        <td colspan="8" class="px-6 py-12 text-center text-slate-400">Đang tải dữ liệu...</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -351,23 +352,23 @@ export const prerender = false
         </div>
     </div>
 
-    <!-- Modal Xác nhận xóa (Premium) -->
+    <!-- Modal Xác nhận thay đổi trạng thái (Premium) -->
     <div id="deleteModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm transition-all duration-300">
-        <div id="deleteModalContent" class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden transform scale-95 opacity-0 transition-all duration-300 border border-red-50">
-            <div class="bg-red-50 p-6 flex flex-col items-center">
-                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        <div id="deleteModalContent" class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden transform scale-95 opacity-0 transition-all duration-300 border border-blue-50">
+            <div class="bg-blue-50 p-6 flex flex-col items-center">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
                 </div>
-                <h3 class="text-xl font-black text-red-600 uppercase tracking-tight">Xóa tài khoản?</h3>
+                <h3 class="text-xl font-black text-blue-600 uppercase tracking-tight">Thay đổi trạng thái tài khoản?</h3>
                 <p class="text-slate-500 mt-2 text-center text-sm leading-relaxed">
-                    Hành động này <span class="font-bold text-red-600 italic">không thể hoàn tác</span>. Tài khoản này sẽ bị xóa vĩnh viễn khỏi hệ thống Error404-Labs.
+                    Hành động này sẽ <span class="font-bold text-blue-600 italic">khóa/mở khóa</span> tài khoản. Người dùng có thể đăng nhập lại nếu được mở khóa.
                 </p>
             </div>
             <div class="p-6 flex flex-col gap-3">
-                <button id="confirmDeleteBtn" class="w-full py-3.5 bg-red-600 text-white font-black rounded-2xl hover:bg-red-700 transition-all shadow-lg shadow-red-200 active:scale-95 cursor-pointer">
-                    Xác nhận xóa ngay
+                <button id="confirmDeleteBtn" class="w-full py-3.5 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-95 cursor-pointer">
+                    Xác nhận thay đổi
                 </button>
                 <button id="cancelDeleteBtn" class="w-full py-3.5 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all cursor-pointer">
                     Hủy bỏ
@@ -442,7 +443,7 @@ export const prerender = false
         const deleteModalContent = document.getElementById('deleteModalContent')
         const confirmDeleteBtn = document.getElementById('confirmDeleteBtn')
         const cancelDeleteBtn = document.getElementById('cancelDeleteBtn')
-        let memberToDelete = null
+        let memberToToggle = null
 
         const memberSearch = document.getElementById('memberSearch')
         const roleFilterSelect = document.getElementById('roleFilter')
@@ -553,6 +554,16 @@ export const prerender = false
                 const canDelete = !isSelf && !targetIsSuper && (isSuper || !targetIsAdmin)
                 const canEditAccess = isSuper || !targetIsAdmin || isSelf
 
+                // Trạng thái cell
+                const tdStatus = document.createElement('td')
+                tdStatus.className = "px-6 py-5 text-center"
+                const statusBadge = document.createElement('span')
+                const isActive = m.status !== 'inactive'
+                statusBadge.className = `inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${isActive ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`
+                statusBadge.textContent = isActive ? 'Đang hoạt động' : 'Không hoạt động'
+                tdStatus.appendChild(statusBadge)
+                tr.appendChild(tdStatus)
+
                 // Quyền truy cập cell
                 const tdAccess = document.createElement('td')
                 tdAccess.className = "px-6 py-5 text-center"
@@ -585,14 +596,16 @@ export const prerender = false
                 }
 
                 if (canDelete) {
-                    const delBtn = document.createElement('button')
-                    delBtn.className = "p-2 text-red-600 hover:bg-red-50 rounded-xl transition-all cursor-pointer"
-                    delBtn.title = "Xóa"
-                    delBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    const toggleBtn = document.createElement('button')
+                    toggleBtn.className = `p-2 rounded-xl transition-all cursor-pointer ${m.status === 'active' ? 'text-red-600 hover:bg-red-50' : 'text-green-600 hover:bg-green-50'}`
+                    toggleBtn.title = m.status === 'active' ? "Khóa tài khoản" : "Mở khóa tài khoản"
+                    toggleBtn.innerHTML = m.status === 'active' ? `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>` : `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
                     </svg>`
-                    delBtn.onclick = () => window.deleteMember(m.id)
-                    actionsContainer.appendChild(delBtn)
+                    toggleBtn.onclick = () => window.toggleMemberStatus(m.id)
+                    actionsContainer.appendChild(toggleBtn)
                 }
 
                 tdActions.appendChild(actionsContainer)
@@ -751,9 +764,9 @@ export const prerender = false
             }, 200)
         }
 
-        // --- NHÀ MÁY XỬ LÝ XÓA ---
+        // --- NHÀ MÁY XỬ LÝ TOGGLE STATUS ---
         function openDeleteModal(id) {
-            memberToDelete = id
+            memberToToggle = id
             deleteModal.classList.remove('hidden')
             deleteModal.classList.add('flex')
             setTimeout(() => {
@@ -770,7 +783,7 @@ export const prerender = false
                 deleteModal.classList.add('hidden')
                 deleteModal.classList.remove('flex')
                 document.body.style.overflow = ''
-                memberToDelete = null
+                memberToToggle = null
             }, 200)
         }
 
@@ -779,36 +792,38 @@ export const prerender = false
             if (member) openModal(true, member)
         }
 
-        window.deleteMember = (id) => openDeleteModal(id)
+        window.toggleMemberStatus = (id) => openDeleteModal(id)
 
         confirmDeleteBtn.onclick = async () => {
-            if (!memberToDelete) return
+            if (!memberToToggle) return
             confirmDeleteBtn.disabled = true
-            confirmDeleteBtn.textContent = 'Đang xóa...'
+            confirmDeleteBtn.textContent = 'Đang thay đổi...'
             confirmDeleteBtn.classList.add('opacity-50')
 
             try {
                 const res = await fetch('/api/admin/members', {
                     method: 'DELETE',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
                     },
-                    body: JSON.stringify({ id: memberToDelete }),
+                    body: JSON.stringify({ id: memberToToggle }),
                 })
                 if (res.ok) {
-                    showToast('Xóa thành công', 'success')
+                    const data = await res.json()
+                    const newStatus = data.newStatus === 'active' ? 'mở khóa' : 'khóa'
+                    showToast(`Đã ${newStatus} tài khoản thành công`, 'success')
                     closeDeleteModal()
                     fetchMembers()
                 } else {
                     const data = await res.json()
-                    showToast(data.error || 'Lỗi khi xóa', 'error')
+                    showToast(data.error || 'Lỗi khi thay đổi trạng thái', 'error')
                 }
             } catch {
                 showToast('Lỗi kết nối', 'error')
             } finally {
                 confirmDeleteBtn.disabled = false
-                confirmDeleteBtn.textContent = 'Xác nhận xóa ngay'
+                confirmDeleteBtn.textContent = 'Xác nhận thay đổi'
                 confirmDeleteBtn.classList.remove('opacity-50')
             }
         }
