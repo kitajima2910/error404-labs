@@ -384,6 +384,30 @@ const isPost = pathname.startsWith('/bai-viet/')
     </div>
 </div>
 
+<!-- Account Locked Modal -->
+<div id="accountLockedModal" class="fixed inset-0 z-[60] hidden items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div class="w-full max-w-md m-10 rounded-3xl bg-white p-8 shadow-2xl animate-in fade-in zoom-in duration-300 border border-red-50">
+        <div class="text-center">
+            <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+            </div>
+            <h3 class="text-2xl font-bold text-red-600 mb-4" style="font-family: 'Montserrat', sans-serif;">Tài khoản bị khóa</h3>
+            <p class="text-gray-600 mb-6 leading-relaxed" style="font-family: 'Montserrat', sans-serif;">
+                Tài khoản của bạn hiện đang bị khóa. Vui lòng liên hệ Admin để biết thêm chi tiết.
+            </p>
+            <button
+                id="closeAccountLockedModal"
+                class="w-full bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-2xl font-bold transition-colors"
+                style="font-family: 'Montserrat', sans-serif;"
+            >
+                Đã hiểu
+            </button>
+        </div>
+    </div>
+</div>
+
 <script is:inline>
     // Config Toast Notification
     const toast = document.getElementById('toastNotification')
@@ -537,6 +561,28 @@ const isPost = pathname.startsWith('/bai-viet/')
         if (loginModal) {
             loginModal.onclick = (e) => {
                 if (e.target === loginModal) closeLogin()
+            }
+        }
+
+        // Account Locked Modal
+        const accountLockedModal = document.getElementById('accountLockedModal')
+        const closeAccountLockedModal = document.getElementById('closeAccountLockedModal')
+
+        if (closeAccountLockedModal) {
+            closeAccountLockedModal.onclick = () => {
+                if (accountLockedModal) {
+                    accountLockedModal.classList.add('hidden')
+                    accountLockedModal.classList.remove('flex')
+                }
+            }
+        }
+
+        if (accountLockedModal) {
+            accountLockedModal.onclick = (e) => {
+                if (e.target === accountLockedModal) {
+                    accountLockedModal.classList.add('hidden')
+                    accountLockedModal.classList.remove('flex')
+                }
             }
         }
 
@@ -743,6 +789,7 @@ const isPost = pathname.startsWith('/bai-viet/')
 
                         if (data.user.pointsAdded > 0) {
                             setTimeout(() => {
+
                                 window.showToast(
                                     `Chúc mừng! +${data.user.pointsAdded} điểm login ngày mới! 🎁`,
                                     'success',
@@ -754,6 +801,14 @@ const isPost = pathname.startsWith('/bai-viet/')
                         closeLogin()
                         checkSession()
                         loginForm.reset()
+                    } else if (response.status === 403) {
+                        // Tài khoản bị khóa
+                        const accountLockedModal = document.getElementById('accountLockedModal')
+                        if (accountLockedModal) {
+                            accountLockedModal.classList.remove('hidden')
+                            accountLockedModal.classList.add('flex')
+                        }
+                        closeLogin()
                     } else {
                         window.showToast(data.error || 'Đăng nhập thất bại!', 'error')
                     }

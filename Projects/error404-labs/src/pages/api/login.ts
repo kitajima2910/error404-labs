@@ -92,6 +92,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
             await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS session_token TEXT;`
             await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS session_fingerprint TEXT;`
             await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS logined INT DEFAULT 0;`
+            await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'active';`
         } catch (mErr) {
             console.error('Migration failed:', mErr);
             if (!isDev) throw mErr;
@@ -99,8 +100,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
         // Lấy user theo username (không so sánh code trong SQL nữa)
         const result = await sql`
-            SELECT id, member, display_name, code, roles, points, last_login_at, created_at
-            FROM error404labs.members 
+            SELECT id, member, display_name, code, roles, points, last_login_at, created_at, status
+            FROM error404labs.members
             WHERE member = ${username}
         `;
 
@@ -112,6 +113,14 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         }
 
         const user = result[0];
+
+        // Kiểm tra trạng thái tài khoản
+        if (user.status === 'inactive') {
+            return new Response(JSON.stringify({ error: 'Tài khoản của bạn hiện đang bị khóa. Vui lòng liên hệ Admin để biết thêm chi tiết.' }), {
+                status: 403,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
 
         // So sánh mật khẩu bằng bcrypt
         const isValid = await bcrypt.compare(code, user.code);
