@@ -265,19 +265,20 @@ export const prerender = false
                         <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                             <div class="overflow-x-auto">
                                 <table class="w-full text-left border-collapse">
-                                    <thead>
-                                        <tr class="bg-slate-50 border-b border-slate-200">
-                                            <th class="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Tiêu đề bài học</th>
-                                            <th class="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Mô tả ngắn</th>
-                                            <th class="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center">Liên kết</th>
-                                            <th class="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-right">Thao tác</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="lessonTableBody" class="divide-y divide-slate-100">
-                                        <tr>
-                                            <td colspan="4" class="px-6 py-12 text-center text-slate-400">Đang tải dữ liệu bài học...</td>
-                                        </tr>
-                                    </tbody>
+                                     <thead>
+                                         <tr class="bg-slate-50 border-b border-slate-200">
+                                             <th class="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Tiêu đề bài học</th>
+                                             <th class="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Mô tả ngắn</th>
+                                             <th class="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Người thực hiện</th>
+                                             <th class="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center">Liên kết</th>
+                                             <th class="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-right">Thao tác</th>
+                                         </tr>
+                                     </thead>
+                                     <tbody id="lessonTableBody" class="divide-y divide-slate-100">
+                                         <tr>
+                                             <td colspan="5" class="px-6 py-12 text-center text-slate-400">Đang tải dữ liệu bài học...</td>
+                                         </tr>
+                                     </tbody>
                                 </table>
                             </div>
                         </div>
@@ -479,6 +480,12 @@ export const prerender = false
                 <div>
                     <label for="lDescription" class="block text-sm font-bold text-slate-700 mb-1.5">Mô tả ngắn</label>
                     <textarea id="lDescription" name="description" rows="3" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all" placeholder="Mô tả nội dung bài học..."></textarea>
+                </div>
+                <div>
+                    <label for="lAuthor" class="block text-sm font-bold text-slate-700 mb-1.5">Người thực hiện</label>
+                    <select id="lAuthor" name="author" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all appearance-none bg-no-repeat bg-[right_1rem_center] cursor-pointer" style="background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 fill=%27none%27 viewBox=%270 0 20 20%27%3E%3Cpath stroke=%27%236B7280%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%271.5%27 d=%27M6 8l4 4 4-4%27/%3E%3C/svg%3E');">
+                        <option value="">Chọn người thực hiện</option>
+                    </select>
                 </div>
                 <div class="flex gap-3 mt-8">
                     <button type="button" class="closeLessonModalBtn flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-all cursor-pointer">Hủy</button>
@@ -737,7 +744,7 @@ export const prerender = false
         function renderLessons() {
             lessonTableBody.innerHTML = '';
             if (lessons.length === 0) {
-                lessonTableBody.innerHTML = '<tr><td colspan="4" class="px-6 py-12 text-center text-slate-400 italic">Không tìm thấy bài học nào.</td></tr>';
+                lessonTableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-slate-400 italic">Không tìm thấy bài học nào.</td></tr>';
                 return;
             }
 
@@ -747,6 +754,7 @@ export const prerender = false
                 tr.innerHTML = `
                     <td class="px-6 py-4 text-sm font-semibold text-slate-900">${lesson.title}</td>
                     <td class="px-6 py-4 text-sm text-slate-600 max-w-xs truncate">${lesson.description || '-'}</td>
+                    <td class="px-6 py-4 text-sm text-slate-600">${lesson.author || '-'}</td>
                     <td class="px-6 py-4 text-center">
                         <a href="${lesson.url}" target="_blank" class="text-indigo-600 hover:text-indigo-800 font-medium flex items-center justify-center gap-1">
                             Xem bài học
@@ -854,14 +862,36 @@ export const prerender = false
             } catch { showToast('Lỗi kết nối', 'error'); }
         };
 
+        async function fetchMembersForSelect() {
+            try {
+                const res = await fetch('/api/admin/members?role=member&limit=100', {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
+                });
+                if (!res.ok) throw new Error('Không thể tải danh sách thành viên');
+                const data = await res.json();
+                const select = document.getElementById('lAuthor');
+                select.innerHTML = '<option value="">Chọn người thực hiện</option>';
+                data.members.forEach(member => {
+                    const option = document.createElement('option');
+                    option.value = member.member;
+                    option.textContent = member.display_name || member.member;
+                    select.appendChild(option);
+                });
+            } catch (err) {
+                console.error('Lỗi tải danh sách thành viên:', err);
+            }
+        }
+
         // Lesson Modal Logic
-        function openLessonModal(isEdit = false, data = null) {
+        async function openLessonModal(isEdit = false, data = null) {
             lessonModalTitle.textContent = isEdit ? 'Chỉnh sửa bài học' : 'Thêm bài học mới';
+            await fetchMembersForSelect();
             if (isEdit && data) {
                 document.getElementById('lessonId').value = data.id;
                 document.getElementById('lTitle').value = data.title;
                 document.getElementById('lUrl').value = data.url;
                 document.getElementById('lDescription').value = data.description || '';
+                document.getElementById('lAuthor').value = data.author || '';
             } else {
                 lessonForm.reset();
                 document.getElementById('lessonId').value = '';
@@ -880,7 +910,7 @@ export const prerender = false
 
         window.editMember = (id) => { const member = members.find(m => m.id === id); if (member) openModal(true, member); };
         window.toggleMemberStatus = (id) => openDeleteModal(id);
-        window.editLesson = (id) => { const lesson = lessons.find(l => l.id === id); if (lesson) openLessonModal(true, lesson); };
+        window.editLesson = async (id) => { const lesson = lessons.find(l => l.id === id); if (lesson) await openLessonModal(true, lesson); };
 
         window.deleteLesson = async (id) => {
             if (!confirm('Bạn có chắc chắn muốn xóa bài học này?')) return;
@@ -895,7 +925,7 @@ export const prerender = false
             } catch { showToast('Lỗi kết nối', 'error'); }
         };
 
-        addLessonBtn.onclick = () => openLessonModal(false);
+        addLessonBtn.onclick = async () => await openLessonModal(false);
         closeLessonModalBtns.forEach(btn => btn.onclick = closeLessonModal);
         lessonModal.onclick = (e) => { if (e.target === lessonModal) closeLessonModal(); };
 

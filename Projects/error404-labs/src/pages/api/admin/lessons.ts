@@ -71,6 +71,7 @@ export const GET: APIRoute = async ({ request, url }) => {
         await sql`ALTER TABLE error404labs.lessons ADD COLUMN IF NOT EXISTS url VARCHAR(500);`
         await sql`ALTER TABLE error404labs.lessons ADD COLUMN IF NOT EXISTS description TEXT;`
         await sql`ALTER TABLE error404labs.lessons ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();`
+        await sql`ALTER TABLE error404labs.lessons ADD COLUMN IF NOT EXISTS author VARCHAR(100);`
 
         const searchQuery = `%${search}%`
 
@@ -80,45 +81,45 @@ export const GET: APIRoute = async ({ request, url }) => {
             switch (finalSortBy) {
                 case 'title':
                     lessons =
-                        await sql`SELECT id, title, url, description, created_at FROM error404labs.lessons WHERE (title ILIKE ${searchQuery} OR description ILIKE ${searchQuery}) ORDER BY title DESC LIMIT ${limit} OFFSET ${offset}`
+                        await sql`SELECT id, title, url, description, created_at, author FROM error404labs.lessons WHERE (title ILIKE ${searchQuery} OR description ILIKE ${searchQuery}) ORDER BY title DESC LIMIT ${limit} OFFSET ${offset}`
                     break
                 case 'url':
                     lessons =
-                        await sql`SELECT id, title, url, description, created_at FROM error404labs.lessons WHERE (title ILIKE ${searchQuery} OR description ILIKE ${searchQuery}) ORDER BY url DESC LIMIT ${limit} OFFSET ${offset}`
+                        await sql`SELECT id, title, url, description, created_at, author FROM error404labs.lessons WHERE (title ILIKE ${searchQuery} OR description ILIKE ${searchQuery}) ORDER BY url DESC LIMIT ${limit} OFFSET ${offset}`
                     break
                 case 'description':
                     lessons =
-                        await sql`SELECT id, title, url, description, created_at FROM error404labs.lessons WHERE (title ILIKE ${searchQuery} OR description ILIKE ${searchQuery}) ORDER BY description DESC LIMIT ${limit} OFFSET ${offset}`
+                        await sql`SELECT id, title, url, description, created_at, author FROM error404labs.lessons WHERE (title ILIKE ${searchQuery} OR description ILIKE ${searchQuery}) ORDER BY description DESC LIMIT ${limit} OFFSET ${offset}`
                     break
                 case 'created_at':
                     lessons =
-                        await sql`SELECT id, title, url, description, created_at FROM error404labs.lessons WHERE (title ILIKE ${searchQuery} OR description ILIKE ${searchQuery}) ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`
+                        await sql`SELECT id, title, url, description, created_at, author FROM error404labs.lessons WHERE (title ILIKE ${searchQuery} OR description ILIKE ${searchQuery}) ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`
                     break
                 default:
                     lessons =
-                        await sql`SELECT id, title, url, description, created_at FROM error404labs.lessons WHERE (title ILIKE ${searchQuery} OR description ILIKE ${searchQuery}) ORDER BY id DESC LIMIT ${limit} OFFSET ${offset}`
+                        await sql`SELECT id, title, url, description, created_at, author FROM error404labs.lessons WHERE (title ILIKE ${searchQuery} OR description ILIKE ${searchQuery}) ORDER BY id DESC LIMIT ${limit} OFFSET ${offset}`
             }
         } else {
             switch (finalSortBy) {
                 case 'title':
                     lessons =
-                        await sql`SELECT id, title, url, description, created_at FROM error404labs.lessons WHERE (title ILIKE ${searchQuery} OR description ILIKE ${searchQuery}) ORDER BY title ASC LIMIT ${limit} OFFSET ${offset}`
+                        await sql`SELECT id, title, url, description, created_at, author FROM error404labs.lessons WHERE (title ILIKE ${searchQuery} OR description ILIKE ${searchQuery}) ORDER BY title ASC LIMIT ${limit} OFFSET ${offset}`
                     break
                 case 'url':
                     lessons =
-                        await sql`SELECT id, title, url, description, created_at FROM error404labs.lessons WHERE (title ILIKE ${searchQuery} OR description ILIKE ${searchQuery}) ORDER BY url ASC LIMIT ${limit} OFFSET ${offset}`
+                        await sql`SELECT id, title, url, description, created_at, author FROM error404labs.lessons WHERE (title ILIKE ${searchQuery} OR description ILIKE ${searchQuery}) ORDER BY url ASC LIMIT ${limit} OFFSET ${offset}`
                     break
                 case 'description':
                     lessons =
-                        await sql`SELECT id, title, url, description, created_at FROM error404labs.lessons WHERE (title ILIKE ${searchQuery} OR description ILIKE ${searchQuery}) ORDER BY description ASC LIMIT ${limit} OFFSET ${offset}`
+                        await sql`SELECT id, title, url, description, created_at, author FROM error404labs.lessons WHERE (title ILIKE ${searchQuery} OR description ILIKE ${searchQuery}) ORDER BY description ASC LIMIT ${limit} OFFSET ${offset}`
                     break
                 case 'created_at':
                     lessons =
-                        await sql`SELECT id, title, url, description, created_at FROM error404labs.lessons WHERE (title ILIKE ${searchQuery} OR description ILIKE ${searchQuery}) ORDER BY created_at ASC LIMIT ${limit} OFFSET ${offset}`
+                        await sql`SELECT id, title, url, description, created_at, author FROM error404labs.lessons WHERE (title ILIKE ${searchQuery} OR description ILIKE ${searchQuery}) ORDER BY created_at ASC LIMIT ${limit} OFFSET ${offset}`
                     break
                 default:
                     lessons =
-                        await sql`SELECT id, title, url, description, created_at FROM error404labs.lessons WHERE (title ILIKE ${searchQuery} OR description ILIKE ${searchQuery}) ORDER BY id ASC LIMIT ${limit} OFFSET ${offset}`
+                        await sql`SELECT id, title, url, description, created_at, author FROM error404labs.lessons WHERE (title ILIKE ${searchQuery} OR description ILIKE ${searchQuery}) ORDER BY id ASC LIMIT ${limit} OFFSET ${offset}`
             }
         }
 
@@ -148,12 +149,12 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     try {
-        const { title, url, description } = await request.json()
+        const { title, url, description, author } = await request.json()
         if (!title || !url) return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 })
 
         await sql`
-            INSERT INTO error404labs.lessons (title, url, description)
-            VALUES (${title}, ${url}, ${description || ''})
+            INSERT INTO error404labs.lessons (title, url, description, author)
+            VALUES (${title}, ${url}, ${description || ''}, ${author || ''})
         `
         return new Response(JSON.stringify({ success: true }), { status: 201 })
     } catch (error) {
@@ -169,12 +170,12 @@ export const PUT: APIRoute = async ({ request }) => {
     }
 
     try {
-        const { id, title, url, description } = await request.json()
+        const { id, title, url, description, author } = await request.json()
         if (!id || !title || !url) return new Response(JSON.stringify({ error: 'Missing data' }), { status: 400 })
 
         await sql`
             UPDATE error404labs.lessons
-            SET title = ${title}, url = ${url}, description = ${description}
+            SET title = ${title}, url = ${url}, description = ${description}, author = ${author || ''}
             WHERE id = ${id}
         `
         return new Response(JSON.stringify({ success: true }), { status: 200 })
