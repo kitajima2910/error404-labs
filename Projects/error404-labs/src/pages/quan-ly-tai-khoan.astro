@@ -75,36 +75,11 @@ export const prerender = false
                     </svg>
                     Trang chủ
                 </a>
-                <a href="/profile" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                    </svg>
-                    Hồ sơ
-                </a>
                 <a href="/quan-ly-tai-khoan" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-indigo-50 text-indigo-700 font-medium">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
                     </svg>
                     Quản lý tài khoản
-                </a>
-                <a href="/notifications" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-                    </svg>
-                    Thông báo
-                </a>
-                <a href="/docs" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                    </svg>
-                    Tài liệu
-                </a>
-                <a href="/settings" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    </svg>
-                    Cài đặt
                 </a>
             </nav>
 
@@ -1108,6 +1083,71 @@ export const prerender = false
 
         loadPromptsData()
         fetchMembers()
+
+        // Toast Notification
+        const toast = document.getElementById('toastNotification')
+        const toastMessage = document.getElementById('toastMessage')
+        const toastTitle = document.getElementById('toastTitle')
+        const toastIcon = document.getElementById('toastIcon')
+        const toastClose = document.getElementById('toastClose')
+        let toastTimeout
+
+        window.showToast = function(msg, type = 'success') {
+            if (toast) {
+                toastMessage.innerHTML = msg.replace(/\n/g, '<br>')
+                const svgPath = toastIcon.querySelector('path')
+
+                if (type === 'success') {
+                    toast.classList.remove('border-red-500', 'border-blue-500', 'border-amber-500')
+                    toast.classList.add('border-emerald-500')
+                    toastIcon.className = 'text-emerald-500'
+                    toastTitle.textContent = 'Thành công!'
+                } else if (type === 'error') {
+                    toast.classList.remove('border-emerald-500', 'border-blue-500', 'border-amber-500')
+                    toast.classList.add('border-red-500')
+                    toastIcon.className = 'text-red-500'
+                    toastTitle.textContent = 'Lỗi!'
+                } else if (type === 'info') {
+                    toast.classList.remove('border-emerald-500', 'border-red-500', 'border-amber-500')
+                    toast.classList.add('border-blue-500')
+                    toastIcon.className = 'text-blue-500'
+                    toastTitle.textContent = 'Thông báo'
+                } else if (type === 'warning') {
+                    toast.classList.remove('border-emerald-500', 'border-red-500', 'border-blue-500')
+                    toast.classList.add('border-amber-500')
+                    toastIcon.className = 'text-amber-500'
+                    toastTitle.textContent = 'Chú ý!'
+                }
+
+                toast.classList.remove('translate-x-full', 'opacity-0')
+
+                if (toastTimeout) clearTimeout(toastTimeout)
+                toastTimeout = setTimeout(() => {
+                    toast.classList.add('translate-x-full', 'opacity-0')
+                }, 3000)
+            }
+        }
+
+        if (toastClose) {
+            toastClose.onclick = () => toast.classList.add('translate-x-full', 'opacity-0')
+        }
     </script>
+
+    <!-- Toast Notification -->
+    <div
+        id="toastNotification"
+        class="fixed top-24 right-5 z-[120] transform transition-all duration-300 translate-x-full opacity-0 flex items-center gap-3 bg-white px-4 py-3 rounded-xl shadow-2xl border-l-[6px] border-emerald-500"
+    >
+        <div id="toastIcon" class="text-emerald-500">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                ><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg
+            >
+        </div>
+        <div class="flex flex-col">
+            <span id="toastTitle" class="font-bold text-gray-800 text-sm">Thành công!</span>
+            <span id="toastMessage" class="text-xs text-gray-500 font-medium">Đăng nhập thành công.</span>
+        </div>
+        <button id="toastClose" class="ml-4 text-gray-400 hover:text-gray-600 outline-none pxhCursorPointer"> ✕ </button>
+    </div>
 </body>
 </html>
