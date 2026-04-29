@@ -52,6 +52,8 @@ export const GET: APIRoute = async ({ request, url }) => {
     }
 
     const search = url.searchParams.get('search') || ''
+    const role = url.searchParams.get('role') || ''
+    const status = url.searchParams.get('status') || ''
     const sortBy = url.searchParams.get('sortBy') || 'id'
     const sortOrder = (url.searchParams.get('sortOrder') || 'ASC').toUpperCase() === 'DESC' ? 'DESC' : 'ASC'
     const limit = parseInt(url.searchParams.get('limit') || '5')
@@ -81,59 +83,59 @@ export const GET: APIRoute = async ({ request, url }) => {
             switch (finalSortBy) {
                 case 'member':
                     members =
-                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) ORDER BY member DESC LIMIT ${limit} OFFSET ${offset}`
+                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) AND (${role} = '' OR roles = ${role}) AND (${status} = '' OR status = ${status}) ORDER BY member DESC LIMIT ${limit} OFFSET ${offset}`
                     break
                 case 'display_name':
                     members =
-                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) ORDER BY display_name DESC LIMIT ${limit} OFFSET ${offset}`
+                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) AND (${role} = '' OR roles = ${role}) AND (${status} = '' OR status = ${status}) ORDER BY display_name DESC LIMIT ${limit} OFFSET ${offset}`
                     break
                 case 'roles':
                     members =
-                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) ORDER BY roles DESC LIMIT ${limit} OFFSET ${offset}`
+                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) AND (${role} = '' OR roles = ${role}) AND (${status} = '' OR status = ${status}) ORDER BY roles DESC LIMIT ${limit} OFFSET ${offset}`
                     break
                 case 'created_at':
                     members =
-                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`
+                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) AND (${role} = '' OR roles = ${role}) AND (${status} = '' OR status = ${status}) ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`
                     break
                 case 'status':
                     members =
-                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) ORDER BY status DESC LIMIT ${limit} OFFSET ${offset}`
+                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) AND (${role} = '' OR roles = ${role}) AND (${status} = '' OR status = ${status}) ORDER BY status DESC LIMIT ${limit} OFFSET ${offset}`
                     break
                 default:
                     members =
-                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) ORDER BY id DESC LIMIT ${limit} OFFSET ${offset}`
+                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) AND (${role} = '' OR roles = ${role}) AND (${status} = '' OR status = ${status}) ORDER BY id DESC LIMIT ${limit} OFFSET ${offset}`
             }
         } else {
             switch (finalSortBy) {
                 case 'member':
                     members =
-                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) ORDER BY member ASC LIMIT ${limit} OFFSET ${offset}`
+                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) AND (${role} = '' OR roles = ${role}) AND (${status} = '' OR status = ${status}) ORDER BY member ASC LIMIT ${limit} OFFSET ${offset}`
                     break
                 case 'display_name':
                     members =
-                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) ORDER BY display_name ASC LIMIT ${limit} OFFSET ${offset}`
+                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) AND (${role} = '' OR roles = ${role}) AND (${status} = '' OR status = ${status}) ORDER BY display_name ASC LIMIT ${limit} OFFSET ${offset}`
                     break
                 case 'roles':
                     members =
-                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) ORDER BY roles ASC LIMIT ${limit} OFFSET ${offset}`
+                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) AND (${role} = '' OR roles = ${role}) AND (${status} = '' OR status = ${status}) ORDER BY roles ASC LIMIT ${limit} OFFSET ${offset}`
                     break
                 case 'created_at':
                     members =
-                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) ORDER BY created_at ASC LIMIT ${limit} OFFSET ${offset}`
+                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) AND (${role} = '' OR roles = ${role}) AND (${status} = '' OR status = ${status}) ORDER BY created_at ASC LIMIT ${limit} OFFSET ${offset}`
                     break
                 case 'status':
                     members =
-                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) ORDER BY status ASC LIMIT ${limit} OFFSET ${offset}`
+                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) AND (${role} = '' OR roles = ${role}) AND (${status} = '' OR status = ${status}) ORDER BY status ASC LIMIT ${limit} OFFSET ${offset}`
                     break
                 default:
                     members =
-                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) ORDER BY id ASC LIMIT ${limit} OFFSET ${offset}`
+                        await sql`SELECT id, member, roles, display_name, prompt_access, created_at, status FROM error404labs.members WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) AND (${role} = '' OR roles = ${role}) AND (${status} = '' OR status = ${status}) ORDER BY id ASC LIMIT ${limit} OFFSET ${offset}`
             }
         }
 
         const totalResult = await sql`
-            SELECT COUNT(*)::int FROM error404labs.members 
-            WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery})
+            SELECT COUNT(*)::int FROM error404labs.members
+            WHERE (member ILIKE ${searchQuery} OR display_name ILIKE ${searchQuery}) AND (${role} = '' OR roles = ${role}) AND (${status} = '' OR status = ${status})
         `
 
         return new Response(

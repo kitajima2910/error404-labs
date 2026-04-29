@@ -490,7 +490,7 @@ export const prerender = false
                 renderMembers()
                 renderPagination()
             } catch (err) {
-                tableBody.innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center text-red-500">${err.message}</td></tr>`
+                tableBody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-red-500">${err.message}</td></tr>`
             }
         }
 
@@ -499,7 +499,7 @@ export const prerender = false
 
             if (members.length === 0) {
                 const tr = document.createElement('tr')
-                tr.innerHTML = '<td colspan="7" class="px-6 py-12 text-center text-slate-400 italic">Không tìm thấy tài khoản nào phù hợp yêu cầu.</td>'
+                tr.innerHTML = '<td colspan="8" class="px-6 py-12 text-center text-slate-400 italic">Không tìm thấy tài khoản nào phù hợp yêu cầu.</td>'
                 tableBody.appendChild(tr)
                 return
             }
