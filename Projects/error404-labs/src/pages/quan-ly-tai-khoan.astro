@@ -1,122 +1,244 @@
 ---
-import MainLayout from '../layouts/MainLayout.astro'
+import '../styles/global.css'
 
 export const prerender = false
 ---
 
-<MainLayout 
-    title="Quản lý tài khoản | Error404-Labs" 
-    description="Trang quản trị tài khoản dành cho Admin"
-    searchable={false}
->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý tài khoản | Error404-Labs</title>
+    <meta name="description" content="Trang quản trị tài khoản dành cho Admin">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+</head>
+<body class="bg-slate-50 min-h-screen">
     <!-- Page Skeleton -->
-    <div id="page-skeleton" class="max-w-6xl mx-auto px-4 py-12 animate-pulse">
-        <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+    <div id="page-skeleton" class="flex animate-pulse">
+        <!-- Sidebar Skeleton -->
+        <div class="w-80 bg-white border-r border-slate-200 p-6 space-y-6">
+            <div class="h-8 w-40 bg-slate-200 rounded"></div>
             <div class="space-y-3">
-                <div class="h-10 w-64 bg-slate-200 rounded-xl"></div>
-                <div class="h-4 w-96 bg-slate-100 rounded-lg"></div>
+                {[1,2,3,4,5,6].map(() => <div class="h-10 bg-slate-200 rounded-xl"></div>)}
             </div>
-            <div class="h-12 w-40 bg-slate-200 rounded-xl"></div>
+            <div class="mt-auto space-y-3">
+                <div class="h-12 bg-slate-200 rounded-xl"></div>
+                <div class="h-10 bg-slate-200 rounded-xl"></div>
+            </div>
         </div>
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-            <div class="h-16 bg-slate-50 border-b border-slate-100"></div>
-            <div class="p-6 space-y-4">
-                {[1, 2, 3, 4, 5].map(() => (
-                    <div class="flex gap-4">
-                        <div class="h-12 flex-1 bg-slate-50 rounded-xl"></div>
-                        <div class="h-12 flex-[2] bg-slate-50 rounded-xl"></div>
-                        <div class="h-12 flex-1 bg-slate-50 rounded-xl"></div>
+        <!-- Main Skeleton -->
+        <div class="flex-1">
+            <div class="bg-white border-b border-slate-200 p-6">
+                <div class="flex justify-between items-center">
+                    <div class="h-6 w-64 bg-slate-200 rounded"></div>
+                    <div class="h-8 w-8 bg-slate-200 rounded-full"></div>
+                </div>
+            </div>
+            <div class="p-6 space-y-6">
+                <div class="flex justify-between items-center">
+                    <div class="h-8 w-64 bg-slate-200 rounded"></div>
+                    <div class="h-10 w-32 bg-slate-200 rounded-xl"></div>
+                </div>
+                <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                    <div class="h-16 bg-slate-50 border-b border-slate-100"></div>
+                    <div class="p-6 space-y-4">
+                        {[1, 2, 3, 4, 5].map(() => (
+                            <div class="flex gap-4">
+                                <div class="h-12 flex-1 bg-slate-50 rounded-xl"></div>
+                                <div class="h-12 flex-[2] bg-slate-50 rounded-xl"></div>
+                                <div class="h-12 flex-1 bg-slate-50 rounded-xl"></div>
+                            </div>
+                        ))}
                     </div>
-                ))}
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Auth Guard -->
-    <div id="auth-guard" class="hidden pb-24 md:pb-12">
-        <section class="max-w-6xl mx-auto px-4 py-12">
-            <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-                <div>
-                    <h1 class="text-3xl font-bold text-slate-800 tracking-tight">QUẢN LÝ TÀI KHOẢN</h1>
-                    <p class="text-slate-500 mt-1">
-                        Chào, <span id="adminGreetingName" class="font-bold text-indigo-600 underline decoration-indigo-200 underline-offset-4">Admin</span>!
-                        Bạn đang quản lý các thành viên Error404-Labs.
-                    </p>
+    <div id="auth-guard" class="hidden flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="w-80 bg-white border-r border-slate-200 p-6 flex flex-col min-h-screen fixed">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+                    <span class="text-white font-bold text-sm">E4</span>
                 </div>
-                <div class="flex flex-col sm:flex-row items-center gap-3">
-                <div class="relative w-full sm:w-64">
-                    <input 
-                        type="text" 
-                        id="memberSearch" 
-                        placeholder="Tìm kiếm..." 
-                        class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all text-sm"
-                    />
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                <span class="font-bold text-slate-800 text-lg">Error404-Labs</span>
+            </div>
+
+            <nav class="space-y-2 flex-1">
+                <a href="/" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
                     </svg>
-                </div>
-                <button
-                    id="addMemberBtn"
-                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-indigo-200 flex items-center gap-2 w-full sm:w-auto cursor-pointer"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
+                    Trang chủ
+                </a>
+                <a href="/profile" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                     </svg>
-                    Thêm tài khoản
-                </button>
-            </div>
+                    Hồ sơ
+                </a>
+                <a href="/quan-ly-tai-khoan" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-indigo-50 text-indigo-700 font-medium">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                    </svg>
+                    Quản lý tài khoản
+                </a>
+                <a href="/notifications" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                    </svg>
+                    Thông báo
+                </a>
+                <a href="/docs" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                    </svg>
+                    Tài liệu
+                </a>
+                <a href="/settings" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    Cài đặt
+                </a>
+            </nav>
 
-        </div>
-
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-slate-50 border-b border-slate-100">
-                            <th class="sortable px-6 py-4 text-xs font-black text-slate-600 uppercase tracking-widest cursor-pointer hover:bg-slate-100 transition-colors group" data-sort="id">
-                                ID <span class="sort-icon ml-1 opacity-20 group-hover:opacity-100">⇅</span>
-                            </th>
-                            <th class="sortable px-6 py-4 text-xs font-black text-slate-600 uppercase tracking-widest cursor-pointer hover:bg-slate-100 transition-colors group" data-sort="member">
-                                Tài khoản <span class="sort-icon ml-1 opacity-20 group-hover:opacity-100">⇅</span>
-                            </th>
-                            <th class="sortable px-6 py-4 text-xs font-black text-slate-600 uppercase tracking-widest cursor-pointer hover:bg-slate-100 transition-colors group" data-sort="display_name">
-                                Tên hiển thị <span class="sort-icon ml-1 opacity-20 group-hover:opacity-100">⇅</span>
-                            </th>
-                            <th class="sortable px-6 py-4 text-xs font-black text-slate-600 uppercase tracking-widest cursor-pointer hover:bg-slate-100 transition-colors group text-center" data-sort="roles">
-                                Vai trò <span class="sort-icon ml-1 opacity-20 group-hover:opacity-100">⇅</span>
-                            </th>
-                            <th class="sortable px-6 py-4 text-xs font-black text-slate-600 uppercase tracking-widest cursor-pointer hover:bg-slate-100 transition-colors group text-center" data-sort="created_at">
-                                Ngày tham gia <span class="sort-icon ml-1 opacity-20 group-hover:opacity-100">⇅</span>
-                            </th>
-                            <th class="px-6 py-4 text-xs font-black text-slate-600 uppercase tracking-widest text-center">Truy cập</th>
-                            <th class="px-6 py-4 text-xs font-black text-slate-600 uppercase tracking-widest text-right">Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody id="memberTableBody" class="divide-y divide-slate-100">
-                        <tr>
-                            <td colspan="7" class="px-6 py-12 text-center text-slate-400">Đang tải dữ liệu...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Phân trang -->
-            <div class="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between flex-wrap gap-4">
-                <p class="text-sm text-slate-500">
-                    Hiển thị <span id="showingStart" class="font-bold text-slate-700">0</span> - <span id="showingEnd" class="font-bold text-slate-700">0</span> trong <span id="totalMembers" class="font-bold text-slate-700">0</span> tài khoản
-                </p>
-                <div class="flex items-center gap-2">
-                    <button id="prevPage" class="p-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-white hover:shadow-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
-                    </button>
-                    <div id="pageNumbers" class="flex items-center gap-1"></div>
-                    <button id="nextPage" class="p-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-white hover:shadow-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
-                    </button>
+            <!-- User Card -->
+            <div class="mt-auto pt-6 border-t border-slate-200">
+                <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-50">
+                    <div class="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center">
+                        <span class="text-white font-bold text-sm" id="sidebarUserAvatar">A</span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-medium text-slate-900 truncate" id="sidebarUserName">Admin</p>
+                        <p class="text-sm text-slate-500" id="sidebarUserRole">Admin</p>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 ml-80">
+            <!-- Header -->
+            <header class="bg-white border-b border-slate-200 px-6 py-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-xl font-bold text-slate-900">
+                            Xin chào, <span id="adminGreetingName" class="text-indigo-600">Admin</span>! 👋
+                        </h1>
+                        <p class="text-sm text-slate-500 mt-1">Chúc bạn một ngày làm việc hiệu quả</p>
+                    </div>
+                    <button class="w-10 h-10 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <div class="p-6">
+                <div class="max-w-7xl mx-auto">
+                    <!-- Section Header -->
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-900">Danh sách tài khoản</h2>
+                            <p class="text-slate-500 mt-1">Quản lý tất cả tài khoản thành viên trong hệ thống</p>
+                        </div>
+                        <button
+                            id="addMemberBtn"
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-semibold transition-all shadow-lg shadow-indigo-200 flex items-center gap-2 cursor-pointer"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
+                            </svg>
+                            Thêm tài khoản
+                        </button>
+                    </div>
+
+                    <!-- Filters & Search -->
+                    <div class="flex flex-wrap gap-4 mb-6">
+                        <div class="relative flex-1 min-w-64">
+                            <input
+                                type="text"
+                                id="memberSearch"
+                                placeholder="Tìm kiếm tài khoản..."
+                                class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm bg-white"
+                            />
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <select id="roleFilter" class="px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm bg-white min-w-40">
+                            <option value="">Tất cả vai trò</option>
+                            <option value="admin">Admin</option>
+                            <option value="member">Member</option>
+                        </select>
+                        <select id="statusFilter" class="px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm bg-white min-w-40">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="active">Đang hoạt động</option>
+                            <option value="inactive">Không hoạt động</option>
+                        </select>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 border-b border-slate-200">
+                                        <th class="sortable px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group" data-sort="id">
+                                            STT <span class="sort-icon ml-1 opacity-20 group-hover:opacity-100">⇅</span>
+                                        </th>
+                                        <th class="sortable px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group" data-sort="member">
+                                            Tài khoản <span class="sort-icon ml-1 opacity-20 group-hover:opacity-100">⇅</span>
+                                        </th>
+                                        <th class="sortable px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group" data-sort="display_name">
+                                            Tên hiển thị <span class="sort-icon ml-1 opacity-20 group-hover:opacity-100">⇅</span>
+                                        </th>
+                                        <th class="sortable px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group text-center" data-sort="roles">
+                                            Vai trò <span class="sort-icon ml-1 opacity-20 group-hover:opacity-100">⇅</span>
+                                        </th>
+                                        <th class="sortable px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group text-center" data-sort="created_at">
+                                            Ngày tham gia <span class="sort-icon ml-1 opacity-20 group-hover:opacity-100">⇅</span>
+                                        </th>
+                                        <th class="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center">Quyền truy cập</th>
+                                        <th class="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-right">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="memberTableBody" class="divide-y divide-slate-100">
+                                    <tr>
+                                        <td colspan="7" class="px-6 py-12 text-center text-slate-400">Đang tải dữ liệu...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Phân trang -->
+                        <div class="px-6 py-4 bg-slate-50/50 border-t border-slate-200 flex items-center justify-between flex-wrap gap-4">
+                            <p class="text-sm text-slate-600">
+                                Hiển thị <span id="showingStart" class="font-semibold text-slate-900">0</span> - <span id="showingEnd" class="font-semibold text-slate-900">0</span> trong <span id="totalMembers" class="font-semibold text-slate-900">0</span> tài khoản
+                            </p>
+                            <div class="flex items-center gap-2">
+                                <button id="prevPage" class="p-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-white hover:shadow-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                                </button>
+                                <div id="pageNumbers" class="flex items-center gap-1"></div>
+                                <button id="nextPage" class="p-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-white hover:shadow-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
 
     <!-- Modal Form -->
     <div
@@ -318,12 +440,21 @@ export const prerender = false
                 // Show content if verified
                 guard.classList.remove('hidden');
                 document.getElementById('page-skeleton')?.classList.add('hidden');
-                
-                // Initialize Admin Name
+
+                // Initialize User Info
                 const adminGreetingName = document.getElementById('adminGreetingName');
-                if (adminGreetingName) {
-                    adminGreetingName.textContent = data.user?.display_name || data.user?.member || 'Admin';
-                }
+                const sidebarUserName = document.getElementById('sidebarUserName');
+                const sidebarUserRole = document.getElementById('sidebarUserRole');
+                const sidebarUserAvatar = document.getElementById('sidebarUserAvatar');
+
+                const displayName = data.user?.display_name || data.user?.member || 'Admin';
+                const role = data.user?.roles === 'admin' ? 'Admin' : 'Member';
+                const avatar = (data.user?.display_name || data.user?.member || 'A').charAt(0).toUpperCase();
+
+                if (adminGreetingName) adminGreetingName.textContent = displayName;
+                if (sidebarUserName) sidebarUserName.textContent = displayName;
+                if (sidebarUserRole) sidebarUserRole.textContent = role;
+                if (sidebarUserAvatar) sidebarUserAvatar.textContent = avatar;
             } catch (err) {
                 console.error('Guard Error:', err);
                 window.location.href = '/?error=connection';
@@ -346,6 +477,8 @@ export const prerender = false
         let memberToDelete = null
 
         const memberSearch = document.getElementById('memberSearch')
+        const roleFilterSelect = document.getElementById('roleFilter')
+        const statusFilterSelect = document.getElementById('statusFilter')
         const showingStart = document.getElementById('showingStart')
         const showingEnd = document.getElementById('showingEnd')
         const totalMembers = document.getElementById('totalMembers')
@@ -360,13 +493,15 @@ export const prerender = false
         let currentPage = 1
         const limit = 5
         let search = ''
+        let roleFilter = ''
+        let statusFilter = ''
         let sortBy = 'id'
         let sortOrder = 'ASC'
 
         async function fetchMembers() {
             const offset = (currentPage - 1) * limit
             try {
-                const url = `/api/admin/members?search=${encodeURIComponent(search)}&sortBy=${sortBy}&sortOrder=${sortOrder}&limit=${limit}&offset=${offset}`
+                const url = `/api/admin/members?search=${encodeURIComponent(search)}&role=${roleFilter}&status=${statusFilter}&sortBy=${sortBy}&sortOrder=${sortOrder}&limit=${limit}&offset=${offset}`
                 const res = await fetch(url, {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
                 })
@@ -375,7 +510,7 @@ export const prerender = false
                 members = data.members
                 total = data.total
                 currentUser = data.currentUser
-                
+
                 renderMembers()
                 renderPagination()
             } catch (err) {
@@ -395,40 +530,51 @@ export const prerender = false
 
             members.forEach((m) => {
                 const tr = document.createElement('tr')
-                tr.className = "hover:bg-slate-50/50 transition-colors"
+                tr.className = "hover:bg-slate-50 transition-colors"
 
-                // ID cell
+                // STT cell
                 const tdId = document.createElement('td')
-                tdId.className = "px-6 py-4 text-sm font-medium text-slate-500"
+                tdId.className = "px-6 py-5 text-sm font-medium text-slate-600"
                 tdId.textContent = `#${m.id}`
                 tr.appendChild(tdId)
 
-                // Member cell
+                // Tài khoản cell
                 const tdMember = document.createElement('td')
-                tdMember.className = "px-6 py-4 text-sm font-bold text-slate-700"
+                tdMember.className = "px-6 py-5 text-sm font-semibold text-slate-900"
                 tdMember.textContent = m.member
                 tr.appendChild(tdMember)
 
-                // Display Name cell
+                // Tên hiển thị cell
                 const tdDisplayName = document.createElement('td')
-                tdDisplayName.className = "px-6 py-4 text-sm text-slate-600"
+                tdDisplayName.className = "px-6 py-5 text-sm text-slate-700"
                 tdDisplayName.textContent = m.display_name || '-'
                 tr.appendChild(tdDisplayName)
 
-                // Roles cell
+                // Vai trò cell
                 const tdRoles = document.createElement('td')
-                tdRoles.className = "px-6 py-4 text-center"
+                tdRoles.className = "px-6 py-5 text-center"
                 const roleSpan = document.createElement('span')
                 const targetIsSuper = m.member === 'pxh2910'
-                roleSpan.className = `inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-tighter ${m.roles === 'admin' ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-blue-100 text-blue-700 border border-blue-200'}`
+                roleSpan.className = `inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${m.roles === 'admin' ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-blue-50 text-blue-700 border border-blue-200'}`
                 roleSpan.textContent = m.roles === 'admin' ? (targetIsSuper ? 'Super Admin' : 'Admin') : 'Member'
                 tdRoles.appendChild(roleSpan)
                 tr.appendChild(tdRoles)
 
-                // Join Date cell
+                // Ngày tham gia cell
                 const tdDate = document.createElement('td')
-                tdDate.className = "px-6 py-4 text-sm text-slate-500"
-                tdDate.textContent = m.created_at ? new Date(m.created_at).toLocaleDateString('vi-VN') : '-'
+                tdDate.className = "px-6 py-5 text-sm text-slate-600 text-center"
+                if (m.created_at) {
+                    tdDate.innerHTML = `
+                        <div class="flex items-center justify-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <span>${new Date(m.created_at).toLocaleDateString('vi-VN')}</span>
+                        </div>
+                    `
+                } else {
+                    tdDate.textContent = '-'
+                }
                 tr.appendChild(tdDate)
 
                 const isSuper = currentUser === 'pxh2910'
@@ -439,12 +585,12 @@ export const prerender = false
                 const canDelete = !isSelf && !targetIsSuper && (isSuper || !targetIsAdmin)
                 const canEditAccess = isSuper || !targetIsAdmin || isSelf
 
-                // Prompt Access cell
+                // Quyền truy cập cell
                 const tdAccess = document.createElement('td')
-                tdAccess.className = "px-6 py-4 text-center"
+                tdAccess.className = "px-6 py-5 text-center"
                 const accessBtn = document.createElement('button')
                 const accessCount = m.prompt_access ? m.prompt_access.length : 0
-                accessBtn.className = `text-xs font-bold px-3 py-1.5 rounded-lg border transition-all cursor-pointer ${targetIsAdmin ? 'bg-amber-50 text-amber-600 border-amber-100 cursor-not-allowed' : 'bg-emerald-50 text-emerald-600 border-emerald-100 hover:bg-emerald-100'}`
+                accessBtn.className = `text-xs font-semibold px-3 py-1.5 rounded-xl border transition-all cursor-pointer ${targetIsAdmin ? 'bg-amber-50 text-amber-700 border-amber-200 cursor-not-allowed' : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'}`
                 accessBtn.textContent = targetIsAdmin ? 'Full Quyền' : (accessCount > 0 ? `${accessCount} prompts` : '0 prompts')
                 accessBtn.title = targetIsAdmin ? "Admin có full quyền truy cập mọi prompt" : "Quản lý quyền truy cập Prompt"
                 if (!targetIsAdmin) {
@@ -453,11 +599,11 @@ export const prerender = false
                 tdAccess.appendChild(accessBtn)
                 tr.appendChild(tdAccess)
 
-                // Actions cell
+                // Thao tác cell
                 const tdActions = document.createElement('td')
-                tdActions.className = "px-6 py-4 text-right"
+                tdActions.className = "px-6 py-5 text-right"
                 const actionsContainer = document.createElement('div')
-                actionsContainer.className = "flex items-center justify-end gap-1"
+                actionsContainer.className = "flex items-center justify-end gap-2"
                 
                 if (canEdit) {
                     const editBtn = document.createElement('button')
@@ -522,6 +668,18 @@ export const prerender = false
                 currentPage = 1
                 fetchMembers()
             }, 300)
+        }
+
+        roleFilterSelect.onchange = (e) => {
+            roleFilter = e.target.value
+            currentPage = 1
+            fetchMembers()
+        }
+
+        statusFilterSelect.onchange = (e) => {
+            statusFilter = e.target.value
+            currentPage = 1
+            fetchMembers()
         }
 
         sortHeaders.forEach(header => {
@@ -728,7 +886,12 @@ export const prerender = false
                         
                         // Cập nhật UI Greeting ngay tại trang này
                         const adminGreetingName = document.getElementById('adminGreetingName');
+                        const sidebarUserName = document.getElementById('sidebarUserName');
+                        const sidebarUserAvatar = document.getElementById('sidebarUserAvatar');
+
                         if (adminGreetingName) adminGreetingName.textContent = newDisplayName;
+                        if (sidebarUserName) sidebarUserName.textContent = newDisplayName;
+                        if (sidebarUserAvatar) sidebarUserAvatar.textContent = newDisplayName.charAt(0).toUpperCase();
                         
                         // Phát sự kiện để Nav.astro nhận biết và cập nhật
                         window.dispatchEvent(new Event('user-config-update'));
@@ -946,4 +1109,5 @@ export const prerender = false
         loadPromptsData()
         fetchMembers()
     </script>
-</MainLayout>
+</body>
+</html>
