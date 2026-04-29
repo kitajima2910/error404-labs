@@ -287,10 +287,26 @@ export const prerender = false
                                              <td colspan="5" class="px-6 py-12 text-center text-slate-400">Đang tải dữ liệu bài học...</td>
                                          </tr>
                                      </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+                                 </table>
+                             </div>
+
+                             <!-- Phân trang -->
+                             <div class="px-6 py-4 bg-slate-50/50 border-t border-slate-200 flex items-center justify-between flex-wrap gap-4">
+                                 <p class="text-sm text-slate-600">
+                                     Hiển thị <span id="lessonShowingStart" class="font-semibold text-slate-900">0</span> - <span id="lessonShowingEnd" class="font-semibold text-slate-900">0</span> trong <span id="totalLessons" class="font-semibold text-slate-900">0</span> bài học
+                                 </p>
+                                 <div class="flex items-center gap-2">
+                                     <button id="lessonPrevPage" class="p-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-white hover:shadow-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer">
+                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                                     </button>
+                                     <div id="lessonPageNumbers" class="flex items-center gap-1"></div>
+                                     <button id="lessonNextPage" class="p-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-white hover:shadow-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer">
+                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
+                                     </button>
+                                 </div>
+                             </div>
+                         </div>
+                     </div>
                 </div>
             </div>
         </main>
@@ -642,6 +658,8 @@ export const prerender = false
         let lessonSortBy = 'id';
         let lessonSortOrder = 'ASC';
         let lessonToDelete = null;
+        let lessonCurrentPage = 1;
+        let lessonTotal = 0;
 
         function switchView(viewName) {
             if (viewName === 'accounts') {
@@ -762,16 +780,45 @@ export const prerender = false
             }
         }
 
+        function renderLessonPagination() {
+            const totalPages = Math.ceil(lessonTotal / 5);
+            const lessonShowingStart = document.getElementById('lessonShowingStart');
+            const lessonShowingEnd = document.getElementById('lessonShowingEnd');
+            const totalLessons = document.getElementById('totalLessons');
+            const lessonPrevPage = document.getElementById('lessonPrevPage');
+            const lessonNextPage = document.getElementById('lessonNextPage');
+            const lessonPageNumbers = document.getElementById('lessonPageNumbers');
+
+            lessonShowingStart.textContent = lessonTotal === 0 ? 0 : (lessonCurrentPage - 1) * 5 + 1;
+            lessonShowingEnd.textContent = Math.min(lessonCurrentPage * 5, lessonTotal);
+            totalLessons.textContent = lessonTotal;
+
+            lessonPrevPage.disabled = lessonCurrentPage === 1;
+            lessonNextPage.disabled = lessonCurrentPage === totalPages || totalPages === 0;
+
+            lessonPageNumbers.innerHTML = '';
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement('button');
+                btn.textContent = i;
+                btn.className = `w-8 h-8 rounded-lg text-sm font-bold transition-all cursor-pointer ${lessonCurrentPage === i ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100' : 'text-slate-500 hover:bg-white hover:shadow-sm'}`;
+                btn.onclick = () => { lessonCurrentPage = i; fetchLessons(); };
+                lessonPageNumbers.appendChild(btn);
+            }
+        }
+
         // Lesson CRUD Logic
         async function fetchLessons() {
+            const offset = (lessonCurrentPage - 1) * 5;
             try {
-                const res = await fetch(`/api/admin/lessons?search=${encodeURIComponent(lessonSearchQuery)}&sortBy=${lessonSortBy}&sortOrder=${lessonSortOrder}`, {
+                const res = await fetch(`/api/admin/lessons?search=${encodeURIComponent(lessonSearchQuery)}&sortBy=${lessonSortBy}&sortOrder=${lessonSortOrder}&limit=5&offset=${offset}`, {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
                 });
                 if (!res.ok) throw new Error('Lỗi khi tải danh sách bài học');
                 const data = await res.json();
                 lessons = data.lessons;
+                lessonTotal = data.total;
                 renderLessons();
+                renderLessonPagination();
             } catch (err) {
                 lessonTableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-red-500">${err.message}</td></tr>`;
             }
@@ -990,7 +1037,7 @@ export const prerender = false
 
         lessonSearchInput.oninput = (e) => {
             clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => { lessonSearchQuery = e.target.value; fetchLessons(); }, 300);
+            searchTimeout = setTimeout(() => { lessonSearchQuery = e.target.value; lessonCurrentPage = 1; fetchLessons(); }, 300);
         };
 
         // Lesson sorting
@@ -1004,6 +1051,7 @@ export const prerender = false
                     lessonSortBy = sort;
                     lessonSortOrder = 'ASC';
                 }
+                lessonCurrentPage = 1;
                 fetchLessons();
             };
         });
