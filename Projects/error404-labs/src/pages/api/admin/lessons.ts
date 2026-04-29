@@ -52,7 +52,7 @@ export const GET: APIRoute = async ({ request, url }) => {
 
     const search = url.searchParams.get('search') || ''
     const sortBy = url.searchParams.get('sortBy') || 'id'
-    const sortOrder = (url.searchParams.get('sortOrder') || 'ASC').toUpperCase() === 'DESC' ? 'DESC' : 'ASC'
+    const sortOrder = (url.searchParams.get('sortOrder') || 'DESC').toUpperCase() === 'DESC' ? 'DESC' : 'ASC'
     const limit = parseInt(url.searchParams.get('limit') || '10')
     const offset = parseInt(url.searchParams.get('offset') || '0')
 
