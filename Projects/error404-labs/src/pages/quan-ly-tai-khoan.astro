@@ -267,10 +267,18 @@ export const prerender = false
                                 <table class="w-full text-left border-collapse">
                                      <thead>
                                          <tr class="bg-slate-50 border-b border-slate-200">
-                                             <th class="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Tiêu đề bài học</th>
-                                             <th class="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Mô tả ngắn</th>
-                                             <th class="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Người thực hiện</th>
-                                             <th class="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center">Liên kết</th>
+                                             <th class="sortable px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group" data-sort="title">
+                                                 Tiêu đề bài học <span class="sort-icon ml-1 opacity-20 group-hover:opacity-100">⇅</span>
+                                             </th>
+                                             <th class="sortable px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group" data-sort="description">
+                                                 Mô tả ngắn <span class="sort-icon ml-1 opacity-20 group-hover:opacity-100">⇅</span>
+                                             </th>
+                                             <th class="sortable px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group" data-sort="author">
+                                                 Người thực hiện <span class="sort-icon ml-1 opacity-20 group-hover:opacity-100">⇅</span>
+                                             </th>
+                                             <th class="sortable px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center cursor-pointer hover:bg-slate-100 transition-colors group" data-sort="url">
+                                                 Liên kết <span class="sort-icon ml-1 opacity-20 group-hover:opacity-100">⇅</span>
+                                             </th>
                                              <th class="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-right">Thao tác</th>
                                          </tr>
                                      </thead>
@@ -456,6 +464,31 @@ export const prerender = false
         </div>
     </div>
 
+    <!-- Modal Xác nhận xóa bài học -->
+    <div id="lessonDeleteModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm transition-all duration-300">
+        <div id="lessonDeleteModalContent" class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden transform scale-95 opacity-0 transition-all duration-300 border border-red-50">
+            <div class="bg-red-50 p-6 flex flex-col items-center">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-black text-red-600 uppercase tracking-tight">Xóa bài học?</h3>
+                <p class="text-slate-500 mt-2 text-center text-sm leading-relaxed">
+                    Hành động này sẽ <span class="font-bold text-red-600 italic">xóa vĩnh viễn</span> bài học. Không thể hoàn tác.
+                </p>
+            </div>
+            <div class="p-6 flex flex-col gap-3">
+                <button id="confirmLessonDeleteBtn" class="w-full py-3.5 bg-red-600 text-white font-black rounded-2xl hover:bg-red-700 transition-all shadow-lg shadow-red-200 active:scale-95 cursor-pointer">
+                    Xác nhận xóa
+                </button>
+                <button id="cancelLessonDeleteBtn" class="w-full py-3.5 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all cursor-pointer">
+                    Hủy bỏ
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Quản lý Bài học -->
     <div id="lessonModal" class="fixed inset-0 z-[150] hidden items-center justify-center bg-black/50 p-4 transition-opacity">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all scale-95 opacity-0" id="lessonModalContent">
@@ -606,6 +639,9 @@ export const prerender = false
 
         let lessons = [];
         let lessonSearchQuery = '';
+        let lessonSortBy = 'id';
+        let lessonSortOrder = 'ASC';
+        let lessonToDelete = null;
 
         function switchView(viewName) {
             if (viewName === 'accounts') {
@@ -729,7 +765,7 @@ export const prerender = false
         // Lesson CRUD Logic
         async function fetchLessons() {
             try {
-                const res = await fetch(`/api/admin/lessons?search=${encodeURIComponent(lessonSearchQuery)}`, {
+                const res = await fetch(`/api/admin/lessons?search=${encodeURIComponent(lessonSearchQuery)}&sortBy=${lessonSortBy}&sortOrder=${lessonSortOrder}`, {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
                 });
                 if (!res.ok) throw new Error('Lỗi khi tải danh sách bài học');
@@ -737,7 +773,7 @@ export const prerender = false
                 lessons = data.lessons;
                 renderLessons();
             } catch (err) {
-                lessonTableBody.innerHTML = `<tr><td colspan="4" class="px-6 py-12 text-center text-red-500">${err.message}</td></tr>`;
+                lessonTableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-red-500">${err.message}</td></tr>`;
             }
         }
 
@@ -908,31 +944,69 @@ export const prerender = false
             setTimeout(() => { lessonModal.classList.add('hidden'); lessonModal.classList.remove('flex'); document.body.style.overflow = ''; }, 200);
         }
 
+        function openLessonDeleteModal(id) {
+            lessonToDelete = id;
+            const modal = document.getElementById('lessonDeleteModal');
+            const modalContent = document.getElementById('lessonDeleteModalContent');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => { modalContent.classList.remove('scale-95', 'opacity-0'); modalContent.classList.add('scale-100', 'opacity-100'); }, 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLessonDeleteModal() {
+            const modal = document.getElementById('lessonDeleteModal');
+            const modalContent = document.getElementById('lessonDeleteModalContent');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); document.body.style.overflow = ''; lessonToDelete = null; }, 200);
+        }
+
         window.editMember = (id) => { const member = members.find(m => m.id === id); if (member) openModal(true, member); };
         window.toggleMemberStatus = (id) => openDeleteModal(id);
         window.editLesson = async (id) => { const lesson = lessons.find(l => l.id === id); if (lesson) await openLessonModal(true, lesson); };
 
-        window.deleteLesson = async (id) => {
-            if (!confirm('Bạn có chắc chắn muốn xóa bài học này?')) return;
-            try {
-                const res = await fetch('/api/admin/lessons', {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
-                    body: JSON.stringify({ id })
-                });
-                if (res.ok) { showToast('Đã xóa bài học thành công', 'success'); fetchLessons(); }
-                else { const data = await res.json(); showToast(data.error || 'Lỗi khi xóa bài học', 'error'); }
-            } catch { showToast('Lỗi kết nối', 'error'); }
-        };
+        window.deleteLesson = (id) => openLessonDeleteModal(id);
 
         addLessonBtn.onclick = async () => await openLessonModal(false);
         closeLessonModalBtns.forEach(btn => btn.onclick = closeLessonModal);
         lessonModal.onclick = (e) => { if (e.target === lessonModal) closeLessonModal(); };
 
+        // Lesson delete modal
+        document.getElementById('confirmLessonDeleteBtn').onclick = async () => {
+            if (!lessonToDelete) return;
+            try {
+                const res = await fetch('/api/admin/lessons', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+                    body: JSON.stringify({ id: lessonToDelete })
+                });
+                if (res.ok) { showToast('Đã xóa bài học thành công', 'success'); fetchLessons(); closeLessonDeleteModal(); }
+                else { const data = await res.json(); showToast(data.error || 'Lỗi khi xóa bài học', 'error'); }
+            } catch { showToast('Lỗi kết nối', 'error'); }
+        };
+        document.getElementById('cancelLessonDeleteBtn').onclick = closeLessonDeleteModal;
+        document.getElementById('lessonDeleteModal').onclick = (e) => { if (e.target === document.getElementById('lessonDeleteModal')) closeLessonDeleteModal(); };
+
         lessonSearchInput.oninput = (e) => {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => { lessonSearchQuery = e.target.value; fetchLessons(); }, 300);
         };
+
+        // Lesson sorting
+        const lessonSortHeaders = document.querySelectorAll('#lessonsView .sortable');
+        lessonSortHeaders.forEach(header => {
+            header.onclick = () => {
+                const sort = header.dataset.sort;
+                if (lessonSortBy === sort) {
+                    lessonSortOrder = lessonSortOrder === 'ASC' ? 'DESC' : 'ASC';
+                } else {
+                    lessonSortBy = sort;
+                    lessonSortOrder = 'ASC';
+                }
+                fetchLessons();
+            };
+        });
 
         lessonForm.onsubmit = async (e) => {
             e.preventDefault();

@@ -63,6 +63,7 @@ export const GET: APIRoute = async ({ request, url }) => {
         'url',
         'description',
         'created_at',
+        'author',
     ]
     const finalSortBy = allowedSortColumns.includes(sortBy) ? sortBy : 'id'
 
@@ -95,6 +96,10 @@ export const GET: APIRoute = async ({ request, url }) => {
                     lessons =
                         await sql`SELECT id, title, url, description, created_at, author FROM error404labs.lessons WHERE (title ILIKE ${searchQuery} OR description ILIKE ${searchQuery}) ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`
                     break
+                case 'author':
+                    lessons =
+                        await sql`SELECT id, title, url, description, created_at, author FROM error404labs.lessons WHERE (title ILIKE ${searchQuery} OR description ILIKE ${searchQuery}) ORDER BY author DESC LIMIT ${limit} OFFSET ${offset}`
+                    break
                 default:
                     lessons =
                         await sql`SELECT id, title, url, description, created_at, author FROM error404labs.lessons WHERE (title ILIKE ${searchQuery} OR description ILIKE ${searchQuery}) ORDER BY id DESC LIMIT ${limit} OFFSET ${offset}`
@@ -116,6 +121,10 @@ export const GET: APIRoute = async ({ request, url }) => {
                 case 'created_at':
                     lessons =
                         await sql`SELECT id, title, url, description, created_at, author FROM error404labs.lessons WHERE (title ILIKE ${searchQuery} OR description ILIKE ${searchQuery}) ORDER BY created_at ASC LIMIT ${limit} OFFSET ${offset}`
+                    break
+                case 'author':
+                    lessons =
+                        await sql`SELECT id, title, url, description, created_at, author FROM error404labs.lessons WHERE (title ILIKE ${searchQuery} OR description ILIKE ${searchQuery}) ORDER BY author ASC LIMIT ${limit} OFFSET ${offset}`
                     break
                 default:
                     lessons =
