@@ -1,43 +1,35 @@
 === CREATE GAME ===
 
 * Tên: Neon Jump Runner
-
-* Style: Neon (grid + glow, nền tối, hiệu ứng phát sáng)
-
-* Đối tượng: Nhân vật runner dạng silhouette phát sáng
-
+* Style: Neon (grid + glow, nền tối cyber)
+* Đối tượng: Nhân vật runner phát sáng, tự động chạy trên đường grid vô hạn
 * Gameplay:
 
-  * Nhân vật tự động chạy về phía trước trên nền grid neon
-  * Nhấn để nhảy, giữ để nhảy cao hơn
-  * Né chướng ngại vật (spike, gap, laser)
-  * Thu thập energy để tăng điểm và kích hoạt combo
-
+  * Nhân vật auto chạy về phía trước
+  * Người chơi tap / space để nhảy, giữ để nhảy cao hơn
+  * Né chướng ngại (block, laser, hố)
+  * Thu thập energy orb để tăng điểm và kích hoạt combo
 * Luật:
 
-  * Va chạm = thua
-  * Rơi khỏi platform = thua
-  * Đi càng xa + combo càng cao = điểm càng lớn
-
+  * Va chạm = mất máu
+  * Rơi khỏi nền = thua
+  * Combo orb liên tục = tăng tốc + nhân điểm
 * Hiển thị:
 
+  * Camera side-scrolling 2D
   * Nền grid neon chuyển động parallax
-  * Platform phát sáng đổi màu theo tốc độ
-  * Hiệu ứng trail ánh sáng phía sau nhân vật
-
+  * Màu chủ đạo: tím, xanh cyan, hồng glow
 * UI:
 
-  * Score + Distance (góc trên)
-  * Thanh energy combo
-  * Nút tap / giữ (mobile-friendly)
-
+  * Thanh máu (HP)
+  * Điểm + combo meter
+  * Thanh energy boost
 * Hiệu ứng:
 
-  * Glow bloom mạnh khi nhảy
-  * Particle khi tiếp đất
-  * Flash neon khi đạt combo cao
-
+  * Glow trail theo nhân vật
+  * Particle khi nhảy / tiếp đất
+  * Slow motion nhẹ khi gần va chạm
 * Build:
 
-  * Base Build: "Light Dash Runner"
-  * Nhân vật có tốc độ ổn định, nhảy linh hoạt, chưa có kỹ năng đặc biệt
+  * “Starter Spark”:
+    Runner cơ bản với tốc độ trung bình, chưa có khả năng đặc biệt, tập trung né và giữ combo ổn định.
