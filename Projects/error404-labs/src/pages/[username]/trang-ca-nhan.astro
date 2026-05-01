@@ -39,12 +39,12 @@ try {
 const displayName = member?.display_name || member?.member || username
 
 // Lấy danh sách bài học từ Admin (lessons có author = username)
-let lessons: { id: number; title: string; url: string; description: string; created_at: string }[] = []
+let lessons: { id: number; title: string; url: string; description: string; created_at: string; thumbnail_url: string | null }[] = []
 if (dbUrl && member) {
     try {
         const sql = neon(dbUrl)
         const rows = await sql`
-            SELECT id, title, url, description, created_at
+            SELECT id, title, url, description, created_at, thumbnail_url
             FROM error404labs.lessons
             WHERE author = ${username}
             ORDER BY created_at DESC
@@ -96,8 +96,19 @@ if (dbUrl && member) {
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {lessons.map((lesson) => (
                                 <div class="group relative bg-white/70 backdrop-blur-sm rounded-2xl border border-emerald-100 shadow-sm hover:shadow-xl hover:shadow-emerald-500/15 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
-                                    <!-- Gradient top bar -->
-                                    <div class="h-1 w-full bg-gradient-to-r from-emerald-400 to-teal-500"></div>
+                                    <!-- Thumbnail -->
+                                    {lesson.thumbnail_url ? (
+                                        <div class="aspect-[16/9] overflow-hidden bg-slate-100">
+                                            <img
+                                                src={lesson.thumbnail_url}
+                                                alt={lesson.title}
+                                                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                                loading="lazy"
+                                            />
+                                        </div>
+                                    ) : (
+                                        <div class="h-1 w-full bg-gradient-to-r from-emerald-400 to-teal-500"></div>
+                                    )}
                                     <div class="p-5">
                                         <div class="flex items-start gap-3 mb-3">
                                             <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center flex-shrink-0 mt-0.5">

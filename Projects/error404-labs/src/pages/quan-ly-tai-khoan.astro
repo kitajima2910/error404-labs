@@ -267,6 +267,7 @@ export const prerender = false
                                 <table class="w-full text-left border-collapse">
                                      <thead>
                                          <tr class="bg-slate-50 border-b border-slate-200">
+                                             <th class="px-4 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-16">Ảnh</th>
                                              <th class="sortable px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group" data-sort="title">
                                                  Tiêu đề bài học <span class="sort-icon ml-1 opacity-20 group-hover:opacity-100">⇅</span>
                                              </th>
@@ -284,7 +285,7 @@ export const prerender = false
                                      </thead>
                                      <tbody id="lessonTableBody" class="divide-y divide-slate-100">
                                          <tr>
-                                             <td colspan="5" class="px-6 py-12 text-center text-slate-400">Đang tải dữ liệu bài học...</td>
+                                             <td colspan="6" class="px-6 py-12 text-center text-slate-400">Đang tải dữ liệu bài học...</td>
                                          </tr>
                                      </tbody>
                                  </table>
@@ -518,6 +519,7 @@ export const prerender = false
             </div>
             <form id="lessonForm" class="p-6 space-y-4">
                 <input type="hidden" id="lessonId" name="id" />
+                <input type="hidden" id="lThumbnailUrl" name="thumbnailUrl" />
                 <div>
                     <label for="lTitle" class="block text-sm font-bold text-slate-700 mb-1.5">Tiêu đề bài học</label>
                     <input type="text" id="lTitle" name="title" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all" placeholder="VD: Bài 1: Làm quen với AI" />
@@ -529,6 +531,26 @@ export const prerender = false
                 <div>
                     <label for="lDescription" class="block text-sm font-bold text-slate-700 mb-1.5">Mô tả ngắn</label>
                     <textarea id="lDescription" name="description" rows="3" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all" placeholder="Mô tả nội dung bài học..."></textarea>
+                </div>
+                <!-- Thumbnail Upload -->
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1.5">Ảnh minh họa</label>
+                    <div id="thumbnailUploadArea" class="relative border-2 border-dashed border-slate-200 rounded-xl p-4 hover:border-indigo-400 transition-colors cursor-pointer group">
+                        <!-- Preview -->
+                        <div id="thumbnailPreview" class="hidden mb-3 relative">
+                            <img id="thumbnailPreviewImg" src="" alt="Preview" class="w-full h-36 object-cover rounded-lg shadow-sm" />
+                            <button type="button" id="removeThumbnailBtn" class="absolute top-1.5 right-1.5 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors text-xs font-bold">✕</button>
+                        </div>
+                        <!-- Upload prompt -->
+                        <div id="thumbnailPlaceholder" class="flex flex-col items-center gap-2 py-2">
+                            <svg class="w-8 h-8 text-slate-300 group-hover:text-indigo-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <p class="text-sm text-slate-400 group-hover:text-indigo-500 transition-colors">Nhấn để chọn ảnh <span class="text-slate-300">(JPG, PNG, WebP — tối đa 5MB)</span></p>
+                        </div>
+                        <input type="file" id="lThumbnailFile" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                    </div>
+                    <div id="thumbnailUploadStatus" class="hidden mt-2 text-xs font-medium"></div>
                 </div>
                 <div>
                     <label for="lAuthor" class="block text-sm font-bold text-slate-700 mb-1.5">Người thực hiện</label>
@@ -827,7 +849,7 @@ export const prerender = false
         function renderLessons() {
             lessonTableBody.innerHTML = '';
             if (lessons.length === 0) {
-                lessonTableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-slate-400 italic">Không tìm thấy bài học nào.</td></tr>';
+                lessonTableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-12 text-center text-slate-400 italic">Không tìm thấy bài học nào.</td></tr>';
                 return;
             }
 
@@ -835,6 +857,14 @@ export const prerender = false
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 transition-colors";
                 tr.innerHTML = `
+                    <td class="px-4 py-3">
+                        ${lesson.thumbnail_url
+                            ? `<img src="${lesson.thumbnail_url}" alt="${lesson.title}" class="w-12 h-12 object-cover rounded-lg shadow-sm border border-slate-100" loading="lazy" />`
+                            : `<div class="w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center border border-slate-200">
+                                <svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                               </div>`
+                        }
+                    </td>
                     <td class="px-6 py-4 text-sm font-semibold text-slate-900">${lesson.title}</td>
                     <td class="px-6 py-4 text-sm text-slate-600 max-w-xs truncate">${lesson.description || '-'}</td>
                     <td class="px-6 py-4 text-sm text-slate-600">${lesson.author || '-'}</td>
@@ -969,15 +999,25 @@ export const prerender = false
         async function openLessonModal(isEdit = false, data = null) {
             lessonModalTitle.textContent = isEdit ? 'Chỉnh sửa bài học' : 'Thêm bài học mới';
             await fetchMembersForSelect();
+
+            // Reset thumbnail UI
+            resetThumbnailUI();
+
             if (isEdit && data) {
                 document.getElementById('lessonId').value = data.id;
                 document.getElementById('lTitle').value = data.title;
                 document.getElementById('lUrl').value = data.url;
                 document.getElementById('lDescription').value = data.description || '';
                 document.getElementById('lAuthor').value = data.author || '';
+                document.getElementById('lThumbnailUrl').value = data.thumbnail_url || '';
+                // Hiển thị preview nếu đã có ảnh
+                if (data.thumbnail_url) {
+                    showThumbnailPreview(data.thumbnail_url);
+                }
             } else {
                 lessonForm.reset();
                 document.getElementById('lessonId').value = '';
+                document.getElementById('lThumbnailUrl').value = '';
             }
             lessonModal.classList.remove('hidden');
             lessonModal.classList.add('flex');
@@ -988,7 +1028,12 @@ export const prerender = false
         function closeLessonModal() {
             lessonModalContent.classList.add('scale-95', 'opacity-0');
             lessonModalContent.classList.remove('scale-100', 'opacity-100');
-            setTimeout(() => { lessonModal.classList.add('hidden'); lessonModal.classList.remove('flex'); document.body.style.overflow = ''; }, 200);
+            setTimeout(() => {
+                lessonModal.classList.add('hidden');
+                lessonModal.classList.remove('flex');
+                document.body.style.overflow = '';
+                resetThumbnailUI();
+            }, 200);
         }
 
         function openLessonDeleteModal(id) {
@@ -1056,6 +1101,49 @@ export const prerender = false
             };
         });
 
+        // Thumbnail upload helpers
+        function showThumbnailPreview(url) {
+            const preview = document.getElementById('thumbnailPreview');
+            const img = document.getElementById('thumbnailPreviewImg');
+            const placeholder = document.getElementById('thumbnailPlaceholder');
+            img.src = url;
+            preview.classList.remove('hidden');
+            placeholder.classList.add('hidden');
+        }
+
+        function resetThumbnailUI() {
+            const preview = document.getElementById('thumbnailPreview');
+            const img = document.getElementById('thumbnailPreviewImg');
+            const placeholder = document.getElementById('thumbnailPlaceholder');
+            const status = document.getElementById('thumbnailUploadStatus');
+            const fileInput = document.getElementById('lThumbnailFile');
+            img.src = '';
+            preview.classList.add('hidden');
+            placeholder.classList.remove('hidden');
+            status.classList.add('hidden');
+            status.textContent = '';
+            if (fileInput) fileInput.value = '';
+        }
+
+        // File input change: show local preview
+        document.getElementById('lThumbnailFile').addEventListener('change', function() {
+            const file = this.files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => showThumbnailPreview(e.target.result);
+            reader.readAsDataURL(file);
+            // Reset status
+            const status = document.getElementById('thumbnailUploadStatus');
+            status.classList.add('hidden');
+        });
+
+        // Remove thumbnail button
+        document.getElementById('removeThumbnailBtn').addEventListener('click', function(e) {
+            e.stopPropagation();
+            resetThumbnailUI();
+            document.getElementById('lThumbnailUrl').value = '';
+        });
+
         lessonForm.onsubmit = async (e) => {
             e.preventDefault();
             const formData = new FormData(lessonForm);
@@ -1064,6 +1152,53 @@ export const prerender = false
                 data.url = 'https://' + data.url;
             }
             const isEdit = !!data.id;
+
+            // Upload ảnh nếu có file mới được chọn
+            const fileInput = document.getElementById('lThumbnailFile');
+            const file = fileInput.files?.[0];
+            if (file) {
+                const uploadStatus = document.getElementById('thumbnailUploadStatus');
+                uploadStatus.textContent = '⏳ Đang tải ảnh lên...';
+                uploadStatus.className = 'mt-2 text-xs font-medium text-indigo-600';
+                uploadStatus.classList.remove('hidden');
+
+                const submitBtn = document.getElementById('lessonSubmitBtn');
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Đang tải ảnh...';
+
+                try {
+                    const imgForm = new FormData();
+                    imgForm.append('file', file);
+                    imgForm.append('fileName', `lesson-${Date.now()}-${file.name}`);
+                    const uploadRes = await fetch('/api/admin/upload-image', {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+                        body: imgForm,
+                    });
+                    const uploadData = await uploadRes.json();
+                    if (!uploadRes.ok || !uploadData.url) {
+                        showToast(uploadData.error || 'Lỗi upload ảnh', 'error');
+                        uploadStatus.textContent = '❌ Upload thất bại';
+                        uploadStatus.className = 'mt-2 text-xs font-medium text-red-500';
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Lưu bài học';
+                        return;
+                    }
+                    data.thumbnailUrl = uploadData.url;
+                    uploadStatus.textContent = '✅ Tải ảnh thành công';
+                    uploadStatus.className = 'mt-2 text-xs font-medium text-emerald-600';
+                } catch {
+                    showToast('Lỗi kết nối khi upload ảnh', 'error');
+                    document.getElementById('lessonSubmitBtn').disabled = false;
+                    document.getElementById('lessonSubmitBtn').textContent = 'Lưu bài học';
+                    return;
+                }
+            }
+
+            const submitBtn = document.getElementById('lessonSubmitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Đang lưu...';
+
             try {
                 const res = await fetch('/api/admin/lessons', {
                     method: isEdit ? 'PUT' : 'POST',
@@ -1079,6 +1214,10 @@ export const prerender = false
                     showToast(err.error || 'Lỗi thao tác', 'error');
                 }
             } catch { showToast('Lỗi kết nối', 'error'); }
+            finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Lưu bài học';
+            }
         };
 
         // Delete Modal Logic (Toggle Status)
