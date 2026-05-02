@@ -612,8 +612,9 @@ export const prerender = false
                 if (sidebarUserRole) sidebarUserRole.textContent = role;
                 if (sidebarUserAvatar) sidebarUserAvatar.textContent = avatar;
                 
-                // Initial load
-                fetchMembers();
+                // Initial load — đọc tab từ URL, mặc định là 'accounts'
+                const initialView = new URLSearchParams(window.location.search).get('view') || 'accounts';
+                switchView(initialView);
             } catch (err) {
                 console.error('Guard Error:', err);
                 window.location.href = '/?error=connection';
@@ -684,6 +685,11 @@ export const prerender = false
         let lessonTotal = 0;
 
         function switchView(viewName) {
+            // Cập nhật URL mà không tải lại trang
+            const params = new URLSearchParams(window.location.search);
+            params.set('view', viewName);
+            window.history.replaceState(null, '', `${window.location.pathname}?${params.toString()}`);
+
             if (viewName === 'accounts') {
                 accountsView.classList.remove('hidden');
                 lessonsView.classList.add('hidden');
