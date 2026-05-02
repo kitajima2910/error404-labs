@@ -93,6 +93,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
             await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS session_fingerprint TEXT;`
             await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS logined INT DEFAULT 0;`
             await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'active';`
+            await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS avatar_url TEXT;`
         } catch (mErr) {
             console.error('Migration failed:', mErr);
             if (!isDev) throw mErr;
@@ -100,7 +101,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
         // Lấy user theo username (không so sánh code trong SQL nữa)
         const result = await sql`
-            SELECT id, member, display_name, code, roles, points, last_login_at, created_at, status
+            SELECT id, member, display_name, code, roles, points, last_login_at, created_at, status, avatar_url
             FROM error404labs.members
             WHERE member = ${username}
         `;
@@ -190,6 +191,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
                 roles: user.roles,
                 points: currentPoints,
                 created_at: user.created_at,
+                avatar_url: user.avatar_url || null,
                 pointsAdded
             } 
         }), { 

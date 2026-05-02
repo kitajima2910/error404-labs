@@ -40,7 +40,7 @@ export const GET: APIRoute = async ({ request }) => {
         const { neon } = await import('@neondatabase/serverless');
         const sql = neon(dbUrl);
         const user = (await sql`
-            SELECT points, created_at, display_name, logined, session_token, session_fingerprint, prompt_access
+            SELECT points, created_at, display_name, logined, session_token, session_fingerprint, prompt_access, avatar_url
             FROM error404labs.members
             WHERE id = ${decoded.id}
         `)[0];
@@ -73,6 +73,7 @@ export const GET: APIRoute = async ({ request }) => {
                 display_name: user?.display_name || decoded.member,
                 points: user?.points || 0,
                 created_at: user?.created_at,
+                avatar_url: user?.avatar_url || null,
                 prompt_access: user?.prompt_access || []
             }
         }), { 

@@ -491,8 +491,8 @@ ACTION:
 
     <script>
         const customModal = document.getElementById('customPromptModal')
-        const customTargetInput = document.getElementById('custom-target-input') as HTMLTextAreaElement
-        const customActionInput = document.getElementById('custom-action-input') as HTMLSelectElement
+        const customTargetInput = document.getElementById('custom-target-input')
+        const customActionInput = document.getElementById('custom-action-input')
         const customCopyBtn = document.getElementById('custom-copy-prompt')
 
         const basePromptTemplate = `RULE:
@@ -522,7 +522,7 @@ ACTION:
         }
 
         document.addEventListener('click', async (event) => {
-            const target = event.target as HTMLElement
+            const target = event.target
 
             if (target.closest('.use-template-btn')) {
                 openCustomModal()

@@ -135,8 +135,8 @@
     }
 
     document.addEventListener('click', async (event) => {
-        const target = event.target as HTMLElement
-        const gameButton = target.closest<HTMLElement>('.roadmap-game-cell')
+        const target = event.target
+        const gameButton = target.closest('.roadmap-game-cell')
         if (gameButton) {
             openModal(gameButton)
             return

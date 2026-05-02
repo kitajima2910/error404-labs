@@ -119,9 +119,23 @@ const isPost = pathname.startsWith('/bai-viet/')
                             <!-- User Info Popover -->
                             <div
                                 id="userInfoPopover"
-                                class="absolute top-full right-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-slate-100 p-4 hidden z-[110] animate-in fade-in slide-in-from-top-2 duration-200"
+                                class="absolute top-full right-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-slate-100 p-4 hidden z-[110] animate-in fade-in slide-in-from-top-2 duration-200"
                             >
                                 <div class="flex flex-col gap-3">
+                                    <!-- Avatar Section (Member Only) -->
+                                    <div id="avatarSection" class="hidden flex-col items-center gap-2 pb-3 border-b border-slate-50">
+                                        <div class="w-20 h-20 rounded-full overflow-hidden ring-2 ring-indigo-500/30 shadow-md">
+                                            <img id="popoverAvatar" src="/avatar_v2.avif" alt="Avatar" class="w-full h-full object-cover" />
+                                        </div>
+                                        <label class="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-lg cursor-pointer transition-colors text-xs font-semibold">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                            </svg>
+                                            <span>Đổi ảnh đại diện</span>
+                                            <input id="avatarInput" type="file" accept="image/*" class="hidden" />
+                                        </label>
+                                    </div>
+
                                     <div class="flex items-center justify-between border-b border-slate-50 pb-2">
                                         <span class="text-xs text-slate-500 font-medium">Tài khoản:</span>
                                         <span id="popoverName" class="text-xs font-bold text-slate-800"></span>
@@ -618,11 +632,14 @@ const isPost = pathname.startsWith('/bai-viet/')
             const roles = localStorage.getItem('user_roles')
             const points = localStorage.getItem('user_points')
             const joinDate = localStorage.getItem('user_join_date')
+            const avatarUrl = localStorage.getItem('user_avatar_url')
 
             const popoverAdminLink = document.getElementById('popoverAdminLink')
             const userPoints = document.getElementById('userPoints')
             const userJoinDate = document.getElementById('userJoinDate')
             const popoverName = document.getElementById('popoverName')
+            const avatarSection = document.getElementById('avatarSection')
+            const popoverAvatar = document.getElementById('popoverAvatar')
 
             if (user) {
                 const shownName = displayName && displayName !== 'null' ? displayName : user
@@ -655,12 +672,28 @@ const isPost = pathname.startsWith('/bai-viet/')
                     }
                 }
 
-
+                // Show avatar section for members
+                if (avatarSection) {
+                    if (roles === 'member') {
+                        avatarSection.classList.remove('hidden')
+                        avatarSection.classList.add('flex')
+                        if (popoverAvatar && avatarUrl) {
+                            popoverAvatar.src = avatarUrl
+                        }
+                    } else {
+                        avatarSection.classList.add('hidden')
+                        avatarSection.classList.remove('flex')
+                    }
+                }
             } else {
                 if (openLoginBtn) openLoginBtn.classList.remove('hidden')
                 if (userProfileStatus) {
                     userProfileStatus.classList.add('hidden')
                     userProfileStatus.classList.remove('flex')
+                }
+                if (avatarSection) {
+                    avatarSection.classList.add('hidden')
+                    avatarSection.classList.remove('flex')
                 }
             }
 
@@ -716,6 +749,9 @@ const isPost = pathname.startsWith('/bai-viet/')
                         localStorage.setItem('user_roles', data.user.roles)
                         localStorage.setItem('user_points', data.user.points)
                         localStorage.setItem('user_join_date', data.user.created_at)
+                        if (data.user.avatar_url) {
+                            localStorage.setItem('user_avatar_url', data.user.avatar_url)
+                        }
                     } else {
                         localStorage.removeItem('auth_token')
                         localStorage.removeItem('user_session')
@@ -723,6 +759,7 @@ const isPost = pathname.startsWith('/bai-viet/')
                         localStorage.removeItem('user_roles')
                         localStorage.removeItem('user_points')
                         localStorage.removeItem('user_join_date')
+                        localStorage.removeItem('user_avatar_url')
                         window.dispatchEvent(new Event('user-logout'))
                     }
                     checkSession()
@@ -817,6 +854,9 @@ const isPost = pathname.startsWith('/bai-viet/')
                         localStorage.setItem('user_roles', data.user.roles)
                         localStorage.setItem('user_points', data.user.points)
                         localStorage.setItem('user_join_date', data.user.created_at)
+                        if (data.user.avatar_url) {
+                            localStorage.setItem('user_avatar_url', data.user.avatar_url)
+                        }
 
                         if (data.user.pointsAdded > 0) {
                             setTimeout(() => {
@@ -917,6 +957,74 @@ const isPost = pathname.startsWith('/bai-viet/')
         window.addEventListener('user-config-update', checkSession)
 
         checkSession()
+
+        // Avatar upload handler
+        const avatarInput = document.getElementById('avatarInput')
+        if (avatarInput) {
+            avatarInput.addEventListener('change', async (e) => {
+                const file = e.target.files?.[0]
+                if (!file) return
+
+                // Validate file size (2MB max)
+                if (file.size > 2 * 1024 * 1024) {
+                    window.showToast('Kích thước ảnh không được vượt quá 2MB', 'error')
+                    return
+                }
+
+                // Validate file type
+                if (!file.type.startsWith('image/')) {
+                    window.showToast('Vui lòng chọn file ảnh', 'error')
+                    return
+                }
+
+                const formData = new FormData()
+                formData.append('file', file)
+
+                try {
+                    const authToken = localStorage.getItem('auth_token')
+                    if (!authToken) {
+                        window.showToast('Vui lòng đăng nhập lại', 'error')
+                        return
+                    }
+
+                    window.showToast('Đang tải ảnh lên...', 'info')
+
+                    const response = await fetch('/api/user/upload-avatar', {
+                        method: 'POST',
+                        headers: {
+                            Authorization: `Bearer ${authToken}`,
+                        },
+                        body: formData,
+                    })
+
+                    const data = await response.json()
+
+                    if (response.ok && data.success) {
+                        // Update localStorage
+                        localStorage.setItem('user_avatar_url', data.avatar_url)
+
+                        // Update UI
+                        const popoverAvatar = document.getElementById('popoverAvatar')
+                        if (popoverAvatar) {
+                            popoverAvatar.src = data.avatar_url
+                        }
+
+                        window.showToast('Cập nhật ảnh đại diện thành công!', 'success')
+
+                        // Dispatch event to update profile page if needed
+                        window.dispatchEvent(new Event('avatar-updated'))
+                    } else {
+                        window.showToast(data.error || 'Lỗi khi tải ảnh lên', 'error')
+                    }
+                } catch (error) {
+                    console.error('Avatar upload error:', error)
+                    window.showToast('Lỗi hệ thống. Vui lòng thử lại sau.', 'error')
+                } finally {
+                    // Reset input
+                    avatarInput.value = ''
+                }
+            })
+        }
     } catch (error) {
         console.error(error)
     }

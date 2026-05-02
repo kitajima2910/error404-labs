@@ -12,14 +12,14 @@ if (!username) {
 
 const dbUrl = import.meta.env.DATABASE_URL
 
-let member: { id: number; member: string; display_name: string } | null = null
+let member: { id: number; member: string; display_name: string; avatar_url: string | null } | null = null
 let error = ''
 
 try {
     if (dbUrl) {
         const sql = neon(dbUrl)
         const members = await sql`
-            SELECT id, member, display_name
+            SELECT id, member, display_name, avatar_url
             FROM error404labs.members
             WHERE member = ${username}
         `
@@ -69,7 +69,7 @@ if (dbUrl && member) {
                 <div class="mb-10 text-center">
                     <div class="inline-flex items-center gap-3 mb-3">
                         <div class="w-16 h-16 rounded-full overflow-hidden ring-4 ring-indigo-500/30 shadow-lg">
-                            <img src="/avatar_v2.avif" alt={displayName} class="w-full h-full object-cover" />
+                            <img src={member?.avatar_url || '/avatar_v2.avif'} alt={displayName} class="w-full h-full object-cover" />
                         </div>
                     </div>
                     <h1 class="text-4xl font-bold text-slate-800">Trang Cá Nhân</h1>
