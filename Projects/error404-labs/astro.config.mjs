@@ -9,6 +9,7 @@ import remarkMath from 'remark-math'
 import rehypeKatex from 'rehype-katex'
 
 export default defineConfig({
+    output: 'hybrid',
     site: 'https://www.error404-labs.info.vn/',
     security: { checkOrigin: false },
     integrations: [
