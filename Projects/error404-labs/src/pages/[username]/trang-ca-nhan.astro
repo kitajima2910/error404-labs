@@ -69,7 +69,7 @@ if (dbUrl && member) {
                 <div class="mb-10 text-center">
                     <div class="inline-flex items-center gap-3 mb-3">
                         <div class="w-16 h-16 rounded-full overflow-hidden ring-4 ring-indigo-500/30 shadow-lg">
-                            <img src={member?.avatar_url || '/avatar_v2.avif'} alt={displayName} class="w-full h-full object-cover" />
+                            <img id="profile-avatar" src={member?.avatar_url || '/avatar_v2.avif'} alt={displayName} class="w-full h-full object-cover" />
                         </div>
                     </div>
                     <h1 class="text-4xl font-bold text-slate-800">Trang Cá Nhân</h1>
@@ -165,3 +165,24 @@ if (dbUrl && member) {
         )}
     </div>
 </MainLayout>
+
+<script>
+    // Cập nhật ảnh đại diện ngay lập tức khi người dùng thay đổi avatar từ Nav
+    window.addEventListener('avatar-updated', () => {
+        // Chỉ cập nhật nếu đang ở trang cá nhân của chính mình
+        const loggedInUser = localStorage.getItem('user_session')
+        const pathParts = window.location.pathname.split('/').filter(Boolean)
+        // URL dạng /[username]/trang-ca-nhan → pathParts[0] là username
+        const pageUsername = pathParts[0]
+
+        if (!loggedInUser || loggedInUser !== pageUsername) return
+
+        const newAvatarUrl = localStorage.getItem('user_avatar_url')
+        if (!newAvatarUrl) return
+
+        const profileAvatar = document.getElementById('profile-avatar') as HTMLImageElement | null
+        if (profileAvatar) {
+            profileAvatar.src = newAvatarUrl
+        }
+    })
+</script>
