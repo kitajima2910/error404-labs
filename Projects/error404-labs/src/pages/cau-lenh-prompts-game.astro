@@ -2,347 +2,486 @@
 import MainLayout from '../layouts/MainLayout.astro'
 import { TC_TITLE } from '../common/TextConst'
 import { categories } from '../data/dataPromptsGame.js'
-import { DATA_DEMO } from '../data/dataTestDemo.js'
+import { GAME_PROMPTS } from '../data/prompts/prompts.js'
 
-const filteredCategories = categories.filter(cat =>
-    !cat.title.includes('LỘ TRÌNH HỌC') &&
-    !cat.items.some(item => String(item.id).startsWith('roadmap_'))
+export const prerender = false
+
+const filteredCategories = categories.filter(
+    (cat) => !cat.title.includes('LỘ TRÌNH HỌC') && !cat.items.some((item) => String(item.id).startsWith('roadmap_')),
 )
 
 const titleTranslate: Record<string, string> = {
-    '1. BASIC GAMES (EASIEST → ADD HOOK)': 'TRÒ CHƠI CƠ BẢN',
-    '2. REFLEX GAMES (FAST + SKILL)': 'TRÒ CHƠI PHẢN XẠ',
-    '3. OBSTACLE (ENDLESS + CHAOS)': 'VƯỢT CHƯỚNG NGẠI VẬT',
-    '4. COLLECT (PROGRESSION LOOP)': 'TRÒ CHƠI THU THẬP',
-    '5. 2D SHOOTING (ACTION CORE)': 'TRÒ CHƠI BẮN SÚNG 2D',
-    '6. PLATFORM (SKILL EXPRESSION)': 'PHIÊU LƯU NỀN TẢNG',
-    '7. PUZZLE (BRAIN HOOK)': 'TRÒ CHƠI GIẢI ĐỐ',
-    '8. SIMPLE AI (SMART FEEL)': 'TRÒ CHƠI AI ĐƠN GIẢN',
-    '9. ADVANCED (SYSTEM DESIGN)': 'HỆ THỐNG NÂNG CAO',
-    '10. PRO LEVEL (GẦN GAME THẬT)': 'CẤP ĐỘ CHUYÊN NGHIỆP',
+    '1. BASIC GAMES (EASIEST → ADD HOOK)': 'Trò Chơi Cơ Bản',
+    '2. REFLEX GAMES (FAST + SKILL)': 'Trò Chơi Phản Xạ',
+    '3. OBSTACLE (ENDLESS + CHAOS)': 'Vượt Chướng Ngại Vật',
+    '4. COLLECT (PROGRESSION LOOP)': 'Trò Chơi Thu Thập',
+    '5. 2D SHOOTING (ACTION CORE)': 'Bắn Súng 2D',
+    '6. PLATFORM (SKILL EXPRESSION)': 'Phiêu Lưu Nền Tảng',
+    '7. PUZZLE (BRAIN HOOK)': 'Trò Chơi Giải Đố',
+    '8. SIMPLE AI (SMART FEEL)': 'Trò Chơi AI',
+    '9. ADVANCED (SYSTEM DESIGN)': 'Hệ Thống Nâng Cao',
+    '10. PRO LEVEL (GẦN GAME THẬT)': 'Cấp Độ Pro',
 }
 
-export const prerender = false;
+const categoryColors: Record<string, string> = {
+    '1. BASIC GAMES (EASIEST → ADD HOOK)': '#335A92',
+    '2. REFLEX GAMES (FAST + SKILL)': '#29909B',
+    '3. OBSTACLE (ENDLESS + CHAOS)': '#008D6B',
+    '4. COLLECT (PROGRESSION LOOP)': '#D97706',
+    '5. 2D SHOOTING (ACTION CORE)': '#6D28D9',
+    '6. PLATFORM (SKILL EXPRESSION)': '#0284C7',
+    '7. PUZZLE (BRAIN HOOK)': '#03856D',
+    '8. SIMPLE AI (SMART FEEL)': '#BE123C',
+    '9. ADVANCED (SYSTEM DESIGN)': '#A16207',
+    '10. PRO LEVEL (GẦN GAME THẬT)': '#1E293B',
+}
 
-// Tự động load tất cả các file .txt trong thư mục prompts (chỉ để kiểm tra tồn tại)
-const promptFiles = import.meta.glob('../data/prompts/*.txt', {
-    eager: true,
-})
+// Serialize prompts for client-side use
+const promptsJson = JSON.stringify(GAME_PROMPTS.map((p) => ({ id: p.id, name: p.name, content: p.content })))
 ---
 
-<MainLayout title={`Câu lệnh prompts Game HTML5 | ${TC_TITLE}`}>
-    <!-- Page Skeleton -->
-    <div id="page-skeleton" class="max-w-7xl mx-auto px-4 py-12 animate-pulse">
-        <div class="text-center mb-10 space-y-4">
-            <div class="h-12 w-64 bg-slate-200 rounded-2xl mx-auto"></div>
-            <div class="h-16 w-96 bg-slate-300 rounded-2xl mx-auto"></div>
+<MainLayout title={`Câu lệnh Prompts Game HTML5 | ${TC_TITLE}`} description="100 prompt AI chi tiết để tạo game HTML5 từ dễ đến khó. Copy và dán vào ChatGPT, Claude để tạo game ngay!" searchable={false}>
+    <!-- Auth skeleton shown while verifying -->
+    <div id="page-skeleton" class="max-w-7xl mx-auto px-4 py-16">
+        <div class="text-center mb-12 space-y-4 animate-pulse">
+            <div class="h-10 w-72 bg-slate-200 rounded-2xl mx-auto"></div>
+            <div class="h-6 w-96 bg-slate-100 rounded-xl mx-auto"></div>
         </div>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {[1, 2, 3, 4].map(() => (
-                <div class="bg-white rounded-2xl h-64 border border-slate-100 p-6 space-y-4">
-                    <div class="h-8 w-1/2 bg-slate-100 rounded-xl"></div>
-                    <div class="grid grid-cols-2 gap-4">
-                        {[1, 2, 3, 4, 5, 6].map(() => <div class="h-6 bg-slate-50 rounded-lg"></div>)}
-                    </div>
-                </div>
-            ))}
-        </div>
-    </div>
-
-    <div id="auth-guard" class="hidden">
-        <section aria-label="Giới thiệu" class="min-h-screen py-10 px-4 bg-[#F0F9FF]">
-            <div class="max-w-6xl mx-auto text-center mb-10">
-                <h1 class="text-4xl md:text-5xl font-black text-slate-800 mb-2">100 Ý TƯỞNG</h1>
-                <h2 class="text-5xl md:text-6xl font-black text-[#FF5722] mb-1 drop-shadow-sm">TRÒ CHƠI 2D HTML5</h2>
-                <p class="text-2xl font-bold text-slate-600">(TỪ DỄ ĐẾN KHÓ)</p>
-            </div>
-
-        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 pb-20">
             {
-                filteredCategories.map((cat) => (
-                    <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-200">
-                        <div class={`${cat.color} py-4 px-6 text-white text-center`}>
-                            <h3 class="text-xl font-black uppercase tracking-tight flex items-center justify-center gap-2">
-                                <span class="text-2xl">{cat.icon}</span>
-                                {cat.title}
-                            </h3>
-                            <p class="text-[10px] md:text-xs font-bold opacity-90 uppercase tracking-[0.2em] mt-1">
-                                ({titleTranslate[cat.title] || 'Nâng cao'})
-                            </p>
-                        </div>
-                        <div class="p-4 grid grid-cols-2 gap-x-4 gap-y-2">
-                            {cat.items.map((item) => {
-                                // Tìm file prompt tương ứng với ID (ví dụ: "2-Bat-Qua.txt")
-                                const fileKey = Object.keys(promptFiles).find((key) =>
-                                    key.split('/').pop()?.startsWith(`${item.id}-`),
-                                )
-                                const hasPrompt = !!fileKey
-
-                                // Tìm link demo từ DATA_DEMO
-                                const demoItem = DATA_DEMO.find((d) => d.name.startsWith(`${item.id}.`))
-                                const demoLink = demoItem ? demoItem.link : null
-
-                                return (
-                                    <a
-                                        href="#"
-                                        class={`flex items-center gap-2 font-bold transition-all duration-200 group ${hasPrompt ? 'text-slate-700 hover:text-blue-600 cursor-pointer' : 'text-slate-400 cursor-default'}`}
-                                        data-title={item.text.split(':')[0].replace('+', '')}
-                                        data-item-id={item.id}
-                                        data-has-prompt={hasPrompt ? 'true' : 'false'}
-                                        data-demo-link={demoLink}
-                                    >
-                                        <span class="text-slate-400 group-hover:text-blue-400 transition-colors">
-                                            {item.id}.
-                                        </span>
-                                        <span class="text-sm md:text-base leading-tight hover:underline underline-offset-4 flex-1">
-                                            {item.text}
-                                        </span>
-                                        {hasPrompt && (
-                                            <span class="text-emerald-500 text-xs bg-emerald-50 px-1.5 py-0.5 rounded-md border border-emerald-100 shadow-sm animate-pulse">
-                                                ✔
-                                            </span>
-                                        )}
-                                    </a>
-                                )
-                            })}
+                [1, 2, 3, 4].map(() => (
+                    <div class="bg-white rounded-3xl h-72 border border-slate-100 p-6 animate-pulse">
+                        <div class="h-8 w-1/2 bg-slate-100 rounded-xl mb-4" />
+                        <div class="grid grid-cols-2 gap-3">
+                            {[1, 2, 3, 4, 5, 6].map(() => (
+                                <div class="h-5 bg-slate-50 rounded-lg" />
+                            ))}
                         </div>
                     </div>
                 ))
             }
         </div>
-    </section>
+    </div>
 
-    <!-- Modal Prompt (Thay thế Toast) -->
-    <div
-        id="modal-prompt"
-        class="fixed inset-0 z-[100] flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300 px-4"
-    >
-        <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-md"></div>
+    <!-- Main content (hidden until auth passes) -->
+    <div id="auth-guard" class="hidden">
+        <!-- ── Hero ── -->
         <div
-            class="relative bg-white w-full max-w-2xl max-h-[85vh] rounded-[2rem] shadow-2xl overflow-hidden flex flex-col scale-90 transition-all duration-300 border border-white/20"
-            id="modal-content"
+            class="relative overflow-hidden"
+            style="background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);"
         >
+            <!-- Decorative blobs -->
             <div
-                class="px-6 py-5 bg-gradient-to-r from-slate-50 to-white border-b border-gray-100 flex items-center justify-between shrink-0"
+                class="absolute top-0 left-1/4 w-96 h-96 rounded-full opacity-20 blur-3xl pointer-events-none"
+                style="background: radial-gradient(circle, #7c3aed, transparent);"
+            ></div>
+            <div
+                class="absolute bottom-0 right-1/4 w-80 h-80 rounded-full opacity-15 blur-3xl pointer-events-none"
+                style="background: radial-gradient(circle, #ec4899, transparent);"
+            ></div>
+
+            <div class="relative max-w-5xl mx-auto px-4 py-16 text-center">
+                <div
+                    class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6"
+                    style="background: rgba(124,58,237,0.25); border: 1px solid rgba(167,139,250,0.4); color: #c4b5fd;"
+                >
+                    <span>✦</span>
+                    <span>Premium Content</span>
+                    <span>✦</span>
+                </div>
+                <h1 class="text-4xl md:text-6xl font-black text-white mb-4 leading-tight">
+                    100 Prompt AI
+                    <span
+                        style="background: linear-gradient(135deg, #a78bfa, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"
+                    >
+                        Game HTML5
+                    </span>
+                </h1>
+                <p class="text-slate-300 text-base md:text-lg max-w-2xl mx-auto mb-8 leading-relaxed">
+                    Từ trò chơi cơ bản đến cấp độ Pro — copy prompt, dán vào AI, nhận code game hoàn chỉnh ngay lập tức.
+                </p>
+
+                <!-- Stats row -->
+                <div class="flex flex-wrap items-center justify-center gap-6 text-sm">
+                    {
+                        [
+                            ['100', 'Game Ideas'],
+                            ['10', 'Danh Mục'],
+                            ['HTML5', 'Thuần Túy'],
+                        ].map(([num, label]) => (
+                            <div class="flex flex-col items-center">
+                                <span class="text-2xl font-black text-white">{num}</span>
+                                <span class="text-slate-400 text-xs uppercase tracking-wider">{label}</span>
+                            </div>
+                        ))
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Search bar ── -->
+        <div class="sticky top-0 z-40 py-3 px-4" style="background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid #f1f5f9;">
+            <div class="max-w-xl mx-auto relative">
+                <svg
+                    class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"></path>
+                </svg>
+                <input
+                    id="gameSearch"
+                    type="text"
+                    placeholder="Tìm kiếm game..."
+                    class="w-full pl-10 pr-4 py-2.5 rounded-full border border-slate-200 bg-white text-sm text-slate-700 placeholder-slate-400 outline-none transition-all"
+                    style="box-shadow: 0 1px 4px rgba(0,0,0,0.06);"
+                />
+            </div>
+        </div>
+
+        <!-- ── Category grid ── -->
+        <div class="max-w-7xl mx-auto px-4 py-10 pb-20">
+            <div id="categoriesContainer" class="space-y-8">
+                {
+                    filteredCategories.map((cat) => {
+                        const color = categoryColors[cat.title] || '#334155'
+                        const label = titleTranslate[cat.title] || cat.title
+                        return (
+                            <div class="category-block" data-category={cat.title.toLowerCase()}>
+                                <!-- Category header -->
+                                <div class="flex items-center gap-3 mb-4">
+                                    <div
+                                        class="w-10 h-10 rounded-2xl flex items-center justify-center text-xl shadow-md flex-shrink-0"
+                                        style={`background: ${color};`}
+                                    >
+                                        {cat.icon}
+                                    </div>
+                                    <div>
+                                        <h2 class="font-black text-slate-800 text-base leading-tight">{label}</h2>
+                                        <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">{cat.title}</p>
+                                    </div>
+                                    <div class="ml-auto">
+                                        <span
+                                            class="text-xs font-bold px-2.5 py-1 rounded-full"
+                                            style={`background: ${color}18; color: ${color};`}
+                                        >
+                                            {cat.items.length} games
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Game cards grid -->
+                                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+                                    {cat.items.map((item) => {
+                                        const gameName = item.text.split(':')[0].trim()
+                                        const gameDesc = item.text.includes(':') ? item.text.split(':').slice(1).join(':').trim() : ''
+                                        return (
+                                            <button
+                                                class="game-card group text-left bg-white rounded-2xl p-4 border border-slate-100 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:border-slate-200 cursor-pointer"
+                                                data-id={item.id}
+                                                data-name={item.text.toLowerCase()}
+                                                style="box-shadow: 0 1px 3px rgba(0,0,0,0.06);"
+                                            >
+                                                <div class="flex items-start justify-between mb-2">
+                                                    <span
+                                                        class="text-xs font-black px-2 py-0.5 rounded-lg"
+                                                        style={`background: ${color}15; color: ${color};`}
+                                                    >
+                                                        #{String(item.id).padStart(2, '0')}
+                                                    </span>
+                                                    <svg
+                                                        class="w-4 h-4 text-slate-300 group-hover:text-purple-400 transition-colors flex-shrink-0"
+                                                        fill="none"
+                                                        viewBox="0 0 24 24"
+                                                        stroke="currentColor"
+                                                        stroke-width="2"
+                                                    >
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                                    </svg>
+                                                </div>
+                                                <p class="font-bold text-slate-800 text-sm leading-snug mb-1 group-hover:text-purple-700 transition-colors">
+                                                    {gameName}
+                                                </p>
+                                                {gameDesc && (
+                                                    <p class="text-xs text-slate-400 leading-relaxed line-clamp-2">{gameDesc}</p>
+                                                )}
+                                            </button>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+                        )
+                    })
+                }
+            </div>
+
+            <!-- No results -->
+            <div id="noResults" class="hidden text-center py-20">
+                <div class="text-5xl mb-4">🔍</div>
+                <p class="text-slate-500 text-lg font-semibold">Không tìm thấy game nào</p>
+                <p class="text-slate-400 text-sm mt-1">Thử từ khóa khác nhé!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         PROMPT MODAL
+    ══════════════════════════════════════════ -->
+    <div
+        id="promptModal"
+        class="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+        style="display: none !important;"
+        aria-modal="true"
+        role="dialog"
+        aria-labelledby="promptModalTitle"
+    >
+        <!-- Backdrop -->
+        <div id="promptModalBackdrop" class="absolute inset-0" style="background: rgba(10,8,30,0.7); backdrop-filter: blur(8px);"></div>
+
+        <!-- Panel -->
+        <div
+            id="promptModalPanel"
+            class="relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-3xl overflow-hidden shadow-2xl"
+            style="background: #fff;"
+        >
+            <!-- Header -->
+            <div
+                class="flex items-center justify-between px-6 py-5 flex-shrink-0"
+                style="background: linear-gradient(135deg, #4c1d95 0%, #7c3aed 50%, #a855f7 100%);"
             >
                 <div class="flex items-center gap-3">
-                    <div class="bg-blue-600 p-2 rounded-xl shadow-lg shadow-blue-200">
-                        <span class="text-white text-xl">📋</span>
-                    </div>
+                    <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center text-lg">🎮</div>
                     <div>
-                        <h3
-                            class="font-black text-slate-800 text-base md:text-lg uppercase tracking-tight"
-                            id="modal-title"
-                        >
-                            Prompt Trò Chơi
-                        </h3>
-                        <p class="text-[10px] text-blue-600 font-bold uppercase tracking-wider">
-                            Đã sao chép vào bộ nhớ tạm!
-                        </p>
+                        <p class="text-white/60 text-xs font-semibold uppercase tracking-widest">Prompt AI · Game HTML5</p>
+                        <h2 id="promptModalTitle" class="text-white font-black text-base leading-tight"></h2>
                     </div>
                 </div>
                 <button
-                    id="close-modal"
-                    class="cursor-pointer w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-800 transition-all"
+                    id="promptModalClose"
+                    class="w-9 h-9 rounded-xl bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition-colors"
+                    aria-label="Đóng"
                 >
-                    <span class="text-2xl font-light">&times;</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
                 </button>
             </div>
-            <div class="flex-1 overflow-y-auto p-4 md:p-6 bg-slate-50/30 custom-scrollbar">
-                <pre
-                    id="modal-text"
-                    class="bg-white border border-slate-200 rounded-2xl p-5 text-xs md:text-sm text-slate-600 font-mono leading-relaxed whitespace-pre-wrap shadow-inner break-words">
-                </pre>
+
+            <!-- Tip banner -->
+            <div class="px-6 pt-5 flex-shrink-0">
+                <div class="flex items-start gap-3 rounded-2xl p-4" style="background: #fdf4ff; border: 1.5px solid #e9d5ff;">
+                    <span class="text-purple-500 text-base flex-shrink-0 mt-0.5">💡</span>
+                    <p class="text-purple-700 text-xs leading-relaxed">
+                        Copy prompt và dán vào <strong>ChatGPT, Claude, Gemini</strong> để nhận code game HTML5 hoàn chỉnh ngay lập tức!
+                    </p>
+                </div>
             </div>
-            <div class="p-4 bg-white border-t border-gray-100 flex items-center justify-center gap-3 shrink-0">
-                <a
-                    id="modal-demo-btn"
-                    href="#"
-                    target="_blank"
-                    class="hidden bg-blue-600 text-white font-black text-xs py-2.5 px-8 rounded-full hover:bg-blue-500 transition-all shadow-lg hover:shadow-blue-200 uppercase tracking-widest flex items-center gap-2"
-                >
-                    <span>🎮</span> XEM DEMO
-                </a>
+
+            <!-- Body -->
+            <div class="flex-1 overflow-y-auto px-6 py-4 prompt-scrollbar">
+                <pre
+                    id="promptContent"
+                    class="w-full rounded-2xl p-5 text-sm leading-relaxed whitespace-pre-wrap break-words font-mono"
+                    style="background: #f8f7ff; border: 1.5px solid #ede9fe; color: #3b0764; min-height: 120px;"
+                ></pre>
+            </div>
+
+            <!-- Footer -->
+            <div
+                class="flex items-center justify-between gap-3 px-6 py-4 flex-shrink-0"
+                style="border-top: 1.5px solid #f3f4f6;"
+            >
+                <p class="text-slate-400 text-xs">Dành riêng cho thành viên 💜</p>
                 <button
-                    id="close-modal-btn"
-                    class="cursor-pointer bg-slate-800 text-white font-bold text-xs py-2.5 px-10 rounded-full hover:bg-slate-700 transition-colors shadow-lg uppercase tracking-widest"
+                    id="promptCopyBtn"
+                    class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-bold transition-all duration-200 hover:opacity-90 hover:scale-[1.02] active:scale-95"
+                    style="background: linear-gradient(135deg, #7c3aed, #ec4899);"
                 >
-                    ĐÓNG
+                    <svg id="copyIcon" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                    </svg>
+                    <svg id="checkIcon" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span id="copyBtnText">Sao chép prompt</span>
                 </button>
             </div>
         </div>
     </div>
-    </div>
 </MainLayout>
 
 <script is:inline>
-    // Client-side Authentication Guard
-    (async () => {
-        const token = localStorage.getItem('auth_token');
-        const authGuard = document.getElementById('auth-guard');
-
+    // ── Auth Guard ────────────────────────────────────────────────────────────
+    ;(async () => {
+        const token = localStorage.getItem('auth_token')
         if (!token) {
-            window.location.href = '/?auth=required';
-            return;
+            window.location.href = '/?auth=required'
+            return
         }
-
         try {
             const res = await fetch('/api/verify', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const data = await res.json();
-
+                headers: { Authorization: 'Bearer ' + token },
+            })
+            const data = await res.json()
             if (data.authenticated) {
-                authGuard.classList.remove('hidden');
-                document.getElementById('page-skeleton')?.classList.add('hidden');
+                document.getElementById('auth-guard').classList.remove('hidden')
+                document.getElementById('page-skeleton')?.classList.add('hidden')
             } else {
-                localStorage.removeItem('auth_token');
-                window.location.href = '/?auth=required';
+                localStorage.removeItem('auth_token')
+                window.location.href = '/?auth=required'
             }
-        } catch (e) {
-            window.location.href = '/?auth=required';
+        } catch {
+            window.location.href = '/?auth=required'
         }
-    })();
+    })()
 </script>
 
-<script is:inline>
-    // Xử lý sự kiện click để copy và hiện modal
-    const copyLinks = document.querySelectorAll('a[data-title]')
+<script define:vars={{ promptsJson }}>
+    // ── Data ──────────────────────────────────────────────────────────────────
+    /** @type {Array<{id: number, name: string, content: string}>} */
+    const PROMPTS = JSON.parse(promptsJson)
 
-    // Modal elements
-    const modal = document.getElementById('modal-prompt')
-    const modalContent = document.getElementById('modal-content')
-    const modalText = document.getElementById('modal-text')
-    const modalTitle = document.getElementById('modal-title')
-    const modalDemoBtn = document.getElementById('modal-demo-btn')
-    const closeBtns = [
-        document.getElementById('close-modal'),
-        document.getElementById('close-modal-btn'),
-    ]
+    // ── Search ────────────────────────────────────────────────────────────────
+    const searchInput = /** @type {HTMLInputElement} */ (document.getElementById('gameSearch'))
+    const noResults = document.getElementById('noResults')
+    const categoryBlocks = /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll('.category-block'))
+    const gameCards = /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll('.game-card'))
 
-    const copyToClipboard = (text) => {
-        if (navigator.clipboard && window.isSecureContext) {
-            return navigator.clipboard.writeText(text)
-        } else {
-            const textArea = document.createElement('textarea')
-            textArea.value = text
-            document.body.appendChild(textArea)
-            textArea.select()
-            try {
-                document.execCommand('copy')
-            } catch (err) {
-                console.error('Không thể copy', err)
-            }
-            document.body.removeChild(textArea)
-            return Promise.resolve()
+    searchInput?.addEventListener('input', () => {
+        const q = searchInput.value.toLowerCase().trim()
+        let totalVisible = 0
+
+        categoryBlocks.forEach((block) => {
+            const cards = block.querySelectorAll('.game-card')
+            let blockVisible = 0
+            cards.forEach((card) => {
+                const match = !q || (card.dataset.name || '').includes(q)
+                /** @type {HTMLElement} */ (card).style.display = match ? '' : 'none'
+                if (match) blockVisible++
+            })
+            block.style.display = blockVisible > 0 ? '' : 'none'
+            totalVisible += blockVisible
+        })
+
+        noResults?.classList.toggle('hidden', totalVisible > 0)
+    })
+
+    // ── Modal ─────────────────────────────────────────────────────────────────
+    const modal = document.getElementById('promptModal')
+    const modalPanel = document.getElementById('promptModalPanel')
+    const modalTitle = document.getElementById('promptModalTitle')
+    const promptContent = document.getElementById('promptContent')
+    const modalClose = document.getElementById('promptModalClose')
+    const modalBackdrop = document.getElementById('promptModalBackdrop')
+    const copyBtn = document.getElementById('promptCopyBtn')
+    const copyIcon = document.getElementById('copyIcon')
+    const checkIcon = document.getElementById('checkIcon')
+    const copyBtnText = document.getElementById('copyBtnText')
+
+    const openModal = (id) => {
+        const prompt = PROMPTS.find((p) => p.id === id)
+        if (!prompt) return
+        if (modalTitle) modalTitle.textContent = prompt.name
+        if (promptContent) promptContent.textContent = prompt.content
+        resetCopy()
+        if (modal) {
+            modal.style.removeProperty('display')
+            modal.style.display = 'flex'
+            document.body.style.overflow = 'hidden'
+            setTimeout(() => modalClose?.focus(), 50)
         }
-    }
-
-    const openModal = (text, title, demoLink) => {
-        modalText.textContent = text
-        modalTitle.textContent = `Prompt: ${title}`
-
-        if (demoLink && demoLink !== 'null') {
-            modalDemoBtn.href = demoLink
-            modalDemoBtn.classList.remove('hidden')
-        } else {
-            modalDemoBtn.classList.add('hidden')
-        }
-
-        modal.classList.remove('opacity-0', 'pointer-events-none')
-        modalContent.classList.remove('scale-90')
-        modalContent.classList.add('scale-100')
-        document.body.style.overflow = 'hidden'
     }
 
     const closeModal = () => {
-        modal.classList.add('opacity-0', 'pointer-events-none')
-        modalContent.classList.remove('scale-100')
-        modalContent.classList.add('scale-90')
-        document.body.style.overflow = ''
+        if (modal) {
+            modal.style.display = 'none'
+            document.body.style.overflow = ''
+        }
     }
 
-    closeBtns.forEach((btn) => {
-        btn?.addEventListener('click', closeModal)
+    const resetCopy = () => {
+        if (copyIcon) copyIcon.classList.remove('hidden')
+        if (checkIcon) checkIcon.classList.add('hidden')
+        if (copyBtnText) copyBtnText.textContent = 'Sao chép prompt'
+        if (copyBtn) copyBtn.style.background = 'linear-gradient(135deg, #7c3aed, #ec4899)'
+    }
+
+    modalClose?.addEventListener('click', closeModal)
+    modalBackdrop?.addEventListener('click', closeModal)
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal() })
+
+    copyBtn?.addEventListener('click', async () => {
+        const text = promptContent?.textContent || ''
+        try {
+            await navigator.clipboard.writeText(text)
+            if (copyIcon) copyIcon.classList.add('hidden')
+            if (checkIcon) checkIcon.classList.remove('hidden')
+            if (copyBtnText) copyBtnText.textContent = 'Đã sao chép!'
+            if (copyBtn) copyBtn.style.background = 'linear-gradient(135deg, #059669, #10b981)'
+            setTimeout(resetCopy, 2500)
+        } catch {
+            if (window.showToast) window.showToast('Không thể sao chép. Hãy chọn và copy thủ công!', 'warning')
+        }
     })
 
-    modal?.addEventListener('click', (e) => {
-        if (!modalContent.contains(e.target)) closeModal()
-    })
-
-    copyLinks.forEach((link) => {
-        link.addEventListener('click', async (e) => {
-            e.preventDefault()
-
-            const hasPrompt = link.getAttribute('data-has-prompt')
-            if (hasPrompt !== 'true') return
-
-            const itemId = link.getAttribute('data-item-id')
-            const title = link.getAttribute('data-title')
-            const demoLink = link.getAttribute('data-demo-link')
-
-            // Show loading state
-            link.classList.add('opacity-50', 'pointer-events-none')
-            const originalText = link.querySelector('span:last-child')?.textContent || ''
-
-            // Fetch prompt từ API có xác thực (JWT cookie tự gửi kèm)
-            try {
-                const authToken = localStorage.getItem('auth_token')
-                const res = await fetch(`/api/get-prompt?id=${itemId}`, {
-                    headers: { 'Authorization': `Bearer ${authToken}` }
-                })
-                const data = await res.json()
-
-                // Remove loading state
-                link.classList.remove('opacity-50', 'pointer-events-none')
-
-                if (res.status === 401) {
-                    localStorage.removeItem('user_session')
-                    if (window.showToast) {
-                        window.showToast('Vui lòng đăng nhập để truy cập trang này!', 'warning')
-                    } else {
-                        alert('Vui lòng đăng nhập để truy cập trang này!')
-                    }
-                    const openLoginBtn = document.getElementById('openLoginModal')
-                    if (openLoginBtn) openLoginBtn.click()
-                    return
-                }
-
-                if (data.requiresAccess) {
-                    if (window.showToast) {
-                        window.showToast('🔒 ' + data.error, 'warning')
-                    } else {
-                        alert(data.error)
-                    }
-                    return
-                }
-
-                if (data.prompt) {
-                    copyToClipboard(data.prompt).then(() => {
-                        openModal(data.prompt, title, demoLink)
-                    })
-                }
-            } catch {
-                if (window.showToast) {
-                    window.showToast('Không thể tải prompt. Vui lòng thử lại!', 'error')
-                }
-            }
+    // ── Card click → open modal ───────────────────────────────────────────────
+    gameCards.forEach((card) => {
+        card.addEventListener('click', () => {
+            const id = parseInt(card.dataset.id || '0', 10)
+            if (id) openModal(id)
         })
     })
 </script>
 
 <style>
-    .custom-scrollbar::-webkit-scrollbar {
+    /* Modal entrance animation */
+    #promptModalPanel {
+        animation: modalPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+
+    @keyframes modalPop {
+        from {
+            opacity: 0;
+            transform: scale(0.92) translateY(16px);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    /* Search focus ring */
+    #gameSearch:focus {
+        border-color: #a78bfa;
+        box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.2);
+    }
+
+    /* Game card hover glow */
+    .game-card:hover {
+        box-shadow:
+            0 8px 24px rgba(124, 58, 237, 0.1),
+            0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Prompt scrollbar */
+    .prompt-scrollbar::-webkit-scrollbar {
         width: 6px;
     }
-    .custom-scrollbar::-webkit-scrollbar-track {
+    .prompt-scrollbar::-webkit-scrollbar-track {
         background: transparent;
     }
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 10px;
+    .prompt-scrollbar::-webkit-scrollbar-thumb {
+        background: #c4b5fd;
+        border-radius: 99px;
     }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8;
+
+    /* Line clamp */
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
 </style>
