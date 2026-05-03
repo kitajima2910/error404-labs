@@ -396,8 +396,8 @@ const tools = [
                     🔒
                 </div>
 
-                <h3 class="font-extrabold text-gray-800 text-xl mb-2">Nội dung dành riêng</h3>
-                <p class="text-gray-500 text-sm leading-relaxed mb-6">
+                <h3 class="font-extrabold text-gray-800 text-xl mb-2" id="authGateTitle">Nội dung dành riêng</h3>
+                <p class="text-gray-500 text-sm leading-relaxed mb-6" id="authGateDesc">
                     Vui lòng <strong class="text-purple-600">đăng nhập</strong> để xem prompt AI dành cho thành viên Vibe.
                 </p>
 
@@ -429,6 +429,34 @@ const tools = [
 
     // ── Helpers ───────────────────────────────────────────────────────────────
     const isLoggedIn = () => !!localStorage.getItem('auth_token')
+
+    /** Fetch the member's prompt_access list from the API (cached per session) */
+    let _accessCache = null
+    async function getMyAccess() {
+        if (_accessCache !== null) return _accessCache
+        try {
+            const token = localStorage.getItem('auth_token')
+            if (!token) { _accessCache = []; return _accessCache }
+            const res = await fetch('/api/admin/prompt-access?action=my-access', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            if (res.ok) {
+                const data = await res.json()
+                _accessCache = data.access || []
+            } else {
+                _accessCache = []
+            }
+        } catch {
+            _accessCache = []
+        }
+        return _accessCache
+    }
+
+    /** Check if the member has access to a specific vibe prompt */
+    async function hasVibeAccess(id) {
+        const access = await getMyAccess()
+        return access.includes(`vibe_${id}`)
+    }
 
     // ── Search ────────────────────────────────────────────────────────────────
     const searchInput = /** @type {HTMLInputElement} */ (document.getElementById('toolSearch'))
@@ -531,12 +559,25 @@ const tools = [
     const authGateLoginBtn = document.getElementById('authGateLoginBtn')
     const authGateCloseBtn = document.getElementById('authGateCloseBtn')
 
-    const openAuthGateModal = () => {
+    const openAuthGateModal = (mode = 'login') => {
+        // Update text based on mode
+        const title = document.getElementById('authGateTitle')
+        const desc = document.getElementById('authGateDesc')
+        const loginBtn = document.getElementById('authGateLoginBtn')
+        if (mode === 'no-access') {
+            if (title) title.textContent = 'Chưa có quyền truy cập'
+            if (desc) desc.innerHTML = 'Prompt này dành riêng cho thành viên được <strong class="text-purple-600">Admin cấp quyền</strong>. Hãy liên hệ Admin để được mở khóa.'
+            if (loginBtn) loginBtn.style.display = 'none'
+        } else {
+            if (title) title.textContent = 'Nội dung dành riêng'
+            if (desc) desc.innerHTML = 'Vui lòng <strong class="text-purple-600">đăng nhập</strong> để xem prompt AI dành cho thành viên Vibe.'
+            if (loginBtn) loginBtn.style.display = ''
+        }
         if (authGateModal) {
             authGateModal.style.removeProperty('display')
             authGateModal.style.display = 'flex'
             document.body.style.overflow = 'hidden'
-            setTimeout(() => authGateLoginBtn?.focus(), 50)
+            setTimeout(() => (mode === 'no-access' ? authGateCloseBtn?.focus() : authGateLoginBtn?.focus()), 50)
         }
     }
 
@@ -562,11 +603,17 @@ const tools = [
     })
 
     // ── View Prompt (auth-gated entry point) ──────────────────────────────────
-    window.vibeViewPrompt = (id) => {
-        if (isLoggedIn()) {
+    window.vibeViewPrompt = async (id) => {
+        if (!isLoggedIn()) {
+            openAuthGateModal()
+            return
+        }
+        const allowed = await hasVibeAccess(id)
+        if (allowed) {
             openPromptModal(id)
         } else {
-            openAuthGateModal()
+            // Logged in but no access to this specific prompt
+            openAuthGateModal('no-access')
         }
     }
 
