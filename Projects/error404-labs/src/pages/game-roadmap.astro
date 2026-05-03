@@ -190,7 +190,7 @@ const roadmap = months.map((month, monthIndex) => ({
 
 
 
-                if (user.roles !== 'admin' && !user.prompt_access.includes('game_roadmap')) {
+                if (user.roles !== 'admin' && user.roles !== 'member' && !user.prompt_access.includes('game_roadmap')) {
                     // Ẩn hoặc làm mờ phần prompt
                     const promptCard = document.querySelector('.prompt-card');
                     if (promptCard) {
