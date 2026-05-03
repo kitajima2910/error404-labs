@@ -620,61 +620,11 @@ const vibePromptsJson = JSON.stringify(
     </script>
 
     <script is:inline>
-        // Proactive Client-side Guard
-        (async function() {
-            const token = localStorage.getItem('auth_token');
-            const guard = document.getElementById('auth-guard');
-            
-            if (!token) {
-                window.location.href = '/?auth=required';
-                return;
-            }
+        // ─────────────────────────────────────────────────────────────────────
+        // 1. KHAI BÁO BIẾN — tất cả const/let phải đứng trước mọi hàm và IIFE
+        // ─────────────────────────────────────────────────────────────────────
 
-            try {
-                const res = await fetch('/api/verify', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const data = await res.json();
-
-                if (!res.ok || !data.authenticated || data.user?.roles !== 'admin') {
-                    if (data.error === 'Session invalid or expired') {
-                        localStorage.removeItem('auth_token');
-                        localStorage.removeItem('user_session');
-                        localStorage.removeItem('user_roles');
-                    }
-                    window.location.href = '/?auth=required';
-                    return;
-                }
-
-                // Show content if verified
-                guard.classList.remove('hidden');
-                document.getElementById('page-skeleton')?.classList.add('hidden');
-
-                // Initialize User Info
-                const adminGreetingName = document.getElementById('adminGreetingName');
-                const sidebarUserName = document.getElementById('sidebarUserName');
-                const sidebarUserRole = document.getElementById('sidebarUserRole');
-                const sidebarUserAvatar = document.getElementById('sidebarUserAvatar');
-
-                const displayName = data.user?.display_name || data.user?.member || 'Admin';
-                const role = data.user?.roles === 'admin' ? 'Admin' : 'Member';
-                const avatar = displayName.charAt(0).toUpperCase();
-
-                if (adminGreetingName) adminGreetingName.textContent = displayName;
-                if (sidebarUserName) sidebarUserName.textContent = displayName;
-                if (sidebarUserRole) sidebarUserRole.textContent = role;
-                if (sidebarUserAvatar) sidebarUserAvatar.textContent = avatar;
-                
-                // Initial load — đọc tab từ URL, mặc định là 'accounts'
-                const initialView = new URLSearchParams(window.location.search).get('view') || 'accounts';
-                switchView(initialView);
-            } catch (err) {
-                console.error('Guard Error:', err);
-                window.location.href = '/?error=connection';
-            }
-        })();
-
-        // Elements & State
+        // Member Management Elements
         const tableBody = document.getElementById('memberTableBody')
         const modal = document.getElementById('memberModal')
         const modalContent = document.getElementById('memberModalContent')
@@ -688,7 +638,6 @@ const vibePromptsJson = JSON.stringify(
         const deleteModalContent = document.getElementById('deleteModalContent')
         const confirmDeleteBtn = document.getElementById('confirmDeleteBtn')
         const cancelDeleteBtn = document.getElementById('cancelDeleteBtn')
-        let memberToToggle = null
 
         const memberSearch = document.getElementById('memberSearch')
         const roleFilterSelect = document.getElementById('roleFilter')
@@ -701,7 +650,46 @@ const vibePromptsJson = JSON.stringify(
         const pageNumbers = document.getElementById('pageNumbers')
         const sortHeaders = document.querySelectorAll('.sortable')
 
-        // State variables
+        // View Switching Elements
+        const navAccounts = document.getElementById('navAccounts')
+        const navLessons = document.getElementById('navLessons')
+        const navVibeTools = document.getElementById('navVibeTools')
+        const accountsView = document.getElementById('accountsView')
+        const lessonsView = document.getElementById('lessonsView')
+        const vibeToolsView = document.getElementById('vibeToolsView')
+
+        // Lesson Management Elements
+        const lessonTableBody = document.getElementById('lessonTableBody')
+        const lessonModal = document.getElementById('lessonModal')
+        const lessonModalContent = document.getElementById('lessonModalContent')
+        const lessonForm = document.getElementById('lessonForm')
+        const lessonModalTitle = document.getElementById('lessonModalTitle')
+        const addLessonBtn = document.getElementById('addLessonBtn')
+        const closeLessonModalBtns = document.querySelectorAll('.closeLessonModalBtn')
+        const lessonSearchInput = document.getElementById('lessonSearch')
+
+        // Prompt Access Elements
+        const promptAccessModal = document.getElementById('promptAccessModal')
+        const promptAccessModalContent = document.getElementById('promptAccessModalContent')
+        const promptAccessMemberName = document.getElementById('promptAccessMemberName')
+        const promptAccessList = document.getElementById('promptAccessList')
+        const promptAccessSearch = document.getElementById('promptAccessSearch')
+        const selectAllPrompts = document.getElementById('selectAllPrompts')
+        const deselectAllPrompts = document.getElementById('deselectAllPrompts')
+        const savePromptAccess = document.getElementById('savePromptAccess')
+        const tabTools = document.getElementById('tabTools')
+        const tabRoadmap = document.getElementById('tabRoadmap')
+        const tabVibeTools = document.getElementById('tabVibeTools')
+        const closePromptAccessModal = document.getElementById('closePromptAccessModal')
+
+        // Toast Elements
+        const toast = document.getElementById('toastNotification')
+        const toastMessage = document.getElementById('toastMessage')
+        const toastTitle = document.getElementById('toastTitle')
+        const toastIcon = document.getElementById('toastIcon')
+        const toastClose = document.getElementById('toastClose')
+
+        // Member State
         let members = []
         let currentUser = localStorage.getItem('user_session') || ''
         let total = 0
@@ -712,32 +700,48 @@ const vibePromptsJson = JSON.stringify(
         let statusFilter = ''
         let sortBy = 'id'
         let sortOrder = 'DESC'
+        let memberToToggle = null
+        let searchTimeout
 
-        // View Switching
-        const navAccounts = document.getElementById('navAccounts');
-        const navLessons = document.getElementById('navLessons');
-        const navVibeTools = document.getElementById('navVibeTools');
-        const accountsView = document.getElementById('accountsView');
-        const lessonsView = document.getElementById('lessonsView');
-        const vibeToolsView = document.getElementById('vibeToolsView');
+        // Lesson State
+        let lessons = []
+        let lessonSearchQuery = ''
+        let lessonSortBy = 'id'
+        let lessonSortOrder = 'DESC'
+        let lessonToDelete = null
+        let lessonCurrentPage = 1
+        let lessonTotal = 0
 
-        // Lesson Management Elements
-        const lessonTableBody = document.getElementById('lessonTableBody');
-        const lessonModal = document.getElementById('lessonModal');
-        const lessonModalContent = document.getElementById('lessonModalContent');
-        const lessonForm = document.getElementById('lessonForm');
-        const lessonModalTitle = document.getElementById('lessonModalTitle');
-        const addLessonBtn = document.getElementById('addLessonBtn');
-        const closeLessonModalBtns = document.querySelectorAll('.closeLessonModalBtn');
-        const lessonSearchInput = document.getElementById('lessonSearch');
+        // Prompt Access State
+        let currentPromptAccessMemberId = null
+        let currentPromptAccessList = []
+        let allPromptsData = []
+        let currentTab = 'tools'
 
-        let lessons = [];
-        let lessonSearchQuery = '';
-        let lessonSortBy = 'id';
-        let lessonSortOrder = 'DESC';
-        let lessonToDelete = null;
-        let lessonCurrentPage = 1;
-        let lessonTotal = 0;
+        // Vibe Tools State
+        let vibeAllMembers = []
+        let vibeSearchQuery = ''
+
+        // Toast State
+        let toastTimeout
+
+        // ─────────────────────────────────────────────────────────────────────
+        // 2. ĐỊNH NGHĨA HÀM
+        // ─────────────────────────────────────────────────────────────────────
+
+        window.openPromptAccessModal = function(memberId, member, displayName, accessList) {
+            currentPromptAccessMemberId = memberId;
+            currentPromptAccessList = Array.isArray(accessList) ? [...accessList] : [];
+            if (promptAccessMemberName) promptAccessMemberName.textContent = displayName || member;
+            if (promptAccessModal) {
+                promptAccessModal.classList.remove('hidden');
+                promptAccessModal.classList.add('flex');
+            }
+            if (promptAccessModalContent) {
+                setTimeout(() => { promptAccessModalContent.classList.remove('scale-95', 'opacity-0'); promptAccessModalContent.classList.add('scale-100', 'opacity-100'); }, 10);
+            }
+            renderPromptAccessList();
+        }
 
         function switchView(viewName) {
             // Cập nhật URL mà không tải lại trang
@@ -843,7 +847,7 @@ const vibePromptsJson = JSON.stringify(
                         </span>
                     </td>
                     <td class="px-6 py-5 text-center">
-                        <button onclick="window.openPromptAccessModal(${m.id}, '${m.member}', '${m.display_name || m.member}', ${JSON.stringify(m.prompt_access || [])})" class="text-xs font-semibold px-3 py-1.5 rounded-xl border transition-all cursor-pointer ${targetIsAdmin ? 'bg-amber-50 text-amber-700 border-amber-200 cursor-not-allowed' : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'}" ${targetIsAdmin ? 'disabled' : ''}>
+                        <button onclick="window.openPromptAccessModal(${m.id}, '${m.member.replace(/'/g, "\\'")}', '${(m.display_name || m.member).replace(/'/g, "\\'")}', ${JSON.stringify(m.prompt_access || []).replace(/"/g, '&quot;')})" class="text-xs font-semibold px-3 py-1.5 rounded-xl border transition-all cursor-pointer ${targetIsAdmin ? 'bg-amber-50 text-amber-700 border-amber-200 cursor-not-allowed' : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'}" ${targetIsAdmin ? 'disabled' : ''}>
                             ${targetIsAdmin ? 'Full Quyền' : (m.prompt_access?.length > 0 ? `${m.prompt_access.length} prompts` : '0 prompts')}
                         </button>
                     </td>
@@ -970,8 +974,11 @@ const vibePromptsJson = JSON.stringify(
             });
         }
 
+        // ─────────────────────────────────────────────────────────────────────
+        // 3. EVENT LISTENERS
+        // ─────────────────────────────────────────────────────────────────────
+
         // Search & Filters Listeners
-        let searchTimeout;
         memberSearch.oninput = (e) => {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => { search = e.target.value; currentPage = 1; fetchMembers(); }, 300);
@@ -1346,24 +1353,6 @@ const vibePromptsJson = JSON.stringify(
         }
 
         // Prompt Access Logic
-        const promptAccessModal = document.getElementById('promptAccessModal')
-        const promptAccessModalContent = document.getElementById('promptAccessModalContent')
-        const promptAccessMemberName = document.getElementById('promptAccessMemberName')
-        const promptAccessList = document.getElementById('promptAccessList')
-        const promptAccessSearch = document.getElementById('promptAccessSearch')
-        const selectAllPrompts = document.getElementById('selectAllPrompts')
-        const deselectAllPrompts = document.getElementById('deselectAllPrompts')
-        const savePromptAccess = document.getElementById('savePromptAccess')
-        const tabTools = document.getElementById('tabTools')
-        const tabRoadmap = document.getElementById('tabRoadmap')
-        const tabVibeTools = document.getElementById('tabVibeTools')
-        const closePromptAccessModal = document.getElementById('closePromptAccessModal')
-
-        let currentPromptAccessMemberId = null
-        let currentPromptAccessList = []
-        let allPromptsData = []
-        let currentTab = 'tools'
-
         async function loadPromptsData() {
             try {
                 const res = await fetch('/api/get-prompt?type=list', { headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` } });
@@ -1374,16 +1363,6 @@ const vibePromptsJson = JSON.stringify(
             // Remove any stale vibe_ entries then re-add fresh ones
             allPromptsData = allPromptsData.filter(p => !String(p.id).startsWith('vibe_'));
             allPromptsData = allPromptsData.concat(vibePrompts);
-        }
-
-        window.openPromptAccessModal = function(memberId, member, displayName, accessList) {
-            currentPromptAccessMemberId = memberId;
-            currentPromptAccessList = [...accessList];
-            promptAccessMemberName.textContent = displayName || member;
-            promptAccessModal.classList.remove('hidden');
-            promptAccessModal.classList.add('flex');
-            setTimeout(() => { promptAccessModalContent.classList.remove('scale-95', 'opacity-0'); promptAccessModalContent.classList.add('scale-100', 'opacity-100'); }, 10);
-            renderPromptAccessList();
         }
 
         function renderPromptAccessList(filterText = '', tab = currentTab) {
@@ -1449,13 +1428,6 @@ const vibePromptsJson = JSON.stringify(
         promptAccessModal.onclick = (e) => { if (e.target === promptAccessModal) closePromptAccessModalFunc(); };
 
         // Toast Notification Logic
-        const toast = document.getElementById('toastNotification')
-        const toastMessage = document.getElementById('toastMessage')
-        const toastTitle = document.getElementById('toastTitle')
-        const toastIcon = document.getElementById('toastIcon')
-        const toastClose = document.getElementById('toastClose')
-        let toastTimeout
-
         window.showToast = function(msg, type = 'success') {
             if (toast) {
                 toastMessage.innerHTML = msg.replace(/\n/g, '<br>')
@@ -1472,9 +1444,6 @@ const vibePromptsJson = JSON.stringify(
         if (toastClose) toastClose.onclick = () => toast.classList.add('translate-x-full', 'opacity-0')
 
         // ── Vibe Tools Member Management ──────────────────────────────────────
-        let vibeAllMembers = [];
-        let vibeSearchQuery = '';
-
         async function fetchVibeToolsMembers() {
             const grid = document.getElementById('vibeToolsMemberGrid');
             if (!grid) return;
@@ -1511,7 +1480,7 @@ const vibePromptsJson = JSON.stringify(
 
             grid.innerHTML = '';
             filtered.forEach(m => {
-                const accessList = m.prompt_access || [];
+                const accessList = Array.isArray(m.prompt_access) ? m.prompt_access : [];
                 const vibeCount = accessList.filter(id => String(id).startsWith('vibe_')).length;
                 const hasFullAccess = vibeCount >= totalVibe;
                 const card = document.createElement('div');
@@ -1537,7 +1506,7 @@ const vibePromptsJson = JSON.stringify(
                     </div>
                     <div class="flex gap-2 mt-4">
                         <button
-                            onclick="window.vibeGrantAll(${m.id}, '${m.member}', '${(m.display_name || m.member).replace(/'/g, "\\'")}', ${JSON.stringify(accessList)})"
+                            onclick="window.vibeGrantAll(${m.id}, '${m.member.replace(/'/g, "\\'")}', '${(m.display_name || m.member).replace(/'/g, "\\'")}', ${JSON.stringify(accessList).replace(/"/g, '&quot;')})"
                             class="flex-1 py-2 rounded-xl text-xs font-bold transition-all hover:opacity-90 active:scale-95 cursor-pointer ${hasFullAccess ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'text-white'}"
                             style="${hasFullAccess ? '' : 'background: linear-gradient(135deg, #7c3aed, #ec4899);'}"
                             ${hasFullAccess ? 'disabled' : ''}
@@ -1545,14 +1514,14 @@ const vibePromptsJson = JSON.stringify(
                             ✦ Cấp tất cả
                         </button>
                         <button
-                            onclick="window.vibeRevokeAll(${m.id}, '${m.member}', '${(m.display_name || m.member).replace(/'/g, "\\'")}', ${JSON.stringify(accessList)})"
+                            onclick="window.vibeRevokeAll(${m.id}, '${m.member.replace(/'/g, "\\'")}', '${(m.display_name || m.member).replace(/'/g, "\\'")}', ${JSON.stringify(accessList).replace(/"/g, '&quot;')})"
                             class="flex-1 py-2 rounded-xl text-xs font-bold border border-slate-200 text-slate-600 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all active:scale-95 cursor-pointer ${vibeCount === 0 ? 'opacity-40 cursor-not-allowed' : ''}"
                             ${vibeCount === 0 ? 'disabled' : ''}
                         >
                             ✕ Thu hồi tất cả
                         </button>
                         <button
-                            onclick="window.openPromptAccessModal(${m.id}, '${m.member}', '${(m.display_name || m.member).replace(/'/g, "\\'")}', ${JSON.stringify(accessList)}); setTimeout(() => { const t = document.getElementById('tabVibeTools'); if(t) t.click(); }, 50);"
+                            onclick="window.openPromptAccessModal(${m.id}, '${m.member.replace(/'/g, "\\'")}', '${(m.display_name || m.member).replace(/'/g, "\\'")}', ${JSON.stringify(accessList).replace(/"/g, '&quot;')}); setTimeout(() => { const t = document.getElementById('tabVibeTools'); if(t) t.click(); }, 50);"
                             class="px-3 py-2 rounded-xl text-xs font-bold border border-purple-200 text-purple-600 bg-purple-50 hover:bg-purple-100 transition-all active:scale-95 cursor-pointer"
                             title="Chỉnh sửa chi tiết"
                         >
@@ -1566,6 +1535,7 @@ const vibePromptsJson = JSON.stringify(
 
         // Grant all vibe prompts to a member
         window.vibeGrantAll = async (memberId, member, displayName, currentAccess) => {
+            if (!Array.isArray(currentAccess)) currentAccess = [];
             const vibePrompts = window.__VIBE_PROMPTS__ || [];
             const vibeIds = vibePrompts.map(p => String(p.id));
             // Merge with existing non-vibe access
@@ -1584,6 +1554,7 @@ const vibePromptsJson = JSON.stringify(
 
         // Revoke all vibe prompts from a member
         window.vibeRevokeAll = async (memberId, member, displayName, currentAccess) => {
+            if (!Array.isArray(currentAccess)) currentAccess = [];
             const newAccess = currentAccess.filter(id => !String(id).startsWith('vibe_'));
             try {
                 const res = await fetch('/api/admin/prompt-access', {
@@ -1607,6 +1578,62 @@ const vibePromptsJson = JSON.stringify(
         }
 
         loadPromptsData();
+
+        // ─────────────────────────────────────────────────────────────────────
+        // 4. IIFE — chạy sau khi tất cả biến, hàm và event listeners đã sẵn sàng
+        // ─────────────────────────────────────────────────────────────────────
+        ;(async function() {
+            const token = localStorage.getItem('auth_token');
+            const guard = document.getElementById('auth-guard');
+
+            if (!token) {
+                window.location.href = '/?auth=required';
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/verify', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (!res.ok || !data.authenticated || data.user?.roles !== 'admin') {
+                    if (data.error === 'Session invalid or expired') {
+                        localStorage.removeItem('auth_token');
+                        localStorage.removeItem('user_session');
+                        localStorage.removeItem('user_roles');
+                    }
+                    window.location.href = '/?auth=required';
+                    return;
+                }
+
+                // Show content if verified
+                guard.classList.remove('hidden');
+                document.getElementById('page-skeleton')?.classList.add('hidden');
+
+                // Initialize User Info
+                const adminGreetingName = document.getElementById('adminGreetingName');
+                const sidebarUserName = document.getElementById('sidebarUserName');
+                const sidebarUserRole = document.getElementById('sidebarUserRole');
+                const sidebarUserAvatar = document.getElementById('sidebarUserAvatar');
+
+                const displayName = data.user?.display_name || data.user?.member || 'Admin';
+                const role = data.user?.roles === 'admin' ? 'Admin' : 'Member';
+                const avatar = displayName.charAt(0).toUpperCase();
+
+                if (adminGreetingName) adminGreetingName.textContent = displayName;
+                if (sidebarUserName) sidebarUserName.textContent = displayName;
+                if (sidebarUserRole) sidebarUserRole.textContent = role;
+                if (sidebarUserAvatar) sidebarUserAvatar.textContent = avatar;
+
+                // Initial load — đọc tab từ URL, mặc định là 'accounts'
+                const initialView = new URLSearchParams(window.location.search).get('view') || 'accounts';
+                switchView(initialView);
+            } catch (err) {
+                console.error('Guard Error:', err);
+                window.location.href = '/?error=connection';
+            }
+        })();
     </script>
 
     <!-- Toast Notification -->
