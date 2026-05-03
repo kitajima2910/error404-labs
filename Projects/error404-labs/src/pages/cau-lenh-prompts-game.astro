@@ -316,7 +316,7 @@ const promptsJson = JSON.stringify(GAME_PROMPTS.map((p) => ({ id: p.id, name: p.
 </MainLayout>
 
 <script is:inline>
-    // ── Auth Guard ────────────────────────────────────────────────────────────
+    // ── Auth Guard + Permission Init ──────────────────────────────────────────
     ;(async () => {
         const token = localStorage.getItem('auth_token')
         if (!token) {
@@ -329,8 +329,16 @@ const promptsJson = JSON.stringify(GAME_PROMPTS.map((p) => ({ id: p.id, name: p.
             })
             const data = await res.json()
             if (data.authenticated) {
+                // Lưu thông tin user vào global để các script khác dùng
+                window.currentUser = data.user
+
                 document.getElementById('auth-guard').classList.remove('hidden')
-                document.getElementById('page-skeleton')?.classList.add('hidden')
+                document.getElementById('page-skeleton').classList.add('hidden')
+
+                // Áp dụng phân quyền sau khi DOM hiển thị
+                if (typeof window.initPermissions === 'function') {
+                    window.initPermissions()
+                }
             } else {
                 localStorage.removeItem('auth_token')
                 window.location.href = '/?auth=required'
@@ -345,30 +353,72 @@ const promptsJson = JSON.stringify(GAME_PROMPTS.map((p) => ({ id: p.id, name: p.
     // ── Data ──────────────────────────────────────────────────────────────────
     const PROMPTS = JSON.parse(promptsJson)
 
+    // ── Kiểm tra quyền xem prompt ─────────────────────────────────────────────
+    // Trả về true nếu user có quyền xem game với id cho trước
+    function hasAccess(id) {
+        const user = window.currentUser
+        if (!user) return false
+        if (user.roles === 'admin') return true
+        const access = Array.isArray(user.prompt_access) ? user.prompt_access : []
+        return access.map(Number).includes(Number(id))
+    }
+
+    // ── Áp dụng trạng thái khóa/mở lên tất cả game card ─────────────────────
+    window.initPermissions = function () {
+        const cards = document.querySelectorAll('.game-card')
+        cards.forEach((card) => {
+            const id = parseInt(card.dataset.id || '0', 10)
+            if (!id) return
+            if (hasAccess(id)) {
+                // Đã có quyền — xóa trạng thái khóa nếu có
+                card.style.opacity = ''
+                card.style.cursor = ''
+                const lockBadge = card.querySelector('.lock-badge')
+                if (lockBadge) lockBadge.remove()
+            } else {
+                // Không có quyền — làm mờ và thêm icon khóa
+                card.style.opacity = '0.5'
+                card.style.cursor = 'not-allowed'
+                if (!card.querySelector('.lock-badge')) {
+                    const badge = document.createElement('span')
+                    badge.className = 'lock-badge'
+                    badge.textContent = '🔒'
+                    badge.style.cssText =
+                        'position:absolute;top:8px;right:8px;font-size:14px;line-height:1;pointer-events:none;'
+                    // Đảm bảo card có position relative để badge định vị đúng
+                    card.style.position = 'relative'
+                    card.appendChild(badge)
+                }
+            }
+        })
+    }
+
     // ── Search ────────────────────────────────────────────────────────────────
     const searchInput = document.getElementById('gameSearch')
     const noResults = document.getElementById('noResults')
     const categoryBlocks = document.querySelectorAll('.category-block')
     const gameCards = document.querySelectorAll('.game-card')
 
-    searchInput && searchInput.addEventListener('input', () => {
-        const q = searchInput.value.toLowerCase().trim()
-        let totalVisible = 0
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            const q = searchInput.value.toLowerCase().trim()
+            let totalVisible = 0
 
-        categoryBlocks.forEach((block) => {
-            const cards = block.querySelectorAll('.game-card')
-            let blockVisible = 0
-            cards.forEach((card) => {
-                const match = !q || (card.dataset.name || '').includes(q)
-                card.style.display = match ? '' : 'none'
-                if (match) blockVisible++
+            categoryBlocks.forEach((block) => {
+                const cards = block.querySelectorAll('.game-card')
+                let blockVisible = 0
+                cards.forEach((card) => {
+                    const match = !q || (card.dataset.name || '').includes(q)
+                    card.style.display = match ? '' : 'none'
+                    if (match) blockVisible++
+                })
+                block.style.display = blockVisible > 0 ? '' : 'none'
+                totalVisible += blockVisible
             })
-            block.style.display = blockVisible > 0 ? '' : 'none'
-            totalVisible += blockVisible
-        })
 
-        noResults && noResults.classList.toggle('hidden', totalVisible > 0)
-    })
+            if (noResults) noResults.classList.toggle('hidden', totalVisible > 0)
+        })
+    }
 
     // ── Modal ─────────────────────────────────────────────────────────────────
     const modal = document.getElementById('promptModal')
@@ -381,7 +431,17 @@ const promptsJson = JSON.stringify(GAME_PROMPTS.map((p) => ({ id: p.id, name: p.
     const checkIcon = document.getElementById('checkIcon')
     const copyBtnText = document.getElementById('copyBtnText')
 
-    const openModal = (id) => {
+    function openModal(id) {
+        // Kiểm tra quyền trước khi mở modal
+        if (!hasAccess(id)) {
+            if (window.showToast) {
+                window.showToast('Bạn không có quyền xem Prompt này!', 'warning')
+            } else {
+                alert('Bạn không có quyền xem Prompt này!')
+            }
+            return
+        }
+
         const prompt = PROMPTS.find((p) => p.id === id)
         if (!prompt) return
         if (modalTitle) modalTitle.textContent = prompt.name
@@ -390,41 +450,43 @@ const promptsJson = JSON.stringify(GAME_PROMPTS.map((p) => ({ id: p.id, name: p.
         if (modal) {
             modal.style.setProperty('display', 'flex', 'important')
             document.body.style.overflow = 'hidden'
-            setTimeout(() => modalClose && modalClose.focus(), 50)
+            setTimeout(() => { if (modalClose) modalClose.focus() }, 50)
         }
     }
 
-    const closeModal = () => {
+    function closeModal() {
         if (modal) {
             modal.style.setProperty('display', 'none', 'important')
             document.body.style.overflow = ''
         }
     }
 
-    const resetCopy = () => {
+    function resetCopy() {
         if (copyIcon) copyIcon.classList.remove('hidden')
         if (checkIcon) checkIcon.classList.add('hidden')
         if (copyBtnText) copyBtnText.textContent = 'Sao chép prompt'
         if (copyBtn) copyBtn.style.background = 'linear-gradient(135deg, #7c3aed, #ec4899)'
     }
 
-    modalClose && modalClose.addEventListener('click', closeModal)
-    modalBackdrop && modalBackdrop.addEventListener('click', closeModal)
+    if (modalClose) modalClose.addEventListener('click', closeModal)
+    if (modalBackdrop) modalBackdrop.addEventListener('click', closeModal)
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal() })
 
-    copyBtn && copyBtn.addEventListener('click', async () => {
-        const text = (promptContent && promptContent.textContent) || ''
-        try {
-            await navigator.clipboard.writeText(text)
-            if (copyIcon) copyIcon.classList.add('hidden')
-            if (checkIcon) checkIcon.classList.remove('hidden')
-            if (copyBtnText) copyBtnText.textContent = 'Đã sao chép!'
-            if (copyBtn) copyBtn.style.background = 'linear-gradient(135deg, #059669, #10b981)'
-            setTimeout(resetCopy, 2500)
-        } catch {
-            if (window.showToast) window.showToast('Không thể sao chép. Hãy chọn và copy thủ công!', 'warning')
-        }
-    })
+    if (copyBtn) {
+        copyBtn.addEventListener('click', async () => {
+            const text = (promptContent && promptContent.textContent) || ''
+            try {
+                await navigator.clipboard.writeText(text)
+                if (copyIcon) copyIcon.classList.add('hidden')
+                if (checkIcon) checkIcon.classList.remove('hidden')
+                if (copyBtnText) copyBtnText.textContent = 'Đã sao chép!'
+                if (copyBtn) copyBtn.style.background = 'linear-gradient(135deg, #059669, #10b981)'
+                setTimeout(resetCopy, 2500)
+            } catch {
+                if (window.showToast) window.showToast('Không thể sao chép. Hãy chọn và copy thủ công!', 'warning')
+            }
+        })
+    }
 
     // ── Card click → open modal ───────────────────────────────────────────────
     gameCards.forEach((card) => {
