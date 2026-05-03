@@ -68,13 +68,6 @@ export const GET: APIRoute = async ({ request, url }) => {
     const finalSortBy = allowedSortColumns.includes(sortBy) ? sortBy : 'id'
 
     try {
-        await sql`ALTER TABLE error404labs.lessons ADD COLUMN IF NOT EXISTS title VARCHAR(255);`
-        await sql`ALTER TABLE error404labs.lessons ADD COLUMN IF NOT EXISTS url VARCHAR(500);`
-        await sql`ALTER TABLE error404labs.lessons ADD COLUMN IF NOT EXISTS description TEXT;`
-        await sql`ALTER TABLE error404labs.lessons ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();`
-        await sql`ALTER TABLE error404labs.lessons ADD COLUMN IF NOT EXISTS author VARCHAR(100);`
-        await sql`ALTER TABLE error404labs.lessons ADD COLUMN IF NOT EXISTS thumbnail_url TEXT;`
-
         const searchQuery = `%${search}%`
 
         // Sử dụng switch case để hỗ trợ ORDER BY an toàn

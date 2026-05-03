@@ -71,10 +71,6 @@ export const GET: APIRoute = async ({ request, url }) => {
     const finalSortBy = allowedSortColumns.includes(sortBy) ? sortBy : 'id'
 
     try {
-        await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS display_name VARCHAR(100);`
-        await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS prompt_access TEXT[] DEFAULT '{}';`
-        await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'active';`
-
         const searchQuery = `%${search}%`
 
         // Sử dụng switch case hoặc logic đơn giản để hỗ trợ ORDER BY an toàn mà không dính lỗi parameter

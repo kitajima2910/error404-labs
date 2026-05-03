@@ -83,21 +83,6 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         }
 
         const sql = neon(dbUrl);
-        
-        // Ensure columns exist (Migration) - Cho phép lỗi ở local nếu DB chưa sẵn sàng
-        try {
-            await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS points INT DEFAULT 0;`
-            await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS last_login_at DATE DEFAULT NULL;`
-            await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS display_name VARCHAR(255);`
-            await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS session_token TEXT;`
-            await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS session_fingerprint TEXT;`
-            await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS logined INT DEFAULT 0;`
-            await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'active';`
-            await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS avatar_url TEXT;`
-        } catch (mErr) {
-            console.error('Migration failed:', mErr);
-            if (!isDev) throw mErr;
-        }
 
         // Lấy user theo username (không so sánh code trong SQL nữa)
         const result = await sql`

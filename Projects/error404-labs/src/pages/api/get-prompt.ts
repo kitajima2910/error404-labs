@@ -115,13 +115,10 @@ export const GET: APIRoute = async ({ request, url }) => {
         }
 
         let decodedToken: any
-        let sql: any
         try {
             decodedToken = jwt.verify(token, import.meta.env.JWT_SECRET) as any
 
             // 1. Kiểm tra trạng thái logined và session_token từ DB
-            const { neon } = await import('@neondatabase/serverless')
-            sql = neon(import.meta.env.DATABASE_URL)
             const user = (
                 await sql`
                 SELECT logined, session_token, session_fingerprint 

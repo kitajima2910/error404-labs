@@ -1,3 +1,4 @@
+import { neon } from '@neondatabase/serverless';
 import type { APIRoute } from 'astro';
 import jwt from 'jsonwebtoken';
 
@@ -37,7 +38,6 @@ export const GET: APIRoute = async ({ request }) => {
             sessionToken: string;
         };
         
-        const { neon } = await import('@neondatabase/serverless');
         const sql = neon(dbUrl);
         const user = (await sql`
             SELECT points, created_at, display_name, logined, session_token, session_fingerprint, prompt_access, avatar_url

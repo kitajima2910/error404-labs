@@ -83,8 +83,6 @@ export const GET: APIRoute = async ({ request, url }) => {
 
     if (action === 'list' && admin) {
         try {
-            await sql`ALTER TABLE error404labs.members ADD COLUMN IF NOT EXISTS prompt_access TEXT[] DEFAULT '{}';`
-
             const members =
                 await sql`SELECT id, member, display_name, roles, prompt_access FROM error404labs.members ORDER BY id DESC;`
 
