@@ -192,6 +192,32 @@ const tools = [
 ---
 
 <MainLayout title="50 Mini Tools Vibe | Error404-Labs" description="50 công cụ mini vibe giúp bạn học tập, làm việc và sáng tạo mỗi ngày!" searchable={false}>
+    <script>
+        async function checkAccess() {
+            const token = localStorage.getItem('auth_token')
+            if (!token) {
+                window.location.href = '/?auth=required'
+                return
+            }
+            try {
+                const response = await fetch('/api/verify', {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                })
+                const data = await response.json()
+                if (!data.authenticated || !data.user) {
+                    window.location.href = '/?auth=required'
+                    return
+                }
+            } catch (error) {
+                console.error('Access check failed:', error)
+                window.location.href = '/?auth=required'
+            }
+        }
+        checkAccess()
+    </script>
     <div class="min-h-screen" style="background: linear-gradient(135deg, #f0f4ff 0%, #fdf0ff 50%, #fff0f8 100%);">
 
         <!-- Header -->
