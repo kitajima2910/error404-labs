@@ -120,7 +120,10 @@ const promptsJson = JSON.stringify(GAME_PROMPTS.map((p) => ({ id: p.id, name: p.
         </div>
 
         <!-- ── Search bar ── -->
-        <div class="sticky top-0 z-40 py-3 px-4" style="background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid #f1f5f9;">
+        <div
+            class="sticky top-0 z-40 py-3 px-4"
+            style="background: rgba(255,255,255,0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(167,139,250,0.15); box-shadow: 0 1px 16px rgba(124,58,237,0.06);"
+        >
             <div class="max-w-xl mx-auto relative">
                 <svg
                     class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"
@@ -135,8 +138,8 @@ const promptsJson = JSON.stringify(GAME_PROMPTS.map((p) => ({ id: p.id, name: p.
                     id="gameSearch"
                     type="text"
                     placeholder="Tìm kiếm game..."
-                    class="w-full pl-10 pr-4 py-2.5 rounded-full border border-slate-200 bg-white text-sm text-slate-700 placeholder-slate-400 outline-none transition-all"
-                    style="box-shadow: 0 1px 4px rgba(0,0,0,0.06);"
+                    class="w-full pl-10 pr-4 py-2.5 rounded-full border bg-white text-sm text-slate-700 placeholder-slate-400 outline-none transition-all"
+                    style="border-color: rgba(167,139,250,0.3); box-shadow: 0 1px 4px rgba(0,0,0,0.05);"
                 />
             </div>
         </div>
@@ -179,10 +182,10 @@ const promptsJson = JSON.stringify(GAME_PROMPTS.map((p) => ({ id: p.id, name: p.
                                         const gameDesc = item.text.includes(':') ? item.text.split(':').slice(1).join(':').trim() : ''
                                         return (
                                             <button
-                                                class="game-card group text-left bg-white rounded-2xl p-4 border border-slate-100 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:border-slate-200 cursor-pointer"
+                                                class="game-card group text-left bg-white rounded-2xl p-4 border border-slate-100 cursor-pointer"
                                                 data-id={item.id}
                                                 data-name={item.text.toLowerCase()}
-                                                style="box-shadow: 0 1px 3px rgba(0,0,0,0.06);"
+                                                style="box-shadow: 0 1px 3px rgba(0,0,0,0.06); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
                                             >
                                                 <div class="flex items-start justify-between mb-2">
                                                     <span
@@ -249,7 +252,7 @@ const promptsJson = JSON.stringify(GAME_PROMPTS.map((p) => ({ id: p.id, name: p.
             <!-- Header -->
             <div
                 class="flex items-center justify-between px-6 py-5 flex-shrink-0"
-                style="background: linear-gradient(135deg, #4c1d95 0%, #7c3aed 50%, #a855f7 100%);"
+                style="background: linear-gradient(135deg, #4c1d95 0%, #7c3aed 50%, #a855f7 100%); box-shadow: 0 4px 24px rgba(124,58,237,0.35);"
             >
                 <div class="flex items-center gap-3">
                     <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center text-lg">🎮</div>
@@ -340,16 +343,15 @@ const promptsJson = JSON.stringify(GAME_PROMPTS.map((p) => ({ id: p.id, name: p.
 
 <script define:vars={{ promptsJson }}>
     // ── Data ──────────────────────────────────────────────────────────────────
-    /** @type {Array<{id: number, name: string, content: string}>} */
     const PROMPTS = JSON.parse(promptsJson)
 
     // ── Search ────────────────────────────────────────────────────────────────
-    const searchInput = /** @type {HTMLInputElement} */ (document.getElementById('gameSearch'))
+    const searchInput = document.getElementById('gameSearch')
     const noResults = document.getElementById('noResults')
-    const categoryBlocks = /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll('.category-block'))
-    const gameCards = /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll('.game-card'))
+    const categoryBlocks = document.querySelectorAll('.category-block')
+    const gameCards = document.querySelectorAll('.game-card')
 
-    searchInput?.addEventListener('input', () => {
+    searchInput && searchInput.addEventListener('input', () => {
         const q = searchInput.value.toLowerCase().trim()
         let totalVisible = 0
 
@@ -358,19 +360,18 @@ const promptsJson = JSON.stringify(GAME_PROMPTS.map((p) => ({ id: p.id, name: p.
             let blockVisible = 0
             cards.forEach((card) => {
                 const match = !q || (card.dataset.name || '').includes(q)
-                /** @type {HTMLElement} */ (card).style.display = match ? '' : 'none'
+                card.style.display = match ? '' : 'none'
                 if (match) blockVisible++
             })
             block.style.display = blockVisible > 0 ? '' : 'none'
             totalVisible += blockVisible
         })
 
-        noResults?.classList.toggle('hidden', totalVisible > 0)
+        noResults && noResults.classList.toggle('hidden', totalVisible > 0)
     })
 
     // ── Modal ─────────────────────────────────────────────────────────────────
     const modal = document.getElementById('promptModal')
-    const modalPanel = document.getElementById('promptModalPanel')
     const modalTitle = document.getElementById('promptModalTitle')
     const promptContent = document.getElementById('promptContent')
     const modalClose = document.getElementById('promptModalClose')
@@ -387,16 +388,15 @@ const promptsJson = JSON.stringify(GAME_PROMPTS.map((p) => ({ id: p.id, name: p.
         if (promptContent) promptContent.textContent = prompt.content
         resetCopy()
         if (modal) {
-            modal.style.removeProperty('display')
-            modal.style.display = 'flex'
+            modal.style.setProperty('display', 'flex', 'important')
             document.body.style.overflow = 'hidden'
-            setTimeout(() => modalClose?.focus(), 50)
+            setTimeout(() => modalClose && modalClose.focus(), 50)
         }
     }
 
     const closeModal = () => {
         if (modal) {
-            modal.style.display = 'none'
+            modal.style.setProperty('display', 'none', 'important')
             document.body.style.overflow = ''
         }
     }
@@ -408,12 +408,12 @@ const promptsJson = JSON.stringify(GAME_PROMPTS.map((p) => ({ id: p.id, name: p.
         if (copyBtn) copyBtn.style.background = 'linear-gradient(135deg, #7c3aed, #ec4899)'
     }
 
-    modalClose?.addEventListener('click', closeModal)
-    modalBackdrop?.addEventListener('click', closeModal)
+    modalClose && modalClose.addEventListener('click', closeModal)
+    modalBackdrop && modalBackdrop.addEventListener('click', closeModal)
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal() })
 
-    copyBtn?.addEventListener('click', async () => {
-        const text = promptContent?.textContent || ''
+    copyBtn && copyBtn.addEventListener('click', async () => {
+        const text = (promptContent && promptContent.textContent) || ''
         try {
             await navigator.clipboard.writeText(text)
             if (copyIcon) copyIcon.classList.add('hidden')
@@ -438,13 +438,13 @@ const promptsJson = JSON.stringify(GAME_PROMPTS.map((p) => ({ id: p.id, name: p.
 <style>
     /* Modal entrance animation */
     #promptModalPanel {
-        animation: modalPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        animation: modalPop 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) both;
     }
 
     @keyframes modalPop {
         from {
             opacity: 0;
-            transform: scale(0.92) translateY(16px);
+            transform: scale(0.9) translateY(20px);
         }
         to {
             opacity: 1;
@@ -454,15 +454,21 @@ const promptsJson = JSON.stringify(GAME_PROMPTS.map((p) => ({ id: p.id, name: p.
 
     /* Search focus ring */
     #gameSearch:focus {
-        border-color: #a78bfa;
-        box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.2);
+        border-color: #a78bfa !important;
+        box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.25), 0 1px 4px rgba(0,0,0,0.05) !important;
     }
 
-    /* Game card hover glow */
+    /* Game card hover — scale + deep shadow */
     .game-card:hover {
+        transform: translateY(-3px) scale(1.02);
+        border-color: rgba(167, 139, 250, 0.35) !important;
         box-shadow:
-            0 8px 24px rgba(124, 58, 237, 0.1),
-            0 2px 8px rgba(0, 0, 0, 0.06);
+            0 12px 32px rgba(124, 58, 237, 0.12),
+            0 4px 12px rgba(0, 0, 0, 0.07) !important;
+    }
+
+    .game-card:active {
+        transform: translateY(0) scale(0.98);
     }
 
     /* Prompt scrollbar */
@@ -475,6 +481,9 @@ const promptsJson = JSON.stringify(GAME_PROMPTS.map((p) => ({ id: p.id, name: p.
     .prompt-scrollbar::-webkit-scrollbar-thumb {
         background: #c4b5fd;
         border-radius: 99px;
+    }
+    .prompt-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #a78bfa;
     }
 
     /* Line clamp */
