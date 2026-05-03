@@ -5,6 +5,8 @@ import MainLayout from '../../layouts/MainLayout.astro'
 import { TC_TITLE } from '../../common/TextConst'
 import PostCard from '../../components/PostCard.astro'
 
+export const prerender = true
+
 export const getStaticPaths = (() => {
     const posts = Object.values(
         import.meta.glob<any>('../bai-viet/*.md', { eager: true }),

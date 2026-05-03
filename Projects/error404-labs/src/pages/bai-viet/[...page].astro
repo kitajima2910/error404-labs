@@ -7,6 +7,8 @@ import { formatBlogPost } from '../../js/utils'
 import Pagination from '../../components/Pagination.astro'
 import CategoryCloud from '../../components/CategoryCloud.astro'
 
+export const prerender = true
+
 export const getStaticPaths = (({ paginate }) => {
     const allPosts = Object.values(
         import.meta.glob<any>('./*.md', { eager: true }),
