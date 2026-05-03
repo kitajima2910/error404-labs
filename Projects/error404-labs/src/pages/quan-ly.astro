@@ -1413,7 +1413,7 @@ const vibePromptsJson = JSON.stringify(
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
                     body: JSON.stringify({ memberId: currentPromptAccessMemberId, promptIds: currentPromptAccessList, action: 'update' })
                 });
-                if (res.ok) { showToast('Cập nhật quyền truy cập thành công!', 'success'); closePromptAccessModalFunc(); fetchMembers(); }
+                if (res.ok) { showToast('Cập nhật quyền truy cập thành công!', 'success'); closePromptAccessModalFunc(); fetchMembers(); fetchVibeToolsMembers(); }
                 else { const err = await res.json(); showToast(err.error || 'Lỗi thao tác', 'error'); }
             } catch { showToast('Lỗi kết nối', 'error'); }
         };
