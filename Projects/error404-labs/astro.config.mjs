@@ -10,6 +10,7 @@ import rehypeKatex from 'rehype-katex'
 
 export default defineConfig({
     site: 'https://www.error404-labs.info.vn/',
+    output: 'server',
     security: { checkOrigin: false },
     integrations: [
         sitemap(),
@@ -33,5 +34,5 @@ export default defineConfig({
             ],
         ],
     },
-    adapter: vercel({ regions: ['sin1'] }),
+    adapter: vercel(),
 })
