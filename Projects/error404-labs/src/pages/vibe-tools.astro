@@ -1,7 +1,13 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro'
+import { VIBE_PROMPTS } from '../data/vibe-tools/prompts.js'
 
 export const prerender = false
+
+// Serialize prompts to JSON for client-side use (content only, no server logic)
+const promptsJson = JSON.stringify(
+    VIBE_PROMPTS.map((p) => ({ id: p.id, toolName: p.toolName, content: p.content }))
+)
 
 const tools = [
     {
@@ -292,58 +298,281 @@ const tools = [
             </div>
         </div>
     </div>
+
+    <!-- ===== PROMPT MODAL ===== -->
+    <div
+        id="promptModal"
+        class="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+        style="display: none !important;"
+        aria-modal="true"
+        role="dialog"
+        aria-labelledby="promptModalTitle"
+    >
+        <!-- Backdrop -->
+        <div id="promptModalBackdrop" class="absolute inset-0" style="background: rgba(15, 10, 40, 0.65); backdrop-filter: blur(6px);"></div>
+
+        <!-- Modal Panel -->
+        <div class="relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-3xl overflow-hidden shadow-2xl" style="background: #fff;">
+
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between px-6 py-5 flex-shrink-0" style="background: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #ec4899 100%);">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center text-lg">⊙</div>
+                    <div>
+                        <p class="text-white/70 text-xs font-medium uppercase tracking-wider">Prompt AI</p>
+                        <h2 id="promptModalTitle" class="text-white font-bold text-base leading-tight"></h2>
+                    </div>
+                </div>
+                <button
+                    id="promptModalClose"
+                    class="w-9 h-9 rounded-xl bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition-colors"
+                    aria-label="Đóng"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="flex-1 overflow-y-auto px-6 py-5">
+                <!-- Tip banner -->
+                <div class="flex items-start gap-3 rounded-2xl p-4 mb-5" style="background: #fdf4ff; border: 1.5px solid #e9d5ff;">
+                    <span class="text-purple-500 text-lg flex-shrink-0 mt-0.5">💡</span>
+                    <p class="text-purple-700 text-xs leading-relaxed">
+                        Copy prompt này và dán vào <strong>ChatGPT, Claude, Gemini</strong> hoặc bất kỳ AI nào bạn đang dùng để tạo ra tool hoàn chỉnh!
+                    </p>
+                </div>
+
+                <!-- Prompt content -->
+                <div class="relative">
+                    <pre
+                        id="promptContent"
+                        class="w-full rounded-2xl p-5 text-sm leading-relaxed whitespace-pre-wrap break-words font-mono overflow-x-auto"
+                        style="background: #f8f7ff; border: 1.5px solid #ede9fe; color: #3b0764; min-height: 120px;"
+                    ></pre>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="flex items-center justify-between gap-3 px-6 py-4 flex-shrink-0" style="border-top: 1.5px solid #f3f4f6;">
+                <p class="text-gray-400 text-xs">Dành riêng cho thành viên Vibe 💜</p>
+                <button
+                    id="promptCopyBtn"
+                    class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-semibold transition-all duration-200 hover:opacity-90 hover:scale-[1.02] active:scale-95"
+                    style="background: linear-gradient(135deg, #7c3aed, #ec4899);"
+                >
+                    <svg id="copyIcon" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    <svg id="checkIcon" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span id="copyBtnText">Sao chép prompt</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== AUTH GATE MODAL ===== -->
+    <div
+        id="authGateModal"
+        class="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+        style="display: none !important;"
+        aria-modal="true"
+        role="dialog"
+    >
+        <!-- Backdrop -->
+        <div id="authGateBackdrop" class="absolute inset-0" style="background: rgba(15, 10, 40, 0.65); backdrop-filter: blur(6px);"></div>
+
+        <!-- Panel -->
+        <div class="relative w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl text-center" style="background: #fff;">
+            <!-- Top gradient strip -->
+            <div class="h-2 w-full" style="background: linear-gradient(90deg, #7c3aed, #ec4899);"></div>
+
+            <div class="px-8 py-8">
+                <!-- Lock icon -->
+                <div class="w-16 h-16 rounded-2xl mx-auto mb-5 flex items-center justify-center text-3xl shadow-md" style="background: linear-gradient(135deg, #ede9fe, #fce7f3);">
+                    🔒
+                </div>
+
+                <h3 class="font-extrabold text-gray-800 text-xl mb-2">Nội dung dành riêng</h3>
+                <p class="text-gray-500 text-sm leading-relaxed mb-6">
+                    Vui lòng <strong class="text-purple-600">đăng nhập</strong> để xem prompt AI dành cho thành viên Vibe.
+                </p>
+
+                <div class="flex flex-col gap-3">
+                    <button
+                        id="authGateLoginBtn"
+                        class="w-full py-3 rounded-xl text-white font-bold text-sm transition-all duration-200 hover:opacity-90 hover:scale-[1.02] active:scale-95"
+                        style="background: linear-gradient(135deg, #7c3aed, #ec4899);"
+                    >
+                        Đăng nhập ngay
+                    </button>
+                    <button
+                        id="authGateCloseBtn"
+                        class="w-full py-3 rounded-xl text-gray-500 font-semibold text-sm transition-all duration-200 hover:bg-gray-50"
+                        style="border: 1.5px solid #e5e7eb;"
+                    >
+                        Để sau
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </MainLayout>
 
-<script>
-    // Search functionality
-    const searchInput = document.getElementById('toolSearch') as HTMLInputElement
-    const toolsGrid = document.getElementById('toolsGrid')
+<script define:vars={{ promptsJson }}>
+    // ── Data ──────────────────────────────────────────────────────────────────
+    /** @type {Array<{id: number, toolName: string, content: string}>} */
+    const PROMPTS = JSON.parse(promptsJson)
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+    const isLoggedIn = () => !!localStorage.getItem('auth_token')
+
+    // ── Search ────────────────────────────────────────────────────────────────
+    const searchInput = /** @type {HTMLInputElement} */ (document.getElementById('toolSearch'))
     const noResults = document.getElementById('noResults')
-    const cards = document.querySelectorAll<HTMLElement>('.tool-card')
+    const cards = /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll('.tool-card'))
 
     searchInput?.addEventListener('input', () => {
         const query = searchInput.value.toLowerCase().trim()
-        let visibleCount = 0
-
+        let visible = 0
         cards.forEach((card) => {
-            const name = card.dataset.name || ''
-            const desc = card.dataset.desc || ''
-            const matches = name.includes(query) || desc.includes(query)
-            card.style.display = matches ? '' : 'none'
-            if (matches) visibleCount++
+            const match = (card.dataset.name || '').includes(query) || (card.dataset.desc || '').includes(query)
+            card.style.display = match ? '' : 'none'
+            if (match) visible++
         })
-
-        if (noResults) {
-            noResults.classList.toggle('hidden', visibleCount > 0)
-        }
+        noResults?.classList.toggle('hidden', visible > 0)
     })
 
-    // Tool action handlers
-    window.vibeUseTool = (id: number) => {
-        // @ts-ignore
+    // ── Use Tool ──────────────────────────────────────────────────────────────
+    window.vibeUseTool = (id) => {
         if (window.showToast) {
-            // @ts-ignore
             window.showToast(`Tool #${String(id).padStart(2, '0')} đang được phát triển! 🚀`, 'info')
         } else {
             alert(`Tool #${String(id).padStart(2, '0')} đang được phát triển! 🚀`)
         }
     }
 
-    window.vibeViewPrompt = (id: number) => {
-        // @ts-ignore
-        if (window.showToast) {
-            // @ts-ignore
-            window.showToast(`Prompt cho tool #${String(id).padStart(2, '0')} sắp ra mắt! 💜`, 'info')
-        } else {
-            alert(`Prompt cho tool #${String(id).padStart(2, '0')} sắp ra mắt! 💜`)
+    // ── Prompt Modal ──────────────────────────────────────────────────────────
+    const promptModal = document.getElementById('promptModal')
+    const promptModalTitle = document.getElementById('promptModalTitle')
+    const promptContent = document.getElementById('promptContent')
+    const promptModalClose = document.getElementById('promptModalClose')
+    const promptModalBackdrop = document.getElementById('promptModalBackdrop')
+    const promptCopyBtn = document.getElementById('promptCopyBtn')
+    const copyIcon = document.getElementById('copyIcon')
+    const checkIcon = document.getElementById('checkIcon')
+    const copyBtnText = document.getElementById('copyBtnText')
+
+    const openPromptModal = (id) => {
+        const prompt = PROMPTS.find((p) => p.id === id)
+        if (!prompt) return
+        if (promptModalTitle) promptModalTitle.textContent = prompt.toolName
+        if (promptContent) promptContent.textContent = prompt.content
+        if (promptModal) {
+            promptModal.style.removeProperty('display')
+            promptModal.style.display = 'flex'
+            // Reset copy button state
+            resetCopyBtn()
+            // Prevent body scroll
+            document.body.style.overflow = 'hidden'
+            // Focus close button for accessibility
+            setTimeout(() => promptModalClose?.focus(), 50)
         }
     }
 
-    // View all button
+    const closePromptModal = () => {
+        if (promptModal) {
+            promptModal.style.display = 'none'
+            document.body.style.overflow = ''
+        }
+    }
+
+    const resetCopyBtn = () => {
+        if (copyIcon) copyIcon.classList.remove('hidden')
+        if (checkIcon) checkIcon.classList.add('hidden')
+        if (copyBtnText) copyBtnText.textContent = 'Sao chép prompt'
+        if (promptCopyBtn) promptCopyBtn.style.background = 'linear-gradient(135deg, #7c3aed, #ec4899)'
+    }
+
+    promptModalClose?.addEventListener('click', closePromptModal)
+    promptModalBackdrop?.addEventListener('click', closePromptModal)
+
+    promptCopyBtn?.addEventListener('click', async () => {
+        const text = promptContent?.textContent || ''
+        try {
+            await navigator.clipboard.writeText(text)
+            // Success state
+            if (copyIcon) copyIcon.classList.add('hidden')
+            if (checkIcon) checkIcon.classList.remove('hidden')
+            if (copyBtnText) copyBtnText.textContent = 'Đã sao chép!'
+            if (promptCopyBtn) promptCopyBtn.style.background = 'linear-gradient(135deg, #059669, #10b981)'
+            setTimeout(resetCopyBtn, 2500)
+        } catch {
+            if (window.showToast) {
+                window.showToast('Không thể sao chép. Hãy chọn và copy thủ công!', 'warning')
+            }
+        }
+    })
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closePromptModal()
+            closeAuthGateModal()
+        }
+    })
+
+    // ── Auth Gate Modal ───────────────────────────────────────────────────────
+    const authGateModal = document.getElementById('authGateModal')
+    const authGateBackdrop = document.getElementById('authGateBackdrop')
+    const authGateLoginBtn = document.getElementById('authGateLoginBtn')
+    const authGateCloseBtn = document.getElementById('authGateCloseBtn')
+
+    const openAuthGateModal = () => {
+        if (authGateModal) {
+            authGateModal.style.removeProperty('display')
+            authGateModal.style.display = 'flex'
+            document.body.style.overflow = 'hidden'
+            setTimeout(() => authGateLoginBtn?.focus(), 50)
+        }
+    }
+
+    const closeAuthGateModal = () => {
+        if (authGateModal) {
+            authGateModal.style.display = 'none'
+            document.body.style.overflow = ''
+        }
+    }
+
+    authGateBackdrop?.addEventListener('click', closeAuthGateModal)
+    authGateCloseBtn?.addEventListener('click', closeAuthGateModal)
+
+    authGateLoginBtn?.addEventListener('click', () => {
+        closeAuthGateModal()
+        // Trigger the existing login modal in Nav
+        const openLoginBtn = document.getElementById('openLoginModal')
+        if (openLoginBtn) {
+            openLoginBtn.click()
+        } else {
+            window.location.href = '/dang-nhap'
+        }
+    })
+
+    // ── View Prompt (auth-gated entry point) ──────────────────────────────────
+    window.vibeViewPrompt = (id) => {
+        if (isLoggedIn()) {
+            openPromptModal(id)
+        } else {
+            openAuthGateModal()
+        }
+    }
+
+    // ── View All Button ───────────────────────────────────────────────────────
     document.getElementById('viewAllBtn')?.addEventListener('click', () => {
-        // @ts-ignore
         if (window.showToast) {
-            // @ts-ignore
             window.showToast('25 tools tiếp theo đang được phát triển! Hãy chờ đón nhé 🍄', 'info')
         } else {
             alert('25 tools tiếp theo đang được phát triển! Hãy chờ đón nhé 🍄')
@@ -360,5 +589,35 @@ const tools = [
     /* Search input focus ring */
     #toolSearch:focus {
         box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+    }
+
+    /* Modal entrance animation */
+    #promptModal > div:last-child,
+    #authGateModal > div:last-child {
+        animation: modalPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+
+    @keyframes modalPop {
+        from {
+            opacity: 0;
+            transform: scale(0.92) translateY(12px);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    /* Prompt content scrollbar */
+    #promptContent::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+    #promptContent::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    #promptContent::-webkit-scrollbar-thumb {
+        background: #c4b5fd;
+        border-radius: 99px;
     }
 </style>
