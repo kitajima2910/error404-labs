@@ -1,0 +1,387 @@
+---
+import MainLayout from '../layouts/MainLayout.astro'
+
+export const prerender = false
+
+const tools = [
+    {
+        id: 1,
+        name: 'Calculator',
+        desc: 'Máy tính mini đơn giản dễ sử dụng',
+        icon: '🧮',
+        bg: 'from-blue-400 to-blue-600',
+    },
+    {
+        id: 2,
+        name: 'Random Number',
+        desc: 'Tạo số ngẫu nhiên may mắn',
+        icon: '🎲',
+        bg: 'from-pink-400 to-rose-500',
+    },
+    {
+        id: 3,
+        name: 'Random Emoji',
+        desc: 'Tạo emoji ngẫu nhiên siêu vui',
+        icon: '😊',
+        bg: 'from-yellow-300 to-orange-400',
+    },
+    {
+        id: 4,
+        name: 'Dark Mode Toggle',
+        desc: 'Chuyển đổi giao diện sáng / tối',
+        icon: '🌙',
+        bg: 'from-indigo-500 to-blue-800',
+    },
+    {
+        id: 5,
+        name: 'Button Sound',
+        desc: 'Thêm âm thanh khi bấm nút',
+        icon: '🔊',
+        bg: 'from-teal-400 to-cyan-500',
+    },
+    {
+        id: 6,
+        name: 'Text Preview',
+        desc: 'Xem trước văn bản trực tiếp',
+        icon: 'Aa',
+        bg: 'from-blue-400 to-indigo-500',
+        isText: true,
+    },
+    {
+        id: 7,
+        name: 'Text Size Slider',
+        desc: 'Điều chỉnh kích thước văn bản',
+        icon: 'T',
+        bg: 'from-orange-400 to-amber-500',
+        isText: true,
+    },
+    {
+        id: 8,
+        name: 'Background Changer',
+        desc: 'Thay đổi màu nền một cách dễ dàng',
+        icon: '🎨',
+        bg: 'from-purple-400 to-pink-500',
+    },
+    {
+        id: 9,
+        name: 'Click Counter',
+        desc: 'Đếm số lần bạn click',
+        icon: '👆',
+        bg: 'from-teal-400 to-green-500',
+    },
+    {
+        id: 10,
+        name: 'Theme Picker',
+        desc: 'Chọn giao diện bạn yêu thích',
+        icon: '💝',
+        bg: 'from-pink-400 to-rose-500',
+    },
+    {
+        id: 11,
+        name: 'Character Counter',
+        desc: 'Đếm số ký tự trong văn bản',
+        icon: '🔤',
+        bg: 'from-green-400 to-emerald-500',
+    },
+    {
+        id: 12,
+        name: 'Word Counter',
+        desc: 'Đếm số từ trong văn bản',
+        icon: '📄',
+        bg: 'from-blue-400 to-indigo-500',
+    },
+    {
+        id: 13,
+        name: 'Text Case Converter',
+        desc: 'Chuyển đổi chữ hoa thường dễ dàng',
+        icon: 'Aa',
+        bg: 'from-red-400 to-orange-500',
+        isText: true,
+    },
+    {
+        id: 14,
+        name: 'Text Trimmer',
+        desc: 'Xóa khoảng trắng thừa trong text',
+        icon: '✂️',
+        bg: 'from-cyan-400 to-blue-500',
+    },
+    {
+        id: 15,
+        name: 'Text Reverser',
+        desc: 'Đảo ngược văn bản',
+        icon: '🔄',
+        bg: 'from-teal-400 to-cyan-500',
+    },
+    {
+        id: 16,
+        name: 'To-Do List',
+        desc: 'Quản lý công việc hàng ngày',
+        icon: '✅',
+        bg: 'from-red-400 to-pink-500',
+    },
+    {
+        id: 17,
+        name: 'Sticky Notes',
+        desc: 'Ghi chú nhanh và lưu trữ',
+        icon: '📝',
+        bg: 'from-yellow-300 to-amber-400',
+    },
+    {
+        id: 18,
+        name: 'Countdown Timer',
+        desc: 'Đếm ngược thời gian đơn giản',
+        icon: '⏱️',
+        bg: 'from-blue-500 to-indigo-600',
+    },
+    {
+        id: 19,
+        name: 'Pomodoro Timer',
+        desc: 'Tập trung học tập hiệu quả',
+        icon: '🍅',
+        bg: 'from-red-400 to-rose-500',
+    },
+    {
+        id: 20,
+        name: 'Password Generator',
+        desc: 'Tạo mật khẩu mạnh và an toàn',
+        icon: '🔐',
+        bg: 'from-gray-500 to-slate-700',
+    },
+    {
+        id: 21,
+        name: 'Color Picker',
+        desc: 'Chọn màu sắc bạn yêu thích',
+        icon: '🎨',
+        bg: 'from-purple-400 to-pink-400',
+    },
+    {
+        id: 22,
+        name: 'Unit Converter',
+        desc: 'Chuyển đổi đơn vị nhanh chóng',
+        icon: '📏',
+        bg: 'from-green-400 to-teal-500',
+    },
+    {
+        id: 23,
+        name: 'Date & Time',
+        desc: 'Xem ngày giờ hiện tại',
+        icon: '📅',
+        bg: 'from-red-400 to-orange-500',
+    },
+    {
+        id: 24,
+        name: 'Stopwatch',
+        desc: 'Đồng hồ bấm giờ chính xác',
+        icon: '⏱️',
+        bg: 'from-gray-400 to-slate-600',
+    },
+    {
+        id: 25,
+        name: 'Alarm Clock',
+        desc: 'Đặt báo thức đơn giản',
+        icon: '⏰',
+        bg: 'from-orange-400 to-amber-500',
+    },
+]
+---
+
+<MainLayout title="50 Mini Tools Vibe | Error404-Labs" description="50 công cụ mini vibe giúp bạn học tập, làm việc và sáng tạo mỗi ngày!" searchable={false}>
+    <div class="min-h-screen" style="background: linear-gradient(135deg, #f0f4ff 0%, #fdf0ff 50%, #fff0f8 100%);">
+
+        <!-- Header -->
+        <div class="max-w-6xl mx-auto px-4 pt-8 pb-4">
+            <div class="flex items-center justify-between mb-6">
+                <!-- Logo + Title -->
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-md" style="background: linear-gradient(135deg, #a78bfa, #ec4899);">
+                        🍄
+                    </div>
+                    <div>
+                        <div class="font-bold text-gray-800 text-sm leading-tight">50 Tools</div>
+                        <div class="text-gray-500 text-xs">Mini Vibe Tools Collection</div>
+                    </div>
+                </div>
+
+                <!-- Vibe Member Badge -->
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold shadow-sm" style="background: #fff0f8; color: #ec4899; border: 1.5px solid #fce7f3;">
+                        <span>💜</span>
+                        <span>Vibe Member</span>
+                    </div>
+                    <div class="w-10 h-10 rounded-full overflow-hidden shadow-md border-2 border-purple-200">
+                        <img src="/avatar_v2.avif" alt="Avatar" class="w-full h-full object-cover" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Title -->
+            <div class="text-center mb-6">
+                <h1 class="text-4xl md:text-5xl font-extrabold mb-3 leading-tight">
+                    <span class="text-yellow-400">✦</span>
+                    <span class="text-gray-800"> 50 Mini Tools </span>
+                    <span style="background: linear-gradient(135deg, #7c3aed, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Vibe</span>
+                    <span class="text-yellow-400"> ✦</span>
+                </h1>
+                <p class="text-gray-500 text-base md:text-lg">Những công cụ nhỏ xinh giúp bạn học tập, làm việc và sáng tạo mỗi ngày!</p>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="max-w-md mx-auto mb-8">
+                <div class="relative">
+                    <input
+                        type="text"
+                        id="toolSearch"
+                        placeholder="Tìm kiếm tool bạn cần..."
+                        class="w-full px-5 py-3 rounded-full border-2 border-purple-100 bg-white shadow-sm text-gray-700 placeholder-gray-400 outline-none focus:border-purple-300 transition-all text-sm"
+                    />
+                    <button class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-purple-500 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tools Grid -->
+        <div class="max-w-6xl mx-auto px-4 pb-12">
+            <div id="toolsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+                {tools.map((tool) => (
+                    <div
+                        class="tool-card bg-white rounded-3xl p-5 shadow-sm border border-gray-100 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg cursor-pointer"
+                        data-name={tool.name.toLowerCase()}
+                        data-desc={tool.desc.toLowerCase()}
+                    >
+                        <!-- Number badge -->
+                        <div class="self-start mb-3">
+                            <span class="text-xs font-bold text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full">
+                                {String(tool.id).padStart(2, '0')}
+                            </span>
+                        </div>
+
+                        <!-- Icon -->
+                        <div class={`w-16 h-16 rounded-2xl bg-gradient-to-br ${tool.bg} flex items-center justify-center mb-3 shadow-md`}>
+                            {tool.isText ? (
+                                <span class="text-white font-extrabold text-xl">{tool.icon}</span>
+                            ) : (
+                                <span class="text-3xl">{tool.icon}</span>
+                            )}
+                        </div>
+
+                        <!-- Name & Desc -->
+                        <h3 class="font-bold text-gray-800 text-sm mb-1 leading-tight">{tool.name}</h3>
+                        <p class="text-gray-400 text-xs mb-4 leading-relaxed flex-1">{tool.desc}</p>
+
+                        <!-- Buttons -->
+                        <div class="w-full flex flex-col gap-2">
+                            <button
+                                class="w-full py-2 rounded-xl text-white text-xs font-semibold transition-all duration-200 hover:opacity-90 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-1.5"
+                                style="background: linear-gradient(135deg, #7c3aed, #6d28d9);"
+                                onclick={`window.vibeUseTool(${tool.id})`}
+                            >
+                                <span>▶</span>
+                                <span>Dùng tool</span>
+                            </button>
+                            <button
+                                class="w-full py-2 rounded-xl text-xs font-semibold transition-all duration-200 hover:opacity-90 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-1.5"
+                                style="background: #fff0f8; color: #ec4899; border: 1.5px solid #fce7f3;"
+                                onclick={`window.vibeViewPrompt(${tool.id})`}
+                            >
+                                <span>⊙</span>
+                                <span>Xem prompt</span>
+                            </button>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            <!-- No results message -->
+            <div id="noResults" class="hidden text-center py-16">
+                <div class="text-5xl mb-4">🔍</div>
+                <p class="text-gray-500 text-lg font-medium">Không tìm thấy tool nào</p>
+                <p class="text-gray-400 text-sm mt-1">Thử tìm kiếm với từ khóa khác nhé!</p>
+            </div>
+
+            <!-- View All Button -->
+            <div class="flex justify-center mt-10">
+                <button
+                    class="px-8 py-3.5 rounded-full text-white font-bold text-sm shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105 active:scale-95 flex items-center gap-2"
+                    style="background: linear-gradient(135deg, #7c3aed, #ec4899);"
+                    id="viewAllBtn"
+                >
+                    <span>✦</span>
+                    <span>Xem tất cả 50 tools</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</MainLayout>
+
+<script>
+    // Search functionality
+    const searchInput = document.getElementById('toolSearch') as HTMLInputElement
+    const toolsGrid = document.getElementById('toolsGrid')
+    const noResults = document.getElementById('noResults')
+    const cards = document.querySelectorAll<HTMLElement>('.tool-card')
+
+    searchInput?.addEventListener('input', () => {
+        const query = searchInput.value.toLowerCase().trim()
+        let visibleCount = 0
+
+        cards.forEach((card) => {
+            const name = card.dataset.name || ''
+            const desc = card.dataset.desc || ''
+            const matches = name.includes(query) || desc.includes(query)
+            card.style.display = matches ? '' : 'none'
+            if (matches) visibleCount++
+        })
+
+        if (noResults) {
+            noResults.classList.toggle('hidden', visibleCount > 0)
+        }
+    })
+
+    // Tool action handlers
+    window.vibeUseTool = (id: number) => {
+        // @ts-ignore
+        if (window.showToast) {
+            // @ts-ignore
+            window.showToast(`Tool #${String(id).padStart(2, '0')} đang được phát triển! 🚀`, 'info')
+        } else {
+            alert(`Tool #${String(id).padStart(2, '0')} đang được phát triển! 🚀`)
+        }
+    }
+
+    window.vibeViewPrompt = (id: number) => {
+        // @ts-ignore
+        if (window.showToast) {
+            // @ts-ignore
+            window.showToast(`Prompt cho tool #${String(id).padStart(2, '0')} sắp ra mắt! 💜`, 'info')
+        } else {
+            alert(`Prompt cho tool #${String(id).padStart(2, '0')} sắp ra mắt! 💜`)
+        }
+    }
+
+    // View all button
+    document.getElementById('viewAllBtn')?.addEventListener('click', () => {
+        // @ts-ignore
+        if (window.showToast) {
+            // @ts-ignore
+            window.showToast('25 tools tiếp theo đang được phát triển! Hãy chờ đón nhé 🍄', 'info')
+        } else {
+            alert('25 tools tiếp theo đang được phát triển! Hãy chờ đón nhé 🍄')
+        }
+    })
+</script>
+
+<style>
+    /* Smooth card hover */
+    .tool-card {
+        will-change: transform;
+    }
+
+    /* Search input focus ring */
+    #toolSearch:focus {
+        box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+    }
+</style>
