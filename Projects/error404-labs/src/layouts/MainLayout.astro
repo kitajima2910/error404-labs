@@ -152,6 +152,24 @@ const {
                 },
             },
             {
+                label: 'Vibe Tools',
+                icon: '<i class="fa fa-magic" aria-hidden="true"></i>',
+                action: () => {
+                    if (localStorage.getItem('auth_token')) {
+                        window.location.href = '/vibe-tools'
+                    } else {
+                        // @ts-ignore
+                        if (window.showToast) {
+                            // @ts-ignore
+                            window.showToast('Vui lòng đăng nhập để truy cập trang này!', 'warning')
+                        } else {
+                            alert('Vui lòng đăng nhập để truy cập trang này!')
+                        }
+                        document.getElementById('openLoginModal')?.click()
+                    }
+                },
+            },
+            {
                 label: 'Công cụ',
                 icon: '<i class="fa fa-wrench" aria-hidden="true"></i>',
                 action: () => (window.location.href = '/tools'),
