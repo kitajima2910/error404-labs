@@ -458,6 +458,7 @@ const tools = [
 
     /** Fetch the member's prompt_access list from the API (cached per session) */
     let _accessCache = null
+    let _isAdmin = false
     async function getMyAccess() {
         if (_accessCache !== null) return _accessCache
         try {
@@ -469,6 +470,7 @@ const tools = [
             if (res.ok) {
                 const data = await res.json()
                 _accessCache = data.access || []
+                _isAdmin = data.isAdmin === true
             } else {
                 _accessCache = []
             }
@@ -480,8 +482,9 @@ const tools = [
 
     /** Check if the member has access to a specific vibe prompt */
     async function hasVibeAccess(id) {
-        const access = await getMyAccess()
-        return access.includes(`vibe_${id}`)
+        await getMyAccess()
+        if (_isAdmin) return true
+        return _accessCache.includes(`vibe_${id}`)
     }
 
     // ── Search ────────────────────────────────────────────────────────────────

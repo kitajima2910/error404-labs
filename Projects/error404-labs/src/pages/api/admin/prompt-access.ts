@@ -97,8 +97,9 @@ export const GET: APIRoute = async ({ request, url }) => {
         try {
             const memberData = (await sql`SELECT prompt_access FROM error404labs.members WHERE id = ${member.id}`)[0]
             const accessList = memberData?.prompt_access || []
+            const isAdmin = member.dbUser.roles === 'admin'
 
-            return new Response(JSON.stringify({ access: accessList }), { status: 200 })
+            return new Response(JSON.stringify({ access: accessList, isAdmin }), { status: 200 })
         } catch (error) {
             console.error('Error:', error)
             return new Response(JSON.stringify({ error: 'Database error' }), { status: 500 })
