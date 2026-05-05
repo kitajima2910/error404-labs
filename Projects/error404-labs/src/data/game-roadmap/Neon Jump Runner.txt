@@ -1,35 +1,52 @@
 === CREATE GAME ===
 
 * Tên: Neon Jump Runner
-* Style: Neon (grid + glow, nền tối cyber)
-* Đối tượng: Nhân vật runner phát sáng, tự động chạy trên đường grid vô hạn
+
+* Style: Neon (grid + glow)
+
+* Đối tượng:
+
+  * Nhân vật runner (phát sáng neon)
+  * Nền grid chuyển động
+  * Platform nổi (nhảy qua)
+  * Chướng ngại (spike, laser)
+  * Orb năng lượng (thu thập)
+
 * Gameplay:
 
-  * Nhân vật auto chạy về phía trước
-  * Người chơi tap / space để nhảy, giữ để nhảy cao hơn
-  * Né chướng ngại (block, laser, hố)
-  * Thu thập energy orb để tăng điểm và kích hoạt combo
+  * Runner tự động chạy về phía trước
+  * Người chơi tap/space để nhảy (double jump nhẹ)
+  * Né chướng ngại + rơi xuống là thua
+  * Thu thập orb để tăng điểm & kích hoạt upgrade
+
 * Luật:
 
-  * Va chạm = mất máu
-  * Rơi khỏi nền = thua
-  * Combo orb liên tục = tăng tốc + nhân điểm
+  * Va chạm chướng ngại = mất máu
+  * Rơi khỏi platform = game over
+  * Mỗi mốc điểm → chọn upgrade
+
 * Hiển thị:
 
-  * Camera side-scrolling 2D
   * Nền grid neon chuyển động parallax
-  * Màu chủ đạo: tím, xanh cyan, hồng glow
+  * Platform phát sáng viền
+  * Nhân vật có trail ánh sáng
+  * Laser blink trước khi bắn
+
 * UI:
 
-  * Thanh máu (HP)
-  * Điểm + combo meter
-  * Thanh energy boost
+  * Thanh máu (trên trái)
+  * Điểm số (trên giữa)
+  * Nút pause
+  * Popup chọn upgrade (3 lựa chọn)
+
 * Hiệu ứng:
 
-  * Glow trail theo nhân vật
-  * Particle khi nhảy / tiếp đất
-  * Slow motion nhẹ khi gần va chạm
+  * Glow bloom toàn cảnh
+  * Trail khi nhảy
+  * Particle khi thu orb
+  * Screen shake nhẹ khi va chạm
+
 * Build:
 
-  * “Starter Spark”:
-    Runner cơ bản với tốc độ trung bình, chưa có khả năng đặc biệt, tập trung né và giữ combo ổn định.
+  * ⚡ “Photon Runner”
+  * Tốc độ cao + nhảy linh hoạt, tạo cảm giác mượt và phản xạ nhanh, tập trung né tránh và giữ nhịp flow liên tục
