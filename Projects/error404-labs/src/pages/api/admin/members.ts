@@ -230,7 +230,7 @@ export const PUT: APIRoute = async ({ request }) => {
     }
 }
 
-// DELETE: Toggle member status (active/inactive)
+// DELETE: Toggle member status (active/inactive) hoặc xóa vĩnh viễn (action === 'delete')
 export const DELETE: APIRoute = async ({ request }) => {
     const admin = await checkAdmin(request)
     if (!admin) {
@@ -238,31 +238,37 @@ export const DELETE: APIRoute = async ({ request }) => {
     }
 
     try {
-        const { id } = await request.json()
+        const { id, action } = await request.json()
         if (!id) return new Response(JSON.stringify({ error: 'Missing ID' }), { status: 400 })
 
         // Lấy thông tin user đích
         const target = (await sql`SELECT member, roles, status FROM error404labs.members WHERE id = ${id}`)[0]
         if (!target) return new Response(JSON.stringify({ error: 'User not found' }), { status: 404 })
 
-        // Không được tự khóa chính mình
+        // Không được tự xóa/khóa chính mình
         if (target.member === admin.member) {
-            return new Response(JSON.stringify({ error: 'Bạn không thể tự thay đổi trạng thái tài khoản của chính mình.' }), {
+            return new Response(JSON.stringify({ error: 'Bạn không thể thực hiện thao tác này trên tài khoản của chính mình.' }), {
                 status: 403,
             })
         }
 
         // Bảo vệ Super Admin
         if (target.member === 'pxh2910') {
-            return new Response(JSON.stringify({ error: 'Không thể thay đổi trạng thái Super Admin.' }), { status: 403 })
+            return new Response(JSON.stringify({ error: 'Không thể thực hiện thao tác này trên Super Admin.' }), { status: 403 })
         }
 
-        // Admin thường không được thay đổi trạng thái Admin khác
+        // Admin thường không được thao tác trên Admin khác
         if (target.roles === 'admin' && admin.member !== 'pxh2910') {
-            return new Response(JSON.stringify({ error: 'Bạn không có quyền thay đổi trạng thái Admin khác.' }), { status: 403 })
+            return new Response(JSON.stringify({ error: 'Bạn không có quyền thao tác trên Admin khác.' }), { status: 403 })
         }
 
-        // Toggle status
+        if (action === 'delete') {
+            // Xóa vĩnh viễn
+            await sql`DELETE FROM error404labs.members WHERE id = ${id}`
+            return new Response(JSON.stringify({ success: true, action: 'deleted' }), { status: 200 })
+        }
+
+        // Toggle status (mặc định)
         const newStatus = target.status === 'active' ? 'inactive' : 'active'
         await sql`UPDATE error404labs.members SET status = ${newStatus} WHERE id = ${id}`
         return new Response(JSON.stringify({ success: true, newStatus }), { status: 200 })
