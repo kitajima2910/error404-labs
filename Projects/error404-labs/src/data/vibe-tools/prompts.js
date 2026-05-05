@@ -1,534 +1,534 @@
 ﻿/**
- * Dá»¯ liá»‡u prompt AI cho 50 Mini Tools Vibe
- * Má»—i prompt hÆ°á»›ng dáº«n AI táº¡o ra cÃ´ng cá»¥ mini tÆ°Æ¡ng á»©ng báº±ng HTML/CSS/JS thuáº§n.
+ * Dữ liệu prompt AI cho 50 Mini Tools Vibe
+ * Mỗi prompt hướng dẫn AI tạo ra công cụ mini tương ứng bằng HTML/CSS/JS thuần.
  */
 export const VIBE_PROMPTS = [
     {
         id: 1,
         toolName: 'Calculator',
-        content: `HÃ£y táº¡o má»™t á»©ng dá»¥ng mÃ¡y tÃ­nh mini báº±ng HTML, CSS vÃ  JavaScript thuáº§n (khÃ´ng dÃ¹ng framework).
+        content: `Hãy tạo một ứng dụng máy tính mini bằng HTML, CSS và JavaScript thuần (không dùng framework).
 
-YÃªu cáº§u giao diá»‡n:
-- Thiáº¿t káº¿ hiá»‡n Ä‘áº¡i, bo gÃ³c, mÃ u sáº¯c pastel (tÃ­m/xanh dÆ°Æ¡ng nháº¡t)
-- MÃ n hÃ¬nh hiá»ƒn thá»‹ sá»‘ lá»›n, rÃµ rÃ ng
-- CÃ¡c nÃºt báº¥m cÃ³ hiá»‡u á»©ng hover vÃ  active mÆ°á»£t mÃ 
-- Responsive, hoáº¡t Ä‘á»™ng tá»‘t trÃªn mobile
+Yêu cầu giao diện:
+- Thiết kế hiện đại, bo góc, màu sắc pastel (tím/xanh dương nhạt)
+- Màn hình hiển thị số lớn, rõ ràng
+- Các nút bấm có hiệu ứng hover và active mượt mà
+- Responsive, hoạt động tốt trên mobile
 
-YÃªu cáº§u chá»©c nÄƒng:
-- CÃ¡c phÃ©p tÃ­nh cÆ¡ báº£n: cá»™ng (+), trá»« (-), nhÃ¢n (Ã—), chia (Ã·)
-- NÃºt xÃ³a (C) vÃ  xÃ³a tá»«ng kÃ½ tá»± (âŒ«)
-- Há»— trá»£ sá»‘ tháº­p phÃ¢n
-- Hiá»ƒn thá»‹ lá»‹ch sá»­ phÃ©p tÃ­nh vá»«a thá»±c hiá»‡n
-- Xá»­ lÃ½ lá»—i chia cho 0
+Yêu cầu chức năng:
+- Các phép tính cơ bản: cộng (+), trừ (-), nhân (×), chia (÷)
+- Nút xóa (C) và xóa từng ký tự (⌫)
+- Hỗ trợ số thập phân
+- Hiển thị lịch sử phép tính vừa thực hiện
+- Xử lý lỗi chia cho 0
 
-Táº¥t cáº£ code trong má»™t file HTML duy nháº¥t, cÃ³ comment giáº£i thÃ­ch rÃµ rÃ ng.`,
+Tất cả code trong một file HTML duy nhất, có comment giải thích rõ ràng.`,
     },
     {
         id: 2,
         toolName: 'Random Number',
-        content: `HÃ£y táº¡o má»™t á»©ng dá»¥ng táº¡o sá»‘ ngáº«u nhiÃªn báº±ng HTML, CSS vÃ  JavaScript thuáº§n.
+        content: `Hãy tạo một ứng dụng tạo số ngẫu nhiên bằng HTML, CSS và JavaScript thuần.
 
-YÃªu cáº§u giao diá»‡n:
-- Thiáº¿t káº¿ vui tÆ°Æ¡i, mÃ u há»“ng/Ä‘á» pastel
-- Sá»‘ ngáº«u nhiÃªn hiá»ƒn thá»‹ to, ná»•i báº­t vá»›i hiá»‡u á»©ng animation khi xuáº¥t hiá»‡n
-- CÃ³ Ã´ nháº­p min/max Ä‘á»ƒ tÃ¹y chá»‰nh khoáº£ng sá»‘
-- NÃºt "Táº¡o sá»‘ má»›i" vá»›i hiá»‡u á»©ng shake/bounce
+Yêu cầu giao diện:
+- Thiết kế vui tươi, màu hồng/đỏ pastel
+- Số ngẫu nhiên hiển thị to, nổi bật với hiệu ứng animation khi xuất hiện
+- Có ô nhập min/max để tùy chỉnh khoảng số
+- Nút "Tạo số mới" với hiệu ứng shake/bounce
 
-YÃªu cáº§u chá»©c nÄƒng:
-- Táº¡o sá»‘ ngáº«u nhiÃªn trong khoáº£ng [min, max] do ngÆ°á»i dÃ¹ng nháº­p
-- LÆ°u lá»‹ch sá»­ 10 sá»‘ gáº§n nháº¥t
-- NÃºt copy sá»‘ vá»«a táº¡o
-- Hiá»‡u á»©ng confetti nhá» khi táº¡o sá»‘
-- Validate input (min < max, chá»‰ nháº­n sá»‘ nguyÃªn)
+Yêu cầu chức năng:
+- Tạo số ngẫu nhiên trong khoảng [min, max] do người dùng nhập
+- Lưu lịch sử 10 số gần nhất
+- Nút copy số vừa tạo
+- Hiệu ứng confetti nhỏ khi tạo số
+- Validate input (min < max, chỉ nhận số nguyên)
 
-Táº¥t cáº£ code trong má»™t file HTML duy nháº¥t.`,
+Tất cả code trong một file HTML duy nhất.`,
     },
     {
         id: 3,
         toolName: 'Random Emoji',
-        content: `HÃ£y táº¡o má»™t á»©ng dá»¥ng táº¡o emoji ngáº«u nhiÃªn báº±ng HTML, CSS vÃ  JavaScript thuáº§n.
+        content: `Hãy tạo một ứng dụng tạo emoji ngẫu nhiên bằng HTML, CSS và JavaScript thuần.
 
-YÃªu cáº§u giao diá»‡n:
-- Thiáº¿t káº¿ vui nhá»™n, mÃ u vÃ ng/cam pastel
-- Emoji hiá»ƒn thá»‹ cá»±c to (font-size 120px) vá»›i animation bounce
-- CÃ³ cÃ¡c danh má»¥c emoji: Cáº£m xÃºc, Äá»™ng váº­t, Thá»©c Äƒn, Du lá»‹ch, Hoáº¡t Ä‘á»™ng
-- NÃºt "Shuffle" vá»›i hiá»‡u á»©ng xoay
+Yêu cầu giao diện:
+- Thiết kế vui nhộn, màu vàng/cam pastel
+- Emoji hiển thị cực to (font-size 120px) với animation bounce
+- Có các danh mục emoji: Cảm xúc, Động vật, Thức ăn, Du lịch, Hoạt động
+- Nút "Shuffle" với hiệu ứng xoay
 
-YÃªu cáº§u chá»©c nÄƒng:
-- Random 1 emoji tá»« danh má»¥c Ä‘Ã£ chá»n (hoáº·c táº¥t cáº£)
-- Hiá»ƒn thá»‹ tÃªn emoji bÃªn dÆ°á»›i
-- NÃºt copy emoji vÃ o clipboard
-- Táº¡o bá»™ 5 emoji ngáº«u nhiÃªn cÃ¹ng lÃºc
-- LÆ°u emoji yÃªu thÃ­ch (localStorage)
+Yêu cầu chức năng:
+- Random 1 emoji từ danh mục đã chọn (hoặc tất cả)
+- Hiển thị tên emoji bên dưới
+- Nút copy emoji vào clipboard
+- Tạo bộ 5 emoji ngẫu nhiên cùng lúc
+- Lưu emoji yêu thích (localStorage)
 
-Táº¥t cáº£ code trong má»™t file HTML duy nháº¥t.`,
+Tất cả code trong một file HTML duy nhất.`,
     },
     {
         id: 4,
         toolName: 'Dark Mode Toggle',
-        content: `HÃ£y táº¡o má»™t demo chuyá»ƒn Ä‘á»•i Dark/Light mode báº±ng HTML, CSS vÃ  JavaScript thuáº§n.
+        content: `Hãy tạo một demo chuyển đổi Dark/Light mode bằng HTML, CSS và JavaScript thuần.
 
-YÃªu cáº§u giao diá»‡n:
-- Toggle switch Ä‘áº¹p vá»›i icon máº·t trá»i â˜€ï¸ vÃ  máº·t trÄƒng ðŸŒ™
-- Transition mÆ°á»£t mÃ  khi chuyá»ƒn Ä‘á»•i (0.3s ease)
-- Demo content Ä‘áº§y Ä‘á»§: header, cards, text, buttons Ä‘á»ƒ tháº¥y rÃµ sá»± khÃ¡c biá»‡t
-- MÃ u sáº¯c dark mode: ná»n #1a1a2e, text #e0e0e0
+Yêu cầu giao diện:
+- Toggle switch đẹp với icon mặt trời ☀️ và mặt trăng 🌙
+- Transition mượt mà khi chuyển đổi (0.3s ease)
+- Demo content đầy đủ: header, cards, text, buttons để thấy rõ sự khác biệt
+- Màu sắc dark mode: nền #1a1a2e, text #e0e0e0
 
-YÃªu cáº§u chá»©c nÄƒng:
-- LÆ°u tráº¡ng thÃ¡i vÃ o localStorage
-- Tá»± Ä‘á»™ng Ã¡p dá»¥ng theme Ä‘Ã£ lÆ°u khi load trang
-- CSS variables Ä‘á»ƒ quáº£n lÃ½ mÃ u sáº¯c
-- Há»— trá»£ prefers-color-scheme cá»§a há»‡ thá»‘ng
+Yêu cầu chức năng:
+- Lưu trạng thái vào localStorage
+- Tự động áp dụng theme đã lưu khi load trang
+- CSS variables để quản lý màu sắc
+- Hỗ trợ prefers-color-scheme của hệ thống
 
-Táº¥t cáº£ code trong má»™t file HTML duy nháº¥t, cÃ³ comment giáº£i thÃ­ch CSS variables.`,
+Tất cả code trong một file HTML duy nhất, có comment giải thích CSS variables.`,
     },
     {
         id: 5,
         toolName: 'Button Sound',
-        content: `HÃ£y táº¡o má»™t demo nÃºt báº¥m cÃ³ Ã¢m thanh báº±ng HTML, CSS vÃ  JavaScript thuáº§n (Web Audio API).
+        content: `Hãy tạo một demo nút bấm có âm thanh bằng HTML, CSS và JavaScript thuần (Web Audio API).
 
-YÃªu cáº§u giao diá»‡n:
-- Nhiá»u loáº¡i nÃºt vá»›i thiáº¿t káº¿ Ä‘áº¹p: Primary, Success, Warning, Danger
-- Hiá»ƒn thá»‹ sÃ³ng Ã¢m animation khi báº¥m
-- Volume slider Ä‘á»ƒ Ä‘iá»u chá»‰nh Ã¢m lÆ°á»£ng
-- Toggle báº­t/táº¯t Ã¢m thanh
+Yêu cầu giao diện:
+- Nhiều loại nút với thiết kế đẹp: Primary, Success, Warning, Danger
+- Hiển thị sóng âm animation khi bấm
+- Volume slider để điều chỉnh âm lượng
+- Toggle bật/tắt âm thanh
 
-YÃªu cáº§u chá»©c nÄƒng:
-- Táº¡o Ã¢m thanh báº±ng Web Audio API (khÃ´ng cáº§n file Ã¢m thanh ngoÃ i)
-- Má»—i loáº¡i nÃºt cÃ³ Ã¢m thanh khÃ¡c nhau (táº§n sá»‘ khÃ¡c nhau)
-- Hiá»‡u á»©ng ripple khi click
-- Ã‚m thanh: click ngáº¯n, success (ascending), error (descending), warning (beep)
+Yêu cầu chức năng:
+- Tạo âm thanh bằng Web Audio API (không cần file âm thanh ngoài)
+- Mỗi loại nút có âm thanh khác nhau (tần số khác nhau)
+- Hiệu ứng ripple khi click
+- Âm thanh: click ngắn, success (ascending), error (descending), warning (beep)
 
-Táº¥t cáº£ code trong má»™t file HTML duy nháº¥t, giáº£i thÃ­ch cÃ¡ch Web Audio API hoáº¡t Ä‘á»™ng.`,
+Tất cả code trong một file HTML duy nhất, giải thích cách Web Audio API hoạt động.`,
     },
     {
         id: 6,
         toolName: 'Text Preview',
-        content: `HÃ£y táº¡o má»™t á»©ng dá»¥ng xem trÆ°á»›c vÄƒn báº£n real-time báº±ng HTML, CSS vÃ  JavaScript thuáº§n.
+        content: `Hãy tạo một ứng dụng xem trước văn bản real-time bằng HTML, CSS và JavaScript thuần.
 
-YÃªu cáº§u giao diá»‡n:
-- Layout 2 cá»™t: bÃªn trÃ¡i lÃ  textarea nháº­p liá»‡u, bÃªn pháº£i lÃ  preview
-- Thanh cÃ´ng cá»¥ Ä‘á»‹nh dáº¡ng: Bold, Italic, Underline, mÃ u chá»¯, cá»¡ chá»¯
-- Font selector vá»›i cÃ¡c font phá»• biáº¿n
-- NÃºt copy HTML output
+Yêu cầu giao diện:
+- Layout 2 cột: bên trái là textarea nhập liệu, bên phải là preview
+- Thanh công cụ định dạng: Bold, Italic, Underline, màu chữ, cỡ chữ
+- Font selector với các font phổ biến
+- Nút copy HTML output
 
-YÃªu cáº§u chá»©c nÄƒng:
-- Preview cáº­p nháº­t real-time khi gÃµ (debounce 100ms)
-- Há»— trá»£ Markdown cÆ¡ báº£n: **bold**, *italic*, # heading, - list
-- Äáº¿m sá»‘ tá»« vÃ  kÃ½ tá»± real-time
-- Export preview ra file .txt hoáº·c .html
-- LÆ°u ná»™i dung vÃ o localStorage tá»± Ä‘á»™ng
+Yêu cầu chức năng:
+- Preview cập nhật real-time khi gõ (debounce 100ms)
+- Hỗ trợ Markdown cơ bản: **bold**, *italic*, # heading, - list
+- Đếm số từ và ký tự real-time
+- Export preview ra file .txt hoặc .html
+- Lưu nội dung vào localStorage tự động
 
-Táº¥t cáº£ code trong má»™t file HTML duy nháº¥t.`,
+Tất cả code trong một file HTML duy nhất.`,
     },
     {
         id: 7,
         toolName: 'Text Size Slider',
-        content: `HÃ£y táº¡o má»™t á»©ng dá»¥ng Ä‘iá»u chá»‰nh kÃ­ch thÆ°á»›c vÄƒn báº£n báº±ng HTML, CSS vÃ  JavaScript thuáº§n.
+        content: `Hãy tạo một ứng dụng điều chỉnh kích thước văn bản bằng HTML, CSS và JavaScript thuần.
 
-YÃªu cáº§u giao diá»‡n:
-- Slider Ä‘áº¹p vá»›i gradient mÃ u cam/vÃ ng
-- Hiá»ƒn thá»‹ kÃ­ch thÆ°á»›c hiá»‡n táº¡i (px vÃ  rem)
-- VÃ¹ng preview text lá»›n, rÃµ rÃ ng
-- CÃ¡c preset nhanh: Small (12px), Normal (16px), Large (24px), XL (32px), XXL (48px)
+Yêu cầu giao diện:
+- Slider đẹp với gradient màu cam/vàng
+- Hiển thị kích thước hiện tại (px và rem)
+- Vùng preview text lớn, rõ ràng
+- Các preset nhanh: Small (12px), Normal (16px), Large (24px), XL (32px), XXL (48px)
 
-YÃªu cáº§u chá»©c nÄƒng:
-- Slider range tá»« 8px Ä‘áº¿n 72px
-- Thay Ä‘á»•i font-size real-time
-- Äiá»u chá»‰nh line-height tá»± Ä‘á»™ng theo font-size
-- Há»— trá»£ nhiá»u font family
-- NÃºt reset vá» máº·c Ä‘á»‹nh
-- LÆ°u cÃ i Ä‘áº·t vÃ o localStorage
+Yêu cầu chức năng:
+- Slider range từ 8px đến 72px
+- Thay đổi font-size real-time
+- Điều chỉnh line-height tự động theo font-size
+- Hỗ trợ nhiều font family
+- Nút reset về mặc định
+- Lưu cài đặt vào localStorage
 
-Táº¥t cáº£ code trong má»™t file HTML duy nháº¥t.`,
+Tất cả code trong một file HTML duy nhất.`,
     },
     {
         id: 8,
         toolName: 'Background Changer',
-        content: `HÃ£y táº¡o má»™t á»©ng dá»¥ng thay Ä‘á»•i mÃ u ná»n báº±ng HTML, CSS vÃ  JavaScript thuáº§n.
+        content: `Hãy tạo một ứng dụng thay đổi màu nền bằng HTML, CSS và JavaScript thuần.
 
-YÃªu cáº§u giao diá»‡n:
-- Color picker Ä‘áº¹p vá»›i palette mÃ u sáºµn cÃ³
-- Preview toÃ n mÃ n hÃ¬nh vá»›i transition mÆ°á»£t mÃ 
-- Gradient generator: chá»n 2-3 mÃ u vÃ  hÆ°á»›ng gradient
-- Hiá»ƒn thá»‹ mÃ£ mÃ u HEX, RGB, HSL
+Yêu cầu giao diện:
+- Color picker đẹp với palette màu sẵn có
+- Preview toàn màn hình với transition mượt mà
+- Gradient generator: chọn 2-3 màu và hướng gradient
+- Hiển thị mã màu HEX, RGB, HSL
 
-YÃªu cáº§u chá»©c nÄƒng:
-- Chá»n mÃ u Ä‘Æ¡n hoáº·c gradient
-- 20+ mÃ u preset Ä‘áº¹p
-- Random mÃ u ngáº«u nhiÃªn
-- Copy mÃ£ mÃ u/CSS vÃ o clipboard
-- LÆ°u mÃ u yÃªu thÃ­ch (tá»‘i Ä‘a 10 mÃ u)
+Yêu cầu chức năng:
+- Chọn màu đơn hoặc gradient
+- 20+ màu preset đẹp
+- Random màu ngẫu nhiên
+- Copy mã màu/CSS vào clipboard
+- Lưu màu yêu thích (tối đa 10 màu)
 - Export CSS gradient code
 
-Táº¥t cáº£ code trong má»™t file HTML duy nháº¥t.`,
+Tất cả code trong một file HTML duy nhất.`,
     },
     {
         id: 9,
         toolName: 'Click Counter',
-        content: `HÃ£y táº¡o má»™t á»©ng dá»¥ng Ä‘áº¿m sá»‘ láº§n click báº±ng HTML, CSS vÃ  JavaScript thuáº§n.
+        content: `Hãy tạo một ứng dụng đếm số lần click bằng HTML, CSS và JavaScript thuần.
 
-YÃªu cáº§u giao diá»‡n:
-- Sá»‘ Ä‘áº¿m hiá»ƒn thá»‹ cá»±c to, ná»•i báº­t
-- NÃºt click lá»›n vá»›i hiá»‡u á»©ng ripple vÃ  bounce
-- Thanh progress bar hiá»ƒn thá»‹ tiáº¿n Ä‘á»™ Ä‘áº¿n má»¥c tiÃªu
-- MÃ u sáº¯c thay Ä‘á»•i theo má»‘c: xanh â†’ vÃ ng â†’ Ä‘á»
+Yêu cầu giao diện:
+- Số đếm hiển thị cực to, nổi bật
+- Nút click lớn với hiệu ứng ripple và bounce
+- Thanh progress bar hiển thị tiến độ đến mục tiêu
+- Màu sắc thay đổi theo mốc: xanh → vàng → đỏ
 
-YÃªu cáº§u chá»©c nÄƒng:
-- Äáº¿m sá»‘ láº§n click, double-click, right-click riÃªng biá»‡t
-- Äáº·t má»¥c tiÃªu (goal) vÃ  thÃ´ng bÃ¡o khi Ä‘áº¡t
-- Tá»‘c Ä‘á»™ click (clicks/giÃ¢y) real-time
-- NÃºt reset vá»›i confirm dialog
-- LÆ°u ká»· lá»¥c cao nháº¥t vÃ o localStorage
-- Cháº¿ Ä‘á»™ Ä‘áº¿m ngÆ°á»£c (countdown)
+Yêu cầu chức năng:
+- Đếm số lần click, double-click, right-click riêng biệt
+- Đặt mục tiêu (goal) và thông báo khi đạt
+- Tốc độ click (clicks/giây) real-time
+- Nút reset với confirm dialog
+- Lưu kỷ lục cao nhất vào localStorage
+- Chế độ đếm ngược (countdown)
 
-Táº¥t cáº£ code trong má»™t file HTML duy nháº¥t.`,
+Tất cả code trong một file HTML duy nhất.`,
     },
     {
         id: 10,
         toolName: 'Theme Picker',
-        content: `HÃ£y táº¡o má»™t á»©ng dá»¥ng chá»n theme giao diá»‡n báº±ng HTML, CSS vÃ  JavaScript thuáº§n.
+        content: `Hãy tạo một ứng dụng chọn theme giao diện bằng HTML, CSS và JavaScript thuần.
 
-YÃªu cáº§u giao diá»‡n:
-- Grid cÃ¡c theme card vá»›i preview mÃ u sáº¯c
-- Demo UI Ä‘áº§y Ä‘á»§: navbar, cards, buttons, form Ä‘á»ƒ xem trÆ°á»›c theme
-- Transition mÆ°á»£t mÃ  khi Ä‘á»•i theme
-- Badge "Active" trÃªn theme Ä‘ang dÃ¹ng
+Yêu cầu giao diện:
+- Grid các theme card với preview màu sắc
+- Demo UI đầy đủ: navbar, cards, buttons, form để xem trước theme
+- Transition mượt mà khi đổi theme
+- Badge "Active" trên theme đang dùng
 
-YÃªu cáº§u chá»©c nÄƒng:
-- Ãt nháº¥t 8 theme: Default, Ocean, Forest, Sunset, Candy, Midnight, Rose, Mint
-- Má»—i theme cÃ³: primary color, secondary, background, text, accent
-- LÆ°u theme Ä‘Ã£ chá»n vÃ o localStorage
-- Táº¡o theme tÃ¹y chá»‰nh (custom theme builder)
-- Export theme dÆ°á»›i dáº¡ng CSS variables
+Yêu cầu chức năng:
+- Ít nhất 8 theme: Default, Ocean, Forest, Sunset, Candy, Midnight, Rose, Mint
+- Mỗi theme có: primary color, secondary, background, text, accent
+- Lưu theme đã chọn vào localStorage
+- Tạo theme tùy chỉnh (custom theme builder)
+- Export theme dưới dạng CSS variables
 
-Táº¥t cáº£ code trong má»™t file HTML duy nháº¥t, sá»­ dá»¥ng CSS custom properties.`,
+Tất cả code trong một file HTML duy nhất, sử dụng CSS custom properties.`,
     },
     {
         id: 11,
         toolName: 'Character Counter',
-        content: `HÃ£y táº¡o má»™t á»©ng dá»¥ng Ä‘áº¿m kÃ½ tá»± vÄƒn báº£n báº±ng HTML, CSS vÃ  JavaScript thuáº§n.
+        content: `Hãy tạo một ứng dụng đếm ký tự văn bản bằng HTML, CSS và JavaScript thuần.
 
-YÃªu cáº§u giao diá»‡n:
-- Textarea lá»›n, dá»… nhÃ¬n vá»›i placeholder hÆ°á»›ng dáº«n
-- Dashboard thá»‘ng kÃª: tá»•ng kÃ½ tá»±, kÃ½ tá»± khÃ´ng khoáº£ng tráº¯ng, tá»«, cÃ¢u, Ä‘oáº¡n
-- Progress bar hiá»ƒn thá»‹ % so vá»›i giá»›i háº¡n
-- MÃ u cáº£nh bÃ¡o khi gáº§n Ä‘áº¡t giá»›i háº¡n
+Yêu cầu giao diện:
+- Textarea lớn, dễ nhìn với placeholder hướng dẫn
+- Dashboard thống kê: tổng ký tự, ký tự không khoảng trắng, từ, câu, đoạn
+- Progress bar hiển thị % so với giới hạn
+- Màu cảnh báo khi gần đạt giới hạn
 
-YÃªu cáº§u chá»©c nÄƒng:
-- Äáº¿m real-time: kÃ½ tá»±, tá»«, cÃ¢u, Ä‘oáº¡n vÄƒn
-- Äáº·t giá»›i háº¡n kÃ½ tá»± tÃ¹y chá»‰nh (Twitter: 280, SMS: 160, v.v.)
-- PhÃ¢n tÃ­ch táº§n suáº¥t tá»« (top 10 tá»« xuáº¥t hiá»‡n nhiá»u nháº¥t)
-- Æ¯á»›c tÃ­nh thá»i gian Ä‘á»c
-- Highlight tá»« trÃ¹ng láº·p
+Yêu cầu chức năng:
+- Đếm real-time: ký tự, từ, câu, đoạn văn
+- Đặt giới hạn ký tự tùy chỉnh (Twitter: 280, SMS: 160, v.v.)
+- Phân tích tần suất từ (top 10 từ xuất hiện nhiều nhất)
+- Ước tính thời gian đọc
+- Highlight từ trùng lặp
 
-Táº¥t cáº£ code trong má»™t file HTML duy nháº¥t.`,
+Tất cả code trong một file HTML duy nhất.`,
     },
     {
         id: 12,
         toolName: 'Word Counter',
-        content: `HÃ£y táº¡o má»™t á»©ng dá»¥ng Ä‘áº¿m tá»« chuyÃªn nghiá»‡p báº±ng HTML, CSS vÃ  JavaScript thuáº§n.
+        content: `Hãy tạo một ứng dụng đếm từ chuyên nghiệp bằng HTML, CSS và JavaScript thuần.
 
-YÃªu cáº§u giao diá»‡n:
-- Editor textarea vá»›i line numbers
-- Sidebar thá»‘ng kÃª chi tiáº¿t
-- Biá»ƒu Ä‘á»“ phÃ¢n bá»‘ Ä‘á»™ dÃ i tá»« (bar chart Ä‘Æ¡n giáº£n báº±ng CSS)
-- Highlight tá»« khi hover vÃ o thá»‘ng kÃª
+Yêu cầu giao diện:
+- Editor textarea với line numbers
+- Sidebar thống kê chi tiết
+- Biểu đồ phân bố độ dài từ (bar chart đơn giản bằng CSS)
+- Highlight từ khi hover vào thống kê
 
-YÃªu cáº§u chá»©c nÄƒng:
-- Äáº¿m: tá»«, kÃ½ tá»±, cÃ¢u, Ä‘oáº¡n, dÃ²ng
-- Thá»‘ng kÃª tá»«: tá»« ngáº¯n nháº¥t, dÃ i nháº¥t, trung bÃ¬nh
-- Top 10 tá»« xuáº¥t hiá»‡n nhiá»u nháº¥t (loáº¡i bá» stop words)
-- Æ¯á»›c tÃ­nh thá»i gian Ä‘á»c (200 tá»«/phÃºt)
-- Æ¯á»›c tÃ­nh thá»i gian nÃ³i (130 tá»«/phÃºt)
-- Export bÃ¡o cÃ¡o thá»‘ng kÃª
+Yêu cầu chức năng:
+- Đếm: từ, ký tự, câu, đoạn, dòng
+- Thống kê từ: từ ngắn nhất, dài nhất, trung bình
+- Top 10 từ xuất hiện nhiều nhất (loại bỏ stop words)
+- Ước tính thời gian đọc (200 từ/phút)
+- Ước tính thời gian nói (130 từ/phút)
+- Export báo cáo thống kê
 
-Táº¥t cáº£ code trong má»™t file HTML duy nháº¥t.`,
+Tất cả code trong một file HTML duy nhất.`,
     },
     {
         id: 13,
         toolName: 'Text Case Converter',
-        content: `HÃ£y táº¡o má»™t á»©ng dá»¥ng chuyá»ƒn Ä‘á»•i kiá»ƒu chá»¯ báº±ng HTML, CSS vÃ  JavaScript thuáº§n.
+        content: `Hãy tạo một ứng dụng chuyển đổi kiểu chữ bằng HTML, CSS và JavaScript thuần.
 
-YÃªu cáº§u giao diá»‡n:
-- Textarea nháº­p liá»‡u vÃ  output riÃªng biá»‡t
-- CÃ¡c nÃºt chuyá»ƒn Ä‘á»•i vá»›i icon minh há»a
-- Preview real-time khi chá»n kiá»ƒu
-- NÃºt copy output nhanh
+Yêu cầu giao diện:
+- Textarea nhập liệu và output riêng biệt
+- Các nút chuyển đổi với icon minh họa
+- Preview real-time khi chọn kiểu
+- Nút copy output nhanh
 
-YÃªu cáº§u chá»©c nÄƒng:
-- UPPERCASE: Táº¤T Cáº¢ CHá»® HOA
-- lowercase: táº¥t cáº£ chá»¯ thÆ°á»ng
-- Title Case: Viáº¿t Hoa Äáº§u Má»—i Tá»«
-- Sentence case: Viáº¿t hoa Ä‘áº§u cÃ¢u
-- camelCase: viáº¿tHoaChá»¯Äáº§uTá»«SauChá»¯Äáº§u
-- PascalCase: Viáº¿tHoaTáº¥tCáº£Chá»¯Äáº§uTá»«
-- snake_case: viáº¿t_thÆ°á»ng_ngÄƒn_cÃ¡ch_gáº¡ch_dÆ°á»›i
-- kebab-case: viáº¿t-thÆ°á»ng-ngÄƒn-cÃ¡ch-gáº¡ch-ngang
-- Há»— trá»£ tiáº¿ng Viá»‡t cÃ³ dáº¥u
+Yêu cầu chức năng:
+- UPPERCASE: TẤT CẢ CHỮ HOA
+- lowercase: tất cả chữ thường
+- Title Case: Viết Hoa Đầu Mỗi Từ
+- Sentence case: Viết hoa đầu câu
+- camelCase: viếtHoaChữĐầuTừSauChữĐầu
+- PascalCase: ViếtHoaTấtCảChữĐầuTừ
+- snake_case: viết_thường_ngăn_cách_gạch_dưới
+- kebab-case: viết-thường-ngăn-cách-gạch-ngang
+- Hỗ trợ tiếng Việt có dấu
 
-Táº¥t cáº£ code trong má»™t file HTML duy nháº¥t.`,
+Tất cả code trong một file HTML duy nhất.`,
     },
     {
         id: 14,
         toolName: 'Text Trimmer',
-        content: `HÃ£y táº¡o má»™t á»©ng dá»¥ng xá»­ lÃ½ khoáº£ng tráº¯ng vÄƒn báº£n báº±ng HTML, CSS vÃ  JavaScript thuáº§n.
+        content: `Hãy tạo một ứng dụng xử lý khoảng trắng văn bản bằng HTML, CSS và JavaScript thuần.
 
-YÃªu cáº§u giao diá»‡n:
-- Layout 2 cá»™t: input vÃ  output song song
-- Highlight cÃ¡c khoáº£ng tráº¯ng thá»«a báº±ng mÃ u Ä‘á» nháº¡t trÆ°á»›c khi xÃ³a
-- Thá»‘ng kÃª: sá»‘ kÃ½ tá»± Ä‘Ã£ xÃ³a, % giáº£m
-- CÃ¡c tÃ¹y chá»n dáº¡ng checkbox
+Yêu cầu giao diện:
+- Layout 2 cột: input và output song song
+- Highlight các khoảng trắng thừa bằng màu đỏ nhạt trước khi xóa
+- Thống kê: số ký tự đã xóa, % giảm
+- Các tùy chọn dạng checkbox
 
-YÃªu cáº§u chá»©c nÄƒng:
-- XÃ³a khoáº£ng tráº¯ng Ä‘áº§u/cuá»‘i (trim)
-- XÃ³a khoáº£ng tráº¯ng thá»«a giá»¯a cÃ¡c tá»« (normalize)
-- XÃ³a dÃ²ng trá»‘ng thá»«a
-- XÃ³a tab, thay báº±ng spaces
-- XÃ³a kÃ½ tá»± Ä‘áº·c biá»‡t tÃ¹y chá»n
-- Chuáº©n hÃ³a dáº¥u cÃ¢u (khoáº£ng tráº¯ng sau dáº¥u pháº©y, cháº¥m)
-- Xá»­ lÃ½ real-time hoáº·c theo nÃºt báº¥m
+Yêu cầu chức năng:
+- Xóa khoảng trắng đầu/cuối (trim)
+- Xóa khoảng trắng thừa giữa các từ (normalize)
+- Xóa dòng trống thừa
+- Xóa tab, thay bằng spaces
+- Xóa ký tự đặc biệt tùy chọn
+- Chuẩn hóa dấu câu (khoảng trắng sau dấu phẩy, chấm)
+- Xử lý real-time hoặc theo nút bấm
 
-Táº¥t cáº£ code trong má»™t file HTML duy nháº¥t.`,
+Tất cả code trong một file HTML duy nhất.`,
     },
     {
         id: 15,
         toolName: 'Text Reverser',
-        content: `HÃ£y táº¡o má»™t á»©ng dá»¥ng Ä‘áº£o ngÆ°á»£c vÄƒn báº£n báº±ng HTML, CSS vÃ  JavaScript thuáº§n.
+        content: `Hãy tạo một ứng dụng đảo ngược văn bản bằng HTML, CSS và JavaScript thuần.
 
-YÃªu cáº§u giao diá»‡n:
-- Animation chá»¯ cháº¡y ngÆ°á»£c khi Ä‘áº£o
-- Layout 2 cá»™t vá»›i mÅ©i tÃªn â†” á»Ÿ giá»¯a
-- NÃºt swap Ä‘á»ƒ hoÃ¡n Ä‘á»•i input/output
-- Hiá»‡u á»©ng typing animation cho output
+Yêu cầu giao diện:
+- Animation chữ chạy ngược khi đảo
+- Layout 2 cột với mũi tên ↔ ở giữa
+- Nút swap để hoán đổi input/output
+- Hiệu ứng typing animation cho output
 
-YÃªu cáº§u chá»©c nÄƒng:
-- Äáº£o ngÆ°á»£c toÃ n bá»™ chuá»—i kÃ½ tá»±
-- Äáº£o ngÆ°á»£c thá»© tá»± tá»« (giá»¯ nguyÃªn tá»«ng tá»«)
-- Äáº£o ngÆ°á»£c tá»«ng dÃ²ng
-- Äáº£o ngÆ°á»£c thá»© tá»± cÃ¢u
-- Äáº£o ngÆ°á»£c vÃ  giá»¯ nguyÃªn dáº¥u cÃ¢u á»Ÿ vá»‹ trÃ­ gá»‘c
-- Há»— trá»£ Unicode vÃ  emoji
-- Copy káº¿t quáº£ nhanh
+Yêu cầu chức năng:
+- Đảo ngược toàn bộ chuỗi ký tự
+- Đảo ngược thứ tự từ (giữ nguyên từng từ)
+- Đảo ngược từng dòng
+- Đảo ngược thứ tự câu
+- Đảo ngược và giữ nguyên dấu câu ở vị trí gốc
+- Hỗ trợ Unicode và emoji
+- Copy kết quả nhanh
 
-Táº¥t cáº£ code trong má»™t file HTML duy nháº¥t.`,
+Tất cả code trong một file HTML duy nhất.`,
     },
     {
         id: 16,
         toolName: 'To-Do List',
-        content: `HÃ£y táº¡o má»™t á»©ng dá»¥ng To-Do List Ä‘áº¹p báº±ng HTML, CSS vÃ  JavaScript thuáº§n.
+        content: `Hãy tạo một ứng dụng To-Do List đẹp bằng HTML, CSS và JavaScript thuần.
 
-YÃªu cáº§u giao diá»‡n:
-- Thiáº¿t káº¿ card-based, mÃ u sáº¯c tÆ°Æ¡i sÃ¡ng
-- Animation khi thÃªm/xÃ³a task (slide in/out)
-- Checkbox tÃ¹y chá»‰nh vá»›i animation tick
-- Drag & drop Ä‘á»ƒ sáº¯p xáº¿p thá»© tá»± task
+Yêu cầu giao diện:
+- Thiết kế card-based, màu sắc tươi sáng
+- Animation khi thêm/xóa task (slide in/out)
+- Checkbox tùy chỉnh với animation tick
+- Drag & drop để sắp xếp thứ tự task
 
-YÃªu cáº§u chá»©c nÄƒng:
-- ThÃªm, sá»­a, xÃ³a task
-- ÄÃ¡nh dáº¥u hoÃ n thÃ nh vá»›i animation gáº¡ch ngang
-- PhÃ¢n loáº¡i: Táº¥t cáº£, Äang lÃ m, HoÃ n thÃ nh
-- Äáº·t Ä‘á»™ Æ°u tiÃªn: Cao, Trung bÃ¬nh, Tháº¥p (mÃ u sáº¯c khÃ¡c nhau)
-- Äáº·t deadline vÃ  cáº£nh bÃ¡o quÃ¡ háº¡n
-- LÆ°u vÃ o localStorage
-- Thá»‘ng kÃª: tá»•ng task, hoÃ n thÃ nh, cÃ²n láº¡i
+Yêu cầu chức năng:
+- Thêm, sửa, xóa task
+- Đánh dấu hoàn thành với animation gạch ngang
+- Phân loại: Tất cả, Đang làm, Hoàn thành
+- Đặt độ ưu tiên: Cao, Trung bình, Thấp (màu sắc khác nhau)
+- Đặt deadline và cảnh báo quá hạn
+- Lưu vào localStorage
+- Thống kê: tổng task, hoàn thành, còn lại
 
-Táº¥t cáº£ code trong má»™t file HTML duy nháº¥t.`,
+Tất cả code trong một file HTML duy nhất.`,
     },
     {
         id: 17,
         toolName: 'Sticky Notes',
-        content: `HÃ£y táº¡o má»™t á»©ng dá»¥ng ghi chÃº sticky notes báº±ng HTML, CSS vÃ  JavaScript thuáº§n.
+        content: `Hãy tạo một ứng dụng ghi chú sticky notes bằng HTML, CSS và JavaScript thuần.
 
-YÃªu cáº§u giao diá»‡n:
-- Sticky notes mÃ u vÃ ng/xanh/há»“ng/tÃ­m cÃ³ thá»ƒ kÃ©o tháº£ tá»± do
-- Hiá»‡u á»©ng giáº¥y nhÄƒn nháº¹ (box-shadow, slight rotation)
-- NÃºt thÃªm note má»›i vá»›i animation pop-in
-- NÃºt xÃ³a note vá»›i animation fade-out
+Yêu cầu giao diện:
+- Sticky notes màu vàng/xanh/hồng/tím có thể kéo thả tự do
+- Hiệu ứng giấy nhăn nhẹ (box-shadow, slight rotation)
+- Nút thêm note mới với animation pop-in
+- Nút xóa note với animation fade-out
 
-YÃªu cáº§u chá»©c nÄƒng:
-- Táº¡o note má»›i vá»›i mÃ u tÃ¹y chá»n
-- KÃ©o tháº£ note Ä‘áº¿n vá»‹ trÃ­ báº¥t ká»³ trÃªn mÃ n hÃ¬nh
-- Chá»‰nh sá»­a ná»™i dung trá»±c tiáº¿p (contenteditable)
+Yêu cầu chức năng:
+- Tạo note mới với màu tùy chọn
+- Kéo thả note đến vị trí bất kỳ trên màn hình
+- Chỉnh sửa nội dung trực tiếp (contenteditable)
 - Resize note
-- Pin note (ghim cá»‘ Ä‘á»‹nh)
-- LÆ°u vá»‹ trÃ­ vÃ  ná»™i dung vÃ o localStorage
-- TÃ¬m kiáº¿m trong cÃ¡c note
+- Pin note (ghim cố định)
+- Lưu vị trí và nội dung vào localStorage
+- Tìm kiếm trong các note
 
-Táº¥t cáº£ code trong má»™t file HTML duy nháº¥t.`,
+Tất cả code trong một file HTML duy nhất.`,
     },
     {
         id: 18,
         toolName: 'Countdown Timer',
-        content: `HÃ£y táº¡o má»™t á»©ng dá»¥ng Ä‘áº¿m ngÆ°á»£c thá»i gian báº±ng HTML, CSS vÃ  JavaScript thuáº§n.
+        content: `Hãy tạo một ứng dụng đếm ngược thời gian bằng HTML, CSS và JavaScript thuần.
 
-YÃªu cáº§u giao diá»‡n:
-- Hiá»ƒn thá»‹ giá»:phÃºt:giÃ¢y dáº¡ng flip clock hoáº·c digital lá»›n
-- Circular progress bar xung quanh Ä‘á»“ng há»“
-- MÃ u sáº¯c thay Ä‘á»•i khi cÃ²n Ã­t thá»i gian (xanh â†’ vÃ ng â†’ Ä‘á»)
-- NÃºt Start/Pause/Reset vá»›i icon Ä‘áº¹p
+Yêu cầu giao diện:
+- Hiển thị giờ:phút:giây dạng flip clock hoặc digital lớn
+- Circular progress bar xung quanh đồng hồ
+- Màu sắc thay đổi khi còn ít thời gian (xanh → vàng → đỏ)
+- Nút Start/Pause/Reset với icon đẹp
 
-YÃªu cáº§u chá»©c nÄƒng:
-- Nháº­p thá»i gian tÃ¹y chá»‰nh (giá», phÃºt, giÃ¢y)
-- Preset nhanh: 1 phÃºt, 5 phÃºt, 10 phÃºt, 25 phÃºt, 1 giá»
-- Ã‚m thanh cáº£nh bÃ¡o khi háº¿t giá» (Web Audio API)
-- ThÃ´ng bÃ¡o browser notification
-- Láº·p láº¡i tá»± Ä‘á»™ng (loop mode)
-- LÆ°u preset tÃ¹y chá»‰nh
+Yêu cầu chức năng:
+- Nhập thời gian tùy chỉnh (giờ, phút, giây)
+- Preset nhanh: 1 phút, 5 phút, 10 phút, 25 phút, 1 giờ
+- Âm thanh cảnh báo khi hết giờ (Web Audio API)
+- Thông báo browser notification
+- Lặp lại tự động (loop mode)
+- Lưu preset tùy chỉnh
 
-Táº¥t cáº£ code trong má»™t file HTML duy nháº¥t.`,
+Tất cả code trong một file HTML duy nhất.`,
     },
     {
         id: 19,
         toolName: 'Pomodoro Timer',
-        content: `HÃ£y táº¡o má»™t á»©ng dá»¥ng Pomodoro Timer báº±ng HTML, CSS vÃ  JavaScript thuáº§n.
+        content: `Hãy tạo một ứng dụng Pomodoro Timer bằng HTML, CSS và JavaScript thuần.
 
-YÃªu cáº§u giao diá»‡n:
-- Thiáº¿t káº¿ tomato/cÃ  chua Ä‘Ã¡ng yÃªu ðŸ…
-- VÃ²ng trÃ²n progress lá»›n, rÃµ rÃ ng
-- PhÃ¢n biá»‡t rÃµ 3 cháº¿ Ä‘á»™: Work (Ä‘á»), Short Break (xanh), Long Break (xanh dÆ°Æ¡ng)
-- Danh sÃ¡ch task tÃ­ch há»£p Ä‘á»ƒ theo dÃµi Ä‘ang lÃ m gÃ¬
+Yêu cầu giao diện:
+- Thiết kế tomato/cà chua đáng yêu 🍅
+- Vòng tròn progress lớn, rõ ràng
+- Phân biệt rõ 3 chế độ: Work (đỏ), Short Break (xanh), Long Break (xanh dương)
+- Danh sách task tích hợp để theo dõi đang làm gì
 
-YÃªu cáº§u chá»©c nÄƒng:
-- Chu ká»³ Pomodoro chuáº©n: 25 phÃºt lÃ m viá»‡c, 5 phÃºt nghá»‰ ngáº¯n, 15 phÃºt nghá»‰ dÃ i
-- TÃ¹y chá»‰nh thá»i gian tá»«ng giai Ä‘oáº¡n
-- Tá»± Ä‘á»™ng chuyá»ƒn giai Ä‘oáº¡n
-- Äáº¿m sá»‘ pomodoro Ä‘Ã£ hoÃ n thÃ nh hÃ´m nay
-- Ã‚m thanh chuÃ´ng khi chuyá»ƒn giai Ä‘oáº¡n
-- Thá»‘ng kÃª: tá»•ng thá»i gian táº­p trung, sá»‘ pomodoro/ngÃ y
-- LÆ°u dá»¯ liá»‡u vÃ o localStorage
+Yêu cầu chức năng:
+- Chu kỳ Pomodoro chuẩn: 25 phút làm việc, 5 phút nghỉ ngắn, 15 phút nghỉ dài
+- Tùy chỉnh thời gian từng giai đoạn
+- Tự động chuyển giai đoạn
+- Đếm số pomodoro đã hoàn thành hôm nay
+- Âm thanh chuông khi chuyển giai đoạn
+- Thống kê: tổng thời gian tập trung, số pomodoro/ngày
+- Lưu dữ liệu vào localStorage
 
-Táº¥t cáº£ code trong má»™t file HTML duy nháº¥t.`,
+Tất cả code trong một file HTML duy nhất.`,
     },
     {
         id: 20,
         toolName: 'Password Generator',
-        content: `HÃ£y táº¡o má»™t á»©ng dá»¥ng táº¡o máº­t kháº©u máº¡nh báº±ng HTML, CSS vÃ  JavaScript thuáº§n.
+        content: `Hãy tạo một ứng dụng tạo mật khẩu mạnh bằng HTML, CSS và JavaScript thuần.
 
-YÃªu cáº§u giao diá»‡n:
-- Hiá»ƒn thá»‹ máº­t kháº©u lá»›n, rÃµ rÃ ng vá»›i font monospace
-- Thanh Ä‘Ã¡nh giÃ¡ Ä‘á»™ máº¡nh (Weak/Fair/Strong/Very Strong) vá»›i mÃ u sáº¯c
-- CÃ¡c checkbox tÃ¹y chá»n kÃ½ tá»± Ä‘áº¹p
-- NÃºt copy vá»›i animation "Copied!"
+Yêu cầu giao diện:
+- Hiển thị mật khẩu lớn, rõ ràng với font monospace
+- Thanh đánh giá độ mạnh (Weak/Fair/Strong/Very Strong) với màu sắc
+- Các checkbox tùy chọn ký tự đẹp
+- Nút copy với animation "Copied!"
 
-YÃªu cáº§u chá»©c nÄƒng:
-- Äá»™ dÃ i tá»« 4 Ä‘áº¿n 128 kÃ½ tá»± (slider)
-- TÃ¹y chá»n: chá»¯ hoa, chá»¯ thÆ°á»ng, sá»‘, kÃ½ tá»± Ä‘áº·c biá»‡t
-- Loáº¡i trá»« kÃ½ tá»± dá»… nháº§m: 0, O, l, 1, I
-- Táº¡o nhiá»u máº­t kháº©u cÃ¹ng lÃºc (batch generate)
-- ÄÃ¡nh giÃ¡ Ä‘á»™ máº¡nh theo entropy
-- Lá»‹ch sá»­ 10 máº­t kháº©u gáº§n nháº¥t (khÃ´ng lÆ°u localStorage vÃ¬ báº£o máº­t)
-- Kiá»ƒm tra máº­t kháº©u cÃ³ trong danh sÃ¡ch phá»• biáº¿n khÃ´ng
+Yêu cầu chức năng:
+- Độ dài từ 4 đến 128 ký tự (slider)
+- Tùy chọn: chữ hoa, chữ thường, số, ký tự đặc biệt
+- Loại trừ ký tự dễ nhầm: 0, O, l, 1, I
+- Tạo nhiều mật khẩu cùng lúc (batch generate)
+- Đánh giá độ mạnh theo entropy
+- Lịch sử 10 mật khẩu gần nhất (không lưu localStorage vì bảo mật)
+- Kiểm tra mật khẩu có trong danh sách phổ biến không
 
-Táº¥t cáº£ code trong má»™t file HTML duy nháº¥t.`,
+Tất cả code trong một file HTML duy nhất.`,
     },
     {
         id: 21,
         toolName: 'Color Picker',
-        content: `HÃ£y táº¡o má»™t á»©ng dá»¥ng chá»n mÃ u sáº¯c chuyÃªn nghiá»‡p báº±ng HTML, CSS vÃ  JavaScript thuáº§n.
+        content: `Hãy tạo một ứng dụng chọn màu sắc chuyên nghiệp bằng HTML, CSS và JavaScript thuần.
 
-YÃªu cáº§u giao diá»‡n:
-- Color wheel hoáº·c gradient picker Ä‘áº¹p
-- Preview mÃ u lá»›n vá»›i text máº«u Ä‘á»ƒ kiá»ƒm tra contrast
-- Palette mÃ u Ä‘Ã£ lÆ°u dáº¡ng swatches
-- Hiá»ƒn thá»‹ Ä‘á»“ng thá»i HEX, RGB, HSL, HSB
+Yêu cầu giao diện:
+- Color wheel hoặc gradient picker đẹp
+- Preview màu lớn với text mẫu để kiểm tra contrast
+- Palette màu đã lưu dạng swatches
+- Hiển thị đồng thời HEX, RGB, HSL, HSB
 
-YÃªu cáº§u chá»©c nÄƒng:
-- Chá»n mÃ u báº±ng color wheel + lightness slider
-- Nháº­p trá»±c tiáº¿p mÃ£ HEX/RGB/HSL
-- Tá»± Ä‘á»™ng chuyá»ƒn Ä‘á»•i giá»¯a cÃ¡c format
-- Kiá»ƒm tra contrast ratio (WCAG AA/AAA)
-- Táº¡o color palette hÃ i hÃ²a: complementary, triadic, analogous
-- LÆ°u mÃ u yÃªu thÃ­ch (localStorage)
-- Copy mÃ£ mÃ u theo format tÃ¹y chá»n
+Yêu cầu chức năng:
+- Chọn màu bằng color wheel + lightness slider
+- Nhập trực tiếp mã HEX/RGB/HSL
+- Tự động chuyển đổi giữa các format
+- Kiểm tra contrast ratio (WCAG AA/AAA)
+- Tạo color palette hài hòa: complementary, triadic, analogous
+- Lưu màu yêu thích (localStorage)
+- Copy mã màu theo format tùy chọn
 
-Táº¥t cáº£ code trong má»™t file HTML duy nháº¥t.`,
+Tất cả code trong một file HTML duy nhất.`,
     },
     {
         id: 22,
         toolName: 'Unit Converter',
-        content: `HÃ£y táº¡o má»™t á»©ng dá»¥ng chuyá»ƒn Ä‘á»•i Ä‘Æ¡n vá»‹ báº±ng HTML, CSS vÃ  JavaScript thuáº§n.
+        content: `Hãy tạo một ứng dụng chuyển đổi đơn vị bằng HTML, CSS và JavaScript thuần.
 
-YÃªu cáº§u giao diá»‡n:
-- Tabs cho tá»«ng loáº¡i Ä‘Æ¡n vá»‹ vá»›i icon
-- Layout 2 cá»™t: nháº­p vÃ o bÃªn trÃ¡i, káº¿t quáº£ bÃªn pháº£i
-- Káº¿t quáº£ cáº­p nháº­t real-time khi gÃµ
-- NÃºt swap Ä‘á»ƒ Ä‘á»•i chiá»u chuyá»ƒn Ä‘á»•i
+Yêu cầu giao diện:
+- Tabs cho từng loại đơn vị với icon
+- Layout 2 cột: nhập vào bên trái, kết quả bên phải
+- Kết quả cập nhật real-time khi gõ
+- Nút swap để đổi chiều chuyển đổi
 
-YÃªu cáº§u chá»©c nÄƒng:
-- Äá»™ dÃ i: mm, cm, m, km, inch, feet, yard, mile
-- Khá»‘i lÆ°á»£ng: mg, g, kg, táº¥n, ounce, pound
-- Nhiá»‡t Ä‘á»™: Celsius, Fahrenheit, Kelvin
-- Diá»‡n tÃ­ch: cmÂ², mÂ², kmÂ², inchÂ², feetÂ², acre, hectare
-- Thá»ƒ tÃ­ch: ml, l, mÂ³, teaspoon, tablespoon, cup, gallon
-- Tá»‘c Ä‘á»™: m/s, km/h, mph, knot
-- Hiá»ƒn thá»‹ cÃ´ng thá»©c chuyá»ƒn Ä‘á»•i
+Yêu cầu chức năng:
+- Độ dài: mm, cm, m, km, inch, feet, yard, mile
+- Khối lượng: mg, g, kg, tấn, ounce, pound
+- Nhiệt độ: Celsius, Fahrenheit, Kelvin
+- Diện tích: cm², m², km², inch², feet², acre, hectare
+- Thể tích: ml, l, m³, teaspoon, tablespoon, cup, gallon
+- Tốc độ: m/s, km/h, mph, knot
+- Hiển thị công thức chuyển đổi
 
-Táº¥t cáº£ code trong má»™t file HTML duy nháº¥t.`,
+Tất cả code trong một file HTML duy nhất.`,
     },
     {
         id: 23,
         toolName: 'Date & Time',
-        content: `HÃ£y táº¡o má»™t á»©ng dá»¥ng hiá»ƒn thá»‹ ngÃ y giá» Ä‘áº¹p báº±ng HTML, CSS vÃ  JavaScript thuáº§n.
+        content: `Hãy tạo một ứng dụng hiển thị ngày giờ đẹp bằng HTML, CSS và JavaScript thuần.
 
-YÃªu cáº§u giao diá»‡n:
-- Äá»“ng há»“ analog Ä‘áº¹p vá»›i kim giá», phÃºt, giÃ¢y mÆ°á»£t mÃ 
-- Äá»“ng há»“ digital lá»›n bÃªn cáº¡nh
-- Hiá»ƒn thá»‹ ngÃ y thÃ¡ng nÄƒm, thá»© trong tuáº§n
-- MÃºi giá» cá»§a nhiá»u thÃ nh phá»‘ lá»›n
+Yêu cầu giao diện:
+- Đồng hồ analog đẹp với kim giờ, phút, giây mượt mà
+- Đồng hồ digital lớn bên cạnh
+- Hiển thị ngày tháng năm, thứ trong tuần
+- Múi giờ của nhiều thành phố lớn
 
-YÃªu cáº§u chá»©c nÄƒng:
-- Cáº­p nháº­t real-time má»—i giÃ¢y
-- Hiá»ƒn thá»‹ giá» theo 12h vÃ  24h
-- Chuyá»ƒn Ä‘á»•i mÃºi giá»: HÃ  Ná»™i, Tokyo, London, New York, Sydney
-- TÃ­nh sá»‘ ngÃ y Ä‘áº¿n sá»± kiá»‡n (countdown Ä‘áº¿n Táº¿t, sinh nháº­t...)
-- Hiá»ƒn thá»‹ tuáº§n thá»© máº¥y trong nÄƒm
-- NgÃ y Julian vÃ  Unix timestamp
+Yêu cầu chức năng:
+- Cập nhật real-time mỗi giây
+- Hiển thị giờ theo 12h và 24h
+- Chuyển đổi múi giờ: Hà Nội, Tokyo, London, New York, Sydney
+- Tính số ngày đến sự kiện (countdown đến Tết, sinh nhật...)
+- Hiển thị tuần thứ mấy trong năm
+- Ngày Julian và Unix timestamp
 
-Táº¥t cáº£ code trong má»™t file HTML duy nháº¥t, sá»­ dá»¥ng Intl API.`,
+Tất cả code trong một file HTML duy nhất, sử dụng Intl API.`,
     },
     {
         id: 24,
         toolName: 'Stopwatch',
-        content: `HÃ£y táº¡o má»™t á»©ng dá»¥ng Ä‘á»“ng há»“ báº¥m giá» báº±ng HTML, CSS vÃ  JavaScript thuáº§n.
+        content: `Hãy tạo một ứng dụng đồng hồ bấm giờ bằng HTML, CSS và JavaScript thuần.
 
-YÃªu cáº§u giao diá»‡n:
-- Hiá»ƒn thá»‹ giá»:phÃºt:giÃ¢y.mili-giÃ¢y vá»›i font monospace lá»›n
-- NÃºt Start/Stop/Reset/Lap vá»›i icon vÃ  mÃ u sáº¯c phÃ¢n biá»‡t
-- Danh sÃ¡ch lap times vá»›i highlight lap nhanh nháº¥t/cháº­m nháº¥t
-- Animation nháº¥p nhÃ¡y khi Ä‘ang cháº¡y
+Yêu cầu giao diện:
+- Hiển thị giờ:phút:giây.mili-giây với font monospace lớn
+- Nút Start/Stop/Reset/Lap với icon và màu sắc phân biệt
+- Danh sách lap times với highlight lap nhanh nhất/chậm nhất
+- Animation nhấp nháy khi đang chạy
 
-YÃªu cáº§u chá»©c nÄƒng:
-- Äá»™ chÃ­nh xÃ¡c Ä‘áº¿n mili-giÃ¢y (requestAnimationFrame)
-- Ghi láº¡i lap time vá»›i nÃºt Lap
-- So sÃ¡nh lap: highlight xanh (nhanh nháº¥t), Ä‘á» (cháº­m nháº¥t)
-- TÃ­nh thá»i gian trung bÃ¬nh cÃ¡c lap
-- Export danh sÃ¡ch lap ra CSV
-- LÆ°u káº¿t quáº£ vÃ o localStorage
+Yêu cầu chức năng:
+- Độ chính xác đến mili-giây (requestAnimationFrame)
+- Ghi lại lap time với nút Lap
+- So sánh lap: highlight xanh (nhanh nhất), đỏ (chậm nhất)
+- Tính thời gian trung bình các lap
+- Export danh sách lap ra CSV
+- Lưu kết quả vào localStorage
 
-Táº¥t cáº£ code trong má»™t file HTML duy nháº¥t.`,
+Tất cả code trong một file HTML duy nhất.`,
     },
     {
         id: 25,
         toolName: 'Alarm Clock',
-        content: `HÃ£y táº¡o má»™t á»©ng dá»¥ng bÃ¡o thá»©c báº±ng HTML, CSS vÃ  JavaScript thuáº§n.
+        content: `Hãy tạo một ứng dụng báo thức bằng HTML, CSS và JavaScript thuần.
 
-YÃªu cáº§u giao diá»‡n:
-- Äá»“ng há»“ digital lá»›n hiá»ƒn thá»‹ giá» hiá»‡n táº¡i
-- Form Ä‘áº·t bÃ¡o thá»©c Ä‘áº¹p vá»›i time picker
-- Danh sÃ¡ch bÃ¡o thá»©c vá»›i toggle báº­t/táº¯t
-- Animation rung khi bÃ¡o thá»©c kÃªu
+Yêu cầu giao diện:
+- Đồng hồ digital lớn hiển thị giờ hiện tại
+- Form đặt báo thức đẹp với time picker
+- Danh sách báo thức với toggle bật/tắt
+- Animation rung khi báo thức kêu
 
-YÃªu cáº§u chá»©c nÄƒng:
-- Äáº·t nhiá»u bÃ¡o thá»©c cÃ¹ng lÃºc
-- Chá»n ngÃ y láº·p láº¡i: hÃ ng ngÃ y, cÃ¡c ngÃ y trong tuáº§n, cuá»‘i tuáº§n
-- Ã‚m thanh bÃ¡o thá»©c báº±ng Web Audio API (nhiá»u loáº¡i Ã¢m thanh)
-- Snooze 5/10 phÃºt
-- Label cho tá»«ng bÃ¡o thá»©c
-- ThÃ´ng bÃ¡o browser notification
-- LÆ°u táº¥t cáº£ bÃ¡o thá»©c vÃ o localStorage
+Yêu cầu chức năng:
+- Đặt nhiều báo thức cùng lúc
+- Chọn ngày lặp lại: hàng ngày, các ngày trong tuần, cuối tuần
+- Âm thanh báo thức bằng Web Audio API (nhiều loại âm thanh)
+- Snooze 5/10 phút
+- Label cho từng báo thức
+- Thông báo browser notification
+- Lưu tất cả báo thức vào localStorage
 
-Táº¥t cáº£ code trong má»™t file HTML duy nháº¥t.`,
+Tất cả code trong một file HTML duy nhất.`,
     },
     {
         id: 26,

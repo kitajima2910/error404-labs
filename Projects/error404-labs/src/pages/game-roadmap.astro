@@ -551,7 +551,6 @@ ACTION:
                 try {
                     await navigator.clipboard.writeText(promptTemplate)
                     window.showToast?.('Đã sao chép prompt tùy chỉnh!', 'success')
-                    closeCustomModal()
                 } catch (error) {
                     console.error('Failed to copy:', error)
                     window.showToast?.('Lỗi sao chép', 'error')
