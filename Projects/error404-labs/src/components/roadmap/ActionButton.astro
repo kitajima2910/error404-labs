@@ -18,6 +18,6 @@ const selectedStyle = colorStyles[color];
 ---
 
 <button class={`w-full py-3.5 px-5 rounded-2xl border flex items-center justify-center gap-2.5 font-bold transition-all shadow-sm active:scale-[0.98] ${selectedStyle}`}>
-  <i class={`fa ${icon}`} aria-hidden="true"></i>
+  <span set:html={icon}></span>
   {label}
 </button>

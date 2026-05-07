@@ -158,6 +158,103 @@ const roadmap = months.map((month, monthIndex) => ({
         })),
     })),
 }))
+
+// ─── SVG Icon Definitions ───────────────────────────────────────────
+function g(gid, stops, paths) {
+  const defs = `<defs>${stops}</defs>`;
+  return `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">${defs}${paths}</svg>`;
+}
+
+const G = {
+  Rnr: ['url(#g-rnr)', '<linearGradient id="g-rnr" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#34d399"/><stop offset="100%" stop-color="#059669"/></linearGradient>', '<circle cx="13" cy="5" r="2.5" fill="url(#g-rnr)" stroke="url(#g-rnr)" stroke-width="1.2"/><path d="M5 21l3-6 4 1 1.5-4" stroke="url(#g-rnr)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.5 14l2.5-4 4 1.5 1 5.5" stroke="url(#g-rnr)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.5 11l-3.5-2-1 3" stroke="url(#g-rnr)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'],
+  Pzl: ['url(#g-pzl)', '<linearGradient id="g-pzl" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#f59e0b"/></linearGradient>', '<rect x="4" y="6" width="7" height="6" rx="1.5" fill="#fef3c7" stroke="url(#g-pzl)" stroke-width="1.5"/><rect x="13" y="6" width="7" height="6" rx="1.5" fill="#fef3c7" stroke="url(#g-pzl)" stroke-width="1.5"/><rect x="4" y="14" width="7" height="6" rx="1.5" fill="#fef3c7" stroke="url(#g-pzl)" stroke-width="1.5"/><rect x="13" y="14" width="7" height="6" rx="1.5" fill="#fef3c7" stroke="url(#g-pzl)" stroke-width="1.5"/><circle cx="7.5" cy="9" r="1" fill="url(#g-pzl)"/><circle cx="16.5" cy="9" r="1" fill="url(#g-pzl)"/><circle cx="7.5" cy="17" r="1" fill="url(#g-pzl)"/><circle cx="16.5" cy="17" r="1" fill="url(#g-pzl)"/>'],
+  Lgc: ['url(#g-lgc)', '<linearGradient id="g-lgc" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#eab308"/><stop offset="100%" stop-color="#ca8a04"/></linearGradient>', '<path d="M12 4a4 4 0 0 1 4 4c0 1.5-.8 2.8-2 3.5V15l-2 2-2-2v-3.5a4 4 0 0 1-2-3.5 4 4 0 0 1 4-4z" fill="#fefce8" stroke="url(#g-lgc)" stroke-width="1.5"/><path d="M10 11l2-1 2 1" stroke="url(#g-lgc)" stroke-width="1.2" stroke-linecap="round"/>'],
+  Sht: ['url(#g-sht)', '<linearGradient id="g-sht" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fb7185"/><stop offset="100%" stop-color="#e11d48"/></linearGradient>', '<circle cx="12" cy="12" r="8" fill="#fff1f2" stroke="url(#g-sht)" stroke-width="1.5"/><circle cx="12" cy="12" r="4" fill="none" stroke="url(#g-sht)" stroke-width="1.2"/><circle cx="12" cy="12" r="1.5" fill="url(#g-sht)"/><path d="M12 4v-2M12 22v-2M4 12H2M22 12h-2" stroke="url(#g-sht)" stroke-width="1.5" stroke-linecap="round"/>'],
+  Act: ['url(#g-act)', '<linearGradient id="g-act" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#f87171"/><stop offset="100%" stop-color="#dc2626"/></linearGradient>', '<path d="M12 2l1.5 4.5H18l-3.5 2.5L16 14l-4-3-4 3 1.5-5L6 6.5h4.5z" fill="#fef2f2" stroke="url(#g-act)" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="16" r="4" fill="none" stroke="url(#g-act)" stroke-width="1.5"/>'],
+  Boss: ['url(#g-boss)', '<linearGradient id="g-boss" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#f87171"/><stop offset="100%" stop-color="#dc2626"/></linearGradient>', '<path d="M7 10l-2 10h14l-2-10H7z" fill="#fef2f2" stroke="url(#g-boss)" stroke-width="1.5"/><path d="M9 10V7a3 3 0 0 1 6 0v3" stroke="url(#g-boss)" stroke-width="1.5" fill="none"/><circle cx="12" cy="7" r="1" fill="url(#g-boss)"/>'],
+  Rhy: ['url(#g-rhy)', '<linearGradient id="g-rhy" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#e879f9"/><stop offset="100%" stop-color="#c026d3"/></linearGradient>', '<path d="M9 18V6l8-1v11" stroke="url(#g-rhy)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="7.5" cy="18" rx="2.5" ry="2" fill="#fae8ff" stroke="url(#g-rhy)" stroke-width="1.2"/><ellipse cx="17.5" cy="17" rx="2.5" ry="2" fill="#fae8ff" stroke="url(#g-rhy)" stroke-width="1.2"/>'],
+  Arc: ['url(#g-arc)', '<linearGradient id="g-arc" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0284c7"/></linearGradient>', '<rect x="5" y="8" width="14" height="12" rx="3" fill="#f0f9ff" stroke="url(#g-arc)" stroke-width="1.5"/><circle cx="12" cy="14" r="3" fill="none" stroke="url(#g-arc)" stroke-width="1.2"/><path d="M12 11v3l2 1" stroke="url(#g-arc)" stroke-width="1.2" stroke-linecap="round"/><path d="M9 5l1 3M15 5l-1 3" stroke="url(#g-arc)" stroke-width="1.5" stroke-linecap="round"/>'],
+  Sim: ['url(#g-sim)', '<linearGradient id="g-sim" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2dd4bf"/><stop offset="100%" stop-color="#0d9488"/></linearGradient>', '<circle cx="12" cy="12" r="8" fill="#f0fdfa" stroke="url(#g-sim)" stroke-width="1.5"/><path d="M12 8v4l2.5 1.5" stroke="url(#g-sim)" stroke-width="1.5" stroke-linecap="round"/><path d="M7 12h1M16 12h1M12 7V6M12 18v-1" stroke="url(#g-sim)" stroke-width="1.2" stroke-linecap="round"/>'],
+  Clt: ['url(#g-clt)', '<linearGradient id="g-clt" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#65a30d"/><stop offset="100%" stop-color="#4d7c0f"/></linearGradient>', '<path d="M12 3l3 5 5 1-3.5 4.5L17 19l-5-2.5L7 19l1.5-5.5L5 9l5-1z" fill="#f7fee7" stroke="url(#g-clt)" stroke-width="1.5" stroke-linejoin="round"/>'],
+  Adv: ['url(#g-adv)', '<linearGradient id="g-adv" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#22d3ee"/><stop offset="100%" stop-color="#0891b2"/></linearGradient>', '<path d="M4 20l4-6 3 3 4-6 5 9H4z" fill="#ecfeff" stroke="url(#g-adv)" stroke-width="1.5" stroke-linejoin="round"/><circle cx="17" cy="6" r="2.5" fill="#ecfeff" stroke="url(#g-adv)" stroke-width="1.5"/>'],
+  Eff: ['url(#g-eff)', '<linearGradient id="g-eff" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient>', '<path d="M12 3l1 3 3 1-3 1-1 3-1-3-3-1 3-1z" fill="#f5f3ff" stroke="url(#g-eff)" stroke-width="1.2" stroke-linejoin="round"/><circle cx="17" cy="16" r="3" fill="#f5f3ff" stroke="url(#g-eff)" stroke-width="1.2"/><circle cx="8" cy="17" r="2" fill="none" stroke="url(#g-eff)" stroke-width="1.2"/>'],
+  Ski: ['url(#g-ski)', '<linearGradient id="g-ski" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient>', '<path d="M13 3l-2 7h5l-3 9" stroke="url(#g-ski)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 14H7M16 12h2" stroke="url(#g-ski)" stroke-width="1.5" stroke-linecap="round"/>'],
+  Upg: ['url(#g-upg)', '<linearGradient id="g-upg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#4f46e5"/></linearGradient>', '<path d="M12 3l5 7h-3v9h-4v-9H7z" fill="#eef2ff" stroke="url(#g-upg)" stroke-width="1.5" stroke-linejoin="round"/>'],
+  Shp: ['url(#g-shp)', '<linearGradient id="g-shp" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#4f46e5"/></linearGradient>', '<path d="M6 4h12l2 5H4l2-5z" fill="#eef2ff" stroke="url(#g-shp)" stroke-width="1.5"/><path d="M4 9h16v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9z" fill="#eef2ff" stroke="url(#g-shp)" stroke-width="1.5"/><circle cx="9" cy="14" r="1" fill="url(#g-shp)"/><circle cx="15" cy="14" r="1" fill="url(#g-shp)"/>'],
+  Pro: ['url(#g-pro)', '<linearGradient id="g-pro" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#4f46e5"/></linearGradient>', '<rect x="4" y="14" width="4" height="6" rx="1" fill="#eef2ff" stroke="url(#g-pro)" stroke-width="1.2"/><rect x="10" y="9" width="4" height="11" rx="1" fill="#eef2ff" stroke="url(#g-pro)" stroke-width="1.2"/><rect x="16" y="4" width="4" height="16" rx="1" fill="#eef2ff" stroke="url(#g-pro)" stroke-width="1.2"/>'],
+  AI: ['url(#g-ai)', '<linearGradient id="g-ai" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#94a3b8"/><stop offset="100%" stop-color="#64748b"/></linearGradient>', '<rect x="6" y="8" width="12" height="10" rx="3" fill="#f8fafc" stroke="url(#g-ai)" stroke-width="1.5"/><circle cx="10" cy="13" r="1" fill="url(#g-ai)"/><circle cx="14" cy="13" r="1" fill="url(#g-ai)"/><path d="M10 17a2 2 0 0 1 4 0" stroke="url(#g-ai)" stroke-width="1.2" fill="none"/><path d="M9 5l1 3M15 5l-1 3" stroke="url(#g-ai)" stroke-width="1.5" stroke-linecap="round"/>'],
+  FrB: ['url(#g-frb)', '<linearGradient id="g-frb" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fb923c"/><stop offset="100%" stop-color="#ea580c"/></linearGradient>', '<path d="M14 4l2 2-8 8-3 1 1-3 8-8z" fill="#fff7ed" stroke="url(#g-frb)" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 6l2 2" stroke="url(#g-frb)" stroke-width="1.5" stroke-linecap="round"/>'],
+  ThP: ['url(#g-thp)', '<linearGradient id="g-thp" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fb923c"/><stop offset="100%" stop-color="#ea580c"/></linearGradient>', '<ellipse cx="12" cy="12" rx="8" ry="6" fill="#fff7ed" stroke="url(#g-thp)" stroke-width="1.5"/><circle cx="9" cy="11" r="1.2" fill="url(#g-thp)"/><circle cx="12" cy="14" r="1.2" fill="url(#g-thp)"/><circle cx="15" cy="11" r="1.2" fill="url(#g-thp)"/>'],
+  GdI: ['url(#g-gdi)', '<linearGradient id="g-gdi" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fb923c"/><stop offset="100%" stop-color="#ea580c"/></linearGradient>', '<path d="M12 3c-2 0-3 1.5-3 3 0 2 2 3 2 5v1h2v-1c0-2 2-3 2-5 0-1.5-1-3-3-3z" fill="#fff7ed" stroke="url(#g-gdi)" stroke-width="1.5"/><path d="M9 17h6v1a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1v-1z" fill="#fff7ed" stroke="url(#g-gdi)" stroke-width="1.2"/><path d="M12 2v1" stroke="url(#g-gdi)" stroke-width="1.5" stroke-linecap="round"/>'],
+  McC: ['url(#g-mcc)', '<linearGradient id="g-mcc" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fb923c"/><stop offset="100%" stop-color="#ea580c"/></linearGradient>', '<circle cx="12" cy="12" r="7" fill="#fff7ed" stroke="url(#g-mcc)" stroke-width="1.5"/><circle cx="10" cy="10" r="1" fill="url(#g-mcc)"/><circle cx="14" cy="10" r="1" fill="url(#g-mcc)"/><circle cx="12" cy="14" r="2.5" fill="none" stroke="url(#g-mcc)" stroke-width="1.2"/><circle cx="12" cy="14" r="1" fill="url(#g-mcc)"/>'],
+  UIM: ['url(#g-uim)', '<linearGradient id="g-uim" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#2563eb"/></linearGradient>', '<rect x="4" y="5" width="16" height="14" rx="2" fill="#eff6ff" stroke="url(#g-uim)" stroke-width="1.5"/><path d="M4 9h16" stroke="url(#g-uim)" stroke-width="1.5"/><circle cx="7" cy="7" r=".8" fill="url(#g-uim)"/><circle cx="9" cy="7" r=".8" fill="url(#g-uim)"/>'],
+  Pol: ['url(#g-pol)', '<linearGradient id="g-pol" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#2563eb"/></linearGradient>', '<path d="M12 2l1 3.5 3.5-1-1 3.5 3.5 1-3.5 1 1 3.5-3.5-1-1 3.5-1-3.5-3.5 1 1-3.5-3.5-1 3.5-1-1-3.5 3.5 1z" fill="#eff6ff" stroke="url(#g-pol)" stroke-width="1" stroke-linejoin="round"/>'],
+  Tst: ['url(#g-tst)', '<linearGradient id="g-tst" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#2563eb"/></linearGradient>', '<circle cx="12" cy="12" r="7" fill="#eff6ff" stroke="url(#g-tst)" stroke-width="1.5"/><path d="M12 8v4l2 2" stroke="url(#g-tst)" stroke-width="1.5" stroke-linecap="round"/><path d="M9 3l1 2M15 3l-1 2" stroke="url(#g-tst)" stroke-width="1.2" stroke-linecap="round"/>'],
+  Shw: ['url(#g-shw)', '<linearGradient id="g-shw" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#2563eb"/></linearGradient>', '<path d="M12 2l1.5 5 5 .5-3.5 4 1 5.5-4-3-4 3 1-5.5L5.5 7.5l5-.5z" fill="#eff6ff" stroke="url(#g-shw)" stroke-width="1.5" stroke-linejoin="round"/>'],
+}
+
+const genreIcons = {
+  Runner: g('g-rnr', G.Rnr[1], G.Rnr[2]),
+  Puzzle: g('g-pzl', G.Pzl[1], G.Pzl[2]),
+  Logic: g('g-lgc', G.Lgc[1], G.Lgc[2]),
+  Shooter: g('g-sht', G.Sht[1], G.Sht[2]),
+  Action: g('g-act', G.Act[1], G.Act[2]),
+  'Boss Fight': g('g-boss', G.Boss[1], G.Boss[2]),
+  Rhythm: g('g-rhy', G.Rhy[1], G.Rhy[2]),
+  Music: g('g-rhy', G.Rhy[1], G.Rhy[2]),
+  Arcade: g('g-arc', G.Arc[1], G.Arc[2]),
+  Simulation: g('g-sim', G.Sim[1], G.Sim[2]),
+  Collect: g('g-clt', G.Clt[1], G.Clt[2]),
+  Adventure: g('g-adv', G.Adv[1], G.Adv[2]),
+  Effect: g('g-eff', G.Eff[1], G.Eff[2]),
+  Skill: g('g-ski', G.Ski[1], G.Ski[2]),
+  Upgrade: g('g-upg', G.Upg[1], G.Upg[2]),
+  Shop: g('g-shp', G.Shp[1], G.Shp[2]),
+  Progression: g('g-pro', G.Pro[1], G.Pro[2]),
+  'AI Enemy': g('g-ai', G.AI[1], G.AI[2]),
+  'AI Pattern': g('g-ai', G.AI[1], G.AI[2]),
+  'Boss AI': g('g-boss', G.Boss[1], G.Boss[2]),
+  'Free Build': g('g-frb', G.FrB[1], G.FrB[2]),
+  'Theme Pack': g('g-thp', G.ThP[1], G.ThP[2]),
+  'Game Idea': g('g-gdi', G.GdI[1], G.GdI[2]),
+  'Mechanic Mix': g('g-mcc', G.McC[1], G.McC[2]),
+  'UI & Menu': g('g-uim', G.UIM[1], G.UIM[2]),
+  Polish: g('g-pol', G.Pol[1], G.Pol[2]),
+  'Test & Fix': g('g-tst', G.Tst[1], G.Tst[2]),
+  Showcase: g('g-shw', G.Shw[1], G.Shw[2]),
+}
+
+const attrSvgs = {
+  refresh: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px"><defs><linearGradient id="a-ref" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient></defs><path d="M4 12a8 8 0 0 1 14.5-4.5M20 12a8 8 0 0 1-14.5 4.5" stroke="url(#a-ref)" stroke-width="2" stroke-linecap="round"/><path d="M17 3l3 4.5L15.5 10M7 21l-3-4.5L8.5 14" stroke="url(#a-ref)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  keyboard: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px"><defs><linearGradient id="a-kbd" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient></defs><rect x="3" y="7" width="18" height="11" rx="2" fill="#eff6ff" stroke="url(#a-kbd)" stroke-width="1.5"/><line x1="7" y1="11" x2="9" y2="11" stroke="url(#a-kbd)" stroke-width="1.5" stroke-linecap="round"/><line x1="11" y1="11" x2="13" y2="11" stroke="url(#a-kbd)" stroke-width="1.5" stroke-linecap="round"/><line x1="15" y1="11" x2="17" y2="11" stroke="url(#a-kbd)" stroke-width="1.5" stroke-linecap="round"/><line x1="9" y1="14" x2="15" y2="14" stroke="url(#a-kbd)" stroke-width="1.5" stroke-linecap="round"/></svg>',
+  mobile: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px"><defs><linearGradient id="a-mob" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient></defs><rect x="7" y="3" width="10" height="18" rx="2" fill="#eff6ff" stroke="url(#a-mob)" stroke-width="1.5"/><line x1="9" y1="6" x2="15" y2="6" stroke="url(#a-mob)" stroke-width="1.2" stroke-linecap="round"/><circle cx="12" cy="18" r="1" fill="url(#a-mob)"/></svg>',
+  paint: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px"><defs><linearGradient id="a-pnt" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient></defs><path d="M14 3l-8 11h6l-3 7 9-13h-5l4-5z" fill="#eff6ff" stroke="url(#a-pnt)" stroke-width="1.5" stroke-linejoin="round"/></svg>',
+  gauge: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px"><defs><linearGradient id="a-gau" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient></defs><circle cx="12" cy="13" r="8" fill="#eff6ff" stroke="url(#a-gau)" stroke-width="1.5"/><path d="M12 13l4-5" stroke="url(#a-gau)" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="13" r="1.5" fill="url(#a-gau)"/><path d="M5 7l1 1M19 7l-1 1" stroke="url(#a-gau)" stroke-width="1.5" stroke-linecap="round"/></svg>',
+  clock: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px"><defs><linearGradient id="a-clk" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient></defs><circle cx="12" cy="12" r="8" fill="#eff6ff" stroke="url(#a-clk)" stroke-width="1.5"/><path d="M12 7v5l3 3" stroke="url(#a-clk)" stroke-width="1.5" stroke-linecap="round"/></svg>',
+  desktop: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px"><defs><linearGradient id="a-dsk" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient></defs><rect x="3" y="4" width="18" height="12" rx="2" fill="#eff6ff" stroke="url(#a-dsk)" stroke-width="1.5"/><path d="M8 20h8M12 16v4M7 20l1-4M17 20l-1-4" stroke="url(#a-dsk)" stroke-width="1.5" stroke-linecap="round"/></svg>',
+  copy: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:16px;height:16px"><defs><linearGradient id="a-cpy" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#6d28d9"/></linearGradient></defs><rect x="8" y="8" width="11" height="11" rx="2" fill="#f5f3ff" stroke="url(#a-cpy)" stroke-width="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h8" stroke="url(#a-cpy)" stroke-width="1.5" stroke-linecap="round"/></svg>',
+  image: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:16px;height:16px"><defs><linearGradient id="a-img" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#22c55e"/><stop offset="100%" stop-color="#15803d"/></linearGradient></defs><rect x="4" y="5" width="16" height="14" rx="2" fill="#f0fdf4" stroke="url(#a-img)" stroke-width="1.5"/><circle cx="9" cy="10" r="1.5" fill="url(#a-img)"/><path d="M4 16l4-3 3 2 3-3 6 4" stroke="url(#a-img)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  code: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:16px;height:16px"><defs><linearGradient id="a-cod" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient></defs><path d="M9 8l-5 4 5 4M15 8l5 4-5 4" stroke="url(#a-cod)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  download: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:16px;height:16px"><defs><linearGradient id="a-dwn" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#eab308"/><stop offset="100%" stop-color="#ca8a04"/></linearGradient></defs><path d="M12 3v12M8 11l4 4 4-4" stroke="url(#a-dwn)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="url(#a-dwn)" stroke-width="1.5" stroke-linecap="round"/></svg>',
+  play: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:14px;height:14px"><defs><linearGradient id="a-ply" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#e2e8f0"/></linearGradient></defs><path d="M8 5v14l11-7z" fill="url(#a-ply)" stroke="url(#a-ply)" stroke-width="1.2" stroke-linejoin="round"/></svg>',
+  fire: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:12px;height:12px"><defs><linearGradient id="a-fir" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ef4444"/><stop offset="100%" stop-color="#b91c1c"/></linearGradient></defs><path d="M12 21c4 0 6-3 6-6 0-4-2.5-7-4-9-.5-.8-1.5-.8-2 0-1.5 2-4 5-4 9 0 3 2 6 6 6z" fill="#fef2f2" stroke="url(#a-fir)" stroke-width="1.5"/><path d="M12 15c1 0 1.5-.5 1.5-1.5 0-1-1-2-1.5-2.5-.5.5-1.5 1.5-1.5 2.5 0 1 .5 1.5 1.5 1.5z" fill="url(#a-fir)"/></svg>',
+  bolt: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:12px;height:12px"><defs><linearGradient id="a-blt" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#eab308"/><stop offset="100%" stop-color="#ca8a04"/></linearGradient></defs><path d="M13 3l-4 9h5l-2 9" stroke="url(#a-blt)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+}
+
+const monthSvgs = [
+  '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#34d399"/><stop offset="100%" stop-color="#059669"/></linearGradient></defs><path d="M12 4l-8 14h16L12 4z" fill="#ecfdf5" stroke="url(#m1)" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 10v4M10 12h4" stroke="url(#m1)" stroke-width="1.5" stroke-linecap="round"/></svg>',
+  '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#4f46e5"/></linearGradient></defs><path d="M13 4l-4 8h5l-3 9" stroke="url(#m2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 6H6M17 7h2" stroke="url(#m2)" stroke-width="1.5" stroke-linecap="round"/></svg>',
+  '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#94a3b8"/><stop offset="100%" stop-color="#64748b"/></linearGradient></defs><circle cx="12" cy="12" r="7" fill="#f8fafc" stroke="url(#m3)" stroke-width="1.5"/><circle cx="12" cy="12" r="3" fill="none" stroke="url(#m3)" stroke-width="1.2"/><circle cx="12" cy="12" r="1" fill="url(#m3)"/><path d="M12 5V3M12 21v-2M5 12H3M21 12h-2" stroke="url(#m3)" stroke-width="1.5" stroke-linecap="round"/></svg>',
+  '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m4" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#34d399"/><stop offset="100%" stop-color="#059669"/></linearGradient></defs><rect x="5" y="5" width="6" height="6" rx="1" fill="#ecfdf5" stroke="url(#m4)" stroke-width="1.5"/><rect x="13" y="5" width="6" height="6" rx="1" fill="#ecfdf5" stroke="url(#m4)" stroke-width="1.5"/><rect x="5" y="13" width="6" height="6" rx="1" fill="#ecfdf5" stroke="url(#m4)" stroke-width="1.5"/><rect x="13" y="13" width="6" height="6" rx="1" fill="#ecfdf5" stroke="url(#m4)" stroke-width="1.5"/><circle cx="8" cy="8" r="1" fill="url(#m4)"/><circle cx="16" cy="8" r="1" fill="url(#m4)"/><circle cx="8" cy="16" r="1" fill="url(#m4)"/><circle cx="16" cy="16" r="1" fill="url(#m4)"/></svg>',
+  '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m5" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#4f46e5"/></linearGradient></defs><path d="M6 6l4 4-4 4M18 6l-4 4 4 4" stroke="url(#m5)" stroke-width="1.8" stroke-linecap="round"/><path d="M5 19h14" stroke="url(#m5)" stroke-width="1.5" stroke-linecap="round"/></svg>',
+  '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m6" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#e879f9"/><stop offset="100%" stop-color="#c026d3"/></linearGradient></defs><path d="M9 18V5l8-1v11" stroke="url(#m6)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="7.5" cy="18" rx="2.5" ry="2" fill="#fae8ff" stroke="url(#m6)" stroke-width="1.2"/><ellipse cx="17.5" cy="16" rx="2.5" ry="2" fill="#fae8ff" stroke="url(#m6)" stroke-width="1.2"/></svg>',
+  '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m7" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#65a30d"/><stop offset="100%" stop-color="#4d7c0f"/></linearGradient></defs><path d="M12 4l4 5 5 1-3 4 1 5-5-2-5 2 1-5-3-4 5-1z" fill="#f7fee7" stroke="url(#m7)" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="11" r="1.5" fill="url(#m7)"/></svg>',
+  '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m8" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient></defs><path d="M12 3l1 3 3 1-3 1-1 3-1-3-3-1 3-1z" fill="#f5f3ff" stroke="url(#m8)" stroke-width="1.2" stroke-linejoin="round"/><circle cx="17" cy="17" r="3" fill="#f5f3ff" stroke="url(#m8)" stroke-width="1.2"/><circle cx="7" cy="16" r="2" fill="none" stroke="url(#m8)" stroke-width="1.2"/></svg>',
+  '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m9" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#94a3b8"/><stop offset="100%" stop-color="#64748b"/></linearGradient></defs><rect x="5" y="15" width="3" height="5" rx=".8" fill="#f8fafc" stroke="url(#m9)" stroke-width="1.2"/><rect x="10.5" y="10" width="3" height="10" rx=".8" fill="#f8fafc" stroke="url(#m9)" stroke-width="1.2"/><rect x="16" y="5" width="3" height="15" rx=".8" fill="#f8fafc" stroke="url(#m9)" stroke-width="1.2"/></svg>',
+  '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m10" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#34d399"/><stop offset="100%" stop-color="#059669"/></linearGradient></defs><rect x="6" y="8" width="12" height="10" rx="3" fill="#ecfdf5" stroke="url(#m10)" stroke-width="1.5"/><circle cx="10" cy="13" r="1" fill="url(#m10)"/><circle cx="14" cy="13" r="1" fill="url(#m10)"/><path d="M10 16a2 2 0 0 1 4 0" stroke="url(#m10)" stroke-width="1.2" fill="none"/></svg>',
+  '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m11" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#4f46e5"/></linearGradient></defs><path d="M12 2l1.5 5.5 5.5.5-4 3.5 1.5 5.5-5-3.5-5 3.5 1.5-5.5-4-3.5 5.5-.5z" fill="#eef2ff" stroke="url(#m11)" stroke-width="1.5" stroke-linejoin="round"/></svg>',
+  '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m12" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#94a3b8"/><stop offset="100%" stop-color="#64748b"/></linearGradient></defs><path d="M6 9l-2 5h3.5L6 21l6-5.5L18 21l-1.5-7H20l-2-5H6z" fill="#f8fafc" stroke="url(#m12)" stroke-width="1.5" stroke-linejoin="round"/></svg>',
+]
 ---
 
 <MainLayout
@@ -166,7 +263,7 @@ const roadmap = months.map((month, monthIndex) => ({
     searchable={false}
 >
     <link rel="stylesheet" href="/font-awesome/css/font-awesome.min.css" />
-    <script define:vars={{ roadmap }}>
+    <script define:vars={{ roadmap, genreIcons, monthSvgs, attrSvgs }}>
         async function checkAccess() {
             const token = localStorage.getItem('auth_token');
             if (!token) {
@@ -245,14 +342,36 @@ const roadmap = months.map((month, monthIndex) => ({
         window.roadmapData = roadmap;
         let currentMonth = 0, currentWeek = 0;
 
-        const gameImages = [
-            'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=400',
-            'https://images.unsplash.com/photo-1622737133809-d95047b9e673?auto=format&fit=crop&q=80&w=400',
-            'https://images.unsplash.com/photo-1549490349-8643362247b5?auto=format&fit=crop&q=80&w=400',
-            'https://images.unsplash.com/photo-1612287230202-1ff1d85d1b9b?auto=format&fit=crop&q=80&w=400',
-            'https://images.unsplash.com/photo-1534423861386-85a16f5d13fd?auto=format&fit=crop&q=80&w=400',
-            'https://images.unsplash.com/photo-1552820728-8b83bb6b6414?auto=format&fit=crop&q=80&w=400',
-        ];
+        const genreGradBg = {
+            Runner: 'from-emerald-500 to-emerald-700',
+            Puzzle: 'from-amber-500 to-amber-700',
+            Logic: 'from-yellow-500 to-yellow-700',
+            Shooter: 'from-rose-500 to-rose-700',
+            Action: 'from-red-500 to-red-700',
+            'Boss Fight': 'from-red-500 to-red-700',
+            Rhythm: 'from-fuchsia-500 to-fuchsia-700',
+            Music: 'from-fuchsia-500 to-fuchsia-700',
+            Arcade: 'from-sky-500 to-sky-700',
+            Simulation: 'from-teal-500 to-teal-700',
+            Collect: 'from-lime-500 to-lime-700',
+            Adventure: 'from-cyan-500 to-cyan-700',
+            Effect: 'from-violet-500 to-violet-700',
+            Skill: 'from-violet-500 to-violet-700',
+            Upgrade: 'from-indigo-500 to-indigo-700',
+            Shop: 'from-indigo-500 to-indigo-700',
+            Progression: 'from-indigo-500 to-indigo-700',
+            'AI Enemy': 'from-slate-400 to-slate-600',
+            'AI Pattern': 'from-slate-400 to-slate-600',
+            'Boss AI': 'from-slate-400 to-slate-600',
+            'Free Build': 'from-orange-500 to-orange-700',
+            'Theme Pack': 'from-orange-500 to-orange-700',
+            'Game Idea': 'from-orange-500 to-orange-700',
+            'Mechanic Mix': 'from-orange-500 to-orange-700',
+            'UI & Menu': 'from-blue-500 to-blue-700',
+            Polish: 'from-blue-500 to-blue-700',
+            'Test & Fix': 'from-blue-500 to-blue-700',
+            Showcase: 'from-blue-500 to-blue-700',
+        };
 
         function getGenreClass(genre) {
             const map = {
@@ -272,12 +391,14 @@ const roadmap = months.map((month, monthIndex) => ({
             grid.innerHTML = week.games.map((game, gi) => {
                 const genre = week.genre;
                 const genreClass = getGenreClass(genre);
-                const img = gameImages[gi % gameImages.length];
+                const svg = genreIcons[genre] || genreIcons['Arcade'];
+                const gradBg = genreGradBg[genre] || 'from-indigo-500 to-indigo-700';
                 return '<div data-game="' + game.name + '" data-genre="' + genre + '" data-month="' + (monthIdx + 1) + '" data-week="' + (weekIdx + 1) + '" data-month-idx="' + monthIdx + '" data-week-idx="' + weekIdx + '" data-game-idx="' + gi + '" class="game-card-button bg-white rounded-3xl border-[2px] border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 overflow-hidden transition-all flex flex-col">' +
-                    '<div class="h-44 w-full bg-cover bg-center relative p-3.5 flex flex-col justify-between" style="background-image: url(\'' + img + '\')">' +
-                        '<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>' +
+                    '<div class="h-44 w-full relative p-3.5 flex flex-col justify-between bg-gradient-to-br ' + gradBg + '">' +
+                        '<div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>' +
+                        '<div class="absolute inset-0 flex items-center justify-center opacity-20 p-8">' + svg + '</div>' +
                         '<div class="flex gap-2 relative z-10">' +
-                            '<span class="bg-red-500 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm"><i class="fa fa-fire" aria-hidden="true"></i> Trending</span>' +
+                            '<span class="bg-red-500 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm">' + attrSvgs.fire + ' Trending</span>' +
                         '</div>' +
                     '</div>' +
                     '<div class="p-5 flex flex-col flex-1 relative z-20 -mt-3 bg-white rounded-t-2xl">' +
@@ -291,10 +412,10 @@ const roadmap = months.map((month, monthIndex) => ({
                             '<span class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-pink-100 text-pink-700">Kids Favorite</span>' +
                         '</div>' +
                         '<div class="flex gap-2 mt-auto">' +
-                            '<button class="flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Copy Prompts"><i class="fa fa-copy" aria-hidden="true"></i></button>' +
-                            '<button class="flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Assets"><i class="fa fa-image" aria-hidden="true"></i></button>' +
-                            '<button class="flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Template"><i class="fa fa-code" aria-hidden="true"></i></button>' +
-                            '<button class="w-14 bg-[#8b5cf6] hover:bg-purple-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30 transition-transform active:scale-95"><i class="fa fa-play" aria-hidden="true"></i></button>' +
+                            '<button class="flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Copy Prompts">' + attrSvgs.copy + '</button>' +
+                            '<button class="flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Assets">' + attrSvgs.image + '</button>' +
+                            '<button class="flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Template">' + attrSvgs.code + '</button>' +
+                            '<button class="w-14 bg-[#8b5cf6] hover:bg-purple-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30 transition-transform active:scale-95">' + attrSvgs.play + '</button>' +
                         '</div>' +
                     '</div>' +
                 '</div>';
@@ -315,10 +436,14 @@ const roadmap = months.map((month, monthIndex) => ({
 
             document.getElementById('selectedGameTitle').textContent = game.name;
             document.getElementById('selectedGameGenre').textContent = genre;
-            document.getElementById('selectedGameTrending').innerHTML = '<i class="fa fa-bolt" aria-hidden="true"></i> Trending';
+            document.getElementById('selectedGameTrending').innerHTML = attrSvgs.bolt + ' Trending';
             document.getElementById('selectedGameDesc').textContent = 'A fun ' + genre.toLowerCase() + ' game built for quick play sessions.';
-            const img = gameImages[(monthIdx * 4 + weekIdx + gameIdx) % gameImages.length];
-            document.getElementById('selectedGameImage').style.backgroundImage = "url('" + img + "')";
+            const svg = genreIcons[genre] || genreIcons['Arcade'];
+            const gradBg = genreGradBg[genre] || 'from-indigo-500 to-indigo-700';
+            const imgEl = document.getElementById('selectedGameImage');
+            imgEl.style.backgroundImage = 'none';
+            imgEl.style.background = 'none';
+            imgEl.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-gradient-to-br ' + gradBg + ' rounded-[2rem] p-10"><div class="w-full h-full opacity-30">' + svg + '</div></div>';
         }
 
         function highlightWeek(monthIdx, weekIdx) {
@@ -452,7 +577,7 @@ const roadmap = months.map((month, monthIndex) => ({
                             <div key={monthIndex} class="flex flex-col">
                                 <button data-month={month.no} class={`roadmap-month-btn flex items-center w-full text-left p-3 rounded-xl transition-all duration-200 border ${monthIndex === 0 ? 'is-active border-pink-100 bg-pink-50 ring-1 ring-pink-500/20' : 'border-transparent hover:bg-gray-50'}`}>
                                     <div class={`roadmap-month-icon w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mr-3 shadow-sm ${monthIndex === 0 ? 'bg-pink-100 text-pink-500' : 'bg-indigo-50 text-indigo-600'}`}>
-                                        <i class={`fa ${month.no === 12 ? 'fa-trophy' : month.no === 10 ? 'fa-android' : month.no === 6 ? 'fa-music' : month.no === 4 ? 'fa-puzzle-piece' : 'fa-gamepad'}`} aria-hidden="true"></i>
+                                        <span set:html={monthSvgs[monthIndex]}></span>
                                     </div>
                                     <div class="flex-1 min-w-0 flex flex-col justify-center">
                                         <div class={`roadmap-month-title font-bold text-sm truncate ${monthIndex === 0 ? 'text-pink-600' : 'text-slate-700'}`}>Month {month.no} - {month.title}</div>
@@ -537,7 +662,7 @@ const roadmap = months.map((month, monthIndex) => ({
                 <div class="p-6 flex flex-col gap-6">
                     {/* Main Info */}
                     <div>
-                        <div id="selectedGameImage" class="w-full aspect-square rounded-[2rem] bg-slate-100 mb-6 bg-cover bg-center border-4 border-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative" style="background-image: url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=600')">
+                            <div id="selectedGameImage" class="w-full aspect-square rounded-[2rem] mb-6 border-4 border-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden"><div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-emerald-500 to-emerald-700 p-10"><div class="w-full h-full opacity-30" set:html={genreIcons['Runner']}></div></div>
                         </div>
 
                         <div class="flex justify-between items-start mb-3">
@@ -547,7 +672,7 @@ const roadmap = months.map((month, monthIndex) => ({
 
                         <div class="flex gap-2.5 mb-5">
                             <span id="selectedGameGenre" class="bg-[#4f46e5] text-white text-[13px] font-bold px-3 py-1 rounded-lg shadow-sm">Runner</span>
-                            <span id="selectedGameTrending" class="bg-red-500 text-white text-[13px] font-bold px-3 py-1 rounded-lg flex items-center gap-1 shadow-sm"><i class="fa fa-bolt" aria-hidden="true"></i> Trending</span>
+                            <span id="selectedGameTrending" class="bg-red-500 text-white text-[13px] font-bold px-3 py-1 rounded-lg flex items-center gap-1 shadow-sm"><span set:html={attrSvgs.bolt}></span> Trending</span>
                         </div>
                         <p id="selectedGameDesc" class="text-slate-600 text-[15px] font-medium leading-relaxed">
                             Jump, dodge, collect coins and survive as long as you can!
@@ -558,27 +683,27 @@ const roadmap = months.map((month, monthIndex) => ({
 
                     {/* Attributes List */}
                     <div class="space-y-5">
-                        <AttributeRow icon="fa-refresh" label="Core Loop">Jump → Dodge → Collect → Survive</AttributeRow>
-                        <AttributeRow icon="fa-keyboard-o" label="Controls">Arrow Keys / Tap / Swipe</AttributeRow>
-                        <AttributeRow icon="fa-mobile" label="Platform">
+                        <AttributeRow icon={attrSvgs.refresh} label="Core Loop">Jump → Dodge → Collect → Survive</AttributeRow>
+                        <AttributeRow icon={attrSvgs.keyboard} label="Controls">Arrow Keys / Tap / Swipe</AttributeRow>
+                        <AttributeRow icon={attrSvgs.mobile} label="Platform">
                             <div class="flex items-center gap-4">
-                                <span class="flex items-center gap-1.5 text-slate-700 font-bold"><i class="fa fa-mobile" aria-hidden="true"></i> Mobile</span>
-                                <span class="flex items-center gap-1.5 text-slate-700 font-bold"><i class="fa fa-desktop" aria-hidden="true"></i> Desktop</span>
+                                <span class="flex items-center gap-1.5 text-slate-700 font-bold"><span set:html={attrSvgs.mobile}></span> Mobile</span>
+                                <span class="flex items-center gap-1.5 text-slate-700 font-bold"><span set:html={attrSvgs.desktop}></span> Desktop</span>
                             </div>
                         </AttributeRow>
-                        <AttributeRow icon="fa-paint-brush" label="Art Style">Neon</AttributeRow>
-                        <AttributeRow icon="fa-gauge" label="Difficulty">Easy</AttributeRow>
-                        <AttributeRow icon="fa-clock-o" label="Build Time">2 - 4 hours</AttributeRow>
+                        <AttributeRow icon={attrSvgs.paint} label="Art Style">Neon</AttributeRow>
+                        <AttributeRow icon={attrSvgs.gauge} label="Difficulty">Easy</AttributeRow>
+                        <AttributeRow icon={attrSvgs.clock} label="Build Time">2 - 4 hours</AttributeRow>
                     </div>
 
                     <div class="h-px bg-gray-100 w-full mt-1"></div>
 
                     {/* Action Buttons */}
                     <div class="flex flex-col gap-3 mt-1 pb-4">
-                        <ActionButton icon="fa-copy" label="Copy Prompt" color="purple" />
-                        <ActionButton icon="fa-image" label="Generate Assets" color="green" />
-                        <ActionButton icon="fa-code" label="Open Template" color="blue" />
-                        <ActionButton icon="fa-download" label="Export HTML5" color="yellow" />
+                        <ActionButton icon={attrSvgs.copy} label="Copy Prompt" color="purple" />
+                        <ActionButton icon={attrSvgs.image} label="Generate Assets" color="green" />
+                        <ActionButton icon={attrSvgs.code} label="Open Template" color="blue" />
+                        <ActionButton icon={attrSvgs.download} label="Export HTML5" color="yellow" />
                     </div>
                 </div>
 

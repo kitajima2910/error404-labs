@@ -10,7 +10,7 @@ const { icon, label } = Astro.props;
 <div class="flex items-start text-[14px]">
   <div class="w-32 flex items-center gap-2.5 text-slate-500 font-bold shrink-0">
     <div class="w-6 h-6 rounded flex items-center justify-center bg-blue-50 text-blue-600">
-      <i class={`fa ${icon}`} aria-hidden="true"></i>
+      <span set:html={icon}></span>
     </div>
     {label}
   </div>
