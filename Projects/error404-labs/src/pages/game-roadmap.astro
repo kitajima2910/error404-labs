@@ -321,37 +321,38 @@ const roadmap = months.map((month, monthIndex) => ({
             document.getElementById('selectedGameImage').style.backgroundImage = "url('" + img + "')";
         }
 
-        document.querySelectorAll('.roadmap-month-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const parent = this.closest('.flex.flex-col');
-                const weeks = parent.querySelector('[data-weeks-for]');
+        document.addEventListener('click', function(e) {
+            const btn = e.target.closest('.roadmap-month-btn');
+            if (!btn) return;
 
-                document.querySelectorAll('.roadmap-month-btn.is-active').forEach(active => {
-                    if (active !== this) {
-                        active.classList.remove('is-active', 'bg-pink-50', 'border-pink-100', 'ring-1', 'ring-pink-500/20');
-                        active.classList.add('border-transparent', 'hover:bg-gray-50');
-                        const activeParent = active.closest('.flex.flex-col');
-                        const activeWeeks = activeParent.querySelector('[data-weeks-for]');
-                        if (activeWeeks) activeWeeks.classList.add('hidden');
-                        const activeIcon = active.querySelector('.roadmap-month-icon');
-                        if (activeIcon) { activeIcon.classList.remove('bg-pink-100', 'text-pink-500'); activeIcon.classList.add('bg-indigo-50', 'text-indigo-600'); }
-                        const activeTitle = active.querySelector('.roadmap-month-title');
-                        if (activeTitle) activeTitle.classList.remove('text-pink-600');
-                        const activeChevron = active.querySelector('.roadmap-month-chevron');
-                        if (activeChevron) { activeChevron.classList.remove('fa-chevron-down', 'text-pink-500'); activeChevron.classList.add('fa-chevron-right', 'text-gray-400'); }
-                    }
-                });
+            const parent = btn.closest('.flex.flex-col');
+            const weeks = parent.querySelector('[data-weeks-for]');
 
-                this.classList.remove('border-transparent', 'hover:bg-gray-50');
-                this.classList.add('is-active', 'bg-pink-50', 'border-pink-100', 'ring-1', 'ring-pink-500/20');
-                if (weeks) weeks.classList.remove('hidden');
-                const icon = this.querySelector('.roadmap-month-icon');
-                if (icon) { icon.classList.remove('bg-indigo-50', 'text-indigo-600'); icon.classList.add('bg-pink-100', 'text-pink-500'); }
-                const title = this.querySelector('.roadmap-month-title');
-                if (title) title.classList.add('text-pink-600');
-                const chevron = this.querySelector('.roadmap-month-chevron');
-                if (chevron) { chevron.classList.remove('fa-chevron-right', 'text-gray-400'); chevron.classList.add('fa-chevron-down', 'text-pink-500'); }
+            document.querySelectorAll('.roadmap-month-btn.is-active').forEach(active => {
+                if (active !== btn) {
+                    active.classList.remove('is-active', 'bg-pink-50', 'border-pink-100', 'ring-1', 'ring-pink-500/20');
+                    active.classList.add('border-transparent', 'hover:bg-gray-50');
+                    const activeParent = active.closest('.flex.flex-col');
+                    const activeWeeks = activeParent.querySelector('[data-weeks-for]');
+                    if (activeWeeks) activeWeeks.classList.add('hidden');
+                    const activeIcon = active.querySelector('.roadmap-month-icon');
+                    if (activeIcon) { activeIcon.classList.remove('bg-pink-100', 'text-pink-500'); activeIcon.classList.add('bg-indigo-50', 'text-indigo-600'); }
+                    const activeTitle = active.querySelector('.roadmap-month-title');
+                    if (activeTitle) activeTitle.classList.remove('text-pink-600');
+                    const activeChevron = active.querySelector('.roadmap-month-chevron');
+                    if (activeChevron) { activeChevron.classList.remove('fa-chevron-down', 'text-pink-500'); activeChevron.classList.add('fa-chevron-right', 'text-gray-400'); }
+                }
             });
+
+            btn.classList.remove('border-transparent', 'hover:bg-gray-50');
+            btn.classList.add('is-active', 'bg-pink-50', 'border-pink-100', 'ring-1', 'ring-pink-500/20');
+            if (weeks) weeks.classList.remove('hidden');
+            const icon = btn.querySelector('.roadmap-month-icon');
+            if (icon) { icon.classList.remove('bg-indigo-50', 'text-indigo-600'); icon.classList.add('bg-pink-100', 'text-pink-500'); }
+            const title = btn.querySelector('.roadmap-month-title');
+            if (title) title.classList.add('text-pink-600');
+            const chevron = btn.querySelector('.roadmap-month-chevron');
+            if (chevron) { chevron.classList.remove('fa-chevron-right', 'text-gray-400'); chevron.classList.add('fa-chevron-down', 'text-pink-500'); }
         });
 
         document.addEventListener('click', function(e) {
@@ -376,7 +377,9 @@ const roadmap = months.map((month, monthIndex) => ({
             }
         });
 
-        renderGameGrid(0, 0);
+        document.addEventListener('DOMContentLoaded', () => {
+            renderGameGrid(0, 0);
+        });
     </script>
     <div class="flex flex-col h-screen bg-[#f8f9fa] font-sans overflow-hidden text-slate-800">
         <div class="flex flex-col lg:flex-row flex-1 overflow-hidden relative">
