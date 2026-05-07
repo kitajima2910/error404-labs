@@ -429,22 +429,7 @@ const monthSvgs = [
             currentWeek = weekIdx;
         }
 
-        function updateGameDetail(monthIdx, weekIdx, gameIdx) {
-            const game = window.roadmapData[monthIdx].weeks[weekIdx].games[gameIdx];
-            const genre = window.roadmapData[monthIdx].weeks[weekIdx].genre;
-            if (!game) return;
 
-            document.getElementById('selectedGameTitle').textContent = game.name;
-            document.getElementById('selectedGameGenre').textContent = genre;
-            document.getElementById('selectedGameTrending').innerHTML = attrSvgs.bolt + ' Trending';
-            document.getElementById('selectedGameDesc').textContent = 'A fun ' + genre.toLowerCase() + ' game built for quick play sessions.';
-            const svg = genreIcons[genre] || genreIcons['Arcade'];
-            const gradBg = genreGradBg[genre] || 'from-indigo-500 to-indigo-700';
-            const imgEl = document.getElementById('selectedGameImage');
-            imgEl.style.backgroundImage = 'none';
-            imgEl.style.background = 'none';
-            imgEl.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-gradient-to-br ' + gradBg + ' rounded-[2rem] p-10"><div class="w-full h-full opacity-30">' + svg + '</div></div>';
-        }
 
         function highlightWeek(monthIdx, weekIdx) {
             const container = document.querySelector(`[data-weeks-for="${monthIdx}"]`);
@@ -522,7 +507,6 @@ const monthSvgs = [
                 if (chevron) { chevron.classList.remove('fa-chevron-right', 'text-gray-400'); chevron.classList.add('fa-chevron-down', 'text-pink-500'); }
                 const monthIdx = parseInt(btn.getAttribute('data-month')) - 1;
                 renderGameGrid(monthIdx, 0);
-                updateGameDetail(monthIdx, 0, 0);
                 highlightWeek(monthIdx, 0);
             }
         });
@@ -535,18 +519,7 @@ const monthSvgs = [
                 const monthIdx = month - 1;
                 const weekIdx = week - 1;
                 renderGameGrid(monthIdx, weekIdx);
-                updateGameDetail(monthIdx, weekIdx, 0);
                 highlightWeek(monthIdx, weekIdx);
-            }
-        });
-
-        document.addEventListener('click', function(e) {
-            const card = e.target.closest('.game-card-button');
-            if (card) {
-                const monthIdx = parseInt(card.getAttribute('data-month-idx'));
-                const weekIdx = parseInt(card.getAttribute('data-week-idx'));
-                const gameIdx = parseInt(card.getAttribute('data-game-idx'));
-                updateGameDetail(monthIdx, weekIdx, gameIdx);
             }
         });
 
@@ -643,60 +616,6 @@ const monthSvgs = [
                 </div>
             </div>
             <aside class="w-full lg:w-[360px] bg-white border-l border-gray-200 flex flex-col shrink-0 overflow-y-auto shadow-[-4px_0_15px_-4px_rgba(0,0,0,0.05)] z-0 relative custom-scrollbar order-first lg:order-last">
-                <div class="p-4 border-b border-gray-100 flex gap-2">
-                    <button class="flex-1 bg-yellow-50 text-yellow-700 border border-yellow-200 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition-colors"><i class="fa fa-gamepad" aria-hidden="true"></i> Kids Trend Mode</button>
-                    <button class="flex-1 bg-white text-slate-600 hover:bg-gray-50 border border-gray-200 py-2 rounded-xl text-[11px] font-bold shadow-sm transition-colors">Study Mode</button>
-                    <button class="flex-1 bg-white text-slate-600 hover:bg-gray-50 border border-gray-200 py-2 rounded-xl text-[11px] font-bold shadow-sm transition-colors">Vibe Coding Mode</button>
-                </div>
-
-                <div class="p-6 flex flex-col gap-6">
-                    {/* Main Info */}
-                    <div>
-                            <div id="selectedGameImage" class="w-full aspect-square rounded-[2rem] mb-6 border-4 border-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden"><div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-emerald-500 to-emerald-700 p-10"><div class="w-full h-full opacity-30" set:html={genreIcons['Runner']}></div></div>
-                        </div>
-
-                        <div class="flex justify-between items-start mb-3">
-                            <h2 id="selectedGameTitle" class="text-[26px] font-extrabold text-slate-900 leading-tight">Neon Jump Runner</h2>
-                            <button class="text-gray-300 hover:text-yellow-400 transition-colors mt-1.5 bg-gray-50 p-1.5 rounded-full hover:bg-yellow-50"><i class="fa fa-star-o" aria-hidden="true"></i></button>
-                        </div>
-
-                        <div class="flex gap-2.5 mb-5">
-                            <span id="selectedGameGenre" class="bg-[#4f46e5] text-white text-[13px] font-bold px-3 py-1 rounded-lg shadow-sm">Runner</span>
-                            <span id="selectedGameTrending" class="bg-red-500 text-white text-[13px] font-bold px-3 py-1 rounded-lg flex items-center gap-1 shadow-sm"><span set:html={attrSvgs.bolt}></span> Trending</span>
-                        </div>
-                        <p id="selectedGameDesc" class="text-slate-600 text-[15px] font-medium leading-relaxed">
-                            Jump, dodge, collect coins and survive as long as you can!
-                        </p>
-                    </div>
-
-                    <div class="h-px bg-gray-100 w-full mb-1"></div>
-
-                    {/* Attributes List */}
-                    <div class="space-y-5">
-                        <AttributeRow icon={attrSvgs.refresh} label="Core Loop">Jump → Dodge → Collect → Survive</AttributeRow>
-                        <AttributeRow icon={attrSvgs.keyboard} label="Controls">Arrow Keys / Tap / Swipe</AttributeRow>
-                        <AttributeRow icon={attrSvgs.mobile} label="Platform">
-                            <div class="flex items-center gap-4">
-                                <span class="flex items-center gap-1.5 text-slate-700 font-bold"><span set:html={attrSvgs.mobile}></span> Mobile</span>
-                                <span class="flex items-center gap-1.5 text-slate-700 font-bold"><span set:html={attrSvgs.desktop}></span> Desktop</span>
-                            </div>
-                        </AttributeRow>
-                        <AttributeRow icon={attrSvgs.paint} label="Art Style">Neon</AttributeRow>
-                        <AttributeRow icon={attrSvgs.gauge} label="Difficulty">Easy</AttributeRow>
-                        <AttributeRow icon={attrSvgs.clock} label="Build Time">2 - 4 hours</AttributeRow>
-                    </div>
-
-                    <div class="h-px bg-gray-100 w-full mt-1"></div>
-
-                    {/* Action Buttons */}
-                    <div class="flex flex-col gap-3 mt-1 pb-4">
-                        <ActionButton icon={attrSvgs.copy} label="Copy Prompt" color="purple" />
-                        <ActionButton icon={attrSvgs.image} label="Generate Assets" color="green" />
-                        <ActionButton icon={attrSvgs.code} label="Open Template" color="blue" />
-                        <ActionButton icon={attrSvgs.download} label="Export HTML5" color="yellow" />
-                    </div>
-                </div>
-
                 {/* Mẹo Prompt cho Game Card */}
                 <div class="p-6">
                     <div class="bg-white rounded-3xl border-[1.5px] border-indigo-100 shadow-[0_4px_20px_-4px_rgba(99,102,241,0.15)] overflow-hidden">
