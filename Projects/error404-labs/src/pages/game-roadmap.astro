@@ -472,15 +472,7 @@ const monthSvgs = [
                     dot.classList.toggle('transition-colors', !isTarget);
                 }
 
-                const count = row.querySelector('span');
-                if (count) {
-                    count.classList.toggle('text-xs', isTarget);
-                    count.classList.toggle('text-pink-400', isTarget);
-                    count.classList.toggle('font-medium', isTarget);
-                    count.classList.toggle('text-[10px]', !isTarget);
-                    count.classList.toggle('font-bold', !isTarget);
-                    count.classList.toggle('text-gray-400', !isTarget);
-                }
+
             });
         }
 
@@ -592,7 +584,6 @@ const monthSvgs = [
                                         <div class="flex items-center gap-2">
                                             Week 1
                                         </div>
-                                        <span class="text-xs text-pink-400 font-medium">3/3</span>
                                     </div>
                                     {[2,3,4].map(w => (
                                         <div key={w} data-month={month.no} data-week={w} class="roadmap-week-row flex justify-between items-center py-1.5 text-sm font-medium text-slate-500 hover:text-slate-800 cursor-pointer rounded -ml-4 pl-4 transition-colors relative group">
@@ -600,7 +591,6 @@ const monthSvgs = [
                                             <div class="flex items-center gap-2">
                                                 Week {w}
                                             </div>
-                                            <span class="text-[10px] font-bold text-gray-400">0/3</span>
                                         </div>
                                     ))}
                                 </div>
