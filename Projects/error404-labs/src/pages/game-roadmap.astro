@@ -251,12 +251,12 @@ const roadmap = months.map((month, monthIndex) => ({
                 </div>
             </header>
 
-            <div class="mt-6 grid gap-5 xl:grid-cols-[minmax(0,4fr)_minmax(300px,1fr)]">
+            <div class="mt-6 grid gap-5 xl:grid-cols-[minmax(0,3.4fr)_minmax(300px,1fr)]">
                 <main
-                    class="roadmap-scroll overflow-x-auto rounded-[28px] border border-white/10 bg-slate-950/45 p-3 shadow-2xl shadow-indigo-950/35 backdrop-blur-xl"
+                    class="roadmap-scroll rounded-[28px] border border-white/10 bg-slate-950/45 p-4 shadow-2xl shadow-indigo-950/35 backdrop-blur-xl sm:p-5"
                     aria-label="Tư duy sáng tạo game"
                 >
-                    <div class="roadmap-grid grid min-w-[1380px] grid-cols-[178px_repeat(4,minmax(290px,1fr))] gap-3">
+                    <div class="roadmap-grid grid gap-5">
                         <div
                             class="roadmap-corner sticky left-0 top-0 z-30 rounded-2xl border border-white/10 px-5 py-4 text-sm font-black uppercase tracking-[0.16em] text-white backdrop-blur-xl"
                         >
@@ -275,25 +275,38 @@ const roadmap = months.map((month, monthIndex) => ({
 
                         {
                             roadmap.map((month) => (
-                                <>
+                                <section class={`roadmap-month-panel rounded-[24px] border border-white/10 p-4 shadow-xl shadow-indigo-950/25 backdrop-blur-xl ${month.accent}`}>
                                     <div
-                                        class={`roadmap-month sticky left-0 z-10 min-h-[208px] rounded-2xl border border-white/10 p-4 shadow-[16px_0_30px_rgba(15,23,42,0.35)] backdrop-blur-xl ${month.accent}`}
+                                        class="roadmap-month mb-4 rounded-2xl border border-white/10 p-4 backdrop-blur-xl"
                                     >
-                                        <span class="month-badge grid h-14 w-14 place-items-center rounded-2xl text-xl font-black text-white shadow-lg">
-                                            {month.no}
-                                        </span>
-                                        <strong class="mt-4 block text-base font-black uppercase leading-tight text-white">{month.title}</strong>
-                                        <span class="mt-2 inline-flex rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs font-black uppercase text-slate-300">
-                                            {month.sub}
-                                        </span>
+                                        <div class="flex flex-wrap items-center gap-4">
+                                            <span class="month-badge grid h-14 w-14 place-items-center rounded-2xl text-xl font-black text-white shadow-lg">
+                                                {month.no}
+                                            </span>
+                                            <div class="min-w-0 flex-1">
+                                                <strong class="block text-lg font-black uppercase leading-tight text-white">{month.title}</strong>
+                                                <span class="mt-2 inline-flex rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs font-black uppercase text-slate-300">
+                                                    {month.sub}
+                                                </span>
+                                            </div>
+                                            <span class="month-count rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-slate-200">
+                                                12 game
+                                            </span>
+                                        </div>
                                     </div>
+                                    <div class="roadmap-weeks grid gap-3 md:grid-cols-2 2xl:grid-cols-4">
                                     {month.weeks.map((week, weekIndex) => (
                                         <article
-                                            class={`roadmap-week min-h-[208px] rounded-2xl border p-3 ${genreStyles[week.genre] || 'border-slate-200 bg-slate-50 text-slate-700'}`}
+                                            class={`roadmap-week rounded-2xl border p-3 ${genreStyles[week.genre] || 'border-slate-200 bg-slate-50 text-slate-700'}`}
                                         >
-                                            <h2 class="genre-pill mb-3 rounded-xl bg-white/10 px-3 py-2 text-center text-xs font-black uppercase tracking-[0.14em] shadow-sm backdrop-blur">
-                                                {week.genre}
-                                            </h2>
+                                            <div class="mb-3 flex items-center justify-between gap-3">
+                                                <h2 class="genre-pill rounded-xl bg-white/10 px-3 py-2 text-xs font-black uppercase tracking-[0.14em] shadow-sm backdrop-blur">
+                                                    {week.genre}
+                                                </h2>
+                                                <span class="week-label rounded-full border border-white/40 bg-white/35 px-2.5 py-1 text-[10px] font-black uppercase text-slate-700">
+                                                    {weekLabels[weekIndex]}
+                                                </span>
+                                            </div>
                                             <div class="grid gap-2">
                                                  {week.games.map((game, gameIndex) => (
                                                      <GameCell
@@ -308,7 +321,8 @@ const roadmap = months.map((month, monthIndex) => ({
                                             </div>
                                         </article>
                                     ))}
-                                </>
+                                    </div>
+                                </section>
                             ))
                         }
                     </div>
@@ -688,8 +702,38 @@ ACTION:
             34px 34px;
     }
 
+    .roadmap-month-panel {
+        position: relative;
+        overflow: hidden;
+        background:
+            linear-gradient(90deg, color-mix(in srgb, currentColor 36%, transparent) 0 5px, transparent 5px),
+            radial-gradient(circle at 100% 0%, rgba(251, 146, 60, 0.18), transparent 34%),
+            radial-gradient(circle at 0% 100%, rgba(99, 102, 241, 0.2), transparent 34%),
+            linear-gradient(135deg, rgba(15, 23, 42, 0.86), rgba(30, 41, 59, 0.54));
+        color: #e2e8f0;
+    }
+
+    .roadmap-month-panel::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+            linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        background-size: 28px 28px;
+        mask-image: linear-gradient(90deg, black, transparent 82%);
+        opacity: 0.72;
+    }
+
+    .roadmap-month-panel > * {
+        position: relative;
+        z-index: 1;
+    }
+
     .roadmap-corner,
     .roadmap-week-header {
+        display: none;
         box-shadow:
             0 16px 28px rgba(2, 6, 23, 0.28),
             inset 0 1px 0 rgba(255, 255, 255, 0.14);
@@ -725,13 +769,21 @@ ACTION:
     .roadmap-month {
         background:
             radial-gradient(circle at 18% 0%, rgba(249, 115, 22, 0.22), transparent 46%),
-            linear-gradient(180deg, rgba(15, 23, 42, 0.88), rgba(30, 41, 59, 0.72)),
-            linear-gradient(90deg, currentColor 0 5px, transparent 5px);
+            linear-gradient(135deg, rgba(15, 23, 42, 0.84), rgba(255, 255, 255, 0.08));
+        box-shadow:
+            0 16px 28px rgba(2, 6, 23, 0.18),
+            inset 0 1px 0 rgba(255, 255, 255, 0.16);
+    }
+
+    .month-count,
+    .week-label {
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
     }
 
     .roadmap-week {
         position: relative;
         overflow: hidden;
+        min-height: 100%;
         color: #e2e8f0;
         box-shadow:
             0 16px 30px rgba(2, 6, 23, 0.22),
