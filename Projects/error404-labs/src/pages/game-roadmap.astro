@@ -241,6 +241,39 @@ const roadmap = months.map((month, monthIndex) => ({
         }
 
         checkAccess();
+
+        document.querySelectorAll('.roadmap-month-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const parent = this.closest('.flex.flex-col');
+                const weeks = parent.querySelector('[data-weeks-for]');
+
+                document.querySelectorAll('.roadmap-month-btn.is-active').forEach(active => {
+                    if (active !== this) {
+                        active.classList.remove('is-active', 'bg-pink-50', 'border-pink-100', 'ring-1', 'ring-pink-500/20');
+                        active.classList.add('border-transparent', 'hover:bg-gray-50');
+                        const activeParent = active.closest('.flex.flex-col');
+                        const activeWeeks = activeParent.querySelector('[data-weeks-for]');
+                        if (activeWeeks) activeWeeks.classList.add('hidden');
+                        const activeIcon = active.querySelector('.roadmap-month-icon');
+                        if (activeIcon) { activeIcon.classList.remove('bg-pink-100', 'text-pink-500'); activeIcon.classList.add('bg-indigo-50', 'text-indigo-600'); }
+                        const activeTitle = active.querySelector('.roadmap-month-title');
+                        if (activeTitle) activeTitle.classList.remove('text-pink-600');
+                        const activeChevron = active.querySelector('.roadmap-month-chevron');
+                        if (activeChevron) { activeChevron.classList.remove('fa-chevron-down', 'text-pink-500'); activeChevron.classList.add('fa-chevron-right', 'text-gray-400'); }
+                    }
+                });
+
+                this.classList.remove('border-transparent', 'hover:bg-gray-50');
+                this.classList.add('is-active', 'bg-pink-50', 'border-pink-100', 'ring-1', 'ring-pink-500/20');
+                if (weeks) weeks.classList.remove('hidden');
+                const icon = this.querySelector('.roadmap-month-icon');
+                if (icon) { icon.classList.remove('bg-indigo-50', 'text-indigo-600'); icon.classList.add('bg-pink-100', 'text-pink-500'); }
+                const title = this.querySelector('.roadmap-month-title');
+                if (title) title.classList.add('text-pink-600');
+                const chevron = this.querySelector('.roadmap-month-chevron');
+                if (chevron) { chevron.classList.remove('fa-chevron-right', 'text-gray-400'); chevron.classList.add('fa-chevron-down', 'text-pink-500'); }
+            });
+        });
     </script>
     <div class="flex flex-col h-screen bg-[#f8f9fa] font-sans overflow-hidden text-slate-800">
         <div class="flex flex-col lg:flex-row flex-1 overflow-hidden relative">
@@ -254,37 +287,35 @@ const roadmap = months.map((month, monthIndex) => ({
                     {
                         roadmap.map((month, monthIndex) => (
                             <div key={monthIndex} class="flex flex-col">
-                                <button data-month={month.no} class={`flex items-center w-full text-left p-3 rounded-xl transition-colors ${monthIndex === 0 ? 'bg-pink-50 border border-pink-100 ring-1 ring-pink-500/20' : 'hover:bg-gray-50 border border-transparent'}`}>
-                                    <div class={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${monthIndex === 0 ? 'bg-pink-100 text-pink-500' : 'bg-indigo-50 text-indigo-600'} mr-3 shadow-sm`}>
+                                <button data-month={month.no} class={`roadmap-month-btn flex items-center w-full text-left p-3 rounded-xl transition-all duration-200 border ${monthIndex === 0 ? 'is-active border-pink-100 bg-pink-50 ring-1 ring-pink-500/20' : 'border-transparent hover:bg-gray-50'}`}>
+                                    <div class={`roadmap-month-icon w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mr-3 shadow-sm ${monthIndex === 0 ? 'bg-pink-100 text-pink-500' : 'bg-indigo-50 text-indigo-600'}`}>
                                         <i class={`fa ${month.no === 12 ? 'fa-trophy' : month.no === 10 ? 'fa-android' : month.no === 6 ? 'fa-music' : month.no === 4 ? 'fa-puzzle-piece' : 'fa-gamepad'}`} aria-hidden="true"></i>
                                     </div>
                                     <div class="flex-1 min-w-0 flex flex-col justify-center">
-                                        <div class={`font-bold text-sm truncate ${monthIndex === 0 ? 'text-pink-600' : 'text-slate-700'}`}>Month {month.no} - {month.title}</div>
+                                        <div class={`roadmap-month-title font-bold text-sm truncate ${monthIndex === 0 ? 'text-pink-600' : 'text-slate-700'}`}>Month {month.no} - {month.title}</div>
                                         <div class="text-[11px] text-slate-500 truncate mt-0.5 font-medium">{month.sub}</div>
                                     </div>
-                                    {monthIndex === 0 ? <i class="fa fa-chevron-down text-pink-500 shrink-0 ml-2" aria-hidden="true"></i> : <i class="fa fa-chevron-right text-gray-400 shrink-0 ml-2" aria-hidden="true"></i>}
+                                    <i class={`roadmap-month-chevron fa shrink-0 ml-2 transition-all duration-200 ${monthIndex === 0 ? 'fa-chevron-down text-pink-500' : 'fa-chevron-right text-gray-400'}`} aria-hidden="true"></i>
                                 </button>
 
-                                {monthIndex === 0 && (
-                                    <div class="ml-7 border-l-[1.5px] border-pink-200 mt-2 mb-3 pl-4 space-y-1.5 relative">
-                                        <div class="flex justify-between items-center py-1.5 text-sm font-bold text-pink-600 cursor-pointer rounded -ml-4 pl-4 relative">
-                                            <div class="absolute left-[calc(-1rem-4.5px)] top-1/2 -translate-y-1/2 w-[8px] h-[8px] rounded-full bg-white border-2 border-pink-500 -ml-[0.5px]"></div>
-                                            <div class="flex items-center gap-2">
-                                                Week 1
-                                            </div>
-                                            <span class="text-xs text-pink-400 font-medium">3/3</span>
+                                <div data-weeks-for={monthIndex} class={`ml-7 border-l-[1.5px] border-pink-200 mt-2 mb-3 pl-4 space-y-1.5 relative overflow-hidden transition-all duration-300 ease-in-out ${monthIndex !== 0 ? 'hidden' : ''}`}>
+                                    <div class="flex justify-between items-center py-1.5 text-sm font-bold text-pink-600 cursor-pointer rounded -ml-4 pl-4 relative">
+                                        <div class="absolute left-[calc(-1rem-4.5px)] top-1/2 -translate-y-1/2 w-[8px] h-[8px] rounded-full bg-white border-2 border-pink-500 -ml-[0.5px]"></div>
+                                        <div class="flex items-center gap-2">
+                                            Week 1
                                         </div>
-                                        {[2,3,4].map(w => (
-                                            <div key={w} class="flex justify-between items-center py-1.5 text-sm font-medium text-slate-500 hover:text-slate-800 cursor-pointer rounded -ml-4 pl-4 transition-colors relative group">
-                                                <div class="absolute left-[calc(-1rem-4.5px)] top-1/2 -translate-y-1/2 w-[8px] h-[8px] rounded-full bg-white border-[1.5px] border-gray-200 group-hover:border-slate-400 -ml-[0.5px] transition-colors"></div>
-                                                <div class="flex items-center gap-2">
-                                                    Week {w}
-                                                </div>
-                                                <span class="text-[10px] font-bold text-gray-400">0/3</span>
-                                            </div>
-                                        ))}
+                                        <span class="text-xs text-pink-400 font-medium">3/3</span>
                                     </div>
-                                )}
+                                    {[2,3,4].map(w => (
+                                        <div key={w} class="flex justify-between items-center py-1.5 text-sm font-medium text-slate-500 hover:text-slate-800 cursor-pointer rounded -ml-4 pl-4 transition-colors relative group">
+                                            <div class="absolute left-[calc(-1rem-4.5px)] top-1/2 -translate-y-1/2 w-[8px] h-[8px] rounded-full bg-white border-[1.5px] border-gray-200 group-hover:border-slate-400 -ml-[0.5px] transition-colors"></div>
+                                            <div class="flex items-center gap-2">
+                                                Week {w}
+                                            </div>
+                                            <span class="text-[10px] font-bold text-gray-400">0/3</span>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         ))
                     }
@@ -1264,5 +1295,16 @@ const roadmap = months.map((month, monthIndex) => ({
         background: linear-gradient(90deg, #4f46e5, #0ea5e9, #f97316);
         border: 3px solid rgba(15, 23, 42, 0.8);
         border-radius: 999px;
+    }
+
+    .roadmap-month-btn.is-active .roadmap-month-icon {
+        background-color: #fce7f3;
+        color: #ec4899;
+    }
+    .roadmap-month-btn.is-active .roadmap-month-title {
+        color: #db2777;
+    }
+    .roadmap-month-btn.is-active .roadmap-month-chevron {
+        color: #ec4899;
     }
 </style>
