@@ -166,7 +166,7 @@ const roadmap = months.map((month, monthIndex) => ({
     searchable={false}
 >
     <link rel="stylesheet" href="/font-awesome/css/font-awesome.min.css" />
-    <script>
+    <script define:vars={{ roadmap }}>
         async function checkAccess() {
             const token = localStorage.getItem('auth_token');
             if (!token) {
@@ -242,6 +242,85 @@ const roadmap = months.map((month, monthIndex) => ({
 
         checkAccess();
 
+        window.roadmapData = roadmap;
+        let currentMonth = 0, currentWeek = 0;
+
+        const gameImages = [
+            'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=400',
+            'https://images.unsplash.com/photo-1622737133809-d95047b9e673?auto=format&fit=crop&q=80&w=400',
+            'https://images.unsplash.com/photo-1549490349-8643362247b5?auto=format&fit=crop&q=80&w=400',
+            'https://images.unsplash.com/photo-1612287230202-1ff1d85d1b9b?auto=format&fit=crop&q=80&w=400',
+            'https://images.unsplash.com/photo-1534423861386-85a16f5d13fd?auto=format&fit=crop&q=80&w=400',
+            'https://images.unsplash.com/photo-1552820728-8b83bb6b6414?auto=format&fit=crop&q=80&w=400',
+        ];
+
+        function getGenreClass(genre) {
+            const map = {
+                'Runner': 'border-emerald-200 bg-emerald-50/80 text-emerald-700',
+                'Puzzle': 'border-amber-200 bg-amber-50/80 text-amber-700',
+            };
+            const fallback = 'border-indigo-200 bg-indigo-50/80 text-indigo-700';
+            return map[genre] || fallback;
+        }
+
+        function renderGameGrid(monthIdx, weekIdx) {
+            const grid = document.getElementById('game-grid');
+            if (!grid) return;
+            const week = window.roadmapData[monthIdx].weeks[weekIdx];
+            if (!week) return;
+
+            grid.innerHTML = week.games.map((game, gi) => {
+                const genre = week.genre;
+                const genreClass = getGenreClass(genre);
+                const img = gameImages[gi % gameImages.length];
+                return '<div data-game="' + game.name + '" data-genre="' + genre + '" data-month="' + (monthIdx + 1) + '" data-week="' + (weekIdx + 1) + '" data-month-idx="' + monthIdx + '" data-week-idx="' + weekIdx + '" data-game-idx="' + gi + '" class="game-card-button bg-white rounded-3xl border-[2px] border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 overflow-hidden transition-all flex flex-col">' +
+                    '<div class="h-44 w-full bg-cover bg-center relative p-3.5 flex flex-col justify-between" style="background-image: url(\'' + img + '\')">' +
+                        '<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>' +
+                        '<div class="flex gap-2 relative z-10">' +
+                            '<span class="bg-red-500 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm"><i class="fa fa-fire" aria-hidden="true"></i> Trending</span>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="p-5 flex flex-col flex-1 relative z-20 -mt-3 bg-white rounded-t-2xl">' +
+                        '<h3 class="font-extrabold text-slate-900 mb-2 text-xl truncate">' + game.name + '</h3>' +
+                        '<div class="flex gap-1.5 mb-2.5">' +
+                            '<span class="' + genreClass + ' text-xs font-bold px-2.5 py-0.5 rounded-md">' + genre + '</span>' +
+                        '</div>' +
+                        '<p class="text-slate-600 text-[13px] mb-4 font-semibold leading-relaxed line-clamp-2">A fun ' + genre.toLowerCase() + ' game for quick play sessions.</p>' +
+                        '<div class="flex flex-wrap gap-1.5 mb-5 mt-auto">' +
+                            '<span class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-green-100 text-green-700">Easy</span>' +
+                            '<span class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-pink-100 text-pink-700">Kids Favorite</span>' +
+                        '</div>' +
+                        '<div class="flex gap-2 mt-auto">' +
+                            '<button class="flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Copy Prompts"><i class="fa fa-copy" aria-hidden="true"></i></button>' +
+                            '<button class="flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Assets"><i class="fa fa-image" aria-hidden="true"></i></button>' +
+                            '<button class="flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Template"><i class="fa fa-code" aria-hidden="true"></i></button>' +
+                            '<button class="w-14 bg-[#8b5cf6] hover:bg-purple-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30 transition-transform active:scale-95"><i class="fa fa-play" aria-hidden="true"></i></button>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+            }).join('');
+
+            const month = window.roadmapData[monthIdx];
+            document.getElementById('grid-header-title').textContent = 'Month ' + month.no + ' – Week ' + (weekIdx + 1);
+            document.getElementById('grid-header-count').textContent = week.games.length + ' Games';
+
+            currentMonth = monthIdx;
+            currentWeek = weekIdx;
+        }
+
+        function updateGameDetail(monthIdx, weekIdx, gameIdx) {
+            const game = window.roadmapData[monthIdx].weeks[weekIdx].games[gameIdx];
+            const genre = window.roadmapData[monthIdx].weeks[weekIdx].genre;
+            if (!game) return;
+
+            document.getElementById('selectedGameTitle').textContent = game.name;
+            document.getElementById('selectedGameGenre').textContent = genre;
+            document.getElementById('selectedGameTrending').innerHTML = '<i class="fa fa-bolt" aria-hidden="true"></i> Trending';
+            document.getElementById('selectedGameDesc').textContent = 'A fun ' + genre.toLowerCase() + ' game built for quick play sessions.';
+            const img = gameImages[(monthIdx * 4 + weekIdx + gameIdx) % gameImages.length];
+            document.getElementById('selectedGameImage').style.backgroundImage = "url('" + img + "')";
+        }
+
         document.querySelectorAll('.roadmap-month-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const parent = this.closest('.flex.flex-col');
@@ -274,6 +353,30 @@ const roadmap = months.map((month, monthIndex) => ({
                 if (chevron) { chevron.classList.remove('fa-chevron-right', 'text-gray-400'); chevron.classList.add('fa-chevron-down', 'text-pink-500'); }
             });
         });
+
+        document.addEventListener('click', function(e) {
+            const weekRow = e.target.closest('.roadmap-week-row');
+            if (weekRow) {
+                const month = parseInt(weekRow.getAttribute('data-month'));
+                const week = parseInt(weekRow.getAttribute('data-week'));
+                const monthIdx = month - 1;
+                const weekIdx = week - 1;
+                renderGameGrid(monthIdx, weekIdx);
+                updateGameDetail(monthIdx, weekIdx, 0);
+            }
+        });
+
+        document.addEventListener('click', function(e) {
+            const card = e.target.closest('.game-card-button');
+            if (card) {
+                const monthIdx = parseInt(card.getAttribute('data-month-idx'));
+                const weekIdx = parseInt(card.getAttribute('data-week-idx'));
+                const gameIdx = parseInt(card.getAttribute('data-game-idx'));
+                updateGameDetail(monthIdx, weekIdx, gameIdx);
+            }
+        });
+
+        renderGameGrid(0, 0);
     </script>
     <div class="flex flex-col h-screen bg-[#f8f9fa] font-sans overflow-hidden text-slate-800">
         <div class="flex flex-col lg:flex-row flex-1 overflow-hidden relative">
@@ -299,7 +402,7 @@ const roadmap = months.map((month, monthIndex) => ({
                                 </button>
 
                                 <div data-weeks-for={monthIndex} class={`ml-7 border-l-[1.5px] border-pink-200 mt-2 mb-3 pl-4 space-y-1.5 relative overflow-hidden transition-all duration-300 ease-in-out ${monthIndex !== 0 ? 'hidden' : ''}`}>
-                                    <div class="flex justify-between items-center py-1.5 text-sm font-bold text-pink-600 cursor-pointer rounded -ml-4 pl-4 relative">
+                                    <div data-month={month.no} data-week="1" class="roadmap-week-row flex justify-between items-center py-1.5 text-sm font-bold text-pink-600 cursor-pointer rounded -ml-4 pl-4 relative">
                                         <div class="absolute left-[calc(-1rem-4.5px)] top-1/2 -translate-y-1/2 w-[8px] h-[8px] rounded-full bg-white border-2 border-pink-500 -ml-[0.5px]"></div>
                                         <div class="flex items-center gap-2">
                                             Week 1
@@ -307,7 +410,7 @@ const roadmap = months.map((month, monthIndex) => ({
                                         <span class="text-xs text-pink-400 font-medium">3/3</span>
                                     </div>
                                     {[2,3,4].map(w => (
-                                        <div key={w} class="flex justify-between items-center py-1.5 text-sm font-medium text-slate-500 hover:text-slate-800 cursor-pointer rounded -ml-4 pl-4 transition-colors relative group">
+                                        <div key={w} data-month={month.no} data-week={w} class="roadmap-week-row flex justify-between items-center py-1.5 text-sm font-medium text-slate-500 hover:text-slate-800 cursor-pointer rounded -ml-4 pl-4 transition-colors relative group">
                                             <div class="absolute left-[calc(-1rem-4.5px)] top-1/2 -translate-y-1/2 w-[8px] h-[8px] rounded-full bg-white border-[1.5px] border-gray-200 group-hover:border-slate-400 -ml-[0.5px] transition-colors"></div>
                                             <div class="flex items-center gap-2">
                                                 Week {w}
@@ -352,8 +455,8 @@ const roadmap = months.map((month, monthIndex) => ({
                     {/* Grid header */}
                     <div class="flex items-center justify-between pt-2">
                         <div class="flex items-center gap-3">
-                            <h2 class="text-2xl font-extrabold text-slate-900">Month 1 – Week 1</h2>
-                            <span class="px-3 py-1 rounded-lg bg-[#4f46e5]/10 text-[#4f46e5] text-xs font-bold">3 Games</span>
+                            <h2 id="grid-header-title" class="text-2xl font-extrabold text-slate-900">Month 1 – Week 1</h2>
+                            <span id="grid-header-count" class="px-3 py-1 rounded-lg bg-[#4f46e5]/10 text-[#4f46e5] text-xs font-bold">3 Games</span>
                         </div>
                         <button class="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 text-slate-600 shadow-sm transition-colors">
                             <i class="fa fa-chevron-right" aria-hidden="true"></i>
@@ -361,83 +464,7 @@ const roadmap = months.map((month, monthIndex) => ({
                     </div>
 
                     {/* Game Grid */}
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-                        <div data-game="Neon Jump Runner" data-genre="Runner" data-month="1" data-week="1" class="game-card-button bg-white rounded-3xl border-[2px] border-pink-500 shadow-lg shadow-pink-500/20 overflow-hidden transition-all flex flex-col">
-                            <div class="h-44 w-full bg-cover bg-center relative p-3.5 flex flex-col justify-between bg-[url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=400')]">
-                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                                <div class="flex gap-2 relative z-10">
-                                    <span class="bg-red-500 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm"><i class="fa fa-fire" aria-hidden="true"></i> Trending</span>
-                                </div>
-                            </div>
-                            <div class="p-5 flex flex-col flex-1 relative z-20 -mt-3 bg-white rounded-t-2xl">
-                                <h3 class="font-extrabold text-slate-900 mb-2 text-xl truncate">Neon Jump Runner</h3>
-                                <div class="flex gap-1.5 mb-2.5">
-                                    <span class="bg-[#4f46e5]/10 text-[#4f46e5] text-xs font-bold px-2.5 py-0.5 rounded-md">Runner</span>
-                                </div>
-                                <p class="text-slate-600 text-[13px] mb-4 font-semibold leading-relaxed line-clamp-2">Jump, dodge, collect coins</p>
-                                <div class="flex flex-wrap gap-1.5 mb-5 mt-auto">
-                                    <span class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-green-100 text-green-700">Easy</span>
-                                    <span class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-pink-100 text-pink-700">Kids Favorite</span>
-                                </div>
-                                <div class="flex gap-2 mt-auto">
-                                    <button class="flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Copy Prompts"><i class="fa fa-copy" aria-hidden="true"></i></button>
-                                    <button class="flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Assets"><i class="fa fa-image" aria-hidden="true"></i></button>
-                                    <button class="flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Template"><i class="fa fa-code" aria-hidden="true"></i></button>
-                                    <button class="w-14 bg-[#8b5cf6] hover:bg-purple-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30 transition-transform active:scale-95"><i class="fa fa-play" aria-hidden="true"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                        <div data-game="Tower Obby Climb" data-genre="Obby" data-month="1" data-week="1" class="game-card-button bg-white rounded-3xl border-[2px] border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 overflow-hidden transition-all flex flex-col">
-                            <div class="h-44 w-full bg-cover bg-center relative p-3.5 flex flex-col justify-between bg-[url('https://images.unsplash.com/photo-1622737133809-d95047b9e673?auto=format&fit=crop&q=80&w=400')]">
-                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                                <div class="flex gap-2 relative z-10">
-                                    <span class="bg-red-500 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm"><i class="fa fa-fire" aria-hidden="true"></i> Trending</span>
-                                </div>
-                            </div>
-                            <div class="p-5 flex flex-col flex-1 relative z-20 -mt-3 bg-white rounded-t-2xl">
-                                <h3 class="font-extrabold text-slate-900 mb-2 text-xl truncate">Tower Obby Climb</h3>
-                                <div class="flex gap-1.5 mb-2.5">
-                                    <span class="bg-[#4f46e5]/10 text-[#4f46e5] text-xs font-bold px-2.5 py-0.5 rounded-md">Obby</span>
-                                </div>
-                                <p class="text-slate-600 text-[13px] mb-4 font-semibold leading-relaxed line-clamp-2">Climb, avoid traps, reach top</p>
-                                <div class="flex flex-wrap gap-1.5 mb-5 mt-auto">
-                                    <span class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-green-100 text-green-700">Easy</span>
-                                    <span class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-blue-100 text-blue-700">Fast Loop</span>
-                                </div>
-                                <div class="flex gap-2 mt-auto">
-                                    <button class="flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Copy Prompts"><i class="fa fa-copy" aria-hidden="true"></i></button>
-                                    <button class="flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Assets"><i class="fa fa-image" aria-hidden="true"></i></button>
-                                    <button class="flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Template"><i class="fa fa-code" aria-hidden="true"></i></button>
-                                    <button class="w-14 bg-[#8b5cf6] hover:bg-purple-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30 transition-transform active:scale-95"><i class="fa fa-play" aria-hidden="true"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                        <div data-game="Pet Merge Clicker" data-genre="Clicker" data-month="1" data-week="1" class="game-card-button bg-white rounded-3xl border-[2px] border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 overflow-hidden transition-all flex flex-col">
-                            <div class="h-44 w-full bg-cover bg-center relative p-3.5 flex flex-col justify-between bg-[url('https://images.unsplash.com/photo-1549490349-8643362247b5?auto=format&fit=crop&q=80&w=400')]">
-                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                                <div class="flex gap-2 relative z-10">
-                                    <span class="bg-red-500 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm"><i class="fa fa-fire" aria-hidden="true"></i> Trending</span>
-                                </div>
-                            </div>
-                            <div class="p-5 flex flex-col flex-1 relative z-20 -mt-3 bg-white rounded-t-2xl">
-                                <h3 class="font-extrabold text-slate-900 mb-2 text-xl truncate">Pet Merge Clicker</h3>
-                                <div class="flex gap-1.5 mb-2.5">
-                                    <span class="bg-[#4f46e5]/10 text-[#4f46e5] text-xs font-bold px-2.5 py-0.5 rounded-md">Clicker</span>
-                                </div>
-                                <p class="text-slate-600 text-[13px] mb-4 font-semibold leading-relaxed line-clamp-2">Merge pets, earn coins</p>
-                                <div class="flex flex-wrap gap-1.5 mb-5 mt-auto">
-                                    <span class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-green-100 text-green-700">Easy</span>
-                                    <span class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-pink-100 text-pink-700">Kids Favorite</span>
-                                </div>
-                                <div class="flex gap-2 mt-auto">
-                                    <button class="flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Copy Prompts"><i class="fa fa-copy" aria-hidden="true"></i></button>
-                                    <button class="flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Assets"><i class="fa fa-image" aria-hidden="true"></i></button>
-                                    <button class="flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Template"><i class="fa fa-code" aria-hidden="true"></i></button>
-                                    <button class="w-14 bg-[#8b5cf6] hover:bg-purple-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30 transition-transform active:scale-95"><i class="fa fa-play" aria-hidden="true"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <div id="game-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6"></div>
                 </div>
             </div>
             <aside class="w-full lg:w-[360px] bg-white border-l border-gray-200 flex flex-col shrink-0 overflow-y-auto shadow-[-4px_0_15px_-4px_rgba(0,0,0,0.05)] z-0 relative custom-scrollbar order-first lg:order-last">
@@ -450,7 +477,7 @@ const roadmap = months.map((month, monthIndex) => ({
                 <div class="p-6 flex flex-col gap-6">
                     {/* Main Info */}
                     <div>
-                        <div class="w-full aspect-square rounded-[2rem] bg-slate-100 mb-6 bg-cover bg-center border-4 border-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative" style="background-image: url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=600')">
+                        <div id="selectedGameImage" class="w-full aspect-square rounded-[2rem] bg-slate-100 mb-6 bg-cover bg-center border-4 border-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative" style="background-image: url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=600')">
                         </div>
 
                         <div class="flex justify-between items-start mb-3">
@@ -459,8 +486,8 @@ const roadmap = months.map((month, monthIndex) => ({
                         </div>
 
                         <div class="flex gap-2.5 mb-5">
-                            <span class="bg-[#4f46e5] text-white text-[13px] font-bold px-3 py-1 rounded-lg shadow-sm">Runner</span>
-                            <span class="bg-red-500 text-white text-[13px] font-bold px-3 py-1 rounded-lg flex items-center gap-1 shadow-sm"><i class="fa fa-bolt" aria-hidden="true"></i> Trending</span>
+                            <span id="selectedGameGenre" class="bg-[#4f46e5] text-white text-[13px] font-bold px-3 py-1 rounded-lg shadow-sm">Runner</span>
+                            <span id="selectedGameTrending" class="bg-red-500 text-white text-[13px] font-bold px-3 py-1 rounded-lg flex items-center gap-1 shadow-sm"><i class="fa fa-bolt" aria-hidden="true"></i> Trending</span>
                         </div>
                         <p id="selectedGameDesc" class="text-slate-600 text-[15px] font-medium leading-relaxed">
                             Jump, dodge, collect coins and survive as long as you can!
