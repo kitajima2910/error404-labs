@@ -365,6 +365,9 @@ const roadmap = months.map((month, monthIndex) => ({
                 if (title) title.classList.add('text-pink-600');
                 const chevron = btn.querySelector('.roadmap-month-chevron');
                 if (chevron) { chevron.classList.remove('fa-chevron-right', 'text-gray-400'); chevron.classList.add('fa-chevron-down', 'text-pink-500'); }
+                const monthIdx = parseInt(btn.getAttribute('data-month')) - 1;
+                renderGameGrid(monthIdx, 0);
+                updateGameDetail(monthIdx, 0, 0);
             }
         });
 
