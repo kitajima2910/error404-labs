@@ -1,0 +1,23 @@
+---
+interface Props {
+  icon: string;
+  label: string;
+  color: 'purple' | 'green' | 'blue' | 'yellow';
+}
+
+const { icon, label, color } = Astro.props;
+
+const colorStyles: Record<string, string> = {
+  purple: "bg-[#f3e8ff] border-[#e9d5ff] text-[#7e22ce] hover:bg-[#e9d5ff]",
+  green: "bg-[#dcfce7] border-[#bbf7d0] text-[#15803d] hover:bg-[#bcf0d0]",
+  blue: "bg-[#e0f2fe] border-[#bae6fd] text-[#0369a1] hover:bg-[#bae6fd]",
+  yellow: "bg-[#fef9c3] border-[#fef08a] text-[#a16207] hover:bg-[#fef08a]",
+};
+
+const selectedStyle = colorStyles[color];
+---
+
+<button class={`w-full py-3.5 px-5 rounded-2xl border flex items-center justify-center gap-2.5 font-bold transition-all shadow-sm active:scale-[0.98] ${selectedStyle}`}>
+  <i class={`fa ${icon}`} aria-hidden="true"></i>
+  {label}
+</button>

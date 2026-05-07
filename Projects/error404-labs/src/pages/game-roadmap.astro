@@ -3,6 +3,8 @@ import MainLayout from '../layouts/MainLayout.astro'
 import { TC_TITLE } from '../common/TextConst'
 import GameCell from '../components/roadmap/GameCell.astro'
 import PromptModal from '../components/roadmap/PromptModal.astro'
+import AttributeRow from '../components/roadmap/AttributeRow.astro'
+import ActionButton from '../components/roadmap/ActionButton.astro'
 
 const methods = [
     { icon: '◆', title: 'Project-first', text: 'Mỗi tuần hoàn thiện một game nhỏ', tone: 'bg-emerald-400 text-slate-950' },
@@ -163,6 +165,7 @@ const roadmap = months.map((month, monthIndex) => ({
     description="Tư duy sáng tạo học làm game với AI, mỗi tháng 4 tuần, mỗi tuần có prompt mẫu để thực hành."
     searchable={false}
 >
+    <link rel="stylesheet" href="/font-awesome/css/font-awesome.min.css" />
     <script>
         async function checkAccess() {
             const token = localStorage.getItem('auth_token');
@@ -188,9 +191,29 @@ const roadmap = months.map((month, monthIndex) => ({
                 const user = data.user;
                 window.user = user; // Lưu user để GameCell check
 
+                const lockRoadmapCells = () => {
+                    document.querySelectorAll('.roadmap-game-cell').forEach((cell) => {
+                        const permission = cell.getAttribute('data-permission');
+                        if (!permission) return;
+
+                        const hasAccess = user.roles === 'admin' || user.roles === 'member' || user.prompt_access?.includes(permission);
+
+                        if (!hasAccess) {
+                            cell.classList.add('is-locked');
+                            cell.setAttribute('aria-disabled', 'true');
+                            cell.setAttribute('title', 'Bài học này chưa được mở khóa. Vui lòng liên hệ Admin.');
+                        } else {
+                            cell.classList.remove('is-locked');
+                            cell.removeAttribute('aria-disabled');
+                            cell.removeAttribute('title');
+                        }
+                    });
+                }
+
+                lockRoadmapCells();
 
 
-                if (user.roles !== 'admin' && user.roles !== 'member' && !user.prompt_access.includes('game_roadmap')) {
+                if (user.roles !== 'admin' && user.roles !== 'member' && !user.prompt_access?.includes('game_roadmap')) {
                     // Ẩn hoặc làm mờ phần prompt
                     const promptCard = document.querySelector('.prompt-card');
                     if (promptCard) {
@@ -219,149 +242,431 @@ const roadmap = months.map((month, monthIndex) => ({
 
         checkAccess();
     </script>
-    <section class="roadmap-page min-h-screen overflow-hidden text-white">
-        <div class="mx-auto max-w-[1840px] px-4 py-6 sm:px-6 lg:px-8">
-            <header class="roadmap-hero compact-hero relative overflow-hidden rounded-[28px] border border-white/15 shadow-2xl shadow-indigo-950/40">
-                <div class="relative z-10 grid gap-6 px-5 py-7 sm:px-7 lg:grid-cols-[minmax(360px,0.9fr)_minmax(620px,1.35fr)] lg:items-center xl:px-9 xl:py-9">
-                    <div>
-                        <p class="text-xs font-black uppercase tracking-[0.32em] text-orange-200">Error404-Labs Game Roadmap</p>
-                        <h1 class="hero-title mt-3 text-4xl font-black leading-[0.95] text-white sm:text-6xl xl:text-7xl">
-                            Tư Duy <span>Sáng Tạo</span> Game
-                        </h1>
-                        <p class="mt-5 max-w-3xl text-base font-bold leading-7 text-slate-200">
-                            Làm chủ quy trình thiết kế và tư duy sản phẩm, biến mọi ý tưởng thành bản game hoàn chỉnh thông qua sức mạnh của AI.
-                        </p>
-                    </div>
-                    <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                        {
-                            methods.map((item, methodIndex) => (
-                                <div class="method-card rounded-2xl border border-white/15 bg-white/10 p-4 shadow-xl shadow-indigo-950/20 backdrop-blur-xl">
-                                    <span
-                                        class={`method-icon mb-3 grid h-11 w-11 place-items-center rounded-2xl text-sm font-black shadow-md ${item.tone}`}
-                                        data-method={methodIndex + 1}
-                                    >
-                                        {item.icon}
-                                    </span>
-                                    <strong class="block text-sm font-black text-white">{item.title}</strong>
-                                    <span class="mt-1 block text-xs font-bold leading-5 text-slate-300">{item.text}</span>
-                                </div>
-                            ))
-                        }
+    <div class="flex flex-col h-screen bg-[#f8f9fa] font-sans overflow-hidden text-slate-800">
+        <header class="h-16 bg-[#0f172a] px-4 flex items-center justify-between shrink-0 text-white border-b border-gray-800 shadow-sm relative z-10 lg:px-8">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center shadow-inner">
+                    <i class="fa fa-flask text-white" aria-hidden="true"></i>
+                </div>
+                <span class="font-bold text-xl tracking-tight mr-2 hidden sm:inline">ERROR404<span class="text-gray-300">LABS</span></span>
+                <i class="fa fa-gamepad text-pink-500" aria-hidden="true"></i>
+            </div>
+
+            <div class="flex-1 max-w-2xl px-4 lg:px-8">
+                <div class="relative">
+                    <i class="fa fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden="true"></i>
+                    <input
+                        type="text"
+                        placeholder="Search game..."
+                        class="w-full bg-[#1e293b] text-sm text-gray-200 placeholder-gray-400 rounded-full py-2.5 pl-11 pr-4 outline-none focus:ring-1 focus:ring-pink-500 transition-shadow border border-gray-700/50 shadow-inner"
+                    />
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 lg:gap-3">
+                <button class="hidden sm:flex items-center gap-2 bg-[#1e293b] hover:bg-gray-700 border border-gray-700/50 px-3 lg:px-4 py-2.5 rounded-full text-sm font-semibold transition-colors">
+                    <i class="fa fa-bar-chart text-gray-400" aria-hidden="true"></i>
+                    <span class="hidden lg:inline">My Progress</span>
+                </button>
+                <button class="hidden sm:flex items-center gap-2 bg-[#1e293b] hover:bg-gray-700 border border-gray-700/50 px-3 lg:px-4 py-2.5 rounded-full text-sm font-semibold transition-colors">
+                    <i class="fa fa-heart text-pink-500 fill-pink-500" aria-hidden="true"></i>
+                    <span class="hidden lg:inline">Favorites</span>
+                </button>
+                <button class="hidden sm:flex items-center gap-2 bg-[#1e293b] hover:bg-gray-700 border border-gray-700/50 px-3 lg:px-4 py-2.5 rounded-full text-sm font-semibold transition-colors">
+                    <i class="fa fa-download text-gray-400" aria-hidden="true"></i>
+                    <span class="hidden lg:inline">Export</span>
+                </button>
+                <div class="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-gradient-to-tr from-pink-400 to-indigo-500 overflow-hidden border-2 border-transparent hover:border-pink-500 cursor-pointer p-[1px] lg:p-[2px]">
+                    <div class="w-full h-full bg-[#0f172a] rounded-full overflow-hidden flex items-center justify-center">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix&backgroundColor=b6e3f4" alt="avatar" class="w-full h-full object-cover"/>
                     </div>
                 </div>
-            </header>
+            </div>
+        </header>
+        <div class="flex flex-col lg:flex-row flex-1 overflow-hidden relative">
+            <aside class="w-full lg:w-[280px] bg-white border-r border-gray-200 flex flex-col shrink-0 h-auto lg:h-full overflow-hidden shadow-[2px_0_10px_-4px_rgba(0,0,0,0.05)] z-0 relative">
+                <div class="p-5 flex items-center gap-3 text-slate-800 font-extrabold uppercase tracking-widest text-sm border-b border-gray-100 shrink-0">
+                    <i class="fa fa-map text-blue-600" aria-hidden="true"></i>
+                    ROADMAP
+                </div>
 
-            <div class="mt-6 grid gap-5 xl:grid-cols-[minmax(0,3.4fr)_minmax(300px,1fr)]">
-                <main
-                    class="roadmap-scroll rounded-[28px] border border-white/10 bg-slate-950/45 p-4 shadow-2xl shadow-indigo-950/35 backdrop-blur-xl sm:p-5"
-                    aria-label="Tư duy sáng tạo game"
-                >
-                    <div class="roadmap-grid grid gap-5">
-                        <div
-                            class="roadmap-corner sticky left-0 top-0 z-30 rounded-2xl border border-white/10 px-5 py-4 text-sm font-black uppercase tracking-[0.16em] text-white backdrop-blur-xl"
-                        >
-                            Tháng
-                        </div>
-                        {
-                            weekLabels.map((label, weekLabelIndex) => (
-                                <div
-                                    class="roadmap-week-header sticky top-0 z-20 rounded-2xl border border-white/10 px-5 py-4 text-center text-sm font-black uppercase tracking-[0.16em] text-white backdrop-blur-xl"
-                                    data-week={weekLabelIndex + 1}
-                                >
-                                    {label} - 3 lựa chọn
-                                </div>
-                            ))
-                        }
+                <div class="flex-1 overflow-y-auto p-4 space-y-2">
+                    {
+                        roadmap.map((month, monthIndex) => (
+                            <div key={monthIndex} class="flex flex-col">
+                                <button data-month={month.no} class={`flex items-center w-full text-left p-3 rounded-xl transition-colors ${monthIndex === 0 ? 'bg-pink-50 border border-pink-100 ring-1 ring-pink-500/20' : 'hover:bg-gray-50 border border-transparent'}`}>
+                                    <div class={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${monthIndex === 0 ? 'bg-pink-100 text-pink-500' : 'bg-indigo-50 text-indigo-600'} mr-3 shadow-sm`}>
+                                        <i class={`fa ${month.no === 12 ? 'fa-trophy' : month.no === 10 ? 'fa-android' : month.no === 6 ? 'fa-music' : month.no === 4 ? 'fa-puzzle-piece' : 'fa-gamepad'}`} aria-hidden="true"></i>
+                                    </div>
+                                    <div class="flex-1 min-w-0 flex flex-col justify-center">
+                                        <div class={`font-bold text-sm truncate ${monthIndex === 0 ? 'text-pink-600' : 'text-slate-700'}`}>Month {month.no} - {month.title}</div>
+                                        <div class="text-[11px] text-slate-500 truncate mt-0.5 font-medium">{month.sub}</div>
+                                    </div>
+                                    {monthIndex === 0 ? <i class="fa fa-chevron-down text-pink-500 shrink-0 ml-2" aria-hidden="true"></i> : <i class="fa fa-chevron-right text-gray-400 shrink-0 ml-2" aria-hidden="true"></i>}
+                                </button>
 
-                        {
-                            roadmap.map((month) => (
-                                <section class={`roadmap-month-panel rounded-[24px] border border-white/10 p-4 shadow-xl shadow-indigo-950/25 backdrop-blur-xl ${month.accent}`}>
-                                    <div
-                                        class="roadmap-month mb-4 rounded-2xl border border-white/10 p-4 backdrop-blur-xl"
-                                    >
-                                        <div class="flex flex-wrap items-center gap-4">
-                                            <span class="month-badge grid h-14 w-14 place-items-center rounded-2xl text-xl font-black text-white shadow-lg">
-                                                {month.no}
-                                            </span>
-                                            <div class="min-w-0 flex-1">
-                                                <strong class="block text-lg font-black uppercase leading-tight text-white">{month.title}</strong>
-                                                <span class="mt-2 inline-flex rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs font-black uppercase text-slate-300">
-                                                    {month.sub}
-                                                </span>
+                                {monthIndex === 0 && (
+                                    <div class="ml-7 border-l-[1.5px] border-pink-200 mt-2 mb-3 pl-4 space-y-1.5 relative">
+                                        <div class="flex justify-between items-center py-1.5 text-sm font-bold text-pink-600 cursor-pointer rounded -ml-4 pl-4 relative">
+                                            <div class="absolute left-[calc(-1rem-4.5px)] top-1/2 -translate-y-1/2 w-[8px] h-[8px] rounded-full bg-white border-2 border-pink-500 -ml-[0.5px]"></div>
+                                            <div class="flex items-center gap-2">
+                                                Week 1
                                             </div>
-                                            <span class="month-count rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs font-black uppercase tracking-[0.12em] text-slate-200">
-                                                12 game
-                                            </span>
+                                            <span class="text-xs text-pink-400 font-medium">3/3</span>
                                         </div>
-                                    </div>
-                                    <div class="roadmap-weeks grid gap-3 md:grid-cols-2 2xl:grid-cols-4">
-                                    {month.weeks.map((week, weekIndex) => (
-                                        <article
-                                            class={`roadmap-week rounded-2xl border p-3 ${genreStyles[week.genre] || 'border-slate-200 bg-slate-50 text-slate-700'}`}
-                                        >
-                                            <div class="mb-3 flex items-center justify-between gap-3">
-                                                <h2 class="genre-pill rounded-xl bg-white/10 px-3 py-2 text-xs font-black uppercase tracking-[0.14em] shadow-sm backdrop-blur">
-                                                    {week.genre}
-                                                </h2>
-                                                <span class="week-label rounded-full border border-white/40 bg-white/35 px-2.5 py-1 text-[10px] font-black uppercase text-slate-700">
-                                                    {weekLabels[weekIndex]}
-                                                </span>
+                                        {[2,3,4].map(w => (
+                                            <div key={w} class="flex justify-between items-center py-1.5 text-sm font-medium text-slate-500 hover:text-slate-800 cursor-pointer rounded -ml-4 pl-4 transition-colors relative group">
+                                                <div class="absolute left-[calc(-1rem-4.5px)] top-1/2 -translate-y-1/2 w-[8px] h-[8px] rounded-full bg-white border-[1.5px] border-gray-200 group-hover:border-slate-400 -ml-[0.5px] transition-colors"></div>
+                                                <div class="flex items-center gap-2">
+                                                    Week {w}
+                                                </div>
+                                                <span class="text-[10px] font-bold text-gray-400">0/3</span>
                                             </div>
-                                            <div class="grid gap-2">
-                                                 {week.games.map((game, gameIndex) => (
-                                                     <GameCell
-                                                         game={game.name}
-                                                         genre={week.genre}
-                                                         month={month.no}
-                                                         week={weekIndex + 1}
-                                                         index={gameIndex + 1}
-                                                         permission={`roadmap_m${month.no}_w${weekIndex + 1}`}
-                                                     />
-                                                 ))}
-                                            </div>
-                                        </article>
-                                    ))}
+                                        ))}
                                     </div>
-                                </section>
+                                )}
+                            </div>
+                        ))
+                    }
+                </div>
+
+                <div class="border-t border-gray-100 p-5 shrink-0 bg-white relative">
+                    <div class="text-xs font-bold text-slate-800 mb-1">Overall Progress</div>
+                    <div class="flex items-end justify-between mb-3">
+                        <div class="text-xl font-extrabold text-slate-900">12<span class="text-[11px] font-semibold text-slate-500 ml-1">/ 144 Games</span></div>
+                        <div class="text-xs font-bold text-slate-600 mb-1">8%</div>
+                    </div>
+                    <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden mb-6 shadow-inner">
+                        <div class="h-full bg-gradient-to-r from-teal-400 via-blue-500 to-purple-500 w-[8%] rounded-full shadow-sm"></div>
+                    </div>
+
+                    <div class="relative h-[84px] w-full mt-4">
+                        <img src="https://api.dicebear.com/7.x/fun-emoji/svg?seed=monster&backgroundColor=transparent" alt="cute monster" class="absolute -bottom-2 -left-2 w-28 h-28 object-contain drop-shadow-md origin-bottom-left hover:scale-105 transition-transform" />
+                    </div>
+                </div>
+            </aside>
+            <div class="flex-1 overflow-y-auto min-w-0 custom-scrollbar relative z-0">
+                <div class="p-4 lg:p-8 max-w-6xl mx-auto space-y-6 lg:space-y-8 pb-12">
+                    {/* Top Header stats area */}
+                    <div class="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.05)] relative overflow-hidden flex justify-between items-center">
+                        <div class="z-10 relative">
+                            <h1 class="text-4xl font-extrabold text-[#0f172a] mb-2 flex items-center gap-3">
+                                <i class="fa fa-gamepad text-[#4f46e5]" aria-hidden="true"></i>
+                                144 Game Roadmap
+                                <span class="text-yellow-400 text-3xl -mt-4 drop-shadow-sm">✨</span>
+                            </h1>
+                            <p class="text-slate-600 font-semibold mb-8 text-lg">Build trend-style web games for kids with fast, colorful, easy-to-make templates</p>
+
+                            <div class="flex gap-4">
+                                <div class="bg-pink-50 border border-pink-100 text-pink-500 rounded-3xl p-5 flex flex-col items-center justify-center min-w-[110px] shadow-sm">
+                                    <div class="text-[32px] font-black mb-1 leading-none">144</div>
+                                    <div class="text-[11px] font-bold flex items-center gap-1.5 uppercase tracking-wide">
+                                        Games <i class="fa fa-gamepad" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                                <div class="bg-blue-50 border border-blue-100 text-blue-500 rounded-3xl p-5 flex flex-col items-center justify-center min-w-[110px] shadow-sm">
+                                    <div class="text-[32px] font-black mb-1 leading-none">12</div>
+                                    <div class="text-[11px] font-bold flex items-center gap-1.5 uppercase tracking-wide">
+                                        Months <i class="fa fa-calendar" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                                <div class="bg-green-50 border border-green-100 text-green-500 rounded-3xl p-5 flex flex-col items-center justify-center min-w-[110px] shadow-sm">
+                                    <div class="text-[32px] font-black mb-1 leading-none">48</div>
+                                    <div class="text-[11px] font-bold flex items-center gap-1.5 uppercase tracking-wide">
+                                        Weeks <i class="fa fa-clock-o" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                                <div class="bg-yellow-50 border border-yellow-100 text-yellow-500 rounded-3xl p-5 flex flex-col items-center justify-center min-w-[110px] shadow-sm">
+                                    <div class="text-[32px] font-black mb-1 leading-none">3</div>
+                                    <div class="text-[11px] font-bold flex items-center gap-1.5 uppercase tracking-wide">
+                                        Games / Week <i class="fa fa-trophy" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="absolute right-0 bottom-0 h-[120%] w-[45%] flex items-end justify-end p-2 pointer-events-none opacity-90">
+                            <div class="w-full h-full bg-contain bg-no-repeat bg-right-bottom" style="background-image: url('https://api.dicebear.com/7.x/fun-emoji/svg?seed=gamer&backgroundColor=transparent')"></div>
+                        </div>
+                    </div>
+
+                    {/* Timeline */}
+                    <div class="bg-white rounded-3xl p-8 border border-gray-100 shadow-[0_2px_15px_-4px_rgba(0,0,0,0.05)]">
+                        <div class="flex justify-between items-center text-xs font-bold text-slate-400 mb-6 px-1 uppercase tracking-widest">
+                            <span class="text-pink-500">Month 1</span>
+                            <span>Month 12</span>
+                        </div>
+                        <div class="relative flex justify-between items-center mb-8 px-2">
+                            <div class="absolute left-6 right-6 top-1/2 -translate-y-1/2 h-1.5 bg-[#e2e8f0] rounded-full z-0"></div>
+                            <div class="absolute left-6 w-16 top-1/2 -translate-y-1/2 h-1.5 bg-pink-500 rounded-full z-0"></div>
+
+                            {[1,2,3,4,5,6,7,8,9,10,11,12].map(m => (
+                                <div key={m} class={`w-9 h-9 rounded-full flex items-center justify-center font-extrabold text-sm z-10 relative shadow-sm ${m === 1 ? 'bg-pink-500 text-white ring-4 ring-pink-100' : 'bg-[#4f46e5] text-white border-[3px] border-white shadow-md'}`}>
+                                    {m === 12 ? <i class="fa fa-trophy" aria-hidden="true"></i> : m}
+                                </div>
+                            ))}
+                        </div>
+                        <div class="flex justify-center mt-2">
+                            <button class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-8 rounded-full shadow-lg shadow-pink-500/30 transition-transform active:scale-95 flex items-center gap-2 text-[15px]">
+                                <i class="fa fa-target" aria-hidden="true"></i> Start with trending game
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Filter tags (first row) */}
+                    <div class="flex items-center gap-2.5 flex-wrap">
+                        {["All", "Runner", "Obby", "Obstacles", "Tycoon", "Clicker", "Collect", "Race", "Puzzle", "Rhythm", "Boss Fight", "Pet", "Simulator"].map(tag => (
+                            <button key={tag} class={`px-4 py-2 rounded-xl text-[13px] font-bold border transition-colors ${tag === 'All' ? 'bg-pink-500 text-white border-pink-500 shadow-md shadow-pink-500/20' : 'bg-white text-slate-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50 shadow-sm'}`}>
+                                {tag}
+                            </button>
+                        ))}
+                        <button class="px-5 py-2 rounded-xl text-[13px] font-bold border border-gray-200 bg-white text-slate-700 hover:bg-gray-50 flex items-center gap-2 ml-auto shadow-sm transition-colors">
+                            <i class="fa fa-filter" aria-hidden="true"></i> Filters
+                        </button>
+                    </div>
+
+                    {/* Filter tags (second row) */}
+                    <div class="flex items-center justify-between pb-4 border-b border-gray-100">
+                        <div class="flex items-center gap-2.5">
+                            <button class="px-3.5 py-1.5 bg-[#fef2f2] text-red-600 rounded-lg text-[13px] font-bold border border-red-100 flex items-center gap-1.5"><i class="fa fa-fire" aria-hidden="true"></i> Trending</button>
+                            <button class="px-3.5 py-1.5 bg-white text-slate-600 rounded-lg text-[13px] font-semibold border border-gray-200 flex items-center gap-1.5 hover:bg-gray-50"><i class="fa fa-bolt" aria-hidden="true"></i> Short session</button>
+                            <button class="px-3.5 py-1.5 bg-white text-slate-600 rounded-lg text-[13px] font-semibold border border-gray-200 flex items-center gap-1.5 hover:bg-gray-50"><i class="fa fa-hand-paper-o" aria-hidden="true"></i> One hand play</button>
+                            <button class="px-3.5 py-1.5 bg-white text-slate-600 rounded-lg text-[13px] font-semibold border border-gray-200 flex items-center gap-1.5 hover:bg-gray-50"><i class="fa fa-puzzle-piece" aria-hidden="true"></i> Low complexity</button>
+                            <button class="px-3.5 py-1.5 bg-white text-slate-600 rounded-lg text-[13px] font-semibold border border-gray-200 flex items-center gap-1.5 hover:bg-gray-50"><i class="fa fa-repeat" aria-hidden="true"></i> Viral loop</button>
+                            <button class="px-3.5 py-1.5 bg-white text-slate-600 rounded-lg text-[13px] font-semibold border border-gray-200 flex items-center gap-1.5 hover:bg-gray-50"><i class="fa fa-mobile" aria-hidden="true"></i> Mobile first</button>
+                        </div>
+                        <button class="text-[13px] font-bold text-slate-500 flex items-center gap-1 hover:text-slate-800 transition-colors">Sort by: Newest <i class="fa fa-chevron-down" aria-hidden="true"></i></button>
+                    </div>
+
+                    {/* Grid header */}
+                    <div class="flex items-center justify-between pt-2">
+                        <div class="flex items-center gap-3">
+                            <h2 class="text-2xl font-extrabold text-slate-900">Month 1 – Week 1</h2>
+                            <span class="px-3 py-1 rounded-lg bg-[#4f46e5]/10 text-[#4f46e5] text-xs font-bold">3 Games</span>
+                        </div>
+                        <button class="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 text-slate-600 shadow-sm transition-colors">
+                            <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                        </button>
+                    </div>
+
+                    {/* Game Grid */}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+                        <div data-game="Neon Jump Runner" data-genre="Runner" data-month="1" data-week="1" class="game-card-button bg-white rounded-3xl border-[2px] border-pink-500 shadow-lg shadow-pink-500/20 overflow-hidden transition-all flex flex-col">
+                            <div class="h-44 w-full bg-cover bg-center relative p-3.5 flex flex-col justify-between bg-[url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=400')]">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                                <div class="flex gap-2 relative z-10">
+                                    <span class="bg-red-500 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm"><i class="fa fa-fire" aria-hidden="true"></i> Trending</span>
+                                </div>
+                            </div>
+                            <div class="p-5 flex flex-col flex-1 relative z-20 -mt-3 bg-white rounded-t-2xl">
+                                <h3 class="font-extrabold text-slate-900 mb-2 text-xl truncate">Neon Jump Runner</h3>
+                                <div class="flex gap-1.5 mb-2.5">
+                                    <span class="bg-[#4f46e5]/10 text-[#4f46e5] text-xs font-bold px-2.5 py-0.5 rounded-md">Runner</span>
+                                </div>
+                                <p class="text-slate-600 text-[13px] mb-4 font-semibold leading-relaxed line-clamp-2">Jump, dodge, collect coins</p>
+                                <div class="flex flex-wrap gap-1.5 mb-5 mt-auto">
+                                    <span class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-green-100 text-green-700">Easy</span>
+                                    <span class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-pink-100 text-pink-700">Kids Favorite</span>
+                                </div>
+                                <div class="flex gap-2 mt-auto">
+                                    <button class="flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Copy Prompts"><i class="fa fa-copy" aria-hidden="true"></i></button>
+                                    <button class="flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Assets"><i class="fa fa-image" aria-hidden="true"></i></button>
+                                    <button class="flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Template"><i class="fa fa-code" aria-hidden="true"></i></button>
+                                    <button class="w-14 bg-[#8b5cf6] hover:bg-purple-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30 transition-transform active:scale-95"><i class="fa fa-play" aria-hidden="true"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div data-game="Tower Obby Climb" data-genre="Obby" data-month="1" data-week="1" class="game-card-button bg-white rounded-3xl border-[2px] border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 overflow-hidden transition-all flex flex-col">
+                            <div class="h-44 w-full bg-cover bg-center relative p-3.5 flex flex-col justify-between bg-[url('https://images.unsplash.com/photo-1622737133809-d95047b9e673?auto=format&fit=crop&q=80&w=400')]">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                                <div class="flex gap-2 relative z-10">
+                                    <span class="bg-red-500 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm"><i class="fa fa-fire" aria-hidden="true"></i> Trending</span>
+                                </div>
+                            </div>
+                            <div class="p-5 flex flex-col flex-1 relative z-20 -mt-3 bg-white rounded-t-2xl">
+                                <h3 class="font-extrabold text-slate-900 mb-2 text-xl truncate">Tower Obby Climb</h3>
+                                <div class="flex gap-1.5 mb-2.5">
+                                    <span class="bg-[#4f46e5]/10 text-[#4f46e5] text-xs font-bold px-2.5 py-0.5 rounded-md">Obby</span>
+                                </div>
+                                <p class="text-slate-600 text-[13px] mb-4 font-semibold leading-relaxed line-clamp-2">Climb, avoid traps, reach top</p>
+                                <div class="flex flex-wrap gap-1.5 mb-5 mt-auto">
+                                    <span class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-green-100 text-green-700">Easy</span>
+                                    <span class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-blue-100 text-blue-700">Fast Loop</span>
+                                </div>
+                                <div class="flex gap-2 mt-auto">
+                                    <button class="flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Copy Prompts"><i class="fa fa-copy" aria-hidden="true"></i></button>
+                                    <button class="flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Assets"><i class="fa fa-image" aria-hidden="true"></i></button>
+                                    <button class="flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Template"><i class="fa fa-code" aria-hidden="true"></i></button>
+                                    <button class="w-14 bg-[#8b5cf6] hover:bg-purple-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30 transition-transform active:scale-95"><i class="fa fa-play" aria-hidden="true"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div data-game="Pet Merge Clicker" data-genre="Clicker" data-month="1" data-week="1" class="game-card-button bg-white rounded-3xl border-[2px] border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 overflow-hidden transition-all flex flex-col">
+                            <div class="h-44 w-full bg-cover bg-center relative p-3.5 flex flex-col justify-between bg-[url('https://images.unsplash.com/photo-1549490349-8643362247b5?auto=format&fit=crop&q=80&w=400')]">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                                <div class="flex gap-2 relative z-10">
+                                    <span class="bg-red-500 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm"><i class="fa fa-fire" aria-hidden="true"></i> Trending</span>
+                                </div>
+                            </div>
+                            <div class="p-5 flex flex-col flex-1 relative z-20 -mt-3 bg-white rounded-t-2xl">
+                                <h3 class="font-extrabold text-slate-900 mb-2 text-xl truncate">Pet Merge Clicker</h3>
+                                <div class="flex gap-1.5 mb-2.5">
+                                    <span class="bg-[#4f46e5]/10 text-[#4f46e5] text-xs font-bold px-2.5 py-0.5 rounded-md">Clicker</span>
+                                </div>
+                                <p class="text-slate-600 text-[13px] mb-4 font-semibold leading-relaxed line-clamp-2">Merge pets, earn coins</p>
+                                <div class="flex flex-wrap gap-1.5 mb-5 mt-auto">
+                                    <span class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-green-100 text-green-700">Easy</span>
+                                    <span class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-pink-100 text-pink-700">Kids Favorite</span>
+                                </div>
+                                <div class="flex gap-2 mt-auto">
+                                    <button class="flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Copy Prompts"><i class="fa fa-copy" aria-hidden="true"></i></button>
+                                    <button class="flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Assets"><i class="fa fa-image" aria-hidden="true"></i></button>
+                                    <button class="flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Template"><i class="fa fa-code" aria-hidden="true"></i></button>
+                                    <button class="w-14 bg-[#8b5cf6] hover:bg-purple-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30 transition-transform active:scale-95"><i class="fa fa-play" aria-hidden="true"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <aside class="w-full lg:w-[360px] bg-white border-l border-gray-200 flex flex-col shrink-0 overflow-y-auto shadow-[-4px_0_15px_-4px_rgba(0,0,0,0.05)] z-0 relative custom-scrollbar order-first lg:order-last">
+                <div class="p-4 border-b border-gray-100 flex gap-2">
+                    <button class="flex-1 bg-yellow-50 text-yellow-700 border border-yellow-200 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition-colors"><i class="fa fa-gamepad" aria-hidden="true"></i> Kids Trend Mode</button>
+                    <button class="flex-1 bg-white text-slate-600 hover:bg-gray-50 border border-gray-200 py-2 rounded-xl text-[11px] font-bold shadow-sm transition-colors">Study Mode</button>
+                    <button class="flex-1 bg-white text-slate-600 hover:bg-gray-50 border border-gray-200 py-2 rounded-xl text-[11px] font-bold shadow-sm transition-colors">Vibe Coding Mode</button>
+                </div>
+
+                <div class="p-6 flex flex-col gap-6">
+                    {/* Main Info */}
+                    <div>
+                        <div class="w-full aspect-square rounded-[2rem] bg-slate-100 mb-6 bg-cover bg-center border-4 border-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative" style="background-image: url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=600')">
+                        </div>
+
+                        <div class="flex justify-between items-start mb-3">
+                            <h2 id="selectedGameTitle" class="text-[26px] font-extrabold text-slate-900 leading-tight">Neon Jump Runner</h2>
+                            <button class="text-gray-300 hover:text-yellow-400 transition-colors mt-1.5 bg-gray-50 p-1.5 rounded-full hover:bg-yellow-50"><i class="fa fa-star-o" aria-hidden="true"></i></button>
+                        </div>
+
+                        <div class="flex gap-2.5 mb-5">
+                            <span class="bg-[#4f46e5] text-white text-[13px] font-bold px-3 py-1 rounded-lg shadow-sm">Runner</span>
+                            <span class="bg-red-500 text-white text-[13px] font-bold px-3 py-1 rounded-lg flex items-center gap-1 shadow-sm"><i class="fa fa-bolt" aria-hidden="true"></i> Trending</span>
+                        </div>
+                        <p id="selectedGameDesc" class="text-slate-600 text-[15px] font-medium leading-relaxed">
+                            Jump, dodge, collect coins and survive as long as you can!
+                        </p>
+                    </div>
+
+                    <div class="h-px bg-gray-100 w-full mb-1"></div>
+
+                    {/* Attributes List */}
+                    <div class="space-y-5">
+                        <AttributeRow icon="fa-refresh" label="Core Loop">Jump → Dodge → Collect → Survive</AttributeRow>
+                        <AttributeRow icon="fa-keyboard-o" label="Controls">Arrow Keys / Tap / Swipe</AttributeRow>
+                        <AttributeRow icon="fa-mobile" label="Platform">
+                            <div class="flex items-center gap-4">
+                                <span class="flex items-center gap-1.5 text-slate-700 font-bold"><i class="fa fa-mobile" aria-hidden="true"></i> Mobile</span>
+                                <span class="flex items-center gap-1.5 text-slate-700 font-bold"><i class="fa fa-desktop" aria-hidden="true"></i> Desktop</span>
+                            </div>
+                        </AttributeRow>
+                        <AttributeRow icon="fa-paint-brush" label="Art Style">Neon</AttributeRow>
+                        <AttributeRow icon="fa-gauge" label="Difficulty">Easy</AttributeRow>
+                        <AttributeRow icon="fa-clock-o" label="Build Time">2 - 4 hours</AttributeRow>
+                    </div>
+
+                    <div class="h-px bg-gray-100 w-full mt-1"></div>
+
+                    {/* Action Buttons */}
+                    <div class="flex flex-col gap-3 mt-1 pb-4">
+                        <ActionButton icon="fa-copy" label="Copy Prompt" color="purple" />
+                        <ActionButton icon="fa-image" label="Generate Assets" color="green" />
+                        <ActionButton icon="fa-code" label="Open Template" color="blue" />
+                        <ActionButton icon="fa-download" label="Export HTML5" color="yellow" />
+                    </div>
+                </div>
+
+                {/* Mẹo Prompt cho Game Card */}
+                <div class="p-6">
+                    <div class="bg-white rounded-3xl border-[1.5px] border-indigo-100 shadow-[0_4px_20px_-4px_rgba(99,102,241,0.15)] overflow-hidden">
+                        <div class="bg-indigo-50/70 p-5 border-b border-indigo-100 flex items-center gap-4">
+                            <div class="w-12 h-12 bg-white shadow-sm text-indigo-600 rounded-2xl flex items-center justify-center shrink-0 border border-indigo-100">
+                                <i class="fa fa-magic" aria-hidden="true"></i>
+                            </div>
+                            <h2 class="text-xl font-extrabold text-slate-800">Mẹo Prompt cho Game</h2>
+                        </div>
+                        <div class="p-6">
+                            <div class="text-xs font-bold text-slate-800 mb-3 uppercase tracking-wider">Prompt Template</div>
+                            <div class="bg-gray-50 border border-gray-200 rounded-2xl p-5 text-sm text-slate-700 leading-relaxed relative min-h-[120px] font-medium shadow-inner">
+                                RULE:
+                                - Không rewrite game
+                                - Không sửa logic cũ
+                                - Chỉ tác động trong TARGET
+
+                                TARGET:
+                                (mô tả rõ chỗ cần sửa)
+
+                                ACTION:
+                                (chỉ chọn 1: add / fix / update / remove)
+                                <button class="absolute bottom-4 right-5 text-indigo-600 text-[13px] font-bold flex items-center gap-1.5 hover:text-indigo-800 transition-colors bg-white px-3 py-1.5 rounded-lg shadow-sm border border-indigo-100">Copy All <i class="fa fa-arrow-right" aria-hidden="true"></i></button>
+                            </div>
+                            <button class="w-full mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-5 rounded-2xl shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 transition-colors">
+                                <i class="fa fa-magic" aria-hidden="true"></i> Sử dụng Template
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
                             ))
                         }
                     </div>
                 </main>
 
-                <aside class="roadmap-sidebar grid content-start gap-4 xl:sticky xl:top-5">
-                    <section class="sidebar-card rounded-[24px] border border-white/15 bg-white/10 p-5 shadow-xl shadow-indigo-950/20 backdrop-blur-xl">
-                        <h2 class="flex items-center gap-3 text-sm font-black uppercase tracking-[0.12em] text-emerald-200">
-                            <span class="sidebar-icon bg-emerald-400 text-slate-950">C</span>
-                            Cách hoạt động
-                        </h2>
-                        <ol class="mt-4 space-y-3 text-sm font-bold leading-6 text-slate-300">
-                            <li>Chọn 1 trong 3 game gợi ý.</li>
-                            <li>Đọc prompt mẫu và tạo game với AI tool.</li>
-                            <li>Chơi thử, chỉnh sửa, thêm ý tưởng cá nhân.</li>
-                            <li>Hoàn thành và chia sẻ sản phẩm.</li>
-                        </ol>
-                    </section>
-
-                    <section class="sidebar-card rounded-[24px] border border-white/15 bg-white/10 p-5 shadow-xl shadow-indigo-950/20 backdrop-blur-xl">
-                        <h2 class="flex items-center gap-3 text-sm font-black uppercase tracking-[0.12em] text-indigo-200">
-                            <span class="sidebar-icon bg-indigo-400 text-white">AI</span>
-                            Tool sử dụng
-                        </h2>
-                        <div class="mt-4 grid gap-3">
-                            <p class="tool-row"><strong>Gemini</strong><span>Phác thảo kiến trúc ý tưởng đột phá</span></p>
-                            <p class="tool-row"><strong>ChatGPT</strong><span>Giải mã thuật toán, tối ưu quy trình</span></p>
-                            <p class="tool-row"><strong>Astrocade</strong><span>Dựng prototype 2D thần tốc, không cần code</span></p>
-                            <p class="tool-row"><strong>AI Studio</strong><span>Thử nghiệm prompt và mô hình chuyên sâu</span></p>
-                            <p class="tool-row"><strong>Deepseek</strong><span>Tối ưu hiệu năng và logic phức tạp</span></p>
-                            <p class="tool-row"><strong>Qwen</strong><span>Hiểu ngữ cảnh, sáng tạo nội dung đa ngôn ngữ</span></p>
+                <aside class="roadmap-sidebar grid content-start gap-4 xl:sticky xl:top-5 xl:max-h-[calc(100vh-2.5rem)] xl:overflow-y-auto">
+                    <section class="right-detail-card rounded-[28px] border border-slate-100 bg-white p-5 text-slate-900 shadow-2xl shadow-indigo-950/10">
+                        <div class="game-preview mb-5 grid aspect-square place-items-center rounded-[32px] border-4 border-white bg-gradient-to-br from-indigo-600 via-fuchsia-500 to-orange-400 shadow-xl shadow-indigo-950/20">
+                            <i class="fa fa-gamepad text-6xl text-white drop-shadow" aria-hidden="true"></i>
+                        </div>
+                        <div class="mb-3 flex items-start justify-between gap-3">
+                            <h2 id="selectedGameTitle" class="text-2xl font-black leading-tight text-slate-950">Neon Jump Runner</h2>
+                            <button class="grid h-9 w-9 place-items-center rounded-full bg-yellow-50 text-yellow-400 transition hover:bg-yellow-100" type="button" aria-label="Đánh dấu yêu thích">
+                                <i class="fa fa-star-o" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                        <div class="mb-5 flex flex-wrap gap-2">
+                            <span id="selectedGameGenre" class="rounded-lg bg-indigo-600 px-3 py-1 text-xs font-black text-white">Runner</span>
+                            <span id="selectedGameMeta" class="rounded-lg bg-red-500 px-3 py-1 text-xs font-black text-white">
+                                <i class="fa fa-bolt" aria-hidden="true"></i> Tháng 1 - Tuần 1
+                            </span>
+                        </div>
+                        <p id="selectedGameDesc" class="text-sm font-bold leading-6 text-slate-600">
+                            Chọn game trong lộ trình để xem nhanh thông tin trước khi mở prompt mẫu.
+                        </p>
+                        <div class="my-5 h-px bg-slate-100"></div>
+                        <div class="grid gap-4 text-sm">
+                            <p class="attribute-row">
+                                <span><i class="fa fa-refresh" aria-hidden="true"></i> Core Loop</span>
+                                <strong id="selectedGameLoop">Jump - Dodge - Collect - Survive</strong>
+                            </p>
+                            <p class="attribute-row">
+                                <span><i class="fa fa-keyboard-o" aria-hidden="true"></i> Controls</span>
+                                <strong>Keyboard / Tap / Swipe</strong>
+                            </p>
+                            <p class="attribute-row">
+                                <span><i class="fa fa-mobile" aria-hidden="true"></i> Platform</span>
+                                <strong>Mobile + Desktop</strong>
+                            </p>
+                            <p class="attribute-row">
+                                <span><i class="fa fa-clock-o" aria-hidden="true"></i> Build Time</span>
+                                <strong>2 - 4 hours</strong>
+                            </p>
                         </div>
                     </section>
 
-                    <section class="sidebar-card prompt-card rounded-[24px] border border-white/15 bg-white/10 p-5 shadow-xl shadow-indigo-950/20 backdrop-blur-xl opacity-0 pointer-events-none">
+                    <section class="sidebar-card prompt-card rounded-[28px] border border-white/15 bg-white/10 p-5 shadow-xl shadow-indigo-950/20 backdrop-blur-xl opacity-0 pointer-events-none">
                         <div class="prompt-protocol-head flex items-start justify-between gap-3">
                             <div>
                                 <h2 class="flex items-center gap-3 text-sm font-black uppercase tracking-[0.12em] text-orange-200">
-                                    <span class="sidebar-icon bg-orange-400 text-slate-950">M</span>
+                                    <span class="sidebar-icon bg-orange-400 text-slate-950"><i class="fa fa-magic" aria-hidden="true"></i></span>
                                     Mẹo Prompt cho Game
                                 </h2>
                                 <span class="protocol-code mt-2 inline-flex">PROTOCOL / AI-GAME-03</span>
@@ -392,24 +697,72 @@ const roadmap = months.map((month, monthIndex) => ({
                          </div>
                          <button class="use-template-btn" type="button">Sử dụng template</button>
                     </section>
-
-                    <section class="sidebar-card rounded-[24px] border border-white/15 bg-white/10 p-5 shadow-xl shadow-indigo-950/20 backdrop-blur-xl">
-                        <h2 class="flex items-center gap-3 text-sm font-black uppercase tracking-[0.12em] text-rose-200">
-                            <span class="sidebar-icon bg-rose-400 text-white">L</span>
-                            Lợi ích khóa học
-                        </h2>
-                        <ul class="mt-4 space-y-3 text-sm font-bold leading-6 text-slate-300">
-                            <li>Phát triển tư duy logic và sáng tạo.</li>
-                            <li>Rèn kỹ năng giải quyết vấn đề.</li>
-                            <li>Tự tin tạo sản phẩm cá nhân.</li>
-                            <li>Chuẩn bị nền tảng cho tương lai AI.</li>
-                        </ul>
-                    </section>
                 </aside>
             </div>
         </div>
     </section>
     <PromptModal />
+    <script>
+        const initRoadmapInteractions = () => {
+            // Sidebar month click to scroll
+            document.addEventListener('click', (event) => {
+                const monthLink = event.target?.closest?.('button[data-month]')
+                if (monthLink) {
+                    const monthId = monthLink.getAttribute('data-month')
+                    if (monthId) {
+                        const target = document.getElementById(`month-${monthId}`)
+                        if (target) {
+                            target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                        }
+                    }
+                }
+            })
+
+            // GameCard click to update right panel
+            const updateRightPanel = (gameData) => {
+                const title = document.getElementById('selectedGameTitle')
+                const genre = document.getElementById('selectedGameGenre')
+                const meta = document.getElementById('selectedGameMeta')
+                const desc = document.getElementById('selectedGameDesc')
+
+                if (title) title.textContent = gameData.name || 'Neon Jump Runner'
+                if (genre) genre.textContent = gameData.genre || 'Runner'
+                if (meta) meta.innerHTML = `<i class="fa fa-bolt" aria-hidden="true"></i> Tháng ${gameData.month || '1'} - Tuần ${gameData.week || '1'}`
+                if (desc) desc.textContent = `${gameData.name || 'Neon Jump Runner'} thuộc nhóm ${gameData.genre || 'Runner'}. Bấm card để mở prompt mẫu và thực hành với AI tool.`
+
+                // Update image if needed
+                const preview = document.querySelector('.game-preview')
+                if (preview) {
+                    // Could update background image based on game
+                }
+            }
+
+            document.addEventListener('click', (event) => {
+                const gameCard = event.target?.closest?.('.game-card-button')
+                if (gameCard) {
+                    const gameData = {
+                        name: gameCard.dataset.game,
+                        genre: gameCard.dataset.genre,
+                        month: gameCard.dataset.month,
+                        week: gameCard.dataset.week
+                    }
+                    updateRightPanel(gameData)
+                    // Highlight selected card
+                    document.querySelectorAll('.game-card-button').forEach(btn => btn.classList.remove('border-pink-500', 'shadow-lg', 'shadow-pink-500/20'))
+                    gameCard.classList.add('border-pink-500', 'shadow-lg', 'shadow-pink-500/20')
+                }
+            })
+
+            // Initialize with first game
+            const firstCard = document.querySelector('.game-card-button')
+            if (firstCard) {
+                firstCard.click()
+            }
+        }
+
+        initRoadmapInteractions()
+        document.addEventListener('astro:page-load', initRoadmapInteractions)
+    </script>
     <script>
         const initPromptTipCopy = () => {
             const promptTemplate = `RULE:
@@ -445,7 +798,7 @@ ACTION:
                     button.textContent = 'Copied!'
                     button.classList.add('is-copied')
                     window.setTimeout(() => {
-                        button.textContent = 'Copy'
+                        button.textContent = 'Copy All'
                         button.classList.remove('is-copied')
                     }, 1200)
                 })
@@ -579,9 +932,38 @@ ACTION:
             }
         })
     </script>
+
+
+
+    <style is:global>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+        * {
+            font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
 </MainLayout>
 
 <style>
+    html {
+        scroll-behavior: smooth;
+    }
+
     .roadmap-page {
         background:
             radial-gradient(circle at 12% 5%, rgba(249, 115, 22, 0.38), transparent 28%),
@@ -589,6 +971,177 @@ ACTION:
             radial-gradient(circle at 50% 52%, rgba(14, 165, 233, 0.2), transparent 34%),
             linear-gradient(135deg, #020617 0%, #111827 44%, #312e81 100%);
         position: relative;
+    }
+
+    .roadmap-dashboard {
+        align-items: start;
+    }
+
+    .roadmap-left-sidebar {
+        scrollbar-color: #6366f1 #f1f5f9;
+        scrollbar-width: thin;
+    }
+
+    .month-nav-icon {
+        display: grid;
+        width: 38px;
+        height: 38px;
+        flex-shrink: 0;
+        place-items: center;
+        border-radius: 14px;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+    }
+
+    .month-nav-link {
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+    }
+
+    .month-week-list span {
+        position: relative;
+    }
+
+    .month-week-list span::before {
+        content: '';
+        position: absolute;
+        left: -21px;
+        top: 50%;
+        width: 8px;
+        height: 8px;
+        border: 2px solid currentColor;
+        border-radius: 999px;
+        background: #fff;
+        transform: translateY(-50%);
+    }
+
+    .dashboard-hero,
+    .timeline-card,
+    .right-detail-card {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .dashboard-hero::before {
+        content: '';
+        position: absolute;
+        inset: auto -8% -44% auto;
+        width: 320px;
+        height: 220px;
+        border-radius: 999px;
+        background: radial-gradient(circle, rgba(236, 72, 153, 0.22), transparent 68%);
+        pointer-events: none;
+    }
+
+    .stat-card {
+        display: grid;
+        min-width: 92px;
+        gap: 4px;
+        place-items: center;
+        border-width: 1px;
+        border-radius: 24px;
+        padding: 16px;
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+    }
+
+    .stat-card strong {
+        font-size: 30px;
+        font-weight: 950;
+        line-height: 1;
+    }
+
+    .stat-card span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .timeline-dot {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        width: 36px;
+        height: 36px;
+        place-items: center;
+        border: 3px solid #ffffff;
+        border-radius: 999px;
+        background: #4f46e5;
+        color: #ffffff;
+        font-size: 13px;
+        font-weight: 950;
+        box-shadow: 0 8px 18px rgba(79, 70, 229, 0.22);
+        transition:
+            transform 160ms ease,
+            box-shadow 160ms ease;
+    }
+
+    .timeline-dot:hover,
+    .timeline-dot.is-active {
+        background: #ec4899;
+        box-shadow: 0 10px 24px rgba(236, 72, 153, 0.32);
+        transform: translateY(-2px);
+    }
+
+    .game-preview {
+        background-size: 160% 160%;
+        animation: previewShift 8s ease infinite;
+    }
+
+    @keyframes previewShift {
+        0%,
+        100% {
+            background-position: 0% 50%;
+        }
+
+        50% {
+            background-position: 100% 50%;
+        }
+    }
+
+    .attribute-row {
+        display: grid;
+        grid-template-columns: 116px minmax(0, 1fr);
+        gap: 12px;
+        align-items: start;
+    }
+
+    .attribute-row span {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #64748b;
+        font-weight: 900;
+    }
+
+    .attribute-row span i {
+        display: grid;
+        width: 24px;
+        height: 24px;
+        place-items: center;
+        border-radius: 8px;
+        background: #eff6ff;
+        color: #2563eb;
+    }
+
+    .attribute-row strong {
+        min-width: 0;
+        color: #1e293b;
+        font-weight: 900;
+        line-height: 1.45;
+    }
+
+    .roadmap-game-cell.is-selected {
+        border-color: rgba(236, 72, 153, 0.72);
+        box-shadow:
+            0 18px 34px rgba(236, 72, 153, 0.18),
+            inset 0 0 0 1px rgba(236, 72, 153, 0.2);
+    }
+
+    .roadmap-game-cell.is-locked {
+        opacity: 0.56;
+        filter: grayscale(0.45);
     }
 
     .roadmap-page::before {
