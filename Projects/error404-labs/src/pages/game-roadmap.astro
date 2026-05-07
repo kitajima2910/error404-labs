@@ -321,6 +321,44 @@ const roadmap = months.map((month, monthIndex) => ({
             document.getElementById('selectedGameImage').style.backgroundImage = "url('" + img + "')";
         }
 
+        function highlightWeek(monthIdx, weekIdx) {
+            const container = document.querySelector(`[data-weeks-for="${monthIdx}"]`);
+            if (!container) return;
+            const weekNum = weekIdx + 1;
+
+            container.querySelectorAll('.roadmap-week-row').forEach(row => {
+                const isTarget = parseInt(row.getAttribute('data-week')) === weekNum;
+
+                row.classList.toggle('font-bold', isTarget);
+                row.classList.toggle('text-pink-600', isTarget);
+                row.classList.toggle('font-medium', !isTarget);
+                row.classList.toggle('text-slate-500', !isTarget);
+                row.classList.toggle('hover:text-slate-800', !isTarget);
+                row.classList.toggle('transition-colors', !isTarget);
+                row.classList.toggle('group', !isTarget);
+
+                const dot = row.querySelector('.absolute');
+                if (dot) {
+                    dot.classList.toggle('border-2', isTarget);
+                    dot.classList.toggle('border-pink-500', isTarget);
+                    dot.classList.toggle('border-[1.5px]', !isTarget);
+                    dot.classList.toggle('border-gray-200', !isTarget);
+                    dot.classList.toggle('group-hover:border-slate-400', !isTarget);
+                    dot.classList.toggle('transition-colors', !isTarget);
+                }
+
+                const count = row.querySelector('span');
+                if (count) {
+                    count.classList.toggle('text-xs', isTarget);
+                    count.classList.toggle('text-pink-400', isTarget);
+                    count.classList.toggle('font-medium', isTarget);
+                    count.classList.toggle('text-[10px]', !isTarget);
+                    count.classList.toggle('font-bold', !isTarget);
+                    count.classList.toggle('text-gray-400', !isTarget);
+                }
+            });
+        }
+
         document.addEventListener('click', function(e) {
             const btn = e.target.closest('.roadmap-month-btn');
             if (!btn) return;
@@ -368,6 +406,7 @@ const roadmap = months.map((month, monthIndex) => ({
                 const monthIdx = parseInt(btn.getAttribute('data-month')) - 1;
                 renderGameGrid(monthIdx, 0);
                 updateGameDetail(monthIdx, 0, 0);
+                highlightWeek(monthIdx, 0);
             }
         });
 
@@ -380,6 +419,7 @@ const roadmap = months.map((month, monthIndex) => ({
                 const weekIdx = week - 1;
                 renderGameGrid(monthIdx, weekIdx);
                 updateGameDetail(monthIdx, weekIdx, 0);
+                highlightWeek(monthIdx, weekIdx);
             }
         });
 
@@ -395,6 +435,7 @@ const roadmap = months.map((month, monthIndex) => ({
 
         document.addEventListener('DOMContentLoaded', () => {
             renderGameGrid(0, 0);
+            highlightWeek(0, 0);
         });
     </script>
     <div class="flex flex-col h-screen bg-[#f8f9fa] font-sans overflow-hidden text-slate-800">
