@@ -156,11 +156,11 @@ const CFG = Object.freeze({
   dashCooldown: 3.5,
   dashDur: 0.35,
   dashSpeed: 22,
-  jumpForce: 15,
+  jumpForce: 10,
   bounceMult: 1.8,
   breakPlatformDelay: 1.2,
   laneWidth: 2.5,
-  lanes: [-2.5, 0, 2.5],
+  lanes: [2.5, 0, -2.5],
   comboMax: 12,
   comboTimeout: 4,
   finishGateInterval: 500,
@@ -522,16 +522,18 @@ const input = {jump:false, dash:false, laneLeft:false, laneRight:false, jumpTap:
 
 function changeLane(dir){
   if(state.phase!=='Playing') return;
-  if(dir===-1 && state.laneIdx>0) state.laneIdx--;
-  if(dir===1 && state.laneIdx<2) state.laneIdx++;
+  const newIdx = state.laneIdx + dir;
+  if(newIdx >= 0 && newIdx <= 2){
+    state.laneIdx = newIdx;
+  }
 }
 
 // Keyboard
 document.addEventListener('keydown', e=>{
   if(e.code==='Space'||e.code==='KeyW'||e.code==='ArrowUp'){e.preventDefault(); input.jump=true; input.jumpTap=true;}
   if(e.code==='ShiftLeft'||e.code==='ShiftRight'){input.dash=true; input.dashTap=true;}
-  if(e.code==='KeyA'||e.code==='ArrowLeft'){if(!input.laneLeft) changeLane(1); input.laneLeft=true;}
-  if(e.code==='KeyD'||e.code==='ArrowRight'){if(!input.laneRight) changeLane(-1); input.laneRight=true;}
+  if(e.code==='KeyA'||e.code==='ArrowLeft'){if(!input.laneLeft) changeLane(-1); input.laneLeft=true;}
+  if(e.code==='KeyD'||e.code==='ArrowRight'){if(!input.laneRight) changeLane(1); input.laneRight=true;}
 });
 document.addEventListener('keyup', e=>{
   if(e.code==='Space'||e.code==='KeyW'||e.code==='ArrowUp'){input.jump=false;}
@@ -569,8 +571,8 @@ function setupTouchButton(el, onStart, onEnd){
 
 setupTouchButton(jumpBtn, ()=>{if(state.phase==='Playing'){input.jump=true; input.jumpTap=true;}}, ()=>{input.jump=false;});
 setupTouchButton(dashBtn, ()=>{if(state.phase==='Playing'){input.dash=true; input.dashTap=true;}}, ()=>{input.dash=false;});
-setupTouchButton(laneLeftBtn, ()=>{if(!input.laneLeft) changeLane(1); input.laneLeft=true;}, ()=>{input.laneLeft=false;});
-setupTouchButton(laneRightBtn, ()=>{if(!input.laneRight) changeLane(-1); input.laneRight=true;}, ()=>{input.laneRight=false;});
+setupTouchButton(laneLeftBtn, ()=>{if(!input.laneLeft) changeLane(-1); input.laneLeft=true;}, ()=>{input.laneLeft=false;});
+setupTouchButton(laneRightBtn, ()=>{if(!input.laneRight) changeLane(1); input.laneRight=true;}, ()=>{input.laneRight=false;});
 
 // ─── UI REFS ───
 const distDisplay = document.getElementById('dist-display');
@@ -1232,6 +1234,8 @@ function startGame(){
   spawnPlatform(0, 1, 'safe');
   spawnPlatform(5, 1, 'safe');
   spawnPlatform(10, 1, 'safe');
+  spawnPlatform(15, 1, 'safe');
+  spawnPlatform(20, 1, 'safe');
 
   // Initial spawn delay
   state.droneSpawnCD = 4;
