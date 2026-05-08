@@ -21,12 +21,26 @@ class GameScene extends Phaser.Scene {
         this.PLAYER_START_X = 100;
         this.PLATFORM_Y = WORLD_HEIGHT - this.PLATFORM_HEIGHT;
 
+        // Hazard constants
+        this.HAZARD_SPAWN_CHANCE = 0.3;
+        this.HAZARD_WIDTH = 20;
+        this.HAZARD_HEIGHT = 30;
+        this.HAZARD_MARGIN = 50;
+        this.MIN_PLATFORM_FOR_HAZARD = 200;
+
+        // Game over flags
+        this.gameOverTriggered = false;
+        this.isGameOver = false;
+
         // Set world bounds (large X for endless)
         this.physics.world.setBounds(0, 0, 1000000, WORLD_HEIGHT);
 
         // Initialize platform system
         this.platforms = this.physics.add.staticGroup();
         this.platformList = [];
+
+        // Initialize hazard system
+        this.hazards = this.physics.add.staticGroup();
 
         // Add initial platforms
         this.addInitialPlatforms();
@@ -47,6 +61,7 @@ class GameScene extends Phaser.Scene {
 
         // Enable collisions
         this.physics.add.collider(this.playerBody, this.platforms);
+        this.physics.add.collider(this.playerBody, this.hazards, this.onHazardCollision, null, this);
 
         // Set up keyboard input
         this.cursors = this.input.keyboard.createCursorKeys();
@@ -71,7 +86,25 @@ class GameScene extends Phaser.Scene {
         body.refreshBody();
         body.setData('graphics', graphics);
 
+        // Add hazard if eligible
+        if (width >= this.MIN_PLATFORM_FOR_HAZARD && Math.random() < this.HAZARD_SPAWN_CHANCE && x > 400) { // Not on first platform
+            this.addHazard(x, width);
+        }
+
         this.platformList.push({ x, width, body, graphics });
+    }
+
+    addHazard(platformX, platformWidth) {
+        const hazardX = platformX + this.HAZARD_MARGIN + Phaser.Math.Between(0, platformWidth - 2 * this.HAZARD_MARGIN - this.HAZARD_WIDTH);
+
+        const graphics = this.add.graphics();
+        graphics.fillStyle(0xff0000); // Neon red
+        graphics.fillRect(hazardX, this.PLATFORM_Y - this.HAZARD_HEIGHT, this.HAZARD_WIDTH, this.HAZARD_HEIGHT);
+
+        const body = this.hazards.create(hazardX + this.HAZARD_WIDTH / 2, this.PLATFORM_Y - this.HAZARD_HEIGHT / 2, null);
+        body.setDisplaySize(this.HAZARD_WIDTH, this.HAZARD_HEIGHT);
+        body.refreshBody();
+        body.setData('graphics', graphics);
     }
 
     addInitialPlatforms() {
@@ -91,6 +124,8 @@ class GameScene extends Phaser.Scene {
     }
 
     updatePlatforms() {
+        if (this.isGameOver) return;
+
         const cam = this.cameras.main;
         const removeMargin = cam.scrollX - 200;
 
@@ -117,15 +152,40 @@ class GameScene extends Phaser.Scene {
         }
     }
 
+    onHazardCollision(player, hazard) {
+        this.gameOver();
+    }
+
+    gameOver() {
+        if (this.gameOverTriggered) return;
+        this.gameOverTriggered = true;
+        this.isGameOver = true;
+
+        // Stop player movement
+        this.playerBody.setVelocity(0, 0);
+        this.playerBody.setGravityY(0);
+
+        // Freeze gameplay (stop spawning)
+        // Hazards are already static
+
+        // Visual feedback
+        this.cameras.main.shake(200, 0.01);
+        this.player.fillStyle(0xff0000); // Tint red
+
+        console.log('GAME OVER');
+    }
+
     update() {
         // Update platform generation
         this.updatePlatforms();
 
-        // Auto-run player to the right
-        this.playerBody.setVelocityX(200);
+        // Auto-run player to the right (only if not game over)
+        if (!this.isGameOver) {
+            this.playerBody.setVelocityX(200);
+        }
 
-        // Jump logic (only when on ground)
-        if ((this.cursors.up.isDown || this.spaceKey.isDown) && this.playerBody.body.touching.down) {
+        // Jump logic (only when on ground and not game over)
+        if (!this.isGameOver && (this.cursors.up.isDown || this.spaceKey.isDown) && this.playerBody.body.touching.down) {
             this.playerBody.setVelocityY(-400);
         }
 
@@ -136,10 +196,7 @@ class GameScene extends Phaser.Scene {
 
         // Check if player fell below screen
         if (this.playerBody.y > this.sys.game.config.height) {
-            console.log('GAME OVER');
-            // Temporary: reset position (for testing)
-            this.playerBody.setPosition(this.PLAYER_START_X, this.PLATFORM_Y - 32);
-            this.playerBody.setVelocity(200, 0);
+            this.gameOver();
         }
     }
 }
