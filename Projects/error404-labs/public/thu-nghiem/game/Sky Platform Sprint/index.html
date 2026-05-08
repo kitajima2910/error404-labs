@@ -143,7 +143,7 @@ canvas{display:block}
 
 // ─── CONFIG ───
 const CFG = Object.freeze({
-  baseSpeed: 5.2,
+  baseSpeed: 7.5,
   platformSpawnInterval: 0.7,
   maxPlatforms: 18,
   droneSpawnInterval: 7,
@@ -156,7 +156,7 @@ const CFG = Object.freeze({
   dashCooldown: 3.5,
   dashDur: 0.35,
   dashSpeed: 22,
-  jumpForce: 10,
+  jumpForce: 15,
   bounceMult: 1.8,
   breakPlatformDelay: 1.2,
   laneWidth: 2.5,
@@ -166,7 +166,7 @@ const CFG = Object.freeze({
   finishGateInterval: 500,
   movePlatformMin: 2.5,
   movePlatformMax: 4,
-  gravity: -28,
+  gravity: -25,
   droneWarningTime: 0.6,
   droneSpeed: 7,
   hitShakeDur: 0.15,
@@ -520,12 +520,18 @@ for(let i=0;i<10;i++){
 // ─── INPUT ───
 const input = {jump:false, dash:false, laneLeft:false, laneRight:false, jumpTap:false, dashTap:false};
 
+function changeLane(dir){
+  if(state.phase!=='Playing') return;
+  if(dir===-1 && state.laneIdx>0) state.laneIdx--;
+  if(dir===1 && state.laneIdx<2) state.laneIdx++;
+}
+
 // Keyboard
 document.addEventListener('keydown', e=>{
   if(e.code==='Space'||e.code==='KeyW'||e.code==='ArrowUp'){e.preventDefault(); input.jump=true; input.jumpTap=true;}
   if(e.code==='ShiftLeft'||e.code==='ShiftRight'){input.dash=true; input.dashTap=true;}
-  if(e.code==='KeyA'||e.code==='ArrowLeft'){input.laneLeft=true;}
-  if(e.code==='KeyD'||e.code==='ArrowRight'){input.laneRight=true;}
+  if(e.code==='KeyA'||e.code==='ArrowLeft'){if(!input.laneLeft) changeLane(1); input.laneLeft=true;}
+  if(e.code==='KeyD'||e.code==='ArrowRight'){if(!input.laneRight) changeLane(-1); input.laneRight=true;}
 });
 document.addEventListener('keyup', e=>{
   if(e.code==='Space'||e.code==='KeyW'||e.code==='ArrowUp'){input.jump=false;}
@@ -563,12 +569,8 @@ function setupTouchButton(el, onStart, onEnd){
 
 setupTouchButton(jumpBtn, ()=>{if(state.phase==='Playing'){input.jump=true; input.jumpTap=true;}}, ()=>{input.jump=false;});
 setupTouchButton(dashBtn, ()=>{if(state.phase==='Playing'){input.dash=true; input.dashTap=true;}}, ()=>{input.dash=false;});
-setupTouchButton(laneLeftBtn, ()=>{input.laneLeft=true;});
-setupTouchButton(laneRightBtn, ()=>{input.laneRight=true;});
-laneLeftBtn.addEventListener('touchend', ()=>{input.laneLeft=false;});
-laneLeftBtn.addEventListener('mouseup', ()=>{input.laneLeft=false;});
-laneRightBtn.addEventListener('touchend', ()=>{input.laneRight=false;});
-laneRightBtn.addEventListener('mouseup', ()=>{input.laneRight=false;});
+setupTouchButton(laneLeftBtn, ()=>{if(!input.laneLeft) changeLane(1); input.laneLeft=true;}, ()=>{input.laneLeft=false;});
+setupTouchButton(laneRightBtn, ()=>{if(!input.laneRight) changeLane(-1); input.laneRight=true;}, ()=>{input.laneRight=false;});
 
 // ─── UI REFS ───
 const distDisplay = document.getElementById('dist-display');
@@ -815,7 +817,7 @@ function updatePlatforms(dt){
   state.platSpawnCD -= dt;
   if(state.platSpawnCD<=0 && state.activePlatforms.length < CFG.maxPlatforms){
     state.platSpawnCD = CFG.platformSpawnInterval;
-    const spawnZ = state.distance + 20 + Math.random()*10;
+    const spawnZ = state.distance + 20 + Math.random()*4;
     spawnPlatform(spawnZ);
   }
 
@@ -1406,7 +1408,7 @@ function updateCamera(dt){
     }
   }
 
-  camera.position.lerp(targetPos, dt*6);
+  camera.position.lerp(targetPos, dt*12);
   camera.lookAt(targetLook);
 }
 
