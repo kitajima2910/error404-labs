@@ -412,7 +412,7 @@ const monthSvgs = [
                             '<span class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-pink-100 text-pink-700">Kids Favorite</span>' +
                         '</div>' +
                         '<div class="flex gap-2 mt-auto">' +
-                            '<button class="flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Copy Prompts">' + attrSvgs.copy + '</button>' +
+                            '<button class="btn-copy-prompt flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Copy Prompts">' + attrSvgs.copy + '</button>' +
                             '<button class="flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Assets">' + attrSvgs.image + '</button>' +
                             '<button class="flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Template">' + attrSvgs.code + '</button>' +
                             '<button class="w-14 bg-[#8b5cf6] hover:bg-purple-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30 transition-transform active:scale-95">' + attrSvgs.play + '</button>' +
@@ -527,6 +527,54 @@ const monthSvgs = [
             renderGameGrid(0, 0);
             highlightWeek(0, 0);
         });
+
+        // Copy template button
+        const copyBtn = document.getElementById('copy-template-btn');
+        if (copyBtn) {
+            copyBtn.addEventListener('click', async () => {
+                const text = `RULE:\n- Không rewrite game\n- Không sửa logic cũ\n- Chỉ tác động trong TARGET\n\nTARGET:\n(mô tả rõ)\n\nACTION:\n(chỉ chọn 1: add / fix / update / remove)`;
+                try {
+                    await navigator.clipboard.writeText(text);
+                    if (window.showToast) window.showToast('Đã copy Prompt Template thành công!', 'success');
+                } catch {
+                    if (window.showToast) window.showToast('Copy thất bại!', 'error');
+                }
+            });
+        }
+
+        // Copy prompt for game cards (event delegation)
+        function promptOf(game, genre, month, week) {
+            return `=== CREATE GAME ===
+Tên: ${game}
+Style: Game 2D ${genre} hiện đại, màu sắc rõ, dễ đọc, playable trên web.
+Đối tượng: Người mới học làm game với AI, cần hiểu cơ chế chính trong 3 phút đầu.
+Gameplay: Thiết kế vòng chơi ngắn theo đúng chủ đề ${genre}; điều khiển đơn giản bằng bàn phím hoặc chạm; mỗi lượt chơi kéo dài 1-3 phút.
+Luật: Có mục tiêu thắng rõ ràng, điều kiện thua rõ ràng, điểm số hoặc tiến trình, độ khó tăng nhẹ theo thời gian hoặc theo màn.
+Hiển thị: Hiện nhân vật/vật thể chính, mục tiêu, điểm số, trạng thái thắng/thua và hướng dẫn ngắn ngay trong game.
+UI: Giao diện gọn, có màn hình bắt đầu, nút chơi lại, thông tin điều khiển và phản hồi trực quan khi người chơi tương tác.
+Hiệu ứng: Thêm hiệu ứng va chạm, thu thập, thắng/thua, chuyển màn và âm thanh phản hồi nhẹ nếu có thể.
+Build: Xuất bản thành một bản HTML/CSS/JavaScript chạy trực tiếp trên trình duyệt, ưu tiên code gọn, dễ sửa và không dùng asset ngoài bắt buộc.
+
+Thông tin bài học: Tháng ${month}, Tuần ${week}, thể loại ${genre}.`;
+        }
+
+        document.addEventListener('click', async function(e) {
+            const btn = e.target.closest('.btn-copy-prompt');
+            if (!btn) return;
+            const card = btn.closest('.game-card-button');
+            if (!card) return;
+            const game = card.dataset.game;
+            const genre = card.dataset.genre;
+            const month = parseInt(card.dataset.month);
+            const week = parseInt(card.dataset.week);
+            const promptText = promptOf(game, genre, month, week);
+            try {
+                await navigator.clipboard.writeText(promptText);
+                if (window.showToast) window.showToast('Đã copy Game Prompt thành công!', 'success');
+            } catch {
+                if (window.showToast) window.showToast('Copy thất bại!', 'error');
+            }
+        });
     </script>
     <div class="flex flex-col h-screen bg-[#f8f9fa] font-sans overflow-hidden text-slate-800">
         <div class="flex flex-col lg:flex-row flex-1 overflow-hidden relative">
@@ -639,7 +687,7 @@ const monthSvgs = [
                                     <div class="text-slate-400 ml-2 mb-3 leading-relaxed">(mô tả rõ)</div>
                                     <span class="text-amber-400 font-bold">ACTION:</span>
                                     <div class="text-slate-400 ml-2 leading-relaxed">(chỉ chọn 1: add / fix / update / remove)</div>
-                                    <button class="absolute top-3 right-3 text-xs text-slate-400 hover:text-emerald-400 transition-all duration-200 bg-slate-800/80 hover:bg-slate-700/80 backdrop-blur-sm px-2.5 py-1.5 rounded-lg border border-slate-700/50 hover:border-emerald-500/30 flex items-center gap-1.5 font-medium">
+                                    <button id="copy-template-btn" class="absolute top-3 right-3 text-xs text-slate-400 hover:text-emerald-400 transition-all duration-200 bg-slate-800/80 hover:bg-slate-700/80 backdrop-blur-sm px-2.5 py-1.5 rounded-lg border border-slate-700/50 hover:border-emerald-500/30 flex items-center gap-1.5 font-medium">
                                         <i class="fa fa-copy" aria-hidden="true"></i> Copy
                                     </button>
                                 </div>
