@@ -149,12 +149,22 @@ const roadmapRows = [
     ],
 ]
 
+const promptFiles = import.meta.glob('/src/data/game-roadmap/*.txt', { as: 'raw', eager: true }) as Record<string, string>
+const promptContentByGame = Object.fromEntries(
+    Object.entries(promptFiles).map(([path, content]) => {
+        const fileName = path.split('/').pop() ?? ''
+        const gameName = fileName.replace(/\.txt$/, '')
+        return [gameName, content]
+    })
+)
+
 const roadmap = months.map((month, monthIndex) => ({
     ...month,
     weeks: roadmapRows[monthIndex].map((week, weekIndex) => ({
         ...week,
         games: week.games.map((game) => ({
             name: game,
+            promptContent: promptContentByGame[game] ?? '',
         })),
     })),
 }))
@@ -393,7 +403,7 @@ const monthSvgs = [
                 const genreClass = getGenreClass(genre);
                 const svg = genreIcons[genre] || genreIcons['Arcade'];
                 const gradBg = genreGradBg[genre] || 'from-indigo-500 to-indigo-700';
-                return '<div data-game="' + game.name + '" data-genre="' + genre + '" data-month="' + (monthIdx + 1) + '" data-week="' + (weekIdx + 1) + '" data-month-idx="' + monthIdx + '" data-week-idx="' + weekIdx + '" data-game-idx="' + gi + '" class="game-card-button bg-white rounded-3xl border-[2px] border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 overflow-hidden transition-all flex flex-col">' +
+                return '<div data-game="' + game.name + '" data-genre="' + genre + '" data-month="' + (monthIdx + 1) + '" data-week="' + (weekIdx + 1) + '" data-month-idx="' + monthIdx + '" data-week-idx="' + weekIdx + '" data-game-idx="' + gi + '" data-prompt-content="' + encodeURIComponent(game.promptContent || '') + '" class="game-card-button bg-white rounded-3xl border-[2px] border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 overflow-hidden transition-all flex flex-col">' +
                     '<div class="h-44 w-full relative p-3.5 flex flex-col justify-between bg-gradient-to-br ' + gradBg + '">' +
                         '<div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>' +
                         '<div class="absolute inset-0 flex items-center justify-center opacity-20 p-8">' + svg + '</div>' +
@@ -597,7 +607,12 @@ Thông tin bài học: Tháng ${month}, Tuần ${week}, thể loại ${genre}.`;
             const genre = card.dataset.genre;
             const month = parseInt(card.dataset.month);
             const week = parseInt(card.dataset.week);
-            const promptText = promptOf(game, genre, month, week);
+            const promptContent = decodeURIComponent(card.dataset.promptContent || '');
+            if (promptContent.trim() === 'Đang tải...') {
+                if (window.showToast) window.showToast('Nội dung prompt đang được cập nhật, vui lòng quay lại sau!', 'warning');
+                return;
+            }
+            const promptText = promptContent.trim() ? promptContent : promptOf(game, genre, month, week);
             try {
                 await navigator.clipboard.writeText(promptText);
                 if (window.showToast) window.showToast('Đã copy Game Prompt thành công!', 'success');
