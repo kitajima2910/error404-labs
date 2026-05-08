@@ -32,6 +32,10 @@ class GameScene extends Phaser.Scene {
         this.gameOverTriggered = false;
         this.isGameOver = false;
 
+        // Score tracking
+        this.score = 0;
+        this.bestScore = 0;
+
         // Set world bounds (large X for endless)
         this.physics.world.setBounds(0, 0, 1000000, WORLD_HEIGHT);
 
@@ -161,6 +165,12 @@ class GameScene extends Phaser.Scene {
         this.gameOverTriggered = true;
         this.isGameOver = true;
 
+        // Update best score
+        if (this.score > this.bestScore) {
+            this.bestScore = this.score;
+            this.game.events.emit('bestUpdate', this.bestScore);
+        }
+
         // Stop player movement
         this.playerBody.setVelocity(0, 0);
         this.playerBody.setGravityY(0);
@@ -178,6 +188,12 @@ class GameScene extends Phaser.Scene {
     update() {
         // Update platform generation
         this.updatePlatforms();
+
+        // Score progression (only if not game over)
+        if (!this.isGameOver) {
+            this.score += this.game.loop.delta * 0.1;
+            this.game.events.emit('scoreUpdate', this.score);
+        }
 
         // Auto-run player to the right (only if not game over)
         if (!this.isGameOver) {
