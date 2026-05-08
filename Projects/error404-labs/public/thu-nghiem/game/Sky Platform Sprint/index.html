@@ -143,7 +143,7 @@ canvas{display:block}
 
 // ─── CONFIG ───
 const CFG = Object.freeze({
-  baseSpeed: 6,
+  baseSpeed: 5.2,
   platformSpawnInterval: 0.7,
   maxPlatforms: 18,
   droneSpawnInterval: 7,
@@ -588,11 +588,11 @@ const ttBtn = document.getElementById('tt-btn');
 
 // ─── GAME FUNCTIONS ───
 
-function spawnPlatform(zPos){
+function spawnPlatform(zPos, forcedLane){
   const plat = getFromPool(platGroup);
   if(!plat) return;
   const type = pickPlatformType();
-  const lane = CFG.lanes[Math.floor(Math.random()*CFG.lanes.length)];
+  const lane = forcedLane !== undefined ? CFG.lanes[forcedLane] : CFG.lanes[Math.floor(Math.random()*CFG.lanes.length)];
   plat.position.set(lane, 0, zPos);
   plat.userData.type = type;
   plat.userData.broken = false;
@@ -1221,10 +1221,10 @@ function startGame(){
   // Clear pools
   clearAllPools();
 
-  // Spawn initial platform
-  spawnPlatform(0);
-  spawnPlatform(8);
-  spawnPlatform(16);
+  // Spawn initial runway — forced middle lane (0), close spacing
+  spawnPlatform(0, 1);
+  spawnPlatform(5, 1);
+  spawnPlatform(10, 1);
 
   // Initial spawn delay
   state.droneSpawnCD = 4;
