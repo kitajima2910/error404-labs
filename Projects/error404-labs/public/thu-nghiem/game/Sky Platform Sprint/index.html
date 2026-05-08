@@ -588,10 +588,10 @@ const ttBtn = document.getElementById('tt-btn');
 
 // ─── GAME FUNCTIONS ───
 
-function spawnPlatform(zPos, forcedLane){
+function spawnPlatform(zPos, forcedLane, forcedType){
   const plat = getFromPool(platGroup);
   if(!plat) return;
-  const type = pickPlatformType();
+  const type = forcedType || pickPlatformType();
   const lane = forcedLane !== undefined ? CFG.lanes[forcedLane] : CFG.lanes[Math.floor(Math.random()*CFG.lanes.length)];
   plat.position.set(lane, 0, zPos);
   plat.userData.type = type;
@@ -1227,9 +1227,9 @@ function startGame(){
   clearAllPools();
 
   // Spawn initial runway — forced middle lane (0), close spacing
-  spawnPlatform(0, 1);
-  spawnPlatform(5, 1);
-  spawnPlatform(10, 1);
+  spawnPlatform(0, 1, 'safe');
+  spawnPlatform(5, 1, 'safe');
+  spawnPlatform(10, 1, 'safe');
 
   // Initial spawn delay
   state.droneSpawnCD = 4;
