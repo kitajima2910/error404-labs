@@ -393,7 +393,7 @@ const monthSvgs = [
                 const genreClass = getGenreClass(genre);
                 const svg = genreIcons[genre] || genreIcons['Arcade'];
                 const gradBg = genreGradBg[genre] || 'from-indigo-500 to-indigo-700';
-                return '<div data-game="' + game.name + '" data-genre="' + genre + '" data-month="' + (monthIdx + 1) + '" data-week="' + (weekIdx + 1) + '" data-month-idx="' + monthIdx + '" data-week-idx="' + weekIdx + '" data-game-idx="' + gi + '" class="game-card-button bg-white rounded-3xl border-[2px] border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 overflow-hidden transition-all flex flex-col">' +
+                return '<div data-game="' + game.name + '" data-genre="' + genre + '" data-month="' + (monthIdx + 1) + '" data-week="' + (weekIdx + 1) + '" data-month-idx="' + monthIdx + '" data-week-idx="' + weekIdx + '" data-game-idx="' + gi + '" class="game-card-button cursor-pointer bg-white rounded-3xl border-[2px] border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 overflow-hidden transition-all flex flex-col">' +
                     '<div class="h-44 w-full relative p-3.5 flex flex-col justify-between bg-gradient-to-br ' + gradBg + '">' +
                         '<div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>' +
                         '<div class="absolute inset-0 flex items-center justify-center opacity-20 p-8">' + svg + '</div>' +
@@ -618,7 +618,7 @@ Thông tin bài học: Tháng ${month}, Tuần ${week}, thể loại ${genre}.`;
                     {
                         roadmap.map((month, monthIndex) => (
                             <div key={monthIndex} class="flex flex-col">
-                                <button data-month={month.no} class={`roadmap-month-btn flex items-center w-full text-left p-3 rounded-xl transition-all duration-200 border ${monthIndex === 0 ? 'is-active border-pink-100 bg-pink-50 ring-1 ring-pink-500/20' : 'border-transparent hover:bg-gray-50'}`}>
+                                <button data-month={month.no} class={`roadmap-month-btn cursor-pointer flex items-center w-full text-left p-3 rounded-xl transition-all duration-200 border ${monthIndex === 0 ? 'is-active border-pink-100 bg-pink-50 ring-1 ring-pink-500/20' : 'border-transparent hover:bg-gray-50'}`}>
                                     <div class={`roadmap-month-icon w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mr-3 shadow-sm ${monthIndex === 0 ? 'bg-pink-100 text-pink-500' : 'bg-indigo-50 text-indigo-600'}`}>
                                         <span set:html={monthSvgs[monthIndex]}></span>
                                     </div>
@@ -743,6 +743,12 @@ Thông tin bài học: Tháng ${month}, Tuần ${week}, thể loại ${genre}.`;
 
 
 <style>
+    button,
+    .roadmap-month-btn,
+    .game-card-button {
+        cursor: pointer;
+    }
+
     html {
         scroll-behavior: smooth;
     }
