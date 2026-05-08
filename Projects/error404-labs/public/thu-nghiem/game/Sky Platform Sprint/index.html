@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Sky Platform Sprint</title>
+<title>Đua Trên Không</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3QgeD0iNCIgeT0iMjIiIHdpZHRoPSIyNCIgaGVpZ2h0PSI0IiByeD0iMiIgZmlsbD0iIzAwZDRmZiIvPjxjaXJjbGUgY3g9IjE2IiBjeT0iMTMiIHI9IjMiIGZpbGw9IndoaXRlIi8+PHBhdGggZD0iTTExIDE4IFExNiA3IDIxIDE4IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMGQ0ZmYiIHN0cm9rZS13aWR0aD0iMS41IiBvcGFjaXR5PSIwLjciIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjxlbGxpcHNlIGN4PSIyNSIgY3k9IjkiIHJ4PSI0IiByeT0iMi41IiBmaWxsPSJ3aGl0ZSIgb3BhY2l0eT0iMC4yNSIvPjwvc3ZnPg=="/>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -80,7 +80,7 @@ canvas{display:block}
   <div id="hud">
     <div id="top-center">
       <div id="dist-display">0m</div>
-      <div id="combo-display">Combo x0</div>
+      <div id="combo-display">Liên x0</div>
     </div>
     <div id="top-left" class="hp-row">
       <span class="hp-icon" id="hp1">&#9829;</span>
@@ -88,7 +88,7 @@ canvas{display:block}
       <span class="hp-icon" id="hp3">&#9829;</span>
     </div>
     <div id="top-right">
-      <div id="dash-display">DASH</div>
+      <div id="dash-display">LƯỚT</div>
       <div id="coin-display">0</div>
     </div>
   </div>
@@ -96,28 +96,28 @@ canvas{display:block}
   <div id="combo-flash"></div>
 
   <div id="menu-screen">
-    <h1>SKY PLATFORM<br>SPRINT</h1>
+    <h1>ĐUA TRÊN<br>KHÔNG</h1>
     <div class="subtitle">&#9733; Low Poly Runner &#9733;</div>
-    <button id="start-btn">PLAY</button>
+    <button id="start-btn">CHƠI</button>
     <div class="hint">
-      Space / Tap = Jump &bull; A/D = Lane Shift<br>
-      Shift = Dash &bull; Avoid spikes &amp; drones!
+      Space / Chạm = Nhảy &bull; A/D = Đổi làn<br>
+      Shift = Lướt &bull; Tránh gai &amp; flycam!
     </div>
   </div>
 
   <div id="dead-screen">
-    <h1>CRASHED</h1>
-    <div class="score-label">DISTANCE</div>
+    <h1>GẶP NẠN</h1>
+    <div class="score-label">QUÃNG ĐƯỜNG</div>
     <div class="score-val" id="final-dist">0m</div>
-    <div class="best-label">BEST</div>
+    <div class="best-label">KỶ LỤC</div>
     <div class="best-val" id="best-dist">0m</div>
     <div id="dead-btns">
-      <button class="dead-btn" id="retry-btn">&#8635; Retry</button>
-      <button class="dead-btn" id="revive-btn" style="display:none">&#10010; Revive</button>
+      <button class="dead-btn" id="retry-btn">&#8635; Thử lại</button>
+      <button class="dead-btn" id="revive-btn" style="display:none">&#10010; Hồi sinh</button>
     </div>
   </div>
 
-  <div id="controls-hint" class="show">Space=Jump &bull; A/D=Lane &bull; Shift=Dash</div>
+  <div id="controls-hint" class="show">Space=Nhảy &bull; A/D=Làn &bull; Shift=Lướt</div>
 
   <div id="mobile-controls">
     <div id="mc-left">
@@ -125,8 +125,8 @@ canvas{display:block}
       <button id="lane-right-btn">&rarr;</button>
     </div>
     <div id="mc-right">
-      <button id="dash-btn">DASH</button>
-      <button id="jump-btn">JUMP</button>
+      <button id="dash-btn">LƯỚT</button>
+      <button id="jump-btn">NHẢY</button>
     </div>
   </div>
 
@@ -799,7 +799,7 @@ function updatePlayer(dt){
     state.difficultyTier = Math.floor(state.distance/1000);
     state.speed = CFG.baseSpeed * (1 + state.milestoneCount*0.1);
     // flash
-    showComboFlash('MILESTONE +'+(state.milestoneCount*500)+'m');
+    showComboFlash('CỘT MỐC +'+(state.milestoneCount*500)+'m');
   }
 
   // Input tap reset
@@ -1022,19 +1022,19 @@ function collectCoin(p){
   // Combo bonuses
   if(state.combo===3){
     state.speed = CFG.baseSpeed * (1 + state.milestoneCount*0.1) * 1.08;
-    showComboFlash('x3 SPEED +8%');
+    showComboFlash('x3 TỐC ĐỘ +8%');
   }
   if(state.combo===6){
-    showComboFlash('x6 COIN +15%');
+    showComboFlash('x6 TIỀN +15%');
   }
   if(state.combo===9){
     state.jumpForce = CFG.jumpForce * 1.1;
-    showComboFlash('x9 JUMP BOOST');
+    showComboFlash('x9 NHẢY CAO');
   }
   if(state.combo===12){
     state.dashCD = 0;
     state._dashCooldownMult = 0.7;
-    showComboFlash('x12 DASH MASTER!');
+    showComboFlash('x12 BẬC THẦY LƯỚT!');
   }
 
   returnToPool(pickupGroup, p);
@@ -1149,14 +1149,14 @@ function updateDisplay(){
 
 function updateComboDisplay(){
   if(state.combo>0){
-    comboDisplay.textContent = 'Combo x'+state.combo;
+    comboDisplay.textContent = 'Liên x'+state.combo;
     comboDisplay.classList.add('active');
     if(state.combo>=3) comboDisplay.style.color = '#ffd700';
     if(state.combo>=6) comboDisplay.style.color = '#ff8800';
     if(state.combo>=9) comboDisplay.style.color = '#ff4400';
     if(state.combo>=12) comboDisplay.style.color = '#ff00ff';
   } else {
-    comboDisplay.textContent = 'Combo x0';
+    comboDisplay.textContent = 'Liên x0';
     comboDisplay.classList.remove('active');
     comboDisplay.style.color = '';
   }
@@ -1170,7 +1170,7 @@ function updateHPDisplay(){
 
 function updateDashDisplay(){
   if(state.dashCD<=0){
-    dashDisplay.textContent = 'DASH';
+    dashDisplay.textContent = 'LƯỚT';
     dashDisplay.classList.add('ready');
   } else {
     dashDisplay.textContent = Math.ceil(state.dashCD)+'s';
@@ -1407,7 +1407,7 @@ function updateCamera(dt){
 // ─── TIKTOK MODE ───
 function toggleTikTokMode(){
   state.tiktokMode = !state.tiktokMode;
-  ttBtn.textContent = state.tiktokMode?'☰ Landscape':'▐ TikTok';
+  ttBtn.textContent = state.tiktokMode?'☰ Ngang':'▐ TikTok';
   if(state.tiktokMode){
     ttBtn.style.background = 'rgba(255,0,80,.4)';
     ttBtn.style.borderColor = '#ff0050';
