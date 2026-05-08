@@ -529,6 +529,14 @@ const monthSvgs = [
 
             // Copy template button
             const copyBtn = document.getElementById('copy-template-btn');
+            const useTemplateBtn = document.getElementById('btn-use-template');
+            const templateModal = document.getElementById('template-modal');
+            const modalTargetInput = document.getElementById('modal-target-input');
+            const modalActionSelect = document.getElementById('modal-action-select');
+            const modalCopyBtn = document.getElementById('btn-modal-copy');
+            const modalCloseBtn = document.getElementById('btn-modal-close');
+            const closeTemplateModal = () => templateModal?.classList.add('hidden');
+
             if (copyBtn) {
                 copyBtn.addEventListener('click', async () => {
                     const text = `RULE:\n- Không rewrite game\n- Không sửa logic cũ\n- Chỉ tác động trong TARGET\n\nTARGET:\n(mô tả rõ)\n\nACTION:\n(chỉ chọn 1: add / fix / update / remove)`;
@@ -538,6 +546,36 @@ const monthSvgs = [
                     } catch {
                         if (window.showToast) window.showToast('Copy thất bại!', 'error');
                     }
+                });
+            }
+
+            if (useTemplateBtn && templateModal) {
+                useTemplateBtn.addEventListener('click', () => {
+                    templateModal.classList.remove('hidden');
+                    modalTargetInput?.focus();
+                });
+            }
+
+            if (modalCopyBtn && modalTargetInput && modalActionSelect) {
+                modalCopyBtn.addEventListener('click', async () => {
+                    const text = `RULE:\n- Không rewrite game\n- Không sửa logic cũ\n- Chỉ tác động trong TARGET\n\nTARGET:\n${modalTargetInput.value}\n\nACTION:\n${modalActionSelect.value}`;
+                    try {
+                        await navigator.clipboard.writeText(text);
+                        if (window.showToast) window.showToast('Đã tạo và copy prompt thành công!', 'success');
+                        closeTemplateModal();
+                    } catch {
+                        if (window.showToast) window.showToast('Copy thất bại!', 'error');
+                    }
+                });
+            }
+
+            if (modalCloseBtn) {
+                modalCloseBtn.addEventListener('click', closeTemplateModal);
+            }
+
+            if (templateModal) {
+                templateModal.addEventListener('click', (e) => {
+                    if (e.target === templateModal) closeTemplateModal();
                 });
             }
         });
@@ -692,13 +730,47 @@ Thông tin bài học: Tháng ${month}, Tuần ${week}, thể loại ${genre}.`;
                                     </button>
                                 </div>
                             </div>
-                            <button class="w-full mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-5 rounded-2xl shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 transition-colors">
+                            <button id="btn-use-template" class="w-full mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-5 rounded-2xl shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 transition-colors">
                                 <i class="fa fa-magic" aria-hidden="true"></i> Sử dụng Template
                             </button>
                         </div>
                     </div>
                 </div>
             </aside>
+        </div>
+    </div>
+
+    <div id="template-modal" class="hidden fixed inset-0 z-50 bg-slate-950/50 backdrop-blur-sm px-4 py-6 flex items-center justify-center">
+        <div class="w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-indigo-100 overflow-hidden">
+            <div class="bg-indigo-50/70 p-5 border-b border-indigo-100 flex items-center gap-4">
+                <div class="w-12 h-12 bg-white shadow-sm text-indigo-600 rounded-2xl flex items-center justify-center shrink-0 border border-indigo-100">
+                    <i class="fa fa-magic" aria-hidden="true"></i>
+                </div>
+                <h2 class="text-xl font-extrabold text-slate-800">Sử dụng Prompt Template</h2>
+            </div>
+            <div class="p-6 space-y-5">
+                <div>
+                    <label for="modal-target-input" class="block text-sm font-bold text-slate-700 mb-2">Mô tả yêu cầu (TARGET)</label>
+                    <textarea id="modal-target-input" rows="5" class="w-full rounded-2xl border border-indigo-100 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 resize-none" placeholder="Nhập mô tả rõ phần cần tác động..."></textarea>
+                </div>
+                <div>
+                    <label for="modal-action-select" class="block text-sm font-bold text-slate-700 mb-2">Hành động (ACTION)</label>
+                    <select id="modal-action-select" class="w-full rounded-2xl border border-indigo-100 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100">
+                        <option value="add">add</option>
+                        <option value="fix">fix</option>
+                        <option value="update">update</option>
+                        <option value="remove">remove</option>
+                    </select>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                    <button id="btn-modal-copy" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-5 rounded-2xl shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 transition-colors">
+                        <i class="fa fa-copy" aria-hidden="true"></i> Copy Prompt
+                    </button>
+                    <button id="btn-modal-close" class="sm:w-32 bg-white hover:bg-slate-50 text-slate-600 font-bold py-3.5 px-5 rounded-2xl border border-slate-200 flex items-center justify-center gap-2 transition-colors">
+                        Đóng
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
