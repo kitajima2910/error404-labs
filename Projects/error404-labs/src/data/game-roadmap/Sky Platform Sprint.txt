@@ -1,1 +1,152 @@
-﻿Đang tải...
+﻿=== CREATE GAME ===
+
+* Tên: **Sky Platform Sprint**
+
+* Style: **Low Poly**
+
+* Nền tảng: **Mobile + Desktop**
+
+* Orientation: **Landscape** (gameplay platform action + di chuyển tự do)
+
+* TikTok Mode: **Hỗ trợ Portrait highlight mode (9:16 replay/capture)**, gameplay chính vẫn Landscape
+
+* Đối tượng:
+
+  * Player runner (nhân vật chạy nhảy low poly)
+  * Floating sky platforms
+  * Breakable platforms
+  * Moving platforms
+  * Bounce pads
+  * Dash rings
+  * Coin shards
+  * Drone chasers
+  * Spike traps
+  * Falling debris
+  * Finish gates
+  * Power pickups
+
+* Gameplay:
+
+  * Endless platform sprint trên các đảo nổi trên trời, player auto-run tiến về phía trước ở tốc độ khởi điểm **6 units/s**, người chơi tập trung jump / dash / đổi lane / timing.
+  * Spawn platform mỗi **0.9s**, pattern mix giữa fixed + random segment templates, tối đa **18 platform segment** active cùng lúc để giữ FPS 60.
+  * Drone enemy spawn mỗi **7s**, tối đa **3 drone** cùng lúc; drone gây áp lực buộc player di chuyển thay vì đứng chờ.
+  * Coin orb pickup tăng combo **+1/orb**, max combo **x12**.
+  * Combo reset nếu:
+
+    * bị hit
+    * không nhặt orb trong **4 giây**
+    * rơi khỏi map
+  * Combo bonus:
+
+    * x3 = +8% tốc độ
+    * x6 = +15% coin
+    * x9 = jump boost +10%
+    * x12 = temporary dash recharge -30%
+  * Player bắt đầu tại **GameState: Menu → Playing** khi bấm Start.
+  * Điều kiện thua:
+
+    * HP = 0
+    * rơi khỏi sky lane
+  * HP player = **3**
+  * Damage:
+
+    * drone hit = 1 HP
+    * spike = 1 HP
+    * falling debris = 2 HP
+  * Invulnerability frame sau hit: **0.8s**
+  * Nếu chết:
+
+    * **Playing → Dead**
+    * restart về đầu run
+  * Revive tùy chọn 1 lần/video continue nếu bật mode này.
+  * Object pooling dùng cho platform / drone / pickups / FX / debris.
+  * Tổng object tối đa:
+
+    * platform: 18
+    * drone: 3
+    * projectile/effect: 20
+    * pickup: 15
+    * tổng hard cap: **56**
+  * Target FPS: **60**
+
+* Luật:
+
+  * Chỉ tiến lên, không backtrack.
+  * Jump miss = rơi khỏi map = chết ngay.
+  * Moving platform đổi vị trí mỗi **2.5–4s**.
+  * Breakable platform vỡ sau **1.2s** đứng trên đó.
+  * Bounce pad launch cao gấp **1.8x jump thường**.
+  * Dash cooldown cơ bản **3.5s**.
+  * Finish gate milestone mỗi **500m**, difficulty tăng:
+
+    * +10% tốc độ world
+    * +15% obstacle density
+    * +1 drone spawn pressure tier mỗi 1000m
+
+* Hiển thị:
+
+  * Camera góc nhìn third-person chase nhẹ.
+  * Skybox mây động low poly.
+  * Platform có màu phân loại:
+
+    * xanh = safe
+    * đỏ = break
+    * vàng = boost
+    * tím = dash ring
+  * TikTok mode crop camera dọc, focus player giữa màn hình.
+
+* UI:
+
+  * Top center:
+
+    * Distance meter
+    * Combo meter
+  * Top left:
+
+    * HP (3 heart icon)
+  * Top right:
+
+    * Dash cooldown
+    * Coin count
+  * Dead screen:
+
+    * score
+    * best distance
+    * retry
+    * revive (nếu bật)
+
+* Điều khiển Mobile:
+
+  * Tap phải = jump
+  * Swipe trái/phải = lane shift
+  * Hold dash button = dash
+  * Nút lớn thumb-friendly, cách nhau tối thiểu **12px responsive spacing**
+
+* Điều khiển Desktop:
+
+  * Space = jump
+  * A/D hoặc arrow = lane shift
+  * Shift = dash
+  * Mouse click hỗ trợ jump
+
+* Hiệu ứng:
+
+  * Jump squash/stretch nhẹ
+  * Dash trail low poly streak
+  * Combo flash mỗi milestone
+  * Camera shake nhẹ **0.15s** khi hit
+  * Coin burst particle pooled
+  * Platform crumble FX pooled
+  * Drone warning pulse trước khi lao **0.6s**
+  * Không spawn/destroy runtime liên tục để tránh GC spike
+
+* Build:
+
+  * **Base Build: Sky Runner**
+  * Build hiện tại:
+
+    * tốc độ cân bằng
+    * 1 dash charge
+    * standard jump
+    * combo mobility scaling
+  * Feel: quick reflex arcade run 30–60s loop

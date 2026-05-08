@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Sky Platform Sprint</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:#1a1a2e;font-family:'Segoe UI',Arial,sans-serif;touch-action:none;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+canvas{display:block}
+#ui{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
+#hud{position:absolute;top:0;left:0;width:100%;height:100%}
+#top-center{position:absolute;top:16px;left:50%;transform:translateX(-50%);text-align:center;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.6);pointer-events:none;z-index:10}
+#dist-display{font-size:22px;font-weight:700;letter-spacing:1px}
+#combo-display{font-size:14px;margin-top:4px;opacity:.8;transition:all .3s}
+#combo-display.active{color:#ffd700;opacity:1;text-shadow:0 0 12px #ffd700}
+#top-left{position:absolute;top:16px;left:16px;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.6);pointer-events:none;z-index:10;display:flex;gap:4px}
+.hp-icon{font-size:20px;transition:all .3s}
+.hp-lost{opacity:.2;filter:grayscale(1)}
+#top-right{position:absolute;top:16px;right:16px;text-align:right;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.6);pointer-events:none;z-index:10}
+#dash-display{font-size:13px;padding:4px 10px;background:rgba(0,0,0,.4);border-radius:6px;border:1px solid rgba(255,255,255,.2);margin-bottom:4px}
+#dash-display.ready{background:rgba(0,180,255,.3);border-color:#00b4ff}
+#coin-display{font-size:18px;font-weight:700}
+#coin-display::before{content:'✦ ';color:#ffd700}
+
+#dead-screen{position:absolute;top:0;left:0;width:100%;height:100%;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:100;pointer-events:auto}
+#dead-screen.show{display:flex}
+#dead-screen h1{color:#ff4444;font-size:36px;margin-bottom:8px;text-shadow:0 0 20px rgba(255,68,68,.5)}
+#dead-screen .score-label{color:#aaa;font-size:14px;margin-top:4px}
+#dead-screen .score-val{color:#fff;font-size:28px;font-weight:700}
+#dead-screen .best-label{color:#888;font-size:12px;margin-top:2px}
+#dead-screen .best-val{color:#ffd700;font-size:18px}
+#dead-btns{display:flex;gap:16px;margin-top:24px;flex-wrap:wrap;justify-content:center}
+.dead-btn{padding:14px 36px;border:none;border-radius:12px;font-size:18px;font-weight:700;cursor:pointer;pointer-events:auto;transition:transform .15s,box-shadow .15s;min-width:140px;text-transform:uppercase;letter-spacing:1px}
+.dead-btn:active{transform:scale(.95)}
+#retry-btn{background:linear-gradient(135deg,#00b4ff,#0077cc);color:#fff;box-shadow:0 4px 16px rgba(0,180,255,.4)}
+#revive-btn{background:linear-gradient(135deg,#ffd700,#ff8c00);color:#1a1a2e;box-shadow:0 4px 16px rgba(255,215,0,.4)}
+
+#menu-screen{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg,#0f0c29,#302b63,#24243e);z-index:90;pointer-events:auto}
+#menu-screen h1{color:#fff;font-size:42px;font-weight:900;letter-spacing:2px;text-shadow:0 0 30px rgba(100,180,255,.3);margin-bottom:4px}
+#menu-screen .subtitle{color:#88bbff;font-size:15px;margin-bottom:32px;opacity:.8}
+#start-btn{padding:18px 60px;border:none;border-radius:16px;font-size:22px;font-weight:700;cursor:pointer;pointer-events:auto;background:linear-gradient(135deg,#00d4ff,#0077cc);color:#fff;box-shadow:0 6px 24px rgba(0,180,255,.4);transition:transform .15s;text-transform:uppercase;letter-spacing:2px}
+#start-btn:active{transform:scale(.95)}
+#menu-screen .hint{color:rgba(255,255,255,.4);font-size:12px;margin-top:24px;text-align:center;line-height:1.8}
+
+#controls-hint{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.3);font-size:11px;pointer-events:none;z-index:5;text-align:center;text-shadow:0 1px 4px rgba(0,0,0,.5);display:none}
+#controls-hint.show{display:block}
+
+#mobile-controls{position:absolute;bottom:0;left:0;width:100%;height:100%;pointer-events:none;z-index:20;display:none}
+#mobile-controls.show{display:block}
+#mc-left{position:absolute;bottom:30px;left:20px;pointer-events:auto}
+#mc-right{position:absolute;bottom:30px;right:20px;pointer-events:auto;display:flex;flex-direction:column;align-items:center;gap:12px}
+#jump-btn{width:80px;height:80px;border-radius:50%;border:3px solid rgba(255,255,255,.5);background:rgba(255,255,255,.15);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);pointer-events:auto;touch-action:none;text-transform:uppercase;letter-spacing:1px}
+#dash-btn{width:64px;height:64px;border-radius:50%;border:3px solid rgba(0,180,255,.5);background:rgba(0,180,255,.15);color:#00b4ff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);pointer-events:auto;touch-action:none;text-transform:uppercase;letter-spacing:1px}
+#lane-left-btn,#lane-right-btn{width:60px;height:60px;border-radius:50%;border:3px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);pointer-events:auto;touch-action:none}
+#mc-left{display:flex;gap:16px;align-items:flex-end}
+
+#combo-flash{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:48px;font-weight:900;color:#ffd700;text-shadow:0 0 40px rgba(255,215,0,.6);pointer-events:none;z-index:15;opacity:0;transition:opacity .2s}
+#combo-flash.show{opacity:1}
+
+#tt-mode{position:absolute;top:8px;right:8px;z-index:30;pointer-events:auto}
+#tt-btn{background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.2);color:#fff;padding:6px 12px;border-radius:8px;font-size:11px;cursor:pointer;pointer-events:auto;backdrop-filter:blur(4px)}
+
+@media(max-width:600px){
+  #dist-display{font-size:18px}
+  #combo-display{font-size:12px}
+  #dead-screen h1{font-size:28px}
+  #start-btn{padding:16px 44px;font-size:18px}
+  .dead-btn{padding:12px 28px;font-size:16px;min-width:120px}
+  #jump-btn{width:68px;height:68px;font-size:11px}
+  #dash-btn{width:56px;height:56px;font-size:10px}
+  #lane-left-btn,#lane-right-btn{width:50px;height:50px;font-size:14px}
+}
+</style>
+</head>
+<body>
+
+<div id="ui">
+  <div id="hud">
+    <div id="top-center">
+      <div id="dist-display">0m</div>
+      <div id="combo-display">Combo x0</div>
+    </div>
+    <div id="top-left" class="hp-row">
+      <span class="hp-icon" id="hp1">&#9829;</span>
+      <span class="hp-icon" id="hp2">&#9829;</span>
+      <span class="hp-icon" id="hp3">&#9829;</span>
+    </div>
+    <div id="top-right">
+      <div id="dash-display">DASH</div>
+      <div id="coin-display">0</div>
+    </div>
+  </div>
+
+  <div id="combo-flash"></div>
+
+  <div id="menu-screen">
+    <h1>SKY PLATFORM<br>SPRINT</h1>
+    <div class="subtitle">&#9733; Low Poly Runner &#9733;</div>
+    <button id="start-btn">PLAY</button>
+    <div class="hint">
+      Space / Tap = Jump &bull; A/D = Lane Shift<br>
+      Shift = Dash &bull; Avoid spikes &amp; drones!
+    </div>
+  </div>
+
+  <div id="dead-screen">
+    <h1>CRASHED</h1>
+    <div class="score-label">DISTANCE</div>
+    <div class="score-val" id="final-dist">0m</div>
+    <div class="best-label">BEST</div>
+    <div class="best-val" id="best-dist">0m</div>
+    <div id="dead-btns">
+      <button class="dead-btn" id="retry-btn">&#8635; Retry</button>
+      <button class="dead-btn" id="revive-btn" style="display:none">&#10010; Revive</button>
+    </div>
+  </div>
+
+  <div id="controls-hint" class="show">Space=Jump &bull; A/D=Lane &bull; Shift=Dash</div>
+
+  <div id="mobile-controls">
+    <div id="mc-left">
+      <button id="lane-left-btn">&larr;</button>
+      <button id="lane-right-btn">&rarr;</button>
+    </div>
+    <div id="mc-right">
+      <button id="dash-btn">DASH</button>
+      <button id="jump-btn">JUMP</button>
+    </div>
+  </div>
+
+  <div id="tt-mode">
+    <button id="tt-btn">&#9632; TikTok</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ============================================================
+// SKY PLATFORM SPRINT — Full Game
+// ============================================================
+
+// ─── CONFIG ───
+const CFG = Object.freeze({
+  baseSpeed: 6,
+  platformSpawnInterval: 0.7,
+  maxPlatforms: 18,
+  droneSpawnInterval: 7,
+  maxDrones: 3,
+  maxPickups: 15,
+  maxEffects: 20,
+  hardCap: 56,
+  hpMax: 3,
+  invulnTime: 0.8,
+  dashCooldown: 3.5,
+  dashDur: 0.35,
+  dashSpeed: 22,
+  jumpForce: 10,
+  bounceMult: 1.8,
+  breakPlatformDelay: 1.2,
+  laneWidth: 2.5,
+  lanes: [-2.5, 0, 2.5],
+  comboMax: 12,
+  comboTimeout: 4,
+  finishGateInterval: 500,
+  movePlatformMin: 2.5,
+  movePlatformMax: 4,
+  gravity: -28,
+  droneWarningTime: 0.6,
+  droneSpeed: 7,
+  hitShakeDur: 0.15,
+  targetFPS: 60,
+  coinOrbRadius: 0.4,
+  platformLength: 5,
+  platformWidth: 3.5,
+  segmentPoolSize: 30
+});
+
+// ─── STATE ───
+const state = {
+  phase: 'Menu', // Menu | Playing | Dead
+  score: 0,
+  distance: 0,
+  bestDist: parseInt(localStorage.getItem('sps_best')||'0'),
+  coins: 0,
+  combo: 0,
+  comboTimer: 0,
+  hp: CFG.hpMax,
+  invulnTimer: 0,
+  dashCD: 0,
+  dashing: false,
+  dashTime: 0,
+  jumping: false,
+  jumpVel: 0,
+  grounded: false,
+  laneIdx: 1,
+  targetX: 0,
+  speed: CFG.baseSpeed,
+  difficultyTier: 0,
+  droneSpawnCD: 0,
+  platSpawnCD: 0,
+  debrisSpawnCD: 0,
+  distSinceMilestone: 0,
+  milestoneCount: 0,
+  reviveUsed: false,
+  tiktokMode: false,
+  // pooled arrays
+  platforms: [],
+  drones: [],
+  pickups: [],
+  effects: [],
+  debris: [],
+  activePlatforms: [],
+  activeDrones: [],
+  activePickups: [],
+  activeEffects: [],
+  activeDebris: []
+};
+
+// ─── THREE.JS SETUP ───
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x1a1a3e);
+scene.fog = new THREE.Fog(0x1a1a3e, 50, 120);
+
+const camera = new THREE.PerspectiveCamera(65, window.innerWidth/window.innerHeight, 0.1, 200);
+camera.position.set(0, 6, -10);
+camera.lookAt(0, 1, 10);
+
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
+document.body.prepend(renderer.domElement);
+
+// ─── LIGHTS ───
+const ambient = new THREE.AmbientLight(0x4466aa, 0.5);
+scene.add(ambient);
+
+const dirLight = new THREE.DirectionalLight(0xffeedd, 1.2);
+dirLight.position.set(20, 30, 10);
+dirLight.castShadow = true;
+dirLight.shadow.mapSize.width = 1024;
+dirLight.shadow.mapSize.height = 1024;
+dirLight.shadow.camera.near = 0.5;
+dirLight.shadow.camera.far = 100;
+dirLight.shadow.camera.left = -40;
+dirLight.shadow.camera.right = 40;
+dirLight.shadow.camera.top = 40;
+dirLight.shadow.camera.bottom = -40;
+scene.add(dirLight);
+
+const rimLight = new THREE.DirectionalLight(0x88ccff, 0.4);
+rimLight.position.set(-10, 10, -20);
+scene.add(rimLight);
+
+const hemi = new THREE.HemisphereLight(0x88ccff, 0x444477, 0.6);
+scene.add(hemi);
+
+// ─── SKYBOX (low poly clouds) ───
+function makeCloud(p, s) {
+  const g = new THREE.SphereGeometry(s, 6, 5);
+  const m = new THREE.MeshStandardMaterial({color:0xffffff, roughness:1, metalness:0, transparent:true, opacity:0.7});
+  const mesh = new THREE.Mesh(g,m);
+  mesh.position.copy(p);
+  return mesh;
+}
+const cloudGroup = new THREE.Group();
+for(let i=0;i<30;i++){
+  const x=(Math.random()-0.5)*120;
+  const y=15+Math.random()*25;
+  const z=(Math.random()-0.5)*120-20;
+  const s=3+Math.random()*6;
+  const c=makeCloud(new THREE.Vector3(x,y,z),s);
+  cloudGroup.add(c);
+}
+scene.add(cloudGroup);
+
+// ─── GROUND REF ───
+const groundGeo = new THREE.PlaneGeometry(200, 200);
+const groundMat = new THREE.MeshStandardMaterial({color:0x2233aa, roughness:0.8, metalness:0.1, transparent:true, opacity:0.3});
+const ground = new THREE.Mesh(groundGeo, groundMat);
+ground.rotation.x = -Math.PI/2;
+ground.position.y = -2;
+ground.receiveShadow = true;
+scene.add(ground);
+
+// ─── POOL HELPERS ───
+function createPooledGroup(max){
+  const g = new THREE.Group();
+  g.userData.pool = [];
+  g.userData.active = [];
+  g.userData.max = max;
+  return g;
+}
+
+function getFromPool(group){
+  const p = group.userData.pool;
+  const a = group.userData.active;
+  if(p.length===0) return null;
+  const obj = p.pop();
+  obj.visible = true;
+  a.push(obj);
+  return obj;
+}
+
+function returnToPool(group, obj){
+  obj.visible = false;
+  const a = group.userData.active;
+  const idx = a.indexOf(obj);
+  if(idx!==-1) a.splice(idx,1);
+  group.userData.pool.push(obj);
+  // reset
+  obj.position.set(0,-100,0);
+  obj.userData = {};
+}
+
+function preAllocPool(group, count, createFn){
+  for(let i=0;i<count;i++){
+    const obj = createFn();
+    obj.visible = false;
+    obj.position.set(0,-100,0);
+    group.userData.pool.push(obj);
+    group.add(obj);
+  }
+}
+
+// ─── PLATFORM POOL ───
+const platColors = {safe:0x44ccff, break:0xff4444, boost:0xffcc00, dash:0xaa44ff, moving:0x44ff88, spike:0xff8844};
+
+function makePlatformGeom(w, h, d){
+  const g = new THREE.BoxGeometry(w, h, d);
+  // low poly bevel
+  const pos = g.attributes.position;
+  for(let i=0;i<pos.count;i++){
+    pos.setXYZ(i, pos.getX(i)+(Math.random()-0.5)*0.08, pos.getY(i)+(Math.random()-0.5)*0.08, pos.getZ(i)+(Math.random()-0.5)*0.08);
+  }
+  pos.needsUpdate = true;
+  return g;
+}
+
+function createPlatform(){
+  const geo = makePlatformGeom(CFG.platformWidth, 0.5, CFG.platformLength);
+  const mat = new THREE.MeshStandardMaterial({color:0x44ccff, roughness:0.6, metalness:0.2});
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.castShadow = true; mesh.receiveShadow = true;
+  // top indicator
+  const topGeo = new THREE.BoxGeometry(CFG.platformWidth*0.7, 0.08, CFG.platformLength*0.7);
+  const topMat = new THREE.MeshStandardMaterial({color:0x44ccff, emissive:0x44ccff, emissiveIntensity:0.2});
+  const top = new THREE.Mesh(topGeo, topMat);
+  top.position.y = 0.3;
+  mesh.add(top);
+  // spike geometry (hidden by default)
+  const spikeGroup = new THREE.Group();
+  spikeGroup.name = 'spikes';
+  const spikeGeo = new THREE.ConeGeometry(0.12, 0.35, 4);
+  const spikeMat = new THREE.MeshStandardMaterial({color:0xff6644, emissive:0xff4400, emissiveIntensity:0.2});
+  for(let sx=-0.8;sx<=0.8;sx+=0.6){
+    for(let sz=-1.2;sz<=1.2;sz+=0.6){
+      const s = new THREE.Mesh(spikeGeo, spikeMat);
+      s.position.set(sx, 0.28, sz);
+      s.rotation.set(0, Math.random()*0.5, 0);
+      spikeGroup.add(s);
+    }
+  }
+  spikeGroup.visible = false;
+  mesh.add(spikeGroup);
+  // collider helper
+  mesh.userData = {type:'safe', breakTimer:0, broken:false, moveDir:1, moveRange:2, originX:0};
+  return mesh;
+}
+
+const platGroup = createPooledGroup(CFG.maxPlatforms);
+scene.add(platGroup);
+preAllocPool(platGroup, CFG.maxPlatforms, createPlatform);
+
+// ─── DRONE POOL ───
+function createDrone(){
+  const g = new THREE.Group();
+  // body
+  const bodyGeo = new THREE.OctahedronGeometry(0.5);
+  const bodyMat = new THREE.MeshStandardMaterial({color:0xff3333, roughness:0.3, metalness:0.7, emissive:0xff0000, emissiveIntensity:0.3});
+  const body = new THREE.Mesh(bodyGeo, bodyMat);
+  body.castShadow = true;
+  g.add(body);
+  // wings
+  for(let i=0;i<4;i++){
+    const a = (i/4)*Math.PI*2;
+    const wg = new THREE.BoxGeometry(0.8, 0.08, 0.15);
+    const wm = new THREE.MeshStandardMaterial({color:0xcc4444, roughness:0.5, metalness:0.3});
+    const w = new THREE.Mesh(wg, wm);
+    w.position.set(Math.cos(a)*0.6, 0, Math.sin(a)*0.6);
+    w.rotation.y = -a;
+    g.add(w);
+    // glow
+    const gg = new THREE.SphereGeometry(0.08, 4, 4);
+    const gm = new THREE.MeshBasicMaterial({color:0xff4444});
+    const gl = new THREE.Mesh(gg, gm);
+    gl.position.set(Math.cos(a)*0.6, -0.1, Math.sin(a)*0.6);
+    g.add(gl);
+  }
+  g.userData = {speed:CFG.droneSpeed, targetY:0, phase:0, warningTime:0, attacking:false, homeX:0, homeZ:0};
+  return g;
+}
+
+const droneGroup = createPooledGroup(CFG.maxDrones);
+scene.add(droneGroup);
+preAllocPool(droneGroup, CFG.maxDrones, createDrone);
+
+// ─── PICKUP (COIN) POOL ───
+function createPickup(){
+  const g = new THREE.Group();
+  const geo = new THREE.OctahedronGeometry(CFG.coinOrbRadius);
+  const mat = new THREE.MeshStandardMaterial({color:0xffd700, roughness:0.2, metalness:0.8, emissive:0xffd700, emissiveIntensity:0.3});
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.castShadow = true;
+  g.add(mesh);
+  // glow ring
+  const rg = new THREE.RingGeometry(0.3, 0.45, 8);
+  const rm = new THREE.MeshBasicMaterial({color:0xffd700, transparent:true, opacity:0.3, side:THREE.DoubleSide});
+  const ring = new THREE.Mesh(rg, rm);
+  ring.rotation.x = Math.PI/2;
+  ring.position.y = -0.1;
+  g.add(ring);
+  g.userData = {alive:true};
+  return g;
+}
+
+const pickupGroup = createPooledGroup(CFG.maxPickups);
+scene.add(pickupGroup);
+preAllocPool(pickupGroup, CFG.maxPickups, createPickup);
+
+// ─── FX POOL ───
+function createFX(){
+  const g = new THREE.Group();
+  const geo = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+  const mat = new THREE.MeshBasicMaterial({color:0xffffff});
+  for(let i=0;i<6;i++){
+    const m = new THREE.Mesh(geo, mat.clone());
+    m.userData.vel = new THREE.Vector3();
+    g.add(m);
+  }
+  g.userData = {life:0, maxLife:0.6, particles:g.children};
+  return g;
+}
+
+const fxGroup = createPooledGroup(CFG.maxEffects);
+scene.add(fxGroup);
+preAllocPool(fxGroup, CFG.maxEffects, createFX);
+
+// ─── DEBRIS POOL ───
+function createDebris(){
+  const geo = new THREE.BoxGeometry(0.3, 0.3, 0.3);
+  const mat = new THREE.MeshStandardMaterial({color:0x886644, roughness:0.8});
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.castShadow = true;
+  mesh.userData = {vel:new THREE.Vector3(), life:0, maxLife:3};
+  return mesh;
+}
+
+const debrisGroup = createPooledGroup(10);
+preAllocPool(debrisGroup, 10, createDebris);
+scene.add(debrisGroup);
+
+// ─── PLAYER ───
+function createPlayer(){
+  const g = new THREE.Group();
+  // body
+  const bodyGeo = new THREE.BoxGeometry(0.7, 1, 0.5);
+  const bodyMat = new THREE.MeshStandardMaterial({color:0x44ddff, roughness:0.3, metalness:0.5});
+  const body = new THREE.Mesh(bodyGeo, bodyMat);
+  body.position.y = 0.5;
+  body.castShadow = true;
+  g.add(body);
+  // head
+  const headGeo = new THREE.SphereGeometry(0.35, 6, 5);
+  const headMat = new THREE.MeshStandardMaterial({color:0xffccaa, roughness:0.5});
+  const head = new THREE.Mesh(headGeo, headMat);
+  head.position.y = 1.3;
+  head.castShadow = true;
+  g.add(head);
+  // visor
+  const visGeo = new THREE.BoxGeometry(0.3, 0.1, 0.05);
+  const visMat = new THREE.MeshStandardMaterial({color:0x00ccff, emissive:0x00ccff, emissiveIntensity:0.5});
+  const vis = new THREE.Mesh(visGeo, visMat);
+  vis.position.set(0, 1.35, -0.35);
+  g.add(vis);
+  // legs
+  const legGeo = new THREE.BoxGeometry(0.15, 0.3, 0.15);
+  const legMat = new THREE.MeshStandardMaterial({color:0x3366aa, roughness:0.6});
+  for(let i=-1;i<=1;i+=2){
+    const leg = new THREE.Mesh(legGeo, legMat);
+    leg.position.set(i*0.2, 0.15, 0);
+    leg.castShadow = true;
+    g.add(leg);
+  }
+  // trail attach
+  g.userData = {squash:1, stretch:1};
+  return g;
+}
+
+const player = createPlayer();
+player.position.set(0, 0, 0);
+scene.add(player);
+
+// ─── DASH TRAIL ───
+const trailParticles = [];
+const trailMat = new THREE.MeshBasicMaterial({color:0x44ddff, transparent:true, opacity:0.5});
+for(let i=0;i<10;i++){
+  const g = new THREE.BoxGeometry(0.1, 0.1, 0.3);
+  const m = new THREE.Mesh(g, trailMat.clone());
+  m.visible = false;
+  scene.add(m);
+  trailParticles.push({mesh:m, life:0});
+}
+
+// ─── INPUT ───
+const input = {jump:false, dash:false, laneLeft:false, laneRight:false, jumpTap:false, dashTap:false};
+
+// Keyboard
+document.addEventListener('keydown', e=>{
+  if(e.code==='Space'||e.code==='KeyW'||e.code==='ArrowUp'){e.preventDefault(); input.jump=true; input.jumpTap=true;}
+  if(e.code==='ShiftLeft'||e.code==='ShiftRight'){input.dash=true; input.dashTap=true;}
+  if(e.code==='KeyA'||e.code==='ArrowLeft'){input.laneLeft=true;}
+  if(e.code==='KeyD'||e.code==='ArrowRight'){input.laneRight=true;}
+});
+document.addEventListener('keyup', e=>{
+  if(e.code==='Space'||e.code==='KeyW'||e.code==='ArrowUp'){input.jump=false;}
+  if(e.code==='ShiftLeft'||e.code==='ShiftRight'){input.dash=false;}
+  if(e.code==='KeyA'||e.code==='ArrowLeft'){input.laneLeft=false;}
+  if(e.code==='KeyD'||e.code==='ArrowRight'){input.laneRight=false;}
+});
+
+// Mouse click jump
+document.addEventListener('click', e=>{
+  if(state.phase==='Playing' && !isMobile){input.jump=true; input.jumpTap=true;}
+});
+
+// Touch
+let isMobile = false;
+if('ontouchstart' in window){
+  isMobile = true;
+  document.getElementById('mobile-controls').classList.add('show');
+  document.getElementById('controls-hint').classList.remove('show');
+}
+
+// ─── MOBILE CONTROLS ───
+const jumpBtn = document.getElementById('jump-btn');
+const dashBtn = document.getElementById('dash-btn');
+const laneLeftBtn = document.getElementById('lane-left-btn');
+const laneRightBtn = document.getElementById('lane-right-btn');
+
+function setupTouchButton(el, onStart, onEnd){
+  el.addEventListener('touchstart', e=>{e.preventDefault(); onStart();}, {passive:false});
+  el.addEventListener('touchend', e=>{e.preventDefault(); if(onEnd) onEnd();}, {passive:false});
+  el.addEventListener('touchcancel', e=>{e.preventDefault(); if(onEnd) onEnd();}, {passive:false});
+  el.addEventListener('mousedown', onStart);
+  el.addEventListener('mouseup', ()=>onEnd&&onEnd());
+}
+
+setupTouchButton(jumpBtn, ()=>{if(state.phase==='Playing'){input.jump=true; input.jumpTap=true;}}, ()=>{input.jump=false;});
+setupTouchButton(dashBtn, ()=>{if(state.phase==='Playing'){input.dash=true; input.dashTap=true;}}, ()=>{input.dash=false;});
+setupTouchButton(laneLeftBtn, ()=>{input.laneLeft=true;});
+setupTouchButton(laneRightBtn, ()=>{input.laneRight=true;});
+laneLeftBtn.addEventListener('touchend', ()=>{input.laneLeft=false;});
+laneLeftBtn.addEventListener('mouseup', ()=>{input.laneLeft=false;});
+laneRightBtn.addEventListener('touchend', ()=>{input.laneRight=false;});
+laneRightBtn.addEventListener('mouseup', ()=>{input.laneRight=false;});
+
+// ─── UI REFS ───
+const distDisplay = document.getElementById('dist-display');
+const comboDisplay = document.getElementById('combo-display');
+const coinDisplay = document.getElementById('coin-display');
+const dashDisplay = document.getElementById('dash-display');
+const hpIcons = [document.getElementById('hp1'), document.getElementById('hp2'), document.getElementById('hp3')];
+const menuScreen = document.getElementById('menu-screen');
+const deadScreen = document.getElementById('dead-screen');
+const finalDist = document.getElementById('final-dist');
+const bestDist = document.getElementById('best-dist');
+const retryBtn = document.getElementById('retry-btn');
+const reviveBtn = document.getElementById('revive-btn');
+const startBtn = document.getElementById('start-btn');
+const comboFlash = document.getElementById('combo-flash');
+const ttBtn = document.getElementById('tt-btn');
+
+// ─── GAME FUNCTIONS ───
+
+function spawnPlatform(zPos){
+  const plat = getFromPool(platGroup);
+  if(!plat) return;
+  const type = pickPlatformType();
+  const lane = CFG.lanes[Math.floor(Math.random()*CFG.lanes.length)];
+  plat.position.set(lane, 0, zPos);
+  plat.userData.type = type;
+  plat.userData.broken = false;
+  plat.userData.breakTimer = 0;
+  plat.userData.moveTimer = 0;
+  plat.userData.moveDir = Math.random()>0.5?1:-1;
+  plat.userData.originX = lane;
+  plat.userData.moveRange = 1.5+Math.random()*1.5;
+
+  // update color
+  const c = platColors[type]||platColors.safe;
+  plat.material.color.setHex(c);
+  const top = plat.children[0];
+  top.material.color.setHex(c);
+  top.material.emissive.setHex(c);
+  top.material.emissiveIntensity = 0.15;
+  if(type==='break') top.material.emissiveIntensity = 0.4;
+  if(type==='boost') top.material.emissiveIntensity = 0.5;
+  if(type==='dash') top.material.emissiveIntensity = 0.4;
+
+  // Spikes toggle
+  const spikeGroup = plat.getObjectByName('spikes');
+  if(spikeGroup) spikeGroup.visible = (type==='spike');
+
+  // Spawn coin on platform (not on spike)
+  if(Math.random()<0.5 && type!=='spike'){
+    spawnPickup(lane, 1.5, zPos);
+  }
+
+  state.activePlatforms.push(plat);
+}
+
+function pickPlatformType(){
+  const dist = state.distance;
+  const r = Math.random();
+  if(dist<100) return r<0.6?'safe':(r<0.78?'boost':(r<0.9?'break':'spike'));
+  if(dist<300) return r<0.45?'safe':(r<0.62?'boost':(r<0.78?'break':(r<0.9?'moving':'spike')));
+  if(dist<600) return r<0.3?'safe':(r<0.47?'boost':(r<0.62?'break':(r<0.78?'moving':(r<0.9?'dash':'spike'))));
+  return r<0.22?'safe':(r<0.38?'boost':(r<0.52?'break':(r<0.68?'moving':(r<0.84?'dash':'spike'))));
+}
+
+function spawnPickup(x, y, z){
+  const p = getFromPool(pickupGroup);
+  if(!p) return;
+  p.position.set(x, y+0.8, z);
+  p.userData.alive = true;
+  // random spin
+  p.userData.spinSpeed = 2+Math.random()*3;
+  state.activePickups.push(p);
+}
+
+function spawnDrone(zPos){
+  const d = getFromPool(droneGroup);
+  if(!d) return;
+  const lane = CFG.lanes[Math.floor(Math.random()*CFG.lanes.length)];
+  d.position.set(lane, 4+Math.random()*2, zPos);
+  d.userData.homeX = lane;
+  d.userData.homeZ = zPos;
+  d.userData.targetY = 2+Math.random()*1.5;
+  d.userData.phase = 0; // 0=hover, 1=warning, 2=attack
+  d.userData.warningTime = 0;
+  d.userData.attacking = false;
+  d.userData.speed = CFG.droneSpeed + state.difficultyTier*0.5;
+  d.rotation.set(0,0,0);
+  state.activeDrones.push(d);
+  // warning pulse
+  d.children.forEach(c=>{if(c.isMesh&&c.material&&c.material.emissive){c.material.emissiveIntensity=0.8;}});
+}
+
+function spawnDebris(x, y, z){
+  const d = getFromPool(debrisGroup);
+  if(!d) return;
+  d.position.set(x, y, z);
+  d.userData.vel.set((Math.random()-0.5)*3, Math.random()*4+2, (Math.random()-0.5)*3);
+  d.userData.life = 0;
+  d.userData.maxLife = 3;
+  d.rotation.set(Math.random()*6, Math.random()*6, Math.random()*6);
+  state.activeDebris.push(d);
+}
+
+// ─── FX ───
+function emitFX(pos, color, count){
+  const fx = getFromPool(fxGroup);
+  if(!fx) return;
+  fx.position.copy(pos);
+  const c = new THREE.Color(color);
+  fx.userData.life = 0;
+  fx.userData.maxLife = 0.6;
+  fx.children.forEach((p,i)=>{
+    p.material.color.copy(c);
+    p.material.opacity = 1;
+    p.transparent = true;
+    p.position.set(0,0,0);
+    p.userData.vel.set((Math.random()-0.5)*4, Math.random()*4+1, (Math.random()-0.5)*4);
+    p.scale.set(1,1,1);
+  });
+  state.activeEffects.push(fx);
+}
+
+function emitCoinBurst(pos){
+  emitFX(pos, 0xffd700, 8);
+}
+
+function emitBreakFX(pos){
+  emitFX(pos, 0xff6644, 10);
+}
+
+function emitHitFX(pos){
+  emitFX(pos, 0xff4444, 6);
+}
+
+// ─── PLAYER PHYSICS ───
+function updatePlayer(dt){
+  if(state.phase!=='Playing') return;
+  const p = player;
+
+  // Auto-run forward
+  state.distance += state.speed * dt;
+  p.position.z = state.distance;
+  state.distSinceMilestone += state.speed * dt;
+
+  // Lane movement
+  const targetX = CFG.lanes[state.laneIdx];
+  p.position.x += (targetX - p.position.x) * Math.min(1, dt*12);
+
+  // Gravity — always active, no virtual ground
+  state.jumpVel += CFG.gravity * dt;
+  p.position.y += state.jumpVel * dt;
+
+  // Platform landing handled in checkPlatformCollision
+  // Reset grounded state each frame; set true only by collision
+  state.grounded = false;
+
+  // Jump
+  if(input.jumpTap && state.grounded && !state.dashing){
+    state.jumpVel = CFG.jumpForce;
+    state.grounded = false;
+    state.jumping = true;
+    // squash
+    p.userData.squash = 0.7;
+    p.userData.stretch = 1.3;
+  }
+  if(state.jumping) state.grounded = false;
+
+  // Bounce pad check (handled in collision)
+
+  // Dash
+  if(state.dashCD>0) state.dashCD -= dt;
+  if(input.dashTap && state.dashCD<=0 && !state.dashing){
+    state.dashing = true;
+    state.dashTime = CFG.dashDur;
+    const cdMult = state._dashCooldownMult||1;
+    state.dashCD = CFG.dashCooldown * cdMult;
+    // dash forward burst
+    emitFX(p.position.clone().add(new THREE.Vector3(0,0.5,0)), 0x44ddff, 6);
+  }
+  if(state.dashing){
+    state.dashTime -= dt;
+    p.position.z += CFG.dashSpeed * dt;
+    state.distance += CFG.dashSpeed * dt;
+    // trail
+    for(let t of trailParticles){
+      if(t.life<=0){
+        t.mesh.visible = true;
+        t.mesh.position.copy(p.position);
+        t.mesh.position.y += 0.5;
+        t.mesh.position.z -= 0.5;
+        t.life = 0.3;
+        t.mesh.material.opacity = 0.5;
+        break;
+      }
+    }
+    if(state.dashTime<=0){
+      state.dashing = false;
+    }
+  }
+
+  // Combo timer
+  if(state.combo>0){
+    state.comboTimer -= dt;
+    if(state.comboTimer<=0){
+      state.combo = 0;
+      updateComboDisplay();
+    }
+  }
+
+  // Invulnerability
+  if(state.invulnTimer>0) state.invulnTimer -= dt;
+
+  // Squash/stretch recovery
+  p.userData.squash += (1-p.userData.squash)*dt*8;
+  p.userData.stretch += (1-p.userData.stretch)*dt*8;
+  p.scale.set(1/p.userData.stretch, p.userData.squash, 1/p.userData.stretch);
+
+  // Check fall — no platform beneath = death
+  if(p.position.y < -8){
+    takeDamage(999);
+  }
+
+  // Difficulty
+  if(state.distSinceMilestone >= CFG.finishGateInterval){
+    state.distSinceMilestone = 0;
+    state.milestoneCount++;
+    state.difficultyTier = Math.floor(state.distance/1000);
+    state.speed = CFG.baseSpeed * (1 + state.milestoneCount*0.1);
+    // flash
+    showComboFlash('MILESTONE +'+(state.milestoneCount*500)+'m');
+  }
+
+  // Input tap reset
+  input.jumpTap = false;
+  input.dashTap = false;
+}
+
+// ─── PLATFORM LOGIC ───
+function updatePlatforms(dt){
+  // Spawn
+  state.platSpawnCD -= dt;
+  if(state.platSpawnCD<=0 && state.activePlatforms.length < CFG.maxPlatforms){
+    state.platSpawnCD = CFG.platformSpawnInterval;
+    const spawnZ = state.distance + 20 + Math.random()*10;
+    spawnPlatform(spawnZ);
+  }
+
+  // Update each
+  for(let i=state.activePlatforms.length-1;i>=0;i--){
+    const plat = state.activePlatforms[i];
+    if(!plat||!plat.visible) continue;
+
+    const type = plat.userData.type;
+    const pz = plat.position.z;
+
+    // Remove if behind
+    if(pz < state.distance - 15){
+      returnToPool(platGroup, plat);
+      state.activePlatforms.splice(i,1);
+      continue;
+    }
+
+    // Breakable timer
+    if(type==='break' && !plat.userData.broken){
+      // check if player is on this platform
+      if(isPlayerOnPlatform(plat)){
+        plat.userData.breakTimer += dt;
+        if(plat.userData.breakTimer >= CFG.breakPlatformDelay){
+          plat.userData.broken = true;
+          plat.visible = false;
+          emitBreakFX(plat.position.clone().add(new THREE.Vector3(0,0.5,0)));
+          // return after delay
+          setTimeout(()=>{
+            const idx = state.activePlatforms.indexOf(plat);
+            if(idx!==-1){
+              returnToPool(platGroup, plat);
+              state.activePlatforms.splice(idx,1);
+            }
+          }, 500);
+        }
+      } else {
+        plat.userData.breakTimer = 0;
+      }
+      // flicker warning
+      if(plat.userData.breakTimer>0.5){
+        plat.visible = Math.floor(plat.userData.breakTimer*10)%2===0;
+      } else {
+        plat.visible = true;
+      }
+    }
+
+    // Moving platform
+    if(type==='moving'){
+      plat.userData.moveTimer += dt;
+      if(plat.userData.moveTimer > CFG.movePlatformMin + Math.random()*(CFG.movePlatformMax-CFG.movePlatformMin)){
+        plat.userData.moveDir *= -1;
+        plat.userData.moveTimer = 0;
+      }
+      const newX = plat.userData.originX + Math.sin(plat.userData.moveTimer*2 + plat.userData.moveDir*100)*plat.userData.moveRange;
+      plat.position.x = newX;
+    }
+
+    // Boost platform visual
+    if(type==='boost'){
+      plat.children[0].material.emissiveIntensity = 0.3 + Math.sin(Date.now()*0.005)*0.2;
+    }
+
+    // Dash ring visual
+    if(type==='dash'){
+      plat.children[0].material.emissiveIntensity = 0.3 + Math.sin(Date.now()*0.008)*0.3;
+    }
+  }
+}
+
+function isPlayerOnPlatform(plat){
+  const dx = Math.abs(player.position.x - plat.position.x);
+  const dz = Math.abs(player.position.z - plat.position.z);
+  return dx < CFG.platformWidth/2+0.3 && dz < CFG.platformLength/2+0.3 && player.position.y < 0.7;
+}
+
+// ─── DRONE LOGIC ───
+function updateDrones(dt){
+  state.droneSpawnCD -= dt;
+  if(state.droneSpawnCD<=0 && state.activeDrones.length < CFG.maxDrones){
+    state.droneSpawnCD = CFG.droneSpawnInterval - state.difficultyTier*0.3;
+    if(state.droneSpawnCD<3) state.droneSpawnCD=3;
+    const spawnZ = state.distance + 25 + Math.random()*10;
+    spawnDrone(spawnZ);
+  }
+
+  for(let i=state.activeDrones.length-1;i>=0;i--){
+    const d = state.activeDrones[i];
+    if(!d||!d.visible) continue;
+
+    const dz = d.position.z - state.distance;
+
+    // Remove if behind
+    if(dz < -10){
+      returnToPool(droneGroup, d);
+      state.activeDrones.splice(i,1);
+      continue;
+    }
+
+    // Phase logic
+    const phase = d.userData.phase;
+
+    if(phase===0){
+      // Hover following player
+      d.position.z += (state.distance + 15 - d.position.z)*dt*2;
+      d.position.y += (d.userData.targetY - d.position.y)*dt*2;
+      d.rotation.y += dt*2;
+
+      // Check distance to player
+      const distToPlayer = d.position.z - state.distance;
+      if(distToPlayer < 10 && distToPlayer > -5){
+        d.userData.phase = 1;
+        d.userData.warningTime = 0;
+        // warning glow
+        d.children.forEach(c=>{if(c.isMesh&&c.material&&c.material.emissive){c.material.emissiveIntensity=1.5;}});
+      }
+    }
+
+    if(phase===1){
+      // Warning phase
+      d.userData.warningTime += dt;
+      // pulse effect
+      const pulse = 0.8 + Math.sin(d.userData.warningTime*20)*0.2;
+      d.scale.set(pulse, pulse, pulse);
+      d.position.z += (state.distance + 12 - d.position.z)*dt*3;
+
+      if(d.userData.warningTime >= CFG.droneWarningTime){
+        d.userData.phase = 2;
+        d.userData.attacking = true;
+        d.userData.targetY = 1.5;
+      }
+    }
+
+    if(phase===2){
+      // Attack dive
+      const targetPos = new THREE.Vector3(player.position.x, 1.5, state.distance+2);
+      d.position.lerp(targetPos, dt*3);
+      d.rotation.x += dt*5;
+      d.rotation.z += dt*3;
+
+      // Check hit player
+      if(d.position.distanceTo(player.position) < 1.2 && state.invulnTimer<=0){
+        takeDamage(1, 'drone');
+        // drone resets
+        d.userData.phase = 0;
+        d.userData.targetY = 3+Math.random()*2;
+        d.position.z = state.distance + 20;
+        d.scale.set(1,1,1);
+        d.children.forEach(c=>{if(c.isMesh&&c.material&&c.material.emissive){c.material.emissiveIntensity=0.3;}});
+      }
+
+      // after attack, retreat
+      if(d.position.z > state.distance + 5){
+        d.userData.phase = 0;
+        d.userData.targetY = 3+Math.random()*2;
+        d.scale.set(1,1,1);
+        d.children.forEach(c=>{if(c.isMesh&&c.material&&c.material.emissive){c.material.emissiveIntensity=0.3;}});
+      }
+    }
+
+    // Clamp within bounds
+    if(d.position.z > state.distance + 30){
+      d.position.z = state.distance + 20;
+    }
+  }
+}
+
+// ─── PICKUP LOGIC ───
+function updatePickups(dt){
+  for(let i=state.activePickups.length-1;i>=0;i--){
+    const p = state.activePickups[i];
+    if(!p||!p.visible) continue;
+    // spin
+    p.rotation.y += dt * (p.userData.spinSpeed||2);
+    p.rotation.x += dt * 0.5;
+    // float
+    p.position.y += Math.sin(Date.now()*0.003 + i)*dt*0.3;
+
+    // distance check
+    if(p.position.z < state.distance - 10){
+      returnToPool(pickupGroup, p);
+      state.activePickups.splice(i,1);
+      continue;
+    }
+
+    // Collect check
+    const dx = p.position.x - player.position.x;
+    const dz = p.position.z - player.position.z;
+    const dy = p.position.y - player.position.y;
+    const dist = Math.sqrt(dx*dx + dz*dz + dy*dy);
+    if(dist < 1.2 && p.userData.alive){
+      p.userData.alive = false;
+      collectCoin(p);
+    }
+  }
+}
+
+function collectCoin(p){
+  state.coins++;
+  state.combo = Math.min(state.combo+1, CFG.comboMax);
+  state.comboTimer = CFG.comboTimeout;
+  updateComboDisplay();
+  coinDisplay.textContent = state.coins;
+  emitCoinBurst(p.position.clone());
+
+  // Combo bonuses
+  if(state.combo===3){
+    state.speed = CFG.baseSpeed * (1 + state.milestoneCount*0.1) * 1.08;
+    showComboFlash('x3 SPEED +8%');
+  }
+  if(state.combo===6){
+    showComboFlash('x6 COIN +15%');
+  }
+  if(state.combo===9){
+    state.jumpForce = CFG.jumpForce * 1.1;
+    showComboFlash('x9 JUMP BOOST');
+  }
+  if(state.combo===12){
+    state.dashCD = 0;
+    state._dashCooldownMult = 0.7;
+    showComboFlash('x12 DASH MASTER!');
+  }
+
+  returnToPool(pickupGroup, p);
+  const idx = state.activePickups.indexOf(p);
+  if(idx!==-1) state.activePickups.splice(idx,1);
+}
+
+// ─── COLLISION (platform landing) ───
+function checkPlatformCollision(){
+  if(state.phase!=='Playing') return;
+
+  let landed = false;
+  for(let plat of state.activePlatforms){
+    if(!plat||!plat.visible) continue;
+    if(plat.userData.broken) continue;
+    const dx = Math.abs(player.position.x - plat.position.x);
+    const dz = Math.abs(player.position.z - plat.position.z);
+    const onPlatform = dx < CFG.platformWidth/2+0.3 && dz < CFG.platformLength/2+0.3;
+    if(!onPlatform) continue;
+
+    // Landing: descending onto platform surface
+    if(player.position.y <= 0.5 && state.jumpVel <= 0 && !state.grounded){
+      player.position.y = 0;
+      state.jumping = false;
+      state.grounded = true;
+      state.jumpVel = 0;
+      landed = true;
+
+      // Spike trap
+      if(plat.userData.type==='spike'){
+        takeDamage(1, 'spike');
+      }
+
+      // Bounce pad
+      if(plat.userData.type==='boost'){
+        state.jumpVel = CFG.jumpForce * CFG.bounceMult;
+        state.grounded = false;
+        state.jumping = true;
+        emitFX(plat.position.clone().add(new THREE.Vector3(0,0.5,0)), 0xffcc00, 8);
+      }
+
+      // Dash ring
+      if(plat.userData.type==='dash'){
+        state.dashing = true;
+        state.dashTime = CFG.dashDur;
+        state.dashCD = 0;
+        emitFX(plat.position.clone().add(new THREE.Vector3(0,0.5,0)), 0xaa44ff, 10);
+      }
+
+      break;
+    }
+
+    // Standing: stay grounded if on platform with low velocity
+    if(player.position.y <= 0.3 && Math.abs(state.jumpVel) < 0.5){
+      player.position.y = 0;
+      state.jumping = false;
+      state.grounded = true;
+      state.jumpVel = 0;
+      landed = true;
+      break;
+    }
+  }
+}
+
+// ─── DAMAGE ───
+function takeDamage(amount, source){
+  if(state.invulnTimer>0 || state.phase!=='Playing') return;
+  state.hp -= amount;
+  state.invulnTimer = CFG.invulnTime;
+  state.combo = 0;
+  state.comboTimer = 0;
+  updateComboDisplay();
+
+  // Camera shake
+  cameraShake(CFG.hitShakeDur);
+
+  // Hit FX
+  emitHitFX(player.position.clone().add(new THREE.Vector3(0,0.5,0)));
+
+  // Visual feedback
+  player.children.forEach(c=>{
+    if(c.isMesh){
+      c.material.emissive = new THREE.Color(0xff0000);
+      c.material.emissiveIntensity = 0.5;
+      setTimeout(()=>{
+        c.material.emissive = new THREE.Color(0x000000);
+        c.material.emissiveIntensity = 0;
+      }, 150);
+    }
+  });
+
+  updateHPDisplay();
+
+  if(state.hp <= 0){
+    gameOver();
+  }
+}
+
+// ─── CAMERA SHAKE ───
+let shakeTime = 0;
+let shakeIntensity = 0;
+
+function cameraShake(dur, intensity=0.3){
+  shakeTime = dur;
+  shakeIntensity = intensity;
+}
+
+// ─── UI UPDATES ───
+function updateDisplay(){
+  distDisplay.textContent = Math.floor(state.distance)+'m';
+}
+
+function updateComboDisplay(){
+  if(state.combo>0){
+    comboDisplay.textContent = 'Combo x'+state.combo;
+    comboDisplay.classList.add('active');
+    if(state.combo>=3) comboDisplay.style.color = '#ffd700';
+    if(state.combo>=6) comboDisplay.style.color = '#ff8800';
+    if(state.combo>=9) comboDisplay.style.color = '#ff4400';
+    if(state.combo>=12) comboDisplay.style.color = '#ff00ff';
+  } else {
+    comboDisplay.textContent = 'Combo x0';
+    comboDisplay.classList.remove('active');
+    comboDisplay.style.color = '';
+  }
+}
+
+function updateHPDisplay(){
+  for(let i=0;i<3;i++){
+    hpIcons[i].classList.toggle('hp-lost', i>=state.hp);
+  }
+}
+
+function updateDashDisplay(){
+  if(state.dashCD<=0){
+    dashDisplay.textContent = 'DASH';
+    dashDisplay.classList.add('ready');
+  } else {
+    dashDisplay.textContent = Math.ceil(state.dashCD)+'s';
+    dashDisplay.classList.remove('ready');
+  }
+}
+
+let flashTimeout = null;
+function showComboFlash(text){
+  comboFlash.textContent = text;
+  comboFlash.classList.add('show');
+  if(flashTimeout) clearTimeout(flashTimeout);
+  flashTimeout = setTimeout(()=>{
+    comboFlash.classList.remove('show');
+  }, 800);
+}
+
+// ─── GAME STATE ───
+function startGame(){
+  state.phase = 'Playing';
+  state.distance = 0;
+  state.distSinceMilestone = 0;
+  state.score = 0;
+  state.coins = 0;
+  state.combo = 0;
+  state.comboTimer = 0;
+  state.hp = CFG.hpMax;
+  state.invulnTimer = 0;
+  state.dashCD = 0;
+  state.dashing = false;
+  state.dashTime = 0;
+  state.jumping = false;
+  state.jumpVel = 0;
+  state.grounded = false;
+  state.laneIdx = 1;
+  state.speed = CFG.baseSpeed;
+  state.difficultyTier = 0;
+  state.droneSpawnCD = 3;
+  state.platSpawnCD = 0.5;
+  state.debrisSpawnCD = 3;
+  state.milestoneCount = 0;
+  state.jumpForce = CFG.jumpForce;
+  state._dashCooldownMult = 1;
+
+  player.position.set(0, 0, 0);
+  player.scale.set(1,1,1);
+
+  // Clear pools
+  clearAllPools();
+
+  // Spawn initial platform
+  spawnPlatform(0);
+  spawnPlatform(8);
+  spawnPlatform(16);
+
+  // Initial spawn delay
+  state.droneSpawnCD = 4;
+
+  menuScreen.style.display = 'none';
+  deadScreen.classList.remove('show');
+  reviveBtn.style.display = 'none';
+
+  updateHPDisplay();
+  updateComboDisplay();
+  coinDisplay.textContent = '0';
+  updateDisplay();
+
+  // Camera position reset
+  camera.position.set(0, 6, -10);
+  camera.lookAt(0, 1, 10);
+
+  // Ambient audio sync visual
+  document.getElementById('controls-hint')?.classList.remove('show');
+
+  if(isMobile) document.getElementById('mobile-controls').classList.add('show');
+}
+
+function gameOver(){
+  state.phase = 'Dead';
+  const dist = Math.floor(state.distance);
+  if(dist > state.bestDist){
+    state.bestDist = dist;
+    localStorage.setItem('sps_best', String(dist));
+  }
+  finalDist.textContent = dist+'m';
+  bestDist.textContent = state.bestDist+'m';
+  deadScreen.classList.add('show');
+
+  if(!state.reviveUsed){
+    reviveBtn.style.display = 'inline-block';
+  } else {
+    reviveBtn.style.display = 'none';
+  }
+}
+
+function reviveGame(){
+  state.reviveUsed = true;
+  state.hp = Math.max(1, state.hp + 2);
+  state.invulnTimer = 2;
+  state.phase = 'Playing';
+  state.jumping = false;
+  state.jumpVel = 0;
+  state.grounded = false;
+  player.position.y = 1;
+  deadScreen.classList.remove('show');
+  updateHPDisplay();
+}
+
+function clearAllPools(){
+  // Return all active platforms
+  for(let p of state.activePlatforms){returnToPool(platGroup, p);}
+  state.activePlatforms = [];
+  for(let d of state.activeDrones){returnToPool(droneGroup, d);}
+  state.activeDrones = [];
+  for(let p of state.activePickups){returnToPool(pickupGroup, p);}
+  state.activePickups = [];
+  for(let f of state.activeEffects){returnToPool(fxGroup, f);}
+  state.activeEffects = [];
+  for(let d of state.activeDebris){returnToPool(debrisGroup, d);}
+  state.activeDebris = [];
+  for(let t of trailParticles){t.life=0; t.mesh.visible=false;}
+}
+
+// ─── EFFECTS UPDATE ───
+function updateEffects(dt){
+  for(let i=state.activeEffects.length-1;i>=0;i--){
+    const fx = state.activeEffects[i];
+    if(!fx||!fx.visible) continue;
+    fx.userData.life += dt;
+    const life = fx.userData.life;
+    const maxLife = fx.userData.maxLife;
+    if(life >= maxLife){
+      returnToPool(fxGroup, fx);
+      state.activeEffects.splice(i,1);
+      continue;
+    }
+    const alpha = 1 - life/maxLife;
+    fx.children.forEach(p=>{
+      p.position.x += p.userData.vel.x * dt;
+      p.position.y += p.userData.vel.y * dt;
+      p.position.z += p.userData.vel.z * dt;
+      p.userData.vel.y -= 5*dt;
+      p.material.opacity = alpha;
+      p.scale.setScalar(1 + life*2);
+    });
+  }
+}
+
+function spawnFallingDebris(){
+  const lane = CFG.lanes[Math.floor(Math.random()*CFG.lanes.length)];
+  spawnDebris(
+    lane + (Math.random()-0.5)*0.5,
+    12 + Math.random()*4,
+    state.distance + 8 + Math.random()*6
+  );
+}
+
+function updateDebrisSpawn(dt){
+  state.debrisSpawnCD -= dt;
+  if(state.debrisSpawnCD <= 0 && state.activeDebris.length < 8){
+    state.debrisSpawnCD = 2.5 + Math.random()*2 - state.difficultyTier*0.15;
+    if(state.debrisSpawnCD < 1.2) state.debrisSpawnCD = 1.2;
+    spawnFallingDebris();
+  }
+}
+
+function updateDebris(dt){
+  for(let i=state.activeDebris.length-1;i>=0;i--){
+    const d = state.activeDebris[i];
+    if(!d||!d.visible) continue;
+    d.userData.life += dt;
+    if(d.userData.life >= d.userData.maxLife){
+      returnToPool(debrisGroup, d);
+      state.activeDebris.splice(i,1);
+      continue;
+    }
+    d.position.x += d.userData.vel.x*dt;
+    d.position.y += d.userData.vel.y*dt;
+    d.position.z += d.userData.vel.z*dt;
+    d.userData.vel.y -= 8*dt;
+    d.rotation.x += dt*3;
+    d.rotation.z += dt*2;
+
+    // Hit ground
+    if(d.position.y < -1){
+      returnToPool(debrisGroup, d);
+      state.activeDebris.splice(i,1);
+    }
+  }
+}
+
+function updateTrail(dt){
+  for(let t of trailParticles){
+    if(t.life>0){
+      t.life -= dt;
+      t.mesh.material.opacity = Math.max(0, t.life/0.3 * 0.5);
+      t.mesh.scale.y += dt*5;
+      if(t.life<=0) t.mesh.visible = false;
+    }
+  }
+}
+
+// ─── CAMERA UPDATE ───
+function updateCamera(dt){
+  const targetPos = new THREE.Vector3(0, 6, state.distance - 10);
+  const targetLook = new THREE.Vector3(0, 1, state.distance + 8);
+
+  // Shake
+  if(shakeTime > 0){
+    shakeTime -= dt;
+    const sx = (Math.random()-0.5)*shakeIntensity*2;
+    const sy = (Math.random()-0.5)*shakeIntensity*2;
+    targetPos.x += sx;
+    targetPos.y += sy;
+    targetLook.x += sx*0.5;
+    targetLook.y += sy*0.5;
+  }
+
+  // TikTok mode: portrait crop
+  if(state.tiktokMode){
+    const aspect = window.innerWidth/window.innerHeight;
+    if(aspect < 0.6){
+      // portrait: zoom in, keep player centered
+      targetPos.z = state.distance - 6;
+      targetPos.y = 4;
+      targetLook.y = 0.5;
+    }
+  }
+
+  camera.position.lerp(targetPos, dt*6);
+  camera.lookAt(targetLook);
+}
+
+// ─── TIKTOK MODE ───
+function toggleTikTokMode(){
+  state.tiktokMode = !state.tiktokMode;
+  ttBtn.textContent = state.tiktokMode?'☰ Landscape':'▐ TikTok';
+  if(state.tiktokMode){
+    ttBtn.style.background = 'rgba(255,0,80,.4)';
+    ttBtn.style.borderColor = '#ff0050';
+  } else {
+    ttBtn.style.background = 'rgba(0,0,0,.5)';
+    ttBtn.style.borderColor = 'rgba(255,255,255,.2)';
+  }
+  // Adjust renderer
+  onResize();
+}
+
+// ─── RESIZE ───
+function onResize(){
+  let w = window.innerWidth;
+  let h = window.innerHeight;
+
+  if(state.tiktokMode){
+    // Force portrait crop
+    const targetRatio = 9/16;
+    const currentRatio = w/h;
+    if(currentRatio > targetRatio){
+      w = h * targetRatio;
+    }
+  }
+
+  camera.aspect = w/h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+window.addEventListener('resize', onResize);
+
+// ─── UI EVENT BINDING ───
+startBtn.addEventListener('click', startGame);
+startBtn.addEventListener('touchend', e=>{e.preventDefault(); startGame();});
+retryBtn.addEventListener('click', startGame);
+retryBtn.addEventListener('touchend', e=>{e.preventDefault(); startGame();});
+reviveBtn.addEventListener('click', reviveGame);
+reviveBtn.addEventListener('touchend', e=>{e.preventDefault(); reviveGame();});
+ttBtn.addEventListener('click', toggleTikTokMode);
+ttBtn.addEventListener('touchend', e=>{e.preventDefault(); toggleTikTokMode();});
+
+// ─── GAME LOOP ───
+let lastTime = 0;
+let accumulator = 0;
+const fixedDt = 1/60;
+
+function gameLoop(timestamp){
+  const dt = Math.min((timestamp - lastTime)/1000, 0.05);
+  lastTime = timestamp;
+
+  if(state.phase==='Playing'){
+    // Fixed timestep accumulator for physics
+    accumulator += dt;
+    if(accumulator > 0.1) accumulator = 0.1; // cap
+    while(accumulator >= fixedDt){
+      // Physics substep
+      updatePlayer(fixedDt);
+      checkPlatformCollision();
+      updatePlatforms(fixedDt);
+      updateDrones(fixedDt);
+      updatePickups(fixedDt);
+      accumulator -= fixedDt;
+    }
+
+    // Interpolation
+    const alpha = accumulator / fixedDt;
+
+    // Visual updates (non-physics)
+    updateEffects(dt);
+    updateDebris(dt);
+    updateDebrisSpawn(dt);
+    updateTrail(dt);
+    updateCamera(dt);
+
+    // UI
+    updateDisplay();
+    updateDashDisplay();
+
+    // Debris collision
+    for(let d of state.activeDebris){
+      if(!d||!d.visible) continue;
+      if(d.position.distanceTo(player.position) < 1.0 && state.invulnTimer<=0){
+        takeDamage(2, 'debris');
+        returnToPool(debrisGroup, d);
+        const idx = state.activeDebris.indexOf(d);
+        if(idx!==-1) state.activeDebris.splice(idx,1);
+      }
+    }
+
+    // Drone collision (non-physics hit check)
+    for(let d of state.activeDrones){
+      if(!d||!d.visible||d.userData.phase!==2) continue;
+      if(d.position.distanceTo(player.position) < 1.2 && state.invulnTimer<=0){
+        takeDamage(1, 'drone');
+        d.userData.phase = 0;
+        d.userData.targetY = 3+Math.random()*2;
+        d.position.z = state.distance + 20;
+        d.scale.set(1,1,1);
+        d.children.forEach(c=>{if(c.isMesh&&c.material&&c.material.emissive){c.material.emissiveIntensity=0.3;}});
+      }
+    }
+
+  } else {
+    // Even in menu/dead, animate sky
+    updateCamera(dt);
+  }
+
+  // Sky clouds drift
+  cloudGroup.position.z -= dt * 2;
+  cloudGroup.children.forEach(c=>{
+    c.position.y += Math.sin(Date.now()*0.0005 + c.position.x)*dt*0.1;
+  });
+
+  // Player idle bob in menu
+  if(state.phase==='Menu' || state.phase==='Dead'){
+    player.position.y = Math.sin(Date.now()*0.002)*0.1;
+    player.rotation.y += dt*0.5;
+  }
+
+  renderer.render(scene, camera);
+  requestAnimationFrame(gameLoop);
+}
+
+// ─── START ───
+updateHPDisplay();
+updateDashDisplay();
+state.bestDist = parseInt(localStorage.getItem('sps_best')||'0');
+if(state.bestDist>0){
+  bestDist.textContent = state.bestDist+'m';
+}
+onResize();
+requestAnimationFrame(gameLoop);
+
+console.log('Sky Platform Sprint loaded. Phase: '+state.phase);
+</script>
+</body>
+</html>
