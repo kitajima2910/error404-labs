@@ -194,6 +194,7 @@ const state = {
   jumping: false,
   jumpVel: 0,
   grounded: false,
+  jumpBuffer: 0,
   laneIdx: 1,
   targetX: 0,
   speed: CFG.baseSpeed,
@@ -723,13 +724,13 @@ function updatePlayer(dt){
   p.position.y += state.jumpVel * dt;
 
   // Platform landing handled in checkPlatformCollision
-  // Reset grounded state each frame; set true only by collision
-  state.grounded = false;
+  if(input.jumpTap) state.jumpBuffer = 0.15;
 
   // Jump
-  if(input.jumpTap && state.grounded && !state.dashing){
+  if(state.jumpBuffer > 0 && state.grounded && !state.dashing){
     state.jumpVel = CFG.jumpForce;
     state.grounded = false;
+    state.jumpBuffer = 0;
     state.jumping = true;
     // squash
     p.userData.squash = 0.7;
@@ -803,6 +804,7 @@ function updatePlayer(dt){
   }
 
   // Input tap reset
+  if(state.jumpBuffer > 0) state.jumpBuffer = Math.max(0, state.jumpBuffer - dt);
   input.jumpTap = false;
   input.dashTap = false;
 }
@@ -1046,6 +1048,8 @@ function collectCoin(p){
 function checkPlatformCollision(){
   if(state.phase!=='Playing') return;
 
+  state.grounded = false;
+
   let landed = false;
   for(let plat of state.activePlatforms){
     if(!plat||!plat.visible) continue;
@@ -1205,6 +1209,7 @@ function startGame(){
   state.jumping = false;
   state.jumpVel = 0;
   state.grounded = false;
+  state.jumpBuffer = 0;
   state.laneIdx = 1;
   state.speed = CFG.baseSpeed;
   state.difficultyTier = 0;
@@ -1274,6 +1279,7 @@ function reviveGame(){
   state.jumping = false;
   state.jumpVel = 0;
   state.grounded = false;
+  state.jumpBuffer = 0;
   player.position.y = 1;
   deadScreen.classList.remove('show');
   updateHPDisplay();
