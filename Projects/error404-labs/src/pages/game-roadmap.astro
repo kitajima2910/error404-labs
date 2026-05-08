@@ -526,21 +526,21 @@ const monthSvgs = [
         document.addEventListener('DOMContentLoaded', () => {
             renderGameGrid(0, 0);
             highlightWeek(0, 0);
-        });
 
-        // Copy template button
-        const copyBtn = document.getElementById('copy-template-btn');
-        if (copyBtn) {
-            copyBtn.addEventListener('click', async () => {
-                const text = `RULE:\n- Không rewrite game\n- Không sửa logic cũ\n- Chỉ tác động trong TARGET\n\nTARGET:\n(mô tả rõ)\n\nACTION:\n(chỉ chọn 1: add / fix / update / remove)`;
-                try {
-                    await navigator.clipboard.writeText(text);
-                    if (window.showToast) window.showToast('Đã copy Prompt Template thành công!', 'success');
-                } catch {
-                    if (window.showToast) window.showToast('Copy thất bại!', 'error');
-                }
-            });
-        }
+            // Copy template button
+            const copyBtn = document.getElementById('copy-template-btn');
+            if (copyBtn) {
+                copyBtn.addEventListener('click', async () => {
+                    const text = `RULE:\n- Không rewrite game\n- Không sửa logic cũ\n- Chỉ tác động trong TARGET\n\nTARGET:\n(mô tả rõ)\n\nACTION:\n(chỉ chọn 1: add / fix / update / remove)`;
+                    try {
+                        await navigator.clipboard.writeText(text);
+                        if (window.showToast) window.showToast('Đã copy Prompt Template thành công!', 'success');
+                    } catch {
+                        if (window.showToast) window.showToast('Copy thất bại!', 'error');
+                    }
+                });
+            }
+        });
 
         // Copy prompt for game cards (event delegation)
         function promptOf(game, genre, month, week) {
