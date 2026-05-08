@@ -34,7 +34,7 @@ class GameScene extends Phaser.Scene {
 
         // Score tracking
         this.score = 0;
-        this.bestScore = 0;
+        this.bestScore = this.loadBestScore();
 
         // Set world bounds (large X for endless)
         this.physics.world.setBounds(0, 0, 1000000, WORLD_HEIGHT);
@@ -71,11 +71,17 @@ class GameScene extends Phaser.Scene {
         this.cursors = this.input.keyboard.createCursorKeys();
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
+        // Set up touch input
+        this.input.on('pointerdown', this.handleJumpInput, this);
+
         // Camera follow player
         this.cameras.main.startFollow(this.playerBody, false, 0.5, 0.5);
 
         // Placeholder transition to UI scene
         this.scene.launch('UIScene');
+
+        // Emit initial best score to UI
+        this.game.events.emit('bestUpdate', this.bestScore);
 
         console.log('GameScene: Game world initialized.');
     }
@@ -168,6 +174,7 @@ class GameScene extends Phaser.Scene {
         // Update best score
         if (this.score > this.bestScore) {
             this.bestScore = this.score;
+            this.saveBestScore(this.bestScore);
             this.game.events.emit('bestUpdate', this.bestScore);
         }
 
@@ -182,7 +189,52 @@ class GameScene extends Phaser.Scene {
         this.cameras.main.shake(200, 0.01);
         this.player.fillStyle(0xff0000); // Tint red
 
+        // Show game over overlay
+        const centerX = this.cameras.main.width / 2;
+        const centerY = this.cameras.main.height / 2;
+        this.gameOverText = this.add.text(centerX, centerY, 'GAME OVER\nPRESS SPACE TO RESTART', {
+            fontSize: '32px',
+            fill: '#ffffff',
+            align: 'center',
+            fontFamily: 'Arial, sans-serif'
+        }).setOrigin(0.5);
+
+        // Set up restart input
+        this.input.keyboard.on('keydown-SPACE', this.restartGame, this);
+
         console.log('GAME OVER');
+    }
+
+    handleJumpInput() {
+        if (this.gameOverTriggered) {
+            this.restartGame();
+            return;
+        }
+        if (!this.playerBody.body.touching.down) return;
+        this.playerBody.setVelocityY(-400);
+    }
+
+    loadBestScore() {
+        try {
+            const saved = localStorage.getItem('neonJumpBestScore');
+            return saved ? parseInt(saved, 10) : 0;
+        } catch (e) {
+            console.warn('localStorage unavailable:', e);
+            return 0;
+        }
+    }
+
+    saveBestScore(score) {
+        try {
+            localStorage.setItem('neonJumpBestScore', score.toString());
+        } catch (e) {
+            console.warn('Failed to save best score:', e);
+        }
+    }
+
+    restartGame() {
+        if (!this.gameOverTriggered) return; // Prevent if not game over
+        this.scene.restart();
     }
 
     update() {
@@ -201,7 +253,8 @@ class GameScene extends Phaser.Scene {
         }
 
         // Jump logic (only when on ground and not game over)
-        if (!this.isGameOver && (this.cursors.up.isDown || this.spaceKey.isDown) && this.playerBody.body.touching.down) {
+        if (!this.isGameOver && this.playerBody.body.touching.down &&
+            (this.cursors.up.isDown || this.spaceKey.isDown)) {
             this.playerBody.setVelocityY(-400);
         }
 
