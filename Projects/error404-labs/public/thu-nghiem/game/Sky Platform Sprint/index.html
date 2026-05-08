@@ -315,7 +315,6 @@ function returnToPool(group, obj){
   group.userData.pool.push(obj);
   // reset
   obj.position.set(0,-100,0);
-  obj.userData = {};
 }
 
 function preAllocPool(group, count, createFn){
@@ -666,6 +665,7 @@ function spawnDebris(x, y, z){
   const d = getFromPool(debrisGroup);
   if(!d) return;
   d.position.set(x, y, z);
+  if(!d.userData.vel) d.userData.vel = new THREE.Vector3();
   d.userData.vel.set((Math.random()-0.5)*3, Math.random()*4+2, (Math.random()-0.5)*3);
   d.userData.life = 0;
   d.userData.maxLife = 3;
