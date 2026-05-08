@@ -660,33 +660,8 @@ Thông tin bài học: Tháng ${month}, Tuần ${week}, thể loại ${genre}.`;
             </aside>
             <div class="flex-1 overflow-y-auto min-w-0 custom-scrollbar relative z-0">
                 <div class="p-4 lg:p-8 max-w-6xl mx-auto space-y-6 lg:space-y-8 pb-12">
-                    {/* Filter tags (first row) */}
-                    <div class="flex items-center gap-2.5 flex-wrap">
-                        {["All", "Runner", "Obby", "Obstacles", "Tycoon", "Clicker", "Collect", "Race", "Puzzle", "Rhythm", "Boss Fight", "Pet", "Simulator"].map(tag => (
-                            <button key={tag} class={`px-4 py-2 rounded-xl text-[13px] font-bold border transition-colors ${tag === 'All' ? 'bg-pink-500 text-white border-pink-500 shadow-md shadow-pink-500/20' : 'bg-white text-slate-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50 shadow-sm'}`}>
-                                {tag}
-                            </button>
-                        ))}
-                        <button class="px-5 py-2 rounded-xl text-[13px] font-bold border border-gray-200 bg-white text-slate-700 hover:bg-gray-50 flex items-center gap-2 ml-auto shadow-sm transition-colors">
-                            <i class="fa fa-filter" aria-hidden="true"></i> Filters
-                        </button>
-                    </div>
-
-                    {/* Filter tags (second row) */}
-                    <div class="flex items-center justify-between pb-4 border-b border-gray-100">
-                        <div class="flex items-center gap-2.5">
-                            <button class="px-3.5 py-1.5 bg-[#fef2f2] text-red-600 rounded-lg text-[13px] font-bold border border-red-100 flex items-center gap-1.5"><i class="fa fa-fire" aria-hidden="true"></i> Trending</button>
-                            <button class="px-3.5 py-1.5 bg-white text-slate-600 rounded-lg text-[13px] font-semibold border border-gray-200 flex items-center gap-1.5 hover:bg-gray-50"><i class="fa fa-bolt" aria-hidden="true"></i> Short session</button>
-                            <button class="px-3.5 py-1.5 bg-white text-slate-600 rounded-lg text-[13px] font-semibold border border-gray-200 flex items-center gap-1.5 hover:bg-gray-50"><i class="fa fa-hand-paper-o" aria-hidden="true"></i> One hand play</button>
-                            <button class="px-3.5 py-1.5 bg-white text-slate-600 rounded-lg text-[13px] font-semibold border border-gray-200 flex items-center gap-1.5 hover:bg-gray-50"><i class="fa fa-puzzle-piece" aria-hidden="true"></i> Low complexity</button>
-                            <button class="px-3.5 py-1.5 bg-white text-slate-600 rounded-lg text-[13px] font-semibold border border-gray-200 flex items-center gap-1.5 hover:bg-gray-50"><i class="fa fa-repeat" aria-hidden="true"></i> Viral loop</button>
-                            <button class="px-3.5 py-1.5 bg-white text-slate-600 rounded-lg text-[13px] font-semibold border border-gray-200 flex items-center gap-1.5 hover:bg-gray-50"><i class="fa fa-mobile" aria-hidden="true"></i> Mobile first</button>
-                        </div>
-                        <button class="text-[13px] font-bold text-slate-500 flex items-center gap-1 hover:text-slate-800 transition-colors">Sort by: Newest <i class="fa fa-chevron-down" aria-hidden="true"></i></button>
-                    </div>
-
                     {/* Grid header */}
-                    <div class="flex items-center justify-between pt-2">
+                    <div class="flex items-center justify-between pt-4">
                         <div class="flex items-center gap-3">
                             <h2 id="grid-header-title" class="text-2xl font-extrabold text-slate-900">Month 1 – Week 1</h2>
                             <span id="grid-header-count" class="px-3 py-1 rounded-lg bg-[#4f46e5]/10 text-[#4f46e5] text-xs font-bold">3 Games</span>
