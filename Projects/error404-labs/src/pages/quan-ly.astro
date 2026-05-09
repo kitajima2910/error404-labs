@@ -1274,18 +1274,26 @@ function closeModal() {
                   if (!member) return;
                   
                   let payload;
-                  if (window.currentEditLabel) {
-                      // Chế độ sửa: tạo mảng mới, thay thế label cũ bằng label mới
-                      const currentRoadmap = Array.isArray(member.roadmap_h5) ? [...member.roadmap_h5] : [];
-                      let updatedRoadmap = currentRoadmap.filter(l => l !== window.currentEditLabel);
-                      if (!updatedRoadmap.includes(newLabel)) {
-                          updatedRoadmap.push(newLabel);
-                      }
-                      payload = { id: memberId, roadmap_h5: updatedRoadmap };
-                  } else {
-                      // Chế độ thêm mới: gửi string để append
-                      payload = { id: memberId, roadmap_h5: newLabel };
-                  }
+                    if (window.currentEditLabel) {
+                        // Chế độ sửa: tìm index và thay thế trực tiếp
+                        const currentRoadmap = Array.isArray(member.roadmap_h5) ? [...member.roadmap_h5] : [];
+                        const idx = currentRoadmap.indexOf(window.currentEditLabel);
+                        if (idx !== -1) {
+                            currentRoadmap[idx] = newLabel;
+                        } else {
+                            currentRoadmap.push(newLabel);
+                        }
+                        payload = { id: memberId, roadmap_h5: currentRoadmap };
+                    } else {
+                        // Chế độ thêm mới: kiểm tra trùng trước khi thêm
+                        const currentRoadmap = Array.isArray(member.roadmap_h5) ? [...member.roadmap_h5] : [];
+                        if (currentRoadmap.includes(newLabel)) {
+                            showToast('Nhãn này đã tồn tại', 'warning');
+                            return;
+                        }
+                        currentRoadmap.push(newLabel);
+                        payload = { id: memberId, roadmap_h5: currentRoadmap };
+                    }
                   
                   try {
                       const res = await fetch('/api/admin/members', {
@@ -1419,7 +1427,9 @@ window.deleteRoadmapLabel = async (memberId, labelToDelete) => {
     if (!member) return;
     
     const currentRoadmap = Array.isArray(member.roadmap_h5) ? [...member.roadmap_h5] : [];
-    const updatedRoadmap = currentRoadmap.filter(l => l !== labelToDelete);
+    const idx = currentRoadmap.indexOf(labelToDelete);
+    if (idx !== -1) currentRoadmap.splice(idx, 1);
+    const updatedRoadmap = currentRoadmap;
     
     try {
         const res = await fetch('/api/admin/members', {

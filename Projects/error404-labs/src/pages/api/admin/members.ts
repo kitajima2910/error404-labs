@@ -217,27 +217,35 @@ export const PUT: APIRoute = async ({ request }) => {
 
         if (password) {
             const hashed = await bcrypt.hash(password, 10)
-            // Cập nhật roadmap_h5 nếu có
             if (roadmap_h5 !== undefined) {
                 if (Array.isArray(roadmap_h5)) {
                     await sql`
                         UPDATE error404labs.members
-                        SET member = ${username}, code = ${hashed}, roles = ${roles || 'member'}, display_name = ${display_name},
-                            roadmap_h5 = ${roadmap_h5}
+                        SET code = ${hashed},
+                            roadmap_h5 = ${roadmap_h5},
+                            member = COALESCE(${username}, member),
+                            roles = COALESCE(${roles}, roles),
+                            display_name = COALESCE(${display_name}, display_name)
                         WHERE id = ${id}
                     `
                 } else {
                     await sql`
                         UPDATE error404labs.members
-                        SET member = ${username}, code = ${hashed}, roles = ${roles || 'member'}, display_name = ${display_name},
-                            roadmap_h5 = array_append(roadmap_h5, ${roadmap_h5})::text[]
+                        SET code = ${hashed},
+                            roadmap_h5 = array_append(roadmap_h5, ${roadmap_h5})::text[],
+                            member = COALESCE(${username}, member),
+                            roles = COALESCE(${roles}, roles),
+                            display_name = COALESCE(${display_name}, display_name)
                         WHERE id = ${id}
                     `
                 }
             } else {
                 await sql`
                     UPDATE error404labs.members
-                    SET member = ${username}, code = ${hashed}, roles = ${roles || 'member'}, display_name = ${display_name}
+                    SET code = ${hashed},
+                        member = COALESCE(${username}, member),
+                        roles = COALESCE(${roles}, roles),
+                        display_name = COALESCE(${display_name}, display_name)
                     WHERE id = ${id}
                 `
             }
