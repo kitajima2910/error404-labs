@@ -97,12 +97,18 @@ const vibePromptsJson = JSON.stringify(
                     </svg>
                     Quản lý bài học
                 </a>
-                <a href="#" id="navVibeTools" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Quản lý Vibe Tools
-                </a>            </nav>
+                 <a href="#" id="navVibeTools" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all">
+                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                     </svg>
+                     Quản lý Vibe Tools
+                 </a>
+                 <a href="#" id="navRoadmap" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all">
+                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.788-.776L15 7m0 13l-4.553-2.276" />
+                     </svg>
+                     Lộ Trình H5
+                 </a>            </nav>
 
             <!-- User Card -->
             <div class="mt-auto pt-6 border-t border-slate-200 space-y-3">
@@ -320,43 +326,92 @@ const vibePromptsJson = JSON.stringify(
                      </div>
                 </div>
 
-                    <!-- Vibe Tools View -->
-                    <div id="vibeToolsView" class="view-section hidden">
-                        <!-- Section Header -->
-                        <div class="flex justify-between items-center mb-6">
-                            <div>
-                                <h2 class="text-2xl font-bold text-slate-900">Quản lý Vibe Tools</h2>
-                                <p class="text-slate-500 mt-1">Cấp / tước quyền xem toàn bộ Prompt Vibe Tools cho từng thành viên</p>
-                            </div>
-                            <div class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold" style="background:#fdf4ff; color:#7c3aed; border:1.5px solid #e9d5ff;">
-                                <span>🍄</span>
-                                <span>50 Mini Tools Vibe</span>
-                            </div>
-                        </div>
+                     <!-- Vibe Tools View -->
+                     <div id="vibeToolsView" class="view-section hidden">
+                         <!-- Section Header -->
+                         <div class="flex justify-between items-center mb-6">
+                             <div>
+                                 <h2 class="text-2xl font-bold text-slate-900">Quản lý Vibe Tools</h2>
+                                 <p class="text-slate-500 mt-1">Cấp / tước quyền xem toàn bộ Prompt Vibe Tools cho từng thành viên</p>
+                             </div>
+                             <div class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold" style="background:#fdf4ff; color:#7c3aed; border:1.5px solid #e9d5ff;">
+                                 <span>🍄</span>
+                                 <span>50 Mini Tools Vibe</span>
+                             </div>
+                         </div>
 
-                        <!-- Search -->
-                        <div class="flex flex-wrap gap-4 mb-6">
-                            <div class="relative flex-1 min-w-64">
-                                <input
-                                    type="text"
-                                    id="vibeToolsMemberSearch"
-                                    placeholder="Tìm kiếm thành viên..."
-                                    class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none text-sm bg-white"
-                                />
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
-                            </div>
-                        </div>
+                         <!-- Search -->
+                         <div class="flex flex-wrap gap-4 mb-6">
+                             <div class="relative flex-1 min-w-64">
+                                 <input
+                                     type="text"
+                                     id="vibeToolsMemberSearch"
+                                     placeholder="Tìm kiếm thành viên..."
+                                     class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none text-sm bg-white"
+                                 />
+                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                 </svg>
+                             </div>
+                         </div>
 
-                        <!-- Member Cards Grid -->
-                        <div id="vibeToolsMemberGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <div class="col-span-full text-center py-12 text-slate-400">Đang tải danh sách thành viên...</div>
-                        </div>
-                    </div>
-            </div>
-        </main>
-    </div>
+                         <!-- Member Cards Grid -->
+                         <div id="vibeToolsMemberGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                             <div class="col-span-full text-center py-12 text-slate-400">Đang tải danh sách thành viên...</div>
+                         </div>
+                     </div>
+
+                     <!-- Roadmap View -->
+                     <div id="roadmapView" class="view-section hidden">
+                         <!-- Section Header -->
+                         <div class="flex justify-between items-center mb-6">
+                             <div>
+                                 <h2 class="text-2xl font-bold text-slate-900">Lộ Trình H5</h2>
+                                 <p class="text-slate-500 mt-1">Xem ảnh lộ trình học tập theo từng năm</p>
+                             </div>
+                         </div>
+
+                         <!-- Year Selector -->
+                         <div class="flex items-center gap-4 mb-6">
+                             <label for="roadmapYearSelect" class="text-sm font-bold text-slate-700">Chọn năm:</label>
+                             <select id="roadmapYearSelect" class="px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm bg-white min-w-40 cursor-pointer">
+                                 <option value="2026">Năm 2026</option>
+                                 <option value="2027">Năm 2027</option>
+                                 <option value="2028">Năm 2028</option>
+                                 <option value="2029">Năm 2029</option>
+                                 <option value="2030">Năm 2030</option>
+                             </select>
+                         </div>
+
+                         <!-- Image Display Area -->
+                         <div id="roadmapImageContainer" class="bg-white rounded-xl border border-slate-200 p-6 min-h-[500px] flex items-center justify-center">
+                             <img
+                                 id="roadmapImage"
+                                 src=""
+                                 alt="Lộ trình H5"
+                                 class="max-w-full h-auto rounded-lg shadow-sm"
+                                 style="display: none;"
+                                 onerror="this.onerror=null; this.src=''; this.style.display='none'; document.getElementById('roadmapImageError').style.display='flex';"
+                             />
+                             <div id="roadmapImageError" class="hidden flex-col items-center justify-center text-slate-400">
+                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mb-4 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                 </svg>
+                                 <p class="text-lg font-medium">Không tìm thấy ảnh lộ trình</p>
+                                 <p class="text-sm mt-1">Vui lòng thử chọn năm khác hoặc liên hệ quản trị viên</p>
+                             </div>
+                             <div id="roadmapImageLoading" class="flex-col items-center justify-center text-slate-400">
+                                 <svg class="animate-spin h-12 w-12 text-indigo-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                 </svg>
+                                 <p class="text-sm font-medium">Đang tải ảnh...</p>
+                             </div>
+                         </div>
+                     </div>
+             </div>
+         </main>
+     </div>
 
     <!-- Modal Form -->
     <div
@@ -679,9 +734,11 @@ const vibePromptsJson = JSON.stringify(
         const navAccounts = document.getElementById('navAccounts')
         const navLessons = document.getElementById('navLessons')
         const navVibeTools = document.getElementById('navVibeTools')
+        const navRoadmap = document.getElementById('navRoadmap')
         const accountsView = document.getElementById('accountsView')
         const lessonsView = document.getElementById('lessonsView')
         const vibeToolsView = document.getElementById('vibeToolsView')
+        const roadmapView = document.getElementById('roadmapView')
 
         // Lesson Management Elements
         const lessonTableBody = document.getElementById('lessonTableBody')
@@ -749,6 +806,14 @@ const vibePromptsJson = JSON.stringify(
         let vibeAllMembers = []
         let vibeSearchQuery = ''
 
+        // Roadmap State
+        let selectedRoadmapYear = 2026
+        const roadmapYearSelect = document.getElementById('roadmapYearSelect')
+        const roadmapImage = document.getElementById('roadmapImage')
+        const roadmapImageContainer = document.getElementById('roadmapImageContainer')
+        const roadmapImageError = document.getElementById('roadmapImageError')
+        const roadmapImageLoading = document.getElementById('roadmapImageLoading')
+
         // Toast State
         let toastTimeout
 
@@ -780,9 +845,10 @@ const vibePromptsJson = JSON.stringify(
             accountsView.classList.add('hidden');
             lessonsView.classList.add('hidden');
             vibeToolsView.classList.add('hidden');
+            roadmapView.classList.add('hidden');
 
             // Reset all nav items
-            [navAccounts, navLessons, navVibeTools].forEach(nav => {
+            [navAccounts, navLessons, navVibeTools, navRoadmap].forEach(nav => {
                 if (nav) { nav.classList.remove('bg-indigo-50', 'text-indigo-700', 'font-medium'); nav.classList.add('text-slate-600'); }
             });
 
@@ -801,6 +867,11 @@ const vibePromptsJson = JSON.stringify(
                 navVibeTools.classList.add('bg-indigo-50', 'text-indigo-700', 'font-medium');
                 navVibeTools.classList.remove('text-slate-600');
                 fetchVibeToolsMembers();
+            } else if (viewName === 'roadmap') {
+                roadmapView.classList.remove('hidden');
+                navRoadmap.classList.add('bg-indigo-50', 'text-indigo-700', 'font-medium');
+                navRoadmap.classList.remove('text-slate-600');
+                loadRoadmapImage(selectedRoadmapYear);
             }
         }
 
@@ -817,6 +888,11 @@ const vibePromptsJson = JSON.stringify(
         navVibeTools.addEventListener('click', (e) => {
             e.preventDefault();
             switchView('vibeTools');
+        });
+
+        navRoadmap.addEventListener('click', (e) => {
+            e.preventDefault();
+            switchView('roadmap');
         });
 
         async function fetchMembers() {
@@ -1497,6 +1573,43 @@ const vibePromptsJson = JSON.stringify(
 
         closePromptAccessModal.onclick = closePromptAccessModalFunc;
         promptAccessModal.onclick = (e) => { if (e.target === promptAccessModal) closePromptAccessModalFunc(); };
+
+        // Roadmap Image Logic
+        function loadRoadmapImage(year) {
+            if (!roadmapImage || !roadmapImageContainer) return;
+
+            // Show loading, hide image & error
+            if (roadmapImageLoading) roadmapImageLoading.style.display = 'flex';
+            if (roadmapImageError) roadmapImageError.style.display = 'none';
+            if (roadmapImage) { roadmapImage.style.display = 'none'; roadmapImage.src = ''; }
+
+            selectedRoadmapYear = year;
+
+            // Build image path: /LTH5{year}.png
+            const imgSrc = `/LTH5${year}.png`;
+
+            // Create new image to preload
+            const img = new Image();
+            img.onload = () => {
+                if (roadmapImage) {
+                    roadmapImage.src = imgSrc;
+                    roadmapImage.style.display = 'block';
+                }
+                if (roadmapImageLoading) roadmapImageLoading.style.display = 'none';
+            };
+            img.onerror = () => {
+                if (roadmapImageLoading) roadmapImageLoading.style.display = 'none';
+                if (roadmapImageError) roadmapImageError.style.display = 'flex';
+            };
+            img.src = imgSrc;
+        }
+
+        if (roadmapYearSelect) {
+            roadmapYearSelect.onchange = (e) => {
+                const year = e.target.value;
+                loadRoadmapImage(year);
+            };
+        }
 
         // Toast Notification Logic
         window.showToast = function(msg, type = 'success') {
