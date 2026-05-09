@@ -219,12 +219,21 @@ export const PUT: APIRoute = async ({ request }) => {
             const hashed = await bcrypt.hash(password, 10)
             // Cập nhật roadmap_h5 nếu có
             if (roadmap_h5 !== undefined) {
-                await sql`
-                    UPDATE error404labs.members
-                    SET member = ${username}, code = ${hashed}, roles = ${roles || 'member'}, display_name = ${display_name},
-                        roadmap_h5 = array_append(roadmap_h5, ${roadmap_h5})::text[]
-                    WHERE id = ${id}
-                `
+                if (Array.isArray(roadmap_h5)) {
+                    await sql`
+                        UPDATE error404labs.members
+                        SET member = ${username}, code = ${hashed}, roles = ${roles || 'member'}, display_name = ${display_name},
+                            roadmap_h5 = ${roadmap_h5}
+                        WHERE id = ${id}
+                    `
+                } else {
+                    await sql`
+                        UPDATE error404labs.members
+                        SET member = ${username}, code = ${hashed}, roles = ${roles || 'member'}, display_name = ${display_name},
+                            roadmap_h5 = array_append(roadmap_h5, ${roadmap_h5})::text[]
+                        WHERE id = ${id}
+                    `
+                }
             } else {
                 await sql`
                     UPDATE error404labs.members
@@ -234,11 +243,19 @@ export const PUT: APIRoute = async ({ request }) => {
             }
         } else if (roadmap_h5 !== undefined) {
             // Chỉ cập nhật roadmap_h5, không ghi đè các trường khác
-            await sql`
-                UPDATE error404labs.members
-                SET roadmap_h5 = array_append(roadmap_h5, ${roadmap_h5})::text[]
-                WHERE id = ${id}
-            `
+            if (Array.isArray(roadmap_h5)) {
+                await sql`
+                    UPDATE error404labs.members
+                    SET roadmap_h5 = ${roadmap_h5}
+                    WHERE id = ${id}
+                `
+            } else {
+                await sql`
+                    UPDATE error404labs.members
+                    SET roadmap_h5 = array_append(roadmap_h5, ${roadmap_h5})::text[]
+                    WHERE id = ${id}
+                `
+            }
         } else if (username) {
             await sql`
                 UPDATE error404labs.members

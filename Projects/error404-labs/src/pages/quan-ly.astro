@@ -992,10 +992,15 @@ function renderMembers() {
                  const canEdit = isSuper || !targetIsAdmin || isSelf
                  const canDelete = !isSelf && !targetIsSuper && (isSuper || !targetIsAdmin)
 
-                 // Render roadmap badges
-                 const roadmapBadges = Array.isArray(m.roadmap_h5) && m.roadmap_h5.length > 0
-                     ? m.roadmap_h5.map((label) => `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 mr-1 mb-1">${label}</span>`).join('')
-                     : '<span class="text-slate-400 text-xs">-</span>'
+                  // Render roadmap badges
+                  const roadmapBadges = Array.isArray(m.roadmap_h5) && m.roadmap_h5.length > 0
+                      ? m.roadmap_h5.map((label) => {
+                          const adminControls = canEdit ? `
+                              <button onclick="event.stopPropagation(); window.deleteRoadmapLabel(${m.id}, '${label.replace(/'/g, "\\'")}')" class="ml-1 text-blue-600 hover:text-red-600 cursor-pointer font-bold leading-none text-sm" title="Xóa nhãn">×</button>
+                          ` : '';
+                          return `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 mr-1 mb-1 ${canEdit ? 'cursor-pointer hover:bg-blue-100' : ''}" onclick="${canEdit ? `window.openRoadmapModal(${m.id}, '${m.member.replace(/'/g, "\\'")}', '${label.replace(/'/g, "\\'")}')` : ''}">${label}${adminControls}</span>`;
+                        }).join('')
+                      : '<span class="text-slate-400 text-xs">-</span>'
 
                  tr.innerHTML = `
                      <td class="px-6 py-5 text-sm font-medium text-slate-600">#${m.id}</td>
@@ -1207,19 +1212,36 @@ function closeModal() {
          }
 
          // Roadmap Modal Logic
-         window.openRoadmapModal = function(memberId) {
-             if (roadmapMemberId) roadmapMemberId.value = memberId;
-             if (roadmapYear) roadmapYear.value = '2026';
-             if (roadmapMonth) roadmapMonth.value = '1';
-             if (roadmapModal) {
-                 roadmapModal.classList.remove('hidden');
-                 roadmapModal.classList.add('flex');
-             }
-             if (roadmapModalContent) {
-                 setTimeout(() => { roadmapModalContent.classList.remove('scale-95', 'opacity-0'); roadmapModalContent.classList.add('scale-100', 'opacity-100'); }, 10);
-             }
-             document.body.style.overflow = 'hidden';
-         }
+          window.openRoadmapModal = function(memberId, memberName, editLabel = null) {
+              if (roadmapMemberId) roadmapMemberId.value = memberId;
+              
+              const modalTitleEl = document.querySelector('#roadmapModalContent h3');
+              
+              if (editLabel) {
+                  // Parse label "LTH52026-T1" thành year và month
+                  const match = editLabel.match(/LTH5(\d{4})-T(\d{1,2})/);
+                  if (match) {
+                      if (roadmapYear) roadmapYear.value = match[1];
+                      if (roadmapMonth) roadmapMonth.value = match[2];
+                  }
+                  window.currentEditLabel = editLabel;
+                  if (modalTitleEl) modalTitleEl.textContent = 'Chỉnh sửa nhãn lộ trình';
+              } else {
+                  if (roadmapYear) roadmapYear.value = '2026';
+                  if (roadmapMonth) roadmapMonth.value = '1';
+                  window.currentEditLabel = null;
+                  if (modalTitleEl) modalTitleEl.textContent = 'Đánh dấu lộ trình';
+              }
+              
+              if (roadmapModal) {
+                  roadmapModal.classList.remove('hidden');
+                  roadmapModal.classList.add('flex');
+              }
+              if (roadmapModalContent) {
+                  setTimeout(() => { roadmapModalContent.classList.remove('scale-95', 'opacity-0'); roadmapModalContent.classList.add('scale-100', 'opacity-100'); }, 10);
+              }
+              document.body.style.overflow = 'hidden';
+          }
 
          function closeRoadmapModalFunc() {
              if (roadmapModalContent) {
@@ -1239,31 +1261,49 @@ function closeModal() {
          if (cancelRoadmapModal) cancelRoadmapModal.onclick = closeRoadmapModalFunc;
          if (roadmapModal) roadmapModal.onclick = (e) => { if (e.target === roadmapModal) closeRoadmapModalFunc(); };
 
-         if (roadmapForm) {
-             roadmapForm.onsubmit = async (e) => {
-                 e.preventDefault();
-                 const memberId = roadmapMemberId?.value;
-                 const year = roadmapYear?.value;
-                 const month = roadmapMonth?.value;
-                 const label = `LTH5${year}-T${month}`;
-                 
-                 try {
-                     const res = await fetch('/api/admin/members', {
-                         method: 'PUT',
-                         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
-                         body: JSON.stringify({ id: memberId, roadmap_h5: label })
-                     });
-                     if (res.ok) {
-                         showToast(`Đã thêm nhãn lộ trình ${label}`, 'success');
-                         closeRoadmapModalFunc();
-                         fetchMembers();
-                     } else {
-                         const err = await res.json();
-                         showToast(err.error || 'Lỗi thao tác', 'error');
-                     }
-                 } catch { showToast('Lỗi kết nối', 'error'); }
-             };
-         }
+          if (roadmapForm) {
+              roadmapForm.onsubmit = async (e) => {
+                  e.preventDefault();
+                  const memberId = roadmapMemberId?.value;
+                  const year = roadmapYear?.value;
+                  const month = roadmapMonth?.value;
+                  const newLabel = `LTH5${year}-T${month}`;
+                  
+                  // Tìm member hiện tại
+                  const member = members.find(m => m.id == memberId);
+                  if (!member) return;
+                  
+                  let payload;
+                  if (window.currentEditLabel) {
+                      // Chế độ sửa: tạo mảng mới, thay thế label cũ bằng label mới
+                      const currentRoadmap = Array.isArray(member.roadmap_h5) ? [...member.roadmap_h5] : [];
+                      let updatedRoadmap = currentRoadmap.filter(l => l !== window.currentEditLabel);
+                      if (!updatedRoadmap.includes(newLabel)) {
+                          updatedRoadmap.push(newLabel);
+                      }
+                      payload = { id: memberId, roadmap_h5: updatedRoadmap };
+                  } else {
+                      // Chế độ thêm mới: gửi string để append
+                      payload = { id: memberId, roadmap_h5: newLabel };
+                  }
+                  
+                  try {
+                      const res = await fetch('/api/admin/members', {
+                          method: 'PUT',
+                          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+                          body: JSON.stringify(payload)
+                      });
+                      if (res.ok) {
+                          showToast(window.currentEditLabel ? `Đã cập nhật nhãn thành ${newLabel}` : `Đã thêm nhãn lộ trình ${newLabel}`, 'success');
+                          closeRoadmapModalFunc();
+                          fetchMembers();
+                      } else {
+                          const err = await res.json();
+                          showToast(err.error || 'Lỗi thao tác', 'error');
+                      }
+                  } catch { showToast('Lỗi kết nối', 'error'); }
+              };
+          }
 
          addMemberBtn.onclick = () => openModal(false);
         closeModalBtns.forEach(btn => btn.onclick = closeModal);
@@ -1370,10 +1410,34 @@ function closeModal() {
             setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); document.body.style.overflow = ''; lessonToDelete = null; }, 200);
         }
 
-        window.editMember = (id) => { const member = members.find(m => m.id === id); if (member) openModal(true, member); };
-        window.toggleMemberStatus = (id) => openDeleteModal(id);
-        window.deleteMember = (id, memberName) => openMemberDeleteModal(id, memberName);
-        window.editLesson = async (id) => { const lesson = lessons.find(l => l.id === id); if (lesson) await openLessonModal(true, lesson); };
+window.editMember = (id) => { const member = members.find(m => m.id === id); if (member) openModal(true, member); };
+window.toggleMemberStatus = (id) => openDeleteModal(id);
+window.deleteMember = (id, memberName) => openMemberDeleteModal(id, memberName);
+window.editLesson = async (id) => { const lesson = lessons.find(l => l.id === id); if (lesson) await openLessonModal(true, lesson); };
+window.deleteRoadmapLabel = async (memberId, labelToDelete) => {
+    const member = members.find(m => m.id == memberId);
+    if (!member) return;
+    
+    const currentRoadmap = Array.isArray(member.roadmap_h5) ? [...member.roadmap_h5] : [];
+    const updatedRoadmap = currentRoadmap.filter(l => l !== labelToDelete);
+    
+    try {
+        const res = await fetch('/api/admin/members', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` },
+            body: JSON.stringify({ id: memberId, roadmap_h5: updatedRoadmap })
+        });
+        if (res.ok) {
+            showToast('Đã xóa nhãn lộ trình', 'success');
+            fetchMembers();
+        } else {
+            const err = await res.json();
+            showToast(err.error || 'Lỗi xóa nhãn', 'error');
+        }
+    } catch {
+        showToast('Lỗi kết nối', 'error');
+    }
+};
 
         function openMemberDeleteModal(id, memberName) {
             memberToDelete = id;
