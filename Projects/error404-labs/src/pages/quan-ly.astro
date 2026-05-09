@@ -1801,7 +1801,10 @@ window.deleteRoadmapLabel = async (memberId, labelToDelete) => {
                     list.innerHTML = labels.map((label) => `
                         <div class="flex items-center justify-between px-4 py-3 rounded-xl bg-blue-50 border border-blue-100">
                             <span class="text-sm font-medium text-blue-700">${label}</span>
-                            <button onclick="event.stopPropagation(); window.deleteRoadmapLabelFromModal(${memberId}, '${label.replace(/'/g, "\\'")}')" class="px-3 py-1 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg transition-all cursor-pointer">Xóa</button>
+                            <div class="flex gap-1">
+                                <button onclick="event.stopPropagation(); closeAllRoadmapLabelsModal(); window.openRoadmapModal(${memberId}, '${member.member.replace(/'/g, "\\'")}', '${label.replace(/'/g, "\\'")}')" class="px-3 py-1 text-xs font-bold text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all cursor-pointer">Sửa</button>
+                                <button onclick="event.stopPropagation(); window.deleteRoadmapLabelFromModal(${memberId}, '${label.replace(/'/g, "\\'")}')" class="px-3 py-1 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg transition-all cursor-pointer">Xóa</button>
+                            </div>
                         </div>
                     `).join('');
                 }
