@@ -186,7 +186,12 @@ export const PUT: APIRoute = async ({ request }) => {
 
     try {
         const { id, username, password, roles, display_name, roadmap_h5 } = await request.json()
-        if (!id || !username) return new Response(JSON.stringify({ error: 'Missing data' }), { status: 400 })
+
+        // Yêu cầu id bắt buộc
+        if (!id) return new Response(JSON.stringify({ error: 'Missing data' }), { status: 400 })
+
+        // Nếu không gửi username và cũng không gửi roadmap_h5 → lỗi (cần ít nhất 1 trường để cập nhật)
+        if (!username && roadmap_h5 === undefined) return new Response(JSON.stringify({ error: 'Missing data' }), { status: 400 })
 
         // Lấy thông tin user đích để check
         const target = (await sql`SELECT member, roles, roadmap_h5 FROM error404labs.members WHERE id = ${id}`)[0]
@@ -215,34 +220,31 @@ export const PUT: APIRoute = async ({ request }) => {
             // Cập nhật roadmap_h5 nếu có
             if (roadmap_h5 !== undefined) {
                 await sql`
-                    UPDATE error404labs.members 
+                    UPDATE error404labs.members
                     SET member = ${username}, code = ${hashed}, roles = ${roles || 'member'}, display_name = ${display_name},
                         roadmap_h5 = array_append(roadmap_h5, ${roadmap_h5})::text[]
                     WHERE id = ${id}
                 `
             } else {
                 await sql`
-                    UPDATE error404labs.members 
+                    UPDATE error404labs.members
                     SET member = ${username}, code = ${hashed}, roles = ${roles || 'member'}, display_name = ${display_name}
                     WHERE id = ${id}
                 `
             }
-        } else {
-            // Cập nhật roadmap_h5 nếu có
-            if (roadmap_h5 !== undefined) {
-                await sql`
-                    UPDATE error404labs.members 
-                    SET member = ${username}, roles = ${roles || 'member'}, display_name = ${display_name},
-                        roadmap_h5 = array_append(roadmap_h5, ${roadmap_h5})::text[]
-                    WHERE id = ${id}
-                `
-            } else {
-                await sql`
-                    UPDATE error404labs.members 
-                    SET member = ${username}, roles = ${roles || 'member'}, display_name = ${display_name}
-                    WHERE id = ${id}
-                `
-            }
+        } else if (roadmap_h5 !== undefined) {
+            // Chỉ cập nhật roadmap_h5, không ghi đè các trường khác
+            await sql`
+                UPDATE error404labs.members
+                SET roadmap_h5 = array_append(roadmap_h5, ${roadmap_h5})::text[]
+                WHERE id = ${id}
+            `
+        } else if (username) {
+            await sql`
+                UPDATE error404labs.members
+                SET member = ${username}, roles = ${roles || 'member'}, display_name = ${display_name}
+                WHERE id = ${id}
+            `
         }
         return new Response(JSON.stringify({ success: true }), { status: 200 })
     } catch (error) {
