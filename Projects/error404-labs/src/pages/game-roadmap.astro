@@ -538,6 +538,7 @@ const monthSvgs = [
             const modalActionSelect = document.getElementById('modal-action-select');
             const modalCopyBtn = document.getElementById('btn-modal-copy');
             const modalCloseBtn = document.getElementById('btn-modal-close');
+            const modalClearBtn = document.getElementById('btn-modal-clear');
             const closeTemplateModal = () => templateModal?.classList.add('hidden');
 
             if (copyBtn) {
@@ -573,6 +574,13 @@ const monthSvgs = [
 
             if (modalCloseBtn) {
                 modalCloseBtn.addEventListener('click', closeTemplateModal);
+            }
+
+            if (modalClearBtn && modalTargetInput && modalActionSelect) {
+                modalClearBtn.addEventListener('click', () => {
+                    modalTargetInput.value = '';
+                    modalActionSelect.value = 'add';
+                });
             }
 
             if (templateModal) {
@@ -747,6 +755,9 @@ Thông tin bài học: Tháng ${month}, Tuần ${week}, thể loại ${genre}.`;
                 <div class="flex flex-col sm:flex-row gap-3 pt-2">
                     <button id="btn-modal-copy" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-5 rounded-2xl shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 transition-colors">
                         <i class="fa fa-copy" aria-hidden="true"></i> Copy Prompt
+                    </button>
+                    <button id="btn-modal-clear" class="sm:w-32 bg-white hover:bg-slate-50 text-slate-600 font-bold py-3.5 px-5 rounded-2xl border border-slate-200 flex items-center justify-center gap-2 transition-colors">
+                        <i class="fa fa-eraser" aria-hidden="true"></i> Clear
                     </button>
                     <button id="btn-modal-close" class="sm:w-32 bg-white hover:bg-slate-50 text-slate-600 font-bold py-3.5 px-5 rounded-2xl border border-slate-200 flex items-center justify-center gap-2 transition-colors">
                         Đóng
