@@ -683,6 +683,25 @@ const vibePromptsJson = JSON.stringify(
         </div>
     </div>
 
+    <!-- Modal xem tất cả nhãn lộ trình -->
+    <div id="allRoadmapLabelsModal" class="fixed inset-0 z-[170] hidden items-center justify-center bg-black/50 p-4 transition-opacity">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-95 opacity-0" id="allRoadmapLabelsModalContent">
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <h3 class="text-xl font-bold text-slate-800">
+                    Tất cả nhãn lộ trình
+                    <span id="allRoadmapLabelsMemberName" class="text-sm font-normal text-slate-500 ml-2"></span>
+                </h3>
+                <button type="button" id="closeAllRoadmapLabelsModal" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div id="allRoadmapLabelsList" class="p-6 max-h-80 overflow-y-auto custom-scrollbar space-y-2">
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Quản lý Bài học -->
     <div id="lessonModal" class="fixed inset-0 z-[150] hidden items-center justify-center bg-black/50 p-4 transition-opacity">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all scale-95 opacity-0" id="lessonModalContent">
@@ -1004,15 +1023,19 @@ function renderMembers() {
                  const canEdit = isSuper || !targetIsAdmin || isSelf
                  const canDelete = !isSelf && !targetIsSuper && (isSuper || !targetIsAdmin)
 
-                  // Render roadmap badges
-                  const roadmapBadges = Array.isArray(m.roadmap_h5) && m.roadmap_h5.length > 0
-                      ? m.roadmap_h5.map((label) => {
-                          const adminControls = canEdit ? `
-                              <button onclick="event.stopPropagation(); window.deleteRoadmapLabel(${m.id}, '${label.replace(/'/g, "\\'")}')" class="ml-1 text-blue-600 hover:text-red-600 cursor-pointer font-bold leading-none text-sm" title="Xóa nhãn">×</button>
-                          ` : '';
-                          return `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 mr-1 mb-1 ${canEdit ? 'cursor-pointer hover:bg-blue-100' : ''}" onclick="${canEdit ? `window.openRoadmapModal(${m.id}, '${m.member.replace(/'/g, "\\'")}', '${label.replace(/'/g, "\\'")}')` : ''}">${label}${adminControls}</span>`;
-                        }).join('')
-                      : '<span class="text-slate-400 text-xs">-</span>'
+                   // Render roadmap badges (tối đa 2, còn lại hiển thị +N)
+                   const allLabels = Array.isArray(m.roadmap_h5) ? m.roadmap_h5 : [];
+                   const visibleLabels = allLabels.slice(0, 2);
+                   const roadmapBadges = visibleLabels.map((label) => {
+                       const adminControls = canEdit ? `
+                           <button onclick="event.stopPropagation(); window.deleteRoadmapLabel(${m.id}, '${label.replace(/'/g, "\\'")}')" class="ml-1 text-blue-600 hover:text-red-600 cursor-pointer font-bold leading-none text-sm" title="Xóa nhãn">×</button>
+                       ` : '';
+                       return `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 mr-1 mb-1 ${canEdit ? 'cursor-pointer hover:bg-blue-100' : ''}" onclick="${canEdit ? `window.openRoadmapModal(${m.id}, '${m.member.replace(/'/g, "\\'")}', '${label.replace(/'/g, "\\'")}')` : ''}">${label}${adminControls}</span>`;
+                     }).join('');
+                   const moreBadge = allLabels.length > 2
+                       ? `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold bg-indigo-100 text-indigo-700 border border-indigo-200 mr-1 mb-1 cursor-pointer hover:bg-indigo-200" onclick="window.showAllRoadmapLabels(${m.id})">+${allLabels.length - 2}</span>`
+                       : '';
+                   const roadmapBadgesHtml = allLabels.length > 0 ? roadmapBadges + moreBadge : '<span class="text-slate-400 text-xs">-</span>';
 
                  tr.innerHTML = `
                      <td class="px-6 py-5 text-sm font-medium text-slate-600">#${m.id}</td>
@@ -1038,8 +1061,8 @@ function renderMembers() {
                      </td>
 <td class="px-6 py-5 text-center">
                               <div class="flex flex-wrap items-center justify-center gap-1 min-h-[28px]">
-                                  ${roadmapBadges}
-                                  ${targetIsMember ? `<button onclick="window.openRoadmapModal(${m.id}, '${m.member.replace(/'/g, "\\'")}')" class="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all cursor-pointer" title="Đánh dấu lộ trình"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.788-.776L15 7m0 13l-4.553-2.276" /></svg></button>` : ''}
+                                   ${roadmapBadgesHtml}
+                                   ${targetIsMember ? `<button onclick="window.openRoadmapModal(${m.id}, '${m.member.replace(/'/g, "\\'")}')" class="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all cursor-pointer" title="Đánh dấu lộ trình"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.788-.776L15 7m0 13l-4.553-2.276" /></svg></button>` : ''}
                               </div>
                           </td>
 <td class="px-6 py-5 text-right">
@@ -1757,6 +1780,68 @@ window.deleteRoadmapLabel = async (memberId, labelToDelete) => {
                 promptAccessList.appendChild(label);
             });
         }
+
+        window.showAllRoadmapLabels = function(memberId) {
+            const member = members.find(m => m.id == memberId);
+            if (!member) return;
+
+            const modal = document.getElementById('allRoadmapLabelsModal');
+            const modalContent = document.getElementById('allRoadmapLabelsModalContent');
+            const list = document.getElementById('allRoadmapLabelsList');
+            const nameSpan = document.getElementById('allRoadmapLabelsMemberName');
+
+            if (nameSpan) nameSpan.textContent = `(${member.member})`;
+
+            const labels = Array.isArray(member.roadmap_h5) ? member.roadmap_h5 : [];
+
+            if (list) {
+                if (labels.length === 0) {
+                    list.innerHTML = '<p class="text-slate-400 text-center py-8">Không có nhãn nào.</p>';
+                } else {
+                    list.innerHTML = labels.map((label) => `
+                        <div class="flex items-center justify-between px-4 py-3 rounded-xl bg-blue-50 border border-blue-100">
+                            <span class="text-sm font-medium text-blue-700">${label}</span>
+                            <button onclick="event.stopPropagation(); window.deleteRoadmapLabelFromModal(${memberId}, '${label.replace(/'/g, "\\'")}')" class="px-3 py-1 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg transition-all cursor-pointer">Xóa</button>
+                        </div>
+                    `).join('');
+                }
+            }
+
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+            if (modalContent) {
+                setTimeout(() => { modalContent.classList.remove('scale-95', 'opacity-0'); modalContent.classList.add('scale-100', 'opacity-100'); }, 10);
+            }
+            document.body.style.overflow = 'hidden';
+        };
+
+        window.deleteRoadmapLabelFromModal = async function(memberId, label) {
+            await window.deleteRoadmapLabel(memberId, label);
+            closeAllRoadmapLabelsModal();
+        };
+
+        function closeAllRoadmapLabelsModal() {
+            const modal = document.getElementById('allRoadmapLabelsModal');
+            const modalContent = document.getElementById('allRoadmapLabelsModalContent');
+            if (modalContent) {
+                modalContent.classList.add('scale-95', 'opacity-0');
+                modalContent.classList.remove('scale-100', 'opacity-100');
+            }
+            setTimeout(() => {
+                if (modal) {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
+                document.body.style.overflow = '';
+            }, 200);
+        }
+
+        document.getElementById('closeAllRoadmapLabelsModal')?.addEventListener('click', closeAllRoadmapLabelsModal);
+        document.getElementById('allRoadmapLabelsModal')?.addEventListener('click', (e) => {
+            if (e.target === document.getElementById('allRoadmapLabelsModal')) closeAllRoadmapLabelsModal();
+        });
 
         promptAccessSearch.oninput = (e) => renderPromptAccessList(e.target.value);
         selectAllPrompts.onclick = () => {
