@@ -131,7 +131,7 @@ const roadmapRows = [
     ],
     [
         {
-            genre: 'Runner',
+            genre: 'Arcade',
             games: ['Flappy Cyber Bird'],
         },
         {
@@ -896,7 +896,9 @@ const monthSvgs = [
                         gi +
                         '" data-prompt-content="' +
                         encodeURIComponent(game.promptContent || '') +
-                        '" class="game-card-button bg-white rounded-3xl border-[2px] border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 overflow-hidden transition-all flex flex-col">' +
+                        '" class="game-card-button ' +
+                        (monthIdx === 1 && weekIdx === 0 ? 'game-card-clickable cursor-pointer ' : '') +
+                        'bg-white rounded-3xl border-[2px] border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 overflow-hidden transition-all flex flex-col">' +
                         '<div class="h-44 w-full relative p-3.5 flex flex-col justify-between bg-gradient-to-br ' +
                         gradBg +
                         '">' +
@@ -922,14 +924,16 @@ const monthSvgs = [
                         '</span>' +
                         '</div>' +
                         '<div class="flex gap-2 mt-auto">' +
-                        '<button class="cursor-pointer btn-copy-prompt flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Copy Prompts">' +
-                        attrSvgs.copy +
-                        '</button>' +
-                        '<button class="cursor-pointer w-14 bg-[#8b5cf6] hover:bg-purple-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30 transition-transform active:scale-95">' +
+                        (monthIdx === 1 && weekIdx === 0
+                            ? ''
+                            : '<button class="cursor-pointer btn-copy-prompt flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Copy Prompts">' +
+                              attrSvgs.copy +
+                              '</button>') +
+                        '<button class="cursor-pointer ' +
+                        (monthIdx === 1 && weekIdx === 0 ? 'flex-1' : 'w-14') +
+                        ' bg-[#8b5cf6] hover:bg-purple-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30 transition-transform active:scale-95">' +
                         attrSvgs.play +
                         '</button>' +
-                        '</div>' +
-                        '</div>' +
                         '</div>'
                     )
                 })
@@ -938,6 +942,15 @@ const monthSvgs = [
             const month = window.roadmapData[monthIdx]
             document.getElementById('grid-header-title').textContent = 'Level ' + month.no + ' – Week ' + (weekIdx + 1)
             document.getElementById('grid-header-count').textContent = week.games.length + ' Games'
+
+            const promptCard = document.getElementById('selected-prompt-card')
+            if (promptCard) {
+                if (monthIdx === 1 && weekIdx === 0) {
+                    promptCard.classList.remove('hidden')
+                } else {
+                    promptCard.classList.add('hidden')
+                }
+            }
 
             currentMonth = monthIdx
             currentWeek = weekIdx
@@ -1082,7 +1095,10 @@ const monthSvgs = [
             const copyFlappyBtn = document.getElementById('copy-flappy-prompt')
             if (copyFlappyBtn) {
                 copyFlappyBtn.addEventListener('click', async () => {
-                    const textarea = document.querySelector('#copy-flappy-prompt').closest('.p-4').querySelector('textarea')
+                    const textarea = document
+                        .querySelector('#copy-flappy-prompt')
+                        .closest('.p-4')
+                        .querySelector('textarea')
                     if (!textarea) return
                     try {
                         await navigator.clipboard.writeText(textarea.value)
@@ -1164,6 +1180,49 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
             const promptText = promptContent.trim() ? promptContent : promptOf(game, genre, month, week)
             try {
                 await navigator.clipboard.writeText(promptText)
+                if (window.showToast) window.showToast('Đã copy Game Prompt thành công!', 'success')
+            } catch {
+                if (window.showToast) window.showToast('Copy thất bại!', 'error')
+            }
+        })
+
+        document.addEventListener('click', function (e) {
+            const playBtn = e.target.closest('button:not(.btn-copy-prompt)')
+            if (playBtn && playBtn.closest('.game-card-button')) {
+                return
+            }
+
+            const card = e.target.closest('.game-card-clickable')
+            if (!card) return
+
+            const game = card.dataset.game
+            const genre = card.dataset.genre
+            const month = parseInt(card.dataset.month)
+            const week = parseInt(card.dataset.week)
+            const promptContent = decodeURIComponent(card.dataset.promptContent || '')
+
+            const titleEl = document.getElementById('selected-prompt-title')
+            const subtitleEl = document.getElementById('selected-prompt-subtitle')
+            const contentEl = document.getElementById('selected-prompt-content')
+
+            if (titleEl) titleEl.textContent = game
+            if (subtitleEl) subtitleEl.textContent = 'Level ' + month + ' · Tuần ' + week + ' · ' + genre
+
+            const promptText = promptContent.trim() ? promptContent : promptOf(game, genre, month, week)
+
+            if (contentEl) contentEl.value = promptText
+        })
+
+        document.addEventListener('click', async function (e) {
+            const btn = e.target.closest('#copy-selected-prompt')
+            if (!btn) return
+            const contentEl = document.getElementById('selected-prompt-content')
+            if (!contentEl || !contentEl.value) {
+                if (window.showToast) window.showToast('Chưa có prompt để copy!', 'warning')
+                return
+            }
+            try {
+                await navigator.clipboard.writeText(contentEl.value)
                 if (window.showToast) window.showToast('Đã copy Game Prompt thành công!', 'success')
             } catch {
                 if (window.showToast) window.showToast('Copy thất bại!', 'error')
@@ -1267,6 +1326,38 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
 
                     {/* Game Grid */}
                     <div id="game-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6"></div>
+                    {/* Selected Game Prompt Display */}
+                    <div
+                        id="selected-prompt-card"
+                        class="hidden bg-white rounded-3xl border-[1.5px] border-indigo-100 shadow-[0_4px_20px_-4px_rgba(99,102,241,0.15)] overflow-hidden"
+                    >
+                        <div class="bg-indigo-50/70 p-4 border-b border-indigo-100 flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 bg-white shadow-sm text-indigo-600 rounded-xl flex items-center justify-center shrink-0 border border-indigo-100"
+                            >
+                                <i class="fa fa-file-text" aria-hidden="true"></i>
+                            </div>
+                            <div>
+                                <h3 id="selected-prompt-title" class="text-base font-extrabold text-slate-800">
+                                    Chọn game để xem Prompt
+                                </h3>
+                                <p id="selected-prompt-subtitle" class="text-xs text-slate-500">Click vào card game</p>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <textarea
+                                id="selected-prompt-content"
+                                rows="14"
+                                class="w-full rounded-2xl border border-slate-200 bg-slate-50 p-3.5 text-xs font-mono text-slate-700 outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 resize-none"
+                                readonly></textarea>
+                            <button
+                                id="copy-selected-prompt"
+                                class="w-full mt-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-4 rounded-2xl shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 transition-colors text-sm"
+                            >
+                                <i class="fa fa-copy" aria-hidden="true"></i> Copy Prompt
+                            </button>
+                        </div>
+                    </div>
                     {/* Flappy Cyber Bird Prompt Card */}
                     <div
                         class="bg-white rounded-3xl border-[1.5px] border-emerald-100 shadow-[0_4px_20px_-4px_rgba(16,185,129,0.15)] overflow-hidden"
@@ -1286,8 +1377,8 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
                             <textarea
                                 rows="14"
                                 class="w-full rounded-2xl border border-slate-200 bg-slate-50 p-3.5 text-xs font-mono text-slate-700 outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100 resize-none"
-                                readonly
-                            >{promptContentByGame['Flappy Cyber Bird']}</textarea>
+                                readonly>{promptContentByGame['Flappy Cyber Bird']}</textarea
+                            >
                             <button
                                 id="copy-flappy-prompt"
                                 class="w-full mt-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-2xl shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2 transition-colors text-sm"
