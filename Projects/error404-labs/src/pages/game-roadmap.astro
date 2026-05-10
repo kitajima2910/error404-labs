@@ -131,7 +131,7 @@ const roadmapRows = [
     ],
     [
         {
-            genre: 'Arcade',
+            genre: 'Runner',
             games: ['Flappy Cyber Bird'],
         },
         {
@@ -1078,6 +1078,21 @@ const monthSvgs = [
                 })
             }
 
+            // Copy Flappy Cyber Bird prompt button
+            const copyFlappyBtn = document.getElementById('copy-flappy-prompt')
+            if (copyFlappyBtn) {
+                copyFlappyBtn.addEventListener('click', async () => {
+                    const textarea = document.querySelector('#copy-flappy-prompt').closest('.p-4').querySelector('textarea')
+                    if (!textarea) return
+                    try {
+                        await navigator.clipboard.writeText(textarea.value)
+                        if (window.showToast) window.showToast('Đã copy prompt Flappy Cyber Bird!', 'success')
+                    } catch {
+                        if (window.showToast) window.showToast('Copy thất bại!', 'error')
+                    }
+                })
+            }
+
             if (useTemplateBtn && templateModal) {
                 useTemplateBtn.addEventListener('click', () => {
                     templateModal.classList.remove('hidden')
@@ -1252,6 +1267,35 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
 
                     {/* Game Grid */}
                     <div id="game-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6"></div>
+                    {/* Flappy Cyber Bird Prompt Card */}
+                    <div
+                        class="bg-white rounded-3xl border-[1.5px] border-emerald-100 shadow-[0_4px_20px_-4px_rgba(16,185,129,0.15)] overflow-hidden"
+                    >
+                        <div class="bg-emerald-50/70 p-4 border-b border-emerald-100 flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 bg-white shadow-sm text-emerald-600 rounded-xl flex items-center justify-center shrink-0 border border-emerald-100"
+                            >
+                                <i class="fa fa-file-text" aria-hidden="true"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-extrabold text-slate-800">Flappy Cyber Bird</h3>
+                                <p class="text-xs text-slate-500">Level 2 · Tuần 1 · Runner</p>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <textarea
+                                rows="14"
+                                class="w-full rounded-2xl border border-slate-200 bg-slate-50 p-3.5 text-xs font-mono text-slate-700 outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100 resize-none"
+                                readonly
+                            >{promptContentByGame['Flappy Cyber Bird']}</textarea>
+                            <button
+                                id="copy-flappy-prompt"
+                                class="w-full mt-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-2xl shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2 transition-colors text-sm"
+                            >
+                                <i class="fa fa-copy" aria-hidden="true"></i> Copy Prompt
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
             <aside
