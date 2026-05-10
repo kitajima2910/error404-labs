@@ -7,15 +7,30 @@ import AttributeRow from '../components/roadmap/AttributeRow.astro'
 import ActionButton from '../components/roadmap/ActionButton.astro'
 
 const methods = [
-    { icon: '◆', title: 'Project-first', text: 'Mỗi tuần hoàn thiện một game nhỏ', tone: 'bg-emerald-400 text-slate-950' },
-    { icon: '▣', title: 'Logic rõ ràng', text: 'Tách luật chơi, mục tiêu và trạng thái', tone: 'bg-indigo-400 text-white' },
+    {
+        icon: '◆',
+        title: 'Project-first',
+        text: 'Mỗi tuần hoàn thiện một game nhỏ',
+        tone: 'bg-emerald-400 text-slate-950',
+    },
+    {
+        icon: '▣',
+        title: 'Logic rõ ràng',
+        text: 'Tách luật chơi, mục tiêu và trạng thái',
+        tone: 'bg-indigo-400 text-white',
+    },
     { icon: '✦', title: 'AI prompt', text: 'Bắt đầu nhanh bằng câu lệnh mẫu', tone: 'bg-amber-300 text-slate-950' },
     { icon: '●', title: 'Portfolio', text: 'Cuối khóa có bộ game cá nhân', tone: 'bg-rose-400 text-white' },
 ]
 
 const months = [
     { no: 1, title: 'Khởi động', sub: 'Làm quen', accent: 'border-emerald-500 text-emerald-600' },
-    { no: 2, title: 'Phản xạ', sub: 'Né tránh', accent: 'border-indigo-500 text-indigo-600' },
+    {
+        no: 2,
+        title: 'ASTROCADE',
+        sub: 'Arcade',
+        accent: 'border-indigo-500 text-indigo-600',
+    },
     { no: 3, title: 'Shooter', sub: 'Bắn súng', accent: 'border-slate-500 text-slate-700' },
     { no: 4, title: 'Puzzle', sub: 'Logic', accent: 'border-emerald-500 text-emerald-600' },
     { no: 5, title: 'Combat', sub: 'Chiến đấu', accent: 'border-indigo-500 text-indigo-600' },
@@ -28,7 +43,12 @@ const months = [
     { no: 12, title: 'Polish', sub: 'Showcase', accent: 'border-slate-500 text-slate-700' },
 ]
 
-const weekLabels = ['Tuần 1', 'Tuần 2', 'Tuần 3', 'Tuần 4']
+const weekLabels = [
+    'Tuần 1',
+    'Tuần 2',
+    'Tuần 3',
+    'Tuần 4',
+]
 
 const genreStyles: Record<string, string> = {
     Runner: 'border-emerald-200 bg-emerald-50/80 text-emerald-700',
@@ -76,86 +96,429 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
 
 const roadmapRows = [
     [
-        { genre: 'Runner', games: ['Neon Jump Runner', 'Coin Rush Alley', 'Sky Platform Sprint'] },
-        { genre: 'Puzzle', games: ['Block Shift Lab', 'Crate Push Quest', 'Door Key Circuit'] },
-        { genre: 'Arcade', games: ['Slide Dodge Arena', 'Spike Hop Panic', 'Pipe Flight Dash'] },
-        { genre: 'Simulation', games: ['Tiny Grove Builder', 'Pixel Pet Daycare', 'Mini Market Tycoon'] },
+        {
+            genre: 'Runner',
+            games: [
+                'Neon Jump Runner',
+                'Coin Rush Alley',
+                'Sky Platform Sprint',
+            ],
+        },
+        {
+            genre: 'Puzzle',
+            games: [
+                'Block Shift Lab',
+                'Crate Push Quest',
+                'Door Key Circuit',
+            ],
+        },
+        {
+            genre: 'Arcade',
+            games: [
+                'Slide Dodge Arena',
+                'Spike Hop Panic',
+                'Pipe Flight Dash',
+            ],
+        },
+        {
+            genre: 'Simulation',
+            games: [
+                'Tiny Grove Builder',
+                'Pixel Pet Daycare',
+                'Mini Market Tycoon',
+            ],
+        },
     ],
     [
-        { genre: 'Runner', games: ['Hazard Dash Reactor', 'Wall Climb Rush', 'Downhill Drift Runner'] },
-        { genre: 'Action', games: ['Blade Orbit Dodge', 'Wall Kick Ninja', 'Laser Burst Escape'] },
-        { genre: 'Arcade', games: ['Meteor Drop Panic', 'Turbo Traffic Split', 'Bomb Rain Reflex'] },
-        { genre: 'Puzzle', games: ['Path Finder Grid', 'Route Rotate Lab', 'Link Line Circuit'] },
+        {
+            genre: 'Arcade',
+            games: ['Flappy Cyber Bird'],
+        },
+        {
+            genre: 'Action',
+            games: [
+                'Blade Orbit Dodge',
+                'Wall Kick Ninja',
+                'Laser Burst Escape',
+            ],
+        },
+        {
+            genre: 'Arcade',
+            games: [
+                'Meteor Drop Panic',
+                'Turbo Traffic Split',
+                'Bomb Rain Reflex',
+            ],
+        },
+        {
+            genre: 'Puzzle',
+            games: [
+                'Path Finder Grid',
+                'Route Rotate Lab',
+                'Link Line Circuit',
+            ],
+        },
     ],
     [
-        { genre: 'Shooter', games: ['Slime Blaster Zero', 'Wave Defense Outpost', 'Base Guard Blitz'] },
-        { genre: 'Arcade', games: ['Bubble Pop Cannon', 'Duck Shot Carnival', 'UFO Zap Patrol'] },
-        { genre: 'Shooter', games: ['Arsenal Upgrade Run', 'Mini Boss Barrage', 'Squad Assist Strike'] },
-        { genre: 'Action', games: ['Monster Slash Dash', 'Shuriken Storm', 'Boxing Beatdown'] },
+        {
+            genre: 'Shooter',
+            games: [
+                'Slime Blaster Zero',
+                'Wave Defense Outpost',
+                'Base Guard Blitz',
+            ],
+        },
+        {
+            genre: 'Arcade',
+            games: [
+                'Bubble Pop Cannon',
+                'Duck Shot Carnival',
+                'UFO Zap Patrol',
+            ],
+        },
+        {
+            genre: 'Shooter',
+            games: [
+                'Arsenal Upgrade Run',
+                'Mini Boss Barrage',
+                'Squad Assist Strike',
+            ],
+        },
+        {
+            genre: 'Action',
+            games: [
+                'Monster Slash Dash',
+                'Shuriken Storm',
+                'Boxing Beatdown',
+            ],
+        },
     ],
     [
-        { genre: 'Puzzle', games: ['Mosaic Mind Quest', 'Maze Core Escape', 'Switch Door Lab'] },
-        { genre: 'Logic', games: ['Sort Stack Factory', 'Balance Beam Logic', 'Power Switch Grid'] },
-        { genre: 'Puzzle', games: ['Sokoban Space Crates', 'Pin Pull Dungeon', 'Light Tower Circuit'] },
-        { genre: 'Arcade', games: ['Hoop Shot Puzzle', 'Trick Toss Arena', 'Neon Pinball Mini'] },
+        {
+            genre: 'Puzzle',
+            games: [
+                'Mosaic Mind Quest',
+                'Maze Core Escape',
+                'Switch Door Lab',
+            ],
+        },
+        {
+            genre: 'Logic',
+            games: [
+                'Sort Stack Factory',
+                'Balance Beam Logic',
+                'Power Switch Grid',
+            ],
+        },
+        {
+            genre: 'Puzzle',
+            games: [
+                'Sokoban Space Crates',
+                'Pin Pull Dungeon',
+                'Light Tower Circuit',
+            ],
+        },
+        {
+            genre: 'Arcade',
+            games: [
+                'Hoop Shot Puzzle',
+                'Trick Toss Arena',
+                'Neon Pinball Mini',
+            ],
+        },
     ],
     [
-        { genre: 'Action', games: ['Street Combo Rookie', 'Combo Forge Arena', 'Dodge Counter Strike'] },
-        { genre: 'Boss Fight', games: ['Slime King Duel', 'Robot Core Raid', 'Dragon Flame Trial'] },
-        { genre: 'Action', games: ['Jump Strike Hero', 'Dash Blade Assault', 'Cyclone Slash'] },
-        { genre: 'Arcade', games: ['Survival Ring', 'Battle Dome Rush', 'Trial Gate Runner'] },
+        {
+            genre: 'Action',
+            games: [
+                'Street Combo Rookie',
+                'Combo Forge Arena',
+                'Dodge Counter Strike',
+            ],
+        },
+        {
+            genre: 'Boss Fight',
+            games: [
+                'Slime King Duel',
+                'Robot Core Raid',
+                'Dragon Flame Trial',
+            ],
+        },
+        {
+            genre: 'Action',
+            games: [
+                'Jump Strike Hero',
+                'Dash Blade Assault',
+                'Cyclone Slash',
+            ],
+        },
+        {
+            genre: 'Arcade',
+            games: [
+                'Survival Ring',
+                'Battle Dome Rush',
+                'Trial Gate Runner',
+            ],
+        },
     ],
     [
-        { genre: 'Rhythm', games: ['Beat Tap Reactor', 'Dance Sync Hero', 'Bass Drop Strike'] },
-        { genre: 'Music', games: ['Piano Rush Tiles', 'Note Catcher Pop', 'Mini Synth Jam'] },
-        { genre: 'Rhythm', games: ['Beat Dodge Highway', 'Perfect Timing Dash', 'Combo Chain Groove'] },
-        { genre: 'Arcade', games: ['Neon Dance Floor', 'Disco Orb Chase', 'Melody Sky Ride'] },
+        {
+            genre: 'Rhythm',
+            games: [
+                'Beat Tap Reactor',
+                'Dance Sync Hero',
+                'Bass Drop Strike',
+            ],
+        },
+        {
+            genre: 'Music',
+            games: [
+                'Piano Rush Tiles',
+                'Note Catcher Pop',
+                'Mini Synth Jam',
+            ],
+        },
+        {
+            genre: 'Rhythm',
+            games: [
+                'Beat Dodge Highway',
+                'Perfect Timing Dash',
+                'Combo Chain Groove',
+            ],
+        },
+        {
+            genre: 'Arcade',
+            games: [
+                'Neon Dance Floor',
+                'Disco Orb Chase',
+                'Melody Sky Ride',
+            ],
+        },
     ],
     [
-        { genre: 'Collect', games: ['Coin Magnet Quest', 'Diamond Drift Mine', 'Starfall Collector'] },
-        { genre: 'Adventure', games: ['Crystal Cave Scout', 'Lost Key Expedition', 'Treasure Trail Runner'] },
-        { genre: 'Collect', games: ['Fruit Frenzy Field', 'Relic Courier Run', 'Parcel Sprint Shift'] },
-        { genre: 'Simulation', games: ['Tiny Farm Loop', 'Cozy Fishing Dock', 'Chef Rush Kitchen'] },
+        {
+            genre: 'Collect',
+            games: [
+                'Coin Magnet Quest',
+                'Diamond Drift Mine',
+                'Starfall Collector',
+            ],
+        },
+        {
+            genre: 'Adventure',
+            games: [
+                'Crystal Cave Scout',
+                'Lost Key Expedition',
+                'Treasure Trail Runner',
+            ],
+        },
+        {
+            genre: 'Collect',
+            games: [
+                'Fruit Frenzy Field',
+                'Relic Courier Run',
+                'Parcel Sprint Shift',
+            ],
+        },
+        {
+            genre: 'Simulation',
+            games: [
+                'Tiny Farm Loop',
+                'Cozy Fishing Dock',
+                'Chef Rush Kitchen',
+            ],
+        },
     ],
     [
-        { genre: 'Effect', games: ['Blast FX Sandbox', 'Comet Trail Ball', 'Frost Burst Arena'] },
-        { genre: 'Skill', games: ['Flame Skill Forge', 'Ice Skill Weaver', 'Thunder Skill Circuit'] },
-        { genre: 'Effect', games: ['Heal Pulse Garden', 'Combo Spark Lab', 'Ultimate FX Trial'] },
-        { genre: 'Action', games: ['Dash Skill Runner', 'Leap Skill Quest', 'Area Blast Hero'] },
+        {
+            genre: 'Effect',
+            games: [
+                'Blast FX Sandbox',
+                'Comet Trail Ball',
+                'Frost Burst Arena',
+            ],
+        },
+        {
+            genre: 'Skill',
+            games: [
+                'Flame Skill Forge',
+                'Ice Skill Weaver',
+                'Thunder Skill Circuit',
+            ],
+        },
+        {
+            genre: 'Effect',
+            games: [
+                'Heal Pulse Garden',
+                'Combo Spark Lab',
+                'Ultimate FX Trial',
+            ],
+        },
+        {
+            genre: 'Action',
+            games: [
+                'Dash Skill Runner',
+                'Leap Skill Quest',
+                'Area Blast Hero',
+            ],
+        },
     ],
     [
-        { genre: 'Upgrade', games: ['Vital Core Upgrade', 'Damage Forge Path', 'Skill Unlock Tower'] },
-        { genre: 'Shop', games: ['Weapon Shop Tycoon', 'Gear Merchant Lab', 'Pet Shop Companion'] },
-        { genre: 'Progression', games: ['Level XP Climb', 'Skill Tree Odyssey', 'Rank Up Reactor'] },
-        { genre: 'Adventure', games: ['Main Quest Signal', 'Side Quest Harbor', 'Daily Quest Loop'] },
+        {
+            genre: 'Upgrade',
+            games: [
+                'Vital Core Upgrade',
+                'Damage Forge Path',
+                'Skill Unlock Tower',
+            ],
+        },
+        {
+            genre: 'Shop',
+            games: [
+                'Weapon Shop Tycoon',
+                'Gear Merchant Lab',
+                'Pet Shop Companion',
+            ],
+        },
+        {
+            genre: 'Progression',
+            games: [
+                'Level XP Climb',
+                'Skill Tree Odyssey',
+                'Rank Up Reactor',
+            ],
+        },
+        {
+            genre: 'Adventure',
+            games: [
+                'Main Quest Signal',
+                'Side Quest Harbor',
+                'Daily Quest Loop',
+            ],
+        },
     ],
     [
-        { genre: 'AI Enemy', games: ['Patrol Bot Alley', 'Chase Drone Maze', 'Sniper Bot Watch'] },
-        { genre: 'AI Pattern', games: ['Spiral Pattern Duel', 'Rotating Pattern Core', 'Complex Pattern Arena'] },
-        { genre: 'Boss AI', games: ['Moving Boss Protocol', 'Phase Pattern Titan', 'Multi Phase Overlord'] },
-        { genre: 'Simulation', games: ['Smart NPC Village', 'Enemy Squad Tactics', 'Dynamic World Engine'] },
+        {
+            genre: 'AI Enemy',
+            games: [
+                'Patrol Bot Alley',
+                'Chase Drone Maze',
+                'Sniper Bot Watch',
+            ],
+        },
+        {
+            genre: 'AI Pattern',
+            games: [
+                'Spiral Pattern Duel',
+                'Rotating Pattern Core',
+                'Complex Pattern Arena',
+            ],
+        },
+        {
+            genre: 'Boss AI',
+            games: [
+                'Moving Boss Protocol',
+                'Phase Pattern Titan',
+                'Multi Phase Overlord',
+            ],
+        },
+        {
+            genre: 'Simulation',
+            games: [
+                'Smart NPC Village',
+                'Enemy Squad Tactics',
+                'Dynamic World Engine',
+            ],
+        },
     ],
     [
-        { genre: 'Free Build', games: ['Dream Platformer Lab', 'Custom Puzzle Forge', 'Personal Shooter Arena'] },
-        { genre: 'Theme Pack', games: ['Forest Spirit Run', 'Ocean Depth Quest', 'Space Colony Dash'] },
-        { genre: 'Game Idea', games: ['Original Game Spark', 'Signature Game Seed', 'Creator Mode Prototype'] },
-        { genre: 'Mechanic Mix', games: ['Dual Mechanic Fusion', 'Triple System Remix', 'Quad Combo Experiment'] },
+        {
+            genre: 'Free Build',
+            games: [
+                'Dream Platformer Lab',
+                'Custom Puzzle Forge',
+                'Personal Shooter Arena',
+            ],
+        },
+        {
+            genre: 'Theme Pack',
+            games: [
+                'Forest Spirit Run',
+                'Ocean Depth Quest',
+                'Space Colony Dash',
+            ],
+        },
+        {
+            genre: 'Game Idea',
+            games: [
+                'Original Game Spark',
+                'Signature Game Seed',
+                'Creator Mode Prototype',
+            ],
+        },
+        {
+            genre: 'Mechanic Mix',
+            games: [
+                'Dual Mechanic Fusion',
+                'Triple System Remix',
+                'Quad Combo Experiment',
+            ],
+        },
     ],
     [
-        { genre: 'UI & Menu', games: ['Start Menu Command', 'Level Select Nexus', 'Shop UI Console'] },
-        { genre: 'Polish', games: ['Sound Polish Studio', 'Juice FX Upgrade', 'Final Touch Build'] },
-        { genre: 'Test & Fix', games: ['Gameplay QA Arena', 'Balance Patch Lab', 'Bug Hunt Sprint'] },
-        { genre: 'Showcase', games: ['Game Trailer Cut', 'Launch Poster Maker', 'Demo Day Showcase'] },
+        {
+            genre: 'UI & Menu',
+            games: [
+                'Start Menu Command',
+                'Level Select Nexus',
+                'Shop UI Console',
+            ],
+        },
+        {
+            genre: 'Polish',
+            games: [
+                'Sound Polish Studio',
+                'Juice FX Upgrade',
+                'Final Touch Build',
+            ],
+        },
+        {
+            genre: 'Test & Fix',
+            games: [
+                'Gameplay QA Arena',
+                'Balance Patch Lab',
+                'Bug Hunt Sprint',
+            ],
+        },
+        {
+            genre: 'Showcase',
+            games: [
+                'Game Trailer Cut',
+                'Launch Poster Maker',
+                'Demo Day Showcase',
+            ],
+        },
     ],
 ]
 
-const promptFiles = import.meta.glob('/src/data/game-roadmap/*.txt', { as: 'raw', eager: true }) as Record<string, string>
+const promptFiles = import.meta.glob('/src/data/game-roadmap/*.txt', { as: 'raw', eager: true }) as Record<
+    string,
+    string
+>
 const promptContentByGame = Object.fromEntries(
-    Object.entries(promptFiles).map(([path, content]) => {
-        const fileName = path.split('/').pop() ?? ''
-        const gameName = fileName.replace(/\.txt$/, '')
-        return [gameName, content]
-    })
+    Object.entries(promptFiles).map(
+        ([
+            path,
+            content,
+        ]) => {
+            const fileName = path.split('/').pop() ?? ''
+            const gameName = fileName.replace(/\.txt$/, '')
+            return [
+                gameName,
+                content,
+            ]
+        },
+    ),
 )
 
 const roadmap = months.map((month, monthIndex) => ({
@@ -171,99 +534,203 @@ const roadmap = months.map((month, monthIndex) => ({
 
 // ─── SVG Icon Definitions ───────────────────────────────────────────
 function g(gid, stops, paths) {
-  const defs = `<defs>${stops}</defs>`;
-  return `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">${defs}${paths}</svg>`;
+    const defs = `<defs>${stops}</defs>`
+    return `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">${defs}${paths}</svg>`
 }
 
 const G = {
-  Rnr: ['url(#g-rnr)', '<linearGradient id="g-rnr" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#34d399"/><stop offset="100%" stop-color="#059669"/></linearGradient>', '<circle cx="13" cy="5" r="2.5" fill="url(#g-rnr)" stroke="url(#g-rnr)" stroke-width="1.2"/><path d="M5 21l3-6 4 1 1.5-4" stroke="url(#g-rnr)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.5 14l2.5-4 4 1.5 1 5.5" stroke="url(#g-rnr)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.5 11l-3.5-2-1 3" stroke="url(#g-rnr)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'],
-  Pzl: ['url(#g-pzl)', '<linearGradient id="g-pzl" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#f59e0b"/></linearGradient>', '<rect x="4" y="6" width="7" height="6" rx="1.5" fill="#fef3c7" stroke="url(#g-pzl)" stroke-width="1.5"/><rect x="13" y="6" width="7" height="6" rx="1.5" fill="#fef3c7" stroke="url(#g-pzl)" stroke-width="1.5"/><rect x="4" y="14" width="7" height="6" rx="1.5" fill="#fef3c7" stroke="url(#g-pzl)" stroke-width="1.5"/><rect x="13" y="14" width="7" height="6" rx="1.5" fill="#fef3c7" stroke="url(#g-pzl)" stroke-width="1.5"/><circle cx="7.5" cy="9" r="1" fill="url(#g-pzl)"/><circle cx="16.5" cy="9" r="1" fill="url(#g-pzl)"/><circle cx="7.5" cy="17" r="1" fill="url(#g-pzl)"/><circle cx="16.5" cy="17" r="1" fill="url(#g-pzl)"/>'],
-  Lgc: ['url(#g-lgc)', '<linearGradient id="g-lgc" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#eab308"/><stop offset="100%" stop-color="#ca8a04"/></linearGradient>', '<path d="M12 4a4 4 0 0 1 4 4c0 1.5-.8 2.8-2 3.5V15l-2 2-2-2v-3.5a4 4 0 0 1-2-3.5 4 4 0 0 1 4-4z" fill="#fefce8" stroke="url(#g-lgc)" stroke-width="1.5"/><path d="M10 11l2-1 2 1" stroke="url(#g-lgc)" stroke-width="1.2" stroke-linecap="round"/>'],
-  Sht: ['url(#g-sht)', '<linearGradient id="g-sht" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fb7185"/><stop offset="100%" stop-color="#e11d48"/></linearGradient>', '<circle cx="12" cy="12" r="8" fill="#fff1f2" stroke="url(#g-sht)" stroke-width="1.5"/><circle cx="12" cy="12" r="4" fill="none" stroke="url(#g-sht)" stroke-width="1.2"/><circle cx="12" cy="12" r="1.5" fill="url(#g-sht)"/><path d="M12 4v-2M12 22v-2M4 12H2M22 12h-2" stroke="url(#g-sht)" stroke-width="1.5" stroke-linecap="round"/>'],
-  Act: ['url(#g-act)', '<linearGradient id="g-act" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#f87171"/><stop offset="100%" stop-color="#dc2626"/></linearGradient>', '<path d="M12 2l1.5 4.5H18l-3.5 2.5L16 14l-4-3-4 3 1.5-5L6 6.5h4.5z" fill="#fef2f2" stroke="url(#g-act)" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="16" r="4" fill="none" stroke="url(#g-act)" stroke-width="1.5"/>'],
-  Boss: ['url(#g-boss)', '<linearGradient id="g-boss" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#f87171"/><stop offset="100%" stop-color="#dc2626"/></linearGradient>', '<path d="M7 10l-2 10h14l-2-10H7z" fill="#fef2f2" stroke="url(#g-boss)" stroke-width="1.5"/><path d="M9 10V7a3 3 0 0 1 6 0v3" stroke="url(#g-boss)" stroke-width="1.5" fill="none"/><circle cx="12" cy="7" r="1" fill="url(#g-boss)"/>'],
-  Rhy: ['url(#g-rhy)', '<linearGradient id="g-rhy" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#e879f9"/><stop offset="100%" stop-color="#c026d3"/></linearGradient>', '<path d="M9 18V6l8-1v11" stroke="url(#g-rhy)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="7.5" cy="18" rx="2.5" ry="2" fill="#fae8ff" stroke="url(#g-rhy)" stroke-width="1.2"/><ellipse cx="17.5" cy="17" rx="2.5" ry="2" fill="#fae8ff" stroke="url(#g-rhy)" stroke-width="1.2"/>'],
-  Arc: ['url(#g-arc)', '<linearGradient id="g-arc" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0284c7"/></linearGradient>', '<rect x="5" y="8" width="14" height="12" rx="3" fill="#f0f9ff" stroke="url(#g-arc)" stroke-width="1.5"/><circle cx="12" cy="14" r="3" fill="none" stroke="url(#g-arc)" stroke-width="1.2"/><path d="M12 11v3l2 1" stroke="url(#g-arc)" stroke-width="1.2" stroke-linecap="round"/><path d="M9 5l1 3M15 5l-1 3" stroke="url(#g-arc)" stroke-width="1.5" stroke-linecap="round"/>'],
-  Sim: ['url(#g-sim)', '<linearGradient id="g-sim" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2dd4bf"/><stop offset="100%" stop-color="#0d9488"/></linearGradient>', '<circle cx="12" cy="12" r="8" fill="#f0fdfa" stroke="url(#g-sim)" stroke-width="1.5"/><path d="M12 8v4l2.5 1.5" stroke="url(#g-sim)" stroke-width="1.5" stroke-linecap="round"/><path d="M7 12h1M16 12h1M12 7V6M12 18v-1" stroke="url(#g-sim)" stroke-width="1.2" stroke-linecap="round"/>'],
-  Clt: ['url(#g-clt)', '<linearGradient id="g-clt" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#65a30d"/><stop offset="100%" stop-color="#4d7c0f"/></linearGradient>', '<path d="M12 3l3 5 5 1-3.5 4.5L17 19l-5-2.5L7 19l1.5-5.5L5 9l5-1z" fill="#f7fee7" stroke="url(#g-clt)" stroke-width="1.5" stroke-linejoin="round"/>'],
-  Adv: ['url(#g-adv)', '<linearGradient id="g-adv" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#22d3ee"/><stop offset="100%" stop-color="#0891b2"/></linearGradient>', '<path d="M4 20l4-6 3 3 4-6 5 9H4z" fill="#ecfeff" stroke="url(#g-adv)" stroke-width="1.5" stroke-linejoin="round"/><circle cx="17" cy="6" r="2.5" fill="#ecfeff" stroke="url(#g-adv)" stroke-width="1.5"/>'],
-  Eff: ['url(#g-eff)', '<linearGradient id="g-eff" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient>', '<path d="M12 3l1 3 3 1-3 1-1 3-1-3-3-1 3-1z" fill="#f5f3ff" stroke="url(#g-eff)" stroke-width="1.2" stroke-linejoin="round"/><circle cx="17" cy="16" r="3" fill="#f5f3ff" stroke="url(#g-eff)" stroke-width="1.2"/><circle cx="8" cy="17" r="2" fill="none" stroke="url(#g-eff)" stroke-width="1.2"/>'],
-  Ski: ['url(#g-ski)', '<linearGradient id="g-ski" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient>', '<path d="M13 3l-2 7h5l-3 9" stroke="url(#g-ski)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 14H7M16 12h2" stroke="url(#g-ski)" stroke-width="1.5" stroke-linecap="round"/>'],
-  Upg: ['url(#g-upg)', '<linearGradient id="g-upg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#4f46e5"/></linearGradient>', '<path d="M12 3l5 7h-3v9h-4v-9H7z" fill="#eef2ff" stroke="url(#g-upg)" stroke-width="1.5" stroke-linejoin="round"/>'],
-  Shp: ['url(#g-shp)', '<linearGradient id="g-shp" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#4f46e5"/></linearGradient>', '<path d="M6 4h12l2 5H4l2-5z" fill="#eef2ff" stroke="url(#g-shp)" stroke-width="1.5"/><path d="M4 9h16v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9z" fill="#eef2ff" stroke="url(#g-shp)" stroke-width="1.5"/><circle cx="9" cy="14" r="1" fill="url(#g-shp)"/><circle cx="15" cy="14" r="1" fill="url(#g-shp)"/>'],
-  Pro: ['url(#g-pro)', '<linearGradient id="g-pro" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#4f46e5"/></linearGradient>', '<rect x="4" y="14" width="4" height="6" rx="1" fill="#eef2ff" stroke="url(#g-pro)" stroke-width="1.2"/><rect x="10" y="9" width="4" height="11" rx="1" fill="#eef2ff" stroke="url(#g-pro)" stroke-width="1.2"/><rect x="16" y="4" width="4" height="16" rx="1" fill="#eef2ff" stroke="url(#g-pro)" stroke-width="1.2"/>'],
-  AI: ['url(#g-ai)', '<linearGradient id="g-ai" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#94a3b8"/><stop offset="100%" stop-color="#64748b"/></linearGradient>', '<rect x="6" y="8" width="12" height="10" rx="3" fill="#f8fafc" stroke="url(#g-ai)" stroke-width="1.5"/><circle cx="10" cy="13" r="1" fill="url(#g-ai)"/><circle cx="14" cy="13" r="1" fill="url(#g-ai)"/><path d="M10 17a2 2 0 0 1 4 0" stroke="url(#g-ai)" stroke-width="1.2" fill="none"/><path d="M9 5l1 3M15 5l-1 3" stroke="url(#g-ai)" stroke-width="1.5" stroke-linecap="round"/>'],
-  FrB: ['url(#g-frb)', '<linearGradient id="g-frb" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fb923c"/><stop offset="100%" stop-color="#ea580c"/></linearGradient>', '<path d="M14 4l2 2-8 8-3 1 1-3 8-8z" fill="#fff7ed" stroke="url(#g-frb)" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 6l2 2" stroke="url(#g-frb)" stroke-width="1.5" stroke-linecap="round"/>'],
-  ThP: ['url(#g-thp)', '<linearGradient id="g-thp" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fb923c"/><stop offset="100%" stop-color="#ea580c"/></linearGradient>', '<ellipse cx="12" cy="12" rx="8" ry="6" fill="#fff7ed" stroke="url(#g-thp)" stroke-width="1.5"/><circle cx="9" cy="11" r="1.2" fill="url(#g-thp)"/><circle cx="12" cy="14" r="1.2" fill="url(#g-thp)"/><circle cx="15" cy="11" r="1.2" fill="url(#g-thp)"/>'],
-  GdI: ['url(#g-gdi)', '<linearGradient id="g-gdi" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fb923c"/><stop offset="100%" stop-color="#ea580c"/></linearGradient>', '<path d="M12 3c-2 0-3 1.5-3 3 0 2 2 3 2 5v1h2v-1c0-2 2-3 2-5 0-1.5-1-3-3-3z" fill="#fff7ed" stroke="url(#g-gdi)" stroke-width="1.5"/><path d="M9 17h6v1a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1v-1z" fill="#fff7ed" stroke="url(#g-gdi)" stroke-width="1.2"/><path d="M12 2v1" stroke="url(#g-gdi)" stroke-width="1.5" stroke-linecap="round"/>'],
-  McC: ['url(#g-mcc)', '<linearGradient id="g-mcc" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fb923c"/><stop offset="100%" stop-color="#ea580c"/></linearGradient>', '<circle cx="12" cy="12" r="7" fill="#fff7ed" stroke="url(#g-mcc)" stroke-width="1.5"/><circle cx="10" cy="10" r="1" fill="url(#g-mcc)"/><circle cx="14" cy="10" r="1" fill="url(#g-mcc)"/><circle cx="12" cy="14" r="2.5" fill="none" stroke="url(#g-mcc)" stroke-width="1.2"/><circle cx="12" cy="14" r="1" fill="url(#g-mcc)"/>'],
-  UIM: ['url(#g-uim)', '<linearGradient id="g-uim" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#2563eb"/></linearGradient>', '<rect x="4" y="5" width="16" height="14" rx="2" fill="#eff6ff" stroke="url(#g-uim)" stroke-width="1.5"/><path d="M4 9h16" stroke="url(#g-uim)" stroke-width="1.5"/><circle cx="7" cy="7" r=".8" fill="url(#g-uim)"/><circle cx="9" cy="7" r=".8" fill="url(#g-uim)"/>'],
-  Pol: ['url(#g-pol)', '<linearGradient id="g-pol" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#2563eb"/></linearGradient>', '<path d="M12 2l1 3.5 3.5-1-1 3.5 3.5 1-3.5 1 1 3.5-3.5-1-1 3.5-1-3.5-3.5 1 1-3.5-3.5-1 3.5-1-1-3.5 3.5 1z" fill="#eff6ff" stroke="url(#g-pol)" stroke-width="1" stroke-linejoin="round"/>'],
-  Tst: ['url(#g-tst)', '<linearGradient id="g-tst" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#2563eb"/></linearGradient>', '<circle cx="12" cy="12" r="7" fill="#eff6ff" stroke="url(#g-tst)" stroke-width="1.5"/><path d="M12 8v4l2 2" stroke="url(#g-tst)" stroke-width="1.5" stroke-linecap="round"/><path d="M9 3l1 2M15 3l-1 2" stroke="url(#g-tst)" stroke-width="1.2" stroke-linecap="round"/>'],
-  Shw: ['url(#g-shw)', '<linearGradient id="g-shw" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#2563eb"/></linearGradient>', '<path d="M12 2l1.5 5 5 .5-3.5 4 1 5.5-4-3-4 3 1-5.5L5.5 7.5l5-.5z" fill="#eff6ff" stroke="url(#g-shw)" stroke-width="1.5" stroke-linejoin="round"/>'],
+    Rnr: [
+        'url(#g-rnr)',
+        '<linearGradient id="g-rnr" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#34d399"/><stop offset="100%" stop-color="#059669"/></linearGradient>',
+        '<circle cx="13" cy="5" r="2.5" fill="url(#g-rnr)" stroke="url(#g-rnr)" stroke-width="1.2"/><path d="M5 21l3-6 4 1 1.5-4" stroke="url(#g-rnr)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.5 14l2.5-4 4 1.5 1 5.5" stroke="url(#g-rnr)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.5 11l-3.5-2-1 3" stroke="url(#g-rnr)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>',
+    ],
+    Pzl: [
+        'url(#g-pzl)',
+        '<linearGradient id="g-pzl" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#f59e0b"/></linearGradient>',
+        '<rect x="4" y="6" width="7" height="6" rx="1.5" fill="#fef3c7" stroke="url(#g-pzl)" stroke-width="1.5"/><rect x="13" y="6" width="7" height="6" rx="1.5" fill="#fef3c7" stroke="url(#g-pzl)" stroke-width="1.5"/><rect x="4" y="14" width="7" height="6" rx="1.5" fill="#fef3c7" stroke="url(#g-pzl)" stroke-width="1.5"/><rect x="13" y="14" width="7" height="6" rx="1.5" fill="#fef3c7" stroke="url(#g-pzl)" stroke-width="1.5"/><circle cx="7.5" cy="9" r="1" fill="url(#g-pzl)"/><circle cx="16.5" cy="9" r="1" fill="url(#g-pzl)"/><circle cx="7.5" cy="17" r="1" fill="url(#g-pzl)"/><circle cx="16.5" cy="17" r="1" fill="url(#g-pzl)"/>',
+    ],
+    Lgc: [
+        'url(#g-lgc)',
+        '<linearGradient id="g-lgc" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#eab308"/><stop offset="100%" stop-color="#ca8a04"/></linearGradient>',
+        '<path d="M12 4a4 4 0 0 1 4 4c0 1.5-.8 2.8-2 3.5V15l-2 2-2-2v-3.5a4 4 0 0 1-2-3.5 4 4 0 0 1 4-4z" fill="#fefce8" stroke="url(#g-lgc)" stroke-width="1.5"/><path d="M10 11l2-1 2 1" stroke="url(#g-lgc)" stroke-width="1.2" stroke-linecap="round"/>',
+    ],
+    Sht: [
+        'url(#g-sht)',
+        '<linearGradient id="g-sht" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fb7185"/><stop offset="100%" stop-color="#e11d48"/></linearGradient>',
+        '<circle cx="12" cy="12" r="8" fill="#fff1f2" stroke="url(#g-sht)" stroke-width="1.5"/><circle cx="12" cy="12" r="4" fill="none" stroke="url(#g-sht)" stroke-width="1.2"/><circle cx="12" cy="12" r="1.5" fill="url(#g-sht)"/><path d="M12 4v-2M12 22v-2M4 12H2M22 12h-2" stroke="url(#g-sht)" stroke-width="1.5" stroke-linecap="round"/>',
+    ],
+    Act: [
+        'url(#g-act)',
+        '<linearGradient id="g-act" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#f87171"/><stop offset="100%" stop-color="#dc2626"/></linearGradient>',
+        '<path d="M12 2l1.5 4.5H18l-3.5 2.5L16 14l-4-3-4 3 1.5-5L6 6.5h4.5z" fill="#fef2f2" stroke="url(#g-act)" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="16" r="4" fill="none" stroke="url(#g-act)" stroke-width="1.5"/>',
+    ],
+    Boss: [
+        'url(#g-boss)',
+        '<linearGradient id="g-boss" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#f87171"/><stop offset="100%" stop-color="#dc2626"/></linearGradient>',
+        '<path d="M7 10l-2 10h14l-2-10H7z" fill="#fef2f2" stroke="url(#g-boss)" stroke-width="1.5"/><path d="M9 10V7a3 3 0 0 1 6 0v3" stroke="url(#g-boss)" stroke-width="1.5" fill="none"/><circle cx="12" cy="7" r="1" fill="url(#g-boss)"/>',
+    ],
+    Rhy: [
+        'url(#g-rhy)',
+        '<linearGradient id="g-rhy" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#e879f9"/><stop offset="100%" stop-color="#c026d3"/></linearGradient>',
+        '<path d="M9 18V6l8-1v11" stroke="url(#g-rhy)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="7.5" cy="18" rx="2.5" ry="2" fill="#fae8ff" stroke="url(#g-rhy)" stroke-width="1.2"/><ellipse cx="17.5" cy="17" rx="2.5" ry="2" fill="#fae8ff" stroke="url(#g-rhy)" stroke-width="1.2"/>',
+    ],
+    Arc: [
+        'url(#g-arc)',
+        '<linearGradient id="g-arc" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0284c7"/></linearGradient>',
+        '<rect x="5" y="8" width="14" height="12" rx="3" fill="#f0f9ff" stroke="url(#g-arc)" stroke-width="1.5"/><circle cx="12" cy="14" r="3" fill="none" stroke="url(#g-arc)" stroke-width="1.2"/><path d="M12 11v3l2 1" stroke="url(#g-arc)" stroke-width="1.2" stroke-linecap="round"/><path d="M9 5l1 3M15 5l-1 3" stroke="url(#g-arc)" stroke-width="1.5" stroke-linecap="round"/>',
+    ],
+    Sim: [
+        'url(#g-sim)',
+        '<linearGradient id="g-sim" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2dd4bf"/><stop offset="100%" stop-color="#0d9488"/></linearGradient>',
+        '<circle cx="12" cy="12" r="8" fill="#f0fdfa" stroke="url(#g-sim)" stroke-width="1.5"/><path d="M12 8v4l2.5 1.5" stroke="url(#g-sim)" stroke-width="1.5" stroke-linecap="round"/><path d="M7 12h1M16 12h1M12 7V6M12 18v-1" stroke="url(#g-sim)" stroke-width="1.2" stroke-linecap="round"/>',
+    ],
+    Clt: [
+        'url(#g-clt)',
+        '<linearGradient id="g-clt" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#65a30d"/><stop offset="100%" stop-color="#4d7c0f"/></linearGradient>',
+        '<path d="M12 3l3 5 5 1-3.5 4.5L17 19l-5-2.5L7 19l1.5-5.5L5 9l5-1z" fill="#f7fee7" stroke="url(#g-clt)" stroke-width="1.5" stroke-linejoin="round"/>',
+    ],
+    Adv: [
+        'url(#g-adv)',
+        '<linearGradient id="g-adv" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#22d3ee"/><stop offset="100%" stop-color="#0891b2"/></linearGradient>',
+        '<path d="M4 20l4-6 3 3 4-6 5 9H4z" fill="#ecfeff" stroke="url(#g-adv)" stroke-width="1.5" stroke-linejoin="round"/><circle cx="17" cy="6" r="2.5" fill="#ecfeff" stroke="url(#g-adv)" stroke-width="1.5"/>',
+    ],
+    Eff: [
+        'url(#g-eff)',
+        '<linearGradient id="g-eff" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient>',
+        '<path d="M12 3l1 3 3 1-3 1-1 3-1-3-3-1 3-1z" fill="#f5f3ff" stroke="url(#g-eff)" stroke-width="1.2" stroke-linejoin="round"/><circle cx="17" cy="16" r="3" fill="#f5f3ff" stroke="url(#g-eff)" stroke-width="1.2"/><circle cx="8" cy="17" r="2" fill="none" stroke="url(#g-eff)" stroke-width="1.2"/>',
+    ],
+    Ski: [
+        'url(#g-ski)',
+        '<linearGradient id="g-ski" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient>',
+        '<path d="M13 3l-2 7h5l-3 9" stroke="url(#g-ski)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 14H7M16 12h2" stroke="url(#g-ski)" stroke-width="1.5" stroke-linecap="round"/>',
+    ],
+    Upg: [
+        'url(#g-upg)',
+        '<linearGradient id="g-upg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#4f46e5"/></linearGradient>',
+        '<path d="M12 3l5 7h-3v9h-4v-9H7z" fill="#eef2ff" stroke="url(#g-upg)" stroke-width="1.5" stroke-linejoin="round"/>',
+    ],
+    Shp: [
+        'url(#g-shp)',
+        '<linearGradient id="g-shp" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#4f46e5"/></linearGradient>',
+        '<path d="M6 4h12l2 5H4l2-5z" fill="#eef2ff" stroke="url(#g-shp)" stroke-width="1.5"/><path d="M4 9h16v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9z" fill="#eef2ff" stroke="url(#g-shp)" stroke-width="1.5"/><circle cx="9" cy="14" r="1" fill="url(#g-shp)"/><circle cx="15" cy="14" r="1" fill="url(#g-shp)"/>',
+    ],
+    Pro: [
+        'url(#g-pro)',
+        '<linearGradient id="g-pro" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#4f46e5"/></linearGradient>',
+        '<rect x="4" y="14" width="4" height="6" rx="1" fill="#eef2ff" stroke="url(#g-pro)" stroke-width="1.2"/><rect x="10" y="9" width="4" height="11" rx="1" fill="#eef2ff" stroke="url(#g-pro)" stroke-width="1.2"/><rect x="16" y="4" width="4" height="16" rx="1" fill="#eef2ff" stroke="url(#g-pro)" stroke-width="1.2"/>',
+    ],
+    AI: [
+        'url(#g-ai)',
+        '<linearGradient id="g-ai" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#94a3b8"/><stop offset="100%" stop-color="#64748b"/></linearGradient>',
+        '<rect x="6" y="8" width="12" height="10" rx="3" fill="#f8fafc" stroke="url(#g-ai)" stroke-width="1.5"/><circle cx="10" cy="13" r="1" fill="url(#g-ai)"/><circle cx="14" cy="13" r="1" fill="url(#g-ai)"/><path d="M10 17a2 2 0 0 1 4 0" stroke="url(#g-ai)" stroke-width="1.2" fill="none"/><path d="M9 5l1 3M15 5l-1 3" stroke="url(#g-ai)" stroke-width="1.5" stroke-linecap="round"/>',
+    ],
+    FrB: [
+        'url(#g-frb)',
+        '<linearGradient id="g-frb" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fb923c"/><stop offset="100%" stop-color="#ea580c"/></linearGradient>',
+        '<path d="M14 4l2 2-8 8-3 1 1-3 8-8z" fill="#fff7ed" stroke="url(#g-frb)" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 6l2 2" stroke="url(#g-frb)" stroke-width="1.5" stroke-linecap="round"/>',
+    ],
+    ThP: [
+        'url(#g-thp)',
+        '<linearGradient id="g-thp" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fb923c"/><stop offset="100%" stop-color="#ea580c"/></linearGradient>',
+        '<ellipse cx="12" cy="12" rx="8" ry="6" fill="#fff7ed" stroke="url(#g-thp)" stroke-width="1.5"/><circle cx="9" cy="11" r="1.2" fill="url(#g-thp)"/><circle cx="12" cy="14" r="1.2" fill="url(#g-thp)"/><circle cx="15" cy="11" r="1.2" fill="url(#g-thp)"/>',
+    ],
+    GdI: [
+        'url(#g-gdi)',
+        '<linearGradient id="g-gdi" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fb923c"/><stop offset="100%" stop-color="#ea580c"/></linearGradient>',
+        '<path d="M12 3c-2 0-3 1.5-3 3 0 2 2 3 2 5v1h2v-1c0-2 2-3 2-5 0-1.5-1-3-3-3z" fill="#fff7ed" stroke="url(#g-gdi)" stroke-width="1.5"/><path d="M9 17h6v1a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1v-1z" fill="#fff7ed" stroke="url(#g-gdi)" stroke-width="1.2"/><path d="M12 2v1" stroke="url(#g-gdi)" stroke-width="1.5" stroke-linecap="round"/>',
+    ],
+    McC: [
+        'url(#g-mcc)',
+        '<linearGradient id="g-mcc" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fb923c"/><stop offset="100%" stop-color="#ea580c"/></linearGradient>',
+        '<circle cx="12" cy="12" r="7" fill="#fff7ed" stroke="url(#g-mcc)" stroke-width="1.5"/><circle cx="10" cy="10" r="1" fill="url(#g-mcc)"/><circle cx="14" cy="10" r="1" fill="url(#g-mcc)"/><circle cx="12" cy="14" r="2.5" fill="none" stroke="url(#g-mcc)" stroke-width="1.2"/><circle cx="12" cy="14" r="1" fill="url(#g-mcc)"/>',
+    ],
+    UIM: [
+        'url(#g-uim)',
+        '<linearGradient id="g-uim" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#2563eb"/></linearGradient>',
+        '<rect x="4" y="5" width="16" height="14" rx="2" fill="#eff6ff" stroke="url(#g-uim)" stroke-width="1.5"/><path d="M4 9h16" stroke="url(#g-uim)" stroke-width="1.5"/><circle cx="7" cy="7" r=".8" fill="url(#g-uim)"/><circle cx="9" cy="7" r=".8" fill="url(#g-uim)"/>',
+    ],
+    Pol: [
+        'url(#g-pol)',
+        '<linearGradient id="g-pol" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#2563eb"/></linearGradient>',
+        '<path d="M12 2l1 3.5 3.5-1-1 3.5 3.5 1-3.5 1 1 3.5-3.5-1-1 3.5-1-3.5-3.5 1 1-3.5-3.5-1 3.5-1-1-3.5 3.5 1z" fill="#eff6ff" stroke="url(#g-pol)" stroke-width="1" stroke-linejoin="round"/>',
+    ],
+    Tst: [
+        'url(#g-tst)',
+        '<linearGradient id="g-tst" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#2563eb"/></linearGradient>',
+        '<circle cx="12" cy="12" r="7" fill="#eff6ff" stroke="url(#g-tst)" stroke-width="1.5"/><path d="M12 8v4l2 2" stroke="url(#g-tst)" stroke-width="1.5" stroke-linecap="round"/><path d="M9 3l1 2M15 3l-1 2" stroke="url(#g-tst)" stroke-width="1.2" stroke-linecap="round"/>',
+    ],
+    Shw: [
+        'url(#g-shw)',
+        '<linearGradient id="g-shw" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#2563eb"/></linearGradient>',
+        '<path d="M12 2l1.5 5 5 .5-3.5 4 1 5.5-4-3-4 3 1-5.5L5.5 7.5l5-.5z" fill="#eff6ff" stroke="url(#g-shw)" stroke-width="1.5" stroke-linejoin="round"/>',
+    ],
 }
 
 const genreIcons = {
-  Runner: g('g-rnr', G.Rnr[1], G.Rnr[2]),
-  Puzzle: g('g-pzl', G.Pzl[1], G.Pzl[2]),
-  Logic: g('g-lgc', G.Lgc[1], G.Lgc[2]),
-  Shooter: g('g-sht', G.Sht[1], G.Sht[2]),
-  Action: g('g-act', G.Act[1], G.Act[2]),
-  'Boss Fight': g('g-boss', G.Boss[1], G.Boss[2]),
-  Rhythm: g('g-rhy', G.Rhy[1], G.Rhy[2]),
-  Music: g('g-rhy', G.Rhy[1], G.Rhy[2]),
-  Arcade: g('g-arc', G.Arc[1], G.Arc[2]),
-  Simulation: g('g-sim', G.Sim[1], G.Sim[2]),
-  Collect: g('g-clt', G.Clt[1], G.Clt[2]),
-  Adventure: g('g-adv', G.Adv[1], G.Adv[2]),
-  Effect: g('g-eff', G.Eff[1], G.Eff[2]),
-  Skill: g('g-ski', G.Ski[1], G.Ski[2]),
-  Upgrade: g('g-upg', G.Upg[1], G.Upg[2]),
-  Shop: g('g-shp', G.Shp[1], G.Shp[2]),
-  Progression: g('g-pro', G.Pro[1], G.Pro[2]),
-  'AI Enemy': g('g-ai', G.AI[1], G.AI[2]),
-  'AI Pattern': g('g-ai', G.AI[1], G.AI[2]),
-  'Boss AI': g('g-boss', G.Boss[1], G.Boss[2]),
-  'Free Build': g('g-frb', G.FrB[1], G.FrB[2]),
-  'Theme Pack': g('g-thp', G.ThP[1], G.ThP[2]),
-  'Game Idea': g('g-gdi', G.GdI[1], G.GdI[2]),
-  'Mechanic Mix': g('g-mcc', G.McC[1], G.McC[2]),
-  'UI & Menu': g('g-uim', G.UIM[1], G.UIM[2]),
-  Polish: g('g-pol', G.Pol[1], G.Pol[2]),
-  'Test & Fix': g('g-tst', G.Tst[1], G.Tst[2]),
-  Showcase: g('g-shw', G.Shw[1], G.Shw[2]),
+    Runner: g('g-rnr', G.Rnr[1], G.Rnr[2]),
+    Puzzle: g('g-pzl', G.Pzl[1], G.Pzl[2]),
+    Logic: g('g-lgc', G.Lgc[1], G.Lgc[2]),
+    Shooter: g('g-sht', G.Sht[1], G.Sht[2]),
+    Action: g('g-act', G.Act[1], G.Act[2]),
+    'Boss Fight': g('g-boss', G.Boss[1], G.Boss[2]),
+    Rhythm: g('g-rhy', G.Rhy[1], G.Rhy[2]),
+    Music: g('g-rhy', G.Rhy[1], G.Rhy[2]),
+    Arcade: g('g-arc', G.Arc[1], G.Arc[2]),
+    Simulation: g('g-sim', G.Sim[1], G.Sim[2]),
+    Collect: g('g-clt', G.Clt[1], G.Clt[2]),
+    Adventure: g('g-adv', G.Adv[1], G.Adv[2]),
+    Effect: g('g-eff', G.Eff[1], G.Eff[2]),
+    Skill: g('g-ski', G.Ski[1], G.Ski[2]),
+    Upgrade: g('g-upg', G.Upg[1], G.Upg[2]),
+    Shop: g('g-shp', G.Shp[1], G.Shp[2]),
+    Progression: g('g-pro', G.Pro[1], G.Pro[2]),
+    'AI Enemy': g('g-ai', G.AI[1], G.AI[2]),
+    'AI Pattern': g('g-ai', G.AI[1], G.AI[2]),
+    'Boss AI': g('g-boss', G.Boss[1], G.Boss[2]),
+    'Free Build': g('g-frb', G.FrB[1], G.FrB[2]),
+    'Theme Pack': g('g-thp', G.ThP[1], G.ThP[2]),
+    'Game Idea': g('g-gdi', G.GdI[1], G.GdI[2]),
+    'Mechanic Mix': g('g-mcc', G.McC[1], G.McC[2]),
+    'UI & Menu': g('g-uim', G.UIM[1], G.UIM[2]),
+    Polish: g('g-pol', G.Pol[1], G.Pol[2]),
+    'Test & Fix': g('g-tst', G.Tst[1], G.Tst[2]),
+    Showcase: g('g-shw', G.Shw[1], G.Shw[2]),
 }
 
 const attrSvgs = {
-  refresh: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px"><defs><linearGradient id="a-ref" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient></defs><path d="M4 12a8 8 0 0 1 14.5-4.5M20 12a8 8 0 0 1-14.5 4.5" stroke="url(#a-ref)" stroke-width="2" stroke-linecap="round"/><path d="M17 3l3 4.5L15.5 10M7 21l-3-4.5L8.5 14" stroke="url(#a-ref)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  keyboard: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px"><defs><linearGradient id="a-kbd" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient></defs><rect x="3" y="7" width="18" height="11" rx="2" fill="#eff6ff" stroke="url(#a-kbd)" stroke-width="1.5"/><line x1="7" y1="11" x2="9" y2="11" stroke="url(#a-kbd)" stroke-width="1.5" stroke-linecap="round"/><line x1="11" y1="11" x2="13" y2="11" stroke="url(#a-kbd)" stroke-width="1.5" stroke-linecap="round"/><line x1="15" y1="11" x2="17" y2="11" stroke="url(#a-kbd)" stroke-width="1.5" stroke-linecap="round"/><line x1="9" y1="14" x2="15" y2="14" stroke="url(#a-kbd)" stroke-width="1.5" stroke-linecap="round"/></svg>',
-  mobile: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px"><defs><linearGradient id="a-mob" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient></defs><rect x="7" y="3" width="10" height="18" rx="2" fill="#eff6ff" stroke="url(#a-mob)" stroke-width="1.5"/><line x1="9" y1="6" x2="15" y2="6" stroke="url(#a-mob)" stroke-width="1.2" stroke-linecap="round"/><circle cx="12" cy="18" r="1" fill="url(#a-mob)"/></svg>',
-  paint: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px"><defs><linearGradient id="a-pnt" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient></defs><path d="M14 3l-8 11h6l-3 7 9-13h-5l4-5z" fill="#eff6ff" stroke="url(#a-pnt)" stroke-width="1.5" stroke-linejoin="round"/></svg>',
-  gauge: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px"><defs><linearGradient id="a-gau" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient></defs><circle cx="12" cy="13" r="8" fill="#eff6ff" stroke="url(#a-gau)" stroke-width="1.5"/><path d="M12 13l4-5" stroke="url(#a-gau)" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="13" r="1.5" fill="url(#a-gau)"/><path d="M5 7l1 1M19 7l-1 1" stroke="url(#a-gau)" stroke-width="1.5" stroke-linecap="round"/></svg>',
-  clock: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px"><defs><linearGradient id="a-clk" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient></defs><circle cx="12" cy="12" r="8" fill="#eff6ff" stroke="url(#a-clk)" stroke-width="1.5"/><path d="M12 7v5l3 3" stroke="url(#a-clk)" stroke-width="1.5" stroke-linecap="round"/></svg>',
-  desktop: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px"><defs><linearGradient id="a-dsk" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient></defs><rect x="3" y="4" width="18" height="12" rx="2" fill="#eff6ff" stroke="url(#a-dsk)" stroke-width="1.5"/><path d="M8 20h8M12 16v4M7 20l1-4M17 20l-1-4" stroke="url(#a-dsk)" stroke-width="1.5" stroke-linecap="round"/></svg>',
-  copy: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:16px;height:16px"><defs><linearGradient id="a-cpy" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#6d28d9"/></linearGradient></defs><rect x="8" y="8" width="11" height="11" rx="2" fill="#f5f3ff" stroke="url(#a-cpy)" stroke-width="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h8" stroke="url(#a-cpy)" stroke-width="1.5" stroke-linecap="round"/></svg>',
-  image: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:16px;height:16px"><defs><linearGradient id="a-img" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#22c55e"/><stop offset="100%" stop-color="#15803d"/></linearGradient></defs><rect x="4" y="5" width="16" height="14" rx="2" fill="#f0fdf4" stroke="url(#a-img)" stroke-width="1.5"/><circle cx="9" cy="10" r="1.5" fill="url(#a-img)"/><path d="M4 16l4-3 3 2 3-3 6 4" stroke="url(#a-img)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  code: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:16px;height:16px"><defs><linearGradient id="a-cod" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient></defs><path d="M9 8l-5 4 5 4M15 8l5 4-5 4" stroke="url(#a-cod)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  download: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:16px;height:16px"><defs><linearGradient id="a-dwn" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#eab308"/><stop offset="100%" stop-color="#ca8a04"/></linearGradient></defs><path d="M12 3v12M8 11l4 4 4-4" stroke="url(#a-dwn)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="url(#a-dwn)" stroke-width="1.5" stroke-linecap="round"/></svg>',
-  play: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:14px;height:14px"><defs><linearGradient id="a-ply" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#e2e8f0"/></linearGradient></defs><path d="M8 5v14l11-7z" fill="url(#a-ply)" stroke="url(#a-ply)" stroke-width="1.2" stroke-linejoin="round"/></svg>',
-  fire: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:12px;height:12px"><defs><linearGradient id="a-fir" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ef4444"/><stop offset="100%" stop-color="#b91c1c"/></linearGradient></defs><path d="M12 21c4 0 6-3 6-6 0-4-2.5-7-4-9-.5-.8-1.5-.8-2 0-1.5 2-4 5-4 9 0 3 2 6 6 6z" fill="#fef2f2" stroke="url(#a-fir)" stroke-width="1.5"/><path d="M12 15c1 0 1.5-.5 1.5-1.5 0-1-1-2-1.5-2.5-.5.5-1.5 1.5-1.5 2.5 0 1 .5 1.5 1.5 1.5z" fill="url(#a-fir)"/></svg>',
-  bolt: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:12px;height:12px"><defs><linearGradient id="a-blt" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#eab308"/><stop offset="100%" stop-color="#ca8a04"/></linearGradient></defs><path d="M13 3l-4 9h5l-2 9" stroke="url(#a-blt)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    refresh:
+        '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px"><defs><linearGradient id="a-ref" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient></defs><path d="M4 12a8 8 0 0 1 14.5-4.5M20 12a8 8 0 0 1-14.5 4.5" stroke="url(#a-ref)" stroke-width="2" stroke-linecap="round"/><path d="M17 3l3 4.5L15.5 10M7 21l-3-4.5L8.5 14" stroke="url(#a-ref)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    keyboard:
+        '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px"><defs><linearGradient id="a-kbd" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient></defs><rect x="3" y="7" width="18" height="11" rx="2" fill="#eff6ff" stroke="url(#a-kbd)" stroke-width="1.5"/><line x1="7" y1="11" x2="9" y2="11" stroke="url(#a-kbd)" stroke-width="1.5" stroke-linecap="round"/><line x1="11" y1="11" x2="13" y2="11" stroke="url(#a-kbd)" stroke-width="1.5" stroke-linecap="round"/><line x1="15" y1="11" x2="17" y2="11" stroke="url(#a-kbd)" stroke-width="1.5" stroke-linecap="round"/><line x1="9" y1="14" x2="15" y2="14" stroke="url(#a-kbd)" stroke-width="1.5" stroke-linecap="round"/></svg>',
+    mobile: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px"><defs><linearGradient id="a-mob" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient></defs><rect x="7" y="3" width="10" height="18" rx="2" fill="#eff6ff" stroke="url(#a-mob)" stroke-width="1.5"/><line x1="9" y1="6" x2="15" y2="6" stroke="url(#a-mob)" stroke-width="1.2" stroke-linecap="round"/><circle cx="12" cy="18" r="1" fill="url(#a-mob)"/></svg>',
+    paint: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px"><defs><linearGradient id="a-pnt" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient></defs><path d="M14 3l-8 11h6l-3 7 9-13h-5l4-5z" fill="#eff6ff" stroke="url(#a-pnt)" stroke-width="1.5" stroke-linejoin="round"/></svg>',
+    gauge: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px"><defs><linearGradient id="a-gau" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient></defs><circle cx="12" cy="13" r="8" fill="#eff6ff" stroke="url(#a-gau)" stroke-width="1.5"/><path d="M12 13l4-5" stroke="url(#a-gau)" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="13" r="1.5" fill="url(#a-gau)"/><path d="M5 7l1 1M19 7l-1 1" stroke="url(#a-gau)" stroke-width="1.5" stroke-linecap="round"/></svg>',
+    clock: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px"><defs><linearGradient id="a-clk" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient></defs><circle cx="12" cy="12" r="8" fill="#eff6ff" stroke="url(#a-clk)" stroke-width="1.5"/><path d="M12 7v5l3 3" stroke="url(#a-clk)" stroke-width="1.5" stroke-linecap="round"/></svg>',
+    desktop:
+        '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px"><defs><linearGradient id="a-dsk" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient></defs><rect x="3" y="4" width="18" height="12" rx="2" fill="#eff6ff" stroke="url(#a-dsk)" stroke-width="1.5"/><path d="M8 20h8M12 16v4M7 20l1-4M17 20l-1-4" stroke="url(#a-dsk)" stroke-width="1.5" stroke-linecap="round"/></svg>',
+    copy: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:16px;height:16px"><defs><linearGradient id="a-cpy" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#6d28d9"/></linearGradient></defs><rect x="8" y="8" width="11" height="11" rx="2" fill="#f5f3ff" stroke="url(#a-cpy)" stroke-width="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h8" stroke="url(#a-cpy)" stroke-width="1.5" stroke-linecap="round"/></svg>',
+    image: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:16px;height:16px"><defs><linearGradient id="a-img" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#22c55e"/><stop offset="100%" stop-color="#15803d"/></linearGradient></defs><rect x="4" y="5" width="16" height="14" rx="2" fill="#f0fdf4" stroke="url(#a-img)" stroke-width="1.5"/><circle cx="9" cy="10" r="1.5" fill="url(#a-img)"/><path d="M4 16l4-3 3 2 3-3 6 4" stroke="url(#a-img)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    code: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:16px;height:16px"><defs><linearGradient id="a-cod" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient></defs><path d="M9 8l-5 4 5 4M15 8l5 4-5 4" stroke="url(#a-cod)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    download:
+        '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:16px;height:16px"><defs><linearGradient id="a-dwn" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#eab308"/><stop offset="100%" stop-color="#ca8a04"/></linearGradient></defs><path d="M12 3v12M8 11l4 4 4-4" stroke="url(#a-dwn)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="url(#a-dwn)" stroke-width="1.5" stroke-linecap="round"/></svg>',
+    play: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:14px;height:14px"><defs><linearGradient id="a-ply" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#e2e8f0"/></linearGradient></defs><path d="M8 5v14l11-7z" fill="url(#a-ply)" stroke="url(#a-ply)" stroke-width="1.2" stroke-linejoin="round"/></svg>',
+    fire: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:12px;height:12px"><defs><linearGradient id="a-fir" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ef4444"/><stop offset="100%" stop-color="#b91c1c"/></linearGradient></defs><path d="M12 21c4 0 6-3 6-6 0-4-2.5-7-4-9-.5-.8-1.5-.8-2 0-1.5 2-4 5-4 9 0 3 2 6 6 6z" fill="#fef2f2" stroke="url(#a-fir)" stroke-width="1.5"/><path d="M12 15c1 0 1.5-.5 1.5-1.5 0-1-1-2-1.5-2.5-.5.5-1.5 1.5-1.5 2.5 0 1 .5 1.5 1.5 1.5z" fill="url(#a-fir)"/></svg>',
+    bolt: '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:12px;height:12px"><defs><linearGradient id="a-blt" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#eab308"/><stop offset="100%" stop-color="#ca8a04"/></linearGradient></defs><path d="M13 3l-4 9h5l-2 9" stroke="url(#a-blt)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
 }
 
 const monthSvgs = [
-  '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#34d399"/><stop offset="100%" stop-color="#059669"/></linearGradient></defs><path d="M12 4l-8 14h16L12 4z" fill="#ecfdf5" stroke="url(#m1)" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 10v4M10 12h4" stroke="url(#m1)" stroke-width="1.5" stroke-linecap="round"/></svg>',
-  '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#4f46e5"/></linearGradient></defs><path d="M13 4l-4 8h5l-3 9" stroke="url(#m2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 6H6M17 7h2" stroke="url(#m2)" stroke-width="1.5" stroke-linecap="round"/></svg>',
-  '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#94a3b8"/><stop offset="100%" stop-color="#64748b"/></linearGradient></defs><circle cx="12" cy="12" r="7" fill="#f8fafc" stroke="url(#m3)" stroke-width="1.5"/><circle cx="12" cy="12" r="3" fill="none" stroke="url(#m3)" stroke-width="1.2"/><circle cx="12" cy="12" r="1" fill="url(#m3)"/><path d="M12 5V3M12 21v-2M5 12H3M21 12h-2" stroke="url(#m3)" stroke-width="1.5" stroke-linecap="round"/></svg>',
-  '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m4" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#34d399"/><stop offset="100%" stop-color="#059669"/></linearGradient></defs><rect x="5" y="5" width="6" height="6" rx="1" fill="#ecfdf5" stroke="url(#m4)" stroke-width="1.5"/><rect x="13" y="5" width="6" height="6" rx="1" fill="#ecfdf5" stroke="url(#m4)" stroke-width="1.5"/><rect x="5" y="13" width="6" height="6" rx="1" fill="#ecfdf5" stroke="url(#m4)" stroke-width="1.5"/><rect x="13" y="13" width="6" height="6" rx="1" fill="#ecfdf5" stroke="url(#m4)" stroke-width="1.5"/><circle cx="8" cy="8" r="1" fill="url(#m4)"/><circle cx="16" cy="8" r="1" fill="url(#m4)"/><circle cx="8" cy="16" r="1" fill="url(#m4)"/><circle cx="16" cy="16" r="1" fill="url(#m4)"/></svg>',
-  '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m5" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#4f46e5"/></linearGradient></defs><path d="M6 6l4 4-4 4M18 6l-4 4 4 4" stroke="url(#m5)" stroke-width="1.8" stroke-linecap="round"/><path d="M5 19h14" stroke="url(#m5)" stroke-width="1.5" stroke-linecap="round"/></svg>',
-  '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m6" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#e879f9"/><stop offset="100%" stop-color="#c026d3"/></linearGradient></defs><path d="M9 18V5l8-1v11" stroke="url(#m6)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="7.5" cy="18" rx="2.5" ry="2" fill="#fae8ff" stroke="url(#m6)" stroke-width="1.2"/><ellipse cx="17.5" cy="16" rx="2.5" ry="2" fill="#fae8ff" stroke="url(#m6)" stroke-width="1.2"/></svg>',
-  '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m7" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#65a30d"/><stop offset="100%" stop-color="#4d7c0f"/></linearGradient></defs><path d="M12 4l4 5 5 1-3 4 1 5-5-2-5 2 1-5-3-4 5-1z" fill="#f7fee7" stroke="url(#m7)" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="11" r="1.5" fill="url(#m7)"/></svg>',
-  '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m8" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient></defs><path d="M12 3l1 3 3 1-3 1-1 3-1-3-3-1 3-1z" fill="#f5f3ff" stroke="url(#m8)" stroke-width="1.2" stroke-linejoin="round"/><circle cx="17" cy="17" r="3" fill="#f5f3ff" stroke="url(#m8)" stroke-width="1.2"/><circle cx="7" cy="16" r="2" fill="none" stroke="url(#m8)" stroke-width="1.2"/></svg>',
-  '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m9" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#94a3b8"/><stop offset="100%" stop-color="#64748b"/></linearGradient></defs><rect x="5" y="15" width="3" height="5" rx=".8" fill="#f8fafc" stroke="url(#m9)" stroke-width="1.2"/><rect x="10.5" y="10" width="3" height="10" rx=".8" fill="#f8fafc" stroke="url(#m9)" stroke-width="1.2"/><rect x="16" y="5" width="3" height="15" rx=".8" fill="#f8fafc" stroke="url(#m9)" stroke-width="1.2"/></svg>',
-  '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m10" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#34d399"/><stop offset="100%" stop-color="#059669"/></linearGradient></defs><rect x="6" y="8" width="12" height="10" rx="3" fill="#ecfdf5" stroke="url(#m10)" stroke-width="1.5"/><circle cx="10" cy="13" r="1" fill="url(#m10)"/><circle cx="14" cy="13" r="1" fill="url(#m10)"/><path d="M10 16a2 2 0 0 1 4 0" stroke="url(#m10)" stroke-width="1.2" fill="none"/></svg>',
-  '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m11" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#4f46e5"/></linearGradient></defs><path d="M12 2l1.5 5.5 5.5.5-4 3.5 1.5 5.5-5-3.5-5 3.5 1.5-5.5-4-3.5 5.5-.5z" fill="#eef2ff" stroke="url(#m11)" stroke-width="1.5" stroke-linejoin="round"/></svg>',
-  '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m12" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#94a3b8"/><stop offset="100%" stop-color="#64748b"/></linearGradient></defs><path d="M6 9l-2 5h3.5L6 21l6-5.5L18 21l-1.5-7H20l-2-5H6z" fill="#f8fafc" stroke="url(#m12)" stroke-width="1.5" stroke-linejoin="round"/></svg>',
+    '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#34d399"/><stop offset="100%" stop-color="#059669"/></linearGradient></defs><path d="M12 4l-8 14h16L12 4z" fill="#ecfdf5" stroke="url(#m1)" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 10v4M10 12h4" stroke="url(#m1)" stroke-width="1.5" stroke-linecap="round"/></svg>',
+    '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#4f46e5"/></linearGradient></defs><path d="M13 4l-4 8h5l-3 9" stroke="url(#m2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 6H6M17 7h2" stroke="url(#m2)" stroke-width="1.5" stroke-linecap="round"/></svg>',
+    '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#94a3b8"/><stop offset="100%" stop-color="#64748b"/></linearGradient></defs><circle cx="12" cy="12" r="7" fill="#f8fafc" stroke="url(#m3)" stroke-width="1.5"/><circle cx="12" cy="12" r="3" fill="none" stroke="url(#m3)" stroke-width="1.2"/><circle cx="12" cy="12" r="1" fill="url(#m3)"/><path d="M12 5V3M12 21v-2M5 12H3M21 12h-2" stroke="url(#m3)" stroke-width="1.5" stroke-linecap="round"/></svg>',
+    '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m4" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#34d399"/><stop offset="100%" stop-color="#059669"/></linearGradient></defs><rect x="5" y="5" width="6" height="6" rx="1" fill="#ecfdf5" stroke="url(#m4)" stroke-width="1.5"/><rect x="13" y="5" width="6" height="6" rx="1" fill="#ecfdf5" stroke="url(#m4)" stroke-width="1.5"/><rect x="5" y="13" width="6" height="6" rx="1" fill="#ecfdf5" stroke="url(#m4)" stroke-width="1.5"/><rect x="13" y="13" width="6" height="6" rx="1" fill="#ecfdf5" stroke="url(#m4)" stroke-width="1.5"/><circle cx="8" cy="8" r="1" fill="url(#m4)"/><circle cx="16" cy="8" r="1" fill="url(#m4)"/><circle cx="8" cy="16" r="1" fill="url(#m4)"/><circle cx="16" cy="16" r="1" fill="url(#m4)"/></svg>',
+    '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m5" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#4f46e5"/></linearGradient></defs><path d="M6 6l4 4-4 4M18 6l-4 4 4 4" stroke="url(#m5)" stroke-width="1.8" stroke-linecap="round"/><path d="M5 19h14" stroke="url(#m5)" stroke-width="1.5" stroke-linecap="round"/></svg>',
+    '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m6" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#e879f9"/><stop offset="100%" stop-color="#c026d3"/></linearGradient></defs><path d="M9 18V5l8-1v11" stroke="url(#m6)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="7.5" cy="18" rx="2.5" ry="2" fill="#fae8ff" stroke="url(#m6)" stroke-width="1.2"/><ellipse cx="17.5" cy="16" rx="2.5" ry="2" fill="#fae8ff" stroke="url(#m6)" stroke-width="1.2"/></svg>',
+    '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m7" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#65a30d"/><stop offset="100%" stop-color="#4d7c0f"/></linearGradient></defs><path d="M12 4l4 5 5 1-3 4 1 5-5-2-5 2 1-5-3-4 5-1z" fill="#f7fee7" stroke="url(#m7)" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="11" r="1.5" fill="url(#m7)"/></svg>',
+    '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m8" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient></defs><path d="M12 3l1 3 3 1-3 1-1 3-1-3-3-1 3-1z" fill="#f5f3ff" stroke="url(#m8)" stroke-width="1.2" stroke-linejoin="round"/><circle cx="17" cy="17" r="3" fill="#f5f3ff" stroke="url(#m8)" stroke-width="1.2"/><circle cx="7" cy="16" r="2" fill="none" stroke="url(#m8)" stroke-width="1.2"/></svg>',
+    '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m9" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#94a3b8"/><stop offset="100%" stop-color="#64748b"/></linearGradient></defs><rect x="5" y="15" width="3" height="5" rx=".8" fill="#f8fafc" stroke="url(#m9)" stroke-width="1.2"/><rect x="10.5" y="10" width="3" height="10" rx=".8" fill="#f8fafc" stroke="url(#m9)" stroke-width="1.2"/><rect x="16" y="5" width="3" height="15" rx=".8" fill="#f8fafc" stroke="url(#m9)" stroke-width="1.2"/></svg>',
+    '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m10" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#34d399"/><stop offset="100%" stop-color="#059669"/></linearGradient></defs><rect x="6" y="8" width="12" height="10" rx="3" fill="#ecfdf5" stroke="url(#m10)" stroke-width="1.5"/><circle cx="10" cy="13" r="1" fill="url(#m10)"/><circle cx="14" cy="13" r="1" fill="url(#m10)"/><path d="M10 16a2 2 0 0 1 4 0" stroke="url(#m10)" stroke-width="1.2" fill="none"/></svg>',
+    '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m11" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#4f46e5"/></linearGradient></defs><path d="M12 2l1.5 5.5 5.5.5-4 3.5 1.5 5.5-5-3.5-5 3.5 1.5-5.5-4-3.5 5.5-.5z" fill="#eef2ff" stroke="url(#m11)" stroke-width="1.5" stroke-linejoin="round"/></svg>',
+    '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%"><defs><linearGradient id="m12" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#94a3b8"/><stop offset="100%" stop-color="#64748b"/></linearGradient></defs><path d="M6 9l-2 5h3.5L6 21l6-5.5L18 21l-1.5-7H20l-2-5H6z" fill="#f8fafc" stroke="url(#m12)" stroke-width="1.5" stroke-linejoin="round"/></svg>',
 ]
 ---
 
@@ -275,82 +742,90 @@ const monthSvgs = [
     <link rel="stylesheet" href="/font-awesome/css/font-awesome.min.css" />
     <script define:vars={{ roadmap, genreIcons, monthSvgs, attrSvgs }}>
         async function checkAccess() {
-            const token = localStorage.getItem('auth_token');
+            const token = localStorage.getItem('auth_token')
             if (!token) {
-                window.location.href = '/?auth=required';
-                return;
+                window.location.href = '/?auth=required'
+                return
             }
 
             try {
                 const response = await fetch('/api/verify', {
                     headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                const data = await response.json();
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                })
+                const data = await response.json()
 
                 if (!data.authenticated || !data.user) {
-                    window.location.href = '/?auth=required';
-                    return;
+                    window.location.href = '/?auth=required'
+                    return
                 }
 
-                const user = data.user;
-                window.user = user; // Lưu user để GameCell check
+                const user = data.user
+                window.user = user // Lưu user để GameCell check
 
                 const lockRoadmapCells = () => {
                     document.querySelectorAll('.roadmap-game-cell').forEach((cell) => {
-                        const permission = cell.getAttribute('data-permission');
-                        if (!permission) return;
+                        const permission = cell.getAttribute('data-permission')
+                        if (!permission) return
 
-                        const hasAccess = user.roles === 'admin' || user.roles === 'member' || user.prompt_access?.includes(permission);
+                        const hasAccess =
+                            user.roles === 'admin' ||
+                            user.roles === 'member' ||
+                            user.prompt_access?.includes(permission)
 
                         if (!hasAccess) {
-                            cell.classList.add('is-locked');
-                            cell.setAttribute('aria-disabled', 'true');
-                            cell.setAttribute('title', 'Bài học này chưa được mở khóa. Vui lòng liên hệ Admin.');
+                            cell.classList.add('is-locked')
+                            cell.setAttribute('aria-disabled', 'true')
+                            cell.setAttribute('title', 'Bài học này chưa được mở khóa. Vui lòng liên hệ Admin.')
                         } else {
-                            cell.classList.remove('is-locked');
-                            cell.removeAttribute('aria-disabled');
-                            cell.removeAttribute('title');
+                            cell.classList.remove('is-locked')
+                            cell.removeAttribute('aria-disabled')
+                            cell.removeAttribute('title')
                         }
-                    });
+                    })
                 }
 
-                lockRoadmapCells();
+                lockRoadmapCells()
 
-
-                if (user.roles !== 'admin' && user.roles !== 'member' && !user.prompt_access?.includes('game_roadmap')) {
+                if (
+                    user.roles !== 'admin' &&
+                    user.roles !== 'member' &&
+                    !user.prompt_access?.includes('game_roadmap')
+                ) {
                     // Ẩn hoặc làm mờ phần prompt
-                    const promptCard = document.querySelector('.prompt-card');
+                    const promptCard = document.querySelector('.prompt-card')
                     if (promptCard) {
-                        promptCard.style.opacity = '0';
-                        promptCard.style.pointerEvents = 'none';
+                        promptCard.style.opacity = '0'
+                        promptCard.style.pointerEvents = 'none'
                         // Thêm thông báo
-                        const notice = document.createElement('div');
-                        notice.className = 'absolute inset-0 flex items-center justify-center bg-black/50 rounded-[24px] text-white font-bold text-center p-4';
-                        notice.innerHTML = 'Bạn cần được Admin cấp quyền để xem nội dung này.';
-                        promptCard.style.position = 'relative';
-                        promptCard.appendChild(notice);
+                        const notice = document.createElement('div')
+                        notice.className =
+                            'absolute inset-0 flex items-center justify-center bg-black/50 rounded-[24px] text-white font-bold text-center p-4'
+                        notice.innerHTML = 'Bạn cần được Admin cấp quyền để xem nội dung này.'
+                        promptCard.style.position = 'relative'
+                        promptCard.appendChild(notice)
                     }
                 } else {
                     // Hiển thị prompt nếu có quyền
-                    const promptCard = document.querySelector('.prompt-card');
+                    const promptCard = document.querySelector('.prompt-card')
                     if (promptCard) {
-                        promptCard.style.opacity = '1';
-                        promptCard.style.pointerEvents = 'auto';
+                        promptCard.style.opacity = '1'
+                        promptCard.style.pointerEvents = 'auto'
                     }
                 }
             } catch (error) {
-                console.error('Access check failed:', error);
-                window.location.href = '/?auth=required';
+                console.error('Access check failed:', error)
+                window.location.href = '/?auth=required'
             }
         }
 
-        checkAccess();
+        checkAccess()
 
-        window.roadmapData = roadmap;
-        let currentMonth = 0, currentWeek = 0;
+        window.roadmapData = roadmap
+        let currentMonth = 0,
+            currentWeek = 0
 
         const genreGradBg = {
             Runner: 'from-emerald-500 to-emerald-700',
@@ -381,214 +856,264 @@ const monthSvgs = [
             Polish: 'from-blue-500 to-blue-700',
             'Test & Fix': 'from-blue-500 to-blue-700',
             Showcase: 'from-blue-500 to-blue-700',
-        };
+        }
 
         function getGenreClass(genre) {
             const map = {
-                'Runner': 'border-emerald-200 bg-emerald-50/80 text-emerald-700',
-                'Puzzle': 'border-amber-200 bg-amber-50/80 text-amber-700',
-            };
-            const fallback = 'border-indigo-200 bg-indigo-50/80 text-indigo-700';
-            return map[genre] || fallback;
+                Runner: 'border-emerald-200 bg-emerald-50/80 text-emerald-700',
+                Puzzle: 'border-amber-200 bg-amber-50/80 text-amber-700',
+            }
+            const fallback = 'border-indigo-200 bg-indigo-50/80 text-indigo-700'
+            return map[genre] || fallback
         }
 
         function renderGameGrid(monthIdx, weekIdx) {
-            const grid = document.getElementById('game-grid');
-            if (!grid) return;
-            const week = window.roadmapData[monthIdx].weeks[weekIdx];
-            if (!week) return;
+            const grid = document.getElementById('game-grid')
+            if (!grid) return
+            const week = window.roadmapData[monthIdx].weeks[weekIdx]
+            if (!week) return
 
-            grid.innerHTML = week.games.map((game, gi) => {
-                const genre = week.genre;
-                const genreClass = getGenreClass(genre);
-                const svg = genreIcons[genre] || genreIcons['Arcade'];
-                const gradBg = genreGradBg[genre] || 'from-indigo-500 to-indigo-700';
-                return '<div data-game="' + game.name + '" data-genre="' + genre + '" data-month="' + (monthIdx + 1) + '" data-week="' + (weekIdx + 1) + '" data-month-idx="' + monthIdx + '" data-week-idx="' + weekIdx + '" data-game-idx="' + gi + '" data-prompt-content="' + encodeURIComponent(game.promptContent || '') + '" class="game-card-button bg-white rounded-3xl border-[2px] border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 overflow-hidden transition-all flex flex-col">' +
-                    '<div class="h-44 w-full relative p-3.5 flex flex-col justify-between bg-gradient-to-br ' + gradBg + '">' +
+            grid.innerHTML = week.games
+                .map((game, gi) => {
+                    const genre = week.genre
+                    const genreClass = getGenreClass(genre)
+                    const svg = genreIcons[genre] || genreIcons['Arcade']
+                    const gradBg = genreGradBg[genre] || 'from-indigo-500 to-indigo-700'
+                    return (
+                        '<div data-game="' +
+                        game.name +
+                        '" data-genre="' +
+                        genre +
+                        '" data-month="' +
+                        (monthIdx + 1) +
+                        '" data-week="' +
+                        (weekIdx + 1) +
+                        '" data-month-idx="' +
+                        monthIdx +
+                        '" data-week-idx="' +
+                        weekIdx +
+                        '" data-game-idx="' +
+                        gi +
+                        '" data-prompt-content="' +
+                        encodeURIComponent(game.promptContent || '') +
+                        '" class="game-card-button bg-white rounded-3xl border-[2px] border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 overflow-hidden transition-all flex flex-col">' +
+                        '<div class="h-44 w-full relative p-3.5 flex flex-col justify-between bg-gradient-to-br ' +
+                        gradBg +
+                        '">' +
                         '<div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>' +
-                        '<div class="absolute inset-0 flex items-center justify-center opacity-20 p-8">' + svg + '</div>' +
-                        '<div class="flex gap-2 relative z-10">' +
-                            '<span class="hidden bg-red-500 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm">' + attrSvgs.fire + ' Trending</span>' +
+                        '<div class="absolute inset-0 flex items-center justify-center opacity-20 p-8">' +
+                        svg +
                         '</div>' +
-                    '</div>' +
-                    '<div class="p-5 flex flex-col flex-1 relative z-20 -mt-3 bg-white rounded-t-2xl">' +
-                        '<h3 class="font-extrabold text-slate-900 mb-2 text-xl truncate">' + game.name + '</h3>' +
+                        '<div class="flex gap-2 relative z-10">' +
+                        '<span class="hidden bg-red-500 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm">' +
+                        attrSvgs.fire +
+                        ' Trending</span>' +
+                        '</div>' +
+                        '</div>' +
+                        '<div class="p-5 flex flex-col flex-1 relative z-20 -mt-3 bg-white rounded-t-2xl">' +
+                        '<h3 class="font-extrabold text-slate-900 mb-2 text-xl truncate">' +
+                        game.name +
+                        '</h3>' +
                         '<div class="flex gap-1.5 mb-2.5">' +
-                            '<span class="' + genreClass + ' text-xs font-bold px-2.5 py-0.5 rounded-md">' + genre + '</span>' +
+                        '<span class="' +
+                        genreClass +
+                        ' text-xs font-bold px-2.5 py-0.5 rounded-md">' +
+                        genre +
+                        '</span>' +
                         '</div>' +
                         '<div class="flex gap-2 mt-auto">' +
-                            '<button class="cursor-pointer btn-copy-prompt flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Copy Prompts">' + attrSvgs.copy + '</button>' +
-                            '<button class="cursor-pointer w-14 bg-[#8b5cf6] hover:bg-purple-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30 transition-transform active:scale-95">' + attrSvgs.play + '</button>' +
+                        '<button class="cursor-pointer btn-copy-prompt flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Copy Prompts">' +
+                        attrSvgs.copy +
+                        '</button>' +
+                        '<button class="cursor-pointer w-14 bg-[#8b5cf6] hover:bg-purple-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30 transition-transform active:scale-95">' +
+                        attrSvgs.play +
+                        '</button>' +
                         '</div>' +
-                    '</div>' +
-                '</div>';
-            }).join('');
+                        '</div>' +
+                        '</div>'
+                    )
+                })
+                .join('')
 
-            const month = window.roadmapData[monthIdx];
-            document.getElementById('grid-header-title').textContent = 'Level ' + month.no + ' – Week ' + (weekIdx + 1);
-            document.getElementById('grid-header-count').textContent = week.games.length + ' Games';
+            const month = window.roadmapData[monthIdx]
+            document.getElementById('grid-header-title').textContent = 'Level ' + month.no + ' – Week ' + (weekIdx + 1)
+            document.getElementById('grid-header-count').textContent = week.games.length + ' Games'
 
-            currentMonth = monthIdx;
-            currentWeek = weekIdx;
+            currentMonth = monthIdx
+            currentWeek = weekIdx
         }
-
-
 
         function highlightWeek(monthIdx, weekIdx) {
-            const container = document.querySelector(`[data-weeks-for="${monthIdx}"]`);
-            if (!container) return;
-            const weekNum = weekIdx + 1;
+            const container = document.querySelector(`[data-weeks-for="${monthIdx}"]`)
+            if (!container) return
+            const weekNum = weekIdx + 1
 
-            container.querySelectorAll('.roadmap-week-row').forEach(row => {
-                const isTarget = parseInt(row.getAttribute('data-week')) === weekNum;
+            container.querySelectorAll('.roadmap-week-row').forEach((row) => {
+                const isTarget = parseInt(row.getAttribute('data-week')) === weekNum
 
-                row.classList.toggle('font-bold', isTarget);
-                row.classList.toggle('text-pink-600', isTarget);
-                row.classList.toggle('font-medium', !isTarget);
-                row.classList.toggle('text-slate-500', !isTarget);
-                row.classList.toggle('hover:text-slate-800', !isTarget);
-                row.classList.toggle('transition-colors', !isTarget);
-                row.classList.toggle('group', !isTarget);
+                row.classList.toggle('font-bold', isTarget)
+                row.classList.toggle('text-pink-600', isTarget)
+                row.classList.toggle('font-medium', !isTarget)
+                row.classList.toggle('text-slate-500', !isTarget)
+                row.classList.toggle('hover:text-slate-800', !isTarget)
+                row.classList.toggle('transition-colors', !isTarget)
+                row.classList.toggle('group', !isTarget)
 
-                const dot = row.querySelector('.absolute');
+                const dot = row.querySelector('.absolute')
                 if (dot) {
-                    dot.classList.toggle('border-2', isTarget);
-                    dot.classList.toggle('border-pink-500', isTarget);
-                    dot.classList.toggle('border-[1.5px]', !isTarget);
-                    dot.classList.toggle('border-gray-200', !isTarget);
-                    dot.classList.toggle('group-hover:border-slate-400', !isTarget);
-                    dot.classList.toggle('transition-colors', !isTarget);
+                    dot.classList.toggle('border-2', isTarget)
+                    dot.classList.toggle('border-pink-500', isTarget)
+                    dot.classList.toggle('border-[1.5px]', !isTarget)
+                    dot.classList.toggle('border-gray-200', !isTarget)
+                    dot.classList.toggle('group-hover:border-slate-400', !isTarget)
+                    dot.classList.toggle('transition-colors', !isTarget)
                 }
-
-
-            });
+            })
         }
 
-        document.addEventListener('click', function(e) {
-            const btn = e.target.closest('.roadmap-month-btn');
-            if (!btn) return;
+        document.addEventListener('click', function (e) {
+            const btn = e.target.closest('.roadmap-month-btn')
+            if (!btn) return
 
-            const parent = btn.closest('.flex.flex-col');
-            const weeks = parent.querySelector('[data-weeks-for]');
-            const isActive = btn.classList.contains('is-active');
+            const parent = btn.closest('.flex.flex-col')
+            const weeks = parent.querySelector('[data-weeks-for]')
+            const isActive = btn.classList.contains('is-active')
 
-            document.querySelectorAll('.roadmap-month-btn.is-active').forEach(active => {
+            document.querySelectorAll('.roadmap-month-btn.is-active').forEach((active) => {
                 if (active !== btn) {
-                    active.classList.remove('is-active', 'bg-pink-50', 'border-pink-100', 'ring-1', 'ring-pink-500/20');
-                    active.classList.add('border-transparent', 'hover:bg-gray-50');
-                    const activeParent = active.closest('.flex.flex-col');
-                    const activeWeeks = activeParent.querySelector('[data-weeks-for]');
-                    if (activeWeeks) activeWeeks.classList.add('hidden');
-                    const activeIcon = active.querySelector('.roadmap-month-icon');
-                    if (activeIcon) { activeIcon.classList.remove('bg-pink-100', 'text-pink-500'); activeIcon.classList.add('bg-indigo-50', 'text-indigo-600'); }
-                    const activeTitle = active.querySelector('.roadmap-month-title');
-                    if (activeTitle) activeTitle.classList.remove('text-pink-600');
-                    const activeChevron = active.querySelector('.roadmap-month-chevron');
-                    if (activeChevron) { activeChevron.classList.remove('fa-chevron-down', 'text-pink-500'); activeChevron.classList.add('fa-chevron-right', 'text-gray-400'); }
+                    active.classList.remove('is-active', 'bg-pink-50', 'border-pink-100', 'ring-1', 'ring-pink-500/20')
+                    active.classList.add('border-transparent', 'hover:bg-gray-50')
+                    const activeParent = active.closest('.flex.flex-col')
+                    const activeWeeks = activeParent.querySelector('[data-weeks-for]')
+                    if (activeWeeks) activeWeeks.classList.add('hidden')
+                    const activeIcon = active.querySelector('.roadmap-month-icon')
+                    if (activeIcon) {
+                        activeIcon.classList.remove('bg-pink-100', 'text-pink-500')
+                        activeIcon.classList.add('bg-indigo-50', 'text-indigo-600')
+                    }
+                    const activeTitle = active.querySelector('.roadmap-month-title')
+                    if (activeTitle) activeTitle.classList.remove('text-pink-600')
+                    const activeChevron = active.querySelector('.roadmap-month-chevron')
+                    if (activeChevron) {
+                        activeChevron.classList.remove('fa-chevron-down', 'text-pink-500')
+                        activeChevron.classList.add('fa-chevron-right', 'text-gray-400')
+                    }
                 }
-            });
+            })
 
             if (isActive) {
-                btn.classList.remove('is-active', 'bg-pink-50', 'border-pink-100', 'ring-1', 'ring-pink-500/20');
-                btn.classList.add('border-transparent', 'hover:bg-gray-50');
-                if (weeks) weeks.classList.add('hidden');
-                const icon = btn.querySelector('.roadmap-month-icon');
-                if (icon) { icon.classList.remove('bg-pink-100', 'text-pink-500'); icon.classList.add('bg-indigo-50', 'text-indigo-600'); }
-                const title = btn.querySelector('.roadmap-month-title');
-                if (title) title.classList.remove('text-pink-600');
-                const chevron = btn.querySelector('.roadmap-month-chevron');
-                if (chevron) { chevron.classList.remove('fa-chevron-down', 'text-pink-500'); chevron.classList.add('fa-chevron-right', 'text-gray-400'); }
+                btn.classList.remove('is-active', 'bg-pink-50', 'border-pink-100', 'ring-1', 'ring-pink-500/20')
+                btn.classList.add('border-transparent', 'hover:bg-gray-50')
+                if (weeks) weeks.classList.add('hidden')
+                const icon = btn.querySelector('.roadmap-month-icon')
+                if (icon) {
+                    icon.classList.remove('bg-pink-100', 'text-pink-500')
+                    icon.classList.add('bg-indigo-50', 'text-indigo-600')
+                }
+                const title = btn.querySelector('.roadmap-month-title')
+                if (title) title.classList.remove('text-pink-600')
+                const chevron = btn.querySelector('.roadmap-month-chevron')
+                if (chevron) {
+                    chevron.classList.remove('fa-chevron-down', 'text-pink-500')
+                    chevron.classList.add('fa-chevron-right', 'text-gray-400')
+                }
             } else {
-                btn.classList.remove('border-transparent', 'hover:bg-gray-50');
-                btn.classList.add('is-active', 'bg-pink-50', 'border-pink-100', 'ring-1', 'ring-pink-500/20');
-                if (weeks) weeks.classList.remove('hidden');
-                const icon = btn.querySelector('.roadmap-month-icon');
-                if (icon) { icon.classList.remove('bg-indigo-50', 'text-indigo-600'); icon.classList.add('bg-pink-100', 'text-pink-500'); }
-                const title = btn.querySelector('.roadmap-month-title');
-                if (title) title.classList.add('text-pink-600');
-                const chevron = btn.querySelector('.roadmap-month-chevron');
-                if (chevron) { chevron.classList.remove('fa-chevron-right', 'text-gray-400'); chevron.classList.add('fa-chevron-down', 'text-pink-500'); }
-                const monthIdx = parseInt(btn.getAttribute('data-month')) - 1;
-                renderGameGrid(monthIdx, 0);
-                highlightWeek(monthIdx, 0);
+                btn.classList.remove('border-transparent', 'hover:bg-gray-50')
+                btn.classList.add('is-active', 'bg-pink-50', 'border-pink-100', 'ring-1', 'ring-pink-500/20')
+                if (weeks) weeks.classList.remove('hidden')
+                const icon = btn.querySelector('.roadmap-month-icon')
+                if (icon) {
+                    icon.classList.remove('bg-indigo-50', 'text-indigo-600')
+                    icon.classList.add('bg-pink-100', 'text-pink-500')
+                }
+                const title = btn.querySelector('.roadmap-month-title')
+                if (title) title.classList.add('text-pink-600')
+                const chevron = btn.querySelector('.roadmap-month-chevron')
+                if (chevron) {
+                    chevron.classList.remove('fa-chevron-right', 'text-gray-400')
+                    chevron.classList.add('fa-chevron-down', 'text-pink-500')
+                }
+                const monthIdx = parseInt(btn.getAttribute('data-month')) - 1
+                renderGameGrid(monthIdx, 0)
+                highlightWeek(monthIdx, 0)
             }
-        });
+        })
 
-        document.addEventListener('click', function(e) {
-            const weekRow = e.target.closest('.roadmap-week-row');
+        document.addEventListener('click', function (e) {
+            const weekRow = e.target.closest('.roadmap-week-row')
             if (weekRow) {
-                const month = parseInt(weekRow.getAttribute('data-month'));
-                const week = parseInt(weekRow.getAttribute('data-week'));
-                const monthIdx = month - 1;
-                const weekIdx = week - 1;
-                renderGameGrid(monthIdx, weekIdx);
-                highlightWeek(monthIdx, weekIdx);
+                const month = parseInt(weekRow.getAttribute('data-month'))
+                const week = parseInt(weekRow.getAttribute('data-week'))
+                const monthIdx = month - 1
+                const weekIdx = week - 1
+                renderGameGrid(monthIdx, weekIdx)
+                highlightWeek(monthIdx, weekIdx)
             }
-        });
+        })
 
         document.addEventListener('DOMContentLoaded', () => {
-            renderGameGrid(0, 0);
-            highlightWeek(0, 0);
+            renderGameGrid(0, 0)
+            highlightWeek(0, 0)
 
             // Copy template button
-            const copyBtn = document.getElementById('copy-template-btn');
-            const useTemplateBtn = document.getElementById('btn-use-template');
-            const templateModal = document.getElementById('template-modal');
-            const modalTargetInput = document.getElementById('modal-target-input');
-            const modalActionSelect = document.getElementById('modal-action-select');
-            const modalCopyBtn = document.getElementById('btn-modal-copy');
-            const modalCloseBtn = document.getElementById('btn-modal-close');
-            const modalClearBtn = document.getElementById('btn-modal-clear');
-            const closeTemplateModal = () => templateModal?.classList.add('hidden');
+            const copyBtn = document.getElementById('copy-template-btn')
+            const useTemplateBtn = document.getElementById('btn-use-template')
+            const templateModal = document.getElementById('template-modal')
+            const modalTargetInput = document.getElementById('modal-target-input')
+            const modalActionSelect = document.getElementById('modal-action-select')
+            const modalCopyBtn = document.getElementById('btn-modal-copy')
+            const modalCloseBtn = document.getElementById('btn-modal-close')
+            const modalClearBtn = document.getElementById('btn-modal-clear')
+            const closeTemplateModal = () => templateModal?.classList.add('hidden')
 
             if (copyBtn) {
                 copyBtn.addEventListener('click', async () => {
-                    const text = `RULE:\n- Không rewrite game\n- Không sửa logic cũ\n- Chỉ tác động trong TARGET\n\nTARGET:\n(mô tả rõ)\n\nACTION:\n(chỉ chọn 1: add / fix / update / remove)`;
+                    const text = `RULE:\n- Không rewrite game\n- Không sửa logic cũ\n- Chỉ tác động trong TARGET\n\nTARGET:\n(mô tả rõ)\n\nACTION:\n(chỉ chọn 1: add / fix / update / remove)`
                     try {
-                        await navigator.clipboard.writeText(text);
-                        if (window.showToast) window.showToast('Đã copy Prompt Template thành công!', 'success');
+                        await navigator.clipboard.writeText(text)
+                        if (window.showToast) window.showToast('Đã copy Prompt Template thành công!', 'success')
                     } catch {
-                        if (window.showToast) window.showToast('Copy thất bại!', 'error');
+                        if (window.showToast) window.showToast('Copy thất bại!', 'error')
                     }
-                });
+                })
             }
 
             if (useTemplateBtn && templateModal) {
                 useTemplateBtn.addEventListener('click', () => {
-                    templateModal.classList.remove('hidden');
-                    modalTargetInput?.focus();
-                });
+                    templateModal.classList.remove('hidden')
+                    modalTargetInput?.focus()
+                })
             }
 
             if (modalCopyBtn && modalTargetInput && modalActionSelect) {
                 modalCopyBtn.addEventListener('click', async () => {
-                    const text = `RULE:\n- Không rewrite game\n- Không sửa logic cũ\n- Chỉ tác động trong TARGET\n\nTARGET:\n${modalTargetInput.value}\n\nACTION:\n${modalActionSelect.value}`;
+                    const text = `RULE:\n- Không rewrite game\n- Không sửa logic cũ\n- Chỉ tác động trong TARGET\n\nTARGET:\n${modalTargetInput.value}\n\nACTION:\n${modalActionSelect.value}`
                     try {
-                        await navigator.clipboard.writeText(text);
-                        if (window.showToast) window.showToast('Đã tạo và copy prompt thành công!', 'success');
+                        await navigator.clipboard.writeText(text)
+                        if (window.showToast) window.showToast('Đã tạo và copy prompt thành công!', 'success')
                     } catch {
-                        if (window.showToast) window.showToast('Copy thất bại!', 'error');
+                        if (window.showToast) window.showToast('Copy thất bại!', 'error')
                     }
-                });
+                })
             }
 
             if (modalCloseBtn) {
-                modalCloseBtn.addEventListener('click', closeTemplateModal);
+                modalCloseBtn.addEventListener('click', closeTemplateModal)
             }
 
             if (modalClearBtn && modalTargetInput && modalActionSelect) {
                 modalClearBtn.addEventListener('click', () => {
-                    modalTargetInput.value = '';
-                    modalActionSelect.value = 'add';
-                });
+                    modalTargetInput.value = ''
+                    modalActionSelect.value = 'add'
+                })
             }
 
             if (templateModal) {
                 templateModal.addEventListener('click', (e) => {
-                    if (e.target === templateModal) closeTemplateModal();
-                });
+                    if (e.target === templateModal) closeTemplateModal()
+                })
             }
-        });
+        })
 
         // Copy prompt for game cards (event delegation)
         function promptOf(game, genre, month, week) {
@@ -603,36 +1128,43 @@ UI: Giao diện gọn, có màn hình bắt đầu, nút chơi lại, thông tin
 Hiệu ứng: Thêm hiệu ứng va chạm, thu thập, thắng/thua, chuyển màn và âm thanh phản hồi nhẹ nếu có thể.
 Build: Xuất bản thành một bản HTML/CSS/JavaScript chạy trực tiếp trên trình duyệt, ưu tiên code gọn, dễ sửa và không dùng asset ngoài bắt buộc.
 
-Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genre}.`;
+Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genre}.`
         }
 
-        document.addEventListener('click', async function(e) {
-            const btn = e.target.closest('.btn-copy-prompt');
-            if (!btn) return;
-            const card = btn.closest('.game-card-button');
-            if (!card) return;
-            const game = card.dataset.game;
-            const genre = card.dataset.genre;
-            const month = parseInt(card.dataset.month);
-            const week = parseInt(card.dataset.week);
-            const promptContent = decodeURIComponent(card.dataset.promptContent || '');
+        document.addEventListener('click', async function (e) {
+            const btn = e.target.closest('.btn-copy-prompt')
+            if (!btn) return
+            const card = btn.closest('.game-card-button')
+            if (!card) return
+            const game = card.dataset.game
+            const genre = card.dataset.genre
+            const month = parseInt(card.dataset.month)
+            const week = parseInt(card.dataset.week)
+            const promptContent = decodeURIComponent(card.dataset.promptContent || '')
             if (promptContent.trim() === 'Đang tải...') {
-                if (window.showToast) window.showToast('Nội dung prompt đang được cập nhật, vui lòng quay lại sau!', 'warning');
-                return;
+                if (window.showToast)
+                    window.showToast('Nội dung prompt đang được cập nhật, vui lòng quay lại sau!', 'warning')
+                return
             }
-            const promptText = promptContent.trim() ? promptContent : promptOf(game, genre, month, week);
+            const promptText = promptContent.trim() ? promptContent : promptOf(game, genre, month, week)
             try {
-                await navigator.clipboard.writeText(promptText);
-                if (window.showToast) window.showToast('Đã copy Game Prompt thành công!', 'success');
+                await navigator.clipboard.writeText(promptText)
+                if (window.showToast) window.showToast('Đã copy Game Prompt thành công!', 'success')
             } catch {
-                if (window.showToast) window.showToast('Copy thất bại!', 'error');
+                if (window.showToast) window.showToast('Copy thất bại!', 'error')
             }
-        });
+        })
     </script>
-    <div class="flex flex-col min-h-screen lg:h-screen bg-[#f8f9fa] font-sans overflow-visible lg:overflow-hidden text-slate-800">
+    <div
+        class="flex flex-col min-h-screen lg:h-screen bg-[#f8f9fa] font-sans overflow-visible lg:overflow-hidden text-slate-800"
+    >
         <div class="flex flex-col lg:flex-row flex-1 overflow-visible lg:overflow-hidden relative">
-            <aside class="order-2 lg:order-none w-full lg:w-[280px] bg-white border-r border-gray-200 flex flex-col shrink-0 h-auto lg:h-full max-h-[52vh] lg:max-h-none overflow-hidden shadow-[2px_0_10px_-4px_rgba(0,0,0,0.05)] z-0 relative">
-                <div class="p-5 flex items-center gap-3 text-slate-800 font-extrabold uppercase tracking-widest text-sm border-b border-gray-100 shrink-0">
+            <aside
+                class="order-2 lg:order-none w-full lg:w-[280px] bg-white border-r border-gray-200 flex flex-col shrink-0 h-auto lg:h-full max-h-[52vh] lg:max-h-none overflow-hidden shadow-[2px_0_10px_-4px_rgba(0,0,0,0.05)] z-0 relative"
+            >
+                <div
+                    class="p-5 flex items-center gap-3 text-slate-800 font-extrabold uppercase tracking-widest text-sm border-b border-gray-100 shrink-0"
+                >
                     <i class="fa fa-map text-blue-600" aria-hidden="true"></i>
                     ROADMAP
                 </div>
@@ -641,30 +1173,52 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
                     {
                         roadmap.map((month, monthIndex) => (
                             <div key={monthIndex} class="flex flex-col">
-                                <button data-month={month.no} class={`roadmap-month-btn cursor-pointer flex items-center w-full text-left p-3 rounded-xl transition-all duration-200 border ${monthIndex === 0 ? 'is-active border-pink-100 bg-pink-50 ring-1 ring-pink-500/20' : 'border-transparent hover:bg-gray-50'}`}>
-                                    <div class={`roadmap-month-icon w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mr-3 shadow-sm ${monthIndex === 0 ? 'bg-pink-100 text-pink-500' : 'bg-indigo-50 text-indigo-600'}`}>
-                                        <span set:html={monthSvgs[monthIndex]}></span>
+                                <button
+                                    data-month={month.no}
+                                    class={`roadmap-month-btn cursor-pointer flex items-center w-full text-left p-3 rounded-xl transition-all duration-200 border ${monthIndex === 0 ? 'is-active border-pink-100 bg-pink-50 ring-1 ring-pink-500/20' : 'border-transparent hover:bg-gray-50'}`}
+                                >
+                                    <div
+                                        class={`roadmap-month-icon w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mr-3 shadow-sm ${monthIndex === 0 ? 'bg-pink-100 text-pink-500' : 'bg-indigo-50 text-indigo-600'}`}
+                                    >
+                                        <span set:html={monthSvgs[monthIndex]} />
                                     </div>
                                     <div class="flex-1 min-w-0 flex flex-col justify-center">
-                                        <div class={`roadmap-month-title font-bold text-sm truncate ${monthIndex === 0 ? 'text-pink-600' : 'text-slate-700'}`}>Level {month.no} - {month.title}</div>
-                                        <div class="text-[11px] text-slate-500 truncate mt-0.5 font-medium">{month.sub}</div>
-                                    </div>
-                                    <i class={`roadmap-month-chevron fa shrink-0 ml-2 transition-all duration-200 ${monthIndex === 0 ? 'fa-chevron-down text-pink-500' : 'fa-chevron-right text-gray-400'}`} aria-hidden="true"></i>
-                                </button>
-
-                                <div data-weeks-for={monthIndex} class={`ml-7 border-l-[1.5px] border-pink-200 mt-2 mb-3 pl-4 space-y-1.5 relative overflow-hidden transition-all duration-300 ease-in-out ${monthIndex !== 0 ? 'hidden' : ''}`}>
-                                    <div data-month={month.no} data-week="1" class="roadmap-week-row flex justify-between items-center py-1.5 text-sm font-bold text-pink-600 cursor-pointer rounded -ml-4 pl-4 relative">
-                                        <div class="absolute left-[calc(-1rem-4.5px)] top-1/2 -translate-y-1/2 w-[8px] h-[8px] rounded-full bg-white border-2 border-pink-500 -ml-[0.5px]"></div>
-                                        <div class="flex items-center gap-2">
-                                            Week 1
+                                        <div
+                                            class={`roadmap-month-title font-bold text-sm truncate ${monthIndex === 0 ? 'text-pink-600' : 'text-slate-700'}`}
+                                        >
+                                            Level {month.no} - {month.title}
+                                        </div>
+                                        <div class="text-[11px] text-slate-500 truncate mt-0.5 font-medium">
+                                            {month.sub}
                                         </div>
                                     </div>
-                                    {[2,3,4].map(w => (
-                                        <div key={w} data-month={month.no} data-week={w} class="roadmap-week-row flex justify-between items-center py-1.5 text-sm font-medium text-slate-500 hover:text-slate-800 cursor-pointer rounded -ml-4 pl-4 transition-colors relative group">
-                                            <div class="absolute left-[calc(-1rem-4.5px)] top-1/2 -translate-y-1/2 w-[8px] h-[8px] rounded-full bg-white border-[1.5px] border-gray-200 group-hover:border-slate-400 -ml-[0.5px] transition-colors"></div>
-                                            <div class="flex items-center gap-2">
-                                                Week {w}
-                                            </div>
+                                    <i
+                                        class={`roadmap-month-chevron fa shrink-0 ml-2 transition-all duration-200 ${monthIndex === 0 ? 'fa-chevron-down text-pink-500' : 'fa-chevron-right text-gray-400'}`}
+                                        aria-hidden="true"
+                                    />
+                                </button>
+
+                                <div
+                                    data-weeks-for={monthIndex}
+                                    class={`ml-7 border-l-[1.5px] border-pink-200 mt-2 mb-3 pl-4 space-y-1.5 relative overflow-hidden transition-all duration-300 ease-in-out ${monthIndex !== 0 ? 'hidden' : ''}`}
+                                >
+                                    <div
+                                        data-month={month.no}
+                                        data-week="1"
+                                        class="roadmap-week-row flex justify-between items-center py-1.5 text-sm font-bold text-pink-600 cursor-pointer rounded -ml-4 pl-4 relative"
+                                    >
+                                        <div class="absolute left-[calc(-1rem-4.5px)] top-1/2 -translate-y-1/2 w-[8px] h-[8px] rounded-full bg-white border-2 border-pink-500 -ml-[0.5px]" />
+                                        <div class="flex items-center gap-2">Week 1</div>
+                                    </div>
+                                    {[2, 3, 4].map((w) => (
+                                        <div
+                                            key={w}
+                                            data-month={month.no}
+                                            data-week={w}
+                                            class="roadmap-week-row flex justify-between items-center py-1.5 text-sm font-medium text-slate-500 hover:text-slate-800 cursor-pointer rounded -ml-4 pl-4 transition-colors relative group"
+                                        >
+                                            <div class="absolute left-[calc(-1rem-4.5px)] top-1/2 -translate-y-1/2 w-[8px] h-[8px] rounded-full bg-white border-[1.5px] border-gray-200 group-hover:border-slate-400 -ml-[0.5px] transition-colors" />
+                                            <div class="flex items-center gap-2">Week {w}</div>
                                         </div>
                                     ))}
                                 </div>
@@ -672,17 +1226,26 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
                         ))
                     }
                 </div>
-
             </aside>
-            <div class="order-1 lg:order-none flex-1 overflow-visible lg:overflow-y-auto min-w-0 custom-scrollbar relative z-0">
+            <div
+                class="order-1 lg:order-none flex-1 overflow-visible lg:overflow-y-auto min-w-0 custom-scrollbar relative z-0"
+            >
                 <div class="px-5 py-6 sm:p-6 lg:p-8 max-w-6xl mx-auto space-y-6 lg:space-y-8 pb-12">
                     {/* Grid header */}
                     <div class="flex items-center justify-between pt-4">
                         <div class="flex items-center gap-3">
-                            <h2 id="grid-header-title" class="text-2xl font-extrabold text-slate-900">Level 1 – Week 1</h2>
-                            <span id="grid-header-count" class="px-3 py-1 rounded-lg bg-[#4f46e5]/10 text-[#4f46e5] text-xs font-bold">3 Games</span>
+                            <h2 id="grid-header-title" class="text-2xl font-extrabold text-slate-900">
+                                Level 1 – Week 1
+                            </h2>
+                            <span
+                                id="grid-header-count"
+                                class="px-3 py-1 rounded-lg bg-[#4f46e5]/10 text-[#4f46e5] text-xs font-bold"
+                                >3 Games</span
+                            >
                         </div>
-                        <button class="hidden w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 text-slate-600 shadow-sm transition-colors">
+                        <button
+                            class="hidden w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 text-slate-600 shadow-sm transition-colors"
+                        >
                             <i class="fa fa-chevron-right" aria-hidden="true"></i>
                         </button>
                     </div>
@@ -691,36 +1254,54 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
                     <div id="game-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6"></div>
                 </div>
             </div>
-            <aside class="order-last w-full lg:w-[360px] bg-white border-l border-gray-200 flex flex-col shrink-0 overflow-visible lg:overflow-y-auto shadow-[-4px_0_15px_-4px_rgba(0,0,0,0.05)] z-0 relative custom-scrollbar">
+            <aside
+                class="order-last w-full lg:w-[360px] bg-white border-l border-gray-200 flex flex-col shrink-0 overflow-visible lg:overflow-y-auto shadow-[-4px_0_15px_-4px_rgba(0,0,0,0.05)] z-0 relative custom-scrollbar"
+            >
                 {/* Mẹo Prompt cho Game Card */}
                 <div class="p-6">
-                    <div class="bg-white rounded-3xl border-[1.5px] border-indigo-100 shadow-[0_4px_20px_-4px_rgba(99,102,241,0.15)] overflow-hidden">
+                    <div
+                        class="bg-white rounded-3xl border-[1.5px] border-indigo-100 shadow-[0_4px_20px_-4px_rgba(99,102,241,0.15)] overflow-hidden"
+                    >
                         <div class="bg-indigo-50/70 p-5 border-b border-indigo-100 flex items-center gap-4">
-                            <div class="w-12 h-12 bg-white shadow-sm text-indigo-600 rounded-2xl flex items-center justify-center shrink-0 border border-indigo-100">
+                            <div
+                                class="w-12 h-12 bg-white shadow-sm text-indigo-600 rounded-2xl flex items-center justify-center shrink-0 border border-indigo-100"
+                            >
                                 <i class="fa fa-magic" aria-hidden="true"></i>
                             </div>
                             <h2 class="text-xl font-extrabold text-slate-800">Mẹo Prompt cho Game</h2>
                         </div>
                         <div class="p-6">
-                            <div class="text-xs font-bold text-slate-800 mb-3 uppercase tracking-wider">Prompt Template</div>
+                            <div class="text-xs font-bold text-slate-800 mb-3 uppercase tracking-wider">
+                                Prompt Template
+                            </div>
                             <div class="relative group">
-                                <div class="bg-[#0f172a] border border-slate-700/50 rounded-2xl p-6 font-mono text-[13px] leading-relaxed shadow-2xl shadow-black/40 relative">
+                                <div
+                                    class="bg-[#0f172a] border border-slate-700/50 rounded-2xl p-6 font-mono text-[13px] leading-relaxed shadow-2xl shadow-black/40 relative"
+                                >
                                     <span class="text-emerald-400 font-bold">RULE:</span>
                                     <div class="text-slate-400 ml-2 mb-3 leading-relaxed">
-                                        - Không rewrite game<br>
-                                        - Không sửa logic cũ<br>
+                                        - Không rewrite game<br />
+                                        - Không sửa logic cũ<br />
                                         - Chỉ tác động trong TARGET
                                     </div>
                                     <span class="text-sky-400 font-bold">TARGET:</span>
                                     <div class="text-slate-400 ml-2 mb-3 leading-relaxed">(mô tả rõ)</div>
                                     <span class="text-amber-400 font-bold">ACTION:</span>
-                                    <div class="text-slate-400 ml-2 leading-relaxed">(chỉ chọn 1: add / fix / update / remove)</div>
-                                    <button id="copy-template-btn" class="absolute top-3 right-3 text-xs text-slate-400 hover:text-emerald-400 transition-all duration-200 bg-slate-800/80 hover:bg-slate-700/80 backdrop-blur-sm px-2.5 py-1.5 rounded-lg border border-slate-700/50 hover:border-emerald-500/30 flex items-center gap-1.5 font-medium">
+                                    <div class="text-slate-400 ml-2 leading-relaxed">
+                                        (chỉ chọn 1: add / fix / update / remove)
+                                    </div>
+                                    <button
+                                        id="copy-template-btn"
+                                        class="absolute top-3 right-3 text-xs text-slate-400 hover:text-emerald-400 transition-all duration-200 bg-slate-800/80 hover:bg-slate-700/80 backdrop-blur-sm px-2.5 py-1.5 rounded-lg border border-slate-700/50 hover:border-emerald-500/30 flex items-center gap-1.5 font-medium"
+                                    >
                                         <i class="fa fa-copy" aria-hidden="true"></i> Copy
                                     </button>
                                 </div>
                             </div>
-                            <button id="btn-use-template" class="w-full mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-5 rounded-2xl shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 transition-colors">
+                            <button
+                                id="btn-use-template"
+                                class="w-full mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-5 rounded-2xl shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 transition-colors"
+                            >
                                 <i class="fa fa-magic" aria-hidden="true"></i> Sử dụng Template
                             </button>
                         </div>
@@ -730,22 +1311,38 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
         </div>
     </div>
 
-    <div id="template-modal" class="hidden fixed inset-0 z-50 bg-slate-950/50 backdrop-blur-sm px-4 py-6 flex items-center justify-center">
+    <div
+        id="template-modal"
+        class="hidden fixed inset-0 z-50 bg-slate-950/50 backdrop-blur-sm px-4 py-6 flex items-center justify-center"
+    >
         <div class="w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-indigo-100 overflow-hidden">
             <div class="bg-indigo-50/70 p-5 border-b border-indigo-100 flex items-center gap-4">
-                <div class="w-12 h-12 bg-white shadow-sm text-indigo-600 rounded-2xl flex items-center justify-center shrink-0 border border-indigo-100">
+                <div
+                    class="w-12 h-12 bg-white shadow-sm text-indigo-600 rounded-2xl flex items-center justify-center shrink-0 border border-indigo-100"
+                >
                     <i class="fa fa-magic" aria-hidden="true"></i>
                 </div>
                 <h2 class="text-xl font-extrabold text-slate-800">Sử dụng Prompt Template</h2>
             </div>
             <div class="p-6 space-y-5">
                 <div>
-                    <label for="modal-target-input" class="block text-sm font-bold text-slate-700 mb-2">Mô tả yêu cầu (TARGET)</label>
-                    <textarea id="modal-target-input" rows="5" class="w-full rounded-2xl border border-indigo-100 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 resize-none" placeholder="Nhập mô tả rõ phần cần tác động..."></textarea>
+                    <label for="modal-target-input" class="block text-sm font-bold text-slate-700 mb-2"
+                        >Mô tả yêu cầu (TARGET)</label
+                    >
+                    <textarea
+                        id="modal-target-input"
+                        rows="5"
+                        class="w-full rounded-2xl border border-indigo-100 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 resize-none"
+                        placeholder="Nhập mô tả rõ phần cần tác động..."></textarea>
                 </div>
                 <div>
-                    <label for="modal-action-select" class="block text-sm font-bold text-slate-700 mb-2">Hành động (ACTION)</label>
-                    <select id="modal-action-select" class="w-full rounded-2xl border border-indigo-100 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100">
+                    <label for="modal-action-select" class="block text-sm font-bold text-slate-700 mb-2"
+                        >Hành động (ACTION)</label
+                    >
+                    <select
+                        id="modal-action-select"
+                        class="w-full rounded-2xl border border-indigo-100 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
+                    >
                         <option value="add">add</option>
                         <option value="fix">fix</option>
                         <option value="update">update</option>
@@ -753,13 +1350,22 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
                     </select>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-3 pt-2">
-                    <button id="btn-modal-copy" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-5 rounded-2xl shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 transition-colors">
+                    <button
+                        id="btn-modal-copy"
+                        class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-5 rounded-2xl shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 transition-colors"
+                    >
                         <i class="fa fa-copy" aria-hidden="true"></i> Copy Prompt
                     </button>
-                    <button id="btn-modal-clear" class="sm:w-32 bg-white hover:bg-slate-50 text-slate-600 font-bold py-3.5 px-5 rounded-2xl border border-slate-200 flex items-center justify-center gap-2 transition-colors">
+                    <button
+                        id="btn-modal-clear"
+                        class="sm:w-32 bg-white hover:bg-slate-50 text-slate-600 font-bold py-3.5 px-5 rounded-2xl border border-slate-200 flex items-center justify-center gap-2 transition-colors"
+                    >
                         <i class="fa fa-eraser" aria-hidden="true"></i> Clear
                     </button>
-                    <button id="btn-modal-close" class="sm:w-32 bg-white hover:bg-slate-50 text-slate-600 font-bold py-3.5 px-5 rounded-2xl border border-slate-200 flex items-center justify-center gap-2 transition-colors">
+                    <button
+                        id="btn-modal-close"
+                        class="sm:w-32 bg-white hover:bg-slate-50 text-slate-600 font-bold py-3.5 px-5 rounded-2xl border border-slate-200 flex items-center justify-center gap-2 transition-colors"
+                    >
                         Đóng
                     </button>
                 </div>
@@ -767,745 +1373,759 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
         </div>
     </div>
 
-
-<style>
-    button,
-    .roadmap-month-btn {
-        cursor: pointer;
-    }
-
-    html {
-        scroll-behavior: smooth;
-    }
-
-    .roadmap-page {
-        background:
-            radial-gradient(circle at 12% 5%, rgba(249, 115, 22, 0.38), transparent 28%),
-            radial-gradient(circle at 88% 4%, rgba(99, 102, 241, 0.44), transparent 30%),
-            radial-gradient(circle at 50% 52%, rgba(14, 165, 233, 0.2), transparent 34%),
-            linear-gradient(135deg, #020617 0%, #111827 44%, #312e81 100%);
-        position: relative;
-    }
-
-    .roadmap-dashboard {
-        align-items: start;
-    }
-
-    .roadmap-left-sidebar {
-        scrollbar-color: #6366f1 #f1f5f9;
-        scrollbar-width: thin;
-    }
-
-    .month-nav-icon {
-        display: grid;
-        width: 38px;
-        height: 38px;
-        flex-shrink: 0;
-        place-items: center;
-        border-radius: 14px;
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
-    }
-
-    .month-nav-link {
-        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
-    }
-
-    .month-week-list span {
-        position: relative;
-    }
-
-    .month-week-list span::before {
-        content: '';
-        position: absolute;
-        left: -21px;
-        top: 50%;
-        width: 8px;
-        height: 8px;
-        border: 2px solid currentColor;
-        border-radius: 999px;
-        background: #fff;
-        transform: translateY(-50%);
-    }
-
-    .dashboard-hero,
-    .timeline-card,
-    .right-detail-card {
-        position: relative;
-        overflow: hidden;
-    }
-
-    .dashboard-hero::before {
-        content: '';
-        position: absolute;
-        inset: auto -8% -44% auto;
-        width: 320px;
-        height: 220px;
-        border-radius: 999px;
-        background: radial-gradient(circle, rgba(236, 72, 153, 0.22), transparent 68%);
-        pointer-events: none;
-    }
-
-    .stat-card {
-        display: grid;
-        min-width: 92px;
-        gap: 4px;
-        place-items: center;
-        border-width: 1px;
-        border-radius: 24px;
-        padding: 16px;
-        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
-    }
-
-    .stat-card strong {
-        font-size: 30px;
-        font-weight: 950;
-        line-height: 1;
-    }
-
-    .stat-card span {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 10px;
-        font-weight: 900;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-    }
-
-    .timeline-dot {
-        position: relative;
-        z-index: 1;
-        display: grid;
-        width: 36px;
-        height: 36px;
-        place-items: center;
-        border: 3px solid #ffffff;
-        border-radius: 999px;
-        background: #4f46e5;
-        color: #ffffff;
-        font-size: 13px;
-        font-weight: 950;
-        box-shadow: 0 8px 18px rgba(79, 70, 229, 0.22);
-        transition:
-            transform 160ms ease,
-            box-shadow 160ms ease;
-    }
-
-    .timeline-dot:hover,
-    .timeline-dot.is-active {
-        background: #ec4899;
-        box-shadow: 0 10px 24px rgba(236, 72, 153, 0.32);
-        transform: translateY(-2px);
-    }
-
-    .game-preview {
-        background-size: 160% 160%;
-        animation: previewShift 8s ease infinite;
-    }
-
-    @keyframes previewShift {
-        0%,
-        100% {
-            background-position: 0% 50%;
+    <style>
+        button,
+        .roadmap-month-btn {
+            cursor: pointer;
         }
 
-        50% {
-            background-position: 100% 50%;
+        html {
+            scroll-behavior: smooth;
         }
-    }
-
-    .attribute-row {
-        display: grid;
-        grid-template-columns: 116px minmax(0, 1fr);
-        gap: 12px;
-        align-items: start;
-    }
-
-    .attribute-row span {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        color: #64748b;
-        font-weight: 900;
-    }
-
-    .attribute-row span i {
-        display: grid;
-        width: 24px;
-        height: 24px;
-        place-items: center;
-        border-radius: 8px;
-        background: #eff6ff;
-        color: #2563eb;
-    }
-
-    .attribute-row strong {
-        min-width: 0;
-        color: #1e293b;
-        font-weight: 900;
-        line-height: 1.45;
-    }
-
-    .roadmap-game-cell.is-selected {
-        border-color: rgba(236, 72, 153, 0.72);
-        box-shadow:
-            0 18px 34px rgba(236, 72, 153, 0.18),
-            inset 0 0 0 1px rgba(236, 72, 153, 0.2);
-    }
-
-    .roadmap-game-cell.is-locked {
-        opacity: 0.56;
-        filter: grayscale(0.45);
-    }
-
-    .roadmap-page::before {
-        content: '';
-        position: fixed;
-        inset: 0;
-        pointer-events: none;
-        background:
-            linear-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.055) 1px, transparent 1px);
-        background-size: 38px 38px;
-        mask-image: linear-gradient(to bottom, black, transparent 82%);
-    }
-
-    .roadmap-page::after {
-        content: '';
-        position: fixed;
-        inset: auto -12% -26% 32%;
-        height: 420px;
-        pointer-events: none;
-        background: radial-gradient(circle, rgba(249, 115, 22, 0.28), transparent 64%);
-        filter: blur(8px);
-    }
-
-    .roadmap-hero {
-        background:
-            radial-gradient(circle at 16% 16%, rgba(249, 115, 22, 0.42), transparent 24%),
-            radial-gradient(circle at 72% 10%, rgba(99, 102, 241, 0.5), transparent 28%),
-            radial-gradient(circle at 94% 82%, rgba(14, 165, 233, 0.28), transparent 28%),
-            linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.72));
-        background-size:
-            auto,
-            auto,
-            auto,
-            auto;
-        isolation: isolate;
-    }
-
-    .roadmap-hero::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background:
-            linear-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
-        background-size: 26px 26px;
-        mask-image: radial-gradient(circle at 32% 20%, black, transparent 72%);
-        opacity: 0.9;
-    }
-
-    .roadmap-hero::after {
-        content: '';
-        position: absolute;
-        inset: auto 6% -86px auto;
-        width: 360px;
-        height: 220px;
-        background: rgba(249, 115, 22, 0.32);
-        box-shadow:
-            -260px -44px 0 rgba(99, 102, 241, 0.32),
-            -92px -136px 0 rgba(14, 165, 233, 0.18);
-        filter: blur(38px);
-        opacity: 0.9;
-    }
-
-    .hero-title span {
-        background: linear-gradient(90deg, #fb923c, #facc15 34%, #818cf8 78%);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-    }
-
-    .method-card {
-        position: relative;
-        overflow: hidden;
-        transition:
-            transform 180ms ease,
-            box-shadow 180ms ease,
-            border-color 180ms ease;
-    }
-
-    .method-card::after {
-        content: '';
-        position: absolute;
-        inset: -40% auto auto -30%;
-        width: 96px;
-        height: 96px;
-        background: radial-gradient(circle, rgba(255, 255, 255, 0.24), transparent 62%);
-        transform: rotate(18deg);
-    }
-
-    .method-card:hover {
-        border-color: rgba(251, 146, 60, 0.42);
-        box-shadow: 0 22px 44px rgba(79, 70, 229, 0.24);
-        transform: translateY(-4px) scale(1.02);
-    }
-
-    .method-icon {
-        box-shadow:
-            0 10px 18px rgba(15, 23, 42, 0.14),
-            inset 0 1px 0 rgba(255, 255, 255, 0.32);
-    }
-
-    .roadmap-grid {
-        background:
-            radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.2), transparent 42%),
-            linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
-        background-size:
-            auto,
-            34px 34px,
-            34px 34px;
-    }
-
-    .roadmap-month-panel {
-        position: relative;
-        overflow: hidden;
-        background:
-            linear-gradient(90deg, color-mix(in srgb, currentColor 36%, transparent) 0 5px, transparent 5px),
-            radial-gradient(circle at 100% 0%, rgba(251, 146, 60, 0.18), transparent 34%),
-            radial-gradient(circle at 0% 100%, rgba(99, 102, 241, 0.2), transparent 34%),
-            linear-gradient(135deg, rgba(15, 23, 42, 0.86), rgba(30, 41, 59, 0.54));
-        color: #e2e8f0;
-    }
-
-    .roadmap-month-panel::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        background:
-            linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-        background-size: 28px 28px;
-        mask-image: linear-gradient(90deg, black, transparent 82%);
-        opacity: 0.72;
-    }
-
-    .roadmap-month-panel > * {
-        position: relative;
-        z-index: 1;
-    }
-
-    .roadmap-corner,
-    .roadmap-week-header {
-        display: none;
-        box-shadow:
-            0 16px 28px rgba(2, 6, 23, 0.28),
-            inset 0 1px 0 rgba(255, 255, 255, 0.14);
-    }
-
-    .roadmap-corner {
-        background: linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(79, 70, 229, 0.72));
-    }
-
-    .roadmap-week-header {
-        background: linear-gradient(135deg, rgba(29, 78, 216, 0.8) 0%, rgba(67, 56, 202, 0.72) 48%, rgba(249, 115, 22, 0.58) 100%);
-    }
-
-    .roadmap-week-header[data-week='2'] {
-        background: linear-gradient(135deg, rgba(37, 99, 235, 0.78) 0%, rgba(124, 58, 237, 0.74) 55%, rgba(249, 115, 22, 0.58) 100%);
-    }
-
-    .roadmap-week-header[data-week='3'] {
-        background: linear-gradient(135deg, rgba(8, 145, 178, 0.78) 0%, rgba(37, 99, 235, 0.72) 50%, rgba(249, 115, 22, 0.66) 100%);
-    }
-
-    .roadmap-week-header[data-week='4'] {
-        background: linear-gradient(135deg, rgba(15, 23, 42, 0.84) 0%, rgba(14, 165, 233, 0.68) 48%, rgba(79, 70, 229, 0.78) 100%);
-    }
-
-    .month-badge {
-        background: linear-gradient(135deg, #f97316, #4f46e5);
-        box-shadow:
-            0 16px 30px rgba(249, 115, 22, 0.28),
-            0 0 24px rgba(99, 102, 241, 0.28);
-    }
-
-    .roadmap-month {
-        background:
-            radial-gradient(circle at 18% 0%, rgba(249, 115, 22, 0.22), transparent 46%),
-            linear-gradient(135deg, rgba(15, 23, 42, 0.84), rgba(255, 255, 255, 0.08));
-        box-shadow:
-            0 16px 28px rgba(2, 6, 23, 0.18),
-            inset 0 1px 0 rgba(255, 255, 255, 0.16);
-    }
-
-    .month-count,
-    .week-label {
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
-    }
-
-    .roadmap-week {
-        position: relative;
-        overflow: hidden;
-        min-height: 100%;
-        color: #e2e8f0;
-        box-shadow:
-            0 16px 30px rgba(2, 6, 23, 0.22),
-            inset 0 1px 0 rgba(255, 255, 255, 0.34);
-        transition:
-            transform 180ms ease,
-            box-shadow 180ms ease,
-            border-color 180ms ease;
-    }
-
-    .roadmap-week::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background:
-            linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.18)),
-            radial-gradient(circle at 100% 0%, rgba(249, 115, 22, 0.18), transparent 36%);
-        opacity: 0.72;
-        pointer-events: none;
-    }
-
-    .roadmap-week:hover {
-        border-color: rgba(251, 146, 60, 0.42);
-        box-shadow:
-            0 22px 42px rgba(79, 70, 229, 0.24),
-            0 0 36px rgba(249, 115, 22, 0.12),
-            inset 0 1px 0 rgba(255, 255, 255, 0.42);
-        transform: translateY(-2px);
-    }
-
-    .roadmap-week > * {
-        position: relative;
-        z-index: 1;
-    }
-
-    .genre-pill {
-        border: 1px solid rgba(255, 255, 255, 0.5);
-        color: #0f172a;
-        box-shadow:
-            0 8px 18px rgba(15, 23, 42, 0.08),
-            inset 0 1px 0 rgba(255, 255, 255, 0.92);
-    }
-
-    .sidebar-card {
-        position: relative;
-        overflow: hidden;
-        transition:
-            transform 180ms ease,
-            box-shadow 180ms ease,
-            border-color 180ms ease;
-    }
-
-    .sidebar-card:hover {
-        border-color: rgba(251, 146, 60, 0.32);
-        box-shadow: 0 22px 44px rgba(79, 70, 229, 0.22);
-        transform: translateY(-3px);
-    }
-
-    .sidebar-card::before {
-        content: '';
-        position: absolute;
-        inset: 0 0 auto 0;
-        height: 4px;
-        background: linear-gradient(90deg, #4f46e5, #0ea5e9, #f97316, #fb7185);
-    }
-
-    .sidebar-card::after {
-        content: '';
-        position: absolute;
-        inset: -42px -36px auto auto;
-        width: 132px;
-        height: 132px;
-        border-radius: 999px;
-        background: radial-gradient(circle, rgba(255, 255, 255, 0.18), transparent 68%);
-        pointer-events: none;
-    }
-
-    .sidebar-icon {
-        display: grid;
-        width: 38px;
-        height: 38px;
-        place-items: center;
-        border-radius: 14px;
-        font-size: 12px;
-        font-weight: 900;
-        box-shadow:
-            0 14px 24px rgba(15, 23, 42, 0.26),
-            inset 0 1px 0 rgba(255, 255, 255, 0.32);
-    }
-
-    .tool-row {
-        display: grid;
-        gap: 2px;
-        border-radius: 16px;
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(99, 102, 241, 0.12));
-        padding: 10px 12px;
-        color: #cbd5e1;
-        font-size: 13px;
-        font-weight: 800;
-        backdrop-filter: blur(14px);
-    }
-
-    .tool-row strong {
-        color: #ffffff;
-        font-size: 14px;
-        font-weight: 900;
-    }
-
-    .tool-row span {
-        color: #94a3b8;
-    }
-
-    .prompt-card p + p {
-        margin-top: 2px;
-    }
-
-    .prompt-card {
-        background:
-            radial-gradient(circle at 92% 8%, rgba(34, 211, 238, 0.2), transparent 28%),
-            radial-gradient(circle at 4% 98%, rgba(249, 115, 22, 0.2), transparent 34%),
-            linear-gradient(135deg, rgba(15, 23, 42, 0.78), rgba(49, 46, 129, 0.34));
-    }
-
-    .prompt-protocol-head {
-        position: relative;
-        z-index: 1;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        padding-bottom: 14px;
-    }
-
-    .protocol-code {
-        border-radius: 999px;
-        border: 1px solid rgba(34, 211, 238, 0.26);
-        background: rgba(34, 211, 238, 0.08);
-        padding: 4px 9px;
-        color: #67e8f9;
-        font-size: 9px;
-        font-weight: 900;
-        letter-spacing: 0.18em;
-    }
-
-    .prompt-protocol-flow {
-        position: relative;
-    }
-
-    .prompt-protocol-flow::before {
-        content: '';
-        position: absolute;
-        top: 24px;
-        bottom: 24px;
-        left: 20px;
-        width: 2px;
-        background: linear-gradient(180deg, #38bdf8, #c084fc, #34d399);
-        box-shadow: 0 0 18px rgba(34, 211, 238, 0.36);
-        opacity: 0.72;
-    }
-
-    .prompt-tip {
-        position: relative;
-        display: grid;
-        gap: 8px;
-        min-height: 96px;
-        border-radius: 18px 8px 18px 8px;
-        border: 1px solid color-mix(in srgb, currentColor 56%, transparent);
-        background:
-            linear-gradient(90deg, color-mix(in srgb, currentColor 24%, transparent), transparent 58%),
-            linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(15, 23, 42, 0.3));
-        padding: 16px 14px 16px 58px;
-        overflow: hidden;
-        box-shadow:
-            0 14px 28px rgba(2, 6, 23, 0.22),
-            inset 0 1px 0 rgba(255, 255, 255, 0.18);
-        backdrop-filter: blur(18px);
-        transition:
-            border-color 180ms ease,
-            box-shadow 180ms ease,
-            transform 180ms ease;
-    }
-
-    .prompt-tip:hover {
-        border-color: currentColor;
-        box-shadow:
-            0 18px 34px rgba(2, 6, 23, 0.3),
-            0 0 28px color-mix(in srgb, currentColor 24%, transparent),
-            inset 0 1px 0 rgba(255, 255, 255, 0.26);
-        transform: translateX(3px);
-    }
-
-    .prompt-tip::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background:
-            radial-gradient(circle at 10% 12%, currentColor 0 2px, transparent 3px),
-            radial-gradient(circle at 18% 76%, currentColor 0 1px, transparent 2px);
-        background-size: 18px 18px;
-        opacity: 0.18;
-        pointer-events: none;
-    }
-
-    .prompt-tip::after {
-        content: '';
-        position: absolute;
-        inset: auto -38px -42px auto;
-        width: 120px;
-        height: 120px;
-        border-radius: 999px;
-        background: currentColor;
-        filter: blur(42px);
-        opacity: 0.2;
-    }
-
-    .prompt-tip-node {
-        position: absolute;
-        top: 16px;
-        left: 0;
-        z-index: 2;
-        display: grid;
-        width: 40px;
-        height: 40px;
-        place-items: center;
-        border-radius: 14px;
-        background: #020617;
-        color: currentColor;
-        font-size: 11px;
-        font-weight: 900;
-        box-shadow:
-            0 0 0 1px color-mix(in srgb, currentColor 46%, transparent),
-            0 0 22px color-mix(in srgb, currentColor 32%, transparent);
-    }
-
-    .prompt-tip-badge {
-        display: inline-flex;
-        width: max-content;
-        border-radius: 8px;
-        border: 1px solid color-mix(in srgb, currentColor 44%, transparent);
-        background: color-mix(in srgb, currentColor 18%, transparent);
-        padding: 5px 10px;
-        color: #ffffff;
-        font-size: 10px;
-        font-weight: 900;
-        letter-spacing: 0.16em;
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    }
-
-    .use-template-btn {
-        width: 100%;
-        margin-top: 16px;
-        border-radius: 14px;
-        border: 1px solid rgba(251, 146, 60, 0.46);
-        background:
-            linear-gradient(135deg, rgba(251, 146, 60, 0.98), rgba(99, 102, 241, 0.92)),
-            rgba(2, 6, 23, 0.72);
-        padding: 12px 16px;
-        color: #fff7ed;
-        font-size: 12px;
-        font-weight: 900;
-        letter-spacing: 0.1em;
-        box-shadow:
-            0 12px 24px rgba(249, 115, 22, 0.2),
-            0 0 24px rgba(99, 102, 241, 0.2),
-            inset 0 1px 0 rgba(255, 255, 255, 0.32);
-        transition:
-            box-shadow 160ms ease,
-            filter 160ms ease,
-            transform 160ms ease;
-    }
-
-    .use-template-btn:hover {
-        box-shadow:
-            0 16px 30px rgba(249, 115, 22, 0.34),
-            0 0 34px rgba(129, 140, 248, 0.42),
-            inset 0 1px 0 rgba(255, 255, 255, 0.4);
-        filter: saturate(1.18);
-        transform: translateY(-2px) scale(1.02);
-    }
-
-    .prompt-copy-all-btn {
-        flex-shrink: 0;
-        border-radius: 14px;
-        border: 1px solid rgba(251, 146, 60, 0.46);
-        background:
-            linear-gradient(135deg, rgba(251, 146, 60, 0.98), rgba(99, 102, 241, 0.92)),
-            rgba(2, 6, 23, 0.72);
-        padding: 9px 12px;
-        color: #fff7ed;
-        font-size: 10px;
-        font-weight: 900;
-        letter-spacing: 0.1em;
-        box-shadow:
-            0 12px 24px rgba(249, 115, 22, 0.2),
-            0 0 24px rgba(99, 102, 241, 0.2),
-            inset 0 1px 0 rgba(255, 255, 255, 0.32);
-        transition:
-            box-shadow 160ms ease,
-            filter 160ms ease,
-            transform 160ms ease;
-    }
-
-    .prompt-copy-all-btn:hover,
-    .prompt-copy-all-btn.is-copied {
-        box-shadow:
-            0 16px 30px rgba(249, 115, 22, 0.34),
-            0 0 34px rgba(129, 140, 248, 0.42),
-            inset 0 1px 0 rgba(255, 255, 255, 0.4);
-        filter: saturate(1.18);
-        transform: translateY(-2px) scale(1.03);
-    }
-
-    .prompt-tip p {
-        position: relative;
-        z-index: 1;
-    }
-
-    .prompt-tip-rule {
-        color: #38bdf8;
-    }
-
-    .prompt-tip-target {
-        color: #c084fc;
-    }
-
-    .prompt-tip-action {
-        color: #34d399;
-    }
-
-    .roadmap-scroll {
-        scrollbar-color: #f97316 rgba(15, 23, 42, 0.8);
-        scrollbar-width: thin;
-    }
-
-    .roadmap-scroll::-webkit-scrollbar {
-        height: 12px;
-    }
-
-    .roadmap-scroll::-webkit-scrollbar-track {
-        background: rgba(15, 23, 42, 0.8);
-        border-radius: 999px;
-    }
-
-    .roadmap-scroll::-webkit-scrollbar-thumb {
-        background: linear-gradient(90deg, #4f46e5, #0ea5e9, #f97316);
-        border: 3px solid rgba(15, 23, 42, 0.8);
-        border-radius: 999px;
-    }
-
-    .roadmap-month-btn.is-active .roadmap-month-icon {
-        background-color: #fce7f3;
-        color: #ec4899;
-    }
-    .roadmap-month-btn.is-active .roadmap-month-title {
-        color: #db2777;
-    }
-    .roadmap-month-btn.is-active .roadmap-month-chevron {
-        color: #ec4899;
-    }
-</style>
+
+        .roadmap-page {
+            background:
+                radial-gradient(circle at 12% 5%, rgba(249, 115, 22, 0.38), transparent 28%),
+                radial-gradient(circle at 88% 4%, rgba(99, 102, 241, 0.44), transparent 30%),
+                radial-gradient(circle at 50% 52%, rgba(14, 165, 233, 0.2), transparent 34%),
+                linear-gradient(135deg, #020617 0%, #111827 44%, #312e81 100%);
+            position: relative;
+        }
+
+        .roadmap-dashboard {
+            align-items: start;
+        }
+
+        .roadmap-left-sidebar {
+            scrollbar-color: #6366f1 #f1f5f9;
+            scrollbar-width: thin;
+        }
+
+        .month-nav-icon {
+            display: grid;
+            width: 38px;
+            height: 38px;
+            flex-shrink: 0;
+            place-items: center;
+            border-radius: 14px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+        }
+
+        .month-nav-link {
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+        }
+
+        .month-week-list span {
+            position: relative;
+        }
+
+        .month-week-list span::before {
+            content: '';
+            position: absolute;
+            left: -21px;
+            top: 50%;
+            width: 8px;
+            height: 8px;
+            border: 2px solid currentColor;
+            border-radius: 999px;
+            background: #fff;
+            transform: translateY(-50%);
+        }
+
+        .dashboard-hero,
+        .timeline-card,
+        .right-detail-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-hero::before {
+            content: '';
+            position: absolute;
+            inset: auto -8% -44% auto;
+            width: 320px;
+            height: 220px;
+            border-radius: 999px;
+            background: radial-gradient(circle, rgba(236, 72, 153, 0.22), transparent 68%);
+            pointer-events: none;
+        }
+
+        .stat-card {
+            display: grid;
+            min-width: 92px;
+            gap: 4px;
+            place-items: center;
+            border-width: 1px;
+            border-radius: 24px;
+            padding: 16px;
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+        }
+
+        .stat-card strong {
+            font-size: 30px;
+            font-weight: 950;
+            line-height: 1;
+        }
+
+        .stat-card span {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .timeline-dot {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            width: 36px;
+            height: 36px;
+            place-items: center;
+            border: 3px solid #ffffff;
+            border-radius: 999px;
+            background: #4f46e5;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 950;
+            box-shadow: 0 8px 18px rgba(79, 70, 229, 0.22);
+            transition:
+                transform 160ms ease,
+                box-shadow 160ms ease;
+        }
+
+        .timeline-dot:hover,
+        .timeline-dot.is-active {
+            background: #ec4899;
+            box-shadow: 0 10px 24px rgba(236, 72, 153, 0.32);
+            transform: translateY(-2px);
+        }
+
+        .game-preview {
+            background-size: 160% 160%;
+            animation: previewShift 8s ease infinite;
+        }
+
+        @keyframes previewShift {
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        .attribute-row {
+            display: grid;
+            grid-template-columns: 116px minmax(0, 1fr);
+            gap: 12px;
+            align-items: start;
+        }
+
+        .attribute-row span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #64748b;
+            font-weight: 900;
+        }
+
+        .attribute-row span i {
+            display: grid;
+            width: 24px;
+            height: 24px;
+            place-items: center;
+            border-radius: 8px;
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        .attribute-row strong {
+            min-width: 0;
+            color: #1e293b;
+            font-weight: 900;
+            line-height: 1.45;
+        }
+
+        .roadmap-game-cell.is-selected {
+            border-color: rgba(236, 72, 153, 0.72);
+            box-shadow:
+                0 18px 34px rgba(236, 72, 153, 0.18),
+                inset 0 0 0 1px rgba(236, 72, 153, 0.2);
+        }
+
+        .roadmap-game-cell.is-locked {
+            opacity: 0.56;
+            filter: grayscale(0.45);
+        }
+
+        .roadmap-page::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background:
+                linear-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.055) 1px, transparent 1px);
+            background-size: 38px 38px;
+            mask-image: linear-gradient(to bottom, black, transparent 82%);
+        }
+
+        .roadmap-page::after {
+            content: '';
+            position: fixed;
+            inset: auto -12% -26% 32%;
+            height: 420px;
+            pointer-events: none;
+            background: radial-gradient(circle, rgba(249, 115, 22, 0.28), transparent 64%);
+            filter: blur(8px);
+        }
+
+        .roadmap-hero {
+            background:
+                radial-gradient(circle at 16% 16%, rgba(249, 115, 22, 0.42), transparent 24%),
+                radial-gradient(circle at 72% 10%, rgba(99, 102, 241, 0.5), transparent 28%),
+                radial-gradient(circle at 94% 82%, rgba(14, 165, 233, 0.28), transparent 28%),
+                linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.72));
+            background-size: auto, auto, auto, auto;
+            isolation: isolate;
+        }
+
+        .roadmap-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+            background-size: 26px 26px;
+            mask-image: radial-gradient(circle at 32% 20%, black, transparent 72%);
+            opacity: 0.9;
+        }
+
+        .roadmap-hero::after {
+            content: '';
+            position: absolute;
+            inset: auto 6% -86px auto;
+            width: 360px;
+            height: 220px;
+            background: rgba(249, 115, 22, 0.32);
+            box-shadow:
+                -260px -44px 0 rgba(99, 102, 241, 0.32),
+                -92px -136px 0 rgba(14, 165, 233, 0.18);
+            filter: blur(38px);
+            opacity: 0.9;
+        }
+
+        .hero-title span {
+            background: linear-gradient(90deg, #fb923c, #facc15 34%, #818cf8 78%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .method-card {
+            position: relative;
+            overflow: hidden;
+            transition:
+                transform 180ms ease,
+                box-shadow 180ms ease,
+                border-color 180ms ease;
+        }
+
+        .method-card::after {
+            content: '';
+            position: absolute;
+            inset: -40% auto auto -30%;
+            width: 96px;
+            height: 96px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.24), transparent 62%);
+            transform: rotate(18deg);
+        }
+
+        .method-card:hover {
+            border-color: rgba(251, 146, 60, 0.42);
+            box-shadow: 0 22px 44px rgba(79, 70, 229, 0.24);
+            transform: translateY(-4px) scale(1.02);
+        }
+
+        .method-icon {
+            box-shadow:
+                0 10px 18px rgba(15, 23, 42, 0.14),
+                inset 0 1px 0 rgba(255, 255, 255, 0.32);
+        }
+
+        .roadmap-grid {
+            background:
+                radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.2), transparent 42%),
+                linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+            background-size:
+                auto,
+                34px 34px,
+                34px 34px;
+        }
+
+        .roadmap-month-panel {
+            position: relative;
+            overflow: hidden;
+            background:
+                linear-gradient(90deg, color-mix(in srgb, currentColor 36%, transparent) 0 5px, transparent 5px),
+                radial-gradient(circle at 100% 0%, rgba(251, 146, 60, 0.18), transparent 34%),
+                radial-gradient(circle at 0% 100%, rgba(99, 102, 241, 0.2), transparent 34%),
+                linear-gradient(135deg, rgba(15, 23, 42, 0.86), rgba(30, 41, 59, 0.54));
+            color: #e2e8f0;
+        }
+
+        .roadmap-month-panel::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background:
+                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 28px 28px;
+            mask-image: linear-gradient(90deg, black, transparent 82%);
+            opacity: 0.72;
+        }
+
+        .roadmap-month-panel > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .roadmap-corner,
+        .roadmap-week-header {
+            display: none;
+            box-shadow:
+                0 16px 28px rgba(2, 6, 23, 0.28),
+                inset 0 1px 0 rgba(255, 255, 255, 0.14);
+        }
+
+        .roadmap-corner {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(79, 70, 229, 0.72));
+        }
+
+        .roadmap-week-header {
+            background: linear-gradient(
+                135deg,
+                rgba(29, 78, 216, 0.8) 0%,
+                rgba(67, 56, 202, 0.72) 48%,
+                rgba(249, 115, 22, 0.58) 100%
+            );
+        }
+
+        .roadmap-week-header[data-week='2'] {
+            background: linear-gradient(
+                135deg,
+                rgba(37, 99, 235, 0.78) 0%,
+                rgba(124, 58, 237, 0.74) 55%,
+                rgba(249, 115, 22, 0.58) 100%
+            );
+        }
+
+        .roadmap-week-header[data-week='3'] {
+            background: linear-gradient(
+                135deg,
+                rgba(8, 145, 178, 0.78) 0%,
+                rgba(37, 99, 235, 0.72) 50%,
+                rgba(249, 115, 22, 0.66) 100%
+            );
+        }
+
+        .roadmap-week-header[data-week='4'] {
+            background: linear-gradient(
+                135deg,
+                rgba(15, 23, 42, 0.84) 0%,
+                rgba(14, 165, 233, 0.68) 48%,
+                rgba(79, 70, 229, 0.78) 100%
+            );
+        }
+
+        .month-badge {
+            background: linear-gradient(135deg, #f97316, #4f46e5);
+            box-shadow:
+                0 16px 30px rgba(249, 115, 22, 0.28),
+                0 0 24px rgba(99, 102, 241, 0.28);
+        }
+
+        .roadmap-month {
+            background:
+                radial-gradient(circle at 18% 0%, rgba(249, 115, 22, 0.22), transparent 46%),
+                linear-gradient(135deg, rgba(15, 23, 42, 0.84), rgba(255, 255, 255, 0.08));
+            box-shadow:
+                0 16px 28px rgba(2, 6, 23, 0.18),
+                inset 0 1px 0 rgba(255, 255, 255, 0.16);
+        }
+
+        .month-count,
+        .week-label {
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+        }
+
+        .roadmap-week {
+            position: relative;
+            overflow: hidden;
+            min-height: 100%;
+            color: #e2e8f0;
+            box-shadow:
+                0 16px 30px rgba(2, 6, 23, 0.22),
+                inset 0 1px 0 rgba(255, 255, 255, 0.34);
+            transition:
+                transform 180ms ease,
+                box-shadow 180ms ease,
+                border-color 180ms ease;
+        }
+
+        .roadmap-week::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.18)),
+                radial-gradient(circle at 100% 0%, rgba(249, 115, 22, 0.18), transparent 36%);
+            opacity: 0.72;
+            pointer-events: none;
+        }
+
+        .roadmap-week:hover {
+            border-color: rgba(251, 146, 60, 0.42);
+            box-shadow:
+                0 22px 42px rgba(79, 70, 229, 0.24),
+                0 0 36px rgba(249, 115, 22, 0.12),
+                inset 0 1px 0 rgba(255, 255, 255, 0.42);
+            transform: translateY(-2px);
+        }
+
+        .roadmap-week > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .genre-pill {
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            color: #0f172a;
+            box-shadow:
+                0 8px 18px rgba(15, 23, 42, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.92);
+        }
+
+        .sidebar-card {
+            position: relative;
+            overflow: hidden;
+            transition:
+                transform 180ms ease,
+                box-shadow 180ms ease,
+                border-color 180ms ease;
+        }
+
+        .sidebar-card:hover {
+            border-color: rgba(251, 146, 60, 0.32);
+            box-shadow: 0 22px 44px rgba(79, 70, 229, 0.22);
+            transform: translateY(-3px);
+        }
+
+        .sidebar-card::before {
+            content: '';
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 4px;
+            background: linear-gradient(90deg, #4f46e5, #0ea5e9, #f97316, #fb7185);
+        }
+
+        .sidebar-card::after {
+            content: '';
+            position: absolute;
+            inset: -42px -36px auto auto;
+            width: 132px;
+            height: 132px;
+            border-radius: 999px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.18), transparent 68%);
+            pointer-events: none;
+        }
+
+        .sidebar-icon {
+            display: grid;
+            width: 38px;
+            height: 38px;
+            place-items: center;
+            border-radius: 14px;
+            font-size: 12px;
+            font-weight: 900;
+            box-shadow:
+                0 14px 24px rgba(15, 23, 42, 0.26),
+                inset 0 1px 0 rgba(255, 255, 255, 0.32);
+        }
+
+        .tool-row {
+            display: grid;
+            gap: 2px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(99, 102, 241, 0.12));
+            padding: 10px 12px;
+            color: #cbd5e1;
+            font-size: 13px;
+            font-weight: 800;
+            backdrop-filter: blur(14px);
+        }
+
+        .tool-row strong {
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 900;
+        }
+
+        .tool-row span {
+            color: #94a3b8;
+        }
+
+        .prompt-card p + p {
+            margin-top: 2px;
+        }
+
+        .prompt-card {
+            background:
+                radial-gradient(circle at 92% 8%, rgba(34, 211, 238, 0.2), transparent 28%),
+                radial-gradient(circle at 4% 98%, rgba(249, 115, 22, 0.2), transparent 34%),
+                linear-gradient(135deg, rgba(15, 23, 42, 0.78), rgba(49, 46, 129, 0.34));
+        }
+
+        .prompt-protocol-head {
+            position: relative;
+            z-index: 1;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 14px;
+        }
+
+        .protocol-code {
+            border-radius: 999px;
+            border: 1px solid rgba(34, 211, 238, 0.26);
+            background: rgba(34, 211, 238, 0.08);
+            padding: 4px 9px;
+            color: #67e8f9;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 0.18em;
+        }
+
+        .prompt-protocol-flow {
+            position: relative;
+        }
+
+        .prompt-protocol-flow::before {
+            content: '';
+            position: absolute;
+            top: 24px;
+            bottom: 24px;
+            left: 20px;
+            width: 2px;
+            background: linear-gradient(180deg, #38bdf8, #c084fc, #34d399);
+            box-shadow: 0 0 18px rgba(34, 211, 238, 0.36);
+            opacity: 0.72;
+        }
+
+        .prompt-tip {
+            position: relative;
+            display: grid;
+            gap: 8px;
+            min-height: 96px;
+            border-radius: 18px 8px 18px 8px;
+            border: 1px solid color-mix(in srgb, currentColor 56%, transparent);
+            background:
+                linear-gradient(90deg, color-mix(in srgb, currentColor 24%, transparent), transparent 58%),
+                linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(15, 23, 42, 0.3));
+            padding: 16px 14px 16px 58px;
+            overflow: hidden;
+            box-shadow:
+                0 14px 28px rgba(2, 6, 23, 0.22),
+                inset 0 1px 0 rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(18px);
+            transition:
+                border-color 180ms ease,
+                box-shadow 180ms ease,
+                transform 180ms ease;
+        }
+
+        .prompt-tip:hover {
+            border-color: currentColor;
+            box-shadow:
+                0 18px 34px rgba(2, 6, 23, 0.3),
+                0 0 28px color-mix(in srgb, currentColor 24%, transparent),
+                inset 0 1px 0 rgba(255, 255, 255, 0.26);
+            transform: translateX(3px);
+        }
+
+        .prompt-tip::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 10% 12%, currentColor 0 2px, transparent 3px),
+                radial-gradient(circle at 18% 76%, currentColor 0 1px, transparent 2px);
+            background-size: 18px 18px;
+            opacity: 0.18;
+            pointer-events: none;
+        }
+
+        .prompt-tip::after {
+            content: '';
+            position: absolute;
+            inset: auto -38px -42px auto;
+            width: 120px;
+            height: 120px;
+            border-radius: 999px;
+            background: currentColor;
+            filter: blur(42px);
+            opacity: 0.2;
+        }
+
+        .prompt-tip-node {
+            position: absolute;
+            top: 16px;
+            left: 0;
+            z-index: 2;
+            display: grid;
+            width: 40px;
+            height: 40px;
+            place-items: center;
+            border-radius: 14px;
+            background: #020617;
+            color: currentColor;
+            font-size: 11px;
+            font-weight: 900;
+            box-shadow:
+                0 0 0 1px color-mix(in srgb, currentColor 46%, transparent),
+                0 0 22px color-mix(in srgb, currentColor 32%, transparent);
+        }
+
+        .prompt-tip-badge {
+            display: inline-flex;
+            width: max-content;
+            border-radius: 8px;
+            border: 1px solid color-mix(in srgb, currentColor 44%, transparent);
+            background: color-mix(in srgb, currentColor 18%, transparent);
+            padding: 5px 10px;
+            color: #ffffff;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 0.16em;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .use-template-btn {
+            width: 100%;
+            margin-top: 16px;
+            border-radius: 14px;
+            border: 1px solid rgba(251, 146, 60, 0.46);
+            background:
+                linear-gradient(135deg, rgba(251, 146, 60, 0.98), rgba(99, 102, 241, 0.92)), rgba(2, 6, 23, 0.72);
+            padding: 12px 16px;
+            color: #fff7ed;
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: 0.1em;
+            box-shadow:
+                0 12px 24px rgba(249, 115, 22, 0.2),
+                0 0 24px rgba(99, 102, 241, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.32);
+            transition:
+                box-shadow 160ms ease,
+                filter 160ms ease,
+                transform 160ms ease;
+        }
+
+        .use-template-btn:hover {
+            box-shadow:
+                0 16px 30px rgba(249, 115, 22, 0.34),
+                0 0 34px rgba(129, 140, 248, 0.42),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+            filter: saturate(1.18);
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        .prompt-copy-all-btn {
+            flex-shrink: 0;
+            border-radius: 14px;
+            border: 1px solid rgba(251, 146, 60, 0.46);
+            background:
+                linear-gradient(135deg, rgba(251, 146, 60, 0.98), rgba(99, 102, 241, 0.92)), rgba(2, 6, 23, 0.72);
+            padding: 9px 12px;
+            color: #fff7ed;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 0.1em;
+            box-shadow:
+                0 12px 24px rgba(249, 115, 22, 0.2),
+                0 0 24px rgba(99, 102, 241, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.32);
+            transition:
+                box-shadow 160ms ease,
+                filter 160ms ease,
+                transform 160ms ease;
+        }
+
+        .prompt-copy-all-btn:hover,
+        .prompt-copy-all-btn.is-copied {
+            box-shadow:
+                0 16px 30px rgba(249, 115, 22, 0.34),
+                0 0 34px rgba(129, 140, 248, 0.42),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+            filter: saturate(1.18);
+            transform: translateY(-2px) scale(1.03);
+        }
+
+        .prompt-tip p {
+            position: relative;
+            z-index: 1;
+        }
+
+        .prompt-tip-rule {
+            color: #38bdf8;
+        }
+
+        .prompt-tip-target {
+            color: #c084fc;
+        }
+
+        .prompt-tip-action {
+            color: #34d399;
+        }
+
+        .roadmap-scroll {
+            scrollbar-color: #f97316 rgba(15, 23, 42, 0.8);
+            scrollbar-width: thin;
+        }
+
+        .roadmap-scroll::-webkit-scrollbar {
+            height: 12px;
+        }
+
+        .roadmap-scroll::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 999px;
+        }
+
+        .roadmap-scroll::-webkit-scrollbar-thumb {
+            background: linear-gradient(90deg, #4f46e5, #0ea5e9, #f97316);
+            border: 3px solid rgba(15, 23, 42, 0.8);
+            border-radius: 999px;
+        }
+
+        .roadmap-month-btn.is-active .roadmap-month-icon {
+            background-color: #fce7f3;
+            color: #ec4899;
+        }
+        .roadmap-month-btn.is-active .roadmap-month-title {
+            color: #db2777;
+        }
+        .roadmap-month-btn.is-active .roadmap-month-chevron {
+            color: #ec4899;
+        }
+    </style>
+</MainLayout>
