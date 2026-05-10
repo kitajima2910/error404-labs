@@ -41,9 +41,10 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
             }
             @media (max-width: 640px) {
                 .resp-table table thead { display: none; }
-                .resp-table table tbody tr { display: block; margin-bottom: 0.75rem; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.75rem; background: white; }
-                .resp-table table tbody td { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0 !important; border: none !important; width: 100% !important; text-align: right !important; }
-                .resp-table table tbody td:before { content: attr(data-label); font-weight: 700; font-size: 0.7rem; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em; }
+                .resp-table table tbody tr { display: block; margin-bottom: 0.75rem; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.75rem; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+                .resp-table table tbody td { display: flex; justify-content: space-between; align-items: center; padding: 0.625rem 0 !important; border: none !important; width: 100% !important; text-align: right !important; border-bottom: 1px solid #f1f5f9 !important; }
+                .resp-table table tbody td:last-child { border-bottom: none !important; }
+                .resp-table table tbody td:before { content: attr(data-label); font-weight: 700; font-size: 0.65rem; text-transform: uppercase; color: #64748b; letter-spacing: 0.04em; text-align: left; flex-shrink: 0; margin-right: 0.75rem; }
                 .resp-table table tbody td:first-child { padding-top: 0 !important; }
                 .resp-table table tbody td:last-child { padding-bottom: 0 !important; }
             }
@@ -341,11 +342,11 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                             <!-- Table -->
                             <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden resp-table">
                                 <div class="overflow-x-auto">
-                                    <table class="w-full text-left border-collapse min-w-[640px] sm:min-w-0">
+                                    <table class="w-full text-left border-collapse min-w-0">
                                         <thead>
                                             <tr class="bg-slate-50 border-b border-slate-200">
                                                 <th
-                                                    class="sortable px-3 py-3 sm:px-6 sm:py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group"
+                                                    class="sortable px-3 py-3 sm:px-6 sm:py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group w-12 sm:w-16"
                                                     data-sort="id"
                                                 >
                                                     STT <span class="sort-icon ml-1 opacity-20 group-hover:opacity-100"
@@ -353,7 +354,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                                     >
                                                 </th>
                                                 <th
-                                                    class="sortable px-3 py-3 sm:px-6 sm:py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group"
+                                                    class="sortable px-3 py-3 sm:px-6 sm:py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group w-28 sm:w-36"
                                                     data-sort="member"
                                                 >
                                                     Tài khoản <span
@@ -362,7 +363,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                                     >
                                                 </th>
                                                 <th
-                                                    class="sortable px-3 py-3 sm:px-6 sm:py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group"
+                                                    class="sortable px-3 py-3 sm:px-6 sm:py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group w-32 sm:w-44"
                                                     data-sort="display_name"
                                                 >
                                                     Tên hiển thị <span
@@ -371,7 +372,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                                     >
                                                 </th>
                                                 <th
-                                                    class="sortable px-3 py-3 sm:px-6 sm:py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group text-center"
+                                                    class="sortable px-3 py-3 sm:px-6 sm:py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group text-center w-20 sm:w-24"
                                                     data-sort="roles"
                                                 >
                                                     Vai trò <span
@@ -380,7 +381,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                                     >
                                                 </th>
                                                 <th
-                                                    class="sortable px-3 py-3 sm:px-6 sm:py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group text-center"
+                                                    class="sortable px-3 py-3 sm:px-6 sm:py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group text-center w-28 sm:w-36"
                                                     data-sort="created_at"
                                                 >
                                                     Ngày tham gia <span
@@ -389,19 +390,19 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                                     >
                                                 </th>
                                                 <th
-                                                    class="px-3 py-3 sm:px-6 sm:py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center"
+                                                    class="px-3 py-3 sm:px-6 sm:py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center w-24 sm:w-28"
                                                     >Trạng thái</th
                                                 >
                                                 <th
-                                                    class="px-3 py-3 sm:px-6 sm:py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center"
+                                                    class="px-3 py-3 sm:px-6 sm:py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center w-24 sm:w-28"
                                                     >Quyền truy cập</th
                                                 >
                                                 <th
-                                                    class="px-3 py-3 sm:px-6 sm:py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center"
+                                                    class="px-3 py-3 sm:px-6 sm:py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center w-32 sm:w-44"
                                                     >Lộ trình</th
                                                 >
                                                 <th
-                                                    class="px-3 py-3 sm:px-6 sm:py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-right"
+                                                    class="px-3 py-3 sm:px-6 sm:py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-right w-20 sm:w-28"
                                                     >Thao tác</th
                                                 >
                                             </tr>
