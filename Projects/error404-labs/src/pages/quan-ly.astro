@@ -39,6 +39,14 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
             .custom-scrollbar::-webkit-scrollbar-thumb:hover {
                 background: #94a3b8;
             }
+            @media (max-width: 640px) {
+                .resp-table table thead { display: none; }
+                .resp-table table tbody tr { display: block; margin-bottom: 0.75rem; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.75rem; background: white; }
+                .resp-table table tbody td { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0 !important; border: none !important; width: 100% !important; text-align: right !important; }
+                .resp-table table tbody td:before { content: attr(data-label); font-weight: 700; font-size: 0.7rem; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em; }
+                .resp-table table tbody td:first-child { padding-top: 0 !important; }
+                .resp-table table tbody td:last-child { padding-bottom: 0 !important; }
+            }
         </style>
     </head>
     <body class="bg-slate-50 min-h-screen font-sans" style="font-family: 'Montserrat', sans-serif;">
@@ -89,7 +97,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
         <!-- Auth Guard -->
         <div id="auth-guard" class="hidden flex min-h-screen">
             <!-- Sidebar -->
-            <aside class="w-80 bg-white border-r border-slate-200 p-6 flex flex-col min-h-screen fixed">
+            <aside id="sidebar" class="w-80 bg-white border-r border-slate-200 p-6 flex flex-col min-h-screen fixed -translate-x-full lg:translate-x-0 transition-transform duration-300 z-50">
                 <div class="flex items-center gap-3 mb-8">
                     <img src="/avatar_v2.avif" alt="Logo" class="w-10 h-10 rounded-full" />
                     <span class="font-bold text-slate-800 text-lg">Error404-Labs</span>
@@ -235,14 +243,22 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 </div>
             </aside>
 
+            <!-- Overlay for mobile sidebar -->
+            <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden"></div>
+
             <!-- Main Content -->
-            <main class="flex-1 ml-80">
+            <main id="mainContent" class="flex-1 ml-0 lg:ml-80">
                 <!-- Header -->
                 <header class="bg-white border-b border-slate-200 px-6 py-4">
                     <div class="flex items-center">
+                        <button id="hamburgerBtn" class="lg:hidden p-2 mr-3 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer" aria-label="Toggle sidebar">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                            </svg>
+                        </button>
                         <div>
                             <h1 class="text-xl font-bold text-slate-900">
-                                Xin chào, <span id="adminGreetingName" class="text-indigo-600">Admin</span>! 👋
+                                Xin chào, <span id="adminGreetingName" class="text-indigo-600">Admin</span>!
                             </h1>
                             <p class="text-sm text-slate-500 mt-1">Chúc bạn một ngày làm việc hiệu quả</p>
                         </div>
@@ -250,12 +266,12 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 </header>
 
                 <!-- Content -->
-                <div class="p-6">
+                <div class="p-4 sm:p-6">
                     <div class="max-w-7xl mx-auto">
                         <!-- Accounts View -->
                         <div id="accountsView" class="view-section">
                             <!-- Section Header -->
-                            <div class="flex justify-between items-center mb-6">
+                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                                 <div>
                                     <h2 class="text-2xl font-bold text-slate-900">Danh sách tài khoản</h2>
                                     <p class="text-slate-500 mt-1">
@@ -264,7 +280,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                 </div>
                                 <button
                                     id="addMemberBtn"
-                                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-semibold transition-all shadow-lg shadow-indigo-200 flex items-center gap-2 cursor-pointer"
+                                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-semibold transition-all shadow-lg shadow-indigo-200 flex items-center gap-2 cursor-pointer w-full sm:w-auto justify-center"
                                 >
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
@@ -306,7 +322,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                 </div>
                                 <select
                                     id="roleFilter"
-                                    class="px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm bg-white min-w-40"
+                                    class="px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm bg-white min-w-40 w-full sm:w-auto"
                                 >
                                     <option value="">Tất cả vai trò</option>
                                     <option value="admin">Admin</option>
@@ -314,7 +330,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                 </select>
                                 <select
                                     id="statusFilter"
-                                    class="px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm bg-white min-w-40"
+                                    class="px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm bg-white min-w-40 w-full sm:w-auto"
                                 >
                                     <option value="">Tất cả trạng thái</option>
                                     <option value="active">Đang hoạt động</option>
@@ -323,13 +339,13 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                             </div>
 
                             <!-- Table -->
-                            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden resp-table">
                                 <div class="overflow-x-auto">
-                                    <table class="w-full text-left border-collapse">
+                                    <table class="w-full text-left border-collapse min-w-[640px] sm:min-w-0">
                                         <thead>
                                             <tr class="bg-slate-50 border-b border-slate-200">
                                                 <th
-                                                    class="sortable px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group"
+                                                    class="sortable px-3 py-3 sm:px-6 sm:py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group"
                                                     data-sort="id"
                                                 >
                                                     STT <span class="sort-icon ml-1 opacity-20 group-hover:opacity-100"
@@ -337,7 +353,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                                     >
                                                 </th>
                                                 <th
-                                                    class="sortable px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group"
+                                                    class="sortable px-3 py-3 sm:px-6 sm:py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group"
                                                     data-sort="member"
                                                 >
                                                     Tài khoản <span
@@ -346,7 +362,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                                     >
                                                 </th>
                                                 <th
-                                                    class="sortable px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group"
+                                                    class="sortable px-3 py-3 sm:px-6 sm:py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group"
                                                     data-sort="display_name"
                                                 >
                                                     Tên hiển thị <span
@@ -355,7 +371,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                                     >
                                                 </th>
                                                 <th
-                                                    class="sortable px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group text-center"
+                                                    class="sortable px-3 py-3 sm:px-6 sm:py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group text-center"
                                                     data-sort="roles"
                                                 >
                                                     Vai trò <span
@@ -364,7 +380,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                                     >
                                                 </th>
                                                 <th
-                                                    class="sortable px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group text-center"
+                                                    class="sortable px-3 py-3 sm:px-6 sm:py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group text-center"
                                                     data-sort="created_at"
                                                 >
                                                     Ngày tham gia <span
@@ -373,19 +389,19 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                                     >
                                                 </th>
                                                 <th
-                                                    class="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center"
+                                                    class="px-3 py-3 sm:px-6 sm:py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center"
                                                     >Trạng thái</th
                                                 >
                                                 <th
-                                                    class="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center"
+                                                    class="px-3 py-3 sm:px-6 sm:py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center"
                                                     >Quyền truy cập</th
                                                 >
                                                 <th
-                                                    class="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center"
+                                                    class="px-3 py-3 sm:px-6 sm:py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center"
                                                     >Lộ trình</th
                                                 >
                                                 <th
-                                                    class="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-right"
+                                                    class="px-3 py-3 sm:px-6 sm:py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-right"
                                                     >Thao tác</th
                                                 >
                                             </tr>
@@ -402,9 +418,9 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
 
                                 <!-- Phân trang -->
                                 <div
-                                    class="px-6 py-4 bg-slate-50/50 border-t border-slate-200 flex items-center justify-between flex-wrap gap-4"
+                                    class="px-4 sm:px-6 py-4 bg-slate-50/50 border-t border-slate-200 flex items-center justify-between flex-wrap gap-4"
                                 >
-                                    <p class="text-sm text-slate-600">
+                                    <p class="text-xs sm:text-sm text-slate-600">
                                         Hiển thị <span id="showingStart" class="font-semibold text-slate-900">0</span> - <span
                                             id="showingEnd"
                                             class="font-semibold text-slate-900">0</span
@@ -451,14 +467,14 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                         <!-- Lessons View -->
                         <div id="lessonsView" class="view-section hidden">
                             <!-- Section Header -->
-                            <div class="flex justify-between items-center mb-6">
+                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                                 <div>
                                     <h2 class="text-2xl font-bold text-slate-900">Danh sách bài học</h2>
                                     <p class="text-slate-500 mt-1">Quản lý các bài học và tài liệu hỗ trợ học viên</p>
                                 </div>
                                 <button
                                     id="addLessonBtn"
-                                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-semibold transition-all shadow-lg shadow-indigo-200 flex items-center gap-2 cursor-pointer"
+                                    class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-semibold transition-all shadow-lg shadow-indigo-200 flex items-center gap-2 cursor-pointer w-full sm:w-auto justify-center"
                                 >
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
@@ -501,17 +517,17 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                             </div>
 
                             <!-- Table -->
-                            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden resp-table">
                                 <div class="overflow-x-auto">
-                                    <table class="w-full text-left border-collapse">
+                                    <table class="w-full text-left border-collapse min-w-[500px] sm:min-w-0">
                                         <thead>
                                             <tr class="bg-slate-50 border-b border-slate-200">
                                                 <th
-                                                    class="px-4 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-16"
+                                                    class="px-3 py-3 sm:px-4 sm:py-4 text-xs font-bold text-slate-600 uppercase tracking-wider w-16"
                                                     >Ảnh</th
                                                 >
                                                 <th
-                                                    class="sortable px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group"
+                                                    class="sortable px-3 py-3 sm:px-6 sm:py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group"
                                                     data-sort="title"
                                                 >
                                                     Tiêu đề bài học <span
@@ -520,7 +536,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                                     >
                                                 </th>
                                                 <th
-                                                    class="sortable px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group"
+                                                    class="sortable px-3 py-3 sm:px-6 sm:py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group"
                                                     data-sort="description"
                                                 >
                                                     Mô tả ngắn <span
@@ -529,7 +545,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                                     >
                                                 </th>
                                                 <th
-                                                    class="sortable px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group"
+                                                    class="sortable px-3 py-3 sm:px-6 sm:py-4 text-xs font-bold text-slate-600 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors group"
                                                     data-sort="author"
                                                 >
                                                     Người thực hiện <span
@@ -538,7 +554,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                                     >
                                                 </th>
                                                 <th
-                                                    class="sortable px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center cursor-pointer hover:bg-slate-100 transition-colors group"
+                                                    class="sortable px-3 py-3 sm:px-6 sm:py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center cursor-pointer hover:bg-slate-100 transition-colors group"
                                                     data-sort="url"
                                                 >
                                                     Liên kết <span
@@ -547,7 +563,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                                     >
                                                 </th>
                                                 <th
-                                                    class="px-6 py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-right"
+                                                    class="px-3 py-3 sm:px-6 sm:py-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-right"
                                                     >Thao tác</th
                                                 >
                                             </tr>
@@ -564,9 +580,9 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
 
                                 <!-- Phân trang -->
                                 <div
-                                    class="px-6 py-4 bg-slate-50/50 border-t border-slate-200 flex items-center justify-between flex-wrap gap-4"
+                                    class="px-4 sm:px-6 py-4 bg-slate-50/50 border-t border-slate-200 flex items-center justify-between flex-wrap gap-4"
                                 >
-                                    <p class="text-sm text-slate-600">
+                                    <p class="text-xs sm:text-sm text-slate-600">
                                         Hiển thị <span id="lessonShowingStart" class="font-semibold text-slate-900"
                                             >0</span
                                         > - <span id="lessonShowingEnd" class="font-semibold text-slate-900">0</span> trong
@@ -613,7 +629,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                     <!-- Vibe Tools View -->
                     <div id="vibeToolsView" class="view-section hidden">
                         <!-- Section Header -->
-                        <div class="flex justify-between items-center mb-6">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                             <div>
                                 <h2 class="text-2xl font-bold text-slate-900">Quản lý Vibe Tools</h2>
                                 <p class="text-slate-500 mt-1">
@@ -621,7 +637,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                 </p>
                             </div>
                             <div
-                                class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold"
+                                class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold shrink-0"
                                 style="background:#fdf4ff; color:#7c3aed; border:1.5px solid #e9d5ff;"
                             >
                                 <span>🍄</span>
@@ -665,7 +681,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                     <!-- Roadmap View -->
                     <div id="roadmapView" class="view-section hidden">
                         <!-- Section Header -->
-                        <div class="flex justify-between items-center mb-6">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                             <div>
                                 <h2 class="text-2xl font-bold text-slate-900">Lộ Trình H5</h2>
                                 <p class="text-slate-500 mt-1">Xem ảnh lộ trình học tập theo từng năm</p>
@@ -1685,42 +1701,42 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                             ? roadmapBadges + moreBadge
                             : '<span class="text-slate-400 text-xs">-</span>'
 
-                    tr.innerHTML = `
-                     <td class="px-6 py-5 text-sm font-medium text-slate-600">#${m.id}</td>
-                     <td class="px-6 py-5 text-sm font-semibold text-slate-900">${m.member}</td>
-                     <td class="px-6 py-5 text-sm text-slate-700">${m.display_name || '-'}</td>
-                     <td class="px-6 py-5 text-center">
-                         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${targetIsAdmin ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-blue-50 text-blue-700 border border-blue-200'}">
-                             ${targetIsAdmin ? (targetIsSuper ? 'Super Admin' : 'Admin') : 'Member'}
-                         </span>
-                     </td>
-                     <td class="px-6 py-5 text-sm text-slate-600 text-center">
-                         ${m.created_at ? `<div class="flex items-center justify-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg><span>${new Date(m.created_at).toLocaleDateString('vi-VN')}</span></div>` : '-'}
-                     </td>
-                     <td class="px-6 py-5 text-center">
-                         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${m.status !== 'inactive' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}">
-                             ${m.status !== 'inactive' ? 'Đang hoạt động' : 'Không hoạt động'}
-                         </span>
-                     </td>
-                     <td class="px-6 py-5 text-center">
-                         <button onclick="window.openPromptAccessModal(${m.id}, '${m.member.replace(/'/g, "\\'")}', '${(m.display_name || m.member).replace(/'/g, "\\'")}', ${JSON.stringify(m.prompt_access || []).replace(/"/g, '&quot;')})" class="text-xs font-semibold px-3 py-1.5 rounded-xl border transition-all cursor-pointer ${targetIsAdmin ? 'bg-amber-50 text-amber-700 border-amber-200 cursor-not-allowed' : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'}" ${targetIsAdmin ? 'disabled' : ''}>
-                             ${targetIsAdmin ? 'Full Quyền' : m.prompt_access?.length > 0 ? `${m.prompt_access.length} prompts` : '0 prompts'}
-                         </button>
-                     </td>
-<td class="px-6 py-5 text-center">
-                              <div class="flex flex-wrap items-center justify-center gap-1 min-h-[28px]">
-                                   ${roadmapBadgesHtml}
-                                   ${targetIsMember ? `<button onclick="window.openRoadmapModal(${m.id}, '${m.member.replace(/'/g, "\\'")}')" class="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all cursor-pointer" title="Đánh dấu lộ trình"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.788-.776L15 7m0 13l-4.553-2.276" /></svg></button>` : ''}
-                              </div>
-                          </td>
-<td class="px-6 py-5 text-right">
-                          <div class="flex items-center justify-end gap-2">
-                              ${canEdit ? `<button onclick="window.editMember(${m.id})" class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all cursor-pointer" title="Chỉnh sửa"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" /></svg></button>` : ''}
-                              ${canDelete ? `<button onclick="window.toggleMemberStatus(${m.id})" class="p-2 rounded-xl transition-all cursor-pointer ${m.status === 'active' ? 'text-red-600 hover:bg-red-50' : 'text-green-600 hover:bg-green-50'}" title="${m.status === 'active' ? 'Khóa tài khoản' : 'Mở khóa tài khoản'}">${m.status === 'active' ? '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>' : '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" /></svg>'}</button>` : ''}
-                              ${canDelete ? `<button onclick="window.deleteMember(${m.id}, '${m.member.replace(/'/g, "\\'")}')" class="p-2 text-red-600 hover:bg-red-50 rounded-xl transition-all cursor-pointer" title="Xóa vĩnh viễn tài khoản"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>` : ''}
-                          </div>
+                     tr.innerHTML = `
+                      <td data-label="STT" class="px-3 py-2 sm:px-6 sm:py-5 text-sm font-medium text-slate-600">#${m.id}</td>
+                      <td data-label="Tài khoản" class="px-3 py-2 sm:px-6 sm:py-5 text-sm font-semibold text-slate-900">${m.member}</td>
+                      <td data-label="Tên hiển thị" class="px-3 py-2 sm:px-6 sm:py-5 text-sm text-slate-700">${m.display_name || '-'}</td>
+                      <td data-label="Vai trò" class="px-3 py-2 sm:px-6 sm:py-5 text-center">
+                          <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${targetIsAdmin ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-blue-50 text-blue-700 border border-blue-200'}">
+                              ${targetIsAdmin ? (targetIsSuper ? 'Super Admin' : 'Admin') : 'Member'}
+                          </span>
                       </td>
-                 `
+                      <td data-label="Ngày tham gia" class="px-3 py-2 sm:px-6 sm:py-5 text-sm text-slate-600 text-center">
+                          ${m.created_at ? `<div class="flex items-center justify-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg><span>${new Date(m.created_at).toLocaleDateString('vi-VN')}</span></div>` : '-'}
+                      </td>
+                      <td data-label="Trạng thái" class="px-3 py-2 sm:px-6 sm:py-5 text-center">
+                          <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${m.status !== 'inactive' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}">
+                              ${m.status !== 'inactive' ? 'Đang hoạt động' : 'Không hoạt động'}
+                          </span>
+                      </td>
+                      <td data-label="Quyền truy cập" class="px-3 py-2 sm:px-6 sm:py-5 text-center">
+                          <button onclick="window.openPromptAccessModal(${m.id}, '${m.member.replace(/'/g, "\\'")}', '${(m.display_name || m.member).replace(/'/g, "\\'")}', ${JSON.stringify(m.prompt_access || []).replace(/"/g, '&quot;')})" class="text-xs font-semibold px-3 py-1.5 rounded-xl border transition-all cursor-pointer ${targetIsAdmin ? 'bg-amber-50 text-amber-700 border-amber-200 cursor-not-allowed' : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'}" ${targetIsAdmin ? 'disabled' : ''}>
+                              ${targetIsAdmin ? 'Full Quyền' : m.prompt_access?.length > 0 ? `${m.prompt_access.length} prompts` : '0 prompts'}
+                          </button>
+                      </td>
+<td data-label="Lộ trình" class="px-3 py-2 sm:px-6 sm:py-5 text-center">
+                               <div class="flex flex-wrap items-center justify-center gap-1 min-h-[28px]">
+                                    ${roadmapBadgesHtml}
+                                    ${targetIsMember ? `<button onclick="window.openRoadmapModal(${m.id}, '${m.member.replace(/'/g, "\\'")}')" class="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all cursor-pointer" title="Đánh dấu lộ trình"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.788-.776L15 7m0 13l-4.553-2.276" /></svg></button>` : ''}
+                               </div>
+                           </td>
+<td data-label="Thao tác" class="px-3 py-2 sm:px-6 sm:py-5 text-right">
+                           <div class="flex items-center justify-end gap-2">
+                               ${canEdit ? `<button onclick="window.editMember(${m.id})" class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all cursor-pointer" title="Chỉnh sửa"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" /></svg></button>` : ''}
+                               ${canDelete ? `<button onclick="window.toggleMemberStatus(${m.id})" class="p-2 rounded-xl transition-all cursor-pointer ${m.status === 'active' ? 'text-red-600 hover:bg-red-50' : 'text-green-600 hover:bg-green-50'}" title="${m.status === 'active' ? 'Khóa tài khoản' : 'Mở khóa tài khoản'}">${m.status === 'active' ? '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>' : '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" /></svg>'}</button>` : ''}
+                               ${canDelete ? `<button onclick="window.deleteMember(${m.id}, '${m.member.replace(/'/g, "\\'")}')" class="p-2 text-red-600 hover:bg-red-50 rounded-xl transition-all cursor-pointer" title="Xóa vĩnh viễn tài khoản"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>` : ''}
+                           </div>
+                       </td>
+                  `
                     tableBody.appendChild(tr)
                 })
             }
@@ -1809,7 +1825,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                     const tr = document.createElement('tr')
                     tr.className = 'hover:bg-slate-50 transition-colors'
                     tr.innerHTML = `
-                    <td class="px-4 py-3">
+                    <td data-label="Ảnh" class="px-2 py-2 sm:px-4 sm:py-3">
                         ${
                             lesson.thumbnail_url
                                 ? `<img src="${lesson.thumbnail_url}" alt="${lesson.title}" class="w-12 h-12 object-cover rounded-lg shadow-sm border border-slate-100" loading="lazy" />`
@@ -1818,10 +1834,10 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                </div>`
                         }
                     </td>
-                    <td class="px-6 py-4 text-sm font-semibold text-slate-900">${lesson.title}</td>
-                    <td class="px-6 py-4 text-sm text-slate-600 max-w-xs truncate">${lesson.description || '-'}</td>
-                    <td class="px-6 py-4 text-sm text-slate-600">${lesson.author || '-'}</td>
-                    <td class="px-6 py-4 text-center">
+                    <td data-label="Tiêu đề" class="px-3 py-2 sm:px-6 sm:py-4 text-sm font-semibold text-slate-900">${lesson.title}</td>
+                    <td data-label="Mô tả" class="px-3 py-2 sm:px-6 sm:py-4 text-sm text-slate-600 max-w-xs truncate">${lesson.description || '-'}</td>
+                    <td data-label="Người thực hiện" class="px-3 py-2 sm:px-6 sm:py-4 text-sm text-slate-600">${lesson.author || '-'}</td>
+                    <td data-label="Liên kết" class="px-3 py-2 sm:px-6 sm:py-4 text-center">
                         <a href="${lesson.url}" target="_blank" class="text-indigo-600 hover:text-indigo-800 font-medium flex items-center justify-center gap-1">
                             Xem bài học
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1829,7 +1845,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                             </svg>
                         </a>
                     </td>
-                    <td class="px-6 py-4 text-right">
+                    <td data-label="Thao tác" class="px-3 py-2 sm:px-6 sm:py-4 text-right">
                         <div class="flex items-center justify-end gap-2">
                             <button onclick="window.editLesson(${lesson.id})" class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all cursor-pointer">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -3064,6 +3080,26 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                     window.location.href = '/?error=connection'
                 }
             })()
+
+            // ── Hamburger sidebar toggle ────────────────────────────────────────
+            const sidebar = document.getElementById('sidebar')
+            const overlay = document.getElementById('sidebarOverlay')
+            const hamburgerBtn = document.getElementById('hamburgerBtn')
+
+            function openSidebar() {
+                if (sidebar) sidebar.classList.remove('-translate-x-full')
+                if (overlay) { overlay.classList.remove('hidden'); overlay.classList.add('flex') }
+                document.body.style.overflow = 'hidden'
+            }
+
+            function closeSidebar() {
+                if (sidebar) sidebar.classList.add('-translate-x-full')
+                if (overlay) { overlay.classList.add('hidden'); overlay.classList.remove('flex') }
+                document.body.style.overflow = ''
+            }
+
+            if (hamburgerBtn) hamburgerBtn.onclick = openSidebar
+            if (overlay) overlay.onclick = closeSidebar
         </script>
     </body>
 </html>
