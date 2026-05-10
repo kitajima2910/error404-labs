@@ -132,14 +132,14 @@ const roadmapRows = [
     [
         {
             genre: 'Arcade',
-            games: ['Flappy Cyber Bird'],
+            games: [
+                'Flappy Cyber Bird',
+            ],
         },
         {
-            genre: 'Action',
+            genre: 'Arcade',
             games: [
-                'Blade Orbit Dodge',
-                'Wall Kick Ninja',
-                'Laser Burst Escape',
+                'Neon Jump Runner',
             ],
         },
         {
@@ -879,6 +879,7 @@ const monthSvgs = [
                     const genreClass = getGenreClass(genre)
                     const svg = genreIcons[genre] || genreIcons['Arcade']
                     const gradBg = genreGradBg[genre] || 'from-indigo-500 to-indigo-700'
+                    const imageSrc = '/images-game-roadmap/' + encodeURIComponent(game.name) + '.webp'
                     return (
                         '<div data-game="' +
                         game.name +
@@ -892,46 +893,51 @@ const monthSvgs = [
                         monthIdx +
                         '" data-week-idx="' +
                         weekIdx +
-                         '" data-game-idx="' +
-                         gi +
-                         '" data-prompt-content="' +
-                         encodeURIComponent(game.promptContent || '') +
-                         '" class="game-card-button game-card-clickable cursor-pointer bg-white rounded-3xl border-[2px] border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 overflow-hidden transition-all flex flex-col">' +
-                         '<div class="h-44 w-full relative p-3.5 flex flex-col justify-between bg-gradient-to-br ' +
-                         gradBg +
-                         '">' +
-                         '<div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>' +
-                         '<div class="absolute inset-0 flex items-center justify-center opacity-20 p-8">' +
-                         svg +
-                         '</div>' +
-                         '<div class="flex gap-2 relative z-10">' +
-                         '<span class="hidden bg-red-500 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm">' +
-                         attrSvgs.fire +
-                         ' Trending</span>' +
-                         '</div>' +
-                         '</div>' +
-                         '<div class="p-5 flex flex-col flex-1 relative z-20 -mt-3 bg-white rounded-t-2xl">' +
-                         '<h3 class="font-extrabold text-slate-900 mb-2 text-xl truncate">' +
-                         game.name +
-                         '</h3>' +
-                         '<div class="flex gap-1.5 mb-2.5">' +
-                         '<span class="' +
-                         genreClass +
-                         ' text-xs font-bold px-2.5 py-0.5 rounded-md">' +
-                         genre +
-                         '</span>' +
-                         '</div>' +
-                         '<div class="flex gap-2 mt-auto">' +
-                         '<button class="cursor-pointer flex-1 bg-[#8b5cf6] hover:bg-purple-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30 transition-transform active:scale-95" ' +
-                         (monthIdx === 1 && weekIdx === 0
-                             ? 'data-play-url="https://www.astrocade.com/games/flappy-cyber-bird/01KR82HRTJ763MJN2JTFP5ZQ44?sharedByCreator=Kitajima2910&platform=web"'
-                             : '') +
-                         '>' +
-                         attrSvgs.play +
-                         '</button>' +
-                         '</div>' +
-                         '</div>' +
-                         '</div>'
+                        '" data-game-idx="' +
+                        gi +
+                        '" data-prompt-content="' +
+                        encodeURIComponent(game.promptContent || '') +
+                        '" class="game-card-button game-card-clickable cursor-pointer bg-white rounded-3xl border-[2px] border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 overflow-hidden transition-all flex flex-col">' +
+                        '<div class="h-44 w-full relative p-3.5 flex flex-col justify-between bg-gradient-to-br ' +
+                        gradBg +
+                        '">' +
+                        '<img src="' +
+                        imageSrc +
+                        '" alt="' +
+                        game.name +
+                        '" class="absolute inset-0 h-full w-full object-cover" onload="this.parentElement.querySelector(\'.game-card-svg-fallback\')?.remove()" onerror="this.remove()">' +
+                        '<div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>' +
+                        '<div class="game-card-svg-fallback absolute inset-0 flex items-center justify-center opacity-20 p-8">' +
+                        svg +
+                        '</div>' +
+                        '<div class="flex gap-2 relative z-10">' +
+                        '<span class="hidden bg-red-500 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm">' +
+                        attrSvgs.fire +
+                        ' Trending</span>' +
+                        '</div>' +
+                        '</div>' +
+                        '<div class="p-5 flex flex-col flex-1 relative z-20 -mt-3 bg-white rounded-t-2xl">' +
+                        '<h3 class="font-extrabold text-slate-900 mb-2 text-xl truncate">' +
+                        game.name +
+                        '</h3>' +
+                        '<div class="flex gap-1.5 mb-2.5">' +
+                        '<span class="' +
+                        genreClass +
+                        ' text-xs font-bold px-2.5 py-0.5 rounded-md">' +
+                        genre +
+                        '</span>' +
+                        '</div>' +
+                        '<div class="flex gap-2 mt-auto">' +
+                        '<button class="cursor-pointer flex-1 bg-[#8b5cf6] hover:bg-purple-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30 transition-transform active:scale-95" ' +
+                        (monthIdx === 1 && weekIdx === 0
+                            ? 'data-play-url="https://www.astrocade.com/games/flappy-cyber-bird/01KR82HRTJ763MJN2JTFP5ZQ44?sharedByCreator=Kitajima2910&platform=web"'
+                            : '') +
+                        '>' +
+                        attrSvgs.play +
+                        '</button>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>'
                     )
                 })
                 .join('')
@@ -1077,9 +1083,9 @@ const monthSvgs = [
                         if (window.showToast) window.showToast('Copy thất bại!', 'error')
                     }
                 })
-             }
+            }
 
-             if (useTemplateBtn && templateModal) {
+            if (useTemplateBtn && templateModal) {
                 useTemplateBtn.addEventListener('click', () => {
                     templateModal.classList.remove('hidden')
                     modalTargetInput?.focus()
@@ -1132,109 +1138,107 @@ Build: Xuất bản thành một bản HTML/CSS/JavaScript chạy trực tiếp 
 Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genre}.`
         }
 
-         document.addEventListener('click', async function (e) {
-             const btn = e.target.closest('.btn-copy-prompt')
-             if (!btn) return
-             const card = btn.closest('.game-card-button')
-             if (!card) return
-             const game = card.dataset.game
-             const genre = card.dataset.genre
-             const month = parseInt(card.dataset.month)
-             const week = parseInt(card.dataset.week)
-             const promptContent = decodeURIComponent(card.dataset.promptContent || '')
-             if (promptContent.trim() === 'Đang tải...') {
-                 if (window.showToast)
-                     window.showToast('Nội dung prompt đang được cập nhật, vui lòng quay lại sau!', 'warning')
-                 return
-             }
-             const promptText = promptContent.trim() ? promptContent : promptOf(game, genre, month, week)
-             try {
-                 await navigator.clipboard.writeText(promptText)
-                 if (window.showToast) window.showToast('Đã copy Game Prompt thành công!', 'success')
-             } catch {
-                 if (window.showToast) window.showToast('Copy thất bại!', 'error')
-             }
-         })
+        document.addEventListener('click', async function (e) {
+            const btn = e.target.closest('.btn-copy-prompt')
+            if (!btn) return
+            const card = btn.closest('.game-card-button')
+            if (!card) return
+            const game = card.dataset.game
+            const genre = card.dataset.genre
+            const month = parseInt(card.dataset.month)
+            const week = parseInt(card.dataset.week)
+            const promptContent = decodeURIComponent(card.dataset.promptContent || '')
+            if (promptContent.trim() === 'Đang tải...') {
+                if (window.showToast)
+                    window.showToast('Nội dung prompt đang được cập nhật, vui lòng quay lại sau!', 'warning')
+                return
+            }
+            const promptText = promptContent.trim() ? promptContent : promptOf(game, genre, month, week)
+            try {
+                await navigator.clipboard.writeText(promptText)
+                if (window.showToast) window.showToast('Đã copy Game Prompt thành công!', 'success')
+            } catch {
+                if (window.showToast) window.showToast('Copy thất bại!', 'error')
+            }
+        })
 
-         function showGamePromptModal(card) {
-             const game = card.dataset.game
-             const genre = card.dataset.genre
-             const month = parseInt(card.dataset.month)
-             const week = parseInt(card.dataset.week)
-             const promptContent = decodeURIComponent(card.dataset.promptContent || '')
+        function showGamePromptModal(card) {
+            const game = card.dataset.game
+            const genre = card.dataset.genre
+            const month = parseInt(card.dataset.month)
+            const week = parseInt(card.dataset.week)
+            const promptContent = decodeURIComponent(card.dataset.promptContent || '')
 
-             const modal = document.getElementById('game-prompt-modal')
-             const titleEl = document.getElementById('game-prompt-modal-title')
-             const subtitleEl = document.getElementById('game-prompt-modal-subtitle')
-             const contentEl = document.getElementById('game-prompt-modal-content')
+            const modal = document.getElementById('game-prompt-modal')
+            const titleEl = document.getElementById('game-prompt-modal-title')
+            const subtitleEl = document.getElementById('game-prompt-modal-subtitle')
+            const contentEl = document.getElementById('game-prompt-modal-content')
 
-             if (titleEl) titleEl.textContent = game
-             if (subtitleEl) subtitleEl.textContent = 'Level ' + month + ' · Tuần ' + week + ' · ' + genre
+            if (titleEl) titleEl.textContent = game
+            if (subtitleEl) subtitleEl.textContent = 'Level ' + month + ' · Tuần ' + week + ' · ' + genre
 
-             const promptText = promptContent.trim()
-                 ? promptContent
-                 : promptOf(game, genre, month, week)
+            const promptText = promptContent.trim() ? promptContent : promptOf(game, genre, month, week)
 
-             if (contentEl) contentEl.value = promptText
-             if (modal) modal.classList.remove('hidden')
-         }
+            if (contentEl) contentEl.value = promptText
+            if (modal) modal.classList.remove('hidden')
+        }
 
-         function closeGamePromptModal() {
-             const modal = document.getElementById('game-prompt-modal')
-             if (modal) modal.classList.add('hidden')
-         }
+        function closeGamePromptModal() {
+            const modal = document.getElementById('game-prompt-modal')
+            if (modal) modal.classList.add('hidden')
+        }
 
-         document.addEventListener('click', function (e) {
-             const anyBtn = e.target.closest('button')
-             if (anyBtn) return
+        document.addEventListener('click', function (e) {
+            const anyBtn = e.target.closest('button')
+            if (anyBtn) return
 
-             const card = e.target.closest('.game-card-button')
-             if (!card) return
+            const card = e.target.closest('.game-card-button')
+            if (!card) return
 
-             showGamePromptModal(card)
-         })
+            showGamePromptModal(card)
+        })
 
-         document.addEventListener('click', function (e) {
-             const closeBtn = e.target.closest('#game-prompt-modal-close')
-             if (closeBtn) {
-                 closeGamePromptModal()
-                 return
-             }
+        document.addEventListener('click', function (e) {
+            const closeBtn = e.target.closest('#game-prompt-modal-close')
+            if (closeBtn) {
+                closeGamePromptModal()
+                return
+            }
 
-             const modal = document.getElementById('game-prompt-modal')
-             if (modal && e.target === modal) {
-                 closeGamePromptModal()
-             }
-         })
+            const modal = document.getElementById('game-prompt-modal')
+            if (modal && e.target === modal) {
+                closeGamePromptModal()
+            }
+        })
 
-          document.addEventListener('click', async function (e) {
-              const copyBtn = e.target.closest('#game-prompt-modal-copy')
-              if (!copyBtn) return
+        document.addEventListener('click', async function (e) {
+            const copyBtn = e.target.closest('#game-prompt-modal-copy')
+            if (!copyBtn) return
 
-              const contentEl = document.getElementById('game-prompt-modal-content')
-              if (!contentEl || !contentEl.value) {
-                  if (window.showToast) window.showToast('Chưa có prompt để copy!', 'warning')
-                  return
-              }
+            const contentEl = document.getElementById('game-prompt-modal-content')
+            if (!contentEl || !contentEl.value) {
+                if (window.showToast) window.showToast('Chưa có prompt để copy!', 'warning')
+                return
+            }
 
-              try {
-                  await navigator.clipboard.writeText(contentEl.value)
-                  if (window.showToast) window.showToast('Đã copy Game Prompt thành công!', 'success')
-              } catch {
-                  if (window.showToast) window.showToast('Copy thất bại!', 'error')
-              }
-          })
+            try {
+                await navigator.clipboard.writeText(contentEl.value)
+                if (window.showToast) window.showToast('Đã copy Game Prompt thành công!', 'success')
+            } catch {
+                if (window.showToast) window.showToast('Copy thất bại!', 'error')
+            }
+        })
 
-          document.addEventListener('click', function (e) {
-              const playBtn = e.target.closest('button[data-play-url]')
-              if (!playBtn) return
+        document.addEventListener('click', function (e) {
+            const playBtn = e.target.closest('button[data-play-url]')
+            if (!playBtn) return
 
-              const url = playBtn.getAttribute('data-play-url')
-              if (url) {
-                  window.open(url, '_blank')
-              }
-          })
-      </script>
+            const url = playBtn.getAttribute('data-play-url')
+            if (url) {
+                window.open(url, '_blank')
+            }
+        })
+    </script>
     <div
         class="flex flex-col min-h-screen lg:h-screen bg-[#f8f9fa] font-sans overflow-visible lg:overflow-hidden text-slate-800"
     >
@@ -1450,51 +1454,50 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
                     </button>
                 </div>
             </div>
-         </div>
-     </div>
+        </div>
+    </div>
 
-     <div
-         id="game-prompt-modal"
-         class="hidden fixed inset-0 z-50 bg-slate-950/50 backdrop-blur-sm px-4 py-6 flex items-center justify-center"
-     >
-         <div class="w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-indigo-100 overflow-hidden">
-             <div class="bg-indigo-50/70 p-5 border-b border-indigo-100 flex items-center justify-between">
-                 <div class="flex items-center gap-4">
-                     <div
-                         class="w-12 h-12 bg-white shadow-sm text-indigo-600 rounded-2xl flex items-center justify-center shrink-0 border border-indigo-100"
-                     >
-                         <i class="fa fa-file-text" aria-hidden="true"></i>
-                     </div>
-                     <div>
-                         <h2 id="game-prompt-modal-title" class="text-xl font-extrabold text-slate-800">Game Prompt</h2>
-                         <p id="game-prompt-modal-subtitle" class="text-xs text-slate-500"></p>
-                     </div>
-                 </div>
-                 <button
-                     id="game-prompt-modal-close"
-                     class="w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
-                 >
-                     <i class="fa fa-times" aria-hidden="true"></i>
-                 </button>
-             </div>
-             <div class="p-5">
-                 <textarea
-                     id="game-prompt-modal-content"
-                     rows="16"
-                     class="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs font-mono text-slate-700 outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 resize-none"
-                     readonly
-                 ></textarea>
-                 <button
-                     id="game-prompt-modal-copy"
-                     class="w-full mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-5 rounded-2xl shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 transition-colors"
-                 >
-                     <i class="fa fa-copy" aria-hidden="true"></i> Copy Prompt
-                 </button>
-             </div>
-         </div>
-     </div>
+    <div
+        id="game-prompt-modal"
+        class="hidden fixed inset-0 z-50 bg-slate-950/50 backdrop-blur-sm px-4 py-6 flex items-center justify-center"
+    >
+        <div class="w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-indigo-100 overflow-hidden">
+            <div class="bg-indigo-50/70 p-5 border-b border-indigo-100 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div
+                        class="w-12 h-12 bg-white shadow-sm text-indigo-600 rounded-2xl flex items-center justify-center shrink-0 border border-indigo-100"
+                    >
+                        <i class="fa fa-file-text" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <h2 id="game-prompt-modal-title" class="text-xl font-extrabold text-slate-800">Game Prompt</h2>
+                        <p id="game-prompt-modal-subtitle" class="text-xs text-slate-500"></p>
+                    </div>
+                </div>
+                <button
+                    id="game-prompt-modal-close"
+                    class="w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+                >
+                    <i class="fa fa-times" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div class="p-5">
+                <textarea
+                    id="game-prompt-modal-content"
+                    rows="16"
+                    class="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs font-mono text-slate-700 outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 resize-none"
+                    readonly></textarea>
+                <button
+                    id="game-prompt-modal-copy"
+                    class="w-full mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-5 rounded-2xl shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 transition-colors"
+                >
+                    <i class="fa fa-copy" aria-hidden="true"></i> Copy Prompt
+                </button>
+            </div>
+        </div>
+    </div>
 
-     <style>
+    <style>
         button,
         .roadmap-month-btn {
             cursor: pointer;
