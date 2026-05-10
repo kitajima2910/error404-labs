@@ -42,6 +42,11 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
             #accountsView .resp-table table {
                 table-layout: fixed;
             }
+            #accountsView .resp-table,
+            #accountsView .resp-table > div {
+                max-width: 100%;
+                min-width: 0;
+            }
             #accountsView .resp-table th,
             #accountsView .resp-table td {
                 overflow-wrap: anywhere;
@@ -62,13 +67,24 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                     padding-right: 0.75rem !important;
                 }
             }
+            @media (min-width: 641px) and (max-width: 1020px) {
+                #accountsView .resp-table > div {
+                    overflow-x: auto !important;
+                    width: 100%;
+                }
+                #accountsView .resp-table table {
+                    min-width: 1020px !important;
+                }
+            }
             @media (max-width: 640px) {
-                #accountsView .resp-table > div { overflow-x: visible; }
+                #accountsView .resp-table > div { overflow-x: visible !important; }
                 #accountsView .resp-table table,
-                #accountsView .resp-table table tbody { display: block; width: 100%; min-width: 0 !important; }
+                #accountsView .resp-table table tbody { display: block !important; width: 100%; min-width: 0 !important; }
                 .resp-table table thead { display: none; }
                 .resp-table table tbody tr { display: block; margin-bottom: 0.75rem; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.75rem; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
                 .resp-table table tbody td { display: flex; justify-content: space-between; align-items: center; padding: 0.625rem 0 !important; border: none !important; width: 100% !important; text-align: right !important; border-bottom: 1px solid #f1f5f9 !important; }
+                #accountsView .resp-table table tbody tr { display: block !important; width: 100% !important; }
+                #accountsView .resp-table table tbody td { display: flex !important; }
                 #accountsView .resp-table table tbody td { min-width: 0 !important; gap: 0.75rem; }
                 #accountsView .resp-table table tbody td > * { min-width: 0; max-width: 65%; overflow-wrap: anywhere; }
                 .resp-table table tbody td:last-child { border-bottom: none !important; }
