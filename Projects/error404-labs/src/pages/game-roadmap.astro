@@ -72,7 +72,7 @@ UI: Giao diện gọn, có màn hình bắt đầu, nút chơi lại, thông tin
 Hiệu ứng: Thêm hiệu ứng va chạm, thu thập, thắng/thua, chuyển màn và âm thanh phản hồi nhẹ nếu có thể.
 Build: Xuất bản thành một bản HTML/CSS/JavaScript chạy trực tiếp trên trình duyệt, ưu tiên code gọn, dễ sửa và không dùng asset ngoài bắt buộc.
 
-Thông tin bài học: Tháng ${month}, Tuần ${week}, thể loại ${genre}.`
+Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genre}.`
 
 const roadmapRows = [
     [
@@ -269,7 +269,7 @@ const monthSvgs = [
 
 <MainLayout
     title={`Tư duy sáng tạo học làm game với AI | ${TC_TITLE}`}
-    description="Tư duy sáng tạo học làm game với AI, mỗi tháng 4 tuần, mỗi tuần có prompt mẫu để thực hành."
+    description="Tư duy sáng tạo học làm game với AI, mỗi cấp độ 4 tuần, mỗi tuần có prompt mẫu để thực hành."
     searchable={false}
 >
     <link rel="stylesheet" href="/font-awesome/css/font-awesome.min.css" />
@@ -425,7 +425,7 @@ const monthSvgs = [
             }).join('');
 
             const month = window.roadmapData[monthIdx];
-            document.getElementById('grid-header-title').textContent = 'Month ' + month.no + ' – Week ' + (weekIdx + 1);
+            document.getElementById('grid-header-title').textContent = 'Level ' + month.no + ' – Week ' + (weekIdx + 1);
             document.getElementById('grid-header-count').textContent = week.games.length + ' Games';
 
             currentMonth = monthIdx;
@@ -603,7 +603,7 @@ UI: Giao diện gọn, có màn hình bắt đầu, nút chơi lại, thông tin
 Hiệu ứng: Thêm hiệu ứng va chạm, thu thập, thắng/thua, chuyển màn và âm thanh phản hồi nhẹ nếu có thể.
 Build: Xuất bản thành một bản HTML/CSS/JavaScript chạy trực tiếp trên trình duyệt, ưu tiên code gọn, dễ sửa và không dùng asset ngoài bắt buộc.
 
-Thông tin bài học: Tháng ${month}, Tuần ${week}, thể loại ${genre}.`;
+Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genre}.`;
         }
 
         document.addEventListener('click', async function(e) {
@@ -646,7 +646,7 @@ Thông tin bài học: Tháng ${month}, Tuần ${week}, thể loại ${genre}.`;
                                         <span set:html={monthSvgs[monthIndex]}></span>
                                     </div>
                                     <div class="flex-1 min-w-0 flex flex-col justify-center">
-                                        <div class={`roadmap-month-title font-bold text-sm truncate ${monthIndex === 0 ? 'text-pink-600' : 'text-slate-700'}`}>Month {month.no} - {month.title}</div>
+                                        <div class={`roadmap-month-title font-bold text-sm truncate ${monthIndex === 0 ? 'text-pink-600' : 'text-slate-700'}`}>Level {month.no} - {month.title}</div>
                                         <div class="text-[11px] text-slate-500 truncate mt-0.5 font-medium">{month.sub}</div>
                                     </div>
                                     <i class={`roadmap-month-chevron fa shrink-0 ml-2 transition-all duration-200 ${monthIndex === 0 ? 'fa-chevron-down text-pink-500' : 'fa-chevron-right text-gray-400'}`} aria-hidden="true"></i>
@@ -679,7 +679,7 @@ Thông tin bài học: Tháng ${month}, Tuần ${week}, thể loại ${genre}.`;
                     {/* Grid header */}
                     <div class="flex items-center justify-between pt-4">
                         <div class="flex items-center gap-3">
-                            <h2 id="grid-header-title" class="text-2xl font-extrabold text-slate-900">Month 1 – Week 1</h2>
+                            <h2 id="grid-header-title" class="text-2xl font-extrabold text-slate-900">Level 1 – Week 1</h2>
                             <span id="grid-header-count" class="px-3 py-1 rounded-lg bg-[#4f46e5]/10 text-[#4f46e5] text-xs font-bold">3 Games</span>
                         </div>
                         <button class="hidden w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 text-slate-600 shadow-sm transition-colors">
