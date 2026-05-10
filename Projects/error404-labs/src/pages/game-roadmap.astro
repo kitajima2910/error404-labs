@@ -892,52 +892,45 @@ const monthSvgs = [
                         monthIdx +
                         '" data-week-idx="' +
                         weekIdx +
-                        '" data-game-idx="' +
-                        gi +
-                        '" data-prompt-content="' +
-                        encodeURIComponent(game.promptContent || '') +
-                        '" class="game-card-button ' +
-                        (monthIdx === 1 && weekIdx === 0 ? 'game-card-clickable cursor-pointer ' : '') +
-                        'bg-white rounded-3xl border-[2px] border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 overflow-hidden transition-all flex flex-col">' +
-                        '<div class="h-44 w-full relative p-3.5 flex flex-col justify-between bg-gradient-to-br ' +
-                        gradBg +
-                        '">' +
-                        '<div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>' +
-                        '<div class="absolute inset-0 flex items-center justify-center opacity-20 p-8">' +
-                        svg +
-                        '</div>' +
-                        '<div class="flex gap-2 relative z-10">' +
-                        '<span class="hidden bg-red-500 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm">' +
-                        attrSvgs.fire +
-                        ' Trending</span>' +
-                        '</div>' +
-                        '</div>' +
-                        '<div class="p-5 flex flex-col flex-1 relative z-20 -mt-3 bg-white rounded-t-2xl">' +
-                        '<h3 class="font-extrabold text-slate-900 mb-2 text-xl truncate">' +
-                        game.name +
-                        '</h3>' +
-                        '<div class="flex gap-1.5 mb-2.5">' +
-                        '<span class="' +
-                        genreClass +
-                        ' text-xs font-bold px-2.5 py-0.5 rounded-md">' +
-                        genre +
-                        '</span>' +
-                        '</div>' +
+                         '" data-game-idx="' +
+                         gi +
+                         '" data-prompt-content="' +
+                         encodeURIComponent(game.promptContent || '') +
+                         '" class="game-card-button game-card-clickable cursor-pointer bg-white rounded-3xl border-[2px] border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 overflow-hidden transition-all flex flex-col">' +
+                         '<div class="h-44 w-full relative p-3.5 flex flex-col justify-between bg-gradient-to-br ' +
+                         gradBg +
+                         '">' +
+                         '<div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>' +
+                         '<div class="absolute inset-0 flex items-center justify-center opacity-20 p-8">' +
+                         svg +
+                         '</div>' +
+                         '<div class="flex gap-2 relative z-10">' +
+                         '<span class="hidden bg-red-500 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm">' +
+                         attrSvgs.fire +
+                         ' Trending</span>' +
+                         '</div>' +
+                         '</div>' +
+                         '<div class="p-5 flex flex-col flex-1 relative z-20 -mt-3 bg-white rounded-t-2xl">' +
+                         '<h3 class="font-extrabold text-slate-900 mb-2 text-xl truncate">' +
+                         game.name +
+                         '</h3>' +
+                         '<div class="flex gap-1.5 mb-2.5">' +
+                         '<span class="' +
+                         genreClass +
+                         ' text-xs font-bold px-2.5 py-0.5 rounded-md">' +
+                         genre +
+                         '</span>' +
+                         '</div>' +
                          '<div class="flex gap-2 mt-auto">' +
-                         (monthIdx === 1 && weekIdx === 0
-                             ? ''
-                             : '<button class="cursor-pointer btn-copy-prompt flex-1 bg-white border-2 border-gray-100 rounded-xl py-2 flex items-center justify-center hover:bg-gray-50 hover:border-gray-200 text-slate-500 transition-colors tooltip tooltip-top" title="Copy Prompts">' +
-                               attrSvgs.copy +
-                               '</button>') +
-                         '<button class="cursor-pointer ' +
-                         (monthIdx === 1 && weekIdx === 0 ? 'flex-1' : 'w-14') +
-                         ' bg-[#8b5cf6] hover:bg-purple-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30 transition-transform active:scale-95" ' +
+                         '<button class="cursor-pointer flex-1 bg-[#8b5cf6] hover:bg-purple-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30 transition-transform active:scale-95" ' +
                          (monthIdx === 1 && weekIdx === 0
                              ? 'data-play-url="https://www.astrocade.com/games/flappy-cyber-bird/01KR82HRTJ763MJN2JTFP5ZQ44?sharedByCreator=Kitajima2910&platform=web"'
                              : '') +
                          '>' +
                          attrSvgs.play +
                          '</button>' +
+                         '</div>' +
+                         '</div>' +
                          '</div>'
                     )
                 })
