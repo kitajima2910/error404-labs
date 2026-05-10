@@ -927,9 +927,13 @@ const monthSvgs = [
                         '<button class="cursor-pointer flex-1 bg-[#8b5cf6] hover:bg-purple-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30 transition-transform active:scale-95" ' +
                         (game.name === 'Neon Jump Runner'
                             ? 'data-play-url="https://www.astrocade.com/games/neon-jump-runner/01KQVF2EK7RSCBWMT54ARWNZ4G?sharedByCreator=Kitajima2910&platform=web"'
-                            : monthIdx === 1 && weekIdx === 0
-                              ? 'data-play-url="https://www.astrocade.com/games/flappy-cyber-bird/01KR82HRTJ763MJN2JTFP5ZQ44?sharedByCreator=Kitajima2910&platform=web"'
-                              : '') +
+                            : game.name === 'Geometry Dash Style'
+                              ? 'data-play-url="https://www.astrocade.com/games/neon-dash-blitz/01KR9FW3FSM711TPPMD8W1TSHD?sharedByCreator=Kitajima2910&platform=web"'
+                              : game.name === 'Helix Fall Clone'
+                                ? 'data-play-url="https://www.astrocade.com/games/tower-drop-blitz/01KR9GGFDMSY5CA8YY5V7KB4RK?sharedByCreator=Kitajima2910&platform=web"'
+                              : monthIdx === 1 && weekIdx === 0
+                                ? 'data-play-url="https://www.astrocade.com/games/flappy-cyber-bird/01KR82HRTJ763MJN2JTFP5ZQ44?sharedByCreator=Kitajima2910&platform=web"'
+                                : '') +
                         '>' +
                         attrSvgs.play +
                         '</button>' +
