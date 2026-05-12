@@ -7,6 +7,12 @@ const config = {
     height: window.innerHeight,
     parent: 'game-container',
     backgroundColor: '#ffffff',
+    physics: {
+        arcade: {
+            gravity: { y: 300 },
+            debug: false
+        }
+    },
     scene: [BootScene, GameScene],
     scale: {
         mode: Phaser.Scale.RESIZE,
