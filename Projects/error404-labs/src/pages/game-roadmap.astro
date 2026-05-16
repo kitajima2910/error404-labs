@@ -971,16 +971,26 @@ const monthSvgs = [
         let shuffledGames = []
         let displayCount = 9
 
+        function hasPrompt(game) {
+            return game.promptContent && game.promptContent.trim() !== '' && game.promptContent.trim() !== 'Đang tải...'
+        }
+
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1))
+                ;[arr[i], arr[j]] = [arr[j], arr[i]]
+            }
+            return arr
+        }
+
         function renderAllGamesRandom(gamesData) {
             const grid = document.getElementById('game-grid')
             if (!grid) return
 
             if (shuffledGames.length === 0) {
-                shuffledGames = [...gamesData]
-                for (let i = shuffledGames.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1))
-                    ;[shuffledGames[i], shuffledGames[j]] = [shuffledGames[j], shuffledGames[i]]
-                }
+                const withPrompt = shuffleArray(gamesData.filter(hasPrompt))
+                const withoutPrompt = shuffleArray(gamesData.filter((g) => !hasPrompt(g)))
+                shuffledGames = [...withPrompt, ...withoutPrompt]
             }
 
             const visible = shuffledGames.slice(0, displayCount)
@@ -992,6 +1002,9 @@ const monthSvgs = [
                     const svg = genreIcons[genre] || genreIcons['Arcade']
                     const gradBg = genreGradBg[genre] || 'from-indigo-500 to-indigo-700'
                     const imageSrc = '/images-game-roadmap/' + encodeURIComponent(game.name) + '.webp'
+                    const promptBadge = hasPrompt(game)
+                        ? '<span class="bg-emerald-500 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm"><i class="fa fa-check-circle"></i> Có Prompt</span>'
+                        : ''
                     return (
                         '<div data-game="' +
                         game.name +
@@ -1013,6 +1026,7 @@ const monthSvgs = [
                         svg +
                         '</div>' +
                         '<div class="flex gap-2 relative z-10">' +
+                        promptBadge +
                         '<span class="hidden bg-red-500 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm">' +
                         attrSvgs.fire +
                         ' Trending</span>' +
