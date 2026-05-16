@@ -114,6 +114,7 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
 const roadmapGameRows = (await sql`
     SELECT id, month, week, name, genre, prompt_content, image_url, sort_order, is_verified
     FROM error404labs.roadmap_games
+    WHERE is_verified = true
     ORDER BY month ASC, week ASC, sort_order ASC, id ASC
 `) as RoadmapGameRow[]
 

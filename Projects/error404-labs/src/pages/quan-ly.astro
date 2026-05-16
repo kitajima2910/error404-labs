@@ -854,7 +854,6 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                     <thead class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
                                         <tr>
                                             <th class="px-6 py-4 font-bold">ID</th>
-                                            <th class="px-6 py-4 font-bold">Tháng/Tuần</th>
                                             <th class="px-6 py-4 font-bold">Game</th>
                                             <th class="px-6 py-4 font-bold">Genre</th>
                                             <th class="px-6 py-4 font-bold">Verified</th>
@@ -862,7 +861,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                         </tr>
                                     </thead>
                                     <tbody id="roadmapGameTableBody" class="divide-y divide-slate-100">
-                                        <tr><td colspan="6" class="px-6 py-12 text-center text-slate-400">Đang tải dữ liệu...</td></tr>
+                                        <tr><td colspan="5" class="px-6 py-12 text-center text-slate-400">Đang tải dữ liệu...</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -1372,16 +1371,26 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 </div>
                 <form id="roadmapGameForm" class="p-6 space-y-4">
                     <input type="hidden" id="roadmapGameId" name="id" />
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <input id="rgMonth" name="month" type="number" min="1" max="12" required placeholder="Tháng" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" />
-                        <input id="rgWeek" name="week" type="number" min="1" max="4" required placeholder="Tuần" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" />
-                        <input id="rgSortOrder" name="sortOrder" type="number" min="0" value="0" placeholder="Thứ tự" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" />
-                    </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <input id="rgName" name="name" type="text" required placeholder="Tên game" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" />
                         <input id="rgGenre" name="genre" type="text" required placeholder="Genre" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" />
                     </div>
-                    <input id="rgImageUrl" name="imageUrl" type="text" placeholder="Image URL" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" />
+                    <input type="hidden" id="rgImageUrl" name="imageUrl" />
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1.5">Ảnh game</label>
+                        <div id="rgUploadArea" class="relative border-2 border-dashed border-slate-200 rounded-xl p-4 hover:border-indigo-400 transition-colors cursor-pointer group">
+                            <div id="rgPreview" class="hidden mb-3 relative">
+                                <img id="rgPreviewImg" src="" alt="Preview" class="w-full h-36 object-cover rounded-lg shadow-sm" />
+                                <button type="button" id="removeRgImageBtn" class="absolute top-1.5 right-1.5 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors text-xs font-bold">✕</button>
+                            </div>
+                            <div id="rgPlaceholder" class="flex flex-col items-center gap-2 py-2">
+                                <svg class="w-8 h-8 text-slate-300 group-hover:text-indigo-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                <p class="text-sm text-slate-400 group-hover:text-indigo-500 transition-colors">Nhấn để chọn ảnh <span class="text-slate-300">(JPG, PNG, WebP — tối đa 5MB)</span></p>
+                            </div>
+                            <input type="file" id="rgImageFile" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                        </div>
+                        <div id="rgUploadStatus" class="hidden mt-2 text-xs font-medium"></div>
+                    </div>
                     <textarea id="rgPromptContent" name="promptContent" rows="6" placeholder="Prompt" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"></textarea>
                     <label class="inline-flex items-center gap-2 text-sm font-bold text-slate-700 cursor-pointer">
                         <input id="rgIsVerified" name="isVerified" type="checkbox" class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
@@ -1389,7 +1398,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                     </label>
                     <div class="flex gap-3 pt-2">
                         <button type="button" class="closeRoadmapGameModalBtn flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-all cursor-pointer">Hủy</button>
-                        <button type="submit" class="flex-[2] px-4 py-2.5 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 cursor-pointer">Lưu</button>
+                        <button type="submit" id="rgSubmitBtn" class="flex-[2] px-4 py-2.5 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 cursor-pointer">Lưu</button>
                     </div>
                 </form>
             </div>
@@ -2968,14 +2977,14 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                     renderRoadmapGames()
                     renderRoadmapGamePagination()
                 } catch (err) {
-                    roadmapGameTableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-red-500">${err.message}</td></tr>`
+                    roadmapGameTableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-red-500">${err.message}</td></tr>`
                 }
             }
 
             function renderRoadmapGames() {
                 roadmapGameTableBody.innerHTML = ''
                 if (roadmapGames.length === 0) {
-                    roadmapGameTableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-12 text-center text-slate-400 italic">Không có game phù hợp.</td></tr>'
+                    roadmapGameTableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-12 text-center text-slate-400 italic">Không có game phù hợp.</td></tr>'
                     return
                 }
 
@@ -2984,7 +2993,6 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                     tr.className = 'hover:bg-slate-50 transition-colors'
                     tr.innerHTML = `
                         <td class="px-6 py-4 text-sm font-medium text-slate-600">#${game.id}</td>
-                        <td class="px-6 py-4 text-sm font-bold text-slate-700">T${game.month} / W${game.week}</td>
                         <td class="px-6 py-4">
                             <div class="font-bold text-slate-900">${game.name}</div>
                             <div class="text-xs text-slate-400">${game.image_url || '-'}</div>
@@ -3024,18 +3032,42 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 }
             }
 
+            function showRgPreview(url) {
+                const preview = document.getElementById('rgPreview')
+                const img = document.getElementById('rgPreviewImg')
+                const placeholder = document.getElementById('rgPlaceholder')
+                img.src = url
+                preview.classList.remove('hidden')
+                placeholder.classList.add('hidden')
+            }
+
+            function resetRgUI() {
+                const preview = document.getElementById('rgPreview')
+                const img = document.getElementById('rgPreviewImg')
+                const placeholder = document.getElementById('rgPlaceholder')
+                const status = document.getElementById('rgUploadStatus')
+                const fileInput = document.getElementById('rgImageFile')
+                img.src = ''
+                preview.classList.add('hidden')
+                placeholder.classList.remove('hidden')
+                status.classList.add('hidden')
+                status.textContent = ''
+                if (fileInput) fileInput.value = ''
+            }
+
             function openRoadmapGameModal(isEdit = false, data = null) {
                 roadmapGameModalTitle.textContent = isEdit ? 'Chỉnh sửa Roadmap Game' : 'Thêm Roadmap Game'
                 roadmapGameForm.reset()
+                resetRgUI()
                 document.getElementById('roadmapGameId').value = data?.id || ''
-                document.getElementById('rgMonth').value = data?.month || ''
-                document.getElementById('rgWeek').value = data?.week || ''
-                document.getElementById('rgSortOrder').value = data?.sort_order || 0
                 document.getElementById('rgName').value = data?.name || ''
                 document.getElementById('rgGenre').value = data?.genre || ''
                 document.getElementById('rgImageUrl').value = data?.image_url || ''
                 document.getElementById('rgPromptContent').value = data?.prompt_content || ''
                 document.getElementById('rgIsVerified').checked = !!data?.is_verified
+                if (data?.image_url) {
+                    showRgPreview(data.image_url)
+                }
                 roadmapGameModal.classList.remove('hidden')
                 roadmapGameModal.classList.add('flex')
                 setTimeout(() => {
@@ -3078,6 +3110,23 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
 
             if (addRoadmapGameBtn) addRoadmapGameBtn.onclick = () => openRoadmapGameModal(false)
             closeRoadmapGameModalBtns.forEach((btn) => (btn.onclick = closeRoadmapGameModal))
+
+            document.getElementById('rgImageFile')?.addEventListener('change', function () {
+                const file = this.files?.[0]
+                if (!file) return
+                const reader = new FileReader()
+                reader.onload = (e) => showRgPreview(e.target.result)
+                reader.readAsDataURL(file)
+                const status = document.getElementById('rgUploadStatus')
+                status.classList.add('hidden')
+            })
+
+            document.getElementById('removeRgImageBtn')?.addEventListener('click', function (e) {
+                e.stopPropagation()
+                resetRgUI()
+                document.getElementById('rgImageUrl').value = ''
+            })
+
             if (roadmapGameModal) roadmapGameModal.onclick = (e) => {
                 if (e.target === roadmapGameModal) closeRoadmapGameModal()
             }
@@ -3106,25 +3155,79 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 const formData = new FormData(roadmapGameForm)
                 const data = Object.fromEntries(formData.entries())
                 data.image_url = data.imageUrl
-                data.sort_order = data.sortOrder
                 data.isVerified = document.getElementById('rgIsVerified').checked
                 data.is_verified = data.isVerified
                 const isEdit = !!data.id
-                const res = await fetch('/api/admin/roadmap-games', {
-                    method: isEdit ? 'PUT' : 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
-                    },
-                    body: JSON.stringify(data),
-                })
-                if (res.ok) {
-                    showToast(isEdit ? 'Đã cập nhật roadmap game' : 'Đã thêm roadmap game', 'success')
-                    closeRoadmapGameModal()
-                    fetchRoadmapGames()
-                } else {
-                    const err = await res.json()
-                    showToast(err.error || 'Lỗi lưu roadmap game', 'error')
+
+                // Upload ảnh nếu có file mới được chọn
+                const fileInput = document.getElementById('rgImageFile')
+                const file = fileInput?.files?.[0]
+                if (file) {
+                    const uploadStatus = document.getElementById('rgUploadStatus')
+                    uploadStatus.textContent = '⏳ Đang tải ảnh lên...'
+                    uploadStatus.className = 'mt-2 text-xs font-medium text-indigo-600'
+                    uploadStatus.classList.remove('hidden')
+
+                    const submitBtn = document.getElementById('rgSubmitBtn')
+                    submitBtn.disabled = true
+                    submitBtn.textContent = 'Đang tải ảnh...'
+
+                    try {
+                        const imgForm = new FormData()
+                        imgForm.append('file', file)
+                        imgForm.append('fileName', `roadmap-game-${Date.now()}-${file.name}`)
+                        const uploadRes = await fetch('/api/admin/upload-image', {
+                            method: 'POST',
+                            headers: { Authorization: `Bearer ${localStorage.getItem('auth_token')}` },
+                            body: imgForm,
+                        })
+                        const uploadData = await uploadRes.json()
+                        if (!uploadRes.ok || !uploadData.url) {
+                            showToast(uploadData.error || 'Lỗi upload ảnh', 'error')
+                            uploadStatus.textContent = '❌ Upload thất bại'
+                            uploadStatus.className = 'mt-2 text-xs font-medium text-red-500'
+                            submitBtn.disabled = false
+                            submitBtn.textContent = 'Lưu'
+                            return
+                        }
+                        data.image_url = uploadData.url
+                        document.getElementById('rgImageUrl').value = uploadData.url
+                        uploadStatus.textContent = '✅ Tải ảnh thành công'
+                        uploadStatus.className = 'mt-2 text-xs font-medium text-emerald-600'
+                    } catch {
+                        showToast('Lỗi kết nối khi upload ảnh', 'error')
+                        document.getElementById('rgSubmitBtn').disabled = false
+                        document.getElementById('rgSubmitBtn').textContent = 'Lưu'
+                        return
+                    }
+                }
+
+                const submitBtn = document.getElementById('rgSubmitBtn')
+                submitBtn.disabled = true
+                submitBtn.textContent = 'Đang lưu...'
+
+                try {
+                    const res = await fetch('/api/admin/roadmap-games', {
+                        method: isEdit ? 'PUT' : 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
+                        },
+                        body: JSON.stringify(data),
+                    })
+                    if (res.ok) {
+                        showToast(isEdit ? 'Đã cập nhật roadmap game' : 'Đã thêm roadmap game', 'success')
+                        closeRoadmapGameModal()
+                        fetchRoadmapGames()
+                    } else {
+                        const err = await res.json()
+                        showToast(err.error || 'Lỗi lưu roadmap game', 'error')
+                    }
+                } catch {
+                    showToast('Lỗi kết nối', 'error')
+                } finally {
+                    submitBtn.disabled = false
+                    submitBtn.textContent = 'Lưu'
                 }
             }
 
