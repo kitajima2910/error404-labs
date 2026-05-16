@@ -144,7 +144,17 @@ export const POST: APIRoute = async ({ request }) => {
     if (!admin) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 })
 
     try {
-        const { month, week, name, genre, promptContent, imageUrl, sortOrder, isVerified } = await request.json()
+        const body = await request.json()
+        const {
+            month,
+            week,
+            name,
+            genre,
+            promptContent = body.prompt_content,
+            imageUrl = body.image_url,
+            sortOrder = body.sort_order,
+            isVerified = body.is_verified,
+        } = body
         if (!month || !week || !name || !genre) {
             return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 })
         }
@@ -168,7 +178,18 @@ export const PUT: APIRoute = async ({ request }) => {
     if (!admin) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 })
 
     try {
-        const { id, month, week, name, genre, promptContent, imageUrl, sortOrder, isVerified } = await request.json()
+        const body = await request.json()
+        const {
+            id,
+            month,
+            week,
+            name,
+            genre,
+            promptContent = body.prompt_content,
+            imageUrl = body.image_url,
+            sortOrder = body.sort_order,
+            isVerified = body.is_verified,
+        } = body
         if (!id || !month || !week || !name || !genre) {
             return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 })
         }
@@ -183,7 +204,8 @@ export const PUT: APIRoute = async ({ request }) => {
                 prompt_content = ${promptContent || ''},
                 image_url = ${imageUrl || null},
                 sort_order = ${Number(sortOrder || 0)},
-                is_verified = ${toBool(isVerified)}
+                is_verified = ${toBool(isVerified)},
+                updated_at = NOW()
             WHERE id = ${Number(id)}
         `
 

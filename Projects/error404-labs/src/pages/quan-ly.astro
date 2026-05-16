@@ -3105,7 +3105,10 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 e.preventDefault()
                 const formData = new FormData(roadmapGameForm)
                 const data = Object.fromEntries(formData.entries())
+                data.image_url = data.imageUrl
+                data.sort_order = data.sortOrder
                 data.isVerified = document.getElementById('rgIsVerified').checked
+                data.is_verified = data.isVerified
                 const isEdit = !!data.id
                 const res = await fetch('/api/admin/roadmap-games', {
                     method: isEdit ? 'PUT' : 'POST',
