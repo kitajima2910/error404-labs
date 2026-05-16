@@ -358,7 +358,6 @@ const promptsJson = JSON.stringify(GAME_PROMPTS.map((p) => ({ id: p.id, name: p.
     function hasAccess(id) {
         const user = window.currentUser
         if (!user) return false
-        if (user.roles === 'admin') return true
         const access = Array.isArray(user.prompt_access) ? user.prompt_access : []
         return access.map(Number).includes(Number(id))
     }

@@ -1764,8 +1764,8 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                           </span>
                       </td>
                       <td data-label="Quyền truy cập" class="px-3 py-2 sm:px-6 sm:py-5 text-center">
-                          <button onclick="window.openPromptAccessModal(${m.id}, '${m.member.replace(/'/g, "\\'")}', '${(m.display_name || m.member).replace(/'/g, "\\'")}', ${JSON.stringify(m.prompt_access || []).replace(/"/g, '&quot;')})" class="text-xs font-semibold px-3 py-1.5 rounded-xl border transition-all cursor-pointer ${targetIsAdmin ? 'bg-amber-50 text-amber-700 border-amber-200 cursor-not-allowed' : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'}" ${targetIsAdmin ? 'disabled' : ''}>
-                              ${targetIsAdmin ? 'Full Quyền' : m.prompt_access?.length > 0 ? `${m.prompt_access.length} prompts` : '0 prompts'}
+                          <button onclick="window.openPromptAccessModal(${m.id}, '${m.member.replace(/'/g, "\\'")}', '${(m.display_name || m.member).replace(/'/g, "\\'")}', ${JSON.stringify(m.prompt_access || []).replace(/"/g, '&quot;')})" class="text-xs font-semibold px-3 py-1.5 rounded-xl border transition-all cursor-pointer bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100">
+                              ${m.prompt_access?.length > 0 ? `${m.prompt_access.length} prompts` : '0 prompts'}
                           </button>
                       </td>
 <td data-label="Lộ trình" class="px-3 py-2 sm:px-6 sm:py-5 text-center">

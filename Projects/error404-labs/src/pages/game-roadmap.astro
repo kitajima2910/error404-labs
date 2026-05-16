@@ -793,7 +793,7 @@ const monthSvgs = [
                         if (!permission) return
 
                         const hasAccess =
-                            user.roles === 'admin' ||
+                            user.prompt_access?.includes('game_roadmap') ||
                             user.prompt_access?.includes(permission)
 
                         if (!hasAccess) {
@@ -811,8 +811,7 @@ const monthSvgs = [
                 lockRoadmapCells()
 
                 if (
-                    user.roles !== 'admin' &&
-                    !user.prompt_access?.includes('game_roadmap')
+                    !hasPromptAccess()
                 ) {
                     // Ẩn hoặc làm mờ phần prompt
                     const promptCard = document.querySelector('.prompt-card')
@@ -843,10 +842,13 @@ const monthSvgs = [
 
         checkAccess()
 
-        function hasPromptAccess() {
+        function hasPromptAccess(permission) {
             const user = window.user
             if (!user) return false
-            return user.roles === 'admin' || user.prompt_access?.includes('game_roadmap')
+            const access = Array.isArray(user.prompt_access) ? user.prompt_access : []
+            if (access.includes('game_roadmap')) return true
+            if (permission) return access.includes(permission)
+            return access.some((item) => item.startsWith('roadmap_'))
         }
 
         function showRequestAccessToast() {
@@ -924,6 +926,10 @@ const monthSvgs = [
                         '" data-month="' +
                         (monthIdx + 1) +
                         '" data-week="' +
+                        (weekIdx + 1) +
+                        '" data-permission="roadmap_m' +
+                        (monthIdx + 1) +
+                        '_w' +
                         (weekIdx + 1) +
                         '" data-month-idx="' +
                         monthIdx +
@@ -1290,12 +1296,13 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
         document.addEventListener('click', async function (e) {
             const btn = e.target.closest('.btn-copy-prompt')
             if (!btn) return
-            if (!hasPromptAccess()) {
+            const card = btn.closest('.game-card-button')
+            if (!card) return
+            const permission = card.dataset.permission
+            if (!hasPromptAccess(permission)) {
                 showRequestAccessToast()
                 return
             }
-            const card = btn.closest('.game-card-button')
-            if (!card) return
             const game = card.dataset.game
             const genre = card.dataset.genre
             const month = parseInt(card.dataset.month)
@@ -1316,7 +1323,8 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
         })
 
         function showGamePromptModal(card) {
-            if (!hasPromptAccess()) {
+            const permission = card.dataset.permission
+            if (!hasPromptAccess(permission)) {
                 showRequestAccessToast()
                 return
             }
