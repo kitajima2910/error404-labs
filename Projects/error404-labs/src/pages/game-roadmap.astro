@@ -386,6 +386,7 @@ const monthSvgs = [
                         if (!permission) return
 
                         const hasAccess =
+                            user.roles === 'admin' ||
                             user.prompt_access?.includes('game_roadmap') ||
                             user.prompt_access?.includes(permission)
 
@@ -438,6 +439,7 @@ const monthSvgs = [
         function hasPromptAccess(permission) {
             const user = window.user
             if (!user) return false
+            if (user.roles === 'admin') return true
             const access = Array.isArray(user.prompt_access) ? user.prompt_access : []
             if (access.includes('game_roadmap')) return true
             if (permission) return access.includes(permission)
@@ -849,10 +851,6 @@ const monthSvgs = [
 
             if (useTemplateBtn && templateModal) {
                 useTemplateBtn.addEventListener('click', () => {
-                    if (!hasPromptAccess()) {
-                        showRequestAccessToast()
-                        return
-                    }
                     templateModal.classList.remove('hidden')
                     modalTargetInput?.focus()
                 })
