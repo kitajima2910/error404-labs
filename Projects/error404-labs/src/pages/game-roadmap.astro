@@ -517,6 +517,22 @@ const promptContentByGame = Object.fromEntries(
     ),
 )
 
+const gameToGenre: Record<string, string> = {}
+roadmapRows.forEach((weeks) => {
+    weeks.forEach((week) => {
+        week.games.forEach((game) => {
+            gameToGenre[game] = week.genre
+        })
+    })
+})
+
+const allGamesNames = Object.keys(promptContentByGame)
+const allGamesData = allGamesNames.map((name) => ({
+    name,
+    genre: gameToGenre[name] || 'Arcade',
+    promptContent: promptContentByGame[name] ?? '',
+}))
+
 const roadmap = months.map((month, monthIndex) => ({
     ...month,
     weeks: roadmapRows[monthIndex].map((week, weekIndex) => ({
@@ -736,7 +752,7 @@ const monthSvgs = [
     searchable={false}
 >
     <link rel="stylesheet" href="/font-awesome/css/font-awesome.min.css" />
-    <script define:vars={{ roadmap, genreIcons, monthSvgs, attrSvgs }}>
+    <script define:vars={{ roadmap, genreIcons, monthSvgs, attrSvgs, allGamesData }}>
         async function checkAccess() {
             const token = localStorage.getItem('auth_token')
             if (!token) {
@@ -952,6 +968,75 @@ const monthSvgs = [
             currentWeek = weekIdx
         }
 
+        function renderAllGamesRandom(gamesData) {
+            const grid = document.getElementById('game-grid')
+            if (!grid) return
+
+            const shuffled = [...gamesData]
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1))
+                ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+            }
+
+            grid.innerHTML = shuffled
+                .map((game) => {
+                    const genre = game.genre
+                    const genreClass = getGenreClass(genre)
+                    const svg = genreIcons[genre] || genreIcons['Arcade']
+                    const gradBg = genreGradBg[genre] || 'from-indigo-500 to-indigo-700'
+                    const imageSrc = '/images-game-roadmap/' + encodeURIComponent(game.name) + '.webp'
+                    return (
+                        '<div data-game="' +
+                        game.name +
+                        '" data-genre="' +
+                        genre +
+                        '" data-month="0" data-week="0" data-month-idx="0" data-week-idx="0" data-game-idx="0" data-prompt-content="' +
+                        encodeURIComponent(game.promptContent || '') +
+                        '" class="game-card-button game-card-clickable cursor-pointer bg-white rounded-3xl border-[2px] border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 overflow-hidden transition-all flex flex-col">' +
+                        '<div class="h-44 w-full relative p-3.5 flex flex-col justify-between bg-gradient-to-br ' +
+                        gradBg +
+                        '">' +
+                        '<img src="' +
+                        imageSrc +
+                        '" alt="' +
+                        game.name +
+                        '" class="absolute inset-0 h-full w-full object-cover" onload="this.parentElement.querySelector(\'.game-card-svg-fallback\')?.remove()" onerror="this.remove()">' +
+                        '<div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>' +
+                        '<div class="game-card-svg-fallback absolute inset-0 flex items-center justify-center opacity-20 p-8">' +
+                        svg +
+                        '</div>' +
+                        '<div class="flex gap-2 relative z-10">' +
+                        '<span class="hidden bg-red-500 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm">' +
+                        attrSvgs.fire +
+                        ' Trending</span>' +
+                        '</div>' +
+                        '</div>' +
+                        '<div class="p-5 flex flex-col flex-1 relative z-20 -mt-3 bg-white rounded-t-2xl">' +
+                        '<h3 class="font-extrabold text-slate-900 mb-2 text-xl truncate">' +
+                        game.name +
+                        '</h3>' +
+                        '<div class="flex gap-1.5 mb-2.5">' +
+                        '<span class="' +
+                        genreClass +
+                        ' text-xs font-bold px-2.5 py-0.5 rounded-md">' +
+                        genre +
+                        '</span>' +
+                        '</div>' +
+                        '<div class="flex gap-2 mt-auto">' +
+                        '<button class="cursor-pointer flex-1 bg-[#8b5cf6] hover:bg-purple-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30 transition-transform active:scale-95">' +
+                        attrSvgs.play +
+                        '</button>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>'
+                    )
+                })
+                .join('')
+
+            document.getElementById('grid-header-title').textContent = 'Tất cả Game Prompt'
+            document.getElementById('grid-header-count').textContent = shuffled.length + ' Games'
+        }
+
         function highlightWeek(monthIdx, weekIdx) {
             const container = document.querySelector(`[data-weeks-for="${monthIdx}"]`)
             if (!container) return
@@ -1061,8 +1146,7 @@ const monthSvgs = [
         })
 
         document.addEventListener('DOMContentLoaded', () => {
-            renderGameGrid(0, 0)
-            highlightWeek(0, 0)
+            renderAllGamesRandom(allGamesData)
 
             // Copy template button
             const copyBtn = document.getElementById('copy-template-btn')
