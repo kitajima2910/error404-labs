@@ -380,28 +380,6 @@ const monthSvgs = [
                 const user = data.user
                 window.user = user // Lưu user để GameCell check
 
-                const lockRoadmapCells = () => {
-                    document.querySelectorAll('.game-card-button').forEach((cell) => {
-                        const permission = cell.getAttribute('data-permission')
-                        if (!permission) return
-
-                        const hasAccess =
-                            user.roles === 'admin' ||
-                            user.prompt_access?.includes('game_roadmap') ||
-                            user.prompt_access?.includes(permission)
-
-                        if (!hasAccess) {
-                            cell.classList.add('is-locked')
-                            cell.setAttribute('aria-disabled', 'true')
-                            cell.setAttribute('title', 'Bài học này chưa được mở khóa. Vui lòng liên hệ Admin.')
-                        } else {
-                            cell.classList.remove('is-locked')
-                            cell.removeAttribute('aria-disabled')
-                            cell.removeAttribute('title')
-                        }
-                    })
-                }
-
                 lockRoadmapCells()
 
                 if (
@@ -435,6 +413,30 @@ const monthSvgs = [
         }
 
         checkAccess()
+
+        function lockRoadmapCells() {
+            const user = window.user
+            if (!user) return
+            document.querySelectorAll('.game-card-button').forEach((cell) => {
+                const permission = cell.getAttribute('data-permission')
+                if (!permission) return
+
+                const hasAccess =
+                    user.roles === 'admin' ||
+                    user.prompt_access?.includes('game_roadmap') ||
+                    user.prompt_access?.includes(permission)
+
+                if (!hasAccess) {
+                    cell.classList.add('is-locked')
+                    cell.setAttribute('aria-disabled', 'true')
+                    cell.setAttribute('title', 'Bài học này chưa được mở khóa. Vui lòng liên hệ Admin.')
+                } else {
+                    cell.classList.remove('is-locked')
+                    cell.removeAttribute('aria-disabled')
+                    cell.removeAttribute('title')
+                }
+            })
+        }
 
         function hasPromptAccess(permission) {
             const user = window.user
