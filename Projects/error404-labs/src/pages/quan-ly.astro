@@ -1768,7 +1768,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
             // 2. ĐỊNH NGHĨA HÀM
             // ─────────────────────────────────────────────────────────────────────
 
-            window.openPromptAccessModal = function (memberId, member, displayName, accessList) {
+            window.openPromptAccessModal = function (memberId, member, displayName, accessList) { currentTab = "roadmap"; ["tabRoadmap", "tabTools", "tabVibeTools"].forEach(id => { const el = document.getElementById(id); if (el) { if (id === "tabRoadmap") { el.classList.add("active", "bg-white", "text-slate-700"); el.classList.remove("bg-slate-100", "text-slate-500"); } else { el.classList.remove("active", "bg-white", "text-slate-700"); el.classList.add("bg-slate-100", "text-slate-500"); } } });
                 currentPromptAccessMemberId = memberId
                 currentPromptAccessList = Array.isArray(accessList) ? [...accessList] : []
                 if (promptAccessMemberName) promptAccessMemberName.textContent = displayName || member

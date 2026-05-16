@@ -88,7 +88,9 @@ export const GET: APIRoute = async ({ request, url }) => {
         }
 
         const prompts = []
+        // Thêm prompts từ categories (loại bỏ Roadmap tĩnh)
         for (const cat of categories) {
+            if (cat.title.toUpperCase().includes('LỘ TRÌNH')) continue
             for (const item of cat.items) {
                 prompts.push({
                     id: String(item.id),
@@ -97,6 +99,25 @@ export const GET: APIRoute = async ({ request, url }) => {
                 })
             }
         }
+
+        // Thêm prompts từ Roadmap Games database
+        try {
+            const roadmapGames = await sql`
+                SELECT id, name 
+                FROM error404labs.roadmap_games 
+                ORDER BY month ASC, week ASC, sort_order ASC, id ASC
+            `
+            for (const game of roadmapGames) {
+                prompts.push({
+                    id: `roadmap_game_${game.id}`,
+                    text: `Quyền xem ${game.name}`,
+                    title: 'Lộ trình 12 tháng',
+                })
+            }
+        } catch (dbError) {
+            console.error('Database fetch error in get-prompt list:', dbError)
+        }
+
         return new Response(JSON.stringify({ prompts }), {
             status: 200,
             headers: { 'Content-Type': 'application/json' },

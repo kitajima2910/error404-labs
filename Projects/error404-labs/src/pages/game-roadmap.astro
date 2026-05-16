@@ -527,10 +527,7 @@ const monthSvgs = [
                         (monthIdx + 1) +
                         '" data-week="' +
                         (weekIdx + 1) +
-                        '" data-permission="roadmap_m' +
-                        (monthIdx + 1) +
-                        '_w' +
-                        (weekIdx + 1) +
+                        '" data-permission="roadmap_game_' + game.id +
                         '" data-month-idx="' +
                         monthIdx +
                         '" data-week-idx="' +
@@ -648,8 +645,7 @@ const monthSvgs = [
                         (game.month || 0) +
                         '" data-week="' +
                         (game.week || 0) +
-                        '" data-permission="' +
-                        (game.month && game.week ? 'roadmap_m' + game.month + '_w' + game.week : '') +
+                        '" data-permission="roadmap_game_' + (game.id || 0) +
                         '" data-month-idx="' +
                         ((game.month || 1) - 1) +
                         '" data-week-idx="' +
