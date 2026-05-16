@@ -506,7 +506,7 @@ const monthSvgs = [
                     const genreClass = getGenreClass(genre)
                     const svg = genreIcons[genre] || genreIcons['Arcade']
                     const gradBg = genreGradBg[genre] || 'from-indigo-500 to-indigo-700'
-                    const imageSrc = game.imageUrl || '/images-game-roadmap/' + encodeURIComponent(game.name) + '.webp'
+                    const imageSrc = game.imageUrl || game.image_url || '/images-game-roadmap/' + encodeURIComponent(game.name) + '.webp'
                     const promptBadge = hasPrompt(game)
                         ? '<span class="bg-emerald-600 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm"><i class="fa fa-check-circle"></i> Prompt Ready</span>'
                         : ''
@@ -626,7 +626,7 @@ const monthSvgs = [
                     const genreClass = getGenreClass(genre)
                     const svg = genreIcons[genre] || genreIcons['Arcade']
                     const gradBg = genreGradBg[genre] || 'from-indigo-500 to-indigo-700'
-                    const imageSrc = game.imageUrl || '/images-game-roadmap/' + encodeURIComponent(game.name) + '.webp'
+                    const imageSrc = game.imageUrl || game.image_url || '/images-game-roadmap/' + encodeURIComponent(game.name) + '.webp'
                     const promptBadge = hasPrompt(game)
                         ? '<span class="bg-emerald-600 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm"><i class="fa fa-check-circle"></i> Prompt Ready</span>'
                         : ''

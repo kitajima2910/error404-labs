@@ -3191,6 +3191,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                             return
                         }
                         data.image_url = uploadData.url
+                        data.imageUrl = uploadData.url
                         document.getElementById('rgImageUrl').value = uploadData.url
                         uploadStatus.textContent = '✅ Tải ảnh thành công'
                         uploadStatus.className = 'mt-2 text-xs font-medium text-emerald-600'
@@ -3201,6 +3202,9 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                         return
                     }
                 }
+
+                // Xóa camelCase để API ưu tiên snake_case
+                delete data.imageUrl
 
                 const submitBtn = document.getElementById('rgSubmitBtn')
                 submitBtn.disabled = true

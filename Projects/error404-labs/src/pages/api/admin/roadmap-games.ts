@@ -150,11 +150,11 @@ export const POST: APIRoute = async ({ request }) => {
             week,
             name,
             genre,
-            promptContent = body.prompt_content,
-            imageUrl = body.image_url,
-            sortOrder = body.sort_order,
-            isVerified = body.is_verified,
         } = body
+        const promptContent = body.promptContent ?? body.prompt_content ?? ''
+        const imageUrl = body.imageUrl || body.image_url || null
+        const sortOrder = body.sortOrder ?? body.sort_order ?? 0
+        const isVerified = body.isVerified ?? body.is_verified ?? false
         if (!name || !genre) {
             return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 })
         }
@@ -163,7 +163,7 @@ export const POST: APIRoute = async ({ request }) => {
             INSERT INTO error404labs.roadmap_games
                 (month, week, name, genre, prompt_content, image_url, sort_order, is_verified)
             VALUES
-                (${Number(month || 0)}, ${Number(week || 0)}, ${name}, ${genre}, ${promptContent || ''}, ${imageUrl || null}, ${Number(sortOrder || 0)}, ${toBool(isVerified)})
+                (${Number(month || 0)}, ${Number(week || 0)}, ${name}, ${genre}, ${promptContent}, ${imageUrl}, ${Number(sortOrder)}, ${toBool(isVerified)})
         `
 
         return new Response(JSON.stringify({ success: true }), { status: 201 })
@@ -185,11 +185,11 @@ export const PUT: APIRoute = async ({ request }) => {
             week,
             name,
             genre,
-            promptContent = body.prompt_content,
-            imageUrl = body.image_url,
-            sortOrder = body.sort_order,
-            isVerified = body.is_verified,
         } = body
+        const promptContent = body.promptContent ?? body.prompt_content ?? ''
+        const imageUrl = body.imageUrl || body.image_url || null
+        const sortOrder = body.sortOrder ?? body.sort_order ?? 0
+        const isVerified = body.isVerified ?? body.is_verified ?? false
         if (!id || !name || !genre) {
             return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 })
         }
@@ -201,9 +201,9 @@ export const PUT: APIRoute = async ({ request }) => {
                 week = ${Number(week || 0)},
                 name = ${name},
                 genre = ${genre},
-                prompt_content = ${promptContent || ''},
-                image_url = ${imageUrl || null},
-                sort_order = ${Number(sortOrder || 0)},
+                prompt_content = ${promptContent},
+                image_url = ${imageUrl},
+                sort_order = ${Number(sortOrder)},
                 is_verified = ${toBool(isVerified)},
                 updated_at = NOW()
             WHERE id = ${Number(id)}
