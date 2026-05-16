@@ -949,7 +949,12 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
             const contentEl = document.getElementById('game-prompt-modal-content')
 
             if (titleEl) titleEl.textContent = game
-            if (subtitleEl) subtitleEl.textContent = 'Level ' + month + ' · Tuần ' + week + ' · ' + genre
+            if (subtitleEl) {
+                let subtitle = 'Level ' + month;
+                if (week > 0) subtitle += ' · Tuần ' + week;
+                subtitle += ' · ' + genre;
+                subtitleEl.textContent = subtitle;
+            }
 
             const rawPrompt = promptContent.trim() ? promptContent : promptOf(game, genre, month, week)
             const promptText = rawPrompt.replace(/\\r\\n/g, '\n').replace(/\\n/g, '\n').replace(/\\r/g, '\n')
