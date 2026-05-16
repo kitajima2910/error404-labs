@@ -902,6 +902,9 @@ const monthSvgs = [
                     const svg = genreIcons[genre] || genreIcons['Arcade']
                     const gradBg = genreGradBg[genre] || 'from-indigo-500 to-indigo-700'
                     const imageSrc = '/images-game-roadmap/' + encodeURIComponent(game.name) + '.webp'
+                    const promptBadge = hasPrompt(game)
+                        ? '<span class="bg-emerald-500 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm"><i class="fa fa-check-circle"></i> Verified</span>'
+                        : ''
                     return (
                         '<div data-game="' +
                         game.name +
@@ -933,6 +936,7 @@ const monthSvgs = [
                         svg +
                         '</div>' +
                         '<div class="flex gap-2 relative z-10">' +
+                        promptBadge +
                         '<span class="hidden bg-red-500 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm">' +
                         attrSvgs.fire +
                         ' Trending</span>' +
@@ -974,7 +978,13 @@ const monthSvgs = [
         function shuffleArray(arr) {
             for (let i = arr.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1))
-                ;[arr[i], arr[j]] = [arr[j], arr[i]]
+                ;[
+                    arr[i],
+                    arr[j],
+                ] = [
+                    arr[j],
+                    arr[i],
+                ]
             }
             return arr
         }
@@ -986,7 +996,10 @@ const monthSvgs = [
             if (shuffledGames.length === 0) {
                 const withPrompt = shuffleArray(gamesData.filter(hasPrompt))
                 const withoutPrompt = shuffleArray(gamesData.filter((g) => !hasPrompt(g)))
-                shuffledGames = [...withPrompt, ...withoutPrompt]
+                shuffledGames = [
+                    ...withPrompt,
+                    ...withoutPrompt,
+                ]
             }
 
             const visible = shuffledGames.slice(0, displayCount)
@@ -999,7 +1012,7 @@ const monthSvgs = [
                     const gradBg = genreGradBg[genre] || 'from-indigo-500 to-indigo-700'
                     const imageSrc = '/images-game-roadmap/' + encodeURIComponent(game.name) + '.webp'
                     const promptBadge = hasPrompt(game)
-                        ? '<span class="bg-emerald-500 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm"><i class="fa fa-check-circle"></i> Có Prompt</span>'
+                        ? '<span class="bg-emerald-500 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm"><i class="fa fa-check-circle"></i> Verified</span>'
                         : ''
                     return (
                         '<div data-game="' +
@@ -1047,7 +1060,8 @@ const monthSvgs = [
                 .join('')
 
             document.getElementById('grid-header-title').textContent = 'Tất cả Game Prompt'
-            document.getElementById('grid-header-count').textContent = visible.length + ' / ' + shuffledGames.length + ' Games'
+            document.getElementById('grid-header-count').textContent =
+                visible.length + ' / ' + shuffledGames.length + ' Games'
 
             const loadMoreBtn = document.getElementById('load-more-games-btn')
             if (loadMoreBtn) {
@@ -1193,7 +1207,7 @@ const monthSvgs = [
 
             if (copyBtn) {
                 copyBtn.addEventListener('click', async () => {
-                    const text = `RULE:\n- Không rewrite game\n- Không sửa logic cũ\n- Chỉ tác động trong TARGET\n\nTARGET:\n(mô tả rõ)\n\nACTION:\n(chỉ chọn 1: add / fix / update / remove)`
+                    const text = `RULE:\n- Không rewrite src\n- Không sửa logic cũ\n- Chỉ tác động trong TARGET\n\nTARGET:\n(mô tả rõ)\n\nACTION:\n(chỉ chọn 1: add / fix / update / remove)`
                     try {
                         await navigator.clipboard.writeText(text)
                         if (window.showToast) window.showToast('Đã copy Prompt Template thành công!', 'success')
@@ -1212,7 +1226,7 @@ const monthSvgs = [
 
             if (modalCopyBtn && modalTargetInput && modalActionSelect) {
                 modalCopyBtn.addEventListener('click', async () => {
-                    const text = `RULE:\n- Không rewrite game\n- Không sửa logic cũ\n- Chỉ tác động trong TARGET\n\nTARGET:\n${modalTargetInput.value}\n\nACTION:\n${modalActionSelect.value}`
+                    const text = `RULE:\n- Không rewrite src\n- Không sửa logic cũ\n- Chỉ tác động trong TARGET\n\nTARGET:\n${modalTargetInput.value}\n\nACTION:\n${modalActionSelect.value}`
                     try {
                         await navigator.clipboard.writeText(text)
                         if (window.showToast) window.showToast('Đã tạo và copy prompt thành công!', 'success')
@@ -1346,7 +1360,6 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
                 if (window.showToast) window.showToast('Copy thất bại!', 'error')
             }
         })
-
     </script>
     <div
         class="flex flex-col min-h-screen lg:h-screen bg-[#f8f9fa] font-sans overflow-visible lg:overflow-hidden text-slate-800"
@@ -1415,7 +1428,7 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
                                 >
                                     <span class="text-emerald-400 font-bold">RULE:</span>
                                     <div class="text-slate-400 ml-2 mb-3 leading-relaxed">
-                                        - Không rewrite game<br />
+                                        - Không rewrite src<br />
                                         - Không sửa logic cũ<br />
                                         - Chỉ tác động trong TARGET
                                     </div>
