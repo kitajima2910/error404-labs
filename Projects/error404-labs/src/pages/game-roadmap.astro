@@ -579,7 +579,6 @@ const monthSvgs = [
 
             const month = window.roadmapData[monthIdx]
             document.getElementById('grid-header-title').textContent = 'Level ' + month.no + ' – Week ' + (weekIdx + 1)
-            document.getElementById('grid-header-count').textContent = week.games.length + ' Games'
 
             currentMonth = monthIdx
             currentWeek = weekIdx
@@ -692,8 +691,6 @@ const monthSvgs = [
                 .join('')
 
             document.getElementById('grid-header-title').textContent = 'Tất cả Game Prompt'
-            document.getElementById('grid-header-count').textContent =
-                visible.length + ' / ' + shuffledGames.length + ' Games'
 
             const loadMoreBtn = document.getElementById('load-more-games-btn')
             if (loadMoreBtn) {
@@ -1027,7 +1024,7 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
                             </h2>
                             <span
                                 id="grid-header-count"
-                                class="px-3 py-1 rounded-lg bg-[#4f46e5]/10 text-[#4f46e5] text-xs font-bold"
+                                class="hidden px-3 py-1 rounded-lg bg-[#4f46e5]/10 text-[#4f46e5] text-xs font-bold"
                                 >3 Games</span
                             >
                         </div>
