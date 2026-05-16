@@ -381,7 +381,7 @@ const monthSvgs = [
                 window.user = user // Lưu user để GameCell check
 
                 const lockRoadmapCells = () => {
-                    document.querySelectorAll('.roadmap-game-cell').forEach((cell) => {
+                    document.querySelectorAll('.game-card-button').forEach((cell) => {
                         const permission = cell.getAttribute('data-permission')
                         if (!permission) return
 
@@ -584,6 +584,8 @@ const monthSvgs = [
 
             currentMonth = monthIdx
             currentWeek = weekIdx
+
+            lockRoadmapCells()
         }
 
         let shuffledGames = []
@@ -703,11 +705,14 @@ const monthSvgs = [
                     loadMoreBtn.classList.remove('hidden')
                 }
             }
+
+            lockRoadmapCells()
         }
 
         function loadMoreGames() {
             displayCount += 6
             renderAllGamesRandom()
+            lockRoadmapCells()
         }
 
         function highlightWeek(monthIdx, weekIdx) {
@@ -1393,7 +1398,7 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
                 inset 0 0 0 1px rgba(236, 72, 153, 0.2);
         }
 
-        .roadmap-game-cell.is-locked {
+        .game-card-button.is-locked {
             opacity: 0.56;
             filter: grayscale(0.45);
         }
