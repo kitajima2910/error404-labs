@@ -968,17 +968,24 @@ const monthSvgs = [
             currentWeek = weekIdx
         }
 
+        let shuffledGames = []
+        let displayCount = 9
+
         function renderAllGamesRandom(gamesData) {
             const grid = document.getElementById('game-grid')
             if (!grid) return
 
-            const shuffled = [...gamesData]
-            for (let i = shuffled.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1))
-                ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+            if (shuffledGames.length === 0) {
+                shuffledGames = [...gamesData]
+                for (let i = shuffledGames.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1))
+                    ;[shuffledGames[i], shuffledGames[j]] = [shuffledGames[j], shuffledGames[i]]
+                }
             }
 
-            grid.innerHTML = shuffled
+            const visible = shuffledGames.slice(0, displayCount)
+
+            grid.innerHTML = visible
                 .map((game) => {
                     const genre = game.genre
                     const genreClass = getGenreClass(genre)
@@ -1034,7 +1041,21 @@ const monthSvgs = [
                 .join('')
 
             document.getElementById('grid-header-title').textContent = 'Tất cả Game Prompt'
-            document.getElementById('grid-header-count').textContent = shuffled.length + ' Games'
+            document.getElementById('grid-header-count').textContent = visible.length + ' / ' + shuffledGames.length + ' Games'
+
+            const loadMoreBtn = document.getElementById('load-more-games-btn')
+            if (loadMoreBtn) {
+                if (displayCount >= shuffledGames.length) {
+                    loadMoreBtn.classList.add('hidden')
+                } else {
+                    loadMoreBtn.classList.remove('hidden')
+                }
+            }
+        }
+
+        function loadMoreGames() {
+            displayCount += 6
+            renderAllGamesRandom()
         }
 
         function highlightWeek(monthIdx, weekIdx) {
@@ -1147,6 +1168,11 @@ const monthSvgs = [
 
         document.addEventListener('DOMContentLoaded', () => {
             renderAllGamesRandom(allGamesData)
+
+            const loadMoreBtn = document.getElementById('load-more-games-btn')
+            if (loadMoreBtn) {
+                loadMoreBtn.addEventListener('click', loadMoreGames)
+            }
 
             // Copy template button
             const copyBtn = document.getElementById('copy-template-btn')
@@ -1354,6 +1380,16 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
 
                     {/* Game Grid */}
                     <div id="game-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6"></div>
+
+                    {/* Load More Button */}
+                    <div class="flex justify-center pt-4">
+                        <button
+                            id="load-more-games-btn"
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-2xl shadow-lg shadow-indigo-500/25 flex items-center gap-2 transition-colors"
+                        >
+                            <i class="fa fa-plus" aria-hidden="true"></i> Hiển Thị Thêm Games
+                        </button>
+                    </div>
                 </div>
             </div>
             <aside
