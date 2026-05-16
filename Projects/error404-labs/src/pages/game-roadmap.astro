@@ -794,7 +794,6 @@ const monthSvgs = [
 
                         const hasAccess =
                             user.roles === 'admin' ||
-                            user.roles === 'member' ||
                             user.prompt_access?.includes(permission)
 
                         if (!hasAccess) {
@@ -813,7 +812,6 @@ const monthSvgs = [
 
                 if (
                     user.roles !== 'admin' &&
-                    user.roles !== 'member' &&
                     !user.prompt_access?.includes('game_roadmap')
                 ) {
                     // Ẩn hoặc làm mờ phần prompt
@@ -844,6 +842,18 @@ const monthSvgs = [
         }
 
         checkAccess()
+
+        function hasPromptAccess() {
+            const user = window.user
+            if (!user) return false
+            return user.roles === 'admin' || user.prompt_access?.includes('game_roadmap')
+        }
+
+        function showRequestAccessToast() {
+            if (window.showToast) {
+                window.showToast('Cần quyền truy cập. Vui lòng liên hệ Admin để được cấp quyền.', 'warning')
+            }
+        }
 
         window.roadmapData = roadmap
         let currentMonth = 0,
@@ -1222,6 +1232,10 @@ const monthSvgs = [
 
             if (useTemplateBtn && templateModal) {
                 useTemplateBtn.addEventListener('click', () => {
+                    if (!hasPromptAccess()) {
+                        showRequestAccessToast()
+                        return
+                    }
                     templateModal.classList.remove('hidden')
                     modalTargetInput?.focus()
                 })
@@ -1276,6 +1290,10 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
         document.addEventListener('click', async function (e) {
             const btn = e.target.closest('.btn-copy-prompt')
             if (!btn) return
+            if (!hasPromptAccess()) {
+                showRequestAccessToast()
+                return
+            }
             const card = btn.closest('.game-card-button')
             if (!card) return
             const game = card.dataset.game
@@ -1298,6 +1316,10 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
         })
 
         function showGamePromptModal(card) {
+            if (!hasPromptAccess()) {
+                showRequestAccessToast()
+                return
+            }
             const game = card.dataset.game
             const genre = card.dataset.genre
             const month = parseInt(card.dataset.month)
@@ -1329,6 +1351,11 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
 
             const card = e.target.closest('.game-card-button')
             if (!card) return
+
+            if (card.classList.contains('is-locked')) {
+                showRequestAccessToast()
+                return
+            }
 
             showGamePromptModal(card)
         })

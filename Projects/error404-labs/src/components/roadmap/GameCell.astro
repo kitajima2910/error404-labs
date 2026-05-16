@@ -124,28 +124,34 @@ const theme = genreTheme[genre] || { card: 'hover:border-indigo-400 hover:bg-ind
             const user = window.user;
             if (!user) return;
 
-            const hasAccess = user.roles === 'admin' || user.prompt_access.includes(permission);
+            const hasAccess = user.roles === 'admin' || (user.prompt_access && user.prompt_access.includes(permission));
 
             if (!hasAccess) {
                 cell.classList.add('locked');
-                cell.setAttribute('disabled', 'true');
-                cell.style.pointerEvents = 'none';
-                cell.style.opacity = '0.6';
+                cell.setAttribute('aria-disabled', 'true');
+                cell.style.opacity = '0.55';
+                cell.style.cursor = 'not-allowed';
+                cell.style.filter = 'grayscale(0.4)';
 
-                // Thêm icon khóa
                 const iconSpan = cell.querySelector('.cell-icon');
                 if (iconSpan) {
-                    iconSpan.innerHTML = '🔒';
+                    iconSpan.innerHTML = '<svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
                 }
 
-                // Làm mờ text
                 const textSpan = cell.querySelector('span:last-child');
                 if (textSpan) {
                     textSpan.style.opacity = '0.5';
                 }
 
-                // Thêm tooltip
                 cell.setAttribute('title', 'Bài học này chưa được mở khóa. Vui lòng liên hệ Admin.');
+
+                cell.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (window.showToast) {
+                        window.showToast('Cần quyền truy cập. Vui lòng liên hệ Admin để được cấp quyền.', 'warning');
+                    }
+                });
             }
         });
     });
