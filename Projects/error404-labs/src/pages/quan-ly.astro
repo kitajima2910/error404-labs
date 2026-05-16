@@ -1404,6 +1404,43 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
             </div>
         </div>
 
+        <!-- Modal Xác nhận xóa Roadmap Game -->
+        <div
+            id="roadmapGameDeleteModal"
+            class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm transition-all duration-300"
+        >
+            <div
+                id="roadmapGameDeleteModalContent"
+                class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden transform scale-95 opacity-0 transition-all duration-300 border border-red-50"
+            >
+                <div class="bg-red-50 p-6 flex flex-col items-center">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-black text-red-600 uppercase tracking-tight">Xóa Roadmap Game?</h3>
+                    <p class="text-slate-500 mt-2 text-center text-sm leading-relaxed">
+                        Hành động này sẽ <span class="font-bold text-red-600 italic">xóa vĩnh viễn</span> game này. Không thể hoàn tác.
+                    </p>
+                </div>
+                <div class="p-6 flex flex-col gap-3">
+                    <button
+                        id="confirmRoadmapGameDeleteBtn"
+                        class="w-full py-3.5 bg-red-600 text-white font-black rounded-2xl hover:bg-red-700 transition-all shadow-lg shadow-red-200 active:scale-95 cursor-pointer"
+                    >
+                        Xác nhận xóa
+                    </button>
+                    <button
+                        id="cancelRoadmapGameDeleteBtn"
+                        class="w-full py-3.5 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all cursor-pointer"
+                    >
+                        Hủy bỏ
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Modal Quản lý Bài học -->
         <div
             id="lessonModal"
@@ -1721,6 +1758,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
             let roadmapGameCurrentPage = 1
             let roadmapGameTotalCount = 0
             let roadmapGameSearchTimeout
+            let roadmapGameToDelete = null
 
             // Toast State
             let toastTimeout
@@ -3090,22 +3128,28 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 if (game) openRoadmapGameModal(true, game)
             }
 
-            window.deleteRoadmapGame = async (id) => {
-                if (!confirm('Xóa roadmap game này?')) return
-                const res = await fetch('/api/admin/roadmap-games', {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
-                    },
-                    body: JSON.stringify({ id }),
-                })
-                if (res.ok) {
-                    showToast('Đã xóa roadmap game', 'success')
-                    fetchRoadmapGames()
-                } else {
-                    showToast('Không thể xóa roadmap game', 'error')
-                }
+            window.deleteRoadmapGame = (id) => {
+                roadmapGameToDelete = id
+                const modal = document.getElementById('roadmapGameDeleteModal')
+                const modalContent = document.getElementById('roadmapGameDeleteModalContent')
+                modal.classList.remove('hidden')
+                modal.classList.add('flex')
+                setTimeout(() => {
+                    modalContent.classList.remove('scale-95', 'opacity-0')
+                    modalContent.classList.add('scale-100', 'opacity-100')
+                }, 10)
+            }
+
+            function closeRoadmapGameDeleteModal() {
+                const modal = document.getElementById('roadmapGameDeleteModal')
+                const modalContent = document.getElementById('roadmapGameDeleteModalContent')
+                modalContent.classList.add('scale-95', 'opacity-0')
+                modalContent.classList.remove('scale-100', 'opacity-100')
+                setTimeout(() => {
+                    modal.classList.add('hidden')
+                    modal.classList.remove('flex')
+                    roadmapGameToDelete = null
+                }, 200)
             }
 
             if (addRoadmapGameBtn) addRoadmapGameBtn.onclick = () => openRoadmapGameModal(false)
@@ -3126,6 +3170,35 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 resetRgUI()
                 document.getElementById('rgImageUrl').value = ''
             })
+
+            // Roadmap Game delete modal
+            document.getElementById('confirmRoadmapGameDeleteBtn').onclick = async () => {
+                if (!roadmapGameToDelete) return
+                try {
+                    const res = await fetch('/api/admin/roadmap-games', {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
+                        },
+                        body: JSON.stringify({ id: roadmapGameToDelete }),
+                    })
+                    if (res.ok) {
+                        showToast('Đã xóa roadmap game', 'success')
+                        fetchRoadmapGames()
+                        closeRoadmapGameDeleteModal()
+                    } else {
+                        const data = await res.json()
+                        showToast(data.error || 'Không thể xóa roadmap game', 'error')
+                    }
+                } catch {
+                    showToast('Lỗi kết nối', 'error')
+                }
+            }
+            document.getElementById('cancelRoadmapGameDeleteBtn').onclick = closeRoadmapGameDeleteModal
+            document.getElementById('roadmapGameDeleteModal').onclick = (e) => {
+                if (e.target === document.getElementById('roadmapGameDeleteModal')) closeRoadmapGameDeleteModal()
+            }
 
             if (roadmapGameModal) roadmapGameModal.onclick = (e) => {
                 if (e.target === roadmapGameModal) closeRoadmapGameModal()
