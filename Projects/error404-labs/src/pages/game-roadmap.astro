@@ -903,8 +903,9 @@ const monthSvgs = [
                     const gradBg = genreGradBg[genre] || 'from-indigo-500 to-indigo-700'
                     const imageSrc = '/images-game-roadmap/' + encodeURIComponent(game.name) + '.webp'
                     const promptBadge = hasPrompt(game)
-                        ? '<span class="bg-emerald-500 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm"><i class="fa fa-check-circle"></i> Verified</span>'
+                        ? '<span class="bg-emerald-600 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm"><i class="fa fa-check-circle"></i> Prompt Ready</span>'
                         : ''
+                    const trendingClass = gi === 0 ? '' : 'hidden '
                     return (
                         '<div data-game="' +
                         game.name +
@@ -937,7 +938,9 @@ const monthSvgs = [
                         '</div>' +
                         '<div class="flex gap-2 relative z-10">' +
                         promptBadge +
-                        '<span class="hidden bg-red-500 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm">' +
+                        '<span class="' +
+                        trendingClass +
+                        'bg-red-500 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm">' +
                         attrSvgs.fire +
                         ' Trending</span>' +
                         '</div>' +
@@ -1012,7 +1015,7 @@ const monthSvgs = [
                     const gradBg = genreGradBg[genre] || 'from-indigo-500 to-indigo-700'
                     const imageSrc = '/images-game-roadmap/' + encodeURIComponent(game.name) + '.webp'
                     const promptBadge = hasPrompt(game)
-                        ? '<span class="bg-emerald-500 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm"><i class="fa fa-check-circle"></i> Verified</span>'
+                        ? '<span class="bg-emerald-600 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm"><i class="fa fa-check-circle"></i> Prompt Ready</span>'
                         : ''
                     return (
                         '<div data-game="' +
