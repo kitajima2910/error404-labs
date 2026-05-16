@@ -156,15 +156,16 @@ export const POST: APIRoute = async ({ request }) => {
         const imageFileId = body.imageFileId || body.image_file_id || null
         const sortOrder = body.sortOrder ?? body.sort_order ?? 0
         const isVerified = body.isVerified ?? body.is_verified ?? false
+        const designUrl = body.designUrl || body.design_url || null
         if (!name || !genre) {
             return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 })
         }
 
         await sql`
             INSERT INTO error404labs.roadmap_games
-                (month, week, name, genre, prompt_content, image_url, image_file_id, sort_order, is_verified)
+                (month, week, name, genre, prompt_content, image_url, image_file_id, sort_order, is_verified, design_url)
             VALUES
-                (${Number(month || 0)}, ${Number(week || 0)}, ${name}, ${genre}, ${promptContent}, ${imageUrl}, ${imageFileId}, ${Number(sortOrder)}, ${toBool(isVerified)})
+                (${Number(month || 0)}, ${Number(week || 0)}, ${name}, ${genre}, ${promptContent}, ${imageUrl}, ${imageFileId}, ${Number(sortOrder)}, ${toBool(isVerified)}, ${designUrl})
         `
 
         return new Response(JSON.stringify({ success: true }), { status: 201 })
@@ -192,6 +193,7 @@ export const PUT: APIRoute = async ({ request }) => {
         const imageFileId = body.imageFileId || body.image_file_id || null
         const sortOrder = body.sortOrder ?? body.sort_order ?? 0
         const isVerified = body.isVerified ?? body.is_verified ?? false
+        const designUrl = body.designUrl || body.design_url || null
         if (!id || !name || !genre) {
             return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 })
         }
@@ -208,6 +210,7 @@ export const PUT: APIRoute = async ({ request }) => {
                 image_file_id = ${imageFileId},
                 sort_order = ${Number(sortOrder)},
                 is_verified = ${toBool(isVerified)},
+                design_url = ${designUrl},
                 updated_at = NOW()
             WHERE id = ${Number(id)}
         `
