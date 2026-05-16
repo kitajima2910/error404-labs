@@ -951,7 +951,8 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
             if (titleEl) titleEl.textContent = game
             if (subtitleEl) subtitleEl.textContent = 'Level ' + month + ' · Tuần ' + week + ' · ' + genre
 
-            const promptText = promptContent.trim() ? promptContent : promptOf(game, genre, month, week)
+            const rawPrompt = promptContent.trim() ? promptContent : promptOf(game, genre, month, week)
+            const promptText = rawPrompt.replace(/\\r\\n/g, '\n').replace(/\\n/g, '\n').replace(/\\r/g, '\n')
 
             if (contentEl) contentEl.value = promptText
             if (modal) modal.classList.remove('hidden')

@@ -151,7 +151,7 @@ export const POST: APIRoute = async ({ request }) => {
             name,
             genre,
         } = body
-        const promptContent = body.promptContent ?? body.prompt_content ?? ''
+        const rawPrompt = body.promptContent ?? body.prompt_content ?? ''; const promptContent = rawPrompt.replace(/\\r\\n/g, "\n").replace(/\\n/g, "\n").replace(/\\r/g, "\n");
         const imageUrl = body.imageUrl || body.image_url || null
         const imageFileId = body.imageFileId || body.image_file_id || null
         const sortOrder = body.sortOrder ?? body.sort_order ?? 0
@@ -187,7 +187,7 @@ export const PUT: APIRoute = async ({ request }) => {
             name,
             genre,
         } = body
-        const promptContent = body.promptContent ?? body.prompt_content ?? ''
+        const rawPrompt = body.promptContent ?? body.prompt_content ?? ''; const promptContent = rawPrompt.replace(/\\r\\n/g, "\n").replace(/\\n/g, "\n").replace(/\\r/g, "\n");
         const imageUrl = body.imageUrl || body.image_url || null
         const imageFileId = body.imageFileId || body.image_file_id || null
         const sortOrder = body.sortOrder ?? body.sort_order ?? 0
