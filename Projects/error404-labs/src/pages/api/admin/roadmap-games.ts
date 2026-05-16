@@ -155,7 +155,7 @@ export const POST: APIRoute = async ({ request }) => {
             sortOrder = body.sort_order,
             isVerified = body.is_verified,
         } = body
-        if (!month || !week || !name || !genre) {
+        if (!name || !genre) {
             return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 })
         }
 
@@ -163,7 +163,7 @@ export const POST: APIRoute = async ({ request }) => {
             INSERT INTO error404labs.roadmap_games
                 (month, week, name, genre, prompt_content, image_url, sort_order, is_verified)
             VALUES
-                (${Number(month)}, ${Number(week)}, ${name}, ${genre}, ${promptContent || ''}, ${imageUrl || null}, ${Number(sortOrder || 0)}, ${toBool(isVerified)})
+                (${Number(month || 0)}, ${Number(week || 0)}, ${name}, ${genre}, ${promptContent || ''}, ${imageUrl || null}, ${Number(sortOrder || 0)}, ${toBool(isVerified)})
         `
 
         return new Response(JSON.stringify({ success: true }), { status: 201 })
@@ -190,15 +190,15 @@ export const PUT: APIRoute = async ({ request }) => {
             sortOrder = body.sort_order,
             isVerified = body.is_verified,
         } = body
-        if (!id || !month || !week || !name || !genre) {
+        if (!id || !name || !genre) {
             return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 })
         }
 
         await sql`
             UPDATE error404labs.roadmap_games
             SET
-                month = ${Number(month)},
-                week = ${Number(week)},
+                month = ${Number(month || 0)},
+                week = ${Number(week || 0)},
                 name = ${name},
                 genre = ${genre},
                 prompt_content = ${promptContent || ''},
