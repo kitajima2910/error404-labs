@@ -1376,6 +1376,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                         <input id="rgGenre" name="genre" type="text" required placeholder="Genre" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" />
                     </div>
                     <input type="hidden" id="rgImageUrl" name="imageUrl" />
+                    <input type="hidden" id="rgImageFileId" name="imageFileId" />
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-1.5">Ảnh game</label>
                         <div id="rgUploadArea" class="relative border-2 border-dashed border-slate-200 rounded-xl p-4 hover:border-indigo-400 transition-colors cursor-pointer group">
@@ -3101,6 +3102,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 document.getElementById('rgName').value = data?.name || ''
                 document.getElementById('rgGenre').value = data?.genre || ''
                 document.getElementById('rgImageUrl').value = data?.image_url || ''
+                document.getElementById('rgImageFileId').value = data?.image_file_id || ''
                 document.getElementById('rgPromptContent').value = data?.prompt_content || ''
                 document.getElementById('rgIsVerified').checked = !!data?.is_verified
                 if (data?.image_url) {
@@ -3169,6 +3171,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 e.stopPropagation()
                 resetRgUI()
                 document.getElementById('rgImageUrl').value = ''
+                document.getElementById('rgImageFileId').value = ''
             })
 
             // Roadmap Game delete modal
@@ -3265,7 +3268,9 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                         }
                         data.image_url = uploadData.url
                         data.imageUrl = uploadData.url
+                        data.image_file_id = uploadData.fileId
                         document.getElementById('rgImageUrl').value = uploadData.url
+                        document.getElementById('rgImageFileId').value = uploadData.fileId
                         uploadStatus.textContent = '✅ Tải ảnh thành công'
                         uploadStatus.className = 'mt-2 text-xs font-medium text-emerald-600'
                     } catch {
@@ -3278,6 +3283,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
 
                 // Xóa camelCase để API ưu tiên snake_case
                 delete data.imageUrl
+                delete data.imageFileId
 
                 const submitBtn = document.getElementById('rgSubmitBtn')
                 submitBtn.disabled = true

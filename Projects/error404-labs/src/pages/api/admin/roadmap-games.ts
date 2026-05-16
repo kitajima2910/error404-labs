@@ -153,6 +153,7 @@ export const POST: APIRoute = async ({ request }) => {
         } = body
         const promptContent = body.promptContent ?? body.prompt_content ?? ''
         const imageUrl = body.imageUrl || body.image_url || null
+        const imageFileId = body.imageFileId || body.image_file_id || null
         const sortOrder = body.sortOrder ?? body.sort_order ?? 0
         const isVerified = body.isVerified ?? body.is_verified ?? false
         if (!name || !genre) {
@@ -161,9 +162,9 @@ export const POST: APIRoute = async ({ request }) => {
 
         await sql`
             INSERT INTO error404labs.roadmap_games
-                (month, week, name, genre, prompt_content, image_url, sort_order, is_verified)
+                (month, week, name, genre, prompt_content, image_url, image_file_id, sort_order, is_verified)
             VALUES
-                (${Number(month || 0)}, ${Number(week || 0)}, ${name}, ${genre}, ${promptContent}, ${imageUrl}, ${Number(sortOrder)}, ${toBool(isVerified)})
+                (${Number(month || 0)}, ${Number(week || 0)}, ${name}, ${genre}, ${promptContent}, ${imageUrl}, ${imageFileId}, ${Number(sortOrder)}, ${toBool(isVerified)})
         `
 
         return new Response(JSON.stringify({ success: true }), { status: 201 })
@@ -188,6 +189,7 @@ export const PUT: APIRoute = async ({ request }) => {
         } = body
         const promptContent = body.promptContent ?? body.prompt_content ?? ''
         const imageUrl = body.imageUrl || body.image_url || null
+        const imageFileId = body.imageFileId || body.image_file_id || null
         const sortOrder = body.sortOrder ?? body.sort_order ?? 0
         const isVerified = body.isVerified ?? body.is_verified ?? false
         if (!id || !name || !genre) {
@@ -203,6 +205,7 @@ export const PUT: APIRoute = async ({ request }) => {
                 genre = ${genre},
                 prompt_content = ${promptContent},
                 image_url = ${imageUrl},
+                image_file_id = ${imageFileId},
                 sort_order = ${Number(sortOrder)},
                 is_verified = ${toBool(isVerified)},
                 updated_at = NOW()
@@ -223,6 +226,26 @@ export const DELETE: APIRoute = async ({ request }) => {
     try {
         const { id } = await request.json()
         if (!id) return new Response(JSON.stringify({ error: 'Missing ID' }), { status: 400 })
+
+        // Lấy image_file_id trước khi xóa
+        const game = await sql`
+            SELECT image_file_id FROM error404labs.roadmap_games WHERE id = ${Number(id)}
+        `
+        const fileId = game[0]?.image_file_id
+
+        // Xóa ảnh trên ImageKit nếu có
+        if (fileId) {
+            try {
+                const privateKey = import.meta.env.IMAGEKIT_PRIVATE_KEY
+                const auth = btoa(`${privateKey}:`)
+                await fetch(`https://api.imagekit.io/v1/files/${fileId}`, {
+                    method: 'DELETE',
+                    headers: { Authorization: `Basic ${auth}` },
+                })
+            } catch (ikError) {
+                console.error('ImageKit delete error:', ikError)
+            }
+        }
 
         await sql`DELETE FROM error404labs.roadmap_games WHERE id = ${Number(id)}`
         return new Response(JSON.stringify({ success: true }), { status: 200 })
