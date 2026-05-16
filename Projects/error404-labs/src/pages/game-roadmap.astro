@@ -5,6 +5,23 @@ import GameCell from '../components/roadmap/GameCell.astro'
 import PromptModal from '../components/roadmap/PromptModal.astro'
 import AttributeRow from '../components/roadmap/AttributeRow.astro'
 import ActionButton from '../components/roadmap/ActionButton.astro'
+import { neon } from '@neondatabase/serverless'
+
+export const prerender = false
+
+const sql = neon(import.meta.env.DATABASE_URL)
+
+type RoadmapGameRow = {
+    id: number
+    month: number
+    week: number
+    name: string
+    genre: string
+    prompt_content: string | null
+    image_url: string | null
+    sort_order: number | null
+    is_verified: boolean | null
+}
 
 const methods = [
     {
@@ -94,464 +111,39 @@ Build: Xuất bản thành một bản HTML/CSS/JavaScript chạy trực tiếp 
 
 Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genre}.`
 
-const roadmapRows = [
-    [
-        {
-            genre: 'Runner',
-            games: [
-                'AI Velocity Sprint',
-                'Neural Token Dash',
-                'Cyber Cloud Leap',
-            ],
-        },
-        {
-            genre: 'Puzzle',
-            games: [
-                'Quantum Block Shift',
-                'Meta Crate Logic',
-                'Web3 Key Protocol',
-            ],
-        },
-        {
-            genre: 'Arcade',
-            games: [
-                'Spatial Dodge Zone',
-                'AI Spike Frenzy',
-                'Cyber Pipe Runner',
-            ],
-        },
-        {
-            genre: 'Simulation',
-            games: [
-                'Meta Farm Builder',
-                'AI Pet Simulator',
-                'Web3 Market Boss',
-            ],
-        },
-    ],
-    [
-        {
-            genre: 'Arcade',
-            games: [
-                'AI Flappy Neural',
-            ],
-        },
-        {
-            genre: 'Arcade',
-            games: [
-                'AI Velocity Sprint',
-            ],
-        },
-        {
-            genre: 'Arcade',
-            games: [
-                'Cyber Geo Dash',
-            ],
-        },
-        {
-            genre: 'Arcade',
-            games: [
-                'Meta Helix Drop',
-            ],
-        },
-    ],
-    [
-        {
-            genre: 'Shooter',
-            games: [
-                'AI Slime Blaster',
-                'Cyber Wave Shield',
-                'Web3 Base Guard',
-            ],
-        },
-        {
-            genre: 'Arcade',
-            games: [
-                'Spatial Pop Blast',
-                'AI Duck Hunter',
-                'Cyber UFO Zap',
-            ],
-        },
-        {
-            genre: 'Shooter',
-            games: [
-                'Meta Arsenal Run',
-                'AI Boss Rush',
-                'Web3 Squad Strike',
-            ],
-        },
-        {
-            genre: 'Action',
-            games: [
-                'Cyber Slash Dash',
-                'AI Shuriken Storm',
-                'Meta Boxing Ring',
-            ],
-        },
-    ],
-    [
-        {
-            genre: 'Puzzle',
-            games: [
-                'Neural Mosaic Quest',
-                'Cyber Maze Core',
-                'Web3 Switch Lab',
-            ],
-        },
-        {
-            genre: 'Logic',
-            games: [
-                'AI Sort Factory',
-                'Cyber Balance AI',
-                'Meta Power Grid',
-            ],
-        },
-        {
-            genre: 'Puzzle',
-            games: [
-                'Spatial Crate Push',
-                'AI Pin Dungeon',
-                'Cyber Light Tower',
-            ],
-        },
-        {
-            genre: 'Arcade',
-            games: [
-                'Meta Hoop Shot',
-                'AI Trick Toss',
-                'Cyber Pinball Mini',
-            ],
-        },
-    ],
-    [
-        {
-            genre: 'Action',
-            games: [
-                'AI Combo Rookie',
-                'Cyber Combo Forge',
-                'Web3 Counter Strike',
-            ],
-        },
-        {
-            genre: 'Boss Fight',
-            games: [
-                'AI Slime King',
-                'Cyber Robot Raid',
-                'Meta Dragon Trial',
-            ],
-        },
-        {
-            genre: 'Action',
-            games: [
-                'AI Jump Strike',
-                'Cyber Blade Dash',
-                'Web3 Cyclone Slash',
-            ],
-        },
-        {
-            genre: 'Arcade',
-            games: [
-                'AI Survival Ring',
-                'Cyber Battle Dome',
-                'Meta Trial Gate',
-            ],
-        },
-    ],
-    [
-        {
-            genre: 'Rhythm',
-            games: [
-                'AI Beat Reactor',
-                'Cyber Dance Sync',
-                'Web3 Bass Drop',
-            ],
-        },
-        {
-            genre: 'Music',
-            games: [
-                'AI Piano Rush',
-                'Cyber Note Pop',
-                'Meta Synth Jam',
-            ],
-        },
-        {
-            genre: 'Rhythm',
-            games: [
-                'AI Beat Dodge',
-                'Cyber Timing Dash',
-                'Web3 Combo Groove',
-            ],
-        },
-        {
-            genre: 'Arcade',
-            games: [
-                'AI Dance Floor',
-                'Cyber Disco Orb',
-                'Meta Melody Ride',
-            ],
-        },
-    ],
-    [
-        {
-            genre: 'Collect',
-            games: [
-                'AI Coin Magnet',
-                'Cyber Diamond Mine',
-                'Web3 Starfall',
-            ],
-        },
-        {
-            genre: 'Adventure',
-            games: [
-                'AI Crystal Cave',
-                'Cyber Lost Key',
-                'Meta Treasure Run',
-            ],
-        },
-        {
-            genre: 'Collect',
-            games: [
-                'AI Fruit Frenzy',
-                'Cyber Relic Run',
-                'Web3 Parcel Sprint',
-            ],
-        },
-        {
-            genre: 'Simulation',
-            games: [
-                'AI Farm Loop',
-                'Cyber Fishing Dock',
-                'Meta Chef Rush',
-            ],
-        },
-    ],
-    [
-        {
-            genre: 'Effect',
-            games: [
-                'AI Blast Sandbox',
-                'Cyber Comet Trail',
-                'Web3 Frost Burst',
-            ],
-        },
-        {
-            genre: 'Skill',
-            games: [
-                'AI Flame Forge',
-                'Cyber Ice Weaver',
-                'Meta Thunder Skill',
-            ],
-        },
-        {
-            genre: 'Effect',
-            games: [
-                'AI Heal Pulse',
-                'Cyber Spark Lab',
-                'Web3 FX Trial',
-            ],
-        },
-        {
-            genre: 'Action',
-            games: [
-                'AI Dash Runner',
-                'Cyber Leap Quest',
-                'Meta Blast Hero',
-            ],
-        },
-    ],
-    [
-        {
-            genre: 'Upgrade',
-            games: [
-                'AI Core Upgrade',
-                'Cyber Damage Forge',
-                'Web3 Skill Tower',
-            ],
-        },
-        {
-            genre: 'Shop',
-            games: [
-                'AI Weapon Shop',
-                'Cyber Gear Lab',
-                'Meta Pet Shop',
-            ],
-        },
-        {
-            genre: 'Progression',
-            games: [
-                'AI XP Climb',
-                'Cyber Skill Tree',
-                'Web3 Rank Reactor',
-            ],
-        },
-        {
-            genre: 'Adventure',
-            games: [
-                'AI Quest Signal',
-                'Cyber Quest Harbor',
-                'Meta Daily Quest',
-            ],
-        },
-    ],
-    [
-        {
-            genre: 'AI Enemy',
-            games: [
-                'AI Patrol Bot',
-                'Cyber Drone Maze',
-                'Web3 Sniper Bot',
-            ],
-        },
-        {
-            genre: 'AI Pattern',
-            games: [
-                'AI Spiral Duel',
-                'Cyber Pattern Core',
-                'Meta Pattern Arena',
-            ],
-        },
-        {
-            genre: 'Boss AI',
-            games: [
-                'AI Boss Protocol',
-                'Cyber Phase Titan',
-                'Web3 Overlord',
-            ],
-        },
-        {
-            genre: 'Simulation',
-            games: [
-                'AI NPC Village',
-                'Cyber Squad Tactics',
-                'Meta World Engine',
-            ],
-        },
-    ],
-    [
-        {
-            genre: 'Free Build',
-            games: [
-                'AI Platformer Lab',
-                'Cyber Puzzle Forge',
-                'Web3 Shooter Arena',
-            ],
-        },
-        {
-            genre: 'Theme Pack',
-            games: [
-                'AI Forest Run',
-                'Cyber Ocean Quest',
-                'Meta Space Colony',
-            ],
-        },
-        {
-            genre: 'Game Idea',
-            games: [
-                'AI Game Spark',
-                'Cyber Game Seed',
-                'Web3 Creator Mode',
-            ],
-        },
-        {
-            genre: 'Mechanic Mix',
-            games: [
-                'AI Mechanic Fusion',
-                'Cyber System Remix',
-                'Meta Combo Exp',
-            ],
-        },
-    ],
-    [
-        {
-            genre: 'UI & Menu',
-            games: [
-                'AI Menu Command',
-                'Cyber Level Nexus',
-                'Web3 Shop UI',
-            ],
-        },
-        {
-            genre: 'Polish',
-            games: [
-                'AI Sound Studio',
-                'Cyber Juice FX',
-                'Meta Final Touch',
-            ],
-        },
-        {
-            genre: 'Test & Fix',
-            games: [
-                'AI QA Arena',
-                'Cyber Patch Lab',
-                'Web3 Bug Hunt',
-            ],
-        },
-        {
-            genre: 'Showcase',
-            games: [
-                'AI Trailer Cut',
-                'Cyber Poster Maker',
-                'Meta Demo Day',
-            ],
-        },
-    ],
-]
-
-const promptFiles = import.meta.glob('/src/data/game-roadmap/*.txt', { as: 'raw', eager: true }) as Record<
-    string,
-    string
->
-const promptContentByGame = Object.fromEntries(
-    Object.entries(promptFiles).map(
-        ([
-            path,
-            content,
-        ]) => {
-            const fileName = path.split('/').pop() ?? ''
-            const gameName = fileName.replace(/\.txt$/, '')
-            return [
-                gameName,
-                content,
-            ]
-        },
-    ),
-)
-
-const gameToGenre: Record<string, string> = {}
-roadmapRows.forEach((weeks) => {
-    weeks.forEach((week) => {
-        week.games.forEach((game) => {
-            gameToGenre[game] = week.genre
-        })
-    })
-})
-
-gameToGenre['Cyber Orbit Dodge'] = 'Action'
-gameToGenre['AI Bomb Reflex'] = 'Arcade'
-gameToGenre['Web3 Laser Escape'] = 'Action'
-gameToGenre['Meta Link Circuit'] = 'Puzzle'
-gameToGenre['AI Meteor Drop'] = 'Arcade'
-gameToGenre['Cyber Path Grid'] = 'Logic'
-gameToGenre['Web3 Route Lab'] = 'Puzzle'
-gameToGenre['AI Traffic Split'] = 'Arcade'
-gameToGenre['Cyber Wall Ninja'] = 'Action'
-
-const allGamesNames = Object.keys(promptContentByGame)
-const allGamesData = allGamesNames.map((name) => ({
-    name,
-    genre: gameToGenre[name] || 'Arcade',
-    promptContent: promptContentByGame[name] ?? '',
-}))
+const roadmapGameRows = (await sql`
+    SELECT id, month, week, name, genre, prompt_content, image_url, sort_order, is_verified
+    FROM error404labs.roadmap_games
+    ORDER BY month ASC, week ASC, sort_order ASC, id ASC
+`) as RoadmapGameRow[]
 
 const roadmap = months.map((month, monthIndex) => ({
     ...month,
-    weeks: roadmapRows[monthIndex].map((week, weekIndex) => ({
-        ...week,
-        games: week.games.map((game) => ({
-            name: game,
-            promptContent: promptContentByGame[game] ?? '',
-        })),
-    })),
+    weeks: weekLabels.map((_, weekIndex) => {
+        const weekGames = roadmapGameRows.filter((game) => game.month === monthIndex + 1 && game.week === weekIndex + 1)
+        return {
+            genre: weekGames[0]?.genre || 'Arcade',
+            games: weekGames.map((game) => ({
+                id: game.id,
+                name: game.name,
+                genre: game.genre,
+                promptContent: game.prompt_content ?? '',
+                imageUrl: game.image_url ?? '',
+                isVerified: Boolean(game.is_verified),
+            })),
+        }
+    }),
+}))
+
+const allGamesData = roadmapGameRows.map((game) => ({
+    id: game.id,
+    name: game.name,
+    genre: game.genre,
+    month: game.month,
+    week: game.week,
+    promptContent: game.prompt_content ?? '',
+    imageUrl: game.image_url ?? '',
+    isVerified: Boolean(game.is_verified),
 }))
 
 // ─── SVG Icon Definitions ───────────────────────────────────────────
@@ -909,13 +501,16 @@ const monthSvgs = [
 
             grid.innerHTML = week.games
                 .map((game, gi) => {
-                    const genre = week.genre
+                    const genre = game.genre || week.genre
                     const genreClass = getGenreClass(genre)
                     const svg = genreIcons[genre] || genreIcons['Arcade']
                     const gradBg = genreGradBg[genre] || 'from-indigo-500 to-indigo-700'
-                    const imageSrc = '/images-game-roadmap/' + encodeURIComponent(game.name) + '.webp'
+                    const imageSrc = game.imageUrl || '/images-game-roadmap/' + encodeURIComponent(game.name) + '.webp'
                     const promptBadge = hasPrompt(game)
                         ? '<span class="bg-emerald-600 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm"><i class="fa fa-check-circle"></i> Prompt Ready</span>'
+                        : ''
+                    const verifiedBadge = game.isVerified
+                        ? '<span class="bg-blue-600 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm"><i class="fa fa-shield"></i> Verified</span>'
                         : ''
                     const trendingClass = gi === 0 ? '' : 'hidden '
                     return (
@@ -954,6 +549,7 @@ const monthSvgs = [
                         '</div>' +
                         '<div class="flex gap-2 relative z-10">' +
                         promptBadge +
+                        verifiedBadge +
                         '<span class="' +
                         trendingClass +
                         'bg-red-500 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm">' +
@@ -1029,16 +625,29 @@ const monthSvgs = [
                     const genreClass = getGenreClass(genre)
                     const svg = genreIcons[genre] || genreIcons['Arcade']
                     const gradBg = genreGradBg[genre] || 'from-indigo-500 to-indigo-700'
-                    const imageSrc = '/images-game-roadmap/' + encodeURIComponent(game.name) + '.webp'
+                    const imageSrc = game.imageUrl || '/images-game-roadmap/' + encodeURIComponent(game.name) + '.webp'
                     const promptBadge = hasPrompt(game)
                         ? '<span class="bg-emerald-600 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm"><i class="fa fa-check-circle"></i> Prompt Ready</span>'
+                        : ''
+                    const verifiedBadge = game.isVerified
+                        ? '<span class="bg-blue-600 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm"><i class="fa fa-shield"></i> Verified</span>'
                         : ''
                     return (
                         '<div data-game="' +
                         game.name +
                         '" data-genre="' +
                         genre +
-                        '" data-month="0" data-week="0" data-month-idx="0" data-week-idx="0" data-game-idx="0" data-prompt-content="' +
+                        '" data-month="' +
+                        (game.month || 0) +
+                        '" data-week="' +
+                        (game.week || 0) +
+                        '" data-permission="' +
+                        (game.month && game.week ? 'roadmap_m' + game.month + '_w' + game.week : '') +
+                        '" data-month-idx="' +
+                        ((game.month || 1) - 1) +
+                        '" data-week-idx="' +
+                        ((game.week || 1) - 1) +
+                        '" data-game-idx="0" data-prompt-content="' +
                         encodeURIComponent(game.promptContent || '') +
                         '" class="game-card-button game-card-clickable cursor-pointer bg-white rounded-3xl border-[2px] border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 overflow-hidden transition-all flex flex-col">' +
                         '<div class="h-44 w-full relative p-3.5 flex flex-col justify-between bg-gradient-to-br ' +
@@ -1055,6 +664,7 @@ const monthSvgs = [
                         '</div>' +
                         '<div class="flex gap-2 relative z-10">' +
                         promptBadge +
+                        verifiedBadge +
                         '<span class="hidden bg-red-500 text-white text-[11px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm">' +
                         attrSvgs.fire +
                         ' Trending</span>' +

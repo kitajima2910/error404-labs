@@ -6,42 +6,159 @@ interface Props {
     week: number
     index: number
     permission: string
+    isVerified?: boolean
 }
 
-const { game, genre, month, week, index, permission } = Astro.props as Props
+const { game, genre, month, week, index, permission, isVerified = false } = Astro.props as Props
 
 const genreTheme: Record<string, { card: string; icon: string; mark: string }> = {
-    Runner: { card: 'hover:border-emerald-400 hover:bg-emerald-50', icon: 'bg-emerald-100 text-emerald-700', mark: 'M4 15h4l2-6 3 7 2-4h5' },
-    Puzzle: { card: 'hover:border-amber-400 hover:bg-amber-50', icon: 'bg-amber-100 text-amber-700', mark: 'M7 7h10v10H7z M10 4v6 M14 14v6' },
-    Logic: { card: 'hover:border-yellow-400 hover:bg-yellow-50', icon: 'bg-yellow-100 text-yellow-700', mark: 'M6 12h12 M12 6v12 M8 8l8 8' },
-    Shooter: { card: 'hover:border-rose-400 hover:bg-rose-50', icon: 'bg-rose-100 text-rose-700', mark: 'M5 12h11 M13 8l4 4-4 4 M18 6v12' },
-    Action: { card: 'hover:border-red-400 hover:bg-red-50', icon: 'bg-red-100 text-red-700', mark: 'M6 18 18 6 M8 6l10 10 M5 9l4-4' },
-    'Boss Fight': { card: 'hover:border-red-400 hover:bg-red-50', icon: 'bg-red-100 text-red-700', mark: 'M7 17h10l2-7-4-3-3 3-3-3-4 3z' },
-    Rhythm: { card: 'hover:border-fuchsia-400 hover:bg-fuchsia-50', icon: 'bg-fuchsia-100 text-fuchsia-700', mark: 'M9 18V7l9-2v10 M9 18a2 2 0 1 1-2-2 M18 15a2 2 0 1 1-2-2' },
-    Music: { card: 'hover:border-fuchsia-400 hover:bg-fuchsia-50', icon: 'bg-fuchsia-100 text-fuchsia-700', mark: 'M9 18V7l9-2v10 M9 18a2 2 0 1 1-2-2 M18 15a2 2 0 1 1-2-2' },
-    Arcade: { card: 'hover:border-sky-400 hover:bg-sky-50', icon: 'bg-sky-100 text-sky-700', mark: 'M7 14h10 M9 12v4 M15 12v4 M8 8h8l3 10H5z' },
-    Simulation: { card: 'hover:border-teal-400 hover:bg-teal-50', icon: 'bg-teal-100 text-teal-700', mark: 'M12 20V8 M8 12c0-4 4-6 4-6s4 2 4 6 M6 16c3 0 6-2 6-5' },
-    Collect: { card: 'hover:border-lime-400 hover:bg-lime-50', icon: 'bg-lime-100 text-lime-700', mark: 'M12 4l2.3 4.6 5 .7-3.6 3.5.9 5-4.6-2.4-4.6 2.4.9-5L4.7 9.3l5-.7z' },
-    Adventure: { card: 'hover:border-cyan-400 hover:bg-cyan-50', icon: 'bg-cyan-100 text-cyan-700', mark: 'M5 19l4-12 5 5 5-7-4 12-5-5z' },
-    Effect: { card: 'hover:border-violet-400 hover:bg-violet-50', icon: 'bg-violet-100 text-violet-700', mark: 'M12 3v5 M12 16v5 M3 12h5 M16 12h5 M6 6l3 3 M15 15l3 3 M18 6l-3 3 M9 15l-3 3' },
-    Skill: { card: 'hover:border-violet-400 hover:bg-violet-50', icon: 'bg-violet-100 text-violet-700', mark: 'M12 3v5 M12 16v5 M3 12h5 M16 12h5 M6 6l3 3 M15 15l3 3 M18 6l-3 3 M9 15l-3 3' },
-    Upgrade: { card: 'hover:border-indigo-400 hover:bg-indigo-50', icon: 'bg-indigo-100 text-indigo-700', mark: 'M12 19V5 M7 10l5-5 5 5 M6 19h12' },
-    Shop: { card: 'hover:border-indigo-400 hover:bg-indigo-50', icon: 'bg-indigo-100 text-indigo-700', mark: 'M6 8h12l-1 11H7z M9 8a3 3 0 0 1 6 0' },
-    Progression: { card: 'hover:border-indigo-400 hover:bg-indigo-50', icon: 'bg-indigo-100 text-indigo-700', mark: 'M5 17h14 M7 14l4-4 3 3 5-7' },
-    'AI Enemy': { card: 'hover:border-slate-500 hover:bg-slate-100', icon: 'bg-slate-200 text-slate-800', mark: 'M8 9h8v7H8z M10 6h4 M9 12h.1 M15 12h.1 M12 16v3' },
-    'AI Pattern': { card: 'hover:border-slate-500 hover:bg-slate-100', icon: 'bg-slate-200 text-slate-800', mark: 'M6 7h12 M6 12h12 M6 17h12 M9 7v10 M15 7v10' },
-    'Boss AI': { card: 'hover:border-slate-500 hover:bg-slate-100', icon: 'bg-slate-200 text-slate-800', mark: 'M8 9h8v7H8z M10 6h4 M7 19h10 M9 12h.1 M15 12h.1' },
-    'Free Build': { card: 'hover:border-orange-400 hover:bg-orange-50', icon: 'bg-orange-100 text-orange-700', mark: 'M5 15l7-10 7 10H5z M8 18h8' },
-    'Theme Pack': { card: 'hover:border-orange-400 hover:bg-orange-50', icon: 'bg-orange-100 text-orange-700', mark: 'M6 7h12v10H6z M8 9h3v3H8z M13 9h3v6h-3z' },
-    'Game Idea': { card: 'hover:border-orange-400 hover:bg-orange-50', icon: 'bg-orange-100 text-orange-700', mark: 'M9 18h6 M10 14c-2-1-3-3-2-5a4 4 0 1 1 8 0c1 2 0 4-2 5v2h-4z' },
-    'Mechanic Mix': { card: 'hover:border-orange-400 hover:bg-orange-50', icon: 'bg-orange-100 text-orange-700', mark: 'M7 7h4v4H7z M13 13h4v4h-4z M11 9h4 M9 11v4' },
-    'UI & Menu': { card: 'hover:border-blue-400 hover:bg-blue-50', icon: 'bg-blue-100 text-blue-700', mark: 'M5 7h14 M5 12h14 M5 17h10' },
-    Polish: { card: 'hover:border-blue-400 hover:bg-blue-50', icon: 'bg-blue-100 text-blue-700', mark: 'M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z' },
-    'Test & Fix': { card: 'hover:border-blue-400 hover:bg-blue-50', icon: 'bg-blue-100 text-blue-700', mark: 'M6 12l4 4 8-8 M5 19h14' },
-    Showcase: { card: 'hover:border-blue-400 hover:bg-blue-50', icon: 'bg-blue-100 text-blue-700', mark: 'M5 6h14v10H5z M9 20h6 M12 16v4' },
+    Runner: {
+        card: 'hover:border-emerald-400 hover:bg-emerald-50',
+        icon: 'bg-emerald-100 text-emerald-700',
+        mark: 'M4 15h4l2-6 3 7 2-4h5',
+    },
+    Puzzle: {
+        card: 'hover:border-amber-400 hover:bg-amber-50',
+        icon: 'bg-amber-100 text-amber-700',
+        mark: 'M7 7h10v10H7z M10 4v6 M14 14v6',
+    },
+    Logic: {
+        card: 'hover:border-yellow-400 hover:bg-yellow-50',
+        icon: 'bg-yellow-100 text-yellow-700',
+        mark: 'M6 12h12 M12 6v12 M8 8l8 8',
+    },
+    Shooter: {
+        card: 'hover:border-rose-400 hover:bg-rose-50',
+        icon: 'bg-rose-100 text-rose-700',
+        mark: 'M5 12h11 M13 8l4 4-4 4 M18 6v12',
+    },
+    Action: {
+        card: 'hover:border-red-400 hover:bg-red-50',
+        icon: 'bg-red-100 text-red-700',
+        mark: 'M6 18 18 6 M8 6l10 10 M5 9l4-4',
+    },
+    'Boss Fight': {
+        card: 'hover:border-red-400 hover:bg-red-50',
+        icon: 'bg-red-100 text-red-700',
+        mark: 'M7 17h10l2-7-4-3-3 3-3-3-4 3z',
+    },
+    Rhythm: {
+        card: 'hover:border-fuchsia-400 hover:bg-fuchsia-50',
+        icon: 'bg-fuchsia-100 text-fuchsia-700',
+        mark: 'M9 18V7l9-2v10 M9 18a2 2 0 1 1-2-2 M18 15a2 2 0 1 1-2-2',
+    },
+    Music: {
+        card: 'hover:border-fuchsia-400 hover:bg-fuchsia-50',
+        icon: 'bg-fuchsia-100 text-fuchsia-700',
+        mark: 'M9 18V7l9-2v10 M9 18a2 2 0 1 1-2-2 M18 15a2 2 0 1 1-2-2',
+    },
+    Arcade: {
+        card: 'hover:border-sky-400 hover:bg-sky-50',
+        icon: 'bg-sky-100 text-sky-700',
+        mark: 'M7 14h10 M9 12v4 M15 12v4 M8 8h8l3 10H5z',
+    },
+    Simulation: {
+        card: 'hover:border-teal-400 hover:bg-teal-50',
+        icon: 'bg-teal-100 text-teal-700',
+        mark: 'M12 20V8 M8 12c0-4 4-6 4-6s4 2 4 6 M6 16c3 0 6-2 6-5',
+    },
+    Collect: {
+        card: 'hover:border-lime-400 hover:bg-lime-50',
+        icon: 'bg-lime-100 text-lime-700',
+        mark: 'M12 4l2.3 4.6 5 .7-3.6 3.5.9 5-4.6-2.4-4.6 2.4.9-5L4.7 9.3l5-.7z',
+    },
+    Adventure: {
+        card: 'hover:border-cyan-400 hover:bg-cyan-50',
+        icon: 'bg-cyan-100 text-cyan-700',
+        mark: 'M5 19l4-12 5 5 5-7-4 12-5-5z',
+    },
+    Effect: {
+        card: 'hover:border-violet-400 hover:bg-violet-50',
+        icon: 'bg-violet-100 text-violet-700',
+        mark: 'M12 3v5 M12 16v5 M3 12h5 M16 12h5 M6 6l3 3 M15 15l3 3 M18 6l-3 3 M9 15l-3 3',
+    },
+    Skill: {
+        card: 'hover:border-violet-400 hover:bg-violet-50',
+        icon: 'bg-violet-100 text-violet-700',
+        mark: 'M12 3v5 M12 16v5 M3 12h5 M16 12h5 M6 6l3 3 M15 15l3 3 M18 6l-3 3 M9 15l-3 3',
+    },
+    Upgrade: {
+        card: 'hover:border-indigo-400 hover:bg-indigo-50',
+        icon: 'bg-indigo-100 text-indigo-700',
+        mark: 'M12 19V5 M7 10l5-5 5 5 M6 19h12',
+    },
+    Shop: {
+        card: 'hover:border-indigo-400 hover:bg-indigo-50',
+        icon: 'bg-indigo-100 text-indigo-700',
+        mark: 'M6 8h12l-1 11H7z M9 8a3 3 0 0 1 6 0',
+    },
+    Progression: {
+        card: 'hover:border-indigo-400 hover:bg-indigo-50',
+        icon: 'bg-indigo-100 text-indigo-700',
+        mark: 'M5 17h14 M7 14l4-4 3 3 5-7',
+    },
+    'AI Enemy': {
+        card: 'hover:border-slate-500 hover:bg-slate-100',
+        icon: 'bg-slate-200 text-slate-800',
+        mark: 'M8 9h8v7H8z M10 6h4 M9 12h.1 M15 12h.1 M12 16v3',
+    },
+    'AI Pattern': {
+        card: 'hover:border-slate-500 hover:bg-slate-100',
+        icon: 'bg-slate-200 text-slate-800',
+        mark: 'M6 7h12 M6 12h12 M6 17h12 M9 7v10 M15 7v10',
+    },
+    'Boss AI': {
+        card: 'hover:border-slate-500 hover:bg-slate-100',
+        icon: 'bg-slate-200 text-slate-800',
+        mark: 'M8 9h8v7H8z M10 6h4 M7 19h10 M9 12h.1 M15 12h.1',
+    },
+    'Free Build': {
+        card: 'hover:border-orange-400 hover:bg-orange-50',
+        icon: 'bg-orange-100 text-orange-700',
+        mark: 'M5 15l7-10 7 10H5z M8 18h8',
+    },
+    'Theme Pack': {
+        card: 'hover:border-orange-400 hover:bg-orange-50',
+        icon: 'bg-orange-100 text-orange-700',
+        mark: 'M6 7h12v10H6z M8 9h3v3H8z M13 9h3v6h-3z',
+    },
+    'Game Idea': {
+        card: 'hover:border-orange-400 hover:bg-orange-50',
+        icon: 'bg-orange-100 text-orange-700',
+        mark: 'M9 18h6 M10 14c-2-1-3-3-2-5a4 4 0 1 1 8 0c1 2 0 4-2 5v2h-4z',
+    },
+    'Mechanic Mix': {
+        card: 'hover:border-orange-400 hover:bg-orange-50',
+        icon: 'bg-orange-100 text-orange-700',
+        mark: 'M7 7h4v4H7z M13 13h4v4h-4z M11 9h4 M9 11v4',
+    },
+    'UI & Menu': {
+        card: 'hover:border-blue-400 hover:bg-blue-50',
+        icon: 'bg-blue-100 text-blue-700',
+        mark: 'M5 7h14 M5 12h14 M5 17h10',
+    },
+    Polish: {
+        card: 'hover:border-blue-400 hover:bg-blue-50',
+        icon: 'bg-blue-100 text-blue-700',
+        mark: 'M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z',
+    },
+    'Test & Fix': {
+        card: 'hover:border-blue-400 hover:bg-blue-50',
+        icon: 'bg-blue-100 text-blue-700',
+        mark: 'M6 12l4 4 8-8 M5 19h14',
+    },
+    Showcase: {
+        card: 'hover:border-blue-400 hover:bg-blue-50',
+        icon: 'bg-blue-100 text-blue-700',
+        mark: 'M5 6h14v10H5z M9 20h6 M12 16v4',
+    },
 }
 
-const theme = genreTheme[genre] || { card: 'hover:border-indigo-400 hover:bg-indigo-50', icon: 'bg-indigo-100 text-indigo-700', mark: 'M5 12h14 M12 5v14' }
+const theme = genreTheme[genre] || {
+    card: 'hover:border-indigo-400 hover:bg-indigo-50',
+    icon: 'bg-indigo-100 text-indigo-700',
+    mark: 'M5 12h14 M12 5v14',
+}
 ---
 
 <button
@@ -55,13 +172,34 @@ const theme = genreTheme[genre] || { card: 'hover:border-indigo-400 hover:bg-ind
     data-permission={permission}
 >
     <span class="flex items-center gap-3">
-        <span class={`cell-icon grid h-11 w-11 shrink-0 place-items-center rounded-2xl shadow-inner transition group-hover:scale-110 ${theme.icon}`}>
-            <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <span
+            class={`cell-icon grid h-11 w-11 shrink-0 place-items-center rounded-2xl shadow-inner transition group-hover:scale-110 ${theme.icon}`}
+        >
+            <svg
+                viewBox="0 0 24 24"
+                class="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+            >
                 <path d={theme.mark}></path>
             </svg>
         </span>
         <span class="min-w-0 flex-1">
-            <span class="mb-1 inline-flex rounded-full bg-slate-950 px-2 py-0.5 text-[10px] font-black uppercase text-white shadow-sm shadow-slate-950/20">#{index}</span>
+            <span
+                class="mb-1 inline-flex rounded-full bg-slate-950 px-2 py-0.5 text-[10px] font-black uppercase text-white shadow-sm shadow-slate-950/20"
+                >#{index}</span
+            >
+            {
+                isVerified && (
+                    <span class="mb-1 ml-1 inline-flex rounded-full bg-blue-600 px-2 py-0.5 text-[10px] font-black uppercase text-white shadow-sm shadow-blue-600/20">
+                        Verified
+                    </span>
+                )
+            }
             <strong class="block truncate text-sm font-black text-slate-900">{game}</strong>
             <small class="block text-xs font-bold text-slate-500">Tháng {month} - Tuần {week}</small>
         </span>
@@ -118,41 +256,43 @@ const theme = genreTheme[genre] || { card: 'hover:border-indigo-400 hover:bg-ind
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.roadmap-game-cell').forEach((cell) => {
-            const permission = cell.getAttribute('data-permission');
-            if (!permission) return;
+            const permission = cell.getAttribute('data-permission')
+            if (!permission) return
 
-            const user = window.user;
-            if (!user) return;
+            const user = window.user
+            if (!user) return
 
-            const hasAccess = user.roles === 'admin' || (user.prompt_access && user.prompt_access.includes(permission));
+            const access = Array.isArray(user.prompt_access) ? user.prompt_access : []
+            const hasAccess = access.includes('game_roadmap') || access.includes(permission)
 
             if (!hasAccess) {
-                cell.classList.add('locked');
-                cell.setAttribute('aria-disabled', 'true');
-                cell.style.opacity = '0.55';
-                cell.style.cursor = 'not-allowed';
-                cell.style.filter = 'grayscale(0.4)';
+                cell.classList.add('locked')
+                cell.setAttribute('aria-disabled', 'true')
+                cell.style.opacity = '0.55'
+                cell.style.cursor = 'not-allowed'
+                cell.style.filter = 'grayscale(0.4)'
 
-                const iconSpan = cell.querySelector('.cell-icon');
+                const iconSpan = cell.querySelector('.cell-icon')
                 if (iconSpan) {
-                    iconSpan.innerHTML = '<svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
+                    iconSpan.innerHTML =
+                        '<svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'
                 }
 
-                const textSpan = cell.querySelector('span:last-child');
+                const textSpan = cell.querySelector('span:last-child')
                 if (textSpan) {
-                    textSpan.style.opacity = '0.5';
+                    textSpan.style.opacity = '0.5'
                 }
 
-                cell.setAttribute('title', 'Bài học này chưa được mở khóa. Vui lòng liên hệ Admin.');
+                cell.setAttribute('title', 'Bài học này chưa được mở khóa. Vui lòng liên hệ Admin.')
 
                 cell.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
+                    e.preventDefault()
+                    e.stopPropagation()
                     if (window.showToast) {
-                        window.showToast('Cần quyền truy cập. Vui lòng liên hệ Admin để được cấp quyền.', 'warning');
+                        window.showToast('Cần quyền truy cập. Vui lòng liên hệ Admin để được cấp quyền.', 'warning')
                     }
-                });
+                })
             }
-        });
-    });
+        })
+    })
 </script>

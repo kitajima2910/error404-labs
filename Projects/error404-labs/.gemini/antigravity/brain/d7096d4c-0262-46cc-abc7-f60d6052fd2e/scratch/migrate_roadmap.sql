@@ -1,0 +1,433 @@
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Velocity Sprint', 'Runner', 1, 1, 'Create a complete browser game called **Neon Jump Runner** in a single self-contained HTML file using pure HTML/CSS/JavaScript (no external assets or libraries). Build a fast, addictive endless arcade runner with a sleek neon cyber aesthetic. Core loop: player auto-runs forward, taps/clicks/space to jump, hold briefly for slightly higher jump, avoid randomized obstacles, gaps, lasers, and moving hazards. Add responsive touch + keyboard controls, prevent scrolling/zoom during gameplay, and ensure smooth mobile + desktop performance at 60fps where possible.
+
+Include polished game feel: particle trails, screen shake on impacts, glow effects, combo score for near-misses, increasing speed difficulty, dynamic obstacle patterns, progressive difficulty ramp, best score saved in localStorage, instant restart, pause button, sound effects generated with Web Audio API, clean HUD, countdown start, game over overlay. Add occasional powerups (shield, slow motion, score boost) with clear visual feedback. Procedural level generation must stay fair and playable. Use readable modular code architecture, stable collision detection, adaptive canvas scaling, and no bugs from switching between touch and keyboard input.
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Neural Token Dash', 'Runner', 1, 1, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Cloud Leap', 'Runner', 1, 1, '﻿=== CREATE GAME ===
+
+* Tên: **Sky Platform Sprint**
+
+* Style: **Low Poly**
+
+* Nền tảng: **Mobile + Desktop**
+
+* Orientation: **Landscape** (gameplay platform action + di chuyển tự do)
+
+* TikTok Mode: **Hỗ trợ Portrait highlight mode (9:16 replay/capture)**, gameplay chính vẫn Landscape
+
+* Đối tượng:
+
+  * Player runner (nhân vật chạy nhảy low poly)
+  * Floating sky platforms
+  * Breakable platforms
+  * Moving platforms
+  * Bounce pads
+  * Dash rings
+  * Coin shards
+  * Drone chasers
+  * Spike traps
+  * Falling debris
+  * Finish gates
+  * Power pickups
+
+* Gameplay:
+
+  * Endless platform sprint trên các đảo nổi trên trời, player auto-run tiến về phía trước ở tốc độ khởi điểm **6 units/s**, người chơi tập trung jump / dash / đổi lane / timing.
+  * Spawn platform mỗi **0.9s**, pattern mix giữa fixed + random segment templates, tối đa **18 platform segment** active cùng lúc để giữ FPS 60.
+  * Drone enemy spawn mỗi **7s**, tối đa **3 drone** cùng lúc; drone gây áp lực buộc player di chuyển thay vì đứng chờ.
+  * Coin orb pickup tăng combo **+1/orb**, max combo **x12**.
+  * Combo reset nếu:
+
+    * bị hit
+    * không nhặt orb trong **4 giây**
+    * rơi khỏi map
+  * Combo bonus:
+
+    * x3 = +8% tốc độ
+    * x6 = +15% coin
+    * x9 = jump boost +10%
+    * x12 = temporary dash recharge -30%
+  * Player bắt đầu tại **GameState: Menu → Playing** khi bấm Start.
+  * Điều kiện thua:
+
+    * HP = 0
+    * rơi khỏi sky lane
+  * HP player = **3**
+  * Damage:
+
+    * drone hit = 1 HP
+    * spike = 1 HP
+    * falling debris = 2 HP
+  * Invulnerability frame sau hit: **0.8s**
+  * Nếu chết:
+
+    * **Playing → Dead**
+    * restart về đầu run
+  * Revive tùy chọn 1 lần/video continue nếu bật mode này.
+  * Object pooling dùng cho platform / drone / pickups / FX / debris.
+  * Tổng object tối đa:
+
+    * platform: 18
+    * drone: 3
+    * projectile/effect: 20
+    * pickup: 15
+    * tổng hard cap: **56**
+  * Target FPS: **60**
+
+* Luật:
+
+  * Chỉ tiến lên, không backtrack.
+  * Jump miss = rơi khỏi map = chết ngay.
+  * Moving platform đổi vị trí mỗi **2.5–4s**.
+  * Breakable platform vỡ sau **1.2s** đứng trên đó.
+  * Bounce pad launch cao gấp **1.8x jump thường**.
+  * Dash cooldown cơ bản **3.5s**.
+  * Finish gate milestone mỗi **500m**, difficulty tăng:
+
+    * +10% tốc độ world
+    * +15% obstacle density
+    * +1 drone spawn pressure tier mỗi 1000m
+
+* Hiển thị:
+
+  * Camera góc nhìn third-person chase nhẹ.
+  * Skybox mây động low poly.
+  * Platform có màu phân loại:
+
+    * xanh = safe
+    * đỏ = break
+    * vàng = boost
+    * tím = dash ring
+  * TikTok mode crop camera dọc, focus player giữa màn hình.
+
+* UI:
+
+  * Top center:
+
+    * Distance meter
+    * Combo meter
+  * Top left:
+
+    * HP (3 heart icon)
+  * Top right:
+
+    * Dash cooldown
+    * Coin count
+  * Dead screen:
+
+    * score
+    * best distance
+    * retry
+    * revive (nếu bật)
+
+* Điều khiển Mobile:
+
+  * Tap phải = jump
+  * Swipe trái/phải = lane shift
+  * Hold dash button = dash
+  * Nút lớn thumb-friendly, cách nhau tối thiểu **12px responsive spacing**
+
+* Điều khiển Desktop:
+
+  * Space = jump
+  * A/D hoặc arrow = lane shift
+  * Shift = dash
+  * Mouse click hỗ trợ jump
+
+* Hiệu ứng:
+
+  * Jump squash/stretch nhẹ
+  * Dash trail low poly streak
+  * Combo flash mỗi milestone
+  * Camera shake nhẹ **0.15s** khi hit
+  * Coin burst particle pooled
+  * Platform crumble FX pooled
+  * Drone warning pulse trước khi lao **0.6s**
+  * Không spawn/destroy runtime liên tục để tránh GC spike
+
+* Build:
+
+  * **Base Build: Sky Runner**
+  * Build hiện tại:
+
+    * tốc độ cân bằng
+    * 1 dash charge
+    * standard jump
+    * combo mobility scaling
+  * Feel: quick reflex arcade run 30–60s loop
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Quantum Block Shift', 'Puzzle', 1, 2, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Meta Crate Logic', 'Puzzle', 1, 2, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Web3 Key Protocol', 'Puzzle', 1, 2, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Spatial Dodge Zone', 'Arcade', 1, 3, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Spike Frenzy', 'Arcade', 1, 3, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Pipe Runner', 'Arcade', 1, 3, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Meta Farm Builder', 'Simulation', 1, 4, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Pet Simulator', 'Simulation', 1, 4, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Web3 Market Boss', 'Simulation', 1, 4, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Flappy Neural', 'Arcade', 2, 1, 'Create a complete browser game called **Flappy Cyber Bird** in a single self-contained HTML file using pure HTML/CSS/JavaScript (no external assets or libraries). Build a polished cyberpunk-themed side-scrolling arcade game inspired by Flappy Bird but with original visuals and mechanics. Player controls a small neon robotic bird flying through procedurally generated obstacle gates in a futuristic city skyline. Desktop: space/mouse click. Mobile: tap touch. Prevent scrolling/zoom during gameplay.
+
+Requirements: responsive mobile + desktop, stable 60fps performance, portrait orientation preferred, glowing neon UI, parallax animated cyber city background, score counter, best score saved in localStorage, start screen, game over screen, instant restart, smooth flap physics, fair collision detection, escalating difficulty over time (slightly faster speed + tighter gaps), satisfying particles on flap/collision, sound effects generated in code (Web Audio API, no files), occasional collectible energy orbs worth bonus points, brief screen shake on crash, readable clean code with modular functions and comments. No placeholders. Fully playable immediately.
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Velocity Sprint', 'Arcade', 2, 2, 'Create a complete browser game called **Neon Jump Runner** in a single self-contained HTML file using pure HTML/CSS/JavaScript (no external assets or libraries). Build a fast, addictive endless arcade runner with a sleek neon cyber aesthetic. Core loop: player auto-runs forward, taps/clicks/space to jump, hold briefly for slightly higher jump, avoid randomized obstacles, gaps, lasers, and moving hazards. Add responsive touch + keyboard controls, prevent scrolling/zoom during gameplay, and ensure smooth mobile + desktop performance at 60fps where possible.
+
+Include polished game feel: particle trails, screen shake on impacts, glow effects, combo score for near-misses, increasing speed difficulty, dynamic obstacle patterns, progressive difficulty ramp, best score saved in localStorage, instant restart, pause button, sound effects generated with Web Audio API, clean HUD, countdown start, game over overlay. Add occasional powerups (shield, slow motion, score boost) with clear visual feedback. Procedural level generation must stay fair and playable. Use readable modular code architecture, stable collision detection, adaptive canvas scaling, and no bugs from switching between touch and keyboard input.
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Geo Dash', 'Arcade', 2, 3, 'Create a complete browser game inspired by the rhythm platformer feel of Geometry Dash, but original (no copyrighted assets, names, music, or level copies). Use pure HTML, CSS, and JavaScript in one self-contained file, fully playable on desktop and mobile browsers.
+
+Core gameplay: side-scrolling auto-run precision platformer with instant restart loop, tight hit detection, increasing speed, spikes, gaps, moving hazards, jump pads, gravity portals, and collectible stars. One-tap/one-key controls only (tap/click/space to jump; hold for higher jump if balanced). Add responsive touch controls, prevent scrolling/zoom during gameplay, stable keyboard support, and seamless switching between desktop/mobile input.
+
+Include polished juice: screen shake, particles, trail effects, satisfying death explosion, combo feedback, progress bar, best score save via localStorage, pause/restart UI, difficulty escalation, and procedural obstacle variation so runs feel fresh. Visual style: clean energetic geometric neon-but-readable aesthetic with smooth animations at stable performance (60fps target). Include title screen, quick tutorial, sound effects generated in code (no external assets), and a complete game over / retry loop. Code must be clean, readable, beginner-friendly, and fully working with no placeholders.
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Meta Helix Drop', 'Arcade', 2, 4, 'Create a polished HTML5 browser game inspired by Helix Fall, built as a single self-contained HTML file using pure HTML/CSS/JavaScript (no external assets or libraries). The game must work smoothly on desktop and mobile browsers with responsive full-screen scaling. Core gameplay: a bouncing ball descends through a rotating tower of circular platforms with gaps; player rotates the tower left/right via mouse drag, touch drag, and keyboard arrows. Ball falls through gaps, bounces on safe platforms, and dies on danger/red zones unless in smash mode. Add combo mechanic: consecutive falls without bouncing charge a temporary smash state that lets the ball break danger platforms with satisfying effects. Include score, best score (localStorage), level progression with procedural tower generation, increasing difficulty, restart flow, pause button, game over screen, subtle juice effects (screen shake, particles, bounce squash/stretch, combo glow), smooth physics, reliable collision detection, stable mobile touch handling (disable scrolling/zoom during play), optimized performance, clean readable code, and no placeholder systems. Visual style: vibrant modern arcade with generated CSS effects only.
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Slime Blaster', 'Shooter', 3, 1, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Wave Shield', 'Shooter', 3, 1, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Web3 Base Guard', 'Shooter', 3, 1, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Spatial Pop Blast', 'Arcade', 3, 2, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Duck Hunter', 'Arcade', 3, 2, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber UFO Zap', 'Arcade', 3, 2, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Meta Arsenal Run', 'Shooter', 3, 3, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Boss Rush', 'Shooter', 3, 3, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Web3 Squad Strike', 'Shooter', 3, 3, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Slash Dash', 'Action', 3, 4, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Shuriken Storm', 'Action', 3, 4, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Meta Boxing Ring', 'Action', 3, 4, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Neural Mosaic Quest', 'Puzzle', 4, 1, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Maze Core', 'Puzzle', 4, 1, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Web3 Switch Lab', 'Puzzle', 4, 1, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Sort Factory', 'Logic', 4, 2, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Balance AI', 'Logic', 4, 2, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Meta Power Grid', 'Logic', 4, 2, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Spatial Crate Push', 'Puzzle', 4, 3, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Pin Dungeon', 'Puzzle', 4, 3, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Light Tower', 'Puzzle', 4, 3, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Meta Hoop Shot', 'Arcade', 4, 4, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Trick Toss', 'Arcade', 4, 4, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Pinball Mini', 'Arcade', 4, 4, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Combo Rookie', 'Action', 5, 1, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Combo Forge', 'Action', 5, 1, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Web3 Counter Strike', 'Action', 5, 1, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Slime King', 'Boss Fight', 5, 2, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Robot Raid', 'Boss Fight', 5, 2, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Meta Dragon Trial', 'Boss Fight', 5, 2, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Jump Strike', 'Action', 5, 3, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Blade Dash', 'Action', 5, 3, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Web3 Cyclone Slash', 'Action', 5, 3, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Survival Ring', 'Arcade', 5, 4, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Battle Dome', 'Arcade', 5, 4, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Meta Trial Gate', 'Arcade', 5, 4, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Beat Reactor', 'Rhythm', 6, 1, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Dance Sync', 'Rhythm', 6, 1, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Web3 Bass Drop', 'Rhythm', 6, 1, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Piano Rush', 'Music', 6, 2, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Note Pop', 'Music', 6, 2, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Meta Synth Jam', 'Music', 6, 2, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Beat Dodge', 'Rhythm', 6, 3, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Timing Dash', 'Rhythm', 6, 3, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Web3 Combo Groove', 'Rhythm', 6, 3, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Dance Floor', 'Arcade', 6, 4, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Disco Orb', 'Arcade', 6, 4, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Meta Melody Ride', 'Arcade', 6, 4, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Coin Magnet', 'Collect', 7, 1, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Diamond Mine', 'Collect', 7, 1, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Web3 Starfall', 'Collect', 7, 1, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Crystal Cave', 'Adventure', 7, 2, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Lost Key', 'Adventure', 7, 2, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Meta Treasure Run', 'Adventure', 7, 2, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Fruit Frenzy', 'Collect', 7, 3, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Relic Run', 'Collect', 7, 3, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Web3 Parcel Sprint', 'Collect', 7, 3, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Farm Loop', 'Simulation', 7, 4, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Fishing Dock', 'Simulation', 7, 4, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Meta Chef Rush', 'Simulation', 7, 4, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Blast Sandbox', 'Effect', 8, 1, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Comet Trail', 'Effect', 8, 1, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Web3 Frost Burst', 'Effect', 8, 1, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Flame Forge', 'Skill', 8, 2, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Ice Weaver', 'Skill', 8, 2, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Meta Thunder Skill', 'Skill', 8, 2, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Heal Pulse', 'Effect', 8, 3, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Spark Lab', 'Effect', 8, 3, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Web3 FX Trial', 'Effect', 8, 3, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Dash Runner', 'Action', 8, 4, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Leap Quest', 'Action', 8, 4, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Meta Blast Hero', 'Action', 8, 4, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Core Upgrade', 'Upgrade', 9, 1, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Damage Forge', 'Upgrade', 9, 1, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Web3 Skill Tower', 'Upgrade', 9, 1, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Weapon Shop', 'Shop', 9, 2, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Gear Lab', 'Shop', 9, 2, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Meta Pet Shop', 'Shop', 9, 2, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI XP Climb', 'Progression', 9, 3, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Skill Tree', 'Progression', 9, 3, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Web3 Rank Reactor', 'Progression', 9, 3, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Quest Signal', 'Adventure', 9, 4, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Quest Harbor', 'Adventure', 9, 4, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Meta Daily Quest', 'Adventure', 9, 4, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Patrol Bot', 'AI Enemy', 10, 1, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Drone Maze', 'AI Enemy', 10, 1, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Web3 Sniper Bot', 'AI Enemy', 10, 1, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Spiral Duel', 'AI Pattern', 10, 2, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Pattern Core', 'AI Pattern', 10, 2, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Meta Pattern Arena', 'AI Pattern', 10, 2, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Boss Protocol', 'Boss AI', 10, 3, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Phase Titan', 'Boss AI', 10, 3, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Web3 Overlord', 'Boss AI', 10, 3, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI NPC Village', 'Simulation', 10, 4, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Squad Tactics', 'Simulation', 10, 4, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Meta World Engine', 'Simulation', 10, 4, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Platformer Lab', 'Free Build', 11, 1, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Puzzle Forge', 'Free Build', 11, 1, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Web3 Shooter Arena', 'Free Build', 11, 1, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Forest Run', 'Theme Pack', 11, 2, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Ocean Quest', 'Theme Pack', 11, 2, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Meta Space Colony', 'Theme Pack', 11, 2, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Game Spark', 'Game Idea', 11, 3, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Game Seed', 'Game Idea', 11, 3, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Web3 Creator Mode', 'Game Idea', 11, 3, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Mechanic Fusion', 'Mechanic Mix', 11, 4, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber System Remix', 'Mechanic Mix', 11, 4, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Meta Combo Exp', 'Mechanic Mix', 11, 4, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Menu Command', 'UI & Menu', 12, 1, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Level Nexus', 'UI & Menu', 12, 1, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Web3 Shop UI', 'UI & Menu', 12, 1, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Sound Studio', 'Polish', 12, 2, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Juice FX', 'Polish', 12, 2, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Meta Final Touch', 'Polish', 12, 2, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI QA Arena', 'Test & Fix', 12, 3, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Patch Lab', 'Test & Fix', 12, 3, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Web3 Bug Hunt', 'Test & Fix', 12, 3, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('AI Trailer Cut', 'Showcase', 12, 4, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Cyber Poster Maker', 'Showcase', 12, 4, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
+INSERT INTO error404labs.roadmap_games (name, genre, month_no, week_no, prompt_content) VALUES ('Meta Demo Day', 'Showcase', 12, 4, '﻿Đang tải...
+') ON CONFLICT (name) DO UPDATE SET genre = EXCLUDED.genre, month_no = EXCLUDED.month_no, week_no = EXCLUDED.week_no, prompt_content = EXCLUDED.prompt_content;
