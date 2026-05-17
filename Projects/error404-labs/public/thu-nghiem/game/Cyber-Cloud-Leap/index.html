@@ -1,0 +1,3322 @@
+<!doctype html>
+<html lang="en" class="h-full">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Cyber Cloud Leap - 3D Cyberpunk Parkour</title>
+        <link
+            rel="icon"
+            type="image/svg+xml"
+            href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3CradialGradient id='bg' cx='50%25' cy='45%25' r='65%25'%3E%3Cstop offset='0%25' stop-color='%231e1b4b'/%3E%3Cstop offset='100%25' stop-color='%2305050b'/%3E%3C/radialGradient%3E%3ClinearGradient id='bolt' x1='18' y1='6' x2='48' y2='58'%3E%3Cstop stop-color='%2322d3ee'/%3E%3Cstop offset='1' stop-color='%23ec4899'/%3E%3C/linearGradient%3E%3Cfilter id='glow'%3E%3CfeGaussianBlur stdDeviation='2.2' result='blur'/%3E%3CfeMerge%3E%3CfeMergeNode in='blur'/%3E%3CfeMergeNode in='SourceGraphic'/%3E%3C/feMerge%3E%3C/filter%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='url(%23bg)'/%3E%3Cpath d='M12 44c4-9 12-14 21-14 8 0 15 4 19 11-4 7-11 11-20 11-8 0-15-3-20-8Z' fill='%230891b2' opacity='.28'/%3E%3Cpath d='M36 4 15 34h15l-3 26 22-34H34L36 4Z' fill='url(%23bolt)' filter='url(%23glow)'/%3E%3Cpath d='M10 48h12M42 48h12M17 55h30' stroke='%2322d3ee' stroke-width='3' stroke-linecap='round' opacity='.8'/%3E%3C/svg%3E"
+        />
+        <!-- Tailwind CSS for modern adaptive UI -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        <!-- Google Fonts for premium retro-futuristic styling (including Montserrat/Monster font) -->
+        <link
+            href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;950&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap"
+            rel="stylesheet"
+        />
+        <!-- Font Awesome for sleek HUD icons -->
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        />
+        <!-- Three.js Library -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+        <style>
+            body {
+                font-family: "Montserrat", sans-serif;
+                overflow: hidden;
+                background-color: #05050b;
+                user-select: none;
+                -webkit-user-select: none;
+            }
+            .font-orbitron {
+                font-family: "Orbitron", sans-serif;
+            }
+            /* Custom Neon Glows */
+            .neon-text-cyan {
+                text-shadow:
+                    0 0 5px rgba(6, 182, 212, 0.5),
+                    0 0 15px rgba(6, 182, 212, 0.8);
+            }
+            .neon-text-pink {
+                text-shadow:
+                    0 0 5px rgba(236, 72, 153, 0.5),
+                    0 0 15px rgba(236, 72, 153, 0.8);
+            }
+            .neon-border-cyan {
+                box-shadow:
+                    0 0 10px rgba(6, 182, 212, 0.5),
+                    inset 0 0 10px rgba(6, 182, 212, 0.3);
+                border: 1px solid rgba(6, 182, 212, 0.8);
+            }
+            .neon-border-pink {
+                box-shadow:
+                    0 0 10px rgba(236, 72, 153, 0.5),
+                    inset 0 0 10px rgba(236, 72, 153, 0.3);
+                border: 1px solid rgba(236, 72, 153, 0.8);
+            }
+            /* Scanlines Effect overlay */
+            .scanlines {
+                background:
+                    linear-gradient(
+                        rgba(18, 16, 16, 0) 50%,
+                        rgba(0, 0, 0, 0.25) 50%
+                    ),
+                    linear-gradient(
+                        90deg,
+                        rgba(255, 0, 0, 0.06),
+                        rgba(0, 255, 0, 0.02),
+                        rgba(0, 0, 255, 0.06)
+                    );
+                background-size:
+                    100% 4px,
+                    6px 100%;
+            }
+            /* Grid background animation for retro feel */
+            .cyber-grid {
+                background-image:
+                    linear-gradient(
+                        rgba(6, 182, 212, 0.07) 1px,
+                        transparent 1px
+                    ),
+                    linear-gradient(
+                        90deg,
+                        rgba(6, 182, 212, 0.07) 1px,
+                        transparent 1px
+                    );
+                background-size: 30px 30px;
+            }
+            /* Custom custom scrollbars */
+            ::-webkit-scrollbar {
+                width: 6px;
+            }
+            ::-webkit-scrollbar-track {
+                background: rgba(15, 23, 42, 0.8);
+            }
+            ::-webkit-scrollbar-thumb {
+                background: #ec4899;
+                border-radius: 3px;
+            }
+            /* Keyframe pulse */
+            @keyframes pulse-fast {
+                0%,
+                100% {
+                    opacity: 1;
+                }
+                50% {
+                    opacity: 0.4;
+                }
+            }
+            .pulse-fast {
+                animation: pulse-fast 0.8s infinite;
+            }
+        </style>
+    </head>
+    <body
+        class="relative h-screen w-screen overflow-hidden text-white select-none"
+    >
+        <!-- Canvas for 3D Game Area -->
+        <canvas
+            id="gameCanvas"
+            class="absolute inset-0 w-full h-full block z-0"
+        ></canvas>
+
+        <!-- Scanline overlays for atmospheric cyberpunk vibe -->
+        <div
+            class="absolute inset-0 pointer-events-none scanlines z-10 opacity-40"
+        ></div>
+
+        <!-- UI Core wrapper -->
+        <div
+            class="absolute inset-0 flex flex-col justify-between p-4 md:p-6 z-20 pointer-events-none"
+        >
+            <!-- HEADER HUD -->
+            <header
+                class="flex justify-between items-start w-full pointer-events-auto"
+            >
+                <!-- Left Side: Score & Multiplier -->
+                <div class="flex flex-col gap-1">
+                    <div
+                        class="bg-slate-950/80 backdrop-blur-md px-4 py-2 rounded-xl border border-cyan-500/30 flex items-center gap-4"
+                    >
+                        <div>
+                            <span
+                                class="text-xs uppercase text-cyan-400 font-orbitron tracking-widest block"
+                                >Điểm số</span
+                            >
+                            <span
+                                id="hudScore"
+                                class="text-2xl font-bold font-orbitron text-white"
+                                >0</span
+                            >
+                        </div>
+                        <div class="h-8 w-[1px] bg-cyan-500/30"></div>
+                        <div>
+                            <span
+                                class="text-xs uppercase text-pink-400 font-orbitron tracking-widest block font-bold"
+                                >Hệ số</span
+                            >
+                            <div class="flex items-center gap-1">
+                                <span
+                                    id="hudCombo"
+                                    class="text-2xl font-bold font-orbitron text-pink-500 neon-text-pink"
+                                    >x1.0</span
+                                >
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Combo Progress bar -->
+                    <div
+                        class="w-full h-1.5 bg-slate-900 rounded-full overflow-hidden border border-cyan-950"
+                    >
+                        <div
+                            id="comboProgress"
+                            class="h-full bg-gradient-to-r from-cyan-400 to-pink-500 w-0 transition-all duration-100 shadow-[0_0_8px_rgba(236,72,153,0.6)]"
+                        ></div>
+                    </div>
+                </div>
+
+                <!-- Middle: Active Buffs & Velocity Visualizer -->
+                <div class="hidden md:flex flex-col items-center gap-1">
+                    <div
+                        class="bg-slate-950/80 backdrop-blur-md px-4 py-1.5 rounded-xl border border-slate-800 flex items-center gap-3"
+                    >
+                        <span class="text-xs font-orbitron text-slate-400"
+                            >TỐC ĐỘ:</span
+                        >
+                        <span
+                            id="hudSpeed"
+                            class="text-sm font-bold font-orbitron text-cyan-400"
+                            >0.0 KM/H</span
+                        >
+                    </div>
+                    <!-- Dynamic Weather HUD -->
+                    <div
+                        id="weatherHUD"
+                        class="bg-slate-950/85 backdrop-blur-md px-3 py-1 rounded-lg border border-pink-500/20 text-xs font-orbitron text-pink-400 flex items-center gap-1.5"
+                    >
+                        <i
+                            class="fa-solid fa-cloud-bolt text-xs animate-bounce"
+                        ></i>
+                        <span id="weatherText">THỜI TIẾT: TRỜI QUANG</span>
+                    </div>
+                </div>
+
+                <!-- Right Side: Shards & Distance -->
+                <div class="flex gap-2">
+                    <!-- Shard Count -->
+                    <div
+                        class="bg-slate-950/80 backdrop-blur-md px-4 py-2 rounded-xl border border-pink-500/30 flex items-center gap-2"
+                    >
+                        <div class="text-right">
+                            <span
+                                class="text-xs uppercase text-pink-400 font-orbitron tracking-widest block"
+                                >Mảnh Neon</span
+                            >
+                            <span
+                                id="hudShards"
+                                class="text-xl font-bold font-orbitron text-pink-400 flex items-center gap-2 justify-end"
+                            >
+                                <i
+                                    class="fa-solid fa-gem text-pink-500 animate-pulse text-sm"
+                                ></i>
+                                <span id="hudShardCount">0</span>
+                            </span>
+                        </div>
+                    </div>
+                    <!-- Distance Tracker -->
+                    <div
+                        class="bg-slate-950/80 backdrop-blur-md px-4 py-2 rounded-xl border border-cyan-500/30 text-right"
+                    >
+                        <span
+                            class="text-xs uppercase text-cyan-400 font-orbitron tracking-widest block"
+                            >Quãng đường</span
+                        >
+                        <span
+                            id="hudDistance"
+                            class="text-xl font-bold font-orbitron text-cyan-300"
+                            >0 m</span
+                        >
+                    </div>
+                </div>
+            </header>
+
+            <!-- CENTER SCREEN NOTIFICATIONS -->
+            <div
+                class="absolute top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center pointer-events-none z-10 w-full text-center"
+            >
+                <div
+                    id="comboBanner"
+                    class="scale-0 opacity-0 transform transition-all duration-300"
+                >
+                    <h2
+                        id="comboBannerText"
+                        class="text-4xl md:text-5xl font-black font-orbitron tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-pink-500 neon-text-pink select-none uppercase"
+                    >
+                        BÙNG NỔ COMBO!
+                    </h2>
+                    <p
+                        class="text-cyan-300 font-bold uppercase tracking-widest text-xs mt-1"
+                    >
+                        ĐÃ KÍCH HOẠT TĂNG TỐC
+                    </p>
+                </div>
+                <!-- Alert notification box (Replaces Standard Alerts) -->
+                <div
+                    id="customAlert"
+                    class="mt-4 px-6 py-2 bg-slate-950/90 text-yellow-400 border border-yellow-500/50 rounded-lg text-sm font-orbitron font-bold uppercase tracking-wider scale-0 opacity-0 transition-all duration-200"
+                >
+                    Thông báo hệ thống
+                </div>
+                <!-- Start Instructions Prompt -->
+                <div
+                    id="startPrompt"
+                    class="mt-8 px-6 py-3 bg-slate-950/95 border border-cyan-400/50 rounded-xl text-sm md:text-base font-orbitron font-bold text-cyan-300 uppercase tracking-widest hidden animate-pulse"
+                >
+                    Nhấn W / Mũi tên lên hoặc Nhảy (Space) để bắt đầu chạy
+                </div>
+            </div>
+
+            <!-- FOOTER: Controller/Skill Slots & Mobile Inputs -->
+            <footer class="flex flex-col gap-4 w-full mt-auto">
+                <!-- Skill Slots & Upgrades Bar (Desktop & Mobile status) -->
+                <div class="flex justify-between items-end w-full">
+                    <!-- Skill Indicators -->
+                    <div class="flex gap-3 pointer-events-auto">
+                        <!-- Jump Charge Status -->
+                        <div
+                            class="bg-slate-950/80 backdrop-blur-md p-2.5 rounded-xl border border-cyan-500/30 flex items-center gap-3"
+                        >
+                            <div
+                                class="relative flex items-center justify-center w-10 h-10 rounded-lg bg-cyan-950/50 border border-cyan-500/30"
+                            >
+                                <i
+                                    class="fa-solid fa-angles-up text-cyan-400 text-lg"
+                                ></i>
+                                <span
+                                    id="doubleJumpBadge"
+                                    class="absolute -top-1 -right-1 bg-cyan-500 text-slate-950 font-black font-orbitron text-[10px] w-4 h-4 rounded-full flex items-center justify-center"
+                                    >2</span
+                                >
+                            </div>
+                            <div>
+                                <span
+                                    class="text-[10px] text-cyan-400 font-orbitron tracking-widest block font-semibold uppercase"
+                                    >NHẢY ĐÔI</span
+                                >
+                                <span
+                                    id="doubleJumpText"
+                                    class="text-xs font-bold text-slate-300"
+                                    >SẴN SÀNG</span
+                                >
+                            </div>
+                        </div>
+
+                        <!-- Dash cooldown circle indicator -->
+                        <div
+                            class="bg-slate-950/80 backdrop-blur-md p-2.5 rounded-xl border border-pink-500/30 flex items-center gap-3"
+                        >
+                            <div
+                                class="relative flex items-center justify-center w-10 h-10 rounded-lg bg-pink-950/50 border border-pink-500/30"
+                            >
+                                <i
+                                    class="fa-solid fa-bolt text-pink-400 text-lg"
+                                ></i>
+                                <div
+                                    id="dashCooldownOverlay"
+                                    class="absolute inset-0 bg-slate-950/80 rounded-lg scale-y-0 origin-bottom transition-all duration-100"
+                                ></div>
+                            </div>
+                            <div>
+                                <span
+                                    class="text-[10px] text-pink-400 font-orbitron tracking-widest block font-semibold uppercase"
+                                    >LƯỚT KHÔNG TRUNG</span
+                                >
+                                <span
+                                    id="dashStatusText"
+                                    class="text-xs font-bold text-slate-300"
+                                    >SẴN SÀNG</span
+                                >
+                            </div>
+                        </div>
+
+                        <!-- Passive Shield indicator -->
+                        <div
+                            id="shieldIndicator"
+                            class="bg-slate-950/80 backdrop-blur-md p-2.5 rounded-xl border border-yellow-500/30 flex items-center gap-3 opacity-40 transition-opacity duration-300"
+                        >
+                            <div
+                                class="relative flex items-center justify-center w-10 h-10 rounded-lg bg-yellow-950/50 border border-yellow-500/30"
+                            >
+                                <i
+                                    id="shieldIcon"
+                                    class="fa-solid fa-shield-halved text-yellow-400 text-lg"
+                                ></i>
+                            </div>
+                            <div>
+                                <span
+                                    class="text-[10px] text-yellow-400 font-orbitron tracking-widest block font-semibold uppercase"
+                                    >LÁ CHẮN NĂNG LƯỢNG</span
+                                >
+                                <span
+                                    id="shieldStatusText"
+                                    class="text-xs font-bold text-slate-400"
+                                    >VÔ HIỆU</span
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Control guide display / Touch Controls toggle -->
+                    <div
+                        class="bg-slate-950/80 backdrop-blur-md px-4 py-2 rounded-xl border border-slate-800 text-xs text-slate-400 font-orbitron pointer-events-auto hidden md:block"
+                    >
+                        <span class="text-cyan-400 uppercase font-bold mr-2"
+                            >ĐIỀU KHIỂN:</span
+                        >
+                        <kbd class="px-1.5 py-0.5 bg-slate-800 rounded"
+                            >W,A,S,D</kbd
+                        >
+                        hoặc
+                        <kbd class="px-1.5 py-0.5 bg-slate-800 rounded"
+                            >Phím mũi tên</kbd
+                        >
+                        để Di chuyển &bull;
+                        <kbd class="px-1.5 py-0.5 bg-slate-800 rounded"
+                            >Space</kbd
+                        >
+                        Nhảy/Nhảy kép &bull;
+                        <kbd class="px-1.5 py-0.5 bg-slate-800 rounded"
+                            >Shift</kbd
+                        >
+                        Lướt nhanh &bull;
+                        <kbd class="px-1.5 py-0.5 bg-slate-800 rounded"
+                            >Esc</kbd
+                        >
+                        Tạm dừng
+                    </div>
+                </div>
+
+                <!-- Mobile Touch Layout (Hidden on larger monitors, visible on small viewports) -->
+                <div
+                    class="flex justify-between items-center w-full gap-4 md:hidden pointer-events-auto py-2"
+                >
+                    <!-- Left D-Pad (Left/Right movements) -->
+                    <div class="flex gap-2">
+                        <button
+                            id="btnMoveLeft"
+                            class="w-14 h-14 rounded-xl bg-slate-950/80 border border-cyan-500/40 text-cyan-400 active:bg-cyan-500 active:text-slate-950 flex items-center justify-center text-xl transition-colors select-none"
+                        >
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                        <button
+                            id="btnMoveRight"
+                            class="w-14 h-14 rounded-xl bg-slate-950/80 border border-cyan-500/40 text-cyan-400 active:bg-cyan-500 active:text-slate-950 flex items-center justify-center text-xl transition-colors select-none"
+                        >
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- Right Action Buttons (Dash, Jump) -->
+                    <div class="flex gap-2">
+                        <button
+                            id="btnDash"
+                            class="w-14 h-14 rounded-xl bg-slate-950/80 border border-pink-500/40 text-pink-400 active:bg-pink-500 active:text-slate-950 flex items-center justify-center text-xl transition-colors select-none"
+                        >
+                            <i class="fa-solid fa-bolt"></i>
+                        </button>
+                        <button
+                            id="btnJump"
+                            class="w-16 h-16 rounded-xl bg-slate-950/90 border-2 border-cyan-400 text-cyan-300 active:bg-cyan-400 active:text-slate-950 flex items-center justify-center text-2xl transition-all shadow-[0_0_15px_rgba(6,182,212,0.3)] select-none"
+                        >
+                            <i class="fa-solid fa-up-long"></i>
+                        </button>
+                    </div>
+                </div>
+            </footer>
+        </div>
+
+        <!-- INTERACTIVE SCREEN MENUS (MAIN MENU / PAUSE / SHOP) -->
+        <div
+            id="menuOverlay"
+            class="absolute inset-0 bg-slate-950/90 backdrop-blur-md z-30 flex items-center justify-center p-4 cyber-grid"
+        >
+            <!-- Main Launch Menu -->
+            <div
+                id="mainMenu"
+                class="max-w-md w-full text-center flex flex-col gap-6 scale-100 transition-all duration-300"
+            >
+                <div>
+                    <div
+                        class="inline-block px-3 py-1 bg-cyan-950/80 border border-cyan-400/40 text-cyan-400 rounded-full text-xs font-orbitron tracking-widest font-semibold uppercase mb-3"
+                    >
+                        Chạy Vô Tận Trên Thành Phố Mây
+                    </div>
+                    <h1
+                        class="text-4xl md:text-5xl font-black tracking-tighter font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-pink-500 to-yellow-300 neon-text-cyan py-1"
+                    >
+                        CYBER CLOUD LEAP
+                    </h1>
+                    <p class="text-slate-400 text-sm mt-2 max-w-sm mx-auto">
+                        Parkour qua các đám mây neon, vượt qua những cây cầu dữ
+                        liệu kém bền vững, né tránh drone tuần tra và làm chủ
+                        các nguyên tố để sinh tồn ở độ cao vô tận!
+                    </p>
+                </div>
+
+                <!-- Start Button -->
+                <button
+                    id="btnPlay"
+                    class="w-full py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-pink-500 text-slate-950 font-black font-orbitron tracking-widest text-lg neon-border-cyan hover:scale-[1.03] active:scale-95 transition-all select-none pointer-events-auto"
+                >
+                    BẮT ĐẦU CHƯƠNG TRÌNH (CHƠI)
+                </button>
+
+                <!-- Upgrade Shop / Progression Dashboard -->
+                <div
+                    class="bg-slate-900/60 border border-slate-800 rounded-xl p-4 text-left"
+                >
+                    <div class="flex justify-between items-center mb-3">
+                        <span
+                            class="text-xs uppercase font-orbitron text-pink-400 tracking-wider font-bold"
+                            >TRUNG TÂM NÂNG CẤP</span
+                        >
+                        <span
+                            class="text-xs font-orbitron text-yellow-400 flex items-center gap-1"
+                        >
+                            <i class="fa-solid fa-gem text-xs"></i> Kho Mảnh:
+                            <span id="shopShards">0</span>
+                        </span>
+                    </div>
+
+                    <!-- Upgrades grid lists -->
+                    <div class="grid grid-cols-1 gap-2.5">
+                        <!-- Speed & Jump Level -->
+                        <div
+                            class="flex justify-between items-center bg-slate-950/50 p-2.5 rounded-lg border border-slate-800/80"
+                        >
+                            <div>
+                                <span
+                                    class="text-xs font-bold font-orbitron block"
+                                    >NHẢY PHẢN LỰC</span
+                                >
+                                <span class="text-[10px] text-slate-400 block"
+                                    >Mở khóa khả năng nhảy ba (Triple
+                                    Jump)</span
+                                >
+                            </div>
+                            <button
+                                id="btnUpgradeJump"
+                                class="px-3 py-1.5 rounded bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold font-orbitron transition-all"
+                            >
+                                Mở khóa: 15
+                                <i class="fa-solid fa-gem text-[10px]"></i>
+                            </button>
+                        </div>
+
+                        <!-- Dash Boost Upgrade -->
+                        <div
+                            class="flex justify-between items-center bg-slate-950/50 p-2.5 rounded-lg border border-slate-800/80"
+                        >
+                            <div>
+                                <span
+                                    class="text-xs font-bold font-orbitron block"
+                                    >SIÊU LƯỚT KHÔNG TRUNG</span
+                                >
+                                <span class="text-[10px] text-slate-400 block"
+                                    >Giảm thời gian hồi chiêu Lướt còn 1.0
+                                    giây</span
+                                >
+                            </div>
+                            <button
+                                id="btnUpgradeDash"
+                                class="px-3 py-1.5 rounded bg-pink-500 hover:bg-pink-400 text-slate-950 text-xs font-bold font-orbitron transition-all"
+                            >
+                                Mở khóa: 25
+                                <i class="fa-solid fa-gem text-[10px]"></i>
+                            </button>
+                        </div>
+
+                        <!-- Magnet range boost -->
+                        <div
+                            class="flex justify-between items-center bg-slate-950/50 p-2.5 rounded-lg border border-slate-800/80"
+                        >
+                            <div>
+                                <span
+                                    class="text-xs font-bold font-orbitron block"
+                                    >NAM CHÂM HÚT MẢNH</span
+                                >
+                                <span class="text-[10px] text-slate-400 block"
+                                    >Hút các mảnh năng lượng ở cự ly gần về phía
+                                    bạn</span
+                                >
+                            </div>
+                            <button
+                                id="btnUpgradeMagnet"
+                                class="px-3 py-1.5 rounded bg-yellow-500 hover:bg-yellow-400 text-slate-950 text-xs font-bold font-orbitron transition-all"
+                            >
+                                Mở khóa: 35
+                                <i class="fa-solid fa-gem text-[10px]"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- How To Play section -->
+                <div
+                    class="text-left text-xs text-slate-400 bg-slate-900/40 p-3 rounded-lg border border-slate-800/40"
+                >
+                    <span
+                        class="text-cyan-400 font-bold block mb-1 font-orbitron uppercase text-[10px]"
+                        >Giao thức Di chuyển</span
+                    >
+                    <ul class="list-disc pl-4 space-y-1">
+                        <li>
+                            Điều khiển bằng
+                            <b class="text-slate-300">WASD/Phím mũi tên</b> (Di
+                            chuyển qua các làn mây).
+                        </li>
+                        <li>
+                            Nhấn <b class="text-slate-300">Phím Space</b> để
+                            nhảy qua khoảng trống. Nhấn đúp để nhảy nhiều lần.
+                        </li>
+                        <li>
+                            Nhấn <b class="text-slate-300">Phím Shift</b> để
+                            Lướt trên không để vượt qua các vực thẳm lớn.
+                        </li>
+                        <li>
+                            Thu thập
+                            <b class="text-pink-400 font-bold">Mảnh Neon</b> để
+                            tăng điểm combo và mua nâng cấp vĩnh viễn.
+                        </li>
+                        <li>
+                            Tránh rơi tự do hoặc đâm phải các
+                            <b class="text-red-400 font-bold">Drone</b> tuần tra
+                            bảo an.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Game Over screen -->
+            <div
+                id="gameOverMenu"
+                class="max-w-md w-full text-center flex flex-col gap-6 hidden scale-95 opacity-0 transition-all duration-300"
+            >
+                <div>
+                    <span
+                        class="text-rose-500 font-black font-orbitron tracking-[0.25em] text-sm block mb-1 pulse-fast"
+                        >HỆ THỐNG NGUY KỊCH &bull; MẤT KẾT NỐI</span
+                    >
+                    <h1
+                        class="text-4xl md:text-5xl font-black font-orbitron text-rose-500 neon-text-pink py-1"
+                    >
+                        CHƯƠNG TRÌNH SỤP ĐỔ
+                    </h1>
+                    <p
+                        id="deathReason"
+                        class="text-slate-400 text-sm italic mt-1"
+                    >
+                        Lỗi toàn vẹn cấu trúc... Đang rơi tự do vào hư vô
+                    </p>
+                </div>
+
+                <!-- Stats Showcase -->
+                <div class="grid grid-cols-3 gap-3">
+                    <div
+                        class="bg-slate-900/80 p-3 rounded-xl border border-slate-800"
+                    >
+                        <span
+                            class="text-[10px] uppercase text-slate-400 font-orbitron block"
+                            >Điểm Cuối Cùng</span
+                        >
+                        <span
+                            id="finalScore"
+                            class="text-xl font-bold font-orbitron text-cyan-400"
+                            >0</span
+                        >
+                    </div>
+                    <div
+                        class="bg-slate-900/80 p-3 rounded-xl border border-slate-800"
+                    >
+                        <span
+                            class="text-[10px] uppercase text-slate-400 font-orbitron block"
+                            >Quãng Đường</span
+                        >
+                        <span
+                            id="finalDistance"
+                            class="text-xl font-bold font-orbitron text-pink-400"
+                            >0m</span
+                        >
+                    </div>
+                    <div
+                        class="bg-slate-900/80 p-3 rounded-xl border border-slate-800"
+                    >
+                        <span
+                            class="text-[10px] uppercase text-slate-400 font-orbitron block"
+                            >Mảnh Lưu Được</span
+                        >
+                        <span
+                            id="finalShards"
+                            class="text-xl font-bold font-orbitron text-yellow-400"
+                            >0</span
+                        >
+                    </div>
+                </div>
+
+                <!-- Retry / Shop buttons -->
+                <div class="flex flex-col gap-2">
+                    <button
+                        id="btnRetry"
+                        class="w-full py-4 rounded-xl bg-gradient-to-r from-pink-500 to-rose-600 text-slate-950 font-black font-orbitron tracking-widest text-lg neon-border-pink hover:scale-[1.02] active:scale-95 transition-all select-none"
+                    >
+                        KHỞI ĐỘNG LẠI HỆ THỐNG (CHƠI LẠI)
+                    </button>
+                    <button
+                        id="btnBackToMain"
+                        class="w-full py-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 font-bold font-orbitron text-sm transition-all select-none"
+                    >
+                        QUAY LẠI TRUNG TÂM NÂNG CẤP
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pause Menu overlay -->
+            <div
+                id="pauseMenu"
+                class="max-w-md w-full text-center flex flex-col gap-6 hidden"
+            >
+                <div>
+                    <h1
+                        class="text-3xl font-black font-orbitron text-cyan-400 neon-text-cyan py-1"
+                    >
+                        TẠM DỪNG CHƯƠNG TRÌNH
+                    </h1>
+                    <p class="text-slate-400 text-sm mt-1">
+                        Sẵn sàng tiếp tục bước nhảy...
+                    </p>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <button
+                        id="btnResume"
+                        class="w-full py-3.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black font-orbitron tracking-wider text-base transition-all select-none"
+                    >
+                        TIẾP TỤC CHẠY
+                    </button>
+                    <button
+                        id="btnQuit"
+                        class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-rose-500 font-bold font-orbitron text-sm transition-all select-none"
+                    >
+                        HỦY CHƯƠNG TRÌNH
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CORE GAME SCRIPTS -->
+        <script>
+            // Upgrade & Save State system (Local Storage based)
+            const GAME_SAVE_KEY = "CyberCloudLeap_SaveData";
+            let gameState = {
+                totalShards: 0,
+                hasTripleJump: false,
+                hasSuperDash: false,
+                hasMagnet: false,
+                highScore: 0,
+                bestDistance: 0,
+            };
+
+            // Load Save State
+            function loadGameData() {
+                try {
+                    const saved = localStorage.getItem(GAME_SAVE_KEY);
+                    if (saved) {
+                        gameState = { ...gameState, ...JSON.parse(saved) };
+                    }
+                } catch (e) {
+                    console.warn(
+                        "Storage access restricted. Starting fresh.",
+                        e,
+                    );
+                }
+                updateShopUI();
+            }
+
+            // Save State
+            function saveGameData() {
+                try {
+                    localStorage.setItem(
+                        GAME_SAVE_KEY,
+                        JSON.stringify(gameState),
+                    );
+                } catch (e) {
+                    console.warn("Unable to save progression.", e);
+                }
+            }
+
+            // Configuration Parameters for gameplay
+            const CONFIG = {
+                laneWidth: 10, // Width of runner lane separations
+                platformBaseZ: -40, // Spawn distance start
+                baseRunSpeed: 14, // Starting speed multiplier (Slower, original was 25)
+                maxRunSpeed: 40, // Speed threshold (Slower, original was 70)
+                speedMultiplier: 0.02, // Speed increment over time (Slower, original was 0.05)
+                gravity: -45, // Falling force
+                jumpPower: 15, // Jump strength (Slightly adjusted for lower speed trajectory)
+                airDashPower: 30, // Dash propulsion factor (Slower, original was 45)
+                dashDuration: 250, // Dash time in milliseconds
+                magnetPullRadius: 20, // Distance to suck collectibles
+                maxPlatforms: 12, // Max platform chunks simultaneously kept alive
+                cameraOffset: new THREE.Vector3(0, 5, 12),
+                cameraLookAtOffset: new THREE.Vector3(0, 1, -8),
+                // NEW Premium movement parameters
+                wallRunGravity: -10, // Heavily reduced fall speed on walls
+                maxLateralSpeed: 21, // Peak lateral steering velocity
+                lateralAcceleration: 75, // Steering speed response (high responsiveness)
+                lateralFriction: 8.5, // Air drift resistance for momentum feel
+            };
+
+            // Live status references
+            let scene, camera, renderer;
+            let clock;
+            let isPlaying = false;
+            let isPaused = false;
+            let hasStartedMoving = false;
+            let activeWeather = "CLEAR"; // 'CLEAR', 'RAIN', 'STORM'
+            let weatherTimer = 0;
+            let score = 0;
+            let comboMultiplier = 1.0;
+            let comboProgressValue = 0;
+            let distanceTraveled = 0;
+            let shardsCollectedThisRun = 0;
+
+            // Physics and status trackers
+            let player = {
+                mesh: null,
+                position: new THREE.Vector3(0, 2, 0),
+                velocity: new THREE.Vector3(0, 0, 0),
+                targetX: 0, // Target horizontal lane X coordinate
+                isGrounded: false,
+                currentJumps: 0,
+                maxJumpsAllowed: 2, // Upgradable to 3
+                dashCooldown: 0, // Dynamic timer countdown
+                dashActiveTimer: 0, // How long dash continues
+                isDashing: false,
+                hasShieldActive: false,
+                shieldCooldown: 0,
+                meshScaleY: 1.0, // For squash/stretch effects
+                // NEW premium movement properties
+                lateralVelocity: 0, // Kinetic physics-based steering
+                isWallRunning: false, // Wall run flag
+                wallRunSide: 0, // -1 for Left wall, 1 for Right wall, 0 for None
+                trailTimer: 0, // Engine trail emit ticks
+            };
+
+            // Asset pools and environment refs
+            let platforms = []; // Active floor platform structures
+            let dataBridges = []; // Unstable collapse bridges
+            let obstacleDrones = []; // Hovering threat objects
+            let shards = []; // Floating dynamic items
+            let backgroundBuildings = []; // Background parallax blocks
+            let skyBoxGroup; // Cosmic neon sky simulation
+
+            // Particles system pools
+            let rainParticles = null;
+            let lightningFlash = null;
+            let stormWindParticles = null;
+            let particlePool = []; // Sparkles and impact pools
+
+            // Procedural audio system
+            let audioCtx = null;
+            let masterGain = null;
+            let ambientGain = null;
+            let ambientOsc = null;
+            let ambientLfo = null;
+
+            // Input controllers
+            const keys = {
+                KeyW: false,
+                KeyS: false,
+                KeyA: false,
+                KeyD: false,
+                ArrowLeft: false,
+                ArrowRight: false,
+                Space: false,
+                ShiftLeft: false,
+            };
+
+            // Visual Shop update interface
+            function updateShopUI() {
+                document.getElementById("shopShards").innerText =
+                    gameState.totalShards;
+                document.getElementById("hudShardCount").innerText =
+                    shardsCollectedThisRun;
+
+                // Upgrade Jump status
+                const btnJump = document.getElementById("btnUpgradeJump");
+                if (gameState.hasTripleJump) {
+                    btnJump.innerText = "ĐÃ ĐẠT TỐI ĐA";
+                    btnJump.disabled = true;
+                    btnJump.className =
+                        "px-3 py-1.5 rounded bg-slate-800 text-slate-500 text-xs font-bold font-orbitron cursor-not-allowed";
+                    player.maxJumpsAllowed = 3;
+                    document.getElementById("doubleJumpBadge").innerText = "3";
+                } else {
+                    btnJump.className =
+                        "px-3 py-1.5 rounded bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold font-orbitron transition-all";
+                    player.maxJumpsAllowed = 2;
+                    document.getElementById("doubleJumpBadge").innerText = "2";
+                }
+
+                // Upgrade Dash status
+                const btnDash = document.getElementById("btnUpgradeDash");
+                if (gameState.hasSuperDash) {
+                    btnDash.innerText = "ĐÃ TỐI ƯU HỒI CHIÊU";
+                    btnDash.disabled = true;
+                    btnDash.className =
+                        "px-3 py-1.5 rounded bg-slate-800 text-slate-500 text-xs font-bold font-orbitron cursor-not-allowed";
+                } else {
+                    btnDash.className =
+                        "px-3 py-1.5 rounded bg-pink-500 hover:bg-pink-400 text-slate-950 text-xs font-bold font-orbitron transition-all";
+                }
+
+                // Upgrade Magnet status
+                const btnMagnet = document.getElementById("btnUpgradeMagnet");
+                if (gameState.hasMagnet) {
+                    btnMagnet.innerText = "NAM CHÂM CẤP TỐI ĐA";
+                    btnMagnet.disabled = true;
+                    btnMagnet.className =
+                        "px-3 py-1.5 rounded bg-slate-800 text-slate-500 text-xs font-bold font-orbitron cursor-not-allowed";
+                } else {
+                    btnMagnet.className =
+                        "px-3 py-1.5 rounded bg-yellow-500 hover:bg-yellow-400 text-slate-950 text-xs font-bold font-orbitron transition-all";
+                }
+            }
+
+            // Custom notification system (To prevent standard alert window popups)
+            function triggerAlert(text) {
+                const el = document.getElementById("customAlert");
+                el.innerText = text;
+                el.style.transform = "translateY(0) scale(1)";
+                el.style.opacity = "1";
+
+                setTimeout(() => {
+                    el.style.transform = "translateY(-10px) scale(0.95)";
+                    el.style.opacity = "0";
+                }, 2500);
+            }
+
+            function initAudio() {
+                if (audioCtx) {
+                    if (audioCtx.state === "suspended") audioCtx.resume();
+                    return;
+                }
+
+                const AudioContext =
+                    window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+
+                audioCtx = new AudioContext();
+                masterGain = audioCtx.createGain();
+                masterGain.gain.value = 0.14;
+                masterGain.connect(audioCtx.destination);
+            }
+
+            function playTone({
+                frequency = 440,
+                endFrequency = frequency,
+                duration = 0.16,
+                type = "sine",
+                volume = 0.35,
+                detune = 0,
+            }) {
+                initAudio();
+                if (!audioCtx || !masterGain) return;
+
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                const filter = audioCtx.createBiquadFilter();
+
+                osc.type = type;
+                osc.detune.value = detune;
+                osc.frequency.setValueAtTime(frequency, now);
+                osc.frequency.exponentialRampToValueAtTime(
+                    Math.max(20, endFrequency),
+                    now + duration,
+                );
+
+                gain.gain.setValueAtTime(0.0001, now);
+                gain.gain.exponentialRampToValueAtTime(volume, now + 0.015);
+                gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+                filter.type = "lowpass";
+                filter.frequency.value = 1800;
+                filter.Q.value = 0.4;
+
+                osc.connect(gain);
+                gain.connect(filter);
+                filter.connect(masterGain);
+                osc.start(now);
+                osc.stop(now + duration + 0.02);
+            }
+
+            function playSfx(name) {
+                const sfx = {
+                    start: {
+                        frequency: 180,
+                        endFrequency: 520,
+                        duration: 0.28,
+                        type: "triangle",
+                        volume: 0.08,
+                    },
+                    jump: {
+                        frequency: 260,
+                        endFrequency: 720,
+                        duration: 0.14,
+                        type: "triangle",
+                        volume: 0.1,
+                    },
+                    airJump: {
+                        frequency: 520,
+                        endFrequency: 920,
+                        duration: 0.12,
+                        type: "sine",
+                        volume: 0.08,
+                    },
+                    dash: {
+                        frequency: 110,
+                        endFrequency: 70,
+                        duration: 0.2,
+                        type: "triangle",
+                        volume: 0.12,
+                    },
+                    land: {
+                        frequency: 120,
+                        endFrequency: 55,
+                        duration: 0.12,
+                        type: "triangle",
+                        volume: 0.08,
+                    },
+                    shard: {
+                        frequency: 900,
+                        endFrequency: 1450,
+                        duration: 0.1,
+                        type: "sine",
+                        volume: 0.09,
+                    },
+                    shield: {
+                        frequency: 180,
+                        endFrequency: 360,
+                        duration: 0.22,
+                        type: "triangle",
+                        volume: 0.09,
+                    },
+                    gameOver: {
+                        frequency: 220,
+                        endFrequency: 70,
+                        duration: 0.5,
+                        type: "triangle",
+                        volume: 0.1,
+                    },
+                    pause: {
+                        frequency: 420,
+                        endFrequency: 220,
+                        duration: 0.12,
+                        type: "triangle",
+                        volume: 0.06,
+                    },
+                    upgrade: {
+                        frequency: 680,
+                        endFrequency: 1280,
+                        duration: 0.18,
+                        type: "sine",
+                        volume: 0.08,
+                    },
+                    warning: {
+                        frequency: 140,
+                        endFrequency: 100,
+                        duration: 0.18,
+                        type: "triangle",
+                        volume: 0.06,
+                    },
+                };
+
+                if (sfx[name]) playTone(sfx[name]);
+            }
+
+            function startAmbientAudio() {
+                initAudio();
+                if (!audioCtx || !masterGain || ambientOsc) return;
+
+                const now = audioCtx.currentTime;
+                ambientGain = audioCtx.createGain();
+                ambientGain.gain.setValueAtTime(0.0001, now);
+                ambientGain.gain.exponentialRampToValueAtTime(0.012, now + 0.6);
+
+                ambientOsc = audioCtx.createOscillator();
+                ambientOsc.type = "sine";
+                ambientOsc.frequency.value = 82;
+
+                ambientLfo = audioCtx.createOscillator();
+                const lfoGain = audioCtx.createGain();
+                ambientLfo.frequency.value = 0.16;
+                lfoGain.gain.value = 1.5;
+
+                ambientLfo.connect(lfoGain);
+                lfoGain.connect(ambientOsc.frequency);
+                ambientOsc.connect(ambientGain);
+                ambientGain.connect(masterGain);
+                ambientOsc.start(now);
+                ambientLfo.start(now);
+            }
+
+            function stopAmbientAudio() {
+                if (!audioCtx || !ambientOsc) return;
+
+                const now = audioCtx.currentTime;
+                ambientGain.gain.cancelScheduledValues(now);
+                ambientGain.gain.setValueAtTime(ambientGain.gain.value, now);
+                ambientGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
+                ambientOsc.stop(now + 0.28);
+                ambientLfo.stop(now + 0.28);
+                ambientOsc = null;
+                ambientLfo = null;
+                ambientGain = null;
+            }
+
+            // Create 3D Scene viewport
+            function initScene() {
+                const canvas = document.getElementById("gameCanvas");
+                scene = new THREE.Scene();
+                scene.fog = new THREE.FogExp2(0x161233, 0.007); // Làm sáng sương mù nền từ tối sang tím neon ấm
+
+                // Camera setup with fluid FOV
+                camera = new THREE.PerspectiveCamera(
+                    60,
+                    window.innerWidth / window.innerHeight,
+                    0.1,
+                    1000,
+                );
+                camera.position.copy(CONFIG.cameraOffset);
+
+                // High Precision WebGL Renderer
+                renderer = new THREE.WebGLRenderer({
+                    canvas: canvas,
+                    antialias: true,
+                    alpha: false,
+                });
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                renderer.shadowMap.enabled = true;
+                renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+                clock = new THREE.Clock();
+
+                // Lights architecture - Tăng mạnh cường độ sáng môi trường
+                const ambientLight = new THREE.AmbientLight(0x403580, 2.0);
+                scene.add(ambientLight);
+
+                // Directional glow projection - Tăng cường độ sáng nguồn sáng chính hướng về phía người chơi
+                const directionalLight = new THREE.DirectionalLight(
+                    0x22e0ff,
+                    2.5,
+                );
+                directionalLight.position.set(20, 40, 20);
+                directionalLight.castShadow = true;
+                directionalLight.shadow.mapSize.width = 1024;
+                directionalLight.shadow.mapSize.height = 1024;
+                directionalLight.shadow.camera.near = 0.5;
+                directionalLight.shadow.camera.far = 150;
+                scene.add(directionalLight);
+
+                // Futuristic sky glow setup
+                createSkybox();
+
+                // Parallax skyscraper cluster
+                buildBackgroundCity();
+
+                // Initialize global environment pools
+                createWeatherParticles();
+
+                // Handle browser resize events dynamically
+                window.addEventListener("resize", onWindowResize);
+            }
+
+            function onWindowResize() {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+
+            function createSkybox() {
+                skyBoxGroup = new THREE.Group();
+
+                // Large cosmic sphere dust particles for the futuristic sky
+                const starsGeometry = new THREE.BufferGeometry();
+                const starsCount = 500;
+                const positions = new Float32Array(starsCount * 3);
+                const colors = new Float32Array(starsCount * 3);
+
+                for (let i = 0; i < starsCount * 3; i += 3) {
+                    const u = Math.random();
+                    const v = Math.random();
+                    const theta = u * 2.0 * Math.PI;
+                    const phi = Math.acos(2.0 * v - 1.0);
+                    const r = 250;
+
+                    positions[i] = r * Math.sin(phi) * Math.cos(theta);
+                    positions[i + 1] = r * Math.sin(phi) * Math.sin(theta);
+                    positions[i + 2] = r * Math.cos(phi);
+
+                    // Neon pink / cyan / yellow colors for cosmic sky points
+                    const colorRand = Math.random();
+                    if (colorRand < 0.4) {
+                        colors[i] = 0.02;
+                        colors[i + 1] = 0.71;
+                        colors[i + 2] = 0.83; // Cyan
+                    } else if (colorRand < 0.8) {
+                        colors[i] = 0.92;
+                        colors[i + 1] = 0.28;
+                        colors[i + 2] = 0.59; // Pink
+                    } else {
+                        colors[i] = 0.91;
+                        colors[i + 1] = 0.7;
+                        colors[i + 2] = 0.03; // Yellow
+                    }
+                }
+
+                starsGeometry.setAttribute(
+                    "position",
+                    new THREE.BufferAttribute(positions, 3),
+                );
+                starsGeometry.setAttribute(
+                    "color",
+                    new THREE.BufferAttribute(colors, 3),
+                );
+
+                const starsMaterial = new THREE.PointsMaterial({
+                    size: 1.5,
+                    vertexColors: true,
+                    transparent: true,
+                    opacity: 0.8,
+                    sizeAttenuation: true,
+                });
+
+                const starPoints = new THREE.Points(
+                    starsGeometry,
+                    starsMaterial,
+                );
+                skyBoxGroup.add(starPoints);
+
+                // Add giant glowing cyber-grid horizon disc - Làm sáng lưới chân trời
+                const horizonGeo = new THREE.RingGeometry(180, 240, 32);
+                const horizonMat = new THREE.MeshBasicMaterial({
+                    color: 0x06b6d4,
+                    side: THREE.DoubleSide,
+                    wireframe: true,
+                    transparent: true,
+                    opacity: 0.25,
+                });
+                const horizon = new THREE.Mesh(horizonGeo, horizonMat);
+                horizon.rotation.x = Math.PI / 2;
+                horizon.position.y = -40;
+                skyBoxGroup.add(horizon);
+
+                scene.add(skyBoxGroup);
+            }
+
+            function buildBackgroundCity() {
+                backgroundBuildings.forEach((b) => scene.remove(b));
+                backgroundBuildings = [];
+
+                const buildingColors = [0x06b6d4, 0xec4899, 0x3b82f6];
+
+                for (let i = 0; i < 25; i++) {
+                    const buildingGroup = new THREE.Group();
+
+                    const w = 15 + Math.random() * 20;
+                    const h = 60 + Math.random() * 120;
+                    const d = 15 + Math.random() * 20;
+
+                    const geom = new THREE.BoxGeometry(w, h, d);
+                    // Nâng độ sáng tông màu tòa nhà để không bị chìm hoàn toàn vào bóng tối
+                    const mat = new THREE.MeshStandardMaterial({
+                        color: 0x121026,
+                        roughness: 0.4,
+                        metalness: 0.8,
+                        flatShading: true,
+                    });
+                    const mesh = new THREE.Mesh(geom, mat);
+                    mesh.castShadow = true;
+                    mesh.receiveShadow = true;
+                    buildingGroup.add(mesh);
+
+                    // Add custom glowing windows with blink timers - Tăng sáng đèn cửa sổ
+                    const windowsGroup = new THREE.Group();
+                    const winRows = Math.floor(h / 6);
+                    const winCols = Math.floor(w / 4);
+                    const winGeom = new THREE.BoxGeometry(0.5, 0.4, 0.5);
+                    const winColor =
+                        buildingColors[
+                            Math.floor(Math.random() * buildingColors.length)
+                        ];
+                    const winMat = new THREE.MeshBasicMaterial({
+                        color: winColor,
+                        transparent: true,
+                        opacity: 0.9,
+                    });
+
+                    for (let r = 0; r < winRows; r++) {
+                        for (let c = 0; c < winCols; c++) {
+                            if (Math.random() > 0.3) {
+                                const windowMesh = new THREE.Mesh(
+                                    winGeom,
+                                    winMat,
+                                );
+                                const posX = -w / 2 + 2 + c * 4;
+                                const posY = -h / 2 + 3 + r * 6;
+                                const posZ = d / 2 + 0.1;
+                                windowMesh.position.set(posX, posY, posZ);
+                                windowsGroup.add(windowMesh);
+                            }
+                        }
+                    }
+                    buildingGroup.add(windowsGroup);
+
+                    // Push buildings outward from the central track (X-offset >= 35) to prevent visual overlaps
+                    const side = Math.random() > 0.5 ? 1 : -1;
+                    const posX = side * (38 + Math.random() * 45);
+                    const posY = -h / 2;
+                    const posZ = -100 - i * 18;
+
+                    buildingGroup.position.set(posX, posY, posZ);
+
+                    scene.add(buildingGroup);
+                    backgroundBuildings.push(buildingGroup);
+                }
+            }
+
+            function createWeatherParticles() {
+                const particleCount = 1500;
+                const geometry = new THREE.BufferGeometry();
+                const positions = new Float32Array(particleCount * 3);
+                const velocities = [];
+
+                for (let i = 0; i < particleCount * 3; i += 3) {
+                    positions[i] = (Math.random() - 0.5) * 160;
+                    positions[i + 1] = Math.random() * 90;
+                    positions[i + 2] = -Math.random() * 200 + 40;
+
+                    velocities.push(45 + Math.random() * 35);
+                }
+
+                geometry.setAttribute(
+                    "position",
+                    new THREE.BufferAttribute(positions, 3),
+                );
+
+                const material = new THREE.PointsMaterial({
+                    color: 0x06b6d4,
+                    size: 0.6,
+                    transparent: true,
+                    opacity: 0.0,
+                    sizeAttenuation: true,
+                });
+
+                rainParticles = new THREE.Points(geometry, material);
+                rainParticles.userData = { velocities: velocities };
+                scene.add(rainParticles);
+
+                lightningFlash = new THREE.DirectionalLight(0xffffff, 0);
+                lightningFlash.position.set(0, 80, -50);
+                scene.add(lightningFlash);
+            }
+
+            // Generative Platform Construction pipeline
+            function createNeonCloudPlatform(
+                x,
+                y,
+                z,
+                width,
+                length,
+                cloudColor = 0x06b6d4,
+            ) {
+                const platformGroup = new THREE.Group();
+                platformGroup.position.set(x, y, z);
+
+                // Nâng cao tông màu nền và độ tự phát sáng (Emissive) của platform
+                const platformMat = new THREE.MeshStandardMaterial({
+                    color: 0x141836, // Thay thế màu đen kịt bằng màu xanh navy sâu có chiều sâu
+                    roughness: 0.15,
+                    metalness: 0.9,
+                    emissive: cloudColor,
+                    emissiveIntensity: 0.35, // Tăng độ phát sáng tự thân để dễ nhìn thấy từ xa
+                });
+
+                // Draw crisp solid platform core
+                const coreMesh = new THREE.Mesh(
+                    new THREE.BoxGeometry(width, 1.5, length),
+                    platformMat,
+                );
+                coreMesh.receiveShadow = true;
+                coreMesh.castShadow = true;
+                platformGroup.add(coreMesh);
+
+                // Sharp high-intensity glowing frame around the platform
+                const frameGeo = new THREE.BoxGeometry(
+                    width + 0.1,
+                    0.25,
+                    length + 0.1,
+                );
+                const frameMat = new THREE.MeshStandardMaterial({
+                    color: 0x0f172a,
+                    emissive: cloudColor,
+                    emissiveIntensity: 2.2, // Viền laser sắc nét rực rỡ hơn
+                    roughness: 0.1,
+                    metalness: 0.95,
+                });
+                const neonFrame = new THREE.Mesh(frameGeo, frameMat);
+                neonFrame.position.y = 0.65; // Anchored flush on the top surface
+                platformGroup.add(neonFrame);
+
+                // Sleek inner grid inlay plate
+                const innerPlateGeo = new THREE.BoxGeometry(
+                    width - 0.8,
+                    0.05,
+                    length - 0.8,
+                );
+                const innerPlateMat = new THREE.MeshStandardMaterial({
+                    color: 0x0c102b, // Tông xanh sáng rõ hơn
+                    roughness: 0.4,
+                    metalness: 0.95,
+                    emissive: cloudColor,
+                    emissiveIntensity: 0.12, // Plate trong có phát sáng mờ đẹp mắt
+                });
+                const innerPlate = new THREE.Mesh(innerPlateGeo, innerPlateMat);
+                innerPlate.position.y = 0.76;
+                platformGroup.add(innerPlate);
+
+                // Double laser neon strips on the sides to emphasize movement vectors
+                const stripGeo = new THREE.BoxGeometry(
+                    0.15,
+                    0.05,
+                    length * 0.95,
+                );
+                const stripMat = new THREE.MeshBasicMaterial({
+                    color: cloudColor,
+                });
+
+                const leftStrip = new THREE.Mesh(stripGeo, stripMat);
+                leftStrip.position.set(-width / 2 + 0.25, 0.76, 0);
+                platformGroup.add(leftStrip);
+
+                const rightStrip = new THREE.Mesh(stripGeo, stripMat);
+                rightStrip.position.set(width / 2 - 0.25, 0.76, 0);
+                platformGroup.add(rightStrip);
+
+                // NEW: Procedural High Neon Wall generation for interactive wall runs
+                let wallSide = 0; // 0: None, -1: Left, 1: Right
+                if (z < -30 && Math.random() > 0.45) {
+                    wallSide = Math.random() > 0.5 ? 1 : -1;
+                    const wallHeight = 7.0;
+                    const wallThickness = 0.25;
+                    const wallGeo = new THREE.BoxGeometry(
+                        wallThickness,
+                        wallHeight,
+                        length,
+                    );
+                    const wallMat = new THREE.MeshStandardMaterial({
+                        color: 0x0f172a,
+                        emissive: cloudColor,
+                        emissiveIntensity: 1.6,
+                        roughness: 0.1,
+                        metalness: 0.9,
+                        transparent: true,
+                        opacity: 0.65,
+                    });
+                    const wallMesh = new THREE.Mesh(wallGeo, wallMat);
+                    wallMesh.position.set(
+                        wallSide * (width / 2),
+                        wallHeight / 2,
+                        0,
+                    );
+                    platformGroup.add(wallMesh);
+
+                    // Diagonal hazard lines on walls to make them visually premium
+                    const stripeCount = Math.floor(length / 6);
+                    for (let i = 0; i < stripeCount; i++) {
+                        const stripeGeo = new THREE.BoxGeometry(
+                            0.04,
+                            wallHeight * 0.9,
+                            0.4,
+                        );
+                        const stripeMat = new THREE.MeshBasicMaterial({
+                            color: cloudColor,
+                        });
+                        const stripe = new THREE.Mesh(stripeGeo, stripeMat);
+                        const offsetZ =
+                            (i - (stripeCount - 1) / 2) *
+                            (length / (stripeCount + 1));
+                        stripe.position.set(
+                            wallSide * (width / 2 + wallSide * 0.05),
+                            wallHeight / 2,
+                            offsetZ,
+                        );
+                        stripe.rotation.z = (Math.PI / 4) * wallSide;
+                        platformGroup.add(stripe);
+                    }
+                }
+
+                // Track bounding fields
+                platformGroup.userData = {
+                    width: width,
+                    length: length,
+                    type: "standard",
+                    isActive: true,
+                    wallSide: wallSide, // Saved for wall running logic
+                };
+
+                scene.add(platformGroup);
+                return platformGroup;
+            }
+
+            function createCollapsingBridge(x, y, z, width, length) {
+                const bridgeGroup = new THREE.Group();
+                bridgeGroup.position.set(x, y, z);
+
+                // Nâng tông màu và hiệu ứng phát sáng cho cầu dễ sập (màu tím/hồng neon nổi bật)
+                const bridgeMat = new THREE.MeshStandardMaterial({
+                    color: 0x2b1035, // Lighter, richer warning violet
+                    roughness: 0.25,
+                    metalness: 0.95,
+                    emissive: 0xec4899,
+                    emissiveIntensity: 0.38, // Tăng phát sáng cảnh báo đỏ/hồng
+                });
+
+                const bridgePlank = new THREE.Mesh(
+                    new THREE.BoxGeometry(width, 0.8, length),
+                    bridgeMat,
+                );
+                bridgePlank.receiveShadow = true;
+                bridgePlank.castShadow = true;
+                bridgeGroup.add(bridgePlank);
+
+                // Crisp neon pink structural guardrails instead of single thin lines
+                const borderMat = new THREE.MeshStandardMaterial({
+                    color: 0x111827,
+                    emissive: 0xec4899,
+                    emissiveIntensity: 2.2, // Super crisp neon warning look
+                    roughness: 0.1,
+                    metalness: 0.95,
+                });
+
+                const borderL = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.25, 0.2, length),
+                    borderMat,
+                );
+                borderL.position.set(-width / 2 + 0.125, 0.41, 0);
+                bridgeGroup.add(borderL);
+
+                const borderR = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.25, 0.2, length),
+                    borderMat,
+                );
+                borderR.position.set(width / 2 - 0.125, 0.41, 0);
+                bridgeGroup.add(borderR);
+
+                // Transverse warning panels to indicate data-bridge instability
+                const stripeCount = Math.floor(length / 4.5);
+                const stripeGeo = new THREE.BoxGeometry(
+                    width - 0.8,
+                    0.05,
+                    0.35,
+                );
+                const stripeMat = new THREE.MeshBasicMaterial({
+                    color: 0xec4899,
+                });
+
+                for (let i = 0; i < stripeCount; i++) {
+                    const stripe = new THREE.Mesh(stripeGeo, stripeMat);
+                    const offsetZ =
+                        (i - (stripeCount - 1) / 2) *
+                        (length / (stripeCount + 1));
+                    stripe.position.set(0, 0.41, offsetZ);
+                    bridgeGroup.add(stripe);
+                }
+
+                // Standard platform collider
+                bridgeGroup.userData = {
+                    width: width,
+                    length: length,
+                    type: "collapsing",
+                    touched: false,
+                    touchTimer: 0.0,
+                    isCollapsed: false,
+                    initialY: y,
+                };
+
+                scene.add(bridgeGroup);
+                return bridgeGroup;
+            }
+
+            // Spawns Spinning Crystals / Shards on platform lanes
+            function spawnShard(x, y, z) {
+                const shardGroup = new THREE.Group();
+                shardGroup.position.set(x, y + 1.8, z);
+
+                // Floating spinning neon crystal (Octahedron geometry)
+                const crystalGeo = new THREE.OctahedronGeometry(0.7, 0);
+                const crystalMat = new THREE.MeshStandardMaterial({
+                    color: 0xeab308,
+                    emissive: 0xeab308,
+                    emissiveIntensity: 1.8,
+                    metalness: 0.9,
+                    roughness: 0.1,
+                });
+
+                const crystal = new THREE.Mesh(crystalGeo, crystalMat);
+                shardGroup.add(crystal);
+
+                // Glowing ring outline around crystal
+                const ringGeo = new THREE.RingGeometry(1.0, 1.1, 16);
+                const ringMat = new THREE.MeshBasicMaterial({
+                    color: 0xec4899,
+                    side: THREE.DoubleSide,
+                });
+                const ring = new THREE.Mesh(ringGeo, ringMat);
+                ring.rotation.x = Math.PI / 2;
+                shardGroup.add(ring);
+
+                shardGroup.userData = {
+                    rotationSpeed: Math.random() * 2 + 1,
+                    floatSpeed: Math.random() * 2 + 1,
+                    floatOffset: Math.random() * Math.PI,
+                    initialY: y + 1.8,
+                    isCollected: false,
+                };
+
+                scene.add(shardGroup);
+                shards.push(shardGroup);
+            }
+
+            // Cyber Patrol Drone Hazards
+            function spawnDrone(x, y, z) {
+                const droneGroup = new THREE.Group();
+                droneGroup.position.set(x, y + 3, z);
+
+                // 1. Thân drone được bo góc khí động học như buồng lái phi thuyền
+                const bodyGeo = new THREE.SphereGeometry(0.7, 16, 16);
+                bodyGeo.scale(1.2, 0.8, 1.4);
+                const bodyMat = new THREE.MeshStandardMaterial({
+                    color: 0x0f172a, // Xám phi thuyền đậm chất cơ khí tối giản
+                    emissive: 0x1e1b4b,
+                    emissiveIntensity: 0.3,
+                    metalness: 0.95,
+                    roughness: 0.15,
+                });
+                const body = new THREE.Mesh(bodyGeo, bodyMat);
+                droneGroup.add(body);
+
+                // 2. Mắt cảm biến quét laser đỏ rực phía trước (Menacing Optics)
+                const eyeGeo = new THREE.SphereGeometry(0.25, 12, 12);
+                const eyeMat = new THREE.MeshStandardMaterial({
+                    color: 0xef4444,
+                    emissive: 0xff0000,
+                    emissiveIntensity: 3.5,
+                    metalness: 0.9,
+                    roughness: 0.1,
+                });
+                const eye = new THREE.Mesh(eyeGeo, eyeMat);
+                eye.position.set(0, 0.1, 0.75);
+                droneGroup.add(eye);
+
+                // 3. Đôi cánh ngang nâng đỡ bộ mô-tơ động cơ cánh quạt hai bên
+                const wingMat = new THREE.MeshStandardMaterial({
+                    color: 0x1e293b,
+                    metalness: 0.9,
+                    roughness: 0.2,
+                });
+                const leftWingGeo = new THREE.BoxGeometry(1.0, 0.15, 0.35);
+                const leftWing = new THREE.Mesh(leftWingGeo, wingMat);
+                leftWing.position.set(-0.6, 0.2, 0);
+                leftWing.rotation.z = 0.15;
+                droneGroup.add(leftWing);
+
+                const rightWingGeo = new THREE.BoxGeometry(1.0, 0.15, 0.35);
+                const rightWing = new THREE.Mesh(rightWingGeo, wingMat);
+                rightWing.position.set(0.6, 0.2, 0);
+                rightWing.rotation.z = -0.15;
+                droneGroup.add(rightWing);
+
+                // 4. Đế trụ động cơ của cánh quạt
+                const engineGeo = new THREE.CylinderGeometry(
+                    0.18,
+                    0.18,
+                    0.35,
+                    12,
+                );
+                const engineMat = new THREE.MeshStandardMaterial({
+                    color: 0x334155,
+                    metalness: 0.9,
+                    roughness: 0.1,
+                });
+
+                const leftEngine = new THREE.Mesh(engineGeo, engineMat);
+                leftEngine.position.set(-1.2, 0.3, 0);
+                droneGroup.add(leftEngine);
+
+                const rightEngine = new THREE.Mesh(engineGeo, engineMat);
+                rightEngine.position.set(1.2, 0.3, 0);
+                droneGroup.add(rightEngine);
+
+                // 5. Cánh quạt thiết kế quay chéo (Cấu trúc nhóm để xoay đồng bộ cực mượt)
+                const leftRotor = new THREE.Group();
+                leftRotor.position.set(-1.2, 0.5, 0);
+
+                const rightRotor = new THREE.Group();
+                rightRotor.position.set(1.2, 0.5, 0);
+
+                // Chất liệu cánh phát sáng hồng neon rực rỡ
+                const bladeMat = new THREE.MeshStandardMaterial({
+                    color: 0xec4899,
+                    emissive: 0xec4899,
+                    emissiveIntensity: 1.8,
+                    transparent: true,
+                    opacity: 0.95,
+                });
+                const bladeGeo1 = new THREE.BoxGeometry(1.6, 0.04, 0.12);
+                const bladeGeo2 = new THREE.BoxGeometry(0.12, 0.04, 1.6);
+                const hubGeo = new THREE.CylinderGeometry(0.12, 0.12, 0.08, 8);
+                const hubMat = new THREE.MeshStandardMaterial({
+                    color: 0x0f172a,
+                    metalness: 0.9,
+                });
+
+                // Ráp các cánh quạt vào trục xoay bên trái
+                const lBlade1 = new THREE.Mesh(bladeGeo1, bladeMat);
+                const lBlade2 = new THREE.Mesh(bladeGeo2, bladeMat);
+                const lHub = new THREE.Mesh(hubGeo, hubMat);
+                leftRotor.add(lBlade1, lBlade2, lHub);
+
+                // Ráp các cánh quạt vào trục xoay bên phải
+                const rBlade1 = new THREE.Mesh(bladeGeo1, bladeMat);
+                const rBlade2 = new THREE.Mesh(bladeGeo2, bladeMat);
+                const rHub = new THREE.Mesh(hubGeo, hubMat);
+                rightRotor.add(rBlade1, rBlade2, rHub);
+
+                droneGroup.add(leftRotor);
+                droneGroup.add(rightRotor);
+
+                // 6. Động cơ đẩy phản lực đuôi với luồng lửa phản lực màu cam rực rỡ
+                const tailGeo = new THREE.CylinderGeometry(0.2, 0.1, 0.4, 8);
+                const tailMat = new THREE.MeshStandardMaterial({
+                    color: 0x1e293b,
+                    metalness: 0.9,
+                });
+                const tail = new THREE.Mesh(tailGeo, tailMat);
+                tail.position.set(0, 0, -0.75);
+                tail.rotation.x = Math.PI / 2;
+                droneGroup.add(tail);
+
+                const flameGeo = new THREE.ConeGeometry(0.15, 0.5, 8);
+                const flameMat = new THREE.MeshBasicMaterial({
+                    color: 0xeab308,
+                    transparent: true,
+                    opacity: 0.85,
+                });
+                const flame = new THREE.Mesh(flameGeo, flameMat);
+                flame.position.set(0, 0, -1.05);
+                flame.rotation.x = -Math.PI / 2;
+                droneGroup.add(flame);
+
+                // 7. Vòng hình nón quét laser đỏ rực cảnh báo va chạm bên dưới
+                const laserGeo = new THREE.ConeGeometry(2.5, 6, 16, 1, true);
+                const laserMat = new THREE.MeshBasicMaterial({
+                    color: 0xef4444,
+                    transparent: true,
+                    opacity: 0.15,
+                    side: THREE.DoubleSide,
+                });
+                const laserCone = new THREE.Mesh(laserGeo, laserMat);
+                laserCone.position.set(0, -3, 0);
+                droneGroup.add(laserCone);
+
+                // Lưu dữ liệu để giữ nguyên lô-gíc chuyển động tuần tra và va chạm cũ
+                droneGroup.userData = {
+                    leftRotor: leftRotor,
+                    rightRotor: rightRotor,
+                    startX: x,
+                    patrolRange: 7.0,
+                    patrolSpeed: 2.5 + Math.random() * 2,
+                    time: Math.random() * 10,
+                };
+
+                scene.add(droneGroup);
+                obstacleDrones.push(droneGroup);
+            }
+
+            // Cyberpunk armored platform runner construction
+            function buildPlayerCharacter() {
+                // Remove old mesh if any
+                if (player.mesh) scene.remove(player.mesh);
+
+                const charGroup = new THREE.Group();
+
+                // 1. Sleek Main Helmet / Chassis (Metallic dark slate)
+                const chassisGeo = new THREE.SphereGeometry(0.7, 32, 32);
+                chassisGeo.scale(1, 1.25, 1.15);
+                const chassisMat = new THREE.MeshStandardMaterial({
+                    color: 0x1e293b,
+                    roughness: 0.15,
+                    metalness: 0.95,
+                    emissive: 0x0f172a,
+                    emissiveIntensity: 0.4,
+                });
+                const chassis = new THREE.Mesh(chassisGeo, chassisMat);
+                chassis.position.y = 0.85; // Dịch chuyển lên để tránh lún xuống platform
+                chassis.castShadow = true;
+                charGroup.add(chassis);
+
+                // 2. Futuristic Cyber Visor (Sleek glowing curved band)
+                const visorGeo = new THREE.CylinderGeometry(
+                    0.56,
+                    0.56,
+                    0.35,
+                    16,
+                    1,
+                    true,
+                    -Math.PI / 3,
+                    (Math.PI * 2) / 3,
+                );
+                const visorMat = new THREE.MeshStandardMaterial({
+                    color: 0xec4899,
+                    emissive: 0xf43f5e,
+                    emissiveIntensity: 2.8,
+                    roughness: 0.05,
+                    metalness: 0.9,
+                    side: THREE.DoubleSide,
+                });
+                const visor = new THREE.Mesh(visorGeo, visorMat);
+                visor.position.set(0, 1.2, 0.3); // Dịch chuyển lên từ 0.35 -> 1.2
+                visor.rotation.x = Math.PI / 12; // slightly tilted for aerodynamics
+                charGroup.add(visor);
+
+                // 3. Reactor Core / Chest Light (Bright glowing cyan circle)
+                const coreGeo = new THREE.CylinderGeometry(
+                    0.22,
+                    0.22,
+                    0.08,
+                    16,
+                );
+                const coreMat = new THREE.MeshBasicMaterial({
+                    color: 0x06b6d4,
+                });
+                const core = new THREE.Mesh(coreGeo, coreMat);
+                core.position.set(0, 0.7, 0.65); // Dịch chuyển lên từ -0.15 -> 0.7
+                core.rotation.x = Math.PI / 2;
+                charGroup.add(core);
+
+                const coreRingGeo = new THREE.TorusGeometry(0.25, 0.04, 8, 24);
+                const coreRingMat = new THREE.MeshStandardMaterial({
+                    color: 0x0f172a,
+                    metalness: 0.95,
+                });
+                const coreRing = new THREE.Mesh(coreRingGeo, coreRingMat);
+                coreRing.position.copy(core.position);
+                coreRing.rotation.copy(core.rotation);
+                charGroup.add(coreRing);
+
+                // 4. Side Aerodynamic Aero-Fins / Wings (gives futuristic silhouette)
+                const finShape = new THREE.ConeGeometry(0.22, 0.8, 4);
+                finShape.scale(1, 1, 0.18);
+                const finMat = new THREE.MeshStandardMaterial({
+                    color: 0xec4899,
+                    emissive: 0xec4899,
+                    emissiveIntensity: 0.8,
+                    metalness: 0.8,
+                    roughness: 0.1,
+                });
+
+                const leftFin = new THREE.Mesh(finShape, finMat);
+                leftFin.position.set(-0.75, 1.05, -0.1); // Dịch chuyển lên từ 0.2 -> 1.05
+                leftFin.rotation.set(0.3, 0, 0.6);
+                charGroup.add(leftFin);
+
+                const rightFin = new THREE.Mesh(finShape, finMat);
+                rightFin.position.set(0.75, 1.05, -0.1); // Dịch chuyển lên từ 0.2 -> 1.05
+                rightFin.rotation.set(0.3, 0, -0.6);
+                charGroup.add(rightFin);
+
+                // 5. Dual Jetpack Engines & Glowing Nozzles (Required for rotation animation logic)
+                const engineGroupL = new THREE.Group();
+                engineGroupL.position.set(-0.45, 0.35, -0.3); // Dịch chuyển lên từ -0.5 -> 0.35
+
+                const outerNozzleGeo = new THREE.CylinderGeometry(
+                    0.18,
+                    0.23,
+                    0.6,
+                    12,
+                );
+                const outerNozzleMat = new THREE.MeshStandardMaterial({
+                    color: 0x334155,
+                    metalness: 0.9,
+                    roughness: 0.2,
+                });
+                const outerNozzleL = new THREE.Mesh(
+                    outerNozzleGeo,
+                    outerNozzleMat,
+                );
+                engineGroupL.add(outerNozzleL);
+
+                const innerNozzleGeo = new THREE.CylinderGeometry(
+                    0.11,
+                    0.11,
+                    0.35,
+                    8,
+                );
+                const innerNozzleMat = new THREE.MeshBasicMaterial({
+                    color: 0x06b6d4,
+                });
+                const innerNozzleL = new THREE.Mesh(
+                    innerNozzleGeo,
+                    innerNozzleMat,
+                );
+                innerNozzleL.position.y = -0.15; // pushed down into jet engine shell
+                engineGroupL.add(innerNozzleL);
+
+                charGroup.add(engineGroupL);
+
+                const engineGroupR = new THREE.Group();
+                engineGroupR.position.set(0.45, 0.35, -0.3); // Dịch chuyển lên từ -0.5 -> 0.35
+
+                const outerNozzleR = new THREE.Mesh(
+                    outerNozzleGeo,
+                    outerNozzleMat,
+                );
+                engineGroupR.add(outerNozzleR);
+
+                const innerNozzleR = new THREE.Mesh(
+                    innerNozzleGeo,
+                    innerNozzleMat,
+                );
+                innerNozzleR.position.y = -0.15;
+                engineGroupR.add(innerNozzleR);
+
+                charGroup.add(engineGroupR);
+
+                // 6. Force shield orb (Hidden initially unless upgrade/combo triggers)
+                const shieldGeo = new THREE.SphereGeometry(1.6, 24, 24);
+                const shieldMat = new THREE.MeshBasicMaterial({
+                    color: 0xeab308,
+                    wireframe: false, // Changed from true to false to remove the grid lines around the character
+                    transparent: true,
+                    opacity: 0.0,
+                });
+                const shieldOrb = new THREE.Mesh(shieldGeo, shieldMat);
+                shieldOrb.position.y = 0.85; // Dịch chuyển lên đồng bộ với khung thân
+                charGroup.add(shieldOrb);
+
+                charGroup.userData = {
+                    shieldOrb: shieldOrb,
+                    leftNozzle: engineGroupL,
+                    rightNozzle: engineGroupR,
+                };
+
+                charGroup.position.copy(player.position);
+                scene.add(charGroup);
+                player.mesh = charGroup;
+            }
+
+            // Procedurally queues and builds track elements ahead of players
+            function generateProceduralRunway() {
+                // First time spawn layout
+                if (platforms.length === 0) {
+                    // Initial starting safe area
+                    const startingPlatform = createNeonCloudPlatform(
+                        0,
+                        0,
+                        0,
+                        16,
+                        40,
+                        0x06b6d4,
+                    );
+                    platforms.push(startingPlatform);
+
+                    // Spawn several items in front of runner
+                    for (let i = 0; i < CONFIG.maxPlatforms; i++) {
+                        spawnNextTrackElement();
+                    }
+                } else {
+                    // Garbage collect older platforms out of screen view
+                    while (
+                        platforms.length > 0 &&
+                        platforms[0].position.z > player.position.z + 45
+                    ) {
+                        const oldObj = platforms.shift();
+                        scene.remove(oldObj);
+                    }
+
+                    // Add missing elements to pool
+                    while (platforms.length < CONFIG.maxPlatforms) {
+                        spawnNextTrackElement();
+                    }
+                }
+            }
+
+            // Logic determining what next platform blocks to produce
+            function spawnNextTrackElement() {
+                const lastPlatform = platforms[platforms.length - 1];
+                const currentRunLevel = Math.floor(
+                    Math.abs(player.position.z) / 100,
+                ); // difficulty curves upwards
+
+                // Extract position of the furthest endpoint
+                const lastZ = lastPlatform.position.z;
+                const lastY = lastPlatform.position.y;
+                const lastX = lastPlatform.position.x;
+                const lastType = lastPlatform.userData.type;
+
+                // Define next parameters (Scaled down gaps to match slower forward speed)
+                const gapLength =
+                    3 + Math.min(Math.random() * 5 + currentRunLevel * 0.2, 10);
+                const pLength = 12 + Math.random() * 14;
+                const pWidth = Math.max(10 - currentRunLevel * 0.15, 5); // platforms get narrower
+
+                // Limit coordinate offsets so platforms do not diverge too far off-center
+                const targetZ =
+                    lastZ -
+                    lastPlatform.userData.length / 2 -
+                    gapLength -
+                    pLength / 2;
+                let targetX = lastX + (Math.random() - 0.5) * 12;
+                targetX = Math.max(-14, Math.min(14, targetX)); // Limit horizontal drift boundaries
+
+                let targetY = lastY + (Math.random() - 0.5) * 4;
+                targetY = Math.max(-8, Math.min(12, targetY)); // Limit altitude limits
+
+                // Randomly select type (Standard cloud vs collapsible bridge grid)
+                let typeRandom = Math.random();
+                let newPlatform;
+
+                if (typeRandom > 0.65 && lastType !== "collapsing") {
+                    // Collapsing data bridge block
+                    newPlatform = createCollapsingBridge(
+                        targetX,
+                        targetY,
+                        targetZ,
+                        pWidth * 0.8,
+                        pLength,
+                    );
+                } else {
+                    // Standard cloud platform
+                    const neonColor = Math.random() > 0.5 ? 0x06b6d4 : 0xec4899;
+                    newPlatform = createNeonCloudPlatform(
+                        targetX,
+                        targetY,
+                        targetZ,
+                        pWidth,
+                        pLength,
+                        neonColor,
+                    );
+                }
+
+                platforms.push(newPlatform);
+
+                // Phân bổ mảnh năng lượng dọc theo nền tảng mới
+                if (Math.random() > 0.3) {
+                    const shardCount = 1 + Math.floor(Math.random() * 3);
+                    for (let i = 0; i < shardCount; i++) {
+                        const offsetZ =
+                            (i - (shardCount - 1) / 2) *
+                            (pLength / (shardCount + 1));
+                        spawnShard(targetX, targetY, targetZ + offsetZ);
+                    }
+                }
+
+                // Phân bổ drone chướng ngại vật tuần tra bảo an
+                if (Math.random() > 0.7 && Math.abs(targetZ) > 80) {
+                    spawnDrone(targetX, targetY, targetZ);
+                }
+            }
+
+            function startMovement() {
+                if (!hasStartedMoving && isPlaying && !isPaused) {
+                    initAudio();
+                    startAmbientAudio();
+                    playSfx("start");
+                    hasStartedMoving = true;
+                    document
+                        .getElementById("startPrompt")
+                        .classList.add("hidden");
+                }
+            }
+
+            // Hook up user controls (Keyboard keys + touch interface buttons)
+            function initControls() {
+                // Keyboard Listeners
+                window.addEventListener("keydown", (e) => {
+                    if (
+                        e.code === "KeyW" ||
+                        e.code === "ArrowUp" ||
+                        e.code === "Space"
+                    ) {
+                        startMovement();
+                    }
+                    if (e.code in keys) {
+                        keys[e.code] = true;
+                        // Intercept space jump immediately
+                        if (e.code === "Space") {
+                            triggerJump();
+                        }
+                        if (e.code === "ShiftLeft") {
+                            triggerDash();
+                        }
+                    }
+                    if (e.code === "Escape" && isPlaying) {
+                        togglePause();
+                    }
+                });
+
+                window.addEventListener("keyup", (e) => {
+                    if (e.code in keys) {
+                        keys[e.code] = false;
+                    }
+                });
+
+                // Mobile virtual buttons mapping
+                const btnLeft = document.getElementById("btnMoveLeft");
+                const btnRight = document.getElementById("btnMoveRight");
+                const btnJump = document.getElementById("btnJump");
+                const btnDash = document.getElementById("btnDash");
+
+                // Button Touch start & end handlers
+                btnLeft.addEventListener("touchstart", (e) => {
+                    e.preventDefault();
+                    keys.KeyA = true;
+                });
+                btnLeft.addEventListener("touchend", () => {
+                    keys.KeyA = false;
+                });
+                btnRight.addEventListener("touchstart", (e) => {
+                    e.preventDefault();
+                    keys.KeyD = true;
+                });
+                btnRight.addEventListener("touchend", () => {
+                    keys.KeyD = false;
+                });
+
+                btnJump.addEventListener("touchstart", (e) => {
+                    e.preventDefault();
+                    triggerJump();
+                });
+                btnDash.addEventListener("touchstart", (e) => {
+                    e.preventDefault();
+                    triggerDash();
+                });
+
+                // Click support on mobile buttons just in case of viewport emulation
+                btnLeft.addEventListener("mousedown", () => {
+                    keys.KeyA = true;
+                });
+                btnLeft.addEventListener("mouseup", () => {
+                    keys.KeyA = false;
+                });
+                btnRight.addEventListener("mousedown", () => {
+                    keys.KeyD = true;
+                });
+                btnRight.addEventListener("mouseup", () => {
+                    keys.KeyD = false;
+                });
+                btnJump.addEventListener("mousedown", triggerJump);
+                btnDash.addEventListener("mousedown", triggerDash);
+            }
+
+            // Triggers Jump sequence including double & triple variants
+            function triggerJump() {
+                if (!isPlaying || isPaused) return;
+                startMovement();
+
+                if (player.isWallRunning) {
+                    // NEW: Premium Wall Jump mechanics (Pushes character forcefully away from the wall)
+                    player.velocity.y = CONFIG.jumpPower * 1.08;
+                    player.lateralVelocity =
+                        -player.wallRunSide * CONFIG.maxLateralSpeed * 1.1;
+                    player.position.x += -player.wallRunSide * 0.6; // Immediately pop outward
+                    player.isWallRunning = false;
+                    player.currentJumps = 1; // Count as first air-jump
+                    player.meshScaleY = 1.35;
+                    spawnLandingRings(
+                        player.position.x,
+                        player.position.y,
+                        player.position.z,
+                        0xeab308,
+                    );
+                    triggerCameraShake(0.22);
+                    playSfx("airJump");
+                    triggerAlert("CÚ NHẢY TỪ TƯỜNG NEON!");
+                    return;
+                }
+
+                if (player.isGrounded) {
+                    // Initial jump sequence
+                    player.velocity.y = CONFIG.jumpPower;
+                    player.isGrounded = false;
+                    player.currentJumps = 1;
+                    player.meshScaleY = 1.3; // Stretch up on takeoff
+                    spawnLandingRings(
+                        player.position.x,
+                        player.position.y,
+                        player.position.z,
+                        0x06b6d4,
+                    );
+                    playSfx("jump");
+                } else if (player.currentJumps < player.maxJumpsAllowed) {
+                    // Double/Triple Air-Jump triggers
+                    player.velocity.y = CONFIG.jumpPower * 0.95;
+                    player.currentJumps++;
+                    player.meshScaleY = 1.4;
+
+                    // Color flash based on jump iteration
+                    const flashColor =
+                        player.currentJumps === 2 ? 0xec4899 : 0xeab308;
+                    spawnLandingRings(
+                        player.position.x,
+                        player.position.y,
+                        player.position.z,
+                        flashColor,
+                    );
+                    triggerCameraShake(0.12);
+                    playSfx("airJump");
+                }
+            }
+
+            // High speed dash propulsion with invulnerability buffers
+            function triggerDash() {
+                if (
+                    !isPlaying ||
+                    isPaused ||
+                    player.isDashing ||
+                    player.dashCooldown > 0
+                )
+                    return;
+
+                player.isDashing = true;
+                player.dashActiveTimer = CONFIG.dashDuration;
+                player.velocity.y = 0; // Suspend gravity briefly during mid-air dashes
+
+                // Adjust propulsion strength based on upgrade tier
+                const speedFact = CONFIG.airDashPower;
+                player.velocity.z = -speedFact;
+
+                // visual speed streak trigger
+                triggerCameraShake(0.25);
+                spawnDashStreaks(
+                    player.position.x,
+                    player.position.y,
+                    player.position.z,
+                );
+                playSfx("dash");
+
+                // Set cooldown values
+                const cdMax = gameState.hasSuperDash ? 1.0 : 2.5;
+                player.dashCooldown = cdMax;
+
+                // Trigger HUD overlay indicator transition
+                const indicatorBar = document.getElementById(
+                    "dashCooldownOverlay",
+                );
+                indicatorBar.style.transform = "scaleY(1)";
+                document.getElementById("dashStatusText").innerText =
+                    "ĐANG SẠC";
+                document.getElementById("dashStatusText").className =
+                    "text-xs font-bold text-rose-500";
+            }
+
+            // Spawns a pulse ring upon impactful jumps/landings
+            function spawnLandingRings(x, y, z, ringColor = 0x06b6d4) {
+                const geom = new THREE.RingGeometry(0.1, 1.6, 16);
+                const mat = new THREE.MeshBasicMaterial({
+                    color: ringColor,
+                    side: THREE.DoubleSide,
+                    transparent: true,
+                    opacity: 0.8,
+                });
+                const mesh = new THREE.Mesh(geom, mat);
+                mesh.position.set(x, y - 0.4, z);
+                mesh.rotation.x = Math.PI / 2;
+                scene.add(mesh);
+
+                particlePool.push({
+                    mesh: mesh,
+                    type: "ring",
+                    scaleSpeed: 5.0,
+                    fadeSpeed: 2.2,
+                    currentScale: 0.2,
+                });
+            }
+
+            // Creates custom horizontal light speed dash lines
+            function spawnDashStreaks(x, y, z) {
+                for (let i = 0; i < 15; i++) {
+                    const geo = new THREE.BoxGeometry(
+                        0.05,
+                        0.05,
+                        4 + Math.random() * 6,
+                    );
+                    const mat = new THREE.MeshBasicMaterial({
+                        color: 0xec4899,
+                        transparent: true,
+                        opacity: 0.8,
+                    });
+                    const line = new THREE.Mesh(geo, mat);
+                    line.position.set(
+                        x + (Math.random() - 0.5) * 6,
+                        y + (Math.random() - 0.5) * 3,
+                        z - Math.random() * 10,
+                    );
+                    scene.add(line);
+
+                    particlePool.push({
+                        mesh: line,
+                        type: "streak",
+                        speedZ: -80,
+                        fadeSpeed: 3.5,
+                    });
+                }
+            }
+
+            // Spawns small sparkling particles after shard collects
+            function spawnShardSparks(x, y, z) {
+                for (let i = 0; i < 10; i++) {
+                    const geo = new THREE.DodecahedronGeometry(0.15);
+                    const mat = new THREE.MeshBasicMaterial({
+                        color: 0xeab308,
+                        transparent: true,
+                        opacity: 1.0,
+                    });
+                    const spark = new THREE.Mesh(geo, mat);
+                    spark.position.set(x, y, z);
+                    scene.add(spark);
+
+                    particlePool.push({
+                        mesh: spark,
+                        type: "spark",
+                        vel: new THREE.Vector3(
+                            (Math.random() - 0.5) * 8,
+                            Math.random() * 8 + 2,
+                            (Math.random() - 0.5) * 8,
+                        ),
+                        fadeSpeed: 2.0,
+                    });
+                }
+            }
+
+            // Upgrade button click handles
+            document
+                .getElementById("btnUpgradeJump")
+                .addEventListener("click", () => {
+                    if (
+                        gameState.totalShards >= 15 &&
+                        !gameState.hasTripleJump
+                    ) {
+                        gameState.totalShards -= 15;
+                        gameState.hasTripleJump = true;
+                        saveGameData();
+                        updateShopUI();
+                        triggerAlert("Đã kích hoạt Giao thức Nhảy Ba!");
+                    } else {
+                        triggerAlert("Không đủ Mảnh năng lượng.");
+                    }
+                });
+
+            document
+                .getElementById("btnUpgradeDash")
+                .addEventListener("click", () => {
+                    if (
+                        gameState.totalShards >= 25 &&
+                        !gameState.hasSuperDash
+                    ) {
+                        gameState.totalShards -= 25;
+                        gameState.hasSuperDash = true;
+                        saveGameData();
+                        updateShopUI();
+                        triggerAlert("Đã cài đặt Bộ tối ưu hóa Lướt!");
+                    } else {
+                        triggerAlert("Không đủ Mảnh năng lượng.");
+                    }
+                });
+
+            document
+                .getElementById("btnUpgradeMagnet")
+                .addEventListener("click", () => {
+                    if (gameState.totalShards >= 35 && !gameState.hasMagnet) {
+                        gameState.totalShards -= 35;
+                        gameState.hasMagnet = true;
+                        saveGameData();
+                        updateShopUI();
+                        triggerAlert("Đã hiệu chuẩn Nam châm hút Mảnh!");
+                    } else {
+                        triggerAlert("Không đủ Mảnh năng lượng.");
+                    }
+                });
+
+            // Core Physics, landing platform bounds, obstacle drone logic
+            function updatePlayerPhysics(delta) {
+                // Apply air horizontal drift steering smooth controls
+                let horizontalSteer = 0;
+                if (keys.KeyA || keys.ArrowLeft) horizontalSteer = -1;
+                if (keys.KeyD || keys.ArrowRight) horizontalSteer = 1;
+
+                // NEW: Ultra-responsive momentum physics steering
+                player.lateralVelocity +=
+                    horizontalSteer * CONFIG.lateralAcceleration * delta;
+                player.lateralVelocity -=
+                    player.lateralVelocity * CONFIG.lateralFriction * delta;
+                player.lateralVelocity = Math.max(
+                    -CONFIG.maxLateralSpeed,
+                    Math.min(CONFIG.maxLateralSpeed, player.lateralVelocity),
+                );
+                player.position.x += player.lateralVelocity * delta;
+
+                // Constrain lateral borders
+                player.position.x = Math.max(
+                    -15,
+                    Math.min(15, player.position.x),
+                );
+
+                // NEW: Real-time procedural Wall Run edge scanning
+                let nearWall = false;
+                let activeWallSide = 0;
+                const px = player.position.x;
+                const py = player.position.y;
+                const pz = player.position.z;
+
+                platforms.forEach((platform) => {
+                    if (
+                        platform.userData.wallSide &&
+                        platform.userData.wallSide !== 0
+                    ) {
+                        const platX = platform.position.x;
+                        const platY = platform.position.y;
+                        const platZ = platform.position.z;
+                        const pW = platform.userData.width;
+                        const pL = platform.userData.length;
+                        const wSide = platform.userData.wallSide;
+
+                        // Evaluate alignment bounds
+                        const minZ = platZ - pL / 2;
+                        const maxZ = platZ + pL / 2;
+                        if (pz >= minZ && pz <= maxZ) {
+                            const wallX = platX + wSide * (pW / 2);
+                            const distToWall = Math.abs(px - wallX);
+                            // Is player in close spatial vicinity to the wall
+                            if (
+                                distToWall < 2.0 &&
+                                py >= platY &&
+                                py <= platY + 7.5
+                            ) {
+                                nearWall = true;
+                                activeWallSide = wSide;
+                            }
+                        }
+                    }
+                });
+
+                if (nearWall && !player.isGrounded && hasStartedMoving) {
+                    // Engage lock-on wall run if moving/steering towards the wall surface
+                    const isPushingWall =
+                        (activeWallSide === -1 &&
+                            (keys.KeyA || keys.ArrowLeft)) ||
+                        (activeWallSide === 1 &&
+                            (keys.KeyD || keys.ArrowRight)) ||
+                        Math.abs(player.lateralVelocity) > 2.0;
+                    if (isPushingWall) {
+                        if (!player.isWallRunning) {
+                            player.isWallRunning = true;
+                            player.wallRunSide = activeWallSide;
+                            player.currentJumps = 0; // Restore jump capacity
+                            triggerAlert("ĐANG CHẠY TRÊN TƯỜNG NEON!");
+                            triggerCameraShake(0.16);
+                        }
+                    } else {
+                        player.isWallRunning = false;
+                    }
+                } else {
+                    player.isWallRunning = false;
+                }
+
+                // Standard or Dashing Speed Forward progression along negative Z
+                let forwardSpeed = 0;
+                if (hasStartedMoving) {
+                    forwardSpeed =
+                        CONFIG.baseRunSpeed +
+                        Math.abs(player.position.z) * CONFIG.speedMultiplier;
+                    forwardSpeed = Math.min(forwardSpeed, CONFIG.maxRunSpeed); // Speed ceilings
+                    // Boost via active score combos (Scaled down from 8.0 to 4.0 to maintain slower feel)
+                    forwardSpeed += (comboMultiplier - 1.0) * 4.0;
+
+                    // NEW: Increase forward run momentum during wall-running maneuvers
+                    if (player.isWallRunning) {
+                        forwardSpeed *= 1.25;
+                    }
+                }
+
+                if (player.isDashing && hasStartedMoving) {
+                    // Use dash constant propulsion
+                    player.dashActiveTimer -= delta * 1000;
+                    if (player.dashActiveTimer <= 0) {
+                        player.isDashing = false;
+                    }
+                } else {
+                    // Apply standard dynamic speed
+                    player.velocity.z = -forwardSpeed;
+
+                    // NEW: Dynamic arc-sensitive gravity modifiers
+                    let currentGravity = CONFIG.gravity;
+                    if (player.isWallRunning) {
+                        currentGravity = CONFIG.wallRunGravity;
+                        player.velocity.y = Math.max(-4, player.velocity.y); // Slide down walls slowly
+                    } else if (player.velocity.y > 0 && keys.Space) {
+                        currentGravity = CONFIG.gravity * 0.72; // Floatier peak arc holding space
+                    }
+
+                    player.velocity.y += currentGravity * delta;
+                    player.position.y += player.velocity.y * delta;
+                }
+
+                // Progress position forwards
+                player.position.z += player.velocity.z * delta;
+
+                // Handle recovery squash animations
+                player.meshScaleY += (1.0 - player.meshScaleY) * 12 * delta;
+
+                // Cooldown computations
+                if (player.dashCooldown > 0) {
+                    player.dashCooldown -= delta;
+                    const cdMax = gameState.hasSuperDash ? 1.0 : 2.5;
+                    const fillRatio = Math.max(0, player.dashCooldown / cdMax);
+                    document.getElementById(
+                        "dashCooldownOverlay",
+                    ).style.transform = `scaleY(${fillRatio})`;
+
+                    if (player.dashCooldown <= 0) {
+                        document.getElementById("dashStatusText").innerText =
+                            "SẴN SÀNG";
+                        document.getElementById("dashStatusText").className =
+                            "text-xs font-bold text-cyan-400";
+                        triggerAlert("Hệ thống Lướt Trên Không đã sạc đầy!");
+                    }
+                }
+
+                // Sync actual meshes
+                if (player.mesh) {
+                    player.mesh.position.copy(player.position);
+
+                    // NEW: Tilt mesh dynamically matching turn/wallrun roll angle
+                    let targetZRotation = 0;
+                    if (player.isWallRunning) {
+                        targetZRotation = -player.wallRunSide * 0.45; // Lean heavily into walls
+                    } else {
+                        targetZRotation = -player.lateralVelocity * 0.015; // Body roll on turns
+                    }
+                    player.mesh.rotation.z = THREE.MathUtils.lerp(
+                        player.mesh.rotation.z,
+                        targetZRotation,
+                        8 * delta,
+                    );
+                    player.mesh.rotation.y = THREE.MathUtils.lerp(
+                        player.mesh.rotation.y,
+                        player.lateralVelocity * 0.02,
+                        8 * delta,
+                    );
+
+                    player.mesh.scale.set(1.0, player.meshScaleY, 1.0);
+
+                    // Apply small cosmetic floating/spinning animations to nozzle jets
+                    const jets = player.mesh.userData;
+                    if (jets.leftNozzle)
+                        jets.leftNozzle.rotation.y += 3 * delta;
+                    if (jets.rightNozzle)
+                        jets.rightNozzle.rotation.y -= 3 * delta;
+
+                    // Sync visible energy shield glow
+                    if (player.hasShieldActive) {
+                        jets.shieldOrb.material.opacity =
+                            0.4 + Math.sin(clock.getElapsedTime() * 8) * 0.15;
+                        jets.shieldOrb.rotation.y += delta;
+                    } else {
+                        jets.shieldOrb.material.opacity = 0.0;
+                    }
+                }
+
+                // Boundary fail conditions (Bottom fell off sky limit)
+                if (player.position.y < -22) {
+                    triggerGameOver(
+                        "Đang rơi tự do vào hư vô của phân khu mây cyber.",
+                    );
+                }
+            }
+
+            function checkCollisions(delta) {
+                let standingOnPlatform = false;
+                const px = player.position.x;
+                const py = player.position.y;
+                const pz = player.position.z;
+
+                // Dimensional box thresholds for runner footprint
+                const playerWidth = 1.2;
+                const playerHeight = 1.8;
+
+                platforms.forEach((platform) => {
+                    const platX = platform.position.x;
+                    const platY = platform.position.y;
+                    const platZ = platform.position.z;
+                    const pW = platform.userData.width;
+                    const pL = platform.userData.length;
+
+                    // Simple collision boxes for horizontal bounds
+                    const minX = platX - pW / 2 - playerWidth / 2;
+                    const maxX = platX + pW / 2 + playerWidth / 2;
+                    const minZ = platZ - pL / 2 - playerWidth / 2;
+                    const maxZ = platZ + pL / 2 + playerWidth / 2;
+
+                    if (px >= minX && px <= maxX && pz >= minZ && pz <= maxZ) {
+                        // Check if player feet aligns with platform ceiling surface
+                        const surfaceY = platY + 0.75;
+
+                        if (
+                            py >= surfaceY - 1.2 &&
+                            py <= surfaceY + 0.4 &&
+                            player.velocity.y <= 0
+                        ) {
+                            // Landed!
+                            // NEW: Premium landing impact squash & visual camera rumble
+                            if (!player.isGrounded) {
+                                player.meshScaleY = 0.62; // Heavily squash character on hard landing
+                                triggerCameraShake(
+                                    Math.abs(player.velocity.y) * 0.022 + 0.08,
+                                ); // Impact-relative rumble
+                                spawnLandingRings(
+                                    player.position.x,
+                                    surfaceY,
+                                    player.position.z,
+                                    0x06b6d4,
+                                );
+                                playSfx("land");
+                            }
+                            player.position.y = surfaceY;
+                            player.velocity.y = 0;
+                            player.isGrounded = true;
+                            player.currentJumps = 0;
+                            standingOnPlatform = true;
+
+                            // Collapse bridge dynamics
+                            if (
+                                platform.userData.type === "collapsing" &&
+                                !platform.userData.touched
+                            ) {
+                                platform.userData.touched = true;
+                                // Visual prompt
+                                platform.children[0].material.emissive.setHex(
+                                    0xef4444,
+                                ); // Shift to threat crimson
+                                triggerAlert(
+                                    "TÍNH TOÀN VẸN BỊ ĐE DỌA - CẦU ĐANG SẬP!",
+                                );
+                                playSfx("warning");
+                            }
+                        } else if (player.velocity.y > 0) {
+                            // Block jumping through from below (head collision)
+                            const bottomY = platY - 0.75;
+                            if (py + 1.5 >= bottomY && py < bottomY) {
+                                player.position.y = bottomY - 1.5;
+                                player.velocity.y = -2; // slight bounce down to simulate head bonk
+                            }
+                        }
+                    }
+                });
+
+                // Handle active bridge collapsing ticks
+                platforms.forEach((platform) => {
+                    if (
+                        platform.userData.type === "collapsing" &&
+                        platform.userData.touched &&
+                        !platform.userData.isCollapsed
+                    ) {
+                        platform.userData.touchTimer += delta;
+
+                        // Quick vibrating offset animation
+                        platform.position.x +=
+                            Math.sin(platform.userData.touchTimer * 35) * 0.07;
+
+                        if (platform.userData.touchTimer >= 0.8) {
+                            // Drop it!
+                            platform.userData.isCollapsed = true;
+                        }
+                    }
+
+                    if (platform.userData.isCollapsed) {
+                        // Gravity falls platform
+                        platform.position.y -= 35 * delta;
+                    }
+                });
+
+                // Shard collection intersection checks
+                const collectRadius = gameState.hasMagnet
+                    ? CONFIG.magnetPullRadius
+                    : 2.5;
+                shards.forEach((shard) => {
+                    if (shard.userData.isCollected) return;
+
+                    const distance = player.position.distanceTo(shard.position);
+
+                    // Handle upgrade Magnet pulls
+                    if (
+                        gameState.hasMagnet &&
+                        distance < CONFIG.magnetPullRadius &&
+                        distance > 2.0
+                    ) {
+                        const pullSpeed = 28.0 * delta;
+                        shard.position.lerp(player.position, pullSpeed);
+                    }
+
+                    if (distance < 2.0) {
+                        shard.userData.isCollected = true;
+                        scene.remove(shard);
+
+                        // Award points and level triggers
+                        shardsCollectedThisRun++;
+                        score += 15 * comboMultiplier;
+
+                        // Progress combo meter
+                        comboProgressValue = Math.min(
+                            100,
+                            comboProgressValue + 12,
+                        );
+
+                        spawnShardSparks(
+                            shard.position.x,
+                            shard.position.y,
+                            shard.position.z,
+                        );
+                        triggerCameraShake(0.06);
+                        playSfx("shard");
+                    }
+                });
+
+                // Filter out gathered shards from active updates
+                shards = shards.filter((s) => !s.userData.isCollected);
+
+                // Drone hazards sweep intersects
+                obstacleDrones.forEach((drone) => {
+                    const dx = player.position.x - drone.position.x;
+                    const dy = drone.position.y - player.position.y;
+                    const dz = player.position.z - drone.position.z;
+                    const horizontalDist = Math.sqrt(dx * dx + dz * dz);
+                    const distToDrone = player.position.distanceTo(
+                        drone.position,
+                    );
+
+                    // Va chạm vật lý trực tiếp với thân Drone (bán kính < 1.5)
+                    const physicalHit = distToDrone < 1.5;
+                    // Quét trúng luồng laser hình nón hướng xuống dưới (cao 6, bán kính đáy 2.5)
+                    const laserHit =
+                        dy > 0 &&
+                        dy <= 6.0 &&
+                        horizontalDist < 2.5 * (dy / 6.0);
+
+                    if (physicalHit || laserHit) {
+                        // Trigger shield defense check or fatal crash
+                        if (player.hasShieldActive) {
+                            player.hasShieldActive = false;
+                            scene.remove(drone);
+                            triggerCameraShake(0.35);
+                            playSfx("shield");
+                            triggerAlert("Lá chắn bảo vệ đã cản lực va chạm!");
+
+                            document.getElementById(
+                                "shieldIndicator",
+                            ).className =
+                                "bg-slate-950/80 backdrop-blur-md p-2.5 rounded-xl border border-yellow-500/30 flex items-center gap-3 opacity-40 transition-opacity duration-300";
+                            document.getElementById(
+                                "shieldStatusText",
+                            ).innerText = "BỊ VÔ HIỆU";
+                            document.getElementById(
+                                "shieldStatusText",
+                            ).className = "text-xs font-bold text-slate-500";
+                        } else {
+                            triggerGameOver(
+                                "Bị tiêu diệt bởi ma trận laser của drone bảo an tuần tra.",
+                            );
+                        }
+                    }
+                });
+            }
+
+            function updateEnvironment(delta) {
+                // NEW: Spawning reactive trailing engine particles matching current combo colors
+                if (hasStartedMoving) {
+                    player.trailTimer += delta;
+                    if (player.trailTimer > 0.035) {
+                        player.trailTimer = 0;
+
+                        let trailColor = 0x06b6d4; // cyan default
+                        if (player.isWallRunning) {
+                            trailColor = 0xffffff; // pure white sparks when friction sliding on walls
+                        } else if (comboMultiplier >= 3.0) {
+                            trailColor = 0xeab308; // golden
+                        } else if (comboMultiplier >= 2.0) {
+                            trailColor = 0xec4899; // pink
+                        }
+
+                        // Nozzle offsets
+                        const leftOffset = new THREE.Vector3(-0.45, 0.35, 0.2);
+                        const rightOffset = new THREE.Vector3(0.45, 0.35, 0.2);
+
+                        [leftOffset, rightOffset].forEach((offset) => {
+                            const spawnPos = player.position
+                                .clone()
+                                .add(offset);
+                            const particleSize = player.isWallRunning
+                                ? 0.22
+                                : 0.12;
+                            const geo = new THREE.BoxGeometry(
+                                particleSize,
+                                particleSize,
+                                particleSize,
+                            );
+                            const mat = new THREE.MeshBasicMaterial({
+                                color: trailColor,
+                                transparent: true,
+                                opacity: 0.85,
+                            });
+                            const trailObj = new THREE.Mesh(geo, mat);
+                            trailObj.position.copy(spawnPos);
+                            scene.add(trailObj);
+
+                            // Eject particles backward relative to speed
+                            const ejectForceZ =
+                                Math.abs(player.velocity.z) * 0.8 + 6;
+                            particlePool.push({
+                                mesh: trailObj,
+                                type: "spark",
+                                vel: new THREE.Vector3(
+                                    (Math.random() - 0.5) * 2.5,
+                                    (Math.random() - 0.5) * 2.0,
+                                    ejectForceZ + Math.random() * 4,
+                                ),
+                                fadeSpeed: 2.5,
+                            });
+                        });
+                    }
+                }
+
+                // Rotates shards
+                shards.forEach((shard) => {
+                    shard.rotation.y += shard.userData.rotationSpeed * delta;
+                    // floating hover height
+                    shard.position.y =
+                        shard.userData.initialY +
+                        Math.sin(
+                            clock.getElapsedTime() * shard.userData.floatSpeed +
+                                shard.userData.floatOffset,
+                        ) *
+                            0.4;
+                });
+
+                // Moves hovering threat drones
+                obstacleDrones.forEach((drone) => {
+                    drone.userData.time += delta;
+
+                    // Simple horizontal linear patrol sweeps
+                    const offset =
+                        Math.sin(
+                            drone.userData.time * drone.userData.patrolSpeed,
+                        ) *
+                        (drone.userData.patrolRange / 2);
+                    drone.position.x = drone.userData.startX + offset;
+
+                    // Spin visual rotors
+                    drone.userData.leftRotor.rotation.y += 18 * delta;
+                    drone.userData.rightRotor.rotation.y -= 18 * delta;
+                });
+
+                // Animate backgrounds and sky features
+                if (skyBoxGroup) {
+                    skyBoxGroup.rotation.y += 0.015 * delta;
+                }
+
+                // Move background towers slightly to generate intense 3D movement parallax
+                backgroundBuildings.forEach((building) => {
+                    // Keep background dynamic
+                    if (building.position.z > player.position.z + 200) {
+                        building.position.z -= 400; // cycle building forward
+                    }
+                });
+
+                // Cycle active dynamic Weather phases
+                weatherTimer += delta;
+                if (weatherTimer > 25) {
+                    weatherTimer = 0;
+                    // Roll new state
+                    const dice = Math.random();
+                    if (dice < 0.4) {
+                        activeWeather = "CLEAR";
+                        document.getElementById("weatherHUD").className =
+                            "bg-slate-950/85 backdrop-blur-md px-3 py-1 rounded-lg border border-pink-500/20 text-xs font-orbitron text-pink-400 flex items-center gap-1.5";
+                        document.getElementById("weatherText").innerText =
+                            "THỜI TIẾT: TRỜI QUANG";
+                    } else if (dice < 0.75) {
+                        activeWeather = "RAIN";
+                        document.getElementById("weatherHUD").className =
+                            "bg-slate-950/85 backdrop-blur-md px-3 py-1 rounded-lg border border-cyan-500/40 text-xs font-orbitron text-cyan-400 flex items-center gap-1.5 animate-pulse";
+                        document.getElementById("weatherText").innerText =
+                            "THỜI TIẾT: MƯA NEON";
+                        triggerAlert(
+                            "CẢNH BÁO BÃO KHÍ QUYỂN - NHIỄU LOẠN DỮ LIỆU",
+                        );
+                    } else {
+                        activeWeather = "STORM";
+                        document.getElementById("weatherHUD").className =
+                            "bg-slate-950/85 backdrop-blur-md px-3 py-1 rounded-lg border border-yellow-500/40 text-xs font-orbitron text-yellow-400 flex items-center gap-1.5 animate-bounce";
+                        document.getElementById("weatherText").innerText =
+                            "THỜI TIẾT: NHẬT THỰC";
+                        triggerAlert(
+                            "BÃO ĐIỆN TỪ PHÁT SINH TỪ HIỆN TƯỢNG NHẬT THỰC!",
+                        );
+                    }
+                }
+
+                // Weather particle systems dynamic tick updates
+                updateWeatherEffects(delta);
+
+                // Update procedural effects (rings, sparks, trails)
+                updateParticles(delta);
+            }
+
+            // Animate weather conditions inside game loop
+            function updateWeatherEffects(delta) {
+                if (!rainParticles) return;
+
+                const positions =
+                    rainParticles.geometry.attributes.position.array;
+                const vels = rainParticles.userData.velocities;
+
+                // Dynamic rain opacity fade in & out based on active phase
+                if (activeWeather === "RAIN" || activeWeather === "STORM") {
+                    rainParticles.material.opacity = THREE.MathUtils.lerp(
+                        rainParticles.material.opacity,
+                        0.6,
+                        delta * 2,
+                    );
+                } else {
+                    rainParticles.material.opacity = THREE.MathUtils.lerp(
+                        rainParticles.material.opacity,
+                        0.0,
+                        delta * 2,
+                    );
+                }
+
+                for (let i = 0; i < positions.length; i += 3) {
+                    positions[i + 1] -= vels[i / 3] * delta; // Y
+
+                    if (positions[i + 1] < -10) {
+                        positions[i + 1] = 90;
+                        positions[i] =
+                            player.position.x + (Math.random() - 0.5) * 160;
+                        positions[i + 2] =
+                            player.position.z - Math.random() * 200 + 40;
+                    }
+                }
+
+                rainParticles.geometry.attributes.position.needsUpdate = true;
+
+                if (activeWeather === "STORM" && Math.random() > 0.985) {
+                    lightningFlash.intensity = 5.0 + Math.random() * 8.0;
+                    scene.background = new THREE.Color(0x32135c);
+
+                    setTimeout(() => {
+                        lightningFlash.intensity = 0;
+                        scene.background = null;
+                    }, 80);
+                }
+            }
+
+            // Handle generic visual sparkles & rings animation logic
+            function updateParticles(delta) {
+                for (let i = particlePool.length - 1; i >= 0; i--) {
+                    const p = particlePool[i];
+
+                    if (p.type === "ring") {
+                        p.currentScale += p.scaleSpeed * delta;
+                        p.mesh.scale.set(p.currentScale, p.currentScale, 1);
+                        p.mesh.material.opacity -= p.fadeSpeed * delta;
+
+                        if (p.mesh.material.opacity <= 0) {
+                            scene.remove(p.mesh);
+                            particlePool.splice(i, 1);
+                        }
+                    } else if (p.type === "streak") {
+                        p.mesh.position.z += p.speedZ * delta;
+                        p.mesh.material.opacity -= p.fadeSpeed * delta;
+
+                        if (p.mesh.material.opacity <= 0) {
+                            scene.remove(p.mesh);
+                            particlePool.splice(i, 1);
+                        }
+                    } else if (p.type === "spark") {
+                        p.mesh.position.addScaledVector(p.vel, delta);
+                        p.mesh.material.opacity -= p.fadeSpeed * delta;
+
+                        if (p.mesh.material.opacity <= 0) {
+                            scene.remove(p.mesh);
+                            particlePool.splice(i, 1);
+                        }
+                    }
+                }
+            }
+
+            let cameraShakeIntensity = 0;
+            function triggerCameraShake(strength) {
+                cameraShakeIntensity = Math.max(cameraShakeIntensity, strength);
+            }
+
+            // Camera follow & cinematic movements
+            function updateCameraMotion(delta) {
+                if (!player.mesh) return;
+
+                // Target position behind player
+                const targetCamPos = player.position
+                    .clone()
+                    .add(CONFIG.cameraOffset);
+
+                // Smoothen left/right camera motions (gives feeling of dynamic weight)
+                targetCamPos.x = player.position.x * 0.75;
+
+                // Interpolate camera positioning
+                camera.position.lerp(targetCamPos, 8 * delta);
+
+                // Set look point slightly in front of runner
+                const lookPoint = player.position
+                    .clone()
+                    .add(CONFIG.cameraLookAtOffset);
+
+                // NEW: Field-Of-View Warp (Speed motion blur simulation) based on forward speed
+                const speedRatio =
+                    Math.abs(player.velocity.z) / CONFIG.maxRunSpeed;
+                const targetFOV = 60 + speedRatio * 15;
+                camera.fov = THREE.MathUtils.lerp(
+                    camera.fov,
+                    targetFOV,
+                    5 * delta,
+                );
+                camera.updateProjectionMatrix();
+
+                // NEW: Dynamic cinematic roll tilt based on wall-runs and lateral drift steering
+                let targetRoll = 0;
+                if (player.isWallRunning) {
+                    targetRoll = -player.wallRunSide * 0.22; // Harder cinematic tilt on walls
+                } else {
+                    targetRoll = -player.lateralVelocity * 0.012; // Smooth lean on drift curves
+                }
+                const upVector = new THREE.Vector3(
+                    targetRoll,
+                    1,
+                    0,
+                ).normalize();
+                camera.up.lerp(upVector, 8 * delta);
+                camera.lookAt(lookPoint);
+
+                // Apply camera shake logic if active
+                if (cameraShakeIntensity > 0) {
+                    camera.position.x +=
+                        (Math.random() - 0.5) * cameraShakeIntensity;
+                    camera.position.y +=
+                        (Math.random() - 0.5) * cameraShakeIntensity;
+                    camera.position.z +=
+                        (Math.random() - 0.5) * cameraShakeIntensity;
+                    cameraShakeIntensity -= delta * 1.5; // Cooloff fade
+                }
+            }
+
+            // HUD stats and dynamic scoring computations
+            function updateScoringSystem(delta) {
+                if (!hasStartedMoving) return;
+
+                // Keep scores rising by distance
+                distanceTraveled = Math.floor(Math.abs(player.position.z));
+                document.getElementById("hudDistance").innerText =
+                    `${distanceTraveled} m`;
+
+                // Decay active combos slowly
+                if (comboProgressValue > 0) {
+                    // Degrades faster on high combos
+                    const decaySpeed = 10 + comboMultiplier * 3;
+                    comboProgressValue = Math.max(
+                        0,
+                        comboProgressValue - decaySpeed * delta,
+                    );
+                }
+
+                // Sync Combo values
+                if (comboProgressValue >= 100) {
+                    comboProgressValue = 25; // Reset step
+                    comboMultiplier = Math.min(5.0, comboMultiplier + 0.5); // Boost multiplier
+                    triggerAlert(
+                        `Nâng cấp Combo: x${comboMultiplier.toFixed(1)}!`,
+                    );
+                    triggerComboBanner();
+
+                    // Shield power upgrade check
+                    if (comboMultiplier >= 3.0 && !player.hasShieldActive) {
+                        player.hasShieldActive = true;
+                        document.getElementById("shieldIndicator").className =
+                            "bg-slate-950/80 backdrop-blur-md p-2.5 rounded-xl border border-yellow-500/35 flex items-center gap-3 opacity-100 transition-opacity duration-300 shadow-[0_0_12px_rgba(234,179,8,0.3)]";
+                        document.getElementById("shieldStatusText").innerText =
+                            "ĐƯỢC BẢO VỆ";
+                        document.getElementById("shieldStatusText").className =
+                            "text-xs font-bold text-yellow-400";
+                        triggerAlert("LÁ CHẮN NĂNG LƯỢNG ĐÃ ĐƯỢC KÍCH HOẠT!");
+                    }
+                } else if (comboProgressValue <= 0) {
+                    // reset combo levels
+                    comboMultiplier = 1.0;
+                }
+
+                // Update active HUD text displays
+                document.getElementById("hudScore").innerText =
+                    Math.floor(score);
+                document.getElementById("hudCombo").innerText =
+                    `x${comboMultiplier.toFixed(1)}`;
+                document.getElementById("comboProgress").style.width =
+                    `${comboProgressValue}%`;
+
+                // Render velocity
+                const actualVelocity = Math.abs(player.velocity.z) * 1.6; // convert fake unit
+                document.getElementById("hudSpeed").innerText =
+                    `${actualVelocity.toFixed(1)} KM/H`;
+            }
+
+            function triggerComboBanner() {
+                const banner = document.getElementById("comboBanner");
+                const text = document.getElementById("comboBannerText");
+                text.innerText = `CẤP ĐỘ COMBO x${comboMultiplier.toFixed(1)}!`;
+
+                banner.className =
+                    "scale-100 opacity-100 transform transition-all duration-300";
+                setTimeout(() => {
+                    banner.className =
+                        "scale-0 opacity-0 transform transition-all duration-300";
+                }, 1200);
+            }
+
+            // Set up fresh game parameters for play session
+            function startNewRun() {
+                // Reset player states
+                player.position.set(0, 1.5, 0);
+                player.velocity.set(0, 0, 0);
+                player.isGrounded = false;
+                player.currentJumps = 0;
+                player.dashCooldown = 0;
+                player.isDashing = false;
+                player.hasShieldActive = false;
+
+                // Reset scores
+                score = 0;
+                shardsCollectedThisRun = 0;
+                distanceTraveled = 0;
+                comboMultiplier = 1.0;
+                comboProgressValue = 0;
+
+                // Reset Shield UI
+                document.getElementById("shieldIndicator").className =
+                    "bg-slate-950/80 backdrop-blur-md p-2.5 rounded-xl border border-yellow-500/30 flex items-center gap-3 opacity-40 transition-opacity duration-300";
+                document.getElementById("shieldStatusText").innerText =
+                    "VÔ HIỆU";
+                document.getElementById("shieldStatusText").className =
+                    "text-xs font-bold text-slate-400";
+
+                // Show start instructions prompt
+                hasStartedMoving = false;
+                document
+                    .getElementById("startPrompt")
+                    .classList.remove("hidden");
+
+                // Clean existing game elements
+                platforms.forEach((p) => scene.remove(p));
+                platforms = [];
+
+                shards.forEach((s) => scene.remove(s));
+                shards = [];
+
+                obstacleDrones.forEach((d) => scene.remove(d));
+                obstacleDrones = [];
+
+                particlePool.forEach((p) => scene.remove(p.mesh));
+                particlePool = [];
+
+                // Regenerate world elements
+                buildPlayerCharacter();
+                generateProceduralRunway();
+
+                // Hide menu overlays
+                document.getElementById("menuOverlay").classList.add("hidden");
+                document.getElementById("mainMenu").classList.add("hidden");
+                document.getElementById("gameOverMenu").classList.add("hidden");
+                document.getElementById("pauseMenu").classList.add("hidden");
+
+                isPlaying = true;
+                isPaused = false;
+                clock.getDelta(); // reset clock delta
+            }
+
+            // Trigger Game Over screen state
+            function triggerGameOver(reason) {
+                isPlaying = false;
+                playSfx("gameOver");
+                stopAmbientAudio();
+                document.getElementById("startPrompt").classList.add("hidden");
+
+                // Update persistence data
+                gameState.totalShards += shardsCollectedThisRun;
+                if (score > gameState.highScore)
+                    gameState.highScore = Math.floor(score);
+                if (distanceTraveled > gameState.bestDistance)
+                    gameState.bestDistance = distanceTraveled;
+                saveGameData();
+
+                // Populate game over screen text metrics
+                document.getElementById("deathReason").innerText = reason;
+                document.getElementById("finalScore").innerText =
+                    Math.floor(score);
+                document.getElementById("finalDistance").innerText =
+                    `${distanceTraveled}m`;
+                document.getElementById("finalShards").innerText =
+                    shardsCollectedThisRun;
+
+                // Swap interface visible panels
+                document
+                    .getElementById("menuOverlay")
+                    .classList.remove("hidden");
+                document
+                    .getElementById("gameOverMenu")
+                    .classList.remove("hidden");
+                document.getElementById("gameOverMenu").style.transform =
+                    "scale(1)";
+                document.getElementById("gameOverMenu").style.opacity = "1";
+
+                updateShopUI();
+            }
+
+            // Toggle game pause action
+            function togglePause() {
+                if (!isPlaying) return;
+
+                isPaused = !isPaused;
+                if (isPaused) {
+                    playSfx("pause");
+                    stopAmbientAudio();
+                    document
+                        .getElementById("menuOverlay")
+                        .classList.remove("hidden");
+                    document
+                        .getElementById("pauseMenu")
+                        .classList.remove("hidden");
+                } else {
+                    playSfx("start");
+                    startAmbientAudio();
+                    document
+                        .getElementById("menuOverlay")
+                        .classList.add("hidden");
+                    document
+                        .getElementById("pauseMenu")
+                        .classList.add("hidden");
+                }
+            }
+
+            // Core Animation frame dispatch loop
+            function animate() {
+                requestAnimationFrame(animate);
+
+                // Execute frame loops only if active and unpaused
+                if (isPlaying && !isPaused) {
+                    const delta = Math.min(clock.getDelta(), 0.1); // Clamp extreme frames to prevent wall leaks
+
+                    // Procedural generation ticks
+                    generateProceduralRunway();
+
+                    // Run player physics, collision engines
+                    updatePlayerPhysics(delta);
+                    checkCollisions(delta);
+
+                    // Tick environment elements (backgrounds, storm flashes)
+                    updateEnvironment(delta);
+
+                    // Kinetic scoring
+                    updateScoringSystem(delta);
+
+                    // Smooth cinematic camera follows
+                    updateCameraMotion(delta);
+                }
+
+                // Always render scenes
+                if (renderer && scene && camera) {
+                    renderer.render(scene, camera);
+                }
+            }
+
+            // Attach action trigger hooks to core layout components
+            window.onload = function () {
+                loadGameData();
+                initScene();
+                initControls();
+
+                // Direct start and retry triggers
+                document
+                    .getElementById("btnPlay")
+                    .addEventListener("click", startNewRun);
+                document
+                    .getElementById("btnRetry")
+                    .addEventListener("click", startNewRun);
+                document
+                    .getElementById("btnResume")
+                    .addEventListener("click", togglePause);
+
+                document
+                    .getElementById("btnBackToMain")
+                    .addEventListener("click", () => {
+                        document
+                            .getElementById("gameOverMenu")
+                            .classList.add("hidden");
+                        document
+                            .getElementById("mainMenu")
+                            .classList.remove("hidden");
+                    });
+
+                document
+                    .getElementById("btnQuit")
+                    .addEventListener("click", () => {
+                        isPaused = false;
+                        isPlaying = false;
+                        stopAmbientAudio();
+                        document
+                            .getElementById("startPrompt")
+                            .classList.add("hidden");
+                        document
+                            .getElementById("pauseMenu")
+                            .classList.add("hidden");
+                        document
+                            .getElementById("mainMenu")
+                            .classList.remove("hidden");
+                    });
+
+                // Start loop cycles immediately
+                animate();
+            };
+        </script>
+    </body>
+</html>

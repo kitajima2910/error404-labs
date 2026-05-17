@@ -1,5 +1,10 @@
 export const DATA_DEMO = [
     {
+        name: 'Cyber Cloud Leap',
+        link: '/thu-nghiem/game/Cyber-Cloud-Leap/index.html',
+        image: '/thu-nghiem/game/Cyber-Cloud-Leap/Cyber-Cloud-Leap.avif',
+    },
+    {
         name: '12. Bảo Vệ Tháp',
         link: '/thu-nghiem/game/12-Bao-Ve-Thap/index.html',
         image: '/thu-nghiem/game/12-Bao-Ve-Thap/12-Bao-Ve-Thap.avif',
