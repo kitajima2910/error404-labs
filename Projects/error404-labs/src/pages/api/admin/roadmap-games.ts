@@ -157,15 +157,16 @@ export const POST: APIRoute = async ({ request }) => {
         const sortOrder = body.sortOrder ?? body.sort_order ?? 0
         const isVerified = body.isVerified ?? body.is_verified ?? false
         const designUrl = body.designUrl || body.design_url || null
+        const youtubeUrl = body.youtubeUrl || body.youtube_url || null
         if (!name || !genre) {
             return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 })
         }
 
         await sql`
             INSERT INTO error404labs.roadmap_games
-                (month, week, name, genre, prompt_content, image_url, image_file_id, sort_order, is_verified, design_url)
+                (month, week, name, genre, prompt_content, image_url, image_file_id, sort_order, is_verified, design_url, youtube_url)
             VALUES
-                (${Number(month || 0)}, ${Number(week || 0)}, ${name}, ${genre}, ${promptContent}, ${imageUrl}, ${imageFileId}, ${Number(sortOrder)}, ${toBool(isVerified)}, ${designUrl})
+                (${Number(month || 0)}, ${Number(week || 0)}, ${name}, ${genre}, ${promptContent}, ${imageUrl}, ${imageFileId}, ${Number(sortOrder)}, ${toBool(isVerified)}, ${designUrl}, ${youtubeUrl})
         `
 
         return new Response(JSON.stringify({ success: true }), { status: 201 })
@@ -194,6 +195,7 @@ export const PUT: APIRoute = async ({ request }) => {
         const sortOrder = body.sortOrder ?? body.sort_order ?? 0
         const isVerified = body.isVerified ?? body.is_verified ?? false
         const designUrl = body.designUrl || body.design_url || null
+        const youtubeUrl = body.youtubeUrl || body.youtube_url || null
         if (!id || !name || !genre) {
             return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 })
         }
@@ -211,6 +213,7 @@ export const PUT: APIRoute = async ({ request }) => {
                 sort_order = ${Number(sortOrder)},
                 is_verified = ${toBool(isVerified)},
                 design_url = ${designUrl},
+                youtube_url = ${youtubeUrl},
                 updated_at = NOW()
             WHERE id = ${Number(id)}
         `

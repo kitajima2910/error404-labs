@@ -19,6 +19,7 @@ type RoadmapGameRow = {
     genre: string
     prompt_content: string | null
     image_url: string | null
+    youtube_url: string | null
     sort_order: number | null
     is_verified: boolean | null
 }
@@ -112,7 +113,7 @@ Build: Xuất bản thành một bản HTML/CSS/JavaScript chạy trực tiếp 
 Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genre}.`
 
 const roadmapGameRows = (await sql`
-    SELECT id, month, week, name, genre, prompt_content, image_url, sort_order, is_verified
+    SELECT id, month, week, name, genre, prompt_content, image_url, youtube_url, sort_order, is_verified
     FROM error404labs.roadmap_games
     WHERE is_verified = true
     ORDER BY month ASC, week ASC, sort_order ASC, id ASC
@@ -130,6 +131,7 @@ const roadmap = months.map((month, monthIndex) => ({
                 genre: game.genre,
                 promptContent: game.prompt_content ?? '',
                 imageUrl: game.image_url ?? '',
+                youtubeUrl: game.youtube_url ?? '',
                 isVerified: Boolean(game.is_verified),
             })),
         }
@@ -144,6 +146,7 @@ const allGamesData = roadmapGameRows.map((game) => ({
     week: game.week,
     promptContent: game.prompt_content ?? '',
     imageUrl: game.image_url ?? '',
+    youtubeUrl: game.youtube_url ?? '',
     isVerified: Boolean(game.is_verified),
 }))
 
@@ -536,6 +539,8 @@ const monthSvgs = [
                         gi +
                         '" data-prompt-content="' +
                         encodeURIComponent(game.promptContent || '') +
+                        '" data-youtube-url="' +
+                        encodeURIComponent(game.youtubeUrl || game.youtube_url || '') +
                         '" class="game-card-button game-card-clickable cursor-pointer bg-white rounded-3xl border-[2px] border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 overflow-hidden transition-all flex flex-col">' +
                         '<div class="h-44 w-full relative p-3.5 flex flex-col justify-between bg-gradient-to-br ' +
                         gradBg +
@@ -651,6 +656,8 @@ const monthSvgs = [
                         ((game.week || 1) - 1) +
                         '" data-game-idx="0" data-prompt-content="' +
                         encodeURIComponent(game.promptContent || '') +
+                        '" data-youtube-url="' +
+                        encodeURIComponent(game.youtubeUrl || game.youtube_url || '') +
                         '" class="game-card-button game-card-clickable cursor-pointer bg-white rounded-3xl border-[2px] border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 overflow-hidden transition-all flex flex-col">' +
                         '<div class="h-44 w-full relative p-3.5 flex flex-col justify-between bg-gradient-to-br ' +
                         gradBg +
@@ -968,6 +975,48 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
             if (modal) modal.classList.add('hidden')
         }
 
+        function getYouTubeVideoId(url) {
+            try {
+                const parsed = new URL(url, window.location.origin)
+                if (parsed.hostname.includes('youtu.be')) {
+                    return parsed.pathname.split('/').filter(Boolean)[0] || ''
+                }
+                if (parsed.pathname.includes('/shorts/')) {
+                    return parsed.pathname.split('/shorts/')[1]?.split('/')[0] || ''
+                }
+                if (parsed.pathname.includes('/embed/')) {
+                    return parsed.pathname.split('/embed/')[1]?.split('/')[0] || ''
+                }
+                return parsed.searchParams.get('v') || ''
+            } catch {
+                return ''
+            }
+        }
+
+        function showGameVideoModal(youtubeUrl) {
+            const videoId = getYouTubeVideoId(youtubeUrl)
+            if (!videoId) return false
+
+            const modal = document.getElementById('game-video-modal')
+            const frame = document.getElementById('game-video-frame')
+            const shell = document.getElementById('game-video-shell')
+            if (!modal || !frame || !shell) return false
+
+            const isShorts = youtubeUrl.includes('/shorts/')
+            shell.classList.remove('aspect-video', 'max-w-3xl', 'aspect-[9/16]', 'max-w-[360px]')
+            shell.classList.add(isShorts ? 'aspect-[9/16]' : 'aspect-video', isShorts ? 'max-w-[360px]' : 'max-w-3xl')
+            frame.src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1&rel=0'
+            modal.classList.remove('hidden')
+            return true
+        }
+
+        function closeGameVideoModal() {
+            const modal = document.getElementById('game-video-modal')
+            const frame = document.getElementById('game-video-frame')
+            if (frame) frame.src = ''
+            if (modal) modal.classList.add('hidden')
+        }
+
         document.addEventListener('click', function (e) {
             const anyBtn = e.target.closest('button')
             if (anyBtn) return
@@ -980,10 +1029,20 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
                 return
             }
 
+            const youtubeUrl = decodeURIComponent(card.dataset.youtubeUrl || '').trim()
+            if (youtubeUrl && showGameVideoModal(youtubeUrl)) return
+
             showGamePromptModal(card)
         })
 
         document.addEventListener('click', function (e) {
+            const videoCloseBtn = e.target.closest('#game-video-modal-close')
+            const videoModal = document.getElementById('game-video-modal')
+            if (videoCloseBtn || (videoModal && e.target === videoModal)) {
+                closeGameVideoModal()
+                return
+            }
+
             const closeBtn = e.target.closest('#game-prompt-modal-close')
             if (closeBtn) {
                 closeGamePromptModal()
@@ -1210,6 +1269,34 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
                 >
                     <i class="fa fa-copy" aria-hidden="true"></i> Copy Prompt
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <div
+        id="game-video-modal"
+        class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md px-4 py-6 flex items-center justify-center"
+    >
+        <div class="relative w-full">
+            <button
+                id="game-video-modal-close"
+                type="button"
+                class="absolute right-0 -top-12 w-10 h-10 rounded-full bg-white/10 border border-white/20 text-white/80 hover:text-white hover:bg-white/20 backdrop-blur-xl transition-colors flex items-center justify-center"
+                aria-label="Đóng video"
+            >
+                <i class="fa fa-times" aria-hidden="true"></i>
+            </button>
+            <div
+                id="game-video-shell"
+                class="mx-auto w-full max-w-3xl aspect-video overflow-hidden rounded-3xl border border-white/20 bg-white/10 shadow-2xl shadow-slate-950/40 backdrop-blur-xl"
+            >
+                <iframe
+                    id="game-video-frame"
+                    class="w-full h-full"
+                    src=""
+                    title="YouTube video demo"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowfullscreen></iframe>
             </div>
         </div>
     </div>
