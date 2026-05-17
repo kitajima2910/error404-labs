@@ -938,6 +938,8 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
             }
         })
 
+        let activeGameYoutubeUrl = ''
+
         function showGamePromptModal(card) {
             const permission = card.dataset.permission
             if (!hasPromptAccess(permission)) {
@@ -954,6 +956,8 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
             const titleEl = document.getElementById('game-prompt-modal-title')
             const subtitleEl = document.getElementById('game-prompt-modal-subtitle')
             const contentEl = document.getElementById('game-prompt-modal-content')
+            const demoBtn = document.getElementById('game-prompt-modal-demo')
+            activeGameYoutubeUrl = decodeURIComponent(card.dataset.youtubeUrl || '').trim()
 
             if (titleEl) titleEl.textContent = game
             if (subtitleEl) {
@@ -967,6 +971,7 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
             const promptText = rawPrompt.replace(/\\r\\n/g, '\n').replace(/\\n/g, '\n').replace(/\\r/g, '\n')
 
             if (contentEl) contentEl.value = promptText
+            if (demoBtn) demoBtn.classList.toggle('hidden', !activeGameYoutubeUrl)
             if (modal) modal.classList.remove('hidden')
         }
 
@@ -974,7 +979,6 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
             const modal = document.getElementById('game-prompt-modal')
             if (modal) modal.classList.add('hidden')
         }
-
         function getYouTubeVideoId(url) {
             try {
                 const parsed = new URL(url, window.location.origin)
@@ -1029,9 +1033,6 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
                 return
             }
 
-            const youtubeUrl = decodeURIComponent(card.dataset.youtubeUrl || '').trim()
-            if (youtubeUrl && showGameVideoModal(youtubeUrl)) return
-
             showGamePromptModal(card)
         })
 
@@ -1053,6 +1054,12 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
             if (modal && e.target === modal) {
                 closeGamePromptModal()
             }
+        })
+
+        document.addEventListener('click', function (e) {
+            const demoBtn = e.target.closest('#game-prompt-modal-demo')
+            if (!demoBtn || !activeGameYoutubeUrl) return
+            showGameVideoModal(activeGameYoutubeUrl)
         })
 
         document.addEventListener('click', async function (e) {
@@ -1268,6 +1275,12 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
                     class="w-full mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-5 rounded-2xl shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 transition-colors"
                 >
                     <i class="fa fa-copy" aria-hidden="true"></i> Copy Prompt
+                </button>
+                <button
+                    id="game-prompt-modal-demo"
+                    class="hidden w-full mt-3 bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 px-5 rounded-2xl shadow-lg shadow-rose-500/25 flex items-center justify-center gap-2 transition-colors"
+                >
+                    <i class="fa fa-play-circle" aria-hidden="true"></i> Xem Demo YouTube
                 </button>
             </div>
         </div>
