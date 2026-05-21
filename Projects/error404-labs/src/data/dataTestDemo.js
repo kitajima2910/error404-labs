@@ -1,5 +1,10 @@
 export const DATA_DEMO = [
     {
+        name: 'Neural-Token-Dash',
+        link: '/thu-nghiem/game/Neural-Token-Dash/index.html',
+        image: '/thu-nghiem/game/Neural-Token-Dash/Neural-Token-Dash.avif',
+    },
+    {
         name: 'Cyber Cloud Leap',
         link: '/thu-nghiem/game/Cyber-Cloud-Leap/index.html',
         image: '/thu-nghiem/game/Cyber-Cloud-Leap/Cyber-Cloud-Leap.avif',

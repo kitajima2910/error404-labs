@@ -1,0 +1,1918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Neural Token Dash</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Cdefs%3E%3ClinearGradient id=%27c%27 x1=%270%25%27 y1=%270%25%27 x2=%27100%25%27 y2=%27100%25%27%3E%3Cstop offset=%270%27 stop-color=%27%230ff%27/%3E%3Cstop offset=%27100%25%27 stop-color=%27%23f0f%27/%3E%3C/linearGradient%3E%3Cfilter id=%27g%27%3E%3CfeGaussianBlur stdDeviation=%271.5%27 result=%27b%27/%3E%3CfeMerge%3E%3CfeMergeNode in=%27b%27/%3E%3CfeMergeNode in=%27SourceGraphic%27/%3E%3C/feMerge%3E%3C/filter%3E%3C/defs%3E%3Ccircle cx=%2732%27 cy=%2732%27 r=%2728%27 fill=%27%230a0a2e%27 stroke=%27%230ff%27 stroke-width=%273%27/%3E%3Cg stroke=%27%230ff%27 stroke-width=%271%27 opacity=%27.5%27%3E%3Cpath d=%27M8 16h48M8 32h48M8 48h48M16 8v48M32 8v48M48 8v48%27/%3E%3C/g%3E%3Cpolygon points=%2732,10 46,24 46,40 32,54 18,40 18,24%27 fill=%27none%27 stroke=%27url(%23c)%27 stroke-width=%274%27 filter=%27url(%23g)%27/%3E%3Cpolygon points=%2732,16 42,25 42,39 32,48 22,39 22,25%27 fill=%27%23f0f%27 opacity=%27.4%27/%3E%3Ccircle cx=%2732%27 cy=%2732%27 r=%276%27 fill=%27%230ff%27 opacity=%27.8%27/%3E%3C/svg%3E">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  overflow: hidden;
+  background: #000;
+  font-family: 'Orbitron', monospace;
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+canvas { display: block; }
+
+#ui-layer {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+#hud {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  display: none;
+}
+
+.hud-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px 30px;
+}
+
+.score-panel {
+  text-align: left;
+}
+
+.score-label {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 12px;
+  color: #0ff;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.score-value {
+  font-size: 36px;
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 0 20px #0ff, 0 0 40px #0ff, 0 0 80px #08f;
+  line-height: 1;
+}
+
+.combo-panel {
+  text-align: center;
+}
+
+.combo-value {
+  font-size: 48px;
+  font-weight: 900;
+  color: #f0f;
+  text-shadow: 0 0 20px #f0f, 0 0 40px #f0f, 0 0 80px #a0f;
+  line-height: 1;
+  transition: transform 0.1s;
+}
+
+.combo-value.pulse {
+  transform: scale(1.3);
+}
+
+.combo-label {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 11px;
+  color: #f0f;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.speed-panel {
+  text-align: right;
+}
+
+.speed-label {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 11px;
+  color: #f80;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.speed-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #f80;
+  text-shadow: 0 0 20px #f80, 0 0 40px #f60;
+}
+
+.speed-bar-container {
+  width: 120px;
+  height: 4px;
+  background: rgba(255,136,0,0.2);
+  border-radius: 2px;
+  margin-top: 6px;
+  margin-left: auto;
+  overflow: hidden;
+}
+
+.speed-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #f80, #f00);
+  border-radius: 2px;
+  transition: width 0.3s;
+  box-shadow: 0 0 10px #f80;
+}
+
+.abilities-panel {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 15px;
+}
+
+.ability-slot {
+  width: 60px;
+  height: 60px;
+  border: 2px solid rgba(0,255,255,0.3);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.ability-slot.unlocked {
+  border-color: #0ff;
+  box-shadow: 0 0 15px rgba(0,255,255,0.3);
+}
+
+.ability-slot.active {
+  border-color: #0f0;
+  box-shadow: 0 0 25px rgba(0,255,0,0.5);
+}
+
+.ability-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.ability-key {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 10px;
+  color: #0ff;
+  margin-top: 3px;
+  opacity: 0.6;
+}
+
+.ability-cooldown {
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 100%;
+  height: 0%;
+  background: rgba(0,255,255,0.2);
+  transition: height 0.1s;
+}
+
+.ability-slot.locked {
+  opacity: 0.3;
+}
+
+#start-screen {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at center, rgba(0,20,40,0.9) 0%, rgba(0,0,0,0.97) 70%);
+  pointer-events: all;
+}
+
+.title {
+  font-size: clamp(28px, 6vw, 64px);
+  font-weight: 900;
+  background: linear-gradient(180deg, #0ff, #08f, #f0f);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none;
+  filter: drop-shadow(0 0 30px rgba(0,255,255,0.5));
+  letter-spacing: 4px;
+  text-align: center;
+  line-height: 1.1;
+}
+
+.subtitle {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: clamp(12px, 2vw, 18px);
+  color: #0ff;
+  letter-spacing: 8px;
+  text-transform: uppercase;
+  margin-top: 10px;
+  opacity: 0.6;
+}
+
+.start-btn {
+  margin-top: 50px;
+  padding: 16px 60px;
+  font-family: 'Orbitron', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: #000;
+  background: linear-gradient(135deg, #0ff, #08f);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  pointer-events: all;
+  transition: all 0.3s;
+  box-shadow: 0 0 30px rgba(0,255,255,0.4), inset 0 0 30px rgba(255,255,255,0.1);
+}
+
+.start-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 50px rgba(0,255,255,0.6), inset 0 0 30px rgba(255,255,255,0.2);
+}
+
+.controls-info {
+  margin-top: 40px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 13px;
+  color: #888;
+  text-align: center;
+  line-height: 2;
+  letter-spacing: 2px;
+}
+
+.controls-info span {
+  color: #0ff;
+  font-weight: 700;
+}
+
+#game-over-screen {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at center, rgba(40,0,0,0.9) 0%, rgba(0,0,0,0.97) 70%);
+  pointer-events: all;
+}
+
+.go-title {
+  font-size: clamp(24px, 5vw, 52px);
+  font-weight: 900;
+  color: #f00;
+  text-shadow: 0 0 30px #f00, 0 0 60px #f00;
+  letter-spacing: 6px;
+}
+
+.go-score {
+  font-size: clamp(36px, 7vw, 72px);
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 0 20px #0ff, 0 0 40px #0ff;
+  margin-top: 20px;
+}
+
+.go-stats {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 14px;
+  color: #aaa;
+  margin-top: 20px;
+  text-align: center;
+  line-height: 2;
+  letter-spacing: 2px;
+}
+
+.go-stats span { color: #0ff; font-weight: 700; }
+
+.restart-btn {
+  margin-top: 40px;
+  padding: 14px 50px;
+  font-family: 'Orbitron', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  color: #000;
+  background: linear-gradient(135deg, #f0f, #f00);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  pointer-events: all;
+  transition: all 0.3s;
+  box-shadow: 0 0 30px rgba(255,0,255,0.4);
+}
+
+.restart-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 50px rgba(255,0,255,0.6);
+}
+
+.lang-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(0, 0, 0, 0.75);
+  border: 1px solid #0ff;
+  color: #0ff;
+  font-size: 11px;
+  padding: 3px 7px;
+  border-radius: 3px;
+  cursor: pointer;
+  z-index: 200;
+  font-family: 'Rajdhani', sans-serif;
+  letter-spacing: 1px;
+  pointer-events: auto;
+}
+.lang-btn:hover {
+  background: rgba(0, 255, 255, 0.2);
+  box-shadow: 0 0 8px #0ff;
+}
+
+#notification {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 28px;
+  font-weight: 900;
+  color: #0ff;
+  text-shadow: 0 0 30px #0ff, 0 0 60px #08f;
+  letter-spacing: 4px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+  text-align: center;
+  white-space: nowrap;
+}
+
+#notification.show {
+  opacity: 1;
+  animation: notifPop 1.5s ease-out forwards;
+}
+
+@media (max-width: 768px) {
+  #notification {
+    font-size: 18px;
+    letter-spacing: 2px;
+  }
+}
+
+@keyframes notifPop {
+  0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+  20% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+  40% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  100% { transform: translate(-50%, -60%) scale(1); opacity: 0; }
+}
+
+.lane-indicator {
+  position: absolute;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 30px;
+  opacity: 0.3;
+}
+
+.lane-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #0ff;
+  box-shadow: 0 0 10px #0ff;
+  transition: all 0.15s;
+}
+
+.lane-dot.active {
+  opacity: 1;
+  transform: scale(1.5);
+  box-shadow: 0 0 20px #0ff;
+}
+
+#touch-controls {
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 100%; height: 40%;
+  display: none;
+  pointer-events: all;
+}
+
+.touch-zone {
+  position: absolute;
+  width: 33.33%;
+  height: 100%;
+  top: 0;
+}
+
+.touch-zone-left { left: 0; }
+.touch-zone-center { left: 33.33%; }
+.touch-zone-right { left: 66.66%; }
+
+.scanline {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 100;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.03) 2px,
+    rgba(0,0,0,0.03) 4px
+  );
+  opacity: 0.06;
+}
+
+.vignette {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 99;
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.45) 100%);
+}
+
+#damage-flash {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 98;
+  background: radial-gradient(ellipse at center, rgba(255,0,0,0.3), rgba(255,0,0,0.6));
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+
+@media (max-width: 768px), (max-height: 600px) {
+  .hud-top { padding: 6px 10px; }
+  .score-value { font-size: 20px; }
+  .combo-value { font-size: 28px; }
+  .speed-value { font-size: 16px; }
+  .speed-bar-container { width: 70px; height: 3px; }
+  .abilities-panel { bottom: 12px; gap: 5px; }
+  .ability-slot { width: 44px; height: 44px; border-radius: 8px; }
+  .ability-icon { font-size: 14px; }
+  .ability-key { font-size: 6px; margin-top: 0; }
+  .lane-indicator { bottom: 55px; gap: 10px; }
+  .lane-dot { width: 6px; height: 6px; }
+}
+</style>
+</head>
+<body>
+
+<div id="ui-layer">
+  <div id="hud">
+    <div class="hud-top">
+      <div class="score-panel">
+        <div class="score-label">Neural Score</div>
+        <div class="score-value" id="score-display">0</div>
+      </div>
+      <div class="combo-panel">
+        <div class="combo-value" id="combo-display">x1</div>
+        <div class="combo-label">Combo</div>
+      </div>
+      <div class="speed-panel">
+        <div class="speed-label">Speed Phase</div>
+        <div class="speed-value" id="speed-display">1</div>
+        <div class="speed-bar-container">
+          <div class="speed-bar" id="speed-bar"></div>
+        </div>
+      </div>
+    </div>
+    <div class="abilities-panel" id="abilities-panel"></div>
+    <div class="lane-indicator" id="lane-indicator">
+      <div class="lane-dot" id="lane-0"></div>
+      <div class="lane-dot active" id="lane-1"></div>
+      <div class="lane-dot" id="lane-2"></div>
+    </div>
+  </div>
+
+  <div id="start-screen">
+    <div class="title">NEURAL TOKEN<br>DASH</div>
+    <div class="subtitle">Cyberpunk Endless Runner</div>
+    <button class="start-btn" id="start-btn">JACK IN</button>
+    <div class="controls-info">
+      <span>A/D</span> or <span>←/→</span> Move &nbsp;|&nbsp; <span>W</span> or <span>↑</span> Jump &nbsp;|&nbsp; <span>S</span> or <span>↓</span> Slide<br>
+      <span>SPACE</span> Activate Ability &nbsp;|&nbsp; <span>SWIPE</span> on Mobile
+    </div>
+  </div>
+
+  <div id="game-over-screen">
+    <div class="go-title">SYSTEM CRASH</div>
+    <div class="go-score" id="final-score">0</div>
+    <div class="go-stats" id="final-stats"></div>
+    <button class="restart-btn" id="restart-btn">REBOOT</button>
+  </div>
+  <button id="lang-btn" class="lang-btn">EN</button>
+  <div id="notification"></div>
+</div>
+
+<div id="touch-controls">
+  <div class="touch-zone touch-zone-left" data-dir="left"></div>
+  <div class="touch-zone touch-zone-center" data-dir="center"></div>
+  <div class="touch-zone touch-zone-right" data-dir="right"></div>
+</div>
+
+<div class="scanline"></div>
+<div class="vignette"></div>
+<div id="damage-flash"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ============================================================
+// NEURAL TOKEN DASH - Complete Game
+// ============================================================
+
+const CONFIG = {
+  lanes: [-3, 0, 3],
+  startSpeed: 0.4,
+  maxSpeed: 1.4,
+  speedIncrement: 0.00008,
+  segmentLength: 12,
+  visibleSegments: 25,
+  tunnelRadius: 8,
+  playerJumpForce: 0.35,
+  playerGravity: 0.015,
+  slideDuration: 600,
+  tokenSpawnRate: 0.4,
+  obstacleSpawnRate: 0.25,
+  comboTimeout: 2000,
+  abilities: [
+    { name: 'Shield', icon: '🛡️', key: '1', unlockScore: 500, cooldown: 15000, duration: 5000, color: '#0ff' },
+    { name: 'Magnet', icon: '🧲', key: '2', unlockScore: 1500, cooldown: 20000, duration: 6000, color: '#f0f' },
+    { name: 'Slow-Mo', icon: '⏳', key: '3', unlockScore: 3000, cooldown: 25000, duration: 4000, color: '#0f0' },
+    { name: 'Phase', icon: '👻', key: '4', unlockScore: 5000, cooldown: 30000, duration: 3000, color: '#ff0' },
+  ]
+};
+
+let currentLang = 'vi';
+const TRANSLATIONS = {
+  en: {
+    title: 'NEURAL TOKEN<br>DASH',
+    subtitle: 'Cyberpunk Endless Runner',
+    jackIn: 'JACK IN',
+    controls: '<span>A/D</span> or <span>←/→</span> Move &nbsp;|&nbsp; <span>W</span> or <span>↑</span> Jump &nbsp;|&nbsp; <span>S</span> or <span>↓</span> Slide<br><span>SPACE</span> Activate Ability &nbsp;|&nbsp; <span>SWIPE</span> on Mobile',
+    systemCrash: 'SYSTEM CRASH',
+    reboot: 'REBOOT',
+    highScore: 'HIGH SCORE',
+    tokensCollected: 'TOKENS COLLECTED',
+    maxCombo: 'MAX COMBO',
+    speedPhase: 'SPEED PHASE',
+    obstaclesDodged: 'OBSTACLES DODGED',
+    neuralScore: 'Neural Score',
+    combo: 'Combo',
+    speedPhaseLabel: 'Speed Phase',
+    shieldBroken: 'SHIELD BROKEN',
+    speedPhaseMsg: (n) => `⚡ SPEED PHASE ${n}`,
+    unlocked: (icon, name) => `${icon} ${name.toUpperCase()} UNLOCKED!`,
+    activated: (icon, name) => `${icon} ${name.toUpperCase()} ACTIVATED`,
+    abilities: { Shield: 'Shield', Magnet: 'Magnet', 'Slow-Mo': 'Slow-Mo', Phase: 'Phase' }
+  },
+  vi: {
+    title: 'NEURAL TOKEN<br>DASH',
+    subtitle: 'Chạy Vô Tận Cyberpunk',
+    jackIn: 'KẾT NỐI',
+    controls: '<span>A/D</span> hoặc <span>←/→</span> Di chuyển &nbsp;|&nbsp; <span>W</span> hoặc <span>↑</span> Nhảy &nbsp;|&nbsp; <span>S</span> hoặc <span>↓</span> Trượt<br><span>SPACE</span> Kích hoạt Kỹ năng &nbsp;|&nbsp; <span>SWIPE</span> trên Mobile',
+    systemCrash: 'LỖI HỆ THỐNG',
+    reboot: 'KHỞI ĐỘNG LẠI',
+    highScore: 'ĐIỂM CAO',
+    tokensCollected: 'TOKEN THU THẬP',
+    maxCombo: 'COMBO TỐI ĐA',
+    speedPhase: 'GIAI ĐOẠN TỐC ĐỘ',
+    obstaclesDodged: 'VƯỢT CHƯỚNG NGẠI VẬT',
+    neuralScore: 'Neural Score',
+    combo: 'Combo',
+    speedPhaseLabel: 'Tốc Độ',
+    shieldBroken: 'LÁ CHẮN BỊ PHÁ',
+    speedPhaseMsg: (n) => `⚡ GIAI ĐOẠN TỐC ĐỘ ${n}`,
+    unlocked: (icon, name) => `${icon} ${name.toUpperCase()} ĐÃ MỞ KHÓA!`,
+    activated: (icon, name) => `${icon} ${name.toUpperCase()} ĐÃ KÍCH HOẠT`,
+    abilities: { Shield: 'Lá chắn', Magnet: 'Nam châm', 'Slow-Mo': 'Chậm', Phase: 'Pha' }
+  }
+};
+
+function applyLanguage() {
+  const t = TRANSLATIONS[currentLang];
+  const titleEl = document.querySelector('#start-screen .title');
+  if (titleEl) titleEl.innerHTML = t.title;
+  const subEl = document.querySelector('#start-screen .subtitle');
+  if (subEl) subEl.textContent = t.subtitle;
+  const startBtn = document.getElementById('start-btn');
+  if (startBtn) startBtn.textContent = t.jackIn;
+  const ctrl = document.querySelector('#start-screen .controls-info');
+  if (ctrl) ctrl.innerHTML = t.controls;
+  const goT = document.querySelector('#game-over-screen .go-title');
+  if (goT) goT.textContent = t.systemCrash;
+  const reb = document.getElementById('restart-btn');
+  if (reb) reb.textContent = t.reboot;
+  const sc = document.querySelector('.score-label');
+  if (sc) sc.textContent = t.neuralScore;
+  const cb = document.querySelector('.combo-label');
+  if (cb) cb.textContent = t.combo;
+  const sp = document.querySelector('.speed-label');
+  if (sp) sp.textContent = t.speedPhaseLabel;
+  const lb = document.getElementById('lang-btn');
+  if (lb) lb.textContent = currentLang === 'vi' ? 'EN' : 'VI';
+  const hs = document.getElementById('high-score-display');
+  if (hs && state) hs.textContent = `${t.highScore}: ${state.highScore.toLocaleString()}`;
+}
+
+// ============================================================
+// GAME STATE
+// ============================================================
+let state = {
+  running: false,
+  score: 0,
+  highScore: parseInt(localStorage.getItem('ntd_high') || '0'),
+  combo: 1,
+  comboTimer: 0,
+  speed: CONFIG.startSpeed,
+  speedPhase: 1,
+  lane: 1,
+  targetLane: 1,
+  jumping: false,
+  sliding: false,
+  slideTimer: 0,
+  velocityY: 0,
+  playerY: 0,
+  distance: 0,
+  tokensCollected: 0,
+  obstaclesDodged: 0,
+  maxCombo: 1,
+  unlockedAbilities: [],
+  activeAbilities: {},
+  shielded: false,
+  magnetActive: false,
+  slowMoActive: false,
+  phaseActive: false,
+  cameraShake: 0,
+  lastTime: 0,
+};
+
+// ============================================================
+// THREE.JS SETUP
+// ============================================================
+const scene = new THREE.Scene();
+scene.fog = new THREE.Fog(0x000011, 50, 150);
+
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 200);
+camera.position.set(0, 4, 10);
+camera.lookAt(0, 1, -20);
+// Responsive camera init for mobile portrait
+if (window.innerHeight > window.innerWidth) {
+  camera.fov = 85;
+  camera.position.set(0, 5, 12);
+  camera.updateProjectionMatrix();
+}
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
+renderer.outputEncoding = THREE.sRGBEncoding;
+document.body.insertBefore(renderer.domElement, document.body.firstChild);
+
+// ============================================================
+// LIGHTING
+// ============================================================
+const ambientLight = new THREE.AmbientLight(0x111133, 0.5);
+scene.add(ambientLight);
+
+const dirLight = new THREE.DirectionalLight(0x0088ff, 0.8);
+dirLight.position.set(5, 10, 5);
+scene.add(dirLight);
+
+const pointLight1 = new THREE.PointLight(0x00ffff, 2, 50);
+pointLight1.position.set(0, 5, -10);
+scene.add(pointLight1);
+
+const pointLight2 = new THREE.PointLight(0xff00ff, 1.5, 50);
+pointLight2.position.set(0, 3, -30);
+scene.add(pointLight2);
+
+// ============================================================
+// MATERIALS
+// ============================================================
+function createGlowMaterial(color, emissiveIntensity = 1) {
+  return new THREE.MeshStandardMaterial({
+    color: color,
+    emissive: color,
+    emissiveIntensity: emissiveIntensity,
+    metalness: 0.8,
+    roughness: 0.2,
+    transparent: true,
+    opacity: 0.9,
+  });
+}
+
+const tunnelMaterial = new THREE.MeshStandardMaterial({
+  color: 0x0a0a2e,
+  emissive: 0x050520,
+  emissiveIntensity: 0.3,
+  metalness: 0.9,
+  roughness: 0.3,
+  wireframe: false,
+});
+
+const gridMaterial = new THREE.LineBasicMaterial({
+  color: 0x00ffff,
+  transparent: true,
+  opacity: 0.5,
+});
+
+const tokenMaterial = createGlowMaterial(0x00ffff, 2);
+const tokenMaterial2 = createGlowMaterial(0xff00ff, 2);
+const tokenMaterial3 = createGlowMaterial(0x00ff00, 2);
+const obstacleMaterial = createGlowMaterial(0xff0044, 1.5);
+const playerMaterial = createGlowMaterial(0x00ffff, 1.5);
+
+const tokenRingMaterial = new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.4 });
+const tokenRingMaterial2 = new THREE.MeshBasicMaterial({ color: 0xff00ff, transparent: true, opacity: 0.4 });
+const tokenRingMaterial3 = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.4 });
+const obstacleEdgesMaterial = new THREE.LineBasicMaterial({ color: 0xff0044, transparent: true, opacity: 0.8 });
+const obstacleParticlesMaterial = new THREE.PointsMaterial({ color: 0xff0044, size: 0.08, transparent: true, opacity: 0.5 });
+const trailMaterial = new THREE.MeshBasicMaterial({ color: 0x0088ff, transparent: true, opacity: 0.3 });
+
+// ============================================================
+// TUNNEL GENERATION
+// ============================================================
+const tunnelSegments = [];
+const tunnelGroup = new THREE.Group();
+scene.add(tunnelGroup);
+
+function createTunnelSegment(zPos) {
+  const group = new THREE.Group();
+  group.position.z = zPos;
+
+  // Floor
+  const floorGeo = new THREE.PlaneGeometry(12, CONFIG.segmentLength);
+  const floor = new THREE.Mesh(floorGeo, tunnelMaterial);
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.y = -CONFIG.tunnelRadius * 0.5;
+  group.add(floor);
+
+  // Floor grid lines
+  for (let x = -6; x <= 6; x += 3) {
+    const lineGeo = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(x, -CONFIG.tunnelRadius * 0.5 + 0.01, -CONFIG.segmentLength / 2),
+      new THREE.Vector3(x, -CONFIG.tunnelRadius * 0.5 + 0.01, CONFIG.segmentLength / 2),
+    ]);
+    group.add(new THREE.Line(lineGeo, gridMaterial));
+  }
+  for (let z = -CONFIG.segmentLength / 2; z <= CONFIG.segmentLength / 2; z += 3) {
+    const lineGeo = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(-6, -CONFIG.tunnelRadius * 0.5 + 0.01, z),
+      new THREE.Vector3(6, -CONFIG.tunnelRadius * 0.5 + 0.01, z),
+    ]);
+    group.add(new THREE.Line(lineGeo, gridMaterial));
+  }
+
+  // Side walls
+  for (let side = -1; side <= 1; side += 2) {
+    const wallGeo = new THREE.PlaneGeometry(CONFIG.segmentLength, CONFIG.tunnelRadius * 1.2);
+    const wall = new THREE.Mesh(wallGeo, tunnelMaterial);
+    wall.position.set(side * 6, 1, 0);
+    wall.rotation.y = -side * Math.PI / 2;
+    group.add(wall);
+
+    // Neon strip on walls
+    const stripGeo = new THREE.BoxGeometry(0.08, 0.08, CONFIG.segmentLength);
+    const stripMat = new THREE.MeshBasicMaterial({
+      color: side === -1 ? 0x00ffff : 0xff00ff,
+      transparent: true,
+      opacity: 0.6,
+    });
+    const strip = new THREE.Mesh(stripGeo, stripMat);
+    strip.position.set(side * 5.9, 2, 0);
+    group.add(strip);
+
+    // Wall grid lines
+    for (let z = -CONFIG.segmentLength / 2; z <= CONFIG.segmentLength / 2; z += 3) {
+      const lineGeo = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(side * 6, -CONFIG.tunnelRadius * 0.5, z),
+        new THREE.Vector3(side * 6, CONFIG.tunnelRadius * 0.7, z),
+      ]);
+      group.add(new THREE.Line(lineGeo, gridMaterial));
+    }
+  }
+
+  // Ceiling
+  const ceilGeo = new THREE.PlaneGeometry(12, CONFIG.segmentLength);
+  const ceil = new THREE.Mesh(ceilGeo, tunnelMaterial);
+  ceil.rotation.x = Math.PI / 2;
+  ceil.position.y = CONFIG.tunnelRadius * 0.7;
+  group.add(ceil);
+
+  // Neon ring
+  const ringGeo = new THREE.TorusGeometry(7, 0.04, 8, 32);
+  const ringMat = new THREE.MeshBasicMaterial({
+    color: 0x0088ff,
+    transparent: true,
+    opacity: 0.3,
+  });
+  const ring = new THREE.Mesh(ringGeo, ringMat);
+  ring.position.z = 0;
+  group.add(ring);
+
+
+  return group;
+}
+
+function initTunnel() {
+  for (let i = 0; i < CONFIG.visibleSegments; i++) {
+    const seg = createTunnelSegment(-i * CONFIG.segmentLength);
+    tunnelGroup.add(seg);
+    tunnelSegments.push(seg);
+  }
+}
+
+function updateTunnel() {
+  const moveAmount = state.speed * (state.slowMoActive ? 0.4 : 1);
+  tunnelGroup.position.z += moveAmount;
+
+  tunnelSegments.forEach(seg => {
+    if (seg.position.z + tunnelGroup.position.z > CONFIG.segmentLength * 2) {
+      const furthestZ = Math.min(...tunnelSegments.map(s => s.position.z + tunnelGroup.position.z));
+      seg.position.z = furthestZ - CONFIG.segmentLength - tunnelGroup.position.z;
+
+      // Randomize neon colors occasionally
+      seg.children.forEach(child => {
+        if (child.material && child.material.isMeshBasicMaterial) {
+          child.material.opacity = 0.2 + Math.random() * 0.5;
+        }
+      });
+    }
+  });
+}
+
+// ============================================================
+// PLAYER
+// ============================================================
+const playerGroup = new THREE.Group();
+scene.add(playerGroup);
+
+function createPlayer() {
+  // Main body - sleek cyberpunk shape
+  const bodyGeo = new THREE.ConeGeometry(0.4, 1.2, 6);
+  const body = new THREE.Mesh(bodyGeo, playerMaterial);
+  body.rotation.x = Math.PI / 2;
+  body.position.y = 0.8;
+  playerGroup.add(body);
+
+  // Core glow
+  const coreGeo = new THREE.SphereGeometry(0.2, 16, 16);
+  const coreMat = new THREE.MeshBasicMaterial({ color: 0x00ffff });
+  const core = new THREE.Mesh(coreGeo, coreMat);
+  core.position.y = 0.8;
+  playerGroup.add(core);
+
+  // Wings
+  for (let side = -1; side <= 1; side += 2) {
+    const wingGeo = new THREE.BoxGeometry(0.6, 0.05, 0.4);
+    const wingMat = createGlowMaterial(0x0088ff, 1);
+    const wing = new THREE.Mesh(wingGeo, wingMat);
+    wing.position.set(side * 0.5, 0.6, 0.1);
+    wing.rotation.z = side * 0.3;
+    playerGroup.add(wing);
+  }
+
+  // Trail light
+  const trailLight = new THREE.PointLight(0x00ffff, 3, 8);
+  trailLight.position.set(0, 0.8, 0.5);
+  playerGroup.add(trailLight);
+
+  playerGroup.position.set(0, 0, 2);
+}
+
+function updatePlayer(dt) {
+  // Lane movement
+  const targetX = CONFIG.lanes[state.targetLane];
+  playerGroup.position.x += (targetX - playerGroup.position.x) * 0.15;
+  state.lane = state.targetLane;
+
+  // Jump
+  if (state.jumping) {
+    state.velocityY -= CONFIG.playerGravity;
+    state.playerY += state.velocityY;
+    if (state.playerY <= 0) {
+      state.playerY = 0;
+      state.velocityY = 0;
+      state.jumping = false;
+    }
+  }
+
+  // Slide
+  if (state.sliding) {
+    state.slideTimer -= dt;
+    if (state.slideTimer <= 0) {
+      state.sliding = false;
+    }
+  }
+
+  playerGroup.position.y = state.playerY + (state.sliding ? -0.3 : 0);
+
+  // Tilt based on lane movement
+  const dx = targetX - playerGroup.position.x;
+  playerGroup.rotation.z = -dx * 0.15;
+  playerGroup.rotation.x = state.sliding ? -0.5 : (state.jumping ? -0.2 : 0);
+
+  // Bob animation
+  if (!state.jumping && !state.sliding) {
+    playerGroup.position.y += Math.sin(Date.now() * 0.005) * 0.05;
+  }
+
+  // Shield visual
+  if (state.shielded) {
+    if (!playerGroup.userData.shieldMesh) {
+      const shieldGeo = new THREE.SphereGeometry(1.2, 16, 16);
+      const shieldMat = new THREE.MeshBasicMaterial({
+        color: 0x00ffff,
+        transparent: true,
+        opacity: 0.15,
+        wireframe: true,
+      });
+      playerGroup.userData.shieldMesh = new THREE.Mesh(shieldGeo, shieldMat);
+      playerGroup.userData.shieldMesh.position.y = 0.8;
+      playerGroup.add(playerGroup.userData.shieldMesh);
+    }
+    playerGroup.userData.shieldMesh.rotation.y += 0.03;
+    playerGroup.userData.shieldMesh.rotation.x += 0.02;
+  } else if (playerGroup.userData.shieldMesh) {
+    playerGroup.remove(playerGroup.userData.shieldMesh);
+    playerGroup.userData.shieldMesh = null;
+  }
+
+  // Phase visual
+  if (state.phaseActive) {
+    playerGroup.children.forEach(c => {
+      if (c.material) {
+        c.material.opacity = 0.3 + Math.sin(Date.now() * 0.01) * 0.2;
+        c.material.transparent = true;
+      }
+    });
+  } else {
+    playerGroup.children.forEach(c => {
+      if (c.material && c.material.opacity !== undefined) {
+        c.material.opacity = 0.9;
+      }
+    });
+  }
+}
+
+// ============================================================
+// TOKENS
+// ============================================================
+const tokens = [];
+const tokenGeometries = [
+  new THREE.OctahedronGeometry(0.35, 0),
+  new THREE.IcosahedronGeometry(0.3, 0),
+  new THREE.DodecahedronGeometry(0.3, 0),
+];
+
+function spawnToken(zPos) {
+  const lane = Math.floor(Math.random() * 3);
+  const geoIndex = Math.floor(Math.random() * tokenGeometries.length);
+  const mats = [tokenMaterial, tokenMaterial2, tokenMaterial3];
+  const mat = mats[Math.floor(Math.random() * mats.length)];
+
+  const mesh = new THREE.Mesh(tokenGeometries[geoIndex], mat);
+  mesh.position.set(CONFIG.lanes[lane], 1 + Math.random() * 2, zPos);
+  mesh.userData = { lane, type: 'token', value: mat.color === 0x00ff00 ? 3 : (mat.color === 0xff00ff ? 2 : 1) };
+
+  // Glow ring
+  const ringGeo = new THREE.TorusGeometry(0.5, 0.03, 8, 16);
+  const ringMat = mat === tokenMaterial ? tokenRingMaterial : mat === tokenMaterial2 ? tokenRingMaterial2 : tokenRingMaterial3;
+  const ring = new THREE.Mesh(ringGeo, ringMat);
+  mesh.add(ring);
+
+  scene.add(mesh);
+  tokens.push(mesh);
+}
+
+function updateTokens(dt) {
+  const speed = state.speed * (state.slowMoActive ? 0.4 : 1);
+  const magnetRange = state.magnetActive ? 5 : 1.2;
+
+  for (let i = tokens.length - 1; i >= 0; i--) {
+    const token = tokens[i];
+    token.position.z += speed;
+    token.rotation.y += 0.03;
+    token.rotation.x += 0.02;
+
+    // Ring rotation
+    if (token.children[0]) {
+      token.children[0].rotation.x += 0.05;
+      token.children[0].rotation.z += 0.03;
+    }
+
+    // Magnet effect
+    if (state.magnetActive) {
+      const dx = playerGroup.position.x - token.position.x;
+      const dy = (playerGroup.position.y + 0.8) - token.position.y;
+      const dz = playerGroup.position.z - token.position.z;
+      const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+      if (dist < magnetRange) {
+        token.position.x += dx * 0.08;
+        token.position.y += dy * 0.08;
+        token.position.z += dz * 0.08;
+      }
+    }
+
+    // Collection check
+    const dx = playerGroup.position.x - token.position.x;
+    const dy = (playerGroup.position.y + 0.8) - token.position.y;
+    const dz = playerGroup.position.z - token.position.z;
+    const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+    if (dist < 1.2) {
+      collectToken(token, i);
+      continue;
+    }
+
+    // Remove if passed
+    if (token.position.z > 15) {
+      if (token.children[0] && token.children[0].geometry) token.children[0].geometry.dispose();
+      scene.remove(token);
+      tokens.splice(i, 1);
+    }
+  }
+}
+
+function collectToken(token, index) {
+  const value = token.userData.value || 1;
+  state.comboTimer = CONFIG.comboTimeout;
+  state.tokensCollected++;
+
+  const points = value * state.combo * 10;
+  state.score += points;
+
+  // Combo increment
+  if (state.comboTimer > 0) {
+    state.combo = Math.min(state.combo + 1, 20);
+  }
+  state.maxCombo = Math.max(state.maxCombo, state.combo);
+
+  // Pulse combo display
+  const comboEl = document.getElementById('combo-display');
+  comboEl.classList.add('pulse');
+  setTimeout(() => comboEl.classList.remove('pulse'), 100);
+
+  // Particles
+  spawnParticles(token.position.clone(), token.material.color, 15);
+
+  // Camera shake
+  state.cameraShake = 0.1;
+
+  // Remove token
+  if (token.children[0] && token.children[0].geometry) token.children[0].geometry.dispose();
+  scene.remove(token);
+  tokens.splice(index, 1);
+
+  updateHUD();
+}
+
+// ============================================================
+// OBSTACLES
+// ============================================================
+const obstacles = [];
+
+function spawnObstacle(zPos) {
+  const lane = Math.floor(Math.random() * 3);
+  const type = Math.random();
+
+  let mesh;
+  if (type < 0.4) {
+    // Tall wall (must dodge by switching lanes)
+    const geo = new THREE.BoxGeometry(2.5, 3.5, 0.8);
+    mesh = new THREE.Mesh(geo, obstacleMaterial);
+    mesh.position.set(CONFIG.lanes[lane], 1.5, zPos);
+    mesh.userData = { lane, type: 'obstacle', subtype: 'wall', height: 'tall' };
+  } else if (type < 0.7) {
+    // Low barrier (jump over)
+    const geo = new THREE.BoxGeometry(2.5, 1.0, 1.2);
+    mesh = new THREE.Mesh(geo, obstacleMaterial);
+    mesh.position.set(CONFIG.lanes[lane], 0.3, zPos);
+    mesh.userData = { lane, type: 'obstacle', subtype: 'low', height: 'low' };
+  } else {
+    // High barrier (slide under)
+    const geo = new THREE.BoxGeometry(2.5, 1.0, 1.2);
+    mesh = new THREE.Mesh(geo, obstacleMaterial);
+    mesh.position.set(CONFIG.lanes[lane], 2.8, zPos);
+    mesh.userData = { lane, type: 'obstacle', subtype: 'high', height: 'high' };
+
+    // Support pillars
+    for (let s = -1; s <= 1; s += 2) {
+      const pillarGeo = new THREE.BoxGeometry(0.15, 2.3, 0.15);
+      const pillar = new THREE.Mesh(pillarGeo, obstacleMaterial);
+      pillar.position.set(s * 1.1, -1.15, 0);
+      mesh.add(pillar);
+    }
+  }
+
+  // Glowing edges
+  const edgesGeo = new THREE.EdgesGeometry(mesh.geometry);
+  const edges = new THREE.LineSegments(edgesGeo, obstacleEdgesMaterial);
+  mesh.add(edges);
+
+  // Corruption particles
+  const particleGeo = new THREE.BufferGeometry();
+  const particleCount = 20;
+  const positions = new Float32Array(particleCount * 3);
+  for (let i = 0; i < particleCount * 3; i++) {
+    positions[i] = (Math.random() - 0.5) * 3;
+  }
+  particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  const particles = new THREE.Points(particleGeo, obstacleParticlesMaterial);
+  mesh.add(particles);
+  mesh.userData.corruptionParticles = particles;
+
+
+
+  scene.add(mesh);
+  obstacles.push(mesh);
+}
+
+function updateObstacles(dt) {
+  const speed = state.speed * (state.slowMoActive ? 0.4 : 1);
+
+  for (let i = obstacles.length - 1; i >= 0; i--) {
+    const obs = obstacles[i];
+    obs.position.z += speed;
+
+    // Animate corruption particles
+    if (obs.userData.corruptionParticles) {
+      const positions = obs.userData.corruptionParticles.geometry.attributes.position.array;
+      for (let j = 0; j < positions.length; j += 3) {
+        positions[j] += (Math.random() - 0.5) * 0.1;
+        positions[j + 1] += (Math.random() - 0.5) * 0.1;
+        positions[j + 2] += (Math.random() - 0.5) * 0.1;
+      }
+      obs.userData.corruptionParticles.geometry.attributes.position.needsUpdate = true;
+    }
+
+    // Collision check
+    const dx = Math.abs(playerGroup.position.x - obs.position.x);
+    const dz = Math.abs(playerGroup.position.z - obs.position.z);
+
+    if (dx < 1.3 && dz < 0.7) {
+      let collision = true;
+
+      // Check if jumping over low obstacle
+      if (obs.userData.subtype === 'low' && state.playerY > 1.2) {
+        collision = false;
+      }
+
+      // Check if sliding under high obstacle
+      if (obs.userData.subtype === 'high' && (state.sliding || state.playerY < 1.1)) {
+        collision = false;
+      }
+      if (obs.userData.subtype === 'wall' && state.playerY > 3.05) {
+        collision = false;
+      }
+
+      // Phase ability - no collision
+      if (state.phaseActive) {
+        collision = false;
+      }
+
+      if (collision) {
+        if (state.shielded) {
+          state.shielded = false;
+          state.cameraShake = 0.5;
+          spawnParticles(obs.position.clone(), 0x00ffff, 20);
+          showNotification(TRANSLATIONS[currentLang].shieldBroken);
+          if (obs.geometry) obs.geometry.dispose();
+          obs.children.forEach(c => { if (c.geometry) c.geometry.dispose(); });
+          scene.remove(obs);
+          obstacles.splice(i, 1);
+          continue;
+        } else {
+          gameOver();
+          return;
+        }
+      } else {
+        state.obstaclesDodged++;
+      }
+    }
+
+    // Remove if passed
+    if (obs.position.z > 15) {
+      if (obs.geometry) obs.geometry.dispose();
+      obs.children.forEach(c => { if (c.geometry) c.geometry.dispose(); });
+      scene.remove(obs);
+      obstacles.splice(i, 1);
+    }
+  }
+}
+
+// ============================================================
+// PARTICLES
+// ============================================================
+const particleSystems = [];
+
+function spawnParticles(position, color, count) {
+  const geometry = new THREE.BufferGeometry();
+  const positions = new Float32Array(count * 3);
+  const velocities = [];
+
+  for (let i = 0; i < count; i++) {
+    positions[i * 3] = position.x;
+    positions[i * 3 + 1] = position.y;
+    positions[i * 3 + 2] = position.z;
+    velocities.push({
+      x: (Math.random() - 0.5) * 0.3,
+      y: (Math.random() - 0.5) * 0.3,
+      z: (Math.random() - 0.5) * 0.3,
+    });
+  }
+
+  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+  const material = new THREE.PointsMaterial({
+    color: color,
+    size: 0.15,
+    transparent: true,
+    opacity: 1,
+    blending: THREE.AdditiveBlending,
+  });
+
+  const points = new THREE.Points(geometry, material);
+  points.userData.velocities = velocities;
+  points.userData.life = 1;
+  scene.add(points);
+  particleSystems.push(points);
+}
+
+function updateParticles(dt) {
+  for (let i = particleSystems.length - 1; i >= 0; i--) {
+    const ps = particleSystems[i];
+    ps.userData.life -= dt * 0.002;
+
+    if (ps.userData.life <= 0) {
+      ps.geometry.dispose();
+      ps.material.dispose();
+      scene.remove(ps);
+      particleSystems.splice(i, 1);
+      continue;
+    }
+
+    ps.material.opacity = ps.userData.life;
+    const positions = ps.geometry.attributes.position.array;
+    const vels = ps.userData.velocities;
+
+    for (let j = 0; j < vels.length; j++) {
+      positions[j * 3] += vels[j].x;
+      positions[j * 3 + 1] += vels[j].y;
+      positions[j * 3 + 2] += vels[j].z;
+      vels[j].y -= 0.005;
+    }
+    ps.geometry.attributes.position.needsUpdate = true;
+  }
+}
+
+// ============================================================
+// PLAYER TRAIL
+// ============================================================
+const trailPositions = [];
+let trailMesh = null;
+
+function updateTrail() {
+  trailPositions.unshift({
+    x: playerGroup.position.x,
+    y: playerGroup.position.y + 0.8,
+    z: playerGroup.position.z + 0.5,
+  });
+
+  if (trailPositions.length > 30) trailPositions.pop();
+
+  if (trailMesh) {
+    scene.remove(trailMesh);
+    trailMesh.geometry.dispose();
+  }
+
+  if (trailPositions.length < 2) return;
+
+  const points = trailPositions.map(p => new THREE.Vector3(p.x, p.y, p.z));
+  const curve = new THREE.CatmullRomCurve3(points);
+  const tubeGeo = new THREE.TubeGeometry(curve, 20, 0.06, 4, false);
+  const trailColor = state.phaseActive ? 0xffff00 : (state.shielded ? 0x00ffff : 0x0088ff);
+  trailMaterial.color.set(trailColor);
+  trailMesh = new THREE.Mesh(tubeGeo, trailMaterial);
+  scene.add(trailMesh);
+}
+
+// ============================================================
+// SPAWNING SYSTEM
+// ============================================================
+let spawnTimer = 0;
+let nextSpawnZ = -30;
+
+function updateSpawning(dt) {
+  const speed = state.speed * (state.slowMoActive ? 0.4 : 1);
+  spawnTimer += speed;
+
+  const spawnInterval = 3;
+
+  if (spawnTimer >= spawnInterval) {
+    spawnTimer = 0;
+
+    const spawnZ = playerGroup.position.z - 60 - Math.random() * 20;
+
+    // Spawn tokens
+    if (Math.random() < CONFIG.tokenSpawnRate + state.speedPhase * 0.02) {
+      const count = 1 + Math.floor(Math.random() * 3);
+      for (let i = 0; i < count; i++) {
+        spawnToken(spawnZ - i * 3);
+      }
+    }
+
+    // Spawn obstacles
+    if (Math.random() < CONFIG.obstacleSpawnRate + state.speedPhase * 0.03) {
+      spawnObstacle(spawnZ - 10);
+
+      // Sometimes spawn double obstacles at higher speeds
+      if (state.speedPhase >= 3 && Math.random() < 0.3) {
+        const otherLane = (Math.floor(Math.random() * 2) + 1) % 3;
+        spawnObstacle(spawnZ - 10);
+      }
+    }
+  }
+}
+
+// ============================================================
+// ABILITIES
+// ============================================================
+function initAbilities() {
+  const panel = document.getElementById('abilities-panel');
+  panel.innerHTML = '';
+
+  CONFIG.abilities.forEach((ability, index) => {
+    const slot = document.createElement('div');
+    slot.className = 'ability-slot locked';
+    slot.id = `ability-${index}`;
+    slot.innerHTML = `
+      <div class="ability-icon">${ability.icon}</div>
+      <div class="ability-key">${ability.key}</div>
+      <div class="ability-cooldown" id="ability-cd-${index}"></div>
+    `;
+    panel.appendChild(slot);
+  });
+}
+
+function checkAbilityUnlocks() {
+  CONFIG.abilities.forEach((ability, index) => {
+    if (state.score >= ability.unlockScore && !state.unlockedAbilities.includes(index)) {
+      state.unlockedAbilities.push(index);
+      const slot = document.getElementById(`ability-${index}`);
+      slot.classList.remove('locked');
+      slot.classList.add('unlocked');
+      const t = TRANSLATIONS[currentLang];
+      showNotification(t.unlocked(ability.icon, t.abilities[ability.name] || ability.name));
+    }
+  });
+}
+
+function activateAbility(index) {
+  if (!state.unlockedAbilities.includes(index)) return;
+  if (state.activeAbilities[index]) return;
+
+  const ability = CONFIG.abilities[index];
+  state.activeAbilities[index] = {
+    startTime: Date.now(),
+    duration: ability.duration,
+    cooldownEnd: Date.now() + ability.cooldown,
+  };
+
+  const slot = document.getElementById(`ability-${index}`);
+  slot.classList.add('active');
+
+  switch (index) {
+    case 0: state.shielded = true; break;
+    case 1: state.magnetActive = true; break;
+    case 2: state.slowMoActive = true; break;
+    case 3: state.phaseActive = true; break;
+  }
+
+  const t = TRANSLATIONS[currentLang];
+  showNotification(t.activated(ability.icon, t.abilities[ability.name] || ability.name));
+
+  // Duration timer
+  setTimeout(() => {
+    switch (index) {
+      case 0: state.shielded = false; break;
+      case 1: state.magnetActive = false; break;
+      case 2: state.slowMoActive = false; break;
+      case 3: state.phaseActive = false; break;
+    }
+    slot.classList.remove('active');
+  }, ability.duration);
+
+  // Cooldown timer
+  setTimeout(() => {
+    delete state.activeAbilities[index];
+  }, ability.cooldown);
+}
+
+function updateAbilityUI() {
+  const now = Date.now();
+  CONFIG.abilities.forEach((ability, index) => {
+    if (!state.unlockedAbilities.includes(index)) return;
+
+    const cdEl = document.getElementById(`ability-cd-${index}`);
+    const active = state.activeAbilities[index];
+
+    if (active) {
+      if (now < active.cooldownEnd) {
+        const progress = (now - active.startTime) / (active.cooldownEnd - active.startTime);
+        cdEl.style.height = `${Math.min(progress * 100, 100)}%`;
+      } else {
+        cdEl.style.height = '0%';
+      }
+    } else {
+      cdEl.style.height = '0%';
+    }
+  });
+}
+
+// ============================================================
+// CAMERA
+// ============================================================
+const cameraBasePos = new THREE.Vector3(0, 4, 10);
+const cameraBaseLookAt = new THREE.Vector3(0, 1, -20);
+
+function updateCamera(dt) {
+  // Responsive base for mobile portrait
+  const isPortrait = window.innerHeight > window.innerWidth;
+  const baseY = isPortrait ? 5 : 4;
+  const baseZ = isPortrait ? 12 : 10;
+  cameraBasePos.set(playerGroup.position.x * 0.3, baseY, baseZ);
+  camera.position.lerp(cameraBasePos, 0.05);
+
+  // Camera shake
+  if (state.cameraShake > 0) {
+    camera.position.x += (Math.random() - 0.5) * state.cameraShake;
+    camera.position.y += (Math.random() - 0.5) * state.cameraShake * 0.5;
+    state.cameraShake *= 0.9;
+    if (state.cameraShake < 0.01) state.cameraShake = 0;
+  }
+
+  // Look ahead
+  const lookTarget = new THREE.Vector3(
+    playerGroup.position.x * 0.2,
+    1 + state.playerY * 0.3,
+    playerGroup.position.z - 20
+  );
+  camera.lookAt(lookTarget);
+}
+
+// ============================================================
+// BACKGROUND EFFECTS
+// ============================================================
+const bgParticlesGeo = new THREE.BufferGeometry();
+const bgParticleCount = 500;
+const bgPositions = new Float32Array(bgParticleCount * 3);
+const bgColors = new Float32Array(bgParticleCount * 3);
+
+for (let i = 0; i < bgParticleCount; i++) {
+  bgPositions[i * 3] = (Math.random() - 0.5) * 40;
+  bgPositions[i * 3 + 1] = (Math.random() - 0.5) * 30;
+  bgPositions[i * 3 + 2] = -Math.random() * 100;
+
+  const c = new THREE.Color();
+  c.setHSL(0.5 + Math.random() * 0.3, 1, 0.5);
+  bgColors[i * 3] = c.r;
+  bgColors[i * 3 + 1] = c.g;
+  bgColors[i * 3 + 2] = c.b;
+}
+
+bgParticlesGeo.setAttribute('position', new THREE.BufferAttribute(bgPositions, 3));
+bgParticlesGeo.setAttribute('color', new THREE.BufferAttribute(bgColors, 3));
+
+const bgParticlesMat = new THREE.PointsMaterial({
+  size: 0.1,
+  vertexColors: true,
+  transparent: true,
+  opacity: 0.6,
+  blending: THREE.AdditiveBlending,
+});
+
+const bgParticles = new THREE.Points(bgParticlesGeo, bgParticlesMat);
+scene.add(bgParticles);
+
+function updateBgParticles() {
+  const positions = bgParticlesGeo.attributes.position.array;
+  const speed = state.speed * (state.slowMoActive ? 0.4 : 1) * 0.5;
+
+  for (let i = 0; i < bgParticleCount; i++) {
+    positions[i * 3 + 2] += speed;
+    if (positions[i * 3 + 2] > 20) {
+      positions[i * 3 + 2] = -100;
+      positions[i * 3] = (Math.random() - 0.5) * 40;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 30;
+    }
+  }
+  bgParticlesGeo.attributes.position.needsUpdate = true;
+}
+
+// ============================================================
+// HUD
+// ============================================================
+function updateHUD() {
+  document.getElementById('score-display').textContent = state.score.toLocaleString();
+  document.getElementById('combo-display').textContent = `x${state.combo}`;
+  document.getElementById('speed-display').textContent = state.speedPhase;
+
+  const speedProgress = ((state.speed - CONFIG.startSpeed) / (CONFIG.maxSpeed - CONFIG.startSpeed)) * 100;
+  document.getElementById('speed-bar').style.width = `${speedProgress}%`;
+
+  // Lane indicator
+  for (let i = 0; i < 3; i++) {
+    const dot = document.getElementById(`lane-${i}`);
+    dot.classList.toggle('active', i === state.targetLane);
+  }
+}
+
+function showNotification(text) {
+  const el = document.getElementById('notification');
+  el.textContent = text;
+  el.classList.remove('show');
+  void el.offsetWidth;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 1500);
+}
+
+// ============================================================
+// INPUT HANDLING
+// ============================================================
+const keys = {};
+
+document.addEventListener('keydown', (e) => {
+  keys[e.code] = true;
+
+  if (!state.running) return;
+
+  switch (e.code) {
+    case 'ArrowLeft':
+    case 'KeyA':
+      if (state.targetLane > 0) state.targetLane--;
+      break;
+    case 'ArrowRight':
+    case 'KeyD':
+      if (state.targetLane < 2) state.targetLane++;
+      break;
+    case 'ArrowUp':
+    case 'KeyW':
+      if (!state.jumping) {
+        state.jumping = true;
+        state.velocityY = CONFIG.playerJumpForce;
+      }
+      break;
+    case 'ArrowDown':
+    case 'KeyS':
+      if (!state.sliding && !state.jumping) {
+        state.sliding = true;
+        state.slideTimer = CONFIG.slideDuration;
+      }
+      break;
+    case 'Digit1':
+    case 'Numpad1':
+      activateAbility(0);
+      break;
+    case 'Digit2':
+    case 'Numpad2':
+      activateAbility(1);
+      break;
+    case 'Digit3':
+    case 'Numpad3':
+      activateAbility(2);
+      break;
+    case 'Digit4':
+    case 'Numpad4':
+      activateAbility(3);
+      break;
+    case 'Space':
+      // Activate first available ability
+      for (let i = 0; i < CONFIG.abilities.length; i++) {
+        if (state.unlockedAbilities.includes(i) && !state.activeAbilities[i]) {
+          activateAbility(i);
+          break;
+        }
+      }
+      e.preventDefault();
+      break;
+  }
+
+  updateHUD();
+});
+
+document.addEventListener('keyup', (e) => {
+  keys[e.code] = false;
+});
+
+// Touch controls
+let touchStartX = 0;
+let touchStartY = 0;
+let touchStartTime = 0;
+
+document.addEventListener('touchstart', (e) => {
+  if (state.running) e.preventDefault();
+  const touch = e.touches[0];
+  touchStartX = touch.clientX;
+  touchStartY = touch.clientY;
+  touchStartTime = Date.now();
+}, { passive: false });
+
+document.addEventListener('touchmove', (e) => {
+  if (state.running) e.preventDefault();
+}, { passive: false });
+
+document.addEventListener('touchend', (e) => {
+  if (state.running) e.preventDefault();
+  if (!state.running) return;
+
+  const touch = e.changedTouches[0];
+  const dx = touch.clientX - touchStartX;
+  const dy = touch.clientY - touchStartY;
+  const dt = Date.now() - touchStartTime;
+
+  const minSwipe = 30;
+
+  if (dt < 500) {
+    if (Math.abs(dx) > Math.abs(dy)) {
+      // Horizontal swipe
+      if (dx > minSwipe && state.targetLane < 2) state.targetLane++;
+      else if (dx < -minSwipe && state.targetLane > 0) state.targetLane--;
+    } else {
+      // Vertical swipe
+      if (dy < -minSwipe && !state.jumping) {
+        state.jumping = true;
+        state.velocityY = CONFIG.playerJumpForce;
+      } else if (dy > minSwipe && !state.sliding && !state.jumping) {
+        state.sliding = true;
+        state.slideTimer = CONFIG.slideDuration;
+      }
+    }
+  }
+
+  // Tap to activate ability
+  if (Math.abs(dx) < 10 && Math.abs(dy) < 10 && dt < 200) {
+    for (let i = 0; i < CONFIG.abilities.length; i++) {
+      if (state.unlockedAbilities.includes(i) && !state.activeAbilities[i]) {
+        activateAbility(i);
+        break;
+      }
+    }
+  }
+
+  updateHUD();
+}, { passive: false });
+
+// Direct touchend on buttons for mobile responsiveness (minimal addition)
+document.getElementById('start-btn').addEventListener('touchend', startGame);
+document.getElementById('restart-btn').addEventListener('touchend', startGame);
+
+// ============================================================
+// GAME FLOW
+// ============================================================
+function startGame() {
+  state = {
+    running: true,
+    score: 0,
+    highScore: state.highScore,
+    combo: 1,
+    comboTimer: 0,
+    speed: CONFIG.startSpeed,
+    speedPhase: 1,
+    lane: 1,
+    targetLane: 1,
+    jumping: false,
+    sliding: false,
+    slideTimer: 0,
+    velocityY: 0,
+    playerY: 0,
+    distance: 0,
+    tokensCollected: 0,
+    obstaclesDodged: 0,
+    maxCombo: 1,
+    unlockedAbilities: [],
+    activeAbilities: {},
+    shielded: false,
+    magnetActive: false,
+    slowMoActive: false,
+    phaseActive: false,
+    cameraShake: 0,
+    lastTime: performance.now(),
+  };
+
+  // Clear old objects
+  tokens.forEach(t => scene.remove(t));
+  tokens.length = 0;
+  obstacles.forEach(o => scene.remove(o));
+  obstacles.length = 0;
+  particleSystems.forEach(p => scene.remove(p));
+  particleSystems.length = 0;
+  trailPositions.length = 0;
+  if (trailMesh) { scene.remove(trailMesh); trailMesh = null; }
+
+  // Reset player
+  playerGroup.position.set(0, 0, 2);
+  playerGroup.rotation.set(0, 0, 0);
+  playerGroup.userData.shieldMesh = null;
+
+  // Reset tunnel
+  tunnelGroup.position.z = 0;
+  tunnelSegments.forEach((seg, i) => {
+    seg.position.z = -i * CONFIG.segmentLength;
+  });
+
+  // Reset camera
+  camera.position.set(0, 4, 10);
+
+  spawnTimer = 0;
+
+  // UI
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('game-over-screen').style.display = 'none';
+  document.getElementById('hud').style.display = 'block';
+
+  if ('ontouchstart' in window) {
+    document.getElementById('touch-controls').style.display = 'block';
+  }
+
+  initAbilities();
+  updateHUD();
+}
+
+function gameOver() {
+  state.running = false;
+
+  // Big camera shake
+  state.cameraShake = 1;
+
+  // Damage flash
+  const flash = document.getElementById('damage-flash');
+  flash.style.opacity = '1';
+  setTimeout(() => flash.style.opacity = '0', 300);
+
+  // Explosion particles
+  spawnParticles(playerGroup.position.clone(), 0xff0044, 50);
+  spawnParticles(playerGroup.position.clone(), 0xff8800, 30);
+
+  // Update high score
+  if (state.score > state.highScore) {
+    state.highScore = state.score;
+    localStorage.setItem('ntd_high', state.highScore.toString());
+  }
+
+  // Show game over
+  setTimeout(() => {
+    document.getElementById('hud').style.display = 'none';
+    document.getElementById('touch-controls').style.display = 'none';
+    document.getElementById('game-over-screen').style.display = 'flex';
+    document.getElementById('final-score').textContent = state.score.toLocaleString();
+    const t = TRANSLATIONS[currentLang];
+    document.getElementById('final-stats').innerHTML = `
+      ${t.highScore}: <span>${state.highScore.toLocaleString()}</span><br>
+      ${t.tokensCollected}: <span>${state.tokensCollected}</span><br>
+      ${t.maxCombo}: <span>x${state.maxCombo}</span><br>
+      ${t.speedPhase}: <span>${state.speedPhase}</span><br>
+      ${t.obstaclesDodged}: <span>${state.obstaclesDodged}</span>
+    `;
+  }, 800);
+}
+
+// ============================================================
+// MAIN GAME LOOP
+// ============================================================
+function gameLoop(timestamp) {
+  requestAnimationFrame(gameLoop);
+
+  if (!state.running) {
+    // Still render when not running
+    renderer.render(scene, camera);
+    return;
+  }
+
+  const dt = Math.min(timestamp - state.lastTime, 50);
+  state.lastTime = timestamp;
+
+  // Speed escalation
+  state.speed = Math.min(state.speed + CONFIG.speedIncrement, CONFIG.maxSpeed);
+  const newPhase = Math.floor((state.speed - CONFIG.startSpeed) / 0.1) + 1;
+  if (newPhase !== state.speedPhase) {
+    state.speedPhase = newPhase;
+    showNotification(TRANSLATIONS[currentLang].speedPhaseMsg(state.speedPhase));
+    state.cameraShake = 0.3;
+  }
+
+  // Combo timeout
+  if (state.comboTimer > 0) {
+    state.comboTimer -= dt;
+    if (state.comboTimer <= 0) {
+      state.combo = 1;
+    }
+  }
+
+  // Distance score
+  const speed = state.speed * (state.slowMoActive ? 0.4 : 1);
+  state.distance += speed;
+  state.score += Math.floor(speed * state.combo);
+
+  // Update systems
+  updateTunnel();
+  updatePlayer(dt);
+  updateTokens(dt);
+  updateObstacles(dt);
+  updateParticles(dt);
+  updateSpawning(dt);
+  updateCamera(dt);
+  updateBgParticles();
+  updateTrail();
+  checkAbilityUnlocks();
+  updateAbilityUI();
+  updateHUD();
+
+  // Update lights
+  pointLight1.position.z = playerGroup.position.z - 5;
+  pointLight2.position.z = playerGroup.position.z - 20;
+
+  // Dynamic light colors based on speed phase
+  const hue = (state.speedPhase * 0.05) % 1;
+  pointLight1.color.setHSL(0.5, 1, 0.5);
+  pointLight2.color.setHSL(hue, 1, 0.5);
+
+  // Fog color shift
+  scene.fog.color.setHSL(0.6 + hue * 0.1, 0.5, 0.02);
+
+  renderer.render(scene, camera);
+}
+
+// ============================================================
+// EVENT LISTENERS
+// ============================================================
+document.getElementById('start-btn').addEventListener('click', startGame);
+document.getElementById('restart-btn').addEventListener('click', startGame);
+
+window.addEventListener('resize', () => {
+  const isPortrait = window.innerHeight > window.innerWidth;
+  camera.fov = isPortrait ? 85 : 75;
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  const baseY = isPortrait ? 5 : 4;
+  const baseZ = isPortrait ? 12 : 10;
+  camera.position.y = baseY;
+  camera.position.z = baseZ;
+  cameraBasePos.y = baseY;
+  cameraBasePos.z = baseZ;
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// ============================================================
+// INITIALIZATION
+// ============================================================
+initTunnel();
+createPlayer();
+initAbilities();
+
+// Show high score on start screen if exists
+if (state.highScore > 0) {
+  const controlsInfo = document.querySelector('.controls-info');
+  const highScoreEl = document.createElement('div');
+  highScoreEl.id = 'high-score-display';
+  highScoreEl.style.cssText = 'color: #f80; font-weight: 700; margin-top: 10px; font-size: 16px;';
+  const t = TRANSLATIONS[currentLang];
+  highScoreEl.textContent = `${t.highScore}: ${state.highScore.toLocaleString()}`;
+  controlsInfo.parentNode.insertBefore(highScoreEl, controlsInfo);
+}
+
+document.getElementById('lang-btn').addEventListener('click', () => {
+  currentLang = currentLang === 'vi' ? 'en' : 'vi';
+  applyLanguage();
+});
+applyLanguage();
+
+requestAnimationFrame(gameLoop);
+</script>
+</body>
+</html>
