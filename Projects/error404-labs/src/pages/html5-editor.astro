@@ -7,8 +7,9 @@ import MainLayout from '../layouts/MainLayout.astro'
         <div class="max-w-[1600px] mx-auto h-[85vh]">
             <div class="flex flex-col md:flex-row gap-6 h-full">
                 <aside class="w-full md:w-[450px] flex flex-col gap-4">
-                    <div class="flex flex-col gap-2">
+                    <div class="flex items-center justify-between gap-2">
                         <h2 class="text-2xl font-black text-slate-800 tracking-tight text-gradient">HTML5 EDITOR</h2>
+                        <button id="runBtn" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-lg shadow transition-colors cursor-pointer">Chạy</button>
                     </div>
                     <div class="editor-panel flex-1 flex flex-col gap-2">
                         <label for="html" class="text-sm font-semibold text-slate-700">HTML</label>
@@ -75,12 +76,6 @@ h1 &#123;
         previewIframe.srcdoc = fullHtml;
     }
 
-    // Update preview whenever any editor changes
-    [htmlEditor, cssEditor, jsEditor].forEach(function(editor) {
-        editor.addEventListener('input', updatePreview);
-        editor.addEventListener('change', updatePreview);
-    });
-
-    // Initial preview update
-    updatePreview();
+    // Update preview when Run button is clicked
+    document.getElementById('runBtn').addEventListener('click', updatePreview);
 </script>
