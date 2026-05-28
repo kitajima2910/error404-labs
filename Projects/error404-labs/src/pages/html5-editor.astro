@@ -3,17 +3,20 @@ import MainLayout from '../layouts/MainLayout.astro'
 ---
 
 <MainLayout title="HTML5 Editor Online" description="Trình soạn thảo HTML/CSS/JS trực tuyến với xem trước trực tiếp">
-    <section class="min-h-screen bg-slate-50 py-8 px-4 md:px-8">
-        <div class="max-w-[1600px] mx-auto h-[85vh]">
-            <div class="flex flex-col md:flex-row gap-6 h-full">
-                <aside class="w-full md:w-[450px] flex flex-col gap-4">
-                    <div class="flex items-center justify-between gap-2">
-                        <h2 class="text-2xl font-black text-slate-800 tracking-tight text-gradient">HTML5 EDITOR</h2>
-                        <button id="runBtn" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-lg shadow transition-colors cursor-pointer">Chạy</button>
-                    </div>
-                    <div class="editor-panel flex-1 flex flex-col gap-2">
-                        <label for="html" class="text-sm font-semibold text-slate-700">HTML</label>
-                        <textarea id="html" class="flex-1 p-2 font-mono text-xs resize-none border border-slate-300 rounded-md" placeholder="Nhập HTML ở đây...">&lt;!DOCTYPE html&gt;
+    <section class="editor-wrap">
+        <div class="editor-header">
+            <h1 class="editor-logo">⟨/⟩ HTML5 Editor</h1>
+            <button id="runBtn" class="run-btn">▶ Chạy</button>
+        </div>
+        <div class="editor-body">
+            <div class="editor-left">
+                <div class="tab-bar">
+                    <button class="tab active" data-target="html">HTML</button>
+                    <button class="tab" data-target="css">CSS</button>
+                    <button class="tab" data-target="js">JS</button>
+                </div>
+                <div class="tab-content">
+                    <textarea id="html" class="tab-pane active" placeholder="Nhập HTML ở đây...">&lt;!DOCTYPE html&gt;
 &lt;html&gt;
 &lt;head&gt;
 &lt;meta charset="UTF-8"&gt;
@@ -23,10 +26,7 @@ import MainLayout from '../layouts/MainLayout.astro'
 &lt;h1&gt;Chào thế giới!&lt;/h1&gt;
 &lt;/body&gt;
 &lt;/html&gt;</textarea>
-                    </div>
-                    <div class="editor-panel flex-1 flex flex-col gap-2">
-                        <label for="css" class="text-sm font-semibold text-slate-700">CSS</label>
-                        <textarea id="css" class="flex-1 p-2 font-mono text-xs resize-none border border-slate-300 rounded-md" placeholder="Nhập CSS ở đây...">body &#123;
+                    <textarea id="css" class="tab-pane" placeholder="Nhập CSS ở đây...">body &#123;
     font-family: Arial, sans-serif;
     margin: 20px;
     background-color: #f4f4f4;
@@ -34,27 +34,143 @@ import MainLayout from '../layouts/MainLayout.astro'
 h1 &#123;
     color: #333;
 &#125;</textarea>
-                    </div>
-                    <div class="editor-panel flex-1 flex flex-col gap-2">
-                        <label for="js" class="text-sm font-semibold text-slate-700">JS</label>
-                        <textarea id="js" class="flex-1 p-2 font-mono text-xs resize-none border border-slate-300 rounded-md" placeholder="Nhập JavaScript ở đây...">document.addEventListener('DOMContentLoaded', function() &#123;
+                    <textarea id="js" class="tab-pane" placeholder="Nhập JavaScript ở đây...">document.addEventListener('DOMContentLoaded', function() &#123;
     console.log('JavaScript đã được loaded');
 &#125;);</textarea>
-                    </div>
-                </aside>
-                <main class="flex-1 flex flex-col bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200">
-                    <iframe id="preview" class="flex-1 w-full bg-slate-50 border-none" sandbox="allow-scripts allow-same-origin"></iframe>
-                </main>
+                </div>
+            </div>
+            <div class="editor-right">
+                <div class="preview-bar">
+                    <span class="preview-label">Kết quả</span>
+                </div>
+                <iframe id="preview" name="preview-frame" class="preview-frame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals" src="/api/render"></iframe>
             </div>
         </div>
     </section>
 </MainLayout>
 
 <style>
-    .text-gradient {
-        background: linear-gradient(to right, #1e293b, #4f46e5);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+    .editor-wrap {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        background: #1e1e2e;
+    }
+    .editor-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 20px;
+        background: #181825;
+        border-bottom: 1px solid #313244;
+    }
+    .editor-logo {
+        font-size: 16px;
+        font-weight: 700;
+        color: #cdd6f4;
+        letter-spacing: 0.5px;
+    }
+    .run-btn {
+        padding: 8px 22px;
+        background: #a6e3a1;
+        color: #1e1e2e;
+        font-weight: 700;
+        font-size: 14px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+    .run-btn:hover {
+        background: #94e2d5;
+    }
+    .editor-body {
+        flex: 1;
+        display: flex;
+        overflow: hidden;
+    }
+    .editor-left {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+    }
+    .tab-bar {
+        display: flex;
+        background: #1e1e2e;
+        border-bottom: 1px solid #313244;
+        padding: 0 12px;
+    }
+    .tab {
+        padding: 10px 18px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #6c7086;
+        background: none;
+        border: none;
+        border-bottom: 2px solid transparent;
+        cursor: pointer;
+        transition: color 0.15s, border-color 0.15s;
+    }
+    .tab:hover {
+        color: #cdd6f4;
+    }
+    .tab.active {
+        color: #a6e3a1;
+        border-bottom-color: #a6e3a1;
+    }
+    .tab-content {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+    }
+    .tab-pane {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        padding: 14px 16px;
+        font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+        font-size: 13px;
+        line-height: 1.6;
+        color: #cdd6f4;
+        background: #1e1e2e;
+        border: none;
+        outline: none;
+        resize: none;
+        display: none;
+    }
+    .tab-pane.active {
+        display: block;
+    }
+    .tab-pane::placeholder {
+        color: #585b70;
+    }
+    .editor-right {
+        width: 45%;
+        min-width: 320px;
+        display: flex;
+        flex-direction: column;
+        background: #fff;
+        border-left: 1px solid #313244;
+    }
+    .preview-bar {
+        padding: 8px 16px;
+        background: #f5f5f5;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    .preview-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #555;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .preview-frame {
+        flex: 1;
+        width: 100%;
+        border: none;
+        background: #fff;
     }
 </style>
 
@@ -65,20 +181,33 @@ h1 &#123;
     const previewIframe = document.getElementById('preview');
 
     function updatePreview() {
-        const html = htmlEditor.value;
-        const css = cssEditor.value;
-        const js = jsEditor.value;
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/api/render';
+        form.target = 'preview-frame';
+        form.style.display = 'none';
 
-        // Create a full HTML document with the user's CSS and JS
-        const fullHtml = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>' + css + '</style></head><body>' + html + '<script>' + js + '<\/script></body></html>';
+        ['html', 'css', 'js'].forEach(function(name) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = name;
+            input.value = document.getElementById(name).value;
+            form.appendChild(input);
+        });
 
-        // Write directly into iframe document to avoid CSP restrictions on srcdoc
-        const doc = previewIframe.contentDocument;
-        doc.open();
-        doc.write(fullHtml);
-        doc.close();
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
     }
 
-    // Update preview when Run button is clicked
     document.getElementById('runBtn').addEventListener('click', updatePreview);
+
+    document.querySelectorAll('.tab').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.tab').forEach(function(b) { b.classList.remove('active'); });
+            document.querySelectorAll('.tab-pane').forEach(function(p) { p.classList.remove('active'); });
+            btn.classList.add('active');
+            document.getElementById(btn.getAttribute('data-target')).classList.add('active');
+        });
+    });
 </script>
