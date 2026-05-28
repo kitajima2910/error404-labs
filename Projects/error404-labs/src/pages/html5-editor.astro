@@ -11,9 +11,10 @@ import MainLayout from '../layouts/MainLayout.astro'
         <div class="editor-body">
             <div class="editor-left">
                 <div class="tab-bar">
-                    <button class="tab active" data-target="html">HTML</button>
-                    <button class="tab" data-target="css">CSS</button>
-                    <button class="tab" data-target="js">JS</button>
+                    <div class="file-explorer-title">FILES</div>
+                    <button class="tab active" data-target="html">📄 index.html</button>
+                    <button class="tab" data-target="css">📄 style.css</button>
+                    <button class="tab" data-target="js">📄 script.js</button>
                 </div>
                 <div class="tab-content">
                     <textarea id="html" class="tab-pane active" placeholder="Nhập HTML ở đây...">&lt;!DOCTYPE html&gt;
@@ -92,32 +93,47 @@ h1 &#123;
     .editor-left {
         flex: 1;
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         min-width: 0;
+    }
+    .file-explorer-title {
+        font-size: 11px;
+        font-weight: 700;
+        color: #6c7086;
+        padding: 12px 18px 8px;
+        letter-spacing: 1px;
     }
     .tab-bar {
         display: flex;
-        background: #1e1e2e;
-        border-bottom: 1px solid #313244;
-        padding: 0 12px;
+        flex-direction: column;
+        width: 180px;
+        background: #181825;
+        border-right: 1px solid #313244;
+        padding-top: 5px;
     }
     .tab {
-        padding: 10px 18px;
+        padding: 8px 18px;
         font-size: 13px;
-        font-weight: 600;
-        color: #6c7086;
+        font-weight: 500;
+        color: #bac2de;
         background: none;
         border: none;
-        border-bottom: 2px solid transparent;
+        border-left: 2px solid transparent;
+        text-align: left;
         cursor: pointer;
-        transition: color 0.15s, border-color 0.15s;
+        transition: all 0.15s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
     .tab:hover {
         color: #cdd6f4;
+        background: rgba(255,255,255,0.05);
     }
     .tab.active {
         color: #a6e3a1;
-        border-bottom-color: #a6e3a1;
+        border-left-color: #a6e3a1;
+        background: rgba(255,255,255,0.05);
     }
     .tab-content {
         flex: 1;
