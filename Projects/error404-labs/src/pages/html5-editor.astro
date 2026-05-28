@@ -72,8 +72,11 @@ h1 &#123;
         // Create a full HTML document with the user's CSS and JS
         const fullHtml = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>' + css + '</style></head><body>' + html + '<script>' + js + '<\/script></body></html>';
 
-        // Update the iframe's srcdoc
-        previewIframe.srcdoc = fullHtml;
+        // Write directly into iframe document to avoid CSP restrictions on srcdoc
+        const doc = previewIframe.contentDocument;
+        doc.open();
+        doc.write(fullHtml);
+        doc.close();
     }
 
     // Update preview when Run button is clicked
