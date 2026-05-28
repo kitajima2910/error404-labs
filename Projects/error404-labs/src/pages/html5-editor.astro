@@ -6,7 +6,12 @@ import MainLayout from '../layouts/MainLayout.astro'
     <section class="editor-wrap">
         <div class="editor-header">
             <h1 class="editor-logo">⟨/⟩ HTML5 Editor</h1>
-            <button id="runBtn" class="run-btn">▶ Chạy</button>
+            <div class="header-actions">
+                <button id="formatBtn" class="action-btn">✨ Format</button>
+                <button id="resetBtn" class="action-btn">🔄 Reset</button>
+                <button id="clearBtn" class="action-btn">🗑️ Clear</button>
+                <button id="runBtn" class="run-btn">▶ Chạy</button>
+            </div>
         </div>
         <div class="editor-body">
             <div class="editor-left">
@@ -70,6 +75,25 @@ h1 &#123;
         font-weight: 700;
         color: #cdd6f4;
         letter-spacing: 0.5px;
+    }
+    .header-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+    .action-btn {
+        padding: 8px 16px;
+        background: #313244;
+        color: #cdd6f4;
+        font-weight: 600;
+        font-size: 13px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+    .action-btn:hover {
+        background: #45475a;
     }
     .run-btn {
         padding: 8px 22px;
@@ -282,5 +306,41 @@ h1 &#123;
             document.getElementById(target).classList.add('active');
             refreshActiveEditor(target);
         });
+    });
+
+    // --- Thêm chức năng cho các nút Format, Reset, Clear ---
+    const defaultContents = {
+        html: htmlEditor.value,
+        css: cssEditor.value,
+        js: jsEditor.value
+    };
+
+    function getActiveEditorData() {
+        const activeTab = document.querySelector('.tab.active');
+        const target = activeTab ? activeTab.getAttribute('data-target') : 'html';
+        const cm = target === 'css' ? cmCss : (target === 'js' ? cmJs : cmHtml);
+        return { target, cm };
+    }
+
+    document.getElementById('formatBtn').addEventListener('click', () => {
+        const { cm } = getActiveEditorData();
+        const totalLines = cm.lineCount();
+        for (let i = 0; i < totalLines; i++) {
+            cm.indentLine(i, "smart");
+        }
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+        if (confirm('Khôi phục mã mặc định cho file này?')) {
+            const { target, cm } = getActiveEditorData();
+            cm.setValue(defaultContents[target]);
+        }
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+        if (confirm('Xoá toàn bộ mã trong file này?')) {
+            const { cm } = getActiveEditorData();
+            cm.setValue('');
+        }
     });
 </script>
