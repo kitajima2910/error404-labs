@@ -156,22 +156,22 @@ h1 &#123;
         resize: none;
         display: none !important;
     }
-    .CodeMirror {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        display: none;
-        font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
-        font-size: 14px;
-        background: #1e1e2e;
+    :global(.CodeMirror) {
+        position: absolute !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        display: none !important;
+        font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace !important;
+        font-size: 14px !important;
+        background: #1e1e2e !important;
     }
-    .CodeMirror-gutters {
-        background: #181825;
-        border-right: 1px solid #313244;
+    :global(.CodeMirror-gutters) {
+        background: #181825 !important;
+        border-right: 1px solid #313244 !important;
     }
-    .tab-pane.active + .CodeMirror {
-        display: block;
+    .tab-pane.active + :global(.CodeMirror) {
+        display: block !important;
     }
     .editor-right {
         width: 45%;
