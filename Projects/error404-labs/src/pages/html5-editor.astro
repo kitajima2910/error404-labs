@@ -49,7 +49,7 @@ h1 &#123;
                 <div class="preview-bar">
                     <span class="preview-label">Kết quả</span>
                 </div>
-                <iframe id="preview" name="preview-frame" class="preview-frame" sandbox="allow-scripts allow-forms allow-popups allow-modals" src="/api/render"></iframe>
+                <iframe id="preview" name="preview-frame" class="preview-frame" sandbox="allow-scripts allow-forms allow-popups allow-modals" allow="autoplay" src="/api/render"></iframe>
             </div>
         </div>
 
@@ -365,7 +365,7 @@ h1 &#123;
         const js = document.getElementById('js').value;
 
         const mockStorageScript = `
-            try { window.localStorage; } catch(e) {
+            (function () {
                 var store = {};
                 var mock = {
                     getItem: function(k) { return store[k] || null; },
@@ -373,9 +373,35 @@ h1 &#123;
                     removeItem: function(k) { delete store[k]; },
                     clear: function() { store = {}; }
                 };
-                Object.defineProperty(Window.prototype, 'localStorage', { get: function() { return mock; }, configurable: true });
-                Object.defineProperty(Window.prototype, 'sessionStorage', { get: function() { return mock; }, configurable: true });
-            }
+
+                try { Object.defineProperty(window, 'localStorage', { get: function() { return mock; }, configurable: true }); } catch (e) {}
+                try { Object.defineProperty(window, 'sessionStorage', { get: function() { return mock; }, configurable: true }); } catch (e) {}
+                try { window.localStorage = mock; } catch (e) {}
+                try { window.sessionStorage = mock; } catch (e) {}
+                try { localStorage = mock; } catch (e) {}
+                try { sessionStorage = mock; } catch (e) {}
+
+                var OriginalAudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!OriginalAudioContext) return;
+
+                var contexts = [];
+                function WrappedAudioContext() {
+                    var ctx = new OriginalAudioContext(...Array.from(arguments));
+                    contexts.push(ctx);
+                    return ctx;
+                }
+                WrappedAudioContext.prototype = OriginalAudioContext.prototype;
+                window.AudioContext = WrappedAudioContext;
+                if (window.webkitAudioContext) window.webkitAudioContext = WrappedAudioContext;
+
+                function resumeAll() {
+                    contexts.forEach(function (ctx) {
+                        try { if (ctx && ctx.state === 'suspended') ctx.resume(); } catch (e) {}
+                    });
+                }
+                window.addEventListener('pointerdown', resumeAll, { once: true, capture: true });
+                window.addEventListener('keydown', resumeAll, { once: true, capture: true });
+            })();
         `;
 
         const storageShim = `<script>${mockStorageScript}<\/script>`;
