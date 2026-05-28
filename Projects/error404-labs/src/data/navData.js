@@ -15,6 +15,10 @@ const navData = [
         name: 'Công cụ',
         path: '/tools',
     },
+    {
+        name: 'HTML5 Editor',
+        path: '/html5-editor',
+    },
 ]
 
 export default navData

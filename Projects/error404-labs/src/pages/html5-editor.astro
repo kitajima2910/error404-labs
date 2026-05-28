@@ -1,0 +1,129 @@
+---
+import MainLayout from '@/layouts/MainLayout.astro';
+---
+
+<MainLayout title="HTML5 Editor Online" description="Trình soạn thảo HTML/CSS/JS trực tuyến với xem trước trực tiếp">
+  <style>
+    .editor-container {
+      display: grid;
+      grid-template-rows: repeat(3, 1fr) 2fr;
+      gap: 1rem;
+      padding: 1rem;
+      height: calc(100vh - 20rem); /* Adjust for header/footer */
+      box-sizing: border-box;
+    }
+    .editor-panel {
+      display: flex;
+      flex-direction: column;
+    }
+    .editor-panel label {
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+    .editor-panel textarea {
+      flex: 1;
+      padding: 0.5rem;
+      font-family: monospace;
+      font-size: 0.9rem;
+      resize: vertical;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .preview-panel {
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .preview-panel iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    @media (min-width: 768px) {
+      .editor-container {
+        grid-template-columns: 1fr 2fr;
+        grid-template-rows: repeat(3, 1fr);
+      }
+      .preview-panel {
+        grid-row: 1 / 4;
+        grid-column: 2;
+      }
+    }
+  </style>
+
+  <div class="editor-container">
+    <div class="editor-panel">
+      <label for="html">HTML</label>
+      <textarea id="html" placeholder="Nhập HTML ở đây...">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;meta charset="UTF-8"&gt;
+&lt;title&gt;Tiêu đề&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;h1&gt;Chào thế giới!&lt;/h1&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+    </div>
+    <div class="editor-panel">
+      <label for="css">CSS</label>
+      <textarea id="css" placeholder="Nhập CSS ở đây...">body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  background-color: #f4f4f4;
+}
+h1 {
+  color: #333;
+}</textarea>
+    </div>
+    <div class="editor-panel">
+      <label for="js">JS</label>
+      <textarea id="js" placeholder="Nhập JavaScript ở đây...">document.addEventListener('DOMContentLoaded', function() {
+  console.log('JavaScript đã được loaded');
+});</textarea>
+    </div>
+    <div class="preview-panel">
+      <iframe id="preview" sandbox="allow-scripts allow-same-origin"></iframe>
+    </div>
+  </div>
+
+  <script>
+    const htmlEditor = document.getElementById('html');
+    const cssEditor = document.getElementById('css');
+    const jsEditor = document.getElementById('js');
+    const previewIframe = document.getElementById('preview');
+
+    function updatePreview() {
+      const html = htmlEditor.value;
+      const css = cssEditor.value;
+      const js = jsEditor.value;
+
+      // Create a full HTML document with the user's CSS and JS
+      const fullHtml = `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="UTF-8">
+            <style>${css}</style>
+          </head>
+          <body>
+            ${html}
+            <script>${js}<\/script>
+          </body>
+        </html>
+      `;
+
+      // Update the iframe's srcdoc
+      previewIframe.srcdoc = fullHtml;
+    }
+
+    // Update preview whenever any editor changes
+    [htmlEditor, cssEditor, jsEditor].forEach(editor => {
+      editor.addEventListener('input', updatePreview);
+      editor.addEventListener('change', updatePreview);
+    });
+
+    // Initial preview update
+    updatePreview();
+  </script>
+</MainLayout>
