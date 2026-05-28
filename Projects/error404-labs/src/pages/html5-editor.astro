@@ -52,6 +52,18 @@ h1 &#123;
                 <iframe id="preview" name="preview-frame" class="preview-frame" sandbox="allow-scripts allow-forms allow-popups allow-modals" src="/api/render"></iframe>
             </div>
         </div>
+
+        <!-- Custom Confirm Modal -->
+        <div id="customConfirm" class="modal-overlay">
+            <div class="modal-box">
+                <h3 id="modalTitle" class="modal-title">Xác nhận</h3>
+                <p id="modalMessage" class="modal-message">Bạn có chắc chắn?</p>
+                <div class="modal-actions">
+                    <button id="modalCancelBtn" class="modal-btn cancel">Hủy</button>
+                    <button id="modalConfirmBtn" class="modal-btn confirm">Đồng ý</button>
+                </div>
+            </div>
+        </div>
     </section>
 </MainLayout>
 
@@ -223,6 +235,69 @@ h1 &#123;
         border: none;
         background: #fff;
     }
+    
+    /* Custom Modal */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        backdrop-filter: blur(2px);
+    }
+    .modal-overlay.show {
+        display: flex;
+    }
+    .modal-box {
+        background: #1e1e2e;
+        border: 1px solid #313244;
+        border-radius: 10px;
+        padding: 24px;
+        width: 340px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        color: #cdd6f4;
+    }
+    .modal-title {
+        margin: 0 0 10px 0;
+        font-size: 16px;
+        font-weight: 700;
+    }
+    .modal-message {
+        margin: 0 0 20px 0;
+        font-size: 14px;
+        color: #bac2de;
+        line-height: 1.5;
+    }
+    .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+    .modal-btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+    .modal-btn.cancel {
+        background: #313244;
+        color: #cdd6f4;
+    }
+    .modal-btn.cancel:hover {
+        background: #45475a;
+    }
+    .modal-btn.confirm {
+        background: #f38ba8;
+        color: #1e1e2e;
+    }
+    .modal-btn.confirm:hover {
+        background: #eba0ac;
+    }
 </style>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
@@ -330,17 +405,38 @@ h1 &#123;
         }
     });
 
+    // Logic Custom Modal
+    let confirmActionCallback = null;
+
+    function showConfirm(title, message, callback) {
+        document.getElementById('modalTitle').textContent = title;
+        document.getElementById('modalMessage').textContent = message;
+        document.getElementById('customConfirm').classList.add('show');
+        confirmActionCallback = callback;
+    }
+
+    function closeConfirm() {
+        document.getElementById('customConfirm').classList.remove('show');
+        confirmActionCallback = null;
+    }
+
+    document.getElementById('modalCancelBtn').addEventListener('click', closeConfirm);
+    document.getElementById('modalConfirmBtn').addEventListener('click', () => {
+        if (confirmActionCallback) confirmActionCallback();
+        closeConfirm();
+    });
+
     document.getElementById('resetBtn').addEventListener('click', () => {
-        if (confirm('Khôi phục mã mặc định cho file này?')) {
+        showConfirm('Khôi phục mặc định', 'Bạn có chắc chắn muốn khôi phục mã mặc định cho file này? Toàn bộ thay đổi hiện tại sẽ bị mất.', () => {
             const { target, cm } = getActiveEditorData();
             cm.setValue(defaultContents[target]);
-        }
+        });
     });
 
     document.getElementById('clearBtn').addEventListener('click', () => {
-        if (confirm('Xoá toàn bộ mã trong file này?')) {
+        showConfirm('Xoá toàn bộ mã', 'Bạn có chắc chắn muốn xoá trắng toàn bộ mã trong file này? Hành động này không thể hoàn tác.', () => {
             const { cm } = getActiveEditorData();
             cm.setValue('');
-        }
+        });
     });
 </script>
