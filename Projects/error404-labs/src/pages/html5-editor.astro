@@ -1,5 +1,50 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro'
+
+const defaultHtml = `<!doctype html>
+<html lang="vi">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Tiêu đề</title>
+    </head>
+
+    <body>
+        <h1>Chào thế giới!</h1>
+        <p>Bắt đầu viết HTML/CSS/JS ở đây.</p>
+    </body>
+</html>
+`
+
+const defaultCss = `:root {
+    color-scheme: light;
+}
+
+body {
+    margin: 0;
+    padding: 24px;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    line-height: 1.6;
+    background: #f6f7fb;
+    color: #111827;
+}
+
+h1 {
+    margin: 0 0 12px;
+    font-size: 28px;
+    letter-spacing: -0.02em;
+}
+
+p {
+    margin: 0;
+    color: #374151;
+}
+`
+
+const defaultJs = `document.addEventListener('DOMContentLoaded', () => {
+    console.log('JavaScript đã được load');
+});
+`
 ---
 
 <MainLayout title="HTML5 Editor Online" description="Trình soạn thảo HTML/CSS/JS trực tuyến với xem trước trực tiếp">
@@ -22,26 +67,10 @@ import MainLayout from '../layouts/MainLayout.astro'
                     <button class="tab" data-target="js">📄 script.js</button>
                 </div>
                 <div class="tab-content">
-                    <textarea id="html" class="tab-pane active" placeholder="Nhập HTML ở đây..."
-                        >&lt;!doctype html&gt;&#10;&lt;html lang=&quot;vi&quot;&gt;&#10; &lt;head&gt;&#10; &lt;meta
-                        charset=&quot;UTF-8&quot; /&gt;&#10; &lt;meta name=&quot;viewport&quot;
-                        content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;&#10; &lt;title&gt;Tiêu
-                        đề&lt;/title&gt;&#10; &lt;/head&gt;&#10;&#10; &lt;body&gt;&#10; &lt;h1&gt;Chào thế
-                        giới!&lt;/h1&gt;&#10; &lt;p&gt;Bắt đầu viết HTML/CSS/JS ở đây.&lt;/p&gt;&#10;
-                        &lt;/body&gt;&#10;&lt;/html&gt;</textarea
+                    <textarea id="html" class="tab-pane active" placeholder="Nhập HTML ở đây...">{defaultHtml}</textarea
                     >
-                    <textarea id="css" class="tab-pane" placeholder="Nhập CSS ở đây..."
-                        >:root &#123;&#10; color-scheme: light;&#10;&#125;&#10;&#10;body &#123;&#10; margin: 0;&#10;
-                        padding: 24px;&#10; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial,
-                        sans-serif;&#10; line-height: 1.6;&#10; background: #f6f7fb;&#10; color:
-                        #111827;&#10;&#125;&#10;&#10;h1 &#123;&#10; margin: 0 0 12px;&#10; font-size: 28px;&#10;
-                        letter-spacing: -0.02em;&#10;&#125;&#10;&#10;p &#123;&#10; margin: 0;&#10; color:
-                        #374151;&#10;&#125;</textarea
-                    >
-                    <textarea id="js" class="tab-pane" placeholder="Nhập JavaScript ở đây..."
-                        >document.addEventListener('DOMContentLoaded', () =&gt; &#123;&#10; console.log('JavaScript đã
-                        được load');&#10;&#125;);</textarea
-                    >
+                    <textarea id="css" class="tab-pane" placeholder="Nhập CSS ở đây...">{defaultCss}</textarea>
+                    <textarea id="js" class="tab-pane" placeholder="Nhập JavaScript ở đây...">{defaultJs}</textarea>
                 </div>
             </div>
             <div class="editor-right">
