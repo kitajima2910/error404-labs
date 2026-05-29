@@ -22,34 +22,33 @@ import MainLayout from '../layouts/MainLayout.astro'
                     <button class="tab" data-target="js">📄 script.js</button>
                 </div>
                 <div class="tab-content">
-                    <textarea id="html" class="tab-pane active" placeholder="Nhập HTML ở đây...">&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-&lt;head&gt;
-&lt;meta charset="UTF-8"&gt;
-&lt;title&gt;Tiêu đề&lt;/title&gt;
-&lt;/head&gt;
-&lt;body&gt;
-&lt;h1&gt;Chào thế giới!&lt;/h1&gt;
-&lt;/body&gt;
-&lt;/html&gt;</textarea>
-                    <textarea id="css" class="tab-pane" placeholder="Nhập CSS ở đây...">body &#123;
-    font-family: Arial, sans-serif;
-    margin: 20px;
-    background-color: #f4f4f4;
-&#125;
-h1 &#123;
-    color: #333;
-&#125;</textarea>
-                    <textarea id="js" class="tab-pane" placeholder="Nhập JavaScript ở đây...">document.addEventListener('DOMContentLoaded', function() &#123;
-    console.log('JavaScript đã được loaded');
-&#125;);</textarea>
+                    <textarea id="html" class="tab-pane active" placeholder="Nhập HTML ở đây..."
+                        >&lt;!DOCTYPE html&gt; &lt;html&gt; &lt;head&gt; &lt;meta charset="UTF-8"&gt; &lt;title&gt;Tiêu
+                        đề&lt;/title&gt; &lt;/head&gt; &lt;body&gt; &lt;h1&gt;Chào thế giới!&lt;/h1&gt; &lt;/body&gt;
+                        &lt;/html&gt;</textarea
+                    >
+                    <textarea id="css" class="tab-pane" placeholder="Nhập CSS ở đây..."
+                        >body &#123; font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; &#125; h1
+                        &#123; color: #333; &#125;</textarea
+                    >
+                    <textarea id="js" class="tab-pane" placeholder="Nhập JavaScript ở đây..."
+                        >document.addEventListener('DOMContentLoaded', function() &#123; console.log('JavaScript đã được
+                        loaded'); &#125;);</textarea
+                    >
                 </div>
             </div>
             <div class="editor-right">
                 <div class="preview-bar">
                     <span class="preview-label">Kết quả</span>
+                    <button id="fullscreenBtn" class="preview-fullscreen-btn" type="button">⛶ Phóng to</button>
                 </div>
-                <iframe id="preview" name="preview-frame" class="preview-frame" sandbox="allow-scripts allow-forms allow-popups allow-modals" allow="autoplay" src="/api/render"></iframe>
+                <iframe
+                    id="preview"
+                    name="preview-frame"
+                    class="preview-frame"
+                    sandbox="allow-scripts allow-forms allow-popups allow-modals"
+                    allow="autoplay"
+                    src="/api/render"></iframe>
             </div>
         </div>
 
@@ -164,12 +163,12 @@ h1 &#123;
     }
     .tab:hover {
         color: #cdd6f4;
-        background: rgba(255,255,255,0.05);
+        background: rgba(255, 255, 255, 0.05);
     }
     .tab.active {
         color: #a6e3a1;
         border-left-color: #a6e3a1;
-        background: rgba(255,255,255,0.05);
+        background: rgba(255, 255, 255, 0.05);
     }
     .tab-content {
         flex: 1;
@@ -221,6 +220,10 @@ h1 &#123;
         padding: 8px 16px;
         background: #f5f5f5;
         border-bottom: 1px solid #e0e0e0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
     }
     .preview-label {
         font-size: 12px;
@@ -235,7 +238,42 @@ h1 &#123;
         border: none;
         background: #fff;
     }
-    
+
+    .preview-fullscreen-btn {
+        padding: 6px 10px;
+        background: #313244;
+        color: #cdd6f4;
+        font-weight: 600;
+        font-size: 12px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.15s;
+        white-space: nowrap;
+    }
+    .preview-fullscreen-btn:hover {
+        background: #45475a;
+    }
+
+    .editor-right:fullscreen {
+        width: 100%;
+        height: 100%;
+        border-left: none;
+    }
+    .editor-right:fullscreen .preview-frame {
+        width: 100%;
+        height: 100%;
+    }
+    .editor-right:-webkit-full-screen {
+        width: 100%;
+        height: 100%;
+        border-left: none;
+    }
+    .editor-right:-webkit-full-screen .preview-frame {
+        width: 100%;
+        height: 100%;
+    }
+
     /* Custom Modal */
     .modal-overlay {
         position: fixed;
@@ -256,7 +294,7 @@ h1 &#123;
         border-radius: 10px;
         padding: 24px;
         width: 340px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
         color: #cdd6f4;
     }
     .modal-title {
@@ -300,69 +338,112 @@ h1 &#123;
     }
 </style>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.css" />
 
 <script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
 <script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
 <script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js"></script>
-<script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
-<script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js"></script>
+<script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"
+></script>
+<script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js"
+></script>
 <script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.js"></script>
 <script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/xml-hint.min.js"></script>
 <script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/html-hint.min.js"></script>
 <script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/css-hint.min.js"></script>
-<script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/javascript-hint.min.js"></script>
+<script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/javascript-hint.min.js"
+></script>
 
 <script is:inline>
-    const htmlEditor = document.getElementById('html');
-    const cssEditor = document.getElementById('css');
-    const jsEditor = document.getElementById('js');
-    const previewIframe = document.getElementById('preview');
+    const htmlEditor = document.getElementById('html')
+    const cssEditor = document.getElementById('css')
+    const jsEditor = document.getElementById('js')
+    const previewIframe = document.getElementById('preview')
+    const fullscreenBtn = document.getElementById('fullscreenBtn')
+    const previewContainer = document.querySelector('.editor-right')
 
     const cmOptions = {
         theme: 'dracula',
         lineNumbers: true,
-        extraKeys: {"Ctrl-Space": "autocomplete"}
-    };
+        extraKeys: { 'Ctrl-Space': 'autocomplete' },
+    }
 
-    const cmHtml = CodeMirror.fromTextArea(htmlEditor, { ...cmOptions, mode: 'htmlmixed' });
-    const cmCss = CodeMirror.fromTextArea(cssEditor, { ...cmOptions, mode: 'css' });
-    const cmJs = CodeMirror.fromTextArea(jsEditor, { ...cmOptions, mode: 'javascript' });
+    const cmHtml = CodeMirror.fromTextArea(htmlEditor, { ...cmOptions, mode: 'htmlmixed' })
+    const cmCss = CodeMirror.fromTextArea(cssEditor, { ...cmOptions, mode: 'css' })
+    const cmJs = CodeMirror.fromTextArea(jsEditor, { ...cmOptions, mode: 'javascript' })
 
-    [cmHtml, cmCss, cmJs].forEach(cm => {
-        cm.on("change", () => cm.save());
-        cm.on("inputRead", function(editor, change) {
-            if (change.origin !== "+input" && change.origin !== "*compose") return;
+    ;[
+        cmHtml,
+        cmCss,
+        cmJs,
+    ].forEach((cm) => {
+        cm.on('change', () => cm.save())
+        cm.on('inputRead', function (editor, change) {
+            if (change.origin !== '+input' && change.origin !== '*compose') return
             if (change.text[0].match(/[a-zA-Z0-9_<>]/)) {
-                editor.showHint({completeSingle: false});
+                editor.showHint({ completeSingle: false })
             }
-        });
-    });
+        })
+    })
 
     // Initialize iframe with default content
-    updatePreview();
+    updatePreview()
+
+    function isFullscreenActive() {
+        return !!(document.fullscreenElement || document.webkitFullscreenElement)
+    }
+
+    function updateFullscreenButtonLabel() {
+        if (!fullscreenBtn) return
+        fullscreenBtn.textContent = isFullscreenActive() ? '🗗 Thu nhỏ' : '⛶ Phóng to'
+    }
+
+    async function requestFullscreen(el) {
+        if (!el) return
+        if (el.requestFullscreen) return el.requestFullscreen()
+        if (el.webkitRequestFullscreen) return el.webkitRequestFullscreen()
+    }
+
+    async function exitFullscreen() {
+        if (document.exitFullscreen) return document.exitFullscreen()
+        if (document.webkitExitFullscreen) return document.webkitExitFullscreen()
+    }
+
+    if (fullscreenBtn && previewContainer) {
+        fullscreenBtn.addEventListener('click', async () => {
+            if (isFullscreenActive()) {
+                await exitFullscreen()
+                return
+            }
+            await requestFullscreen(previewContainer)
+        })
+
+        document.addEventListener('fullscreenchange', updateFullscreenButtonLabel)
+        document.addEventListener('webkitfullscreenchange', updateFullscreenButtonLabel)
+        updateFullscreenButtonLabel()
+    }
 
     // Refresh CodeMirror when tab becomes visible
     function refreshActiveEditor(targetId) {
         setTimeout(() => {
-            if (targetId === 'html') cmHtml.refresh();
-            if (targetId === 'css') cmCss.refresh();
-            if (targetId === 'js') cmJs.refresh();
-        }, 10);
+            if (targetId === 'html') cmHtml.refresh()
+            if (targetId === 'css') cmCss.refresh()
+            if (targetId === 'js') cmJs.refresh()
+        }, 10)
     }
 
     function updatePreview() {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '/api/render';
-        form.target = 'preview-frame';
-        form.style.display = 'none';
+        const form = document.createElement('form')
+        form.method = 'POST'
+        form.action = '/api/render'
+        form.target = 'preview-frame'
+        form.style.display = 'none'
 
-        const html = document.getElementById('html').value;
-        const css = document.getElementById('css').value;
-        const js = document.getElementById('js').value;
+        const html = document.getElementById('html').value
+        const css = document.getElementById('css').value
+        const js = document.getElementById('js').value
 
         const mockStorageScript = `
             (function () {
@@ -402,102 +483,114 @@ h1 &#123;
                 window.addEventListener('pointerdown', resumeAll, { once: true, capture: true });
                 window.addEventListener('keydown', resumeAll, { once: true, capture: true });
             })();
-        `;
+        `
 
-        const storageShim = `<script>${mockStorageScript}<\/script>`;
-        const htmlWithShim = storageShim + html;
+        const storageShim = `<script>${mockStorageScript}<\/script>`
+        const htmlWithShim = storageShim + html
 
-        const inputHtml = document.createElement('input');
-        inputHtml.type = 'hidden';
-        inputHtml.name = 'html';
-        inputHtml.value = htmlWithShim;
+        const inputHtml = document.createElement('input')
+        inputHtml.type = 'hidden'
+        inputHtml.name = 'html'
+        inputHtml.value = htmlWithShim
 
-        const inputCss = document.createElement('input');
-        inputCss.type = 'hidden';
-        inputCss.name = 'css';
-        inputCss.value = css;
+        const inputCss = document.createElement('input')
+        inputCss.type = 'hidden'
+        inputCss.name = 'css'
+        inputCss.value = css
 
-        const inputJs = document.createElement('input');
-        inputJs.type = 'hidden';
-        inputJs.name = 'js';
-        inputJs.value = js;
+        const inputJs = document.createElement('input')
+        inputJs.type = 'hidden'
+        inputJs.name = 'js'
+        inputJs.value = js
 
-        form.appendChild(inputHtml);
-        form.appendChild(inputCss);
-        form.appendChild(inputJs);
+        form.appendChild(inputHtml)
+        form.appendChild(inputCss)
+        form.appendChild(inputJs)
 
-        document.body.appendChild(form);
-        form.submit();
-        document.body.removeChild(form);
+        document.body.appendChild(form)
+        form.submit()
+        document.body.removeChild(form)
     }
 
-    document.getElementById('runBtn').addEventListener('click', updatePreview);
+    document.getElementById('runBtn').addEventListener('click', updatePreview)
 
-    document.querySelectorAll('.tab').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('.tab').forEach(function(b) { b.classList.remove('active'); });
-            document.querySelectorAll('.tab-pane').forEach(function(p) { p.classList.remove('active'); });
-            btn.classList.add('active');
-            const target = btn.getAttribute('data-target');
-            document.getElementById(target).classList.add('active');
-            refreshActiveEditor(target);
-        });
-    });
+    document.querySelectorAll('.tab').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('.tab').forEach(function (b) {
+                b.classList.remove('active')
+            })
+            document.querySelectorAll('.tab-pane').forEach(function (p) {
+                p.classList.remove('active')
+            })
+            btn.classList.add('active')
+            const target = btn.getAttribute('data-target')
+            document.getElementById(target).classList.add('active')
+            refreshActiveEditor(target)
+        })
+    })
 
     // --- Thêm chức năng cho các nút Format, Reset, Clear ---
     const defaultContents = {
         html: htmlEditor.value,
         css: cssEditor.value,
-        js: jsEditor.value
-    };
+        js: jsEditor.value,
+    }
 
     function getActiveEditorData() {
-        const activeTab = document.querySelector('.tab.active');
-        const target = activeTab ? activeTab.getAttribute('data-target') : 'html';
-        const cm = target === 'css' ? cmCss : (target === 'js' ? cmJs : cmHtml);
-        return { target, cm };
+        const activeTab = document.querySelector('.tab.active')
+        const target = activeTab ? activeTab.getAttribute('data-target') : 'html'
+        const cm = target === 'css' ? cmCss : target === 'js' ? cmJs : cmHtml
+        return { target, cm }
     }
 
     document.getElementById('formatBtn').addEventListener('click', () => {
-        const { cm } = getActiveEditorData();
-        const totalLines = cm.lineCount();
+        const { cm } = getActiveEditorData()
+        const totalLines = cm.lineCount()
         for (let i = 0; i < totalLines; i++) {
-            cm.indentLine(i, "smart");
+            cm.indentLine(i, 'smart')
         }
-    });
+    })
 
     // Logic Custom Modal
-    let confirmActionCallback = null;
+    let confirmActionCallback = null
 
     function showConfirm(title, message, callback) {
-        document.getElementById('modalTitle').textContent = title;
-        document.getElementById('modalMessage').textContent = message;
-        document.getElementById('customConfirm').classList.add('show');
-        confirmActionCallback = callback;
+        document.getElementById('modalTitle').textContent = title
+        document.getElementById('modalMessage').textContent = message
+        document.getElementById('customConfirm').classList.add('show')
+        confirmActionCallback = callback
     }
 
     function closeConfirm() {
-        document.getElementById('customConfirm').classList.remove('show');
-        confirmActionCallback = null;
+        document.getElementById('customConfirm').classList.remove('show')
+        confirmActionCallback = null
     }
 
-    document.getElementById('modalCancelBtn').addEventListener('click', closeConfirm);
+    document.getElementById('modalCancelBtn').addEventListener('click', closeConfirm)
     document.getElementById('modalConfirmBtn').addEventListener('click', () => {
-        if (confirmActionCallback) confirmActionCallback();
-        closeConfirm();
-    });
+        if (confirmActionCallback) confirmActionCallback()
+        closeConfirm()
+    })
 
     document.getElementById('resetBtn').addEventListener('click', () => {
-        showConfirm('Khôi phục mặc định', 'Bạn có chắc chắn muốn khôi phục mã mặc định cho file này? Toàn bộ thay đổi hiện tại sẽ bị mất.', () => {
-            const { target, cm } = getActiveEditorData();
-            cm.setValue(defaultContents[target]);
-        });
-    });
+        showConfirm(
+            'Khôi phục mặc định',
+            'Bạn có chắc chắn muốn khôi phục mã mặc định cho file này? Toàn bộ thay đổi hiện tại sẽ bị mất.',
+            () => {
+                const { target, cm } = getActiveEditorData()
+                cm.setValue(defaultContents[target])
+            },
+        )
+    })
 
     document.getElementById('clearBtn').addEventListener('click', () => {
-        showConfirm('Xoá toàn bộ mã', 'Bạn có chắc chắn muốn xoá trắng toàn bộ mã trong file này? Hành động này không thể hoàn tác.', () => {
-            const { cm } = getActiveEditorData();
-            cm.setValue('');
-        });
-    });
+        showConfirm(
+            'Xoá toàn bộ mã',
+            'Bạn có chắc chắn muốn xoá trắng toàn bộ mã trong file này? Hành động này không thể hoàn tác.',
+            () => {
+                const { cm } = getActiveEditorData()
+                cm.setValue('')
+            },
+        )
+    })
 </script>
