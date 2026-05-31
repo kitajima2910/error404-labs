@@ -273,6 +273,27 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                         </svg>
                         CRUD Prompts
                     </a>
+                    <a
+                        href="#"
+                        id="navAttendance"
+                        class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="h-5 w-5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                            ></path>
+                        </svg>
+                        Điểm danh
+                    </a>
                 </nav>
 
                 <!-- User Card -->
@@ -877,7 +898,72 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
             </main>
         </div>
 
-        <!-- Modal Form -->
+        
+                    <!-- Attendance View -->
+                    <div id="attendanceView" class="view-section hidden">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                            <h2 class="text-2xl font-bold text-slate-800">Điểm danh học sinh</h2>
+                            <div class="flex items-center gap-3">
+                                <select id="attendanceMonth"
+                                    class="px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none bg-white">
+                                </select>
+                                <select id="attendanceYear"
+                                    class="px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none bg-white">
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Filter by student -->
+                        <div class="mb-4 flex flex-wrap gap-2">
+                            <select id="attendanceStudentFilter"
+                                class="px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
+                                <option value="">Tất cả học sinh</option>
+                            </select>
+                            <button id="attendanceCheckInBtn"
+                                class="px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white font-medium transition-colors">
+                                + Điểm danh hôm nay
+                            </button>
+                        </div>
+
+                        <!-- Stats summary -->
+                        <div id="attendanceStats" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                            <div class="bg-white rounded-xl border border-slate-200 p-4">
+                                <p class="text-sm text-slate-500">Tổng buổi</p>
+                                <p id="attTotalSessions" class="text-2xl font-bold text-slate-800">0</p>
+                            </div>
+                            <div class="bg-white rounded-xl border border-slate-200 p-4">
+                                <p class="text-sm text-slate-500">Đã điểm danh</p>
+                                <p id="attTotalPresent" class="text-2xl font-bold text-green-600">0</p>
+                            </div>
+                            <div class="bg-white rounded-xl border border-slate-200 p-4">
+                                <p class="text-sm text-slate-500">Vắng</p>
+                                <p id="attTotalAbsent" class="text-2xl font-bold text-red-500">0</p>
+                            </div>
+                            <div class="bg-white rounded-xl border border-slate-200 p-4">
+                                <p class="text-sm text-slate-500">Tỉ lệ chuyên cần</p>
+                                <p id="attTotalRate" class="text-2xl font-bold text-indigo-600">0%</p>
+                            </div>
+                        </div>
+
+                        <!-- Attendance table -->
+                        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm">
+                                    <thead>
+                                        <tr class="bg-slate-50 border-b border-slate-200">
+                                            <th class="text-left px-4 py-3 font-medium text-slate-700">Học sinh</th>
+                                            <th class="text-center px-2 py-3 font-medium text-slate-700 w-10" colspan="31">Ngày trong tháng</th>
+                                            <th class="text-center px-4 py-3 font-medium text-slate-700 w-16">Số buổi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="attendanceTableBody">
+                                        <tr><td colspan="33" class="text-center px-4 py-8 text-slate-400">Đang tải...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+<!-- Modal Form -->
         <div
             id="memberModal"
             class="fixed inset-0 z-[150] hidden items-center justify-center bg-black/50 p-4 transition-opacity"
@@ -1799,6 +1885,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 vibeToolsView.classList.add('hidden')
                 roadmapView.classList.add('hidden')
                 crudPromptsView.classList.add('hidden')
+                attendanceView.classList.add('hidden')
 
                 // Reset all nav items
                 ;[
@@ -1807,6 +1894,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                     navVibeTools,
                     navRoadmap,
                     navCrudPrompts,
+                    navAttendance,
                 ].forEach((nav) => {
                     if (nav) {
                         nav.classList.remove('bg-indigo-50', 'text-indigo-700', 'font-medium')
@@ -1839,6 +1927,11 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                     navCrudPrompts.classList.add('bg-indigo-50', 'text-indigo-700', 'font-medium')
                     navCrudPrompts.classList.remove('text-slate-600')
                     fetchRoadmapGames()
+                } else if (viewName === 'attendance') {
+                    attendanceView.classList.remove('hidden')
+                    navAttendance.classList.add('bg-indigo-50', 'text-indigo-700', 'font-medium')
+                    navAttendance.classList.remove('text-slate-600')
+                    fetchAttendanceSummary()
                 }
             }
 
@@ -1866,7 +1959,96 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 switchView('crud-prompts')
             })
 
-            async function fetchMembers() {
+            navAttendance.addEventListener('click', (e) => {
+                e.preventDefault()
+                switchView('attendance')
+            })
+
+            
+
+                // Populate attendance student filter
+                async function loadAttendanceStudents() {
+                    const token = localStorage.getItem('admin_token');
+                    try {
+                        const res = await fetch('/api/admin/members?role=member&limit=200', {
+                            headers: { Authorization: `Bearer ${token}` }
+                        });
+                        const data = await res.json();
+                        const select = document.getElementById('attendanceStudentFilter');
+                        if (select && data.members) {
+                            data.members.forEach((m) => {
+                                const opt = document.createElement('option');
+                                opt.value = m.id;
+                                opt.textContent = m.display_name || m.member;
+                                select.appendChild(opt);
+                            });
+                        }
+                    } catch (err) {
+                        console.error('Load students error:', err);
+                    }
+                }
+
+                async function fetchAttendanceSummary() {
+                    const month = document.getElementById('attendanceMonth').value || new Date().getMonth() + 1;
+                    const year = document.getElementById('attendanceYear').value || new Date().getFullYear();
+                    const filterStudentId = document.getElementById('attendanceStudentFilter').value;
+                    const tbody = document.getElementById('attendanceTableBody');
+                    const token = localStorage.getItem('admin_token');
+
+                    try {
+                        let url = `/api/admin/attendance?summary=true&year=${year}&month=${month}`;
+                        if (filterStudentId) url += `&member_id=${filterStudentId}`;
+
+                        const res = await fetch(url, {
+                            headers: { Authorization: `Bearer ${token}` }
+                        });
+                        const data = await res.json();
+
+                        if (data.attendance) {
+                            const daysInMonth = new Date(year, month, 0).getDate();
+                            let totalSessions = 0;
+                            let totalPresent = 0;
+                            let numberOfCheckedInStudents = 0;
+
+                            let html = '';
+                            data.attendance.forEach((student) => {
+                                const days = student.total_days || 0;
+                                if (days > 0) numberOfCheckedInStudents++;
+                                totalSessions += daysInMonth;
+                                totalPresent += days;
+
+                                html += `<tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">`;
+                                html += `<td class="px-4 py-2.5 font-medium text-slate-800">${student.display_name || student.member}</td>`;
+                                                                const dates = student.dates || [];
+                                for (let d = 1; d <= daysInMonth; d++) {
+                                    const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                                    const checkedIn = dates.includes(dateStr);
+                                    html += `<td class="text-center px-1 py-2.5 text-xs" title="${dateStr}">${checkedIn ? '✅' : '—'}</td>`;
+                                }
+                                const rate = daysInMonth > 0 ? Math.round((days / daysInMonth) * 100) : 0;
+                                html += `<td class="text-center px-4 py-2.5 font-bold text-indigo-600">${days}/${daysInMonth} (${rate}%)</td>`;
+                                html += `</tr>`;
+                            });
+
+                            tbody.innerHTML = html || `<tr><td colspan="33" class="text-center px-4 py-8 text-slate-400">Không có dữ liệu</td></tr>`;
+
+                            // Update stats
+                            const studentCount = data.attendance.length || 1;
+                            const avgPresent = Math.round(totalPresent / studentCount);
+                            const avgAbsent = daysInMonth - avgPresent;
+                            const rate = daysInMonth > 0 ? Math.round((avgPresent / daysInMonth) * 100) : 0;
+
+                            document.getElementById('attTotalSessions').textContent = daysInMonth;
+                            document.getElementById('attTotalPresent').textContent = avgPresent;
+                            document.getElementById('attTotalAbsent').textContent = avgAbsent;
+                            document.getElementById('attTotalRate').textContent = rate + '%';
+                        }
+                    } catch (err) {
+                        console.error('Attendance fetch error:', err);
+                        tbody.innerHTML = `<tr><td colspan="33" class="text-center px-4 py-8 text-red-400">Lỗi tải dữ liệu</td></tr>`;
+                    }
+                }
+async function fetchMembers() {
                 const offset = (currentPage - 1) * limit
                 try {
                     const url = `/api/admin/members?search=${encodeURIComponent(search)}&role=${roleFilter}&status=${statusFilter}&sortBy=${sortBy}&sortOrder=${sortOrder}&limit=${limit}&offset=${offset}`

@@ -1,23 +1,26 @@
 # STATUS
 
 ## Current Task
-Hoàn thành kết nối Neon MCP
+Thêm tính năng Điểm danh học sinh vào trang quản lý
 
 ## Current Focus
 -
 
 ## Completed
-- Chạy npx neonctl@latest init - xác thực OAuth thành công
-- Cập nhật .agent/mcp.json với Bearer token
-- Thêm .agent/mcp.json vào .gitignore (bảo mật token)
+- Tạo migration 007_create_attendance_table.sql (bảng attendance với FK, UNIQUE, indexes)
+- Tạo API endpoint /api/admin/attendance.ts (GET summary/member/today, POST check-in, DELETE)
+- Thêm nav item 'Điểm danh' vào sidebar quan-ly.astro
+- Thêm attendance view section (stats cards, month/year filter, student filter, per-day table, check-in button)
+- Cập nhật switchView JS xử lý attendance case
+- Chạy migration thành công qua Neon
 
 ## Modified Files
-- .agent/mcp.json (thêm Authorization header)
-- .gitignore (thêm .agent/mcp.json)
+- migrations/007_create_attendance_table.sql (new)
+- src/pages/api/admin/attendance.ts (new)
+- src/pages/quan-ly.astro (nav item, view section, JS functions)
 
 ## Known Issues
 - Access token từ OAuth có thời hạn, cần refresh định kỳ
-- Nên tạo Neon API key (long-lived) để thay thế
 
 ## Next Step
 -
