@@ -1968,7 +1968,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
 
                 // Populate attendance student filter
                 async function loadAttendanceStudents() {
-                    const token = localStorage.getItem('admin_token');
+                    const token = localStorage.getItem('auth_token');
                     try {
                         const res = await fetch('/api/admin/members?role=member&limit=200', {
                             headers: { Authorization: `Bearer ${token}` }
@@ -1993,7 +1993,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                     const year = document.getElementById('attendanceYear').value || new Date().getFullYear();
                     const filterStudentId = document.getElementById('attendanceStudentFilter').value;
                     const tbody = document.getElementById('attendanceTableBody');
-                    const token = localStorage.getItem('admin_token');
+                    const token = localStorage.getItem('auth_token');
 
                     try {
                         let url = `/api/admin/attendance?summary=true&year=${year}&month=${month}`;
