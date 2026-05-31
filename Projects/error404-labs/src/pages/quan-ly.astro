@@ -1936,6 +1936,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
             const navVibeTools = document.getElementById('navVibeTools')
             const navRoadmap = document.getElementById('navRoadmap')
             const navCrudPrompts = document.getElementById('navCrudPrompts')
+            const navAttendance = document.getElementById('navAttendance')
             const accountsView = document.getElementById('accountsView')
             const lessonsView = document.getElementById('lessonsView')
             const vibeToolsView = document.getElementById('vibeToolsView')
@@ -2099,7 +2100,18 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                     }
                 })
 
-            // Show inline notification\n            function showNotification(msg, type) {\n                const notif = document.getElementById('attNotification');\n                if (!notif) return;\n                const colors = { info: 'bg-blue-50 text-blue-700 border-blue-200', success: 'bg-emerald-50 text-emerald-700 border-emerald-200', warning: 'bg-amber-50 text-amber-700 border-amber-200', error: 'bg-red-50 text-red-700 border-red-200' };\n                const icons = { info: '\u2139\ufe0f', success: '\u2705', warning: '\u26a0\ufe0f', error: '\u274c' };\n                notif.innerHTML = `<span class=\"text-base\">${icons[type] || ''}</span><span>${msg}</span>`;\n                notif.className = 'flex items-center gap-2 px-4 py-3 rounded-xl border text-sm font-medium ' + (colors[type] || colors.info);\n                notif.classList.remove('hidden');\n                setTimeout(() => notif.classList.add('hidden'), 4000);\n            }\n\n            // Init attendance controls
+            function showNotification(msg, type) {
+                const notif = document.getElementById('attNotification');
+                if (!notif) return;
+                const colors = { info: 'bg-blue-50 text-blue-700 border-blue-200', success: 'bg-emerald-50 text-emerald-700 border-emerald-200', warning: 'bg-amber-50 text-amber-700 border-amber-200', error: 'bg-red-50 text-red-700 border-red-200' };
+                const icons = { info: '\u2139\ufe0f', success: '\u2705', warning: '\u26a0\ufe0f', error: '\u274c' };
+                notif.innerHTML = `<span class="text-base">${icons[type] || ''}</span><span>${msg}</span>`;
+                notif.className = 'flex items-center gap-2 px-4 py-3 rounded-xl border text-sm font-medium ' + (colors[type] || colors.info);
+                notif.classList.remove('hidden');
+                setTimeout(() => notif.classList.add('hidden'), 4000);
+            }
+
+            // Init attendance controls
 
             (function initAttendance() {
 
