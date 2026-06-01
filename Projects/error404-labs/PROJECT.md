@@ -1,7 +1,7 @@
 # PROJECT
 
 ## Goal
--
+- 
 
 ## Stack
 - Web:
@@ -11,13 +11,13 @@
 - Tools:
 
 ## Current Architecture
--
+- 
 
 ## Active Decisions
--
+- 
 
 ## Constraints
--
+- 
 
 ## Stable Core
--
+- 

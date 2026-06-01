@@ -227,11 +227,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 background: #dcfce7;
                 color: #16a34a;
             }
-            #attendanceView .checkmark.absent {
-                background: #fef2f2;
-                color: #dc2626;
-                font-size: 11px;
-            }
+
             #attendanceView .checkmark:hover {
                 transform: scale(1.15);
             }
@@ -2483,7 +2479,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
 
                                     const memberId = student.id;
                                     html += `<td class="${tdClass} day-cell" title="${dateStr}" style="cursor:pointer;" onclick="toggleAttendance(${memberId}, '${dateStr}', ${checkedIn})">
-                                        <span class="checkmark ${checkedIn ? 'present' : 'absent'}">${checkedIn ? '✓' : '✕'}</span>
+                                        ${checkedIn ? '<span class="checkmark present">✓</span>' : ''}
                                     </td>`;
                                 }
                                 const rate = daysInMonth > 0 ? Math.round((days / daysInMonth) * 100) : 0;

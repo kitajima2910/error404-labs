@@ -1,6 +1,13 @@
-# Web App Skill
+---
+name: web-app
+description: >-
+    Web app skill for React, Next.js, Vite, and Vue with small components and minimal dependencies.
+---
 
-- React / Vite / Astro / Svelte / HTML / CSS / JS / Tailwind
-- Small components
-- Separate UI / state / service
+        # Web App Skill
+
+- Use React / Next.js / Vite / Vue as needed
+- Keep components small
+- Separate UI, state, and service
 - Avoid extra dependencies
+- Keep APIs simple
