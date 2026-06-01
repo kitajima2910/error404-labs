@@ -74,7 +74,11 @@ export const GET: APIRoute = async ({ request, url }) => {
                     COALESCE(
                         array_agg(a.check_in_date ORDER BY a.check_in_date) FILTER (WHERE a.id IS NOT NULL),
                         ARRAY[]::date[]
-                    ) as dates
+                    ) as dates,
+                    COALESCE(
+                        array_agg(a.id ORDER BY a.check_in_date) FILTER (WHERE a.id IS NOT NULL),
+                        ARRAY[]::int[]
+                    ) as attendance_ids
                 FROM error404labs.members m
                 LEFT JOIN error404labs.attendance a ON a.member_id = m.id
                     AND a.check_in_date >= ${firstDay}::date
@@ -84,7 +88,10 @@ export const GET: APIRoute = async ({ request, url }) => {
                 ORDER BY m.display_name ASC
             `
 
-            return new Response(JSON.stringify({ attendance: attendanceSummary }), { status: 200 })
+            return new Response(JSON.stringify({ attendance: attendanceSummary }), {
+                status: 200,
+                headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate' },
+            })
         }
 
         if (memberId) {
@@ -148,12 +155,14 @@ export const POST: APIRoute = async ({ request }) => {
             return new Response(JSON.stringify({ error: 'Học viên đã được điểm danh ngày này' }), { status: 409 })
         }
 
-        await sql`
+        const inserted = await sql`
             INSERT INTO error404labs.attendance (member_id, check_in_date, check_in_time)
             VALUES (${member_id}, ${dateStr === 'CURRENT_DATE' ? sql`CURRENT_DATE` : dateStr}::date, ${timeStr === 'CURRENT_TIME' ? sql`CURRENT_TIME` : timeStr}::time)
+            RETURNING id
         `
 
-        return new Response(JSON.stringify({ success: true }), { status: 201 })
+        const newId = inserted && inserted.length > 0 ? inserted[0].id : null
+        return new Response(JSON.stringify({ success: true, id: newId }), { status: 201 })
     } catch (error) {
         console.error('Attendance Check-in Error:', error)
         return new Response(JSON.stringify({ error: 'Database error' }), { status: 500 })
@@ -169,15 +178,28 @@ export const DELETE: APIRoute = async ({ request }) => {
     }
 
     try {
-        const { member_id, check_in_date } = await request.json()
+        const { member_id, check_in_date, attendance_id } = await request.json()
         if (!member_id || !check_in_date) {
             return new Response(JSON.stringify({ error: 'Missing member_id or check_in_date' }), { status: 400 })
         }
 
-        await sql`
-            DELETE FROM error404labs.attendance
-            WHERE member_id = ${member_id} AND check_in_date = ${check_in_date}::date
-        `
+        let result
+        if (attendance_id) {
+            result = await sql`
+                DELETE FROM error404labs.attendance
+                WHERE id = ${attendance_id}
+                RETURNING id
+            `
+        } else {
+            result = await sql`
+                DELETE FROM error404labs.attendance
+                WHERE member_id = ${member_id} AND check_in_date = ${check_in_date}::date
+                RETURNING id
+            `
+        }
+        if (!result || result.length === 0) {
+            return new Response(JSON.stringify({ error: 'Không tìm thấy bản ghi điểm danh để xóa' }), { status: 404 })
+        }
         return new Response(JSON.stringify({ success: true }), { status: 200 })
     } catch (error) {
         console.error('Attendance Delete Error:', error)

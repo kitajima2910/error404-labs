@@ -2669,6 +2669,20 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
 
                 if (attStudentFilter) attStudentFilter.addEventListener('change', fetchAttendanceSummary)
 
+                // Event delegation for attendance toggle clicks
+                const attTableBody = document.getElementById('attendanceTableBody')
+                if (attTableBody) {
+                    attTableBody.addEventListener('click', function(e) {
+                        const toggle = e.target.closest('.att-toggle')
+                        if (!toggle || toggle.classList.contains('att-toggle--empty')) return
+                        const memberId = parseInt(toggle.dataset.member)
+                        const dateStr = toggle.dataset.date
+                        if (memberId && dateStr) {
+                            toggleCellAttendance(memberId, dateStr, toggle)
+                        }
+                    })
+                }
+
                 if (attCheckInBtn) {
                     attCheckInBtn.addEventListener('click', async () => {
                         const memberId = attStudentFilter ? attStudentFilter.value : ''
@@ -2829,10 +2843,13 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                             html += `<tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">`
                             html += `<td class="px-4 py-2.5 font-medium text-slate-800">${student.display_name || student.member}</td>`
                             const dates = (student.dates || []).map(normalizeAttendanceDate).filter(Boolean)
+                            const attIds = student.attendance_ids || []
                             for (let d = 1; d <= 31; d++) {
                                 if (d <= daysInMonth) {
                                     const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`
                                     const checkedIn = dates.includes(dateStr)
+                                    const dateIdx = dates.indexOf(dateStr)
+                                    const attId = dateIdx >= 0 && dateIdx < attIds.length ? attIds[dateIdx] : ''
 
                                     const dayDate = new Date(year, month - 1, d)
 
@@ -2850,7 +2867,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
 
                                     const memberId = student.id
                                     html += `<td class="${tdClass}" title="${dateStr}">
-                                        <span class="att-toggle" data-member="${memberId}" data-date="${dateStr}" data-checked="${checkedIn}" onclick="toggleCellAttendance(${memberId}, '${dateStr}', this)">${checkedIn ? '✓' : ''}</span>
+                                        <span class="att-toggle" data-member="${memberId}" data-date="${dateStr}" data-att-id="${attId}" data-checked="${checkedIn}">${checkedIn ? '✓' : ''}</span>
                                     </td>`
                                 } else {
                                     html += `<td class="att-cell att-empty"><span class="att-toggle att-toggle--empty" data-checked="false" aria-hidden="true"></span></td>`
@@ -2952,12 +2969,18 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
 
                 try {
                     if (!nextPresent) {
+                        const attId = parseInt(el.dataset.attId) || null
                         const res = await fetch('/api/admin/attendance', {
                             method: 'DELETE',
                             headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-                            body: JSON.stringify({ member_id: memberId, check_in_date: dateStr }),
+                            body: JSON.stringify({
+                                attendance_id: attId,
+                                member_id: memberId,
+                                check_in_date: dateStr,
+                            }),
                         })
                         if (res.ok) {
+                            el.dataset.attId = ''
                             showNotification('Đã bỏ điểm danh ngày ' + dateStr, 'info')
                         } else if (res.status === 404) {
                             showNotification('Ngày ' + dateStr + ' chưa có điểm danh. Đã đồng bộ lại.', 'info')
@@ -2978,6 +3001,8 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                             }),
                         })
                         if (res.ok) {
+                            const body = await res.json()
+                            if (body && body.id) el.dataset.attId = body.id
                             showNotification('Đã điểm danh ngày ' + dateStr, 'success')
                         } else if (res.status === 409) {
                             showNotification(
