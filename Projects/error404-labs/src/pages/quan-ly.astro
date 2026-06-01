@@ -2459,30 +2459,34 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                 html += `<tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">`;
                                 html += `<td class="px-4 py-2.5 font-medium text-slate-800">${student.display_name || student.member}</td>`;
                                                                 const dates = (student.dates || []).map(d => typeof d === "string" ? d.substring(0, 10) : d);
-                                for (let d = 1; d <= daysInMonth; d++) {
-                                    const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-                                    const checkedIn = dates.includes(dateStr);
-                                    
-                                    const dayDate = new Date(year, month - 1, d);
+                                for (let d = 1; d <= 31; d++) {
+                                                                    if (d <= daysInMonth) {
+                                                                        const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                                                                        const checkedIn = dates.includes(dateStr);
+                                                                        
+                                                                        const dayDate = new Date(year, month - 1, d);
 
-                                    const dayOfWeek = dayDate.getDay();
+                                                                        const dayOfWeek = dayDate.getDay();
 
-                                    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+                                                                        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
 
-                                    const isToday = dayDate.toDateString() === new Date().toDateString();
+                                                                        const isToday = dayDate.toDateString() === new Date().toDateString();
 
-                                    let tdClass = 'text-center';
+                                                                        let tdClass = 'text-center';
 
-                                    if (isWeekend) tdClass += ' weekend-col';
+                                                                        if (isWeekend) tdClass += ' weekend-col';
 
-                                    if (isToday) tdClass += ' today-col';
+                                                                        if (isToday) tdClass += ' today-col';
 
-                                    const memberId = student.id;
-                                    html += `<td class="${tdClass} day-cell" title="${dateStr}" style="cursor:pointer;" onclick="toggleAttendance(${memberId}, '${dateStr}', ${checkedIn})">
-                                        ${checkedIn ? '<span class="checkmark present">✓</span>' : ''}
-                                    </td>`;
-                                }
-                                const rate = daysInMonth > 0 ? Math.round((days / daysInMonth) * 100) : 0;
+                                                                        const memberId = student.id;
+                                                                        html += `<td class="${tdClass} day-cell" title="${dateStr}" style="cursor:pointer;" onclick="toggleAttendance(${memberId}, '${dateStr}', ${checkedIn})">
+                                                                            ${checkedIn ? '<span class="checkmark present">✓</span>' : ''}
+                                                                        </td>`;
+                                                                    } else {
+                                                                        html += `<td class="text-center"></td>`;
+                                                                    }
+                                                            }
+const rate = daysInMonth > 0 ? Math.round((days / daysInMonth) * 100) : 0;
                                 html += `<td class="text-center px-4 py-2.5 font-bold text-indigo-600">${days}/${daysInMonth} (${rate}%)</td>`;
                                 html += `</tr>`;
                             });
