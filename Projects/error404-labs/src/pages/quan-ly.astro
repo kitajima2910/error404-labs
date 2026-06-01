@@ -2885,18 +2885,73 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 }
             }
 
+            function recomputeAttendanceStatsFromDOM() {
+                const tbody = document.getElementById('attendanceTableBody')
+                if (!tbody) return
+
+                const month = Number(document.getElementById('attendanceMonth')?.value) || new Date().getMonth() + 1
+                const year = Number(document.getElementById('attendanceYear')?.value) || new Date().getFullYear()
+                const daysInMonth = new Date(year, month, 0).getDate()
+                const todayStr = new Date().toISOString().split('T')[0]
+
+                const rows = Array.from(tbody.querySelectorAll('tr')).filter((tr) =>
+                    tr.querySelector('.att-toggle[data-member][data-date]'),
+                )
+
+                let totalPresent = 0
+                let checkedInStudents = 0
+                let todayCount = 0
+
+                rows.forEach((tr) => {
+                    const toggles = Array.from(tr.querySelectorAll('.att-toggle[data-member][data-date]')).slice(
+                        0,
+                        daysInMonth,
+                    )
+                    const presentDays = toggles.reduce((acc, t) => acc + (t.dataset.checked === 'true' ? 1 : 0), 0)
+
+                    totalPresent += presentDays
+                    if (presentDays > 0) checkedInStudents++
+
+                    const todayToggle = toggles.find((t) => t.dataset.date === todayStr)
+                    if (todayToggle?.dataset.checked === 'true') todayCount++
+
+                    const tds = tr.querySelectorAll('td')
+                    const summaryCell = tds[tds.length - 1]
+                    if (summaryCell) {
+                        const rate = daysInMonth > 0 ? Math.round((presentDays / daysInMonth) * 100) : 0
+                        summaryCell.textContent = `${presentDays}/${daysInMonth} (${rate}%)`
+                    }
+                })
+
+                const totalStudentsEl = document.getElementById('attTotalStudents')
+                const todayCountEl = document.getElementById('attTodayCount')
+                const totalPresentEl = document.getElementById('attTotalPresent')
+                const checkedInStudentsEl = document.getElementById('attCheckedInStudents')
+
+                if (totalStudentsEl) totalStudentsEl.textContent = String(rows.length)
+                if (todayCountEl) todayCountEl.textContent = String(todayCount)
+                if (totalPresentEl) totalPresentEl.textContent = String(totalPresent)
+                if (checkedInStudentsEl) checkedInStudentsEl.textContent = String(checkedInStudents)
+            }
+
             async function toggleCellAttendance(memberId, dateStr, el) {
                 const token = localStorage.getItem('auth_token')
                 if (!el) return
+                if (el.classList.contains('att-toggle--empty')) return
                 if (el.dataset.busy === '1') return
+
+                const wasPresent = el.dataset.checked === 'true'
+                const nextPresent = !wasPresent
+                el.dataset.checked = nextPresent ? 'true' : 'false'
+                el.textContent = nextPresent ? '✓' : ''
+                recomputeAttendanceStatsFromDOM()
 
                 el.dataset.busy = '1'
                 el.style.opacity = '0.5'
                 el.style.pointerEvents = 'none'
 
                 try {
-                    const isPresent = el.dataset.checked === 'true'
-                    if (isPresent) {
+                    if (!nextPresent) {
                         const res = await fetch('/api/admin/attendance', {
                             method: 'DELETE',
                             headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
@@ -2904,11 +2959,13 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                         })
                         if (res.ok) {
                             showNotification('Đã bỏ điểm danh ngày ' + dateStr, 'info')
-                            fetchAttendanceSummary()
+                        } else if (res.status === 404) {
+                            showNotification('Ngày ' + dateStr + ' chưa có điểm danh. Đã đồng bộ lại.', 'info')
                         } else {
                             showNotification('Lỗi khi bỏ điểm danh', 'error')
-                            el.style.opacity = ''
-                            el.style.pointerEvents = ''
+                            el.dataset.checked = wasPresent ? 'true' : 'false'
+                            el.textContent = wasPresent ? '✓' : ''
+                            recomputeAttendanceStatsFromDOM()
                         }
                     } else {
                         const res = await fetch('/api/admin/attendance', {
@@ -2922,7 +2979,6 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                         })
                         if (res.ok) {
                             showNotification('Đã điểm danh ngày ' + dateStr, 'success')
-                            fetchAttendanceSummary()
                         } else if (res.status === 409) {
                             showNotification(
                                 'Ngày ' + dateStr + ' đã có điểm danh. Đang đồng bộ lại dữ liệu...',
@@ -2930,18 +2986,20 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                             )
                             el.dataset.checked = 'true'
                             el.textContent = '✓'
-                            fetchAttendanceSummary()
+                            recomputeAttendanceStatsFromDOM()
                         } else {
                             showNotification('Lỗi khi điểm danh', 'error')
-                            el.style.opacity = ''
-                            el.style.pointerEvents = ''
+                            el.dataset.checked = wasPresent ? 'true' : 'false'
+                            el.textContent = wasPresent ? '✓' : ''
+                            recomputeAttendanceStatsFromDOM()
                         }
                     }
                 } catch (err) {
                     console.error('Toggle attendance error:', err)
                     showNotification('Lỗi kết nối khi cập nhật điểm danh', 'error')
-                    el.style.opacity = ''
-                    el.style.pointerEvents = ''
+                    el.dataset.checked = wasPresent ? 'true' : 'false'
+                    el.textContent = wasPresent ? '✓' : ''
+                    recomputeAttendanceStatsFromDOM()
                 } finally {
                     el.dataset.busy = '0'
                     el.style.opacity = ''
