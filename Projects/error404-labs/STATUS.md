@@ -23,7 +23,10 @@ Thêm tính năng Điểm danh học sinh vào trang quản lý
 - Access token từ OAuth có thời hạn, cần refresh định kỳ
 
 ## Fixed
-- [2026-06-01] Fix lỗi options filter học sinh bị lặp tên trong view attendance: thêm `while (select.options.length > 1) { select.remove(1) }` trước khi append options mới trong `loadAttendanceStudents()`
+- [2026-06-01] Fix lỗi options filter học sinh bị lặp tên trong view attendance
+- [2026-06-01] Thêm inline toggle attendance: click vào ô ngày để thêm/xóa điểm danh trực tiếp
+- [2026-06-01] Thay stat 'Tỉ lệ chuyên cần' bằng 'Tổng học sinh' + 'Đã điểm danh hôm nay' + 'Tổng lượt tháng' + 'Đã điểm danh'
+- [2026-06-01] Sửa API attendance: POST nhận custom check_in_date, DELETE nhận member_id + check_in_date
 
 ## Next Step
 -

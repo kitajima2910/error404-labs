@@ -122,6 +122,7 @@ export const GET: APIRoute = async ({ request, url }) => {
 }
 
 // POST: Check in a student (attendance)
+// Body: { member_id, check_in_date? (default: CURRENT_DATE), check_in_time? (default: CURRENT_TIME) }
 export const POST: APIRoute = async ({ request }) => {
     const admin = await checkAdmin(request)
     if (!admin) {
@@ -129,24 +130,27 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     try {
-        const { member_id } = await request.json()
+        const { member_id, check_in_date, check_in_time } = await request.json()
         if (!member_id) {
             return new Response(JSON.stringify({ error: 'Missing member_id' }), { status: 400 })
         }
 
-        // Check if already checked in today
+        const dateStr = check_in_date || 'CURRENT_DATE'
+        const timeStr = check_in_time || 'CURRENT_TIME'
+
+        // Check if already checked in on that date
         const existing = await sql`
             SELECT id FROM error404labs.attendance
-            WHERE member_id = ${member_id} AND check_in_date = CURRENT_DATE
+            WHERE member_id = ${member_id} AND check_in_date = ${dateStr === 'CURRENT_DATE' ? sql`CURRENT_DATE` : dateStr}::date
         `
 
         if (existing.length > 0) {
-            return new Response(JSON.stringify({ error: 'Học viên đã được điểm danh hôm nay' }), { status: 409 })
+            return new Response(JSON.stringify({ error: 'Học viên đã được điểm danh ngày này' }), { status: 409 })
         }
 
         await sql`
             INSERT INTO error404labs.attendance (member_id, check_in_date, check_in_time)
-            VALUES (${member_id}, CURRENT_DATE, CURRENT_TIME)
+            VALUES (${member_id}, ${dateStr === 'CURRENT_DATE' ? sql`CURRENT_DATE` : dateStr}::date, ${timeStr === 'CURRENT_TIME' ? sql`CURRENT_TIME` : timeStr}::time)
         `
 
         return new Response(JSON.stringify({ success: true }), { status: 201 })
@@ -157,6 +161,7 @@ export const POST: APIRoute = async ({ request }) => {
 }
 
 // DELETE: Remove an attendance record (admin only)
+// Body: { member_id, check_in_date } - deletes by member + date
 export const DELETE: APIRoute = async ({ request }) => {
     const admin = await checkAdmin(request)
     if (!admin) {
@@ -164,12 +169,15 @@ export const DELETE: APIRoute = async ({ request }) => {
     }
 
     try {
-        const { id } = await request.json()
-        if (!id) {
-            return new Response(JSON.stringify({ error: 'Missing id' }), { status: 400 })
+        const { member_id, check_in_date } = await request.json()
+        if (!member_id || !check_in_date) {
+            return new Response(JSON.stringify({ error: 'Missing member_id or check_in_date' }), { status: 400 })
         }
 
-        await sql`DELETE FROM error404labs.attendance WHERE id = ${id}`
+        await sql`
+            DELETE FROM error404labs.attendance
+            WHERE member_id = ${member_id} AND check_in_date = ${check_in_date}::date
+        `
         return new Response(JSON.stringify({ success: true }), { status: 200 })
     } catch (error) {
         console.error('Attendance Delete Error:', error)

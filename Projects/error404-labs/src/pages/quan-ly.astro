@@ -187,6 +187,20 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
             #attendanceView .attendance-table tbody tr:nth-child(even) td.today-col {
                 background: #eaf0ff;
             }
+
+            #attendanceView .attendance-table td.day-cell {
+                cursor: pointer;
+                transition: all 0.15s ease;
+            }
+            #attendanceView .attendance-table td.day-cell:hover {
+                background: #e0e8ff !important;
+                transform: scale(1.05);
+            }
+            #attendanceView .attendance-table td.day-cell:hover .checkmark {
+                transform: scale(1.2);
+                box-shadow: 0 0 0 2px rgba(99,102,241,0.3);
+            }
+            
             #attendanceView .attendance-table tr:hover td {
                 background: #f0f4ff;
             }
@@ -1139,12 +1153,12 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                 <div class="flex items-center gap-3 mb-2">
                                     <div class="att-icon-wrapper bg-indigo-50">
                                         <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                         </svg>
                                     </div>
                                     <div>
-                                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Tổng buổi</p>
-                                        <p id="attTotalSessions" class="stat-value text-2xl font-bold text-slate-800">0</p>
+                                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Tổng học sinh</p>
+                                        <p id="attTotalStudents" class="stat-value text-2xl font-bold text-slate-800">0</p>
                                     </div>
                                 </div>
                             </div>
@@ -1156,21 +1170,8 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                         </svg>
                                     </div>
                                     <div>
-                                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Đã điểm danh</p>
-                                        <p id="attTotalPresent" class="stat-value text-2xl font-bold text-emerald-600">0</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="att-stat-card bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm">
-                                <div class="flex items-center gap-3 mb-2">
-                                    <div class="att-icon-wrapper bg-red-50">
-                                        <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Vắng</p>
-                                        <p id="attTotalAbsent" class="stat-value text-2xl font-bold text-red-500">0</p>
+                                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Đã điểm danh hôm nay</p>
+                                        <p id="attTodayCount" class="stat-value text-2xl font-bold text-emerald-600">0</p>
                                     </div>
                                 </div>
                             </div>
@@ -1178,12 +1179,25 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                 <div class="flex items-center gap-3 mb-2">
                                     <div class="att-icon-wrapper bg-amber-50">
                                         <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Tổng lượt tháng</p>
+                                        <p id="attTotalPresent" class="stat-value text-2xl font-bold text-amber-600">0</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="att-stat-card bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="att-icon-wrapper bg-sky-50">
+                                        <svg class="w-5 h-5 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
                                         </svg>
                                     </div>
                                     <div>
-                                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Tỉ lệ chuyên cần</p>
-                                        <p id="attTotalRate" class="stat-value text-2xl font-bold text-amber-600">0%</p>
+                                        <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Đã điểm danh</p>
+                                        <p id="attCheckedInStudents" class="stat-value text-2xl font-bold text-sky-600">0</p>
                                     </div>
                                 </div>
                             </div>
@@ -2467,7 +2481,10 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
 
                                     if (isToday) tdClass += ' today-col';
 
-                                    html += `<td class="${tdClass}" title="${dateStr}"><span class="checkmark ${checkedIn ? 'present' : 'absent'}">${checkedIn ? '✓' : '✕'}</span></td>`;
+                                    const memberId = student.id;
+                                    html += `<td class="${tdClass} day-cell" title="${dateStr}" style="cursor:pointer;" onclick="toggleAttendance(${memberId}, '${dateStr}', ${checkedIn})">
+                                        <span class="checkmark ${checkedIn ? 'present' : 'absent'}">${checkedIn ? '✓' : '✕'}</span>
+                                    </td>`;
                                 }
                                 const rate = daysInMonth > 0 ? Math.round((days / daysInMonth) * 100) : 0;
                                 html += `<td class="text-center px-4 py-2.5 font-bold text-indigo-600">${days}/${daysInMonth} (${rate}%)</td>`;
@@ -2477,19 +2494,75 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                             tbody.innerHTML = html || `<tr><td colspan="33" class="text-center px-4 py-8 text-slate-400">Không có dữ liệu</td></tr>`;
 
                             // Update stats
-                            const studentCount = data.attendance.length || 1;
-                            const avgPresent = Math.round(totalPresent / studentCount);
-                            const avgAbsent = daysInMonth - avgPresent;
-                            const rate = daysInMonth > 0 ? Math.round((avgPresent / daysInMonth) * 100) : 0;
+                            // Update stats
+                            const todayStr = new Date().toISOString().split('T')[0];
+                            const todayCount = data.attendance.filter(s => s.dates && s.dates.includes(todayStr)).length;
 
-                            document.getElementById('attTotalSessions').textContent = daysInMonth;
-                            document.getElementById('attTotalPresent').textContent = avgPresent;
-                            document.getElementById('attTotalAbsent').textContent = avgAbsent;
-                            document.getElementById('attTotalRate').textContent = rate + '%';
+                            document.getElementById('attTotalStudents').textContent = data.attendance.length;
+                            document.getElementById('attTodayCount').textContent = todayCount;
+                            document.getElementById('attTotalPresent').textContent = totalPresent;
+                            document.getElementById('attCheckedInStudents').textContent = data.attendance.filter(s => s.total_days > 0).length;
                         }
                     } catch (err) {
                         console.error('Attendance fetch error:', err);
                         tbody.innerHTML = `<tr><td colspan="33" class="text-center px-4 py-8 text-red-400">Lỗi tải dữ liệu</td></tr>`;
+                    }
+                }
+
+                
+
+
+                                async function toggleAttendance(memberId, dateStr, isPresent) {
+                    const token = localStorage.getItem('auth_token');
+                    const btn = document.querySelector(`[onclick*="toggleAttendance(${memberId}, '${dateStr}'"] .checkmark`);
+                    if (btn) btn.classList.add('opacity-50');
+
+                    function notif(msg, type) {
+                        const n = document.getElementById('attNotification');
+                        if (!n) return;
+                        const cl = { info: 'bg-blue-50 text-blue-700 border-blue-200', success: 'bg-emerald-50 text-emerald-700 border-emerald-200', warning: 'bg-amber-50 text-amber-700 border-amber-200', error: 'bg-red-50 text-red-700 border-red-200' };
+                        const ic = { info: 'ℹ\ufe0f', success: '✅', warning: '⚠\ufe0f', error: '❌' };
+                        n.innerHTML = '<span class="text-base">' + (ic[type] || '') + '</span><span>' + msg + '</span>';
+                        n.className = 'flex items-center gap-2 px-4 py-3 rounded-xl border text-sm font-medium ' + (cl[type] || cl.info);
+                        n.classList.remove('hidden');
+                        setTimeout(() => n.classList.add('hidden'), 4000);
+                    }
+
+                    try {
+                        if (isPresent) {
+                            const res = await fetch('/api/admin/attendance', {
+                                method: 'DELETE',
+                                headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+                                body: JSON.stringify({ member_id: memberId, check_in_date: dateStr })
+                            });
+                            if (res.ok) {
+                                notif('Đã bỏ điểm danh ngày ' + dateStr, 'info');
+                                fetchAttendanceSummary();
+                            } else {
+                                notif('Lỗi khi bỏ điểm danh', 'error');
+                                if (btn) btn.classList.remove('opacity-50');
+                            }
+                        } else {
+                            const res = await fetch('/api/admin/attendance', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+                                body: JSON.stringify({ member_id: memberId, check_in_date: dateStr, check_in_time: '00:00' })
+                            });
+                            if (res.ok) {
+                                notif('Đã điểm danh ngày ' + dateStr, 'success');
+                                fetchAttendanceSummary();
+                            } else if (res.status === 409) {
+                                notif('Học sinh đã được điểm danh ngày này!', 'info');
+                                if (btn) btn.classList.remove('opacity-50');
+                            } else {
+                                notif('Lỗi khi điểm danh', 'error');
+                                if (btn) btn.classList.remove('opacity-50');
+                            }
+                        }
+                    } catch (err) {
+                        console.error('Toggle attendance error:', err);
+                        notif('Lỗi kết nối', 'error');
+                        if (btn) btn.classList.remove('opacity-50');
                     }
                 }
 async function fetchMembers() {
