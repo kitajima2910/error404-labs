@@ -63,6 +63,8 @@ export const GET: APIRoute = async ({ request, url }) => {
             const lastDayDate = new Date(year, month, 0)
             const lastDay = `${year}-${String(month).padStart(2, '0')}-${String(lastDayDate.getDate()).padStart(2, '0')}`
 
+            const memberFilter = memberId ? sql`AND m.id = ${parseInt(memberId)}` : sql``
+
             const attendanceSummary = await sql`
                 SELECT
                     m.id,
@@ -77,7 +79,7 @@ export const GET: APIRoute = async ({ request, url }) => {
                 LEFT JOIN error404labs.attendance a ON a.member_id = m.id
                     AND a.check_in_date >= ${firstDay}::date
                     AND a.check_in_date <= ${lastDay}::date
-                WHERE m.roles = 'member'
+                WHERE m.roles = 'member' ${memberFilter}
                 GROUP BY m.id, m.member, m.display_name
                 ORDER BY m.display_name ASC
             `

@@ -22,5 +22,8 @@ Thêm tính năng Điểm danh học sinh vào trang quản lý
 ## Known Issues
 - Access token từ OAuth có thời hạn, cần refresh định kỳ
 
+## Fixed
+- [2026-06-01] Fix lỗi options filter học sinh bị lặp tên trong view attendance: thêm `while (select.options.length > 1) { select.remove(1) }` trước khi append options mới trong `loadAttendanceStudents()`
+
 ## Next Step
 -

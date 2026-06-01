@@ -132,14 +132,16 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 background: #f8fafc;
             }
             #attendanceView .attendance-table th.day-header {
-                min-width: 28px;
-                width: 28px;
-                padding: 8px 2px;
+                min-width: 32px;
+                width: 32px;
+                padding: 6px 2px;
                 font-size: 11px;
-                font-weight: 600;
-                color: #64748b;
+                font-weight: 700;
+                color: #475569;
                 text-align: center;
-                border-bottom: 1px solid #e2e8f0;
+                background: #f1f5f9;
+                border-bottom: 2px solid #cbd5e1;
+                line-height: 1.1;
             }
             #attendanceView .attendance-table th.sticky-col {
                 position: sticky;
@@ -152,6 +154,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 left: 0;
                 z-index: 5;
                 background: white;
+                border-right: 2px solid #e2e8f0;
             }
             #attendanceView .attendance-table td.sticky-col::after {
                 content: '';
@@ -163,23 +166,45 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 background: #e2e8f0;
             }
             #attendanceView .attendance-table td {
-                padding: 10px 2px;
+                padding: 12px 3px;
                 text-align: center;
                 font-size: 13px;
-                border-bottom: 1px solid #f1f5f9;
+                border-bottom: 1px solid #e2e8f0;
+                border-right: 1px solid #f1f5f9;
+            }
+            #attendanceView .attendance-table td:last-child {
+                border-right: none;
+            }
+            #attendanceView .attendance-table tbody tr:nth-child(even) td {
+                background: #fafcff;
+            }
+            #attendanceView .attendance-table tbody tr:nth-child(even) td.sticky-col {
+                background: #fafcff;
+            }
+            #attendanceView .attendance-table tbody tr:nth-child(even) td.weekend-col {
+                background: #f5f5f5;
+            }
+            #attendanceView .attendance-table tbody tr:nth-child(even) td.today-col {
+                background: #eaf0ff;
             }
             #attendanceView .attendance-table tr:hover td {
-                background: #f8fafc;
+                background: #f0f4ff;
             }
             #attendanceView .attendance-table tr:hover td.sticky-col {
-                background: #f8fafc;
+                background: #f0f4ff;
+            }
+            #attendanceView .attendance-table tr:hover td.weekend-col {
+                background: #f0f0f0;
+            }
+            #attendanceView .attendance-table tr:hover td.today-col {
+                background: #e0e8ff;
             }
             #attendanceView .checkmark {
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
-                width: 26px;
-                height: 26px;
+                width: 28px;
+                height: 28px;
                 border-radius: 50%;
                 font-size: 13px;
                 transition: all 0.2s ease;
@@ -197,25 +222,25 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 transform: scale(1.15);
             }
             #attendanceView .weekend-col {
-                background: #fafafa;
+                background: #f8f8f8;
             }
             #attendanceView .today-col {
-                background: #f0f4ff;
+                background: #eef4ff;
             }
             @media (max-width: 768px) {
                 #attendanceView .attendance-table th.day-header {
-                    min-width: 22px;
-                    width: 22px;
+                    min-width: 26px;
+                    width: 26px;
                     font-size: 10px;
-                    padding: 6px 1px;
+                    padding: 5px 1px;
                 }
                 #attendanceView .attendance-table td {
-                    padding: 8px 1px;
+                    padding: 9px 2px;
                     font-size: 11px;
                 }
                 #attendanceView .checkmark {
-                    width: 22px;
-                    height: 22px;
+                    width: 24px;
+                    height: 24px;
                     font-size: 11px;
                 }
                 #attendanceView .att-stat-card {
@@ -1079,9 +1104,9 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                     <p class="text-indigo-200 text-sm">Theo dõi chuyên cần và điểm danh hàng ngày</p>
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <select id="attendanceMonth" class="px-3 py-2 rounded-xl bg-white/15 backdrop-blur border border-white/20 text-white text-sm font-medium outline-none focus:ring-2 focus:ring-white/40 cursor-pointer appearance-none">
+                                    <select id="attendanceMonth" class="px-3 py-2 rounded-xl bg-indigo-900/60 backdrop-blur border border-white/20 text-white text-sm font-medium outline-none focus:ring-2 focus:ring-white/40 cursor-pointer appearance-none">
                                     </select>
-                                    <select id="attendanceYear" class="px-3 py-2 rounded-xl bg-white/15 backdrop-blur border border-white/20 text-white text-sm font-medium outline-none focus:ring-2 focus:ring-white/40 cursor-pointer appearance-none">
+                                    <select id="attendanceYear" class="px-3 py-2 rounded-xl bg-indigo-900/60 backdrop-blur border border-white/20 text-white text-sm font-medium outline-none focus:ring-2 focus:ring-white/40 cursor-pointer appearance-none">
                                     </select>
                                 </div>
                             </div>
@@ -1104,6 +1129,9 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                 Điểm danh hôm nay
                             </button>
                         </div>
+
+                        <!-- Notification -->
+                        <div id="attNotification" class="hidden flex items-center gap-2 px-4 py-3 rounded-xl border text-sm font-medium mb-4"></div>
 
                         <!-- Stats Summary -->
                         <div id="attendanceStats" class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
@@ -1167,9 +1195,42 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                 <table class="attendance-table w-full text-sm border-collapse">
                                     <thead>
                                         <tr class="bg-slate-50">
-                                            <th class="sticky-col text-left px-4 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider" style="min-width: 160px;">Học sinh</th>
-                                            <th class="text-center px-2 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider" style="min-width: 120px;" colspan="31">Ngày trong tháng</th>
-                                            <th class="text-center px-4 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider" style="min-width: 72px;">Số buổi</th>
+                                            <th class="sticky-col text-left px-4 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider border-r border-slate-200" style="min-width: 160px;" rowspan="2">Học sinh</th>
+                                            <th class="text-center px-2 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider border-r border-slate-200" colspan="31">Ngày trong tháng</th>
+                                            <th class="text-center px-4 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider" style="min-width: 72px;" rowspan="2">Số buổi</th>
+                                        </tr>
+                                        <tr class="bg-slate-50">
+                                            <th class="day-header border-r border-slate-200">1</th>
+                                            <th class="day-header border-r border-slate-200">2</th>
+                                            <th class="day-header border-r border-slate-200">3</th>
+                                            <th class="day-header border-r border-slate-200">4</th>
+                                            <th class="day-header border-r border-slate-200">5</th>
+                                            <th class="day-header border-r border-slate-200">6</th>
+                                            <th class="day-header border-r border-slate-200">7</th>
+                                            <th class="day-header border-r border-slate-200">8</th>
+                                            <th class="day-header border-r border-slate-200">9</th>
+                                            <th class="day-header border-r border-slate-200">10</th>
+                                            <th class="day-header border-r border-slate-200">11</th>
+                                            <th class="day-header border-r border-slate-200">12</th>
+                                            <th class="day-header border-r border-slate-200">13</th>
+                                            <th class="day-header border-r border-slate-200">14</th>
+                                            <th class="day-header border-r border-slate-200">15</th>
+                                            <th class="day-header border-r border-slate-200">16</th>
+                                            <th class="day-header border-r border-slate-200">17</th>
+                                            <th class="day-header border-r border-slate-200">18</th>
+                                            <th class="day-header border-r border-slate-200">19</th>
+                                            <th class="day-header border-r border-slate-200">20</th>
+                                            <th class="day-header border-r border-slate-200">21</th>
+                                            <th class="day-header border-r border-slate-200">22</th>
+                                            <th class="day-header border-r border-slate-200">23</th>
+                                            <th class="day-header border-r border-slate-200">24</th>
+                                            <th class="day-header border-r border-slate-200">25</th>
+                                            <th class="day-header border-r border-slate-200">26</th>
+                                            <th class="day-header border-r border-slate-200">27</th>
+                                            <th class="day-header border-r border-slate-200">28</th>
+                                            <th class="day-header border-r border-slate-200">29</th>
+                                            <th class="day-header border-r border-slate-200">30</th>
+                                            <th class="day-header border-r border-slate-200">31</th>
                                         </tr>
                                     </thead>
                                     <tbody id="attendanceTableBody">
@@ -2237,7 +2298,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
 
                             });
 
-                            if (res.ok) fetchAttendanceSummary();
+                            if (res.ok) { fetchAttendanceSummary(); showNotification('\u0110i\u1ec3m danh th\u00e0nh c\u00f4ng!', 'success'); }
 
                             else if (res.status === 409) showNotification('H\u1ecdc sinh n\xe0y \u0111\xe3 \u0111\u01b0\u1ee3c \u0111i\u1ec3m danh h\xf4m nay!', 'info');
 
@@ -2293,6 +2354,8 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                     attendanceView.classList.remove('hidden')
                     navAttendance.classList.add('bg-indigo-50', 'text-indigo-700', 'font-medium')
                     navAttendance.classList.remove('text-slate-600')
+                    const _attF = document.getElementById('attendanceStudentFilter');
+                    if (_attF && _attF.options.length <= 1) loadAttendanceStudents();
                     fetchAttendanceSummary()
                 }
             }
@@ -2338,6 +2401,10 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                         const data = await res.json();
                         const select = document.getElementById('attendanceStudentFilter');
                         if (select && data.members) {
+                            // Clear existing options except the first default one
+                            while (select.options.length > 1) {
+                                select.remove(1);
+                            }
                             data.members.forEach((m) => {
                                 const opt = document.createElement('option');
                                 opt.value = m.id;
