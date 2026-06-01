@@ -188,19 +188,6 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 background: #eaf0ff;
             }
 
-            #attendanceView .attendance-table td.day-cell {
-                cursor: pointer;
-                transition: all 0.15s ease;
-            }
-            #attendanceView .attendance-table td.day-cell:hover {
-                background: #e0e8ff !important;
-                transform: scale(1.05);
-            }
-            #attendanceView .attendance-table td.day-cell:hover .checkmark {
-                transform: scale(1.2);
-                box-shadow: 0 0 0 2px rgba(99,102,241,0.3);
-            }
-            
             #attendanceView .attendance-table tr:hover td {
                 background: #f0f4ff;
             }
@@ -212,24 +199,6 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
             }
             #attendanceView .attendance-table tr:hover td.today-col {
                 background: #e0e8ff;
-            }
-            #attendanceView .checkmark {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                width: 28px;
-                height: 28px;
-                border-radius: 50%;
-                font-size: 13px;
-                transition: all 0.2s ease;
-            }
-            #attendanceView .checkmark.present {
-                background: #dcfce7;
-                color: #16a34a;
-            }
-
-            #attendanceView .checkmark:hover {
-                transform: scale(1.15);
             }
             #attendanceView .weekend-col {
                 background: #f8f8f8;
@@ -246,11 +215,6 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 }
                 #attendanceView .attendance-table td {
                     padding: 9px 2px;
-                    font-size: 11px;
-                }
-                #attendanceView .checkmark {
-                    width: 24px;
-                    height: 24px;
                     font-size: 11px;
                 }
                 #attendanceView .att-stat-card {
@@ -289,7 +253,41 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 display: none !important;
             }
         
-        </style>
+        
+            /* Attendance toggle option styles */
+            #attendanceView .att-toggle {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 28px;
+                height: 28px;
+                border-radius: 50%;
+                font-size: 13px;
+                font-weight: 700;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                user-select: none;
+                background: #f1f5f9;
+                color: #94a3b8;
+                border: 1.5px dashed #cbd5e1;
+            }
+            #attendanceView .att-toggle[data-checked="true"] {
+                background: #dcfce7;
+                color: #16a34a;
+                border: 1.5px solid #86efac;
+            }
+            #attendanceView .att-toggle:hover {
+                transform: scale(1.15);
+                box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
+            }
+            #attendanceView .att-toggle[data-checked="true"]:hover {
+                background: #fecaca;
+                color: #dc2626;
+                border-color: #fca5a5;
+                box-shadow: 0 0 0 3px rgba(239,68,68,0.2);
+            }
+        
+</style>
     </head>
     <body class="bg-slate-50 min-h-screen font-sans" style="font-family: 'Montserrat', sans-serif;">
         <!-- Page Skeleton -->
@@ -2479,11 +2477,13 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                                                         if (isToday) tdClass += ' today-col';
 
                                                                         const memberId = student.id;
-                                                                        html += `<td class="${tdClass} day-cell" title="${dateStr}" style="cursor:pointer;" onclick="toggleAttendance(${memberId}, '${dateStr}', ${checkedIn})">
-                                                                            ${checkedIn ? '<span class="checkmark present">✓</span>' : ''}
-                                                                        </td>`;
+                                                                        html += `<td class="${tdClass}" title="${dateStr}">
+                                                                        <span class="att-toggle" data-member="${memberId}" data-date="${dateStr}" data-checked="${checkedIn}" onclick="toggleCellAttendance(${memberId}, '${dateStr}', ${checkedIn}, this)">
+                                                                            ${checkedIn ? '✓' : ''}
+                                                                        </span>
+                                                                    </td>`
                                                                     } else {
-                                                                        html += `<td class="text-center"></td>`;
+                                                                        html += `<td class="text-center"><span style="display:inline-block;width:28px;height:28px"></span></td>`;
                                                                     }
                                                             }
 const rate = daysInMonth > 0 ? Math.round((days / daysInMonth) * 100) : 0;
@@ -2512,10 +2512,9 @@ const rate = daysInMonth > 0 ? Math.round((days / daysInMonth) * 100) : 0;
                 
 
 
-                                async function toggleAttendance(memberId, dateStr, isPresent) {
+                                async function toggleCellAttendance(memberId, dateStr, isPresent, el) {
                     const token = localStorage.getItem('auth_token');
-                    const btn = document.querySelector(`[onclick*="toggleAttendance(${memberId}, '${dateStr}'"] .checkmark`);
-                    if (btn) btn.classList.add('opacity-50');
+                    if (el) el.style.opacity = '0.5';
 
                     function notif(msg, type) {
                         const n = document.getElementById('attNotification');
@@ -2540,7 +2539,7 @@ const rate = daysInMonth > 0 ? Math.round((days / daysInMonth) * 100) : 0;
                                 fetchAttendanceSummary();
                             } else {
                                 notif('Lỗi khi bỏ điểm danh', 'error');
-                                if (btn) btn.classList.remove('opacity-50');
+                                if (el) el.style.opacity = '';
                             }
                         } else {
                             const res = await fetch('/api/admin/attendance', {
@@ -2553,16 +2552,16 @@ const rate = daysInMonth > 0 ? Math.round((days / daysInMonth) * 100) : 0;
                                 fetchAttendanceSummary();
                             } else if (res.status === 409) {
                                 notif('Học sinh đã được điểm danh ngày này!', 'info');
-                                if (btn) btn.classList.remove('opacity-50');
+                                if (el) el.style.opacity = '';
                             } else {
                                 notif('Lỗi khi điểm danh', 'error');
-                                if (btn) btn.classList.remove('opacity-50');
+                                if (el) el.style.opacity = '';
                             }
                         }
                     } catch (err) {
                         console.error('Toggle attendance error:', err);
                         notif('Lỗi kết nối', 'error');
-                        if (btn) btn.classList.remove('opacity-50');
+                        if (el) el.style.opacity = '';
                     }
                 }
 async function fetchMembers() {
