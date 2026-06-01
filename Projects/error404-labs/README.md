@@ -1,18 +1,20 @@
-# Agent Vibe Skill Pack
+# Agent Final VIP
 
-Chỉ cần vào project và nói:
+Use this project pack by typing:
 
 theo AGENTS.md
 
-Bộ này tối ưu cho:
-- H5 game 2D/3D
-- Web app
-- Tools
-- AI app
-- Database with Neon / Supabase / PostgreSQL
+Recommended workflow:
+1. Read AGENTS.md
+2. Let the agent read STATUS.md
+3. Let the agent read PROJECT.md
+4. Code only the requested task
+5. Update STATUS.md
+6. Update PROJECT.md when reality changes
 
-Mục tiêu:
-- Ít file đọc nhất
-- Ít token nhất
-- Nhớ dự án lâu nhất
-- Vibe coding nhưng vẫn chuẩn
+Best for:
+- H5 Game
+- Web App
+- React Native
+- AI App
+- Neon / Supabase / PostgreSQL

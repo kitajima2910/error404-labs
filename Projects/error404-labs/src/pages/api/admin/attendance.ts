@@ -74,11 +74,7 @@ export const GET: APIRoute = async ({ request, url }) => {
                     COALESCE(
                         array_agg(a.check_in_date ORDER BY a.check_in_date) FILTER (WHERE a.id IS NOT NULL),
                         ARRAY[]::date[]
-                    ) as dates,
-                    COALESCE(
-                        array_agg(a.id ORDER BY a.check_in_date) FILTER (WHERE a.id IS NOT NULL),
-                        ARRAY[]::int[]
-                    ) as attendance_ids
+                    ) as dates
                 FROM error404labs.members m
                 LEFT JOIN error404labs.attendance a ON a.member_id = m.id
                     AND a.check_in_date >= ${firstDay}::date
