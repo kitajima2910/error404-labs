@@ -2458,7 +2458,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
 
                                 html += `<tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">`;
                                 html += `<td class="px-4 py-2.5 font-medium text-slate-800">${student.display_name || student.member}</td>`;
-                                                                const dates = student.dates || [];
+                                                                const dates = (student.dates || []).map(d => typeof d === "string" ? d.substring(0, 10) : d);
                                 for (let d = 1; d <= daysInMonth; d++) {
                                     const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
                                     const checkedIn = dates.includes(dateStr);
@@ -2492,7 +2492,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                             // Update stats
                             // Update stats
                             const todayStr = new Date().toISOString().split('T')[0];
-                            const todayCount = data.attendance.filter(s => s.dates && s.dates.includes(todayStr)).length;
+                            const todayCount = data.attendance.filter(s => s.dates && s.dates.some(d => (typeof d === "string" ? d.substring(0, 10) : d) === todayStr)).length;
 
                             document.getElementById('attTotalStudents').textContent = data.attendance.length;
                             document.getElementById('attTodayCount').textContent = todayCount;
