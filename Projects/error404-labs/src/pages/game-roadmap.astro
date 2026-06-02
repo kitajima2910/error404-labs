@@ -846,7 +846,7 @@ const monthSvgs = [
 
             if (copyBtn) {
                 copyBtn.addEventListener('click', async () => {
-                    const text = `RULE:\n- Không rewrite src\n- Không sửa logic cũ\n- Chỉ tác động trong TARGET\n\nTARGET:\n(mô tả rõ)\n\nACTION:\n(chỉ chọn 1: add / fix / update / remove)`
+                    const text = `RULE:\n\n- Đọc STATUS.md nếu tồn tại.\n- Không rewrite project.\n- Chỉ tác động trong TARGET.\n- Ưu tiên thay đổi tối thiểu.\n- Giữ nguyên code đang hoạt động.\n- Verify TARGET.\n- Cập nhật STATUS.md.\n\nTARGET:\n...`
                     try {
                         await navigator.clipboard.writeText(text)
                         if (window.showToast) window.showToast('Đã copy Prompt Template thành công!', 'success')
@@ -863,9 +863,9 @@ const monthSvgs = [
                 })
             }
 
-            if (modalCopyBtn && modalTargetInput && modalActionSelect) {
+            if (modalCopyBtn && modalTargetInput) {
                 modalCopyBtn.addEventListener('click', async () => {
-                    const text = `RULE:\n- Không rewrite src\n- Không sửa logic cũ\n- Chỉ tác động trong TARGET\n\nTARGET:\n${modalTargetInput.value}\n\nACTION:\n${modalActionSelect.value}`
+                    const text = `RULE:\n\n- Đọc STATUS.md nếu tồn tại.\n- Không rewrite project.\n- Chỉ tác động trong TARGET.\n- Ưu tiên thay đổi tối thiểu.\n- Giữ nguyên code đang hoạt động.\n- Verify TARGET.\n- Cập nhật STATUS.md.\n\nTARGET:\n${modalTargetInput.value || '...'}`
                     try {
                         await navigator.clipboard.writeText(text)
                         if (window.showToast) window.showToast('Đã tạo và copy prompt thành công!', 'success')
@@ -879,10 +879,9 @@ const monthSvgs = [
                 modalCloseBtn.addEventListener('click', closeTemplateModal)
             }
 
-            if (modalClearBtn && modalTargetInput && modalActionSelect) {
+            if (modalClearBtn && modalTargetInput) {
                 modalClearBtn.addEventListener('click', () => {
                     modalTargetInput.value = ''
-                    modalActionSelect.value = 'add'
                 })
             }
 
@@ -1147,16 +1146,16 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
                                 >
                                     <span class="text-emerald-400 font-bold">RULE:</span>
                                     <div class="text-slate-400 ml-2 mb-3 leading-relaxed">
-                                        - Không rewrite src<br />
-                                        - Không sửa logic cũ<br />
-                                        - Chỉ tác động trong TARGET
+                                        - Đọc STATUS.md nếu tồn tại.<br />
+                                        - Không rewrite project.<br />
+                                        - Chỉ tác động trong TARGET.<br />
+                                        - Ưu tiên thay đổi tối thiểu.<br />
+                                        - Giữ nguyên code đang hoạt động.<br />
+                                        - Verify TARGET.<br />
+                                        - Cập nhật STATUS.md.
                                     </div>
                                     <span class="text-sky-400 font-bold">TARGET:</span>
-                                    <div class="text-slate-400 ml-2 mb-3 leading-relaxed">(mô tả rõ)</div>
-                                    <span class="text-amber-400 font-bold">ACTION:</span>
-                                    <div class="text-slate-400 ml-2 leading-relaxed">
-                                        (chỉ chọn 1: add / fix / update / remove)
-                                    </div>
+                                    <div class="text-slate-400 ml-2 leading-relaxed">...</div>
                                     <button
                                         id="copy-template-btn"
                                         class="absolute top-3 right-3 text-xs text-slate-400 hover:text-emerald-400 transition-all duration-200 bg-slate-800/80 hover:bg-slate-700/80 backdrop-blur-sm px-2.5 py-1.5 rounded-lg border border-slate-700/50 hover:border-emerald-500/30 flex items-center gap-1.5 font-medium"
@@ -1202,20 +1201,7 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
                         class="w-full rounded-2xl border border-indigo-100 bg-slate-50 px-4 py-3 text-sm text-slate-700 outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100 resize-none"
                         placeholder="Nhập mô tả rõ phần cần tác động..."></textarea>
                 </div>
-                <div>
-                    <label for="modal-action-select" class="block text-sm font-bold text-slate-700 mb-2"
-                        >Hành động (ACTION)</label
-                    >
-                    <select
-                        id="modal-action-select"
-                        class="w-full rounded-2xl border border-indigo-100 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-100"
-                    >
-                        <option value="add">add</option>
-                        <option value="fix">fix</option>
-                        <option value="update">update</option>
-                        <option value="remove">remove</option>
-                    </select>
-                </div>
+
                 <div class="flex flex-col sm:flex-row gap-3 pt-2">
                     <button
                         id="btn-modal-copy"
