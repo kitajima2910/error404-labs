@@ -491,6 +491,75 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 color: #16a34a;
                 border: 1.5px solid #86efac;
             }
+            /* ── Inline payment in attendance table ── */
+            .att-pay-input {
+                width: 68px;
+                padding: 2px 4px;
+                border: 1px solid #e2e8f0;
+                border-radius: 4px;
+                font-size: 11px;
+                font-weight: 600;
+                text-align: center;
+                outline: none;
+                transition: border-color 0.15s;
+            }
+            .att-pay-input:focus {
+                border-color: #6366f1;
+                box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
+            }
+            .att-pay-input.paid {
+                border-color: #10b981;
+                background: #f0fdf4;
+                color: #059669;
+            }
+            .att-pay-input.unpaid {
+                border-color: #e2e8f0;
+                background: #fafafa;
+                color: #94a3b8;
+            }
+            .att-pay-save, .att-pay-delete {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 24px;
+                height: 24px;
+                border-radius: 4px;
+                border: none;
+                cursor: pointer;
+                transition: background 0.15s;
+                padding: 0;
+            }
+            .att-pay-save {
+                background: #6366f1;
+                color: white;
+            }
+            .att-pay-save:hover {
+                background: #4f46e5;
+            }
+            .att-pay-delete {
+                background: #fee2e2;
+                color: #dc2626;
+            }
+            .att-pay-delete:hover {
+                background: #fecaca;
+            }
+            .pay-badge {
+                display: inline-block;
+                padding: 1px 8px;
+                border-radius: 20px;
+                font-size: 10px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+            .pay-badge.paid {
+                background: #d1fae5;
+                color: #065f46;
+            }
+            .pay-badge.unpaid {
+                background: #fef3c7;
+                color: #92400e;
+            }
         </style>
     </head>
     <body class="bg-slate-50 min-h-screen font-sans" style="font-family: 'Montserrat', sans-serif;">
@@ -1453,7 +1522,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
             </div>
 
             <!-- Stats Summary -->
-            <div id="attendanceStats" class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+            <div id="attendanceStats" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
                 <div class="att-stat-card bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm">
                     <div class="flex items-center gap-3 mb-2">
                         <div class="att-icon-wrapper bg-indigo-50">
@@ -1526,6 +1595,32 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                         </div>
                     </div>
                 </div>
+                <div class="att-stat-card bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="att-icon-wrapper bg-emerald-50">
+                            <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Đã đóng</p>
+                            <p id="attPaidCount" class="stat-value text-2xl font-bold text-emerald-600">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="att-stat-card bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="att-icon-wrapper bg-indigo-50">
+                            <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Tổng thu nhập</p>
+                            <p id="attTotalIncome" class="stat-value text-2xl font-bold text-indigo-600">0 ₫</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Attendance table -->
@@ -1547,6 +1642,11 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                     class="text-center px-4 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider"
                                     style="min-width: 72px;"
                                     rowspan="2">Số buổi</th
+                                >
+                                <th
+                                    class="text-center px-4 py-3 text-xs font-bold text-slate-600 uppercase tracking-wider"
+                                    style="min-width: 130px;"
+                                    rowspan="2">Học phí</th
                                 >
                             </tr>
                             <tr class="bg-slate-50">
@@ -1585,7 +1685,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                         </thead>
                         <tbody id="attendanceTableBody">
                             <tr>
-                                <td colspan="33" class="text-center px-4 py-12 text-slate-400">
+                                <td colspan="34" class="text-center px-4 py-12 text-slate-400">
                                     <div class="flex flex-col items-center gap-2">
                                         <svg
                                             class="w-10 h-10 text-slate-300"
@@ -3031,7 +3131,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
             async function loadAttendanceStudents() {
                 const token = localStorage.getItem('auth_token')
                 try {
-                    const res = await fetch('/api/admin/members?role=member&limit=200', {
+                    const res = await fetch('/api/admin/members?role=member&limit=200&status=active', {
                         headers: { Authorization: `Bearer ${token}` },
                     })
                     const data = await res.json()
@@ -3061,24 +3161,45 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 const token = localStorage.getItem('auth_token')
 
                 try {
-                    let url = `/api/admin/attendance?summary=true&year=${year}&month=${month}`
-                    if (filterStudentId) url += `&member_id=${filterStudentId}`
+                    // Fetch both attendance and payments in parallel
+                    let attUrl = `/api/admin/attendance?summary=true&year=${year}&month=${month}`
+                    if (filterStudentId) attUrl += `&member_id=${filterStudentId}`
+                    const payUrl = `/api/admin/payments?year=${year}&month=${month}`
 
-                    const res = await fetch(url, {
-                        headers: { Authorization: `Bearer ${token}` },
-                    })
-                    const data = await res.json()
+                    const [attRes, payRes] = await Promise.all([
+                        fetch(attUrl, { headers: { Authorization: `Bearer ${token}` } }),
+                        fetch(payUrl, { headers: { Authorization: `Bearer ${token}` } }),
+                    ])
+                    const data = await attRes.json()
+                    const payData = await payRes.json()
+
+                    // Build payment map: member_id -> {amount, paid_at, note, id}
+                    const paymentMap = {}
+                    if (payData && payData.payments) {
+                        payData.payments.forEach((p) => {
+                            paymentMap[p.member_id] = p
+                        })
+                    }
 
                     if (data.attendance) {
                         const daysInMonth = new Date(year, month, 0).getDate()
                         const expectedInput = document.getElementById('attendanceExpectedSessions')
                         const targetSessions = expectedInput ? parseInt(expectedInput.value) || 8 : 8
                         let totalPresent = 0
+                        let paidCount = 0
+                        let totalIncome = 0
 
                         let html = ''
                         data.attendance.forEach((student) => {
                             const days = student.total_days || 0
                             totalPresent += days
+
+                            const payInfo = paymentMap[student.id]
+                            const hasPaid = !!payInfo
+                            if (hasPaid) {
+                                paidCount++
+                                totalIncome += payInfo.amount
+                            }
 
                             html += `<tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">`
                             html += `<td class="px-4 py-2.5 font-medium text-slate-800">${student.display_name || student.member}</td>`
@@ -3090,17 +3211,12 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                     const checkedIn = attId !== undefined
 
                                     const dayDate = new Date(year, month - 1, d)
-
                                     const dayOfWeek = dayDate.getDay()
-
                                     const isWeekend = dayOfWeek === 0 || dayOfWeek === 6
-
                                     const isToday = dayDate.toDateString() === new Date().toDateString()
 
                                     let tdClass = 'att-cell'
-
                                     if (isWeekend) tdClass += ' weekend-col'
-
                                     if (isToday) tdClass += ' today-col'
 
                                     const memberId = student.id
@@ -3113,12 +3229,41 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                             }
                             const rate = targetSessions > 0 ? Math.min(100, Math.round((days / targetSessions) * 100)) : 0
                             html += `<td class="text-center px-4 py-2.5 font-bold text-indigo-600">${days}/${daysInMonth} (${rate}%)</td>`
+
+                            // Payment cell
+                            const mid = student.id
+                            const payAmt = hasPaid ? payInfo.amount : ''
+                            const payNote = hasPaid ? (payInfo.note || '') : ''
+                            const payDate = hasPaid ? (payInfo.paid_at ? payInfo.paid_at.toString().split('T')[0] : '') : new Date().toISOString().split('T')[0]
+                            html += `<td class="text-center px-4 py-2.5">
+                                <div class="flex items-center justify-center gap-1.5">
+                                    <span class="pay-badge ${hasPaid ? 'paid' : 'unpaid'}">${hasPaid ? 'Đã đóng' : 'Chưa đóng'}</span>
+                                </div>
+                                <div class="flex items-center justify-center gap-1 mt-1">
+                                    <input type="number" class="att-pay-input ${hasPaid ? 'paid' : 'unpaid'}" id="attPayAmount_${mid}"
+                                        value="${payAmt}" placeholder="VNĐ" min="0" step="1000">
+                                    <button type="button" class="att-pay-save" data-member="${mid}" title="Lưu">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                    </button>
+                                    ${hasPaid ? `<button type="button" class="att-pay-delete" data-pay-id="${payInfo.id}" title="Xoá">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                        </svg>
+                                    </button>` : ''}
+                                </div>
+                                <input type="hidden" class="att-pay-date" value="${payDate}">
+                                <input type="hidden" class="att-pay-note" value="${payNote.replace(/"/g, '&quot;')}">
+                            </td>`
+
                             html += `</tr>`
                         })
 
+                        const colspan = 33 + 1 // 31 days + name + total + học phí
                         tbody.innerHTML =
                             html ||
-                            `<tr><td colspan="33" class="text-center px-4 py-8 text-slate-400">Không có dữ liệu</td></tr>`
+                            `<tr><td colspan="${colspan}" class="text-center px-4 py-8 text-slate-400">Không có dữ liệu</td></tr>`
 
                         // Update stats
                         const todayStr = new Date().toISOString().split('T')[0]
@@ -3132,13 +3277,73 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                         document.getElementById('attCheckedInStudents').textContent = data.attendance.filter(
                             (s) => s.total_days > 0,
                         ).length
+                        document.getElementById('attPaidCount').textContent = paidCount
+                        document.getElementById('attTotalIncome').textContent = totalIncome.toLocaleString('vi-VN') + ' ₫'
+
+                        // Attach payment save/delete listeners
+                        tbody.querySelectorAll('.att-pay-save').forEach((btn) => {
+                            btn.addEventListener('click', async () => {
+                                const mid = parseInt(btn.dataset.member)
+                                const amountInput = document.getElementById('attPayAmount_' + mid)
+                                const amount = parseInt(amountInput.value)
+                                if (!amount || amount <= 0) {
+                                    showToast('Vui lòng nhập số tiền hợp lệ', 'warning')
+                                    return
+                                }
+                                const payDate = amountInput.closest('td').querySelector('.att-pay-date').value
+                                const payNote = amountInput.closest('td').querySelector('.att-pay-note').value
+                                try {
+                                    const res = await fetch('/api/admin/payments', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+                                        body: JSON.stringify({
+                                            member_id: mid,
+                                            amount,
+                                            month: parseInt(month),
+                                            year: parseInt(year),
+                                            note: payNote,
+                                            paid_at: payDate || undefined,
+                                        }),
+                                    })
+                                    if (res.ok) {
+                                        showToast('Đã lưu học phí', 'success')
+                                        fetchAttendanceSummary()
+                                    } else {
+                                        const errData = await res.json().catch(() => ({}))
+                                        showToast(errData.error || 'Lỗi lưu học phí', 'error')
+                                    }
+                                } catch (err) {
+                                    showToast('Lỗi kết nối', 'error')
+                                }
+                            })
+                        })
+                        tbody.querySelectorAll('.att-pay-delete').forEach((btn) => {
+                            btn.addEventListener('click', async () => {
+                                const payId = parseInt(btn.dataset.payId)
+                                if (!confirm('Xoá khoản học phí này?')) return
+                                try {
+                                    const res = await fetch('/api/admin/payments?id=' + payId, {
+                                        method: 'DELETE',
+                                        headers: { Authorization: 'Bearer ' + token },
+                                    })
+                                    if (res.ok) {
+                                        showToast('Đã xoá học phí', 'info')
+                                        fetchAttendanceSummary()
+                                    } else {
+                                        showToast('Lỗi xoá học phí', 'error')
+                                    }
+                                } catch (err) {
+                                    showToast('Lỗi kết nối', 'error')
+                                }
+                            })
+                        })
                     }
                     // Also fetch & update date notes for day-header indicators
                     updateDayHeaderNotes()
                     fetchDateNotes()
                 } catch (err) {
                     console.error('Attendance fetch error:', err)
-                    tbody.innerHTML = `<tr><td colspan="33" class="text-center px-4 py-8 text-red-400">Lỗi tải dữ liệu</td></tr>`
+                    tbody.innerHTML = `<tr><td colspan="34" class="text-center px-4 py-8 text-red-400">Lỗi tải dữ liệu</td></tr>`
                 }
             }
 
@@ -3175,7 +3380,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                     if (todayToggle?.dataset.checked === 'true') todayCount++
 
                     const tds = tr.querySelectorAll('td')
-                    const summaryCell = tds[tds.length - 1]
+                    const summaryCell = tds[tds.length - 2]
                     if (summaryCell) {
                         const rate = targetSessions > 0 ? Math.min(100, Math.round((presentDays / targetSessions) * 100)) : 0
                         summaryCell.textContent = `${presentDays}/${daysInMonth} (${rate}%)`

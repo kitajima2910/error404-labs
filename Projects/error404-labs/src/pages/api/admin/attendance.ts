@@ -83,7 +83,7 @@ export const GET: APIRoute = async ({ request, url }) => {
                 LEFT JOIN error404labs.attendance a ON a.member_id = m.id
                     AND a.check_in_date >= ${firstDay}::date
                     AND a.check_in_date <= ${lastDay}::date
-                WHERE m.roles = 'member' ${memberFilter}
+                WHERE m.roles = 'member' AND m.status = 'active' ${memberFilter}
                 GROUP BY m.id, m.member, m.display_name
                 ORDER BY m.display_name ASC
             `

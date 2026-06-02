@@ -22,6 +22,15 @@
   - Day-header có note: nền vàng + chấm cam
   - Click day-header → popover textarea: lưu/xoá/huỷ
   - Popover đóng khi click outside / Escape
+- Học phí (payments): migration + API, tích hợp trong điểm danh
+  - Bảng `error404labs.payments` (member_id, amount, month, year, note, paid_at)
+  - `GET /api/admin/payments` — lấy payments + members + total income
+  - `POST /api/admin/payments` — upsert payment (theo member+month+year)
+  - `DELETE /api/admin/payments` — xoá payment
+  - Cột "Học phí" trong bảng điểm danh: input số tiền + nút check/xoá
+  - Stats: Đã đóng / Tổng thu nhập (thêm 2 stat card vào hàng đầu)
+  - Badge Đã đóng (xanh) / Chưa đóng (vàng) cho từng học sinh
+- Lọc member active trong attendance: API chỉ trả `m.status = 'active'`
 
 ## Modified Files
 - src/pages/game-roadmap.astro
@@ -29,12 +38,14 @@
 - src/pages/api/admin/attendance.ts
 - src/pages/api/admin/expected-sessions.ts (new)
 - src/pages/api/admin/date-notes.ts (new)
+- src/pages/api/admin/payments.ts (new)
 - migrations/008_add_expected_sessions.sql (new)
 - migrations/009_create_date_notes.sql (new)
+- migrations/010_create_payments.sql (new)
 
 ## Known Issues
 - (đã fix) Toggle checkout trước đây xoá không được do date comparison không khớp
 - (đã replace) attendanceStudentFilter từ plain `<select>` → searchable dropdown + hidden select (giữ backward compat)
 
 ## Next Step
-- Restart `pnpm dev` và test toàn bộ flow + ghi chú ngày
+- Restart `pnpm dev` và test toàn bộ: điểm danh, ghi chú ngày, học phí
