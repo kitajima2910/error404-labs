@@ -25,4 +25,4 @@
 - (đã replace) attendanceStudentFilter từ plain `<select>` → searchable dropdown + hidden select (giữ backward compat)
 
 ## Next Step
-- Restart `pnpm dev` và test toàn bộ flow: checkin bằng nút, checkin bằng toggle, checkout bằng toggle, F5 verify, tìm kiếm học sinh trong dropdown
+- Restart `pnpm dev` và test toàn bộ flow: checkin bằng nút, checkin bằng toggle, checkout bằng toggle, F5 verify, tìm kiếm học sinh trong dropdown, đổi mục tiêu buổi/tháng

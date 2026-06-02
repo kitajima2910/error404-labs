@@ -1288,6 +1288,18 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                             class="px-3 py-2 rounded-xl bg-indigo-900/60 backdrop-blur border border-white/20 text-white text-sm font-medium outline-none focus:ring-2 focus:ring-white/40 cursor-pointer appearance-none"
                         >
                         </select>
+                        <div class="flex items-center gap-1.5 ml-2">
+                            <span class="text-indigo-200 text-xs font-medium whitespace-nowrap">Mục tiêu:</span>
+                            <input
+                                type="number"
+                                id="attendanceExpectedSessions"
+                                value="8"
+                                min="1"
+                                max="31"
+                                class="w-14 px-2 py-2 rounded-xl bg-indigo-900/60 backdrop-blur border border-white/20 text-white text-sm font-medium text-center outline-none focus:ring-2 focus:ring-white/40"
+                            >
+                            <span class="text-indigo-200 text-xs">buổi/tháng</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2692,6 +2704,9 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
 
                 if (attYearSel) attYearSel.addEventListener('change', fetchAttendanceSummary)
 
+                const attExpectedInput = document.getElementById('attendanceExpectedSessions')
+                if (attExpectedInput) attExpectedInput.addEventListener('change', fetchAttendanceSummary)
+
                 if (attStudentFilter) attStudentFilter.addEventListener('change', fetchAttendanceSummary)
 
                 // Event delegation for attendance toggle clicks
@@ -2919,15 +2934,13 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
 
                     if (data.attendance) {
                         const daysInMonth = new Date(year, month, 0).getDate()
-                        let totalSessions = 0
+                        const expectedInput = document.getElementById('attendanceExpectedSessions')
+                        const targetSessions = expectedInput ? parseInt(expectedInput.value) || 8 : 8
                         let totalPresent = 0
-                        let numberOfCheckedInStudents = 0
 
                         let html = ''
                         data.attendance.forEach((student) => {
                             const days = student.total_days || 0
-                            if (days > 0) numberOfCheckedInStudents++
-                            totalSessions += daysInMonth
                             totalPresent += days
 
                             html += `<tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">`
@@ -2961,7 +2974,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                     html += `<td class="att-cell att-empty"><span class="att-toggle att-toggle--empty" data-checked="false" aria-hidden="true"></span></td>`
                                 }
                             }
-                            const rate = daysInMonth > 0 ? Math.round((days / daysInMonth) * 100) : 0
+                            const rate = targetSessions > 0 ? Math.min(100, Math.round((days / targetSessions) * 100)) : 0
                             html += `<td class="text-center px-4 py-2.5 font-bold text-indigo-600">${days}/${daysInMonth} (${rate}%)</td>`
                             html += `</tr>`
                         })
@@ -2970,7 +2983,6 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                             html ||
                             `<tr><td colspan="33" class="text-center px-4 py-8 text-slate-400">Không có dữ liệu</td></tr>`
 
-                        // Update stats
                         // Update stats
                         const todayStr = new Date().toISOString().split('T')[0]
                         const todayCount = data.attendance.filter(
@@ -2997,6 +3009,8 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 const month = Number(document.getElementById('attendanceMonth')?.value) || new Date().getMonth() + 1
                 const year = Number(document.getElementById('attendanceYear')?.value) || new Date().getFullYear()
                 const daysInMonth = new Date(year, month, 0).getDate()
+                const expectedInput = document.getElementById('attendanceExpectedSessions')
+                const targetSessions = expectedInput ? parseInt(expectedInput.value) || 8 : 8
                 const todayStr = new Date().toISOString().split('T')[0]
 
                 const rows = Array.from(tbody.querySelectorAll('tr')).filter((tr) =>
@@ -3023,7 +3037,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                     const tds = tr.querySelectorAll('td')
                     const summaryCell = tds[tds.length - 1]
                     if (summaryCell) {
-                        const rate = daysInMonth > 0 ? Math.round((presentDays / daysInMonth) * 100) : 0
+                        const rate = targetSessions > 0 ? Math.min(100, Math.round((presentDays / targetSessions) * 100)) : 0
                         summaryCell.textContent = `${presentDays}/${daysInMonth} (${rate}%)`
                     }
                 })
