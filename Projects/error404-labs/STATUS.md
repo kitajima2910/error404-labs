@@ -22,6 +22,7 @@
 
 ## Known Issues
 - (đã fix) Toggle checkout trước đây xoá không được do date comparison không khớp
+- (đã replace) attendanceStudentFilter từ plain `<select>` → searchable dropdown + hidden select (giữ backward compat)
 
 ## Next Step
-- Restart `pnpm dev` và test toàn bộ flow: checkin bằng nút, checkin bằng toggle, checkout bằng toggle, F5 verify
+- Restart `pnpm dev` và test toàn bộ flow: checkin bằng nút, checkin bằng toggle, checkout bằng toggle, F5 verify, tìm kiếm học sinh trong dropdown
