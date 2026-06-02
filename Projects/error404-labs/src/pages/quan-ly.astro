@@ -267,9 +267,21 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 padding: 0 !important;
                 vertical-align: middle;
                 box-sizing: border-box;
+                cursor: pointer;
             }
             #attendanceView .attendance-table td.att-cell .att-toggle {
                 margin: 0 auto;
+                pointer-events: none;
+            }
+            #attendanceView .attendance-table td.att-cell:hover .att-toggle:not(.att-toggle--empty) {
+                transform: scale(1.15);
+                box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+            }
+            #attendanceView .attendance-table td.att-cell:hover .att-toggle[data-checked='true'] {
+                background: #fecaca;
+                color: #dc2626;
+                border-color: #fca5a5;
+                box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
             }
             #attendanceView .attendance-table tbody tr:nth-child(even) td {
                 background: #fafcff;
@@ -380,15 +392,10 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 color: #16a34a;
                 border: 1.5px solid #86efac;
             }
-            #attendanceView .att-toggle:hover {
-                transform: scale(1.15);
-                box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-            }
-            #attendanceView .att-toggle[data-checked='true']:hover {
-                background: #fecaca;
-                color: #dc2626;
-                border-color: #fca5a5;
-                box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+            #attendanceView .att-toggle[data-checked='true'] {
+                background: #dcfce7;
+                color: #16a34a;
+                border: 1.5px solid #86efac;
             }
         </style>
     </head>
@@ -2673,9 +2680,11 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 const attTableBody = document.getElementById('attendanceTableBody')
                 if (attTableBody) {
                     attTableBody.addEventListener('click', function(e) {
-                        const toggle = e.target.closest('.att-toggle')
+                        const cell = e.target.closest('td.att-cell')
+                        if (!cell) return
+                        const toggle = cell.querySelector('.att-toggle')
                         if (!toggle || toggle.classList.contains('att-toggle--empty')) return
-                        const memberId = parseInt(toggle.dataset.member)
+                        const memberId = parseInt(toggle.dataset.member || '')
                         const dateStr = toggle.dataset.date
                         if (memberId && dateStr) {
                             toggleCellAttendance(memberId, dateStr, toggle)
@@ -2722,6 +2731,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                     member_id: parseInt(memberId),
                                     check_in_date: ds,
                                     check_in_time: ts,
+                                    action: 'checkin',
                                 }),
                             })
 
@@ -2799,19 +2809,6 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
             }
 
             async function fetchAttendanceSummary() {
-                function normalizeAttendanceDate(d) {
-                    if (!d) return ''
-                    if (typeof d === 'string') return d.substring(0, 10)
-                    if (d instanceof Date) return d.toISOString().split('T')[0]
-                    if (typeof d === 'number') return new Date(d).toISOString().split('T')[0]
-                    if (typeof d === 'object') {
-                        const v = d.check_in_date || d.date
-                        if (typeof v === 'string') return v.substring(0, 10)
-                        if (v instanceof Date) return v.toISOString().split('T')[0]
-                    }
-                    return ''
-                }
-
                 const month = document.getElementById('attendanceMonth').value || new Date().getMonth() + 1
                 const year = document.getElementById('attendanceYear').value || new Date().getFullYear()
                 const filterStudentId = document.getElementById('attendanceStudentFilter').value
@@ -2842,11 +2839,12 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
 
                             html += `<tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">`
                             html += `<td class="px-4 py-2.5 font-medium text-slate-800">${student.display_name || student.member}</td>`
-                            const dates = (student.dates || []).map(normalizeAttendanceDate).filter(Boolean)
+                            const attendanceMap = student.attendance_map || {}
                             for (let d = 1; d <= 31; d++) {
                                 if (d <= daysInMonth) {
                                     const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`
-                                    const checkedIn = dates.includes(dateStr)
+                                    const attId = attendanceMap[dateStr]
+                                    const checkedIn = attId !== undefined
 
                                     const dayDate = new Date(year, month - 1, d)
 
@@ -2864,7 +2862,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
 
                                     const memberId = student.id
                                     html += `<td class="${tdClass}" title="${dateStr}">
-                                        <span class="att-toggle" data-member="${memberId}" data-date="${dateStr}" data-checked="${checkedIn}">${checkedIn ? '✓' : ''}</span>
+                                        <span class="att-toggle" data-member="${memberId}" data-date="${dateStr}" data-attendance-id="${attId || ''}" data-checked="${checkedIn}">${checkedIn ? '✓' : ''}</span>
                                     </td>`
                                 } else {
                                     html += `<td class="att-cell att-empty"><span class="att-toggle att-toggle--empty" data-checked="false" aria-hidden="true"></span></td>`
@@ -2883,7 +2881,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                         // Update stats
                         const todayStr = new Date().toISOString().split('T')[0]
                         const todayCount = data.attendance.filter(
-                            (s) => s.dates && s.dates.some((d) => normalizeAttendanceDate(d) === todayStr),
+                            (s) => s.attendance_map && s.attendance_map[todayStr],
                         ).length
 
                         document.getElementById('attTotalStudents').textContent = data.attendance.length
@@ -2964,52 +2962,42 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 el.style.opacity = '0.5'
                 el.style.pointerEvents = 'none'
 
+                const attendanceId = parseInt(el.dataset.attendanceId) || null
+
                 try {
-                    if (!nextPresent) {
-                        const res = await fetch('/api/admin/attendance', {
-                            method: 'DELETE',
-                            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-                            body: JSON.stringify({
-                                member_id: memberId,
-                                check_in_date: dateStr,
-                            }),
-                        })
-                        if (res.ok) {
-                            showNotification('Đã bỏ điểm danh ngày ' + dateStr, 'info')
-                        } else if (res.status === 404) {
-                            showNotification('Ngày ' + dateStr + ' chưa có điểm danh. Đã đồng bộ lại.', 'info')
-                        } else {
-                            showNotification('Lỗi khi bỏ điểm danh', 'error')
-                            el.dataset.checked = wasPresent ? 'true' : 'false'
-                            el.textContent = wasPresent ? '✓' : ''
-                            recomputeAttendanceStatsFromDOM()
+                    const res = await fetch('/api/admin/attendance', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+                        body: JSON.stringify({
+                            member_id: memberId,
+                            check_in_date: dateStr,
+                            check_in_time: nextPresent ? '00:00' : undefined,
+                            attendance_id: nextPresent ? null : attendanceId,
+                            action: nextPresent ? 'checkin' : 'checkout',
+                        }),
+                    })
+                    if (res.ok) {
+                        const data = await res.json().catch(() => ({}))
+                        if (data.id) {
+                            el.dataset.attendanceId = String(data.id)
                         }
+                        if (data.deleted === false) {
+                            console.warn('Toggle checkout: server could not find record, UI cleared anyway', {
+                                memberId,
+                                dateStr,
+                            })
+                        }
+                        showNotification(
+                            nextPresent ? 'Đã điểm danh ngày ' + dateStr : 'Đã bỏ điểm danh ngày ' + dateStr,
+                            nextPresent ? 'success' : 'info',
+                        )
                     } else {
-                        const res = await fetch('/api/admin/attendance', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-                            body: JSON.stringify({
-                                member_id: memberId,
-                                check_in_date: dateStr,
-                                check_in_time: '00:00',
-                            }),
-                        })
-                        if (res.ok) {
-                            showNotification('Đã điểm danh ngày ' + dateStr, 'success')
-                        } else if (res.status === 409) {
-                            showNotification(
-                                'Ngày ' + dateStr + ' đã có điểm danh. Đang đồng bộ lại dữ liệu...',
-                                'info',
-                            )
-                            el.dataset.checked = 'true'
-                            el.textContent = '✓'
-                            recomputeAttendanceStatsFromDOM()
-                        } else {
-                            showNotification('Lỗi khi điểm danh', 'error')
-                            el.dataset.checked = wasPresent ? 'true' : 'false'
-                            el.textContent = wasPresent ? '✓' : ''
-                            recomputeAttendanceStatsFromDOM()
-                        }
+                        const errBody = await res.text().catch(() => '')
+                        console.error('Toggle attendance fail:', { status: res.status, body: errBody })
+                        showNotification('Lỗi khi cập nhật điểm danh', 'error')
+                        el.dataset.checked = wasPresent ? 'true' : 'false'
+                        el.textContent = wasPresent ? '✓' : ''
+                        recomputeAttendanceStatsFromDOM()
                     }
                 } catch (err) {
                     console.error('Toggle attendance error:', err)
