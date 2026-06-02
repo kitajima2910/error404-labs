@@ -2699,11 +2699,8 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                     attCheckInBtn.addEventListener('click', async () => {
                         const memberId = attStudentFilter ? attStudentFilter.value : ''
 
-                        if (!memberId) {
-                            showNotification(
-                                'Vui l\xf2ng ch\u1ecdn h\u1ecdc sinh tr\u01b0\u1edbc khi \u0111i\u1ec3m danh',
-                                'warning',
-                            )
+                    if (!memberId) {
+                            showToast('Vui lòng chọn học sinh trước khi điểm danh', 'warning')
 
                             return
                         }
@@ -2740,17 +2737,14 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
 
                             if (res.ok) {
                                 await fetchAttendanceSummary()
-                                showNotification('\u0110i\u1ec3m danh th\u00e0nh c\u00f4ng!', 'success')
+                                showToast('\u0110i\u1ec3m danh th\u00e0nh c\u00f4ng!', 'success')
                             } else if (res.status === 409)
-                                showNotification(
-                                    'H\u1ecdc sinh n\xe0y \u0111\xe3 \u0111\u01b0\u1ee3c \u0111i\u1ec3m danh h\xf4m nay!',
-                                    'info',
-                                )
-                            else showNotification('L\u1ed7i khi \u0111i\u1ec3m danh', 'error')
+                                showToast('H\u1ecdc sinh n\xe0y \u0111\xe3 \u0111\u01b0\u1ee3c \u0111i\u1ec3m danh h\xf4m nay!', 'info')
+                            else showToast('L\u1ed7i khi \u0111i\u1ec3m danh', 'error')
                         } catch (err) {
                             console.error('Check-in error:', err)
 
-                            showNotification('L\u1ed7i k\u1ebft n\u1ed1i khi \u0111i\u1ec3m danh', 'error')
+                            showToast('L\u1ed7i k\u1ebft n\u1ed1i khi \u0111i\u1ec3m danh', 'error')
                         }
                     })
                 }
@@ -2990,21 +2984,21 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                 dateStr,
                             })
                         }
-                        showNotification(
+                        showToast(
                             nextPresent ? 'Đã điểm danh ngày ' + dateStr : 'Đã bỏ điểm danh ngày ' + dateStr,
                             nextPresent ? 'success' : 'info',
                         )
                     } else {
                         const errBody = await res.text().catch(() => '')
                         console.error('Toggle attendance fail:', { status: res.status, body: errBody })
-                        showNotification('Lỗi khi cập nhật điểm danh', 'error')
+                        showToast('Lỗi khi cập nhật điểm danh', 'error')
                         el.dataset.checked = wasPresent ? 'true' : 'false'
                         el.textContent = wasPresent ? '✓' : ''
                         recomputeAttendanceStatsFromDOM()
                     }
                 } catch (err) {
                     console.error('Toggle attendance error:', err)
-                    showNotification('Lỗi kết nối khi cập nhật điểm danh', 'error')
+                    showToast('Lỗi kết nối khi cập nhật điểm danh', 'error')
                     el.dataset.checked = wasPresent ? 'true' : 'false'
                     el.textContent = wasPresent ? '✓' : ''
                     recomputeAttendanceStatsFromDOM()
