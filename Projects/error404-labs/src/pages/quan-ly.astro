@@ -3182,7 +3182,11 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                             select.appendChild(opt)
                             attStudentItems.push({ value: m.id, label: m.display_name || m.member })
                         })
-                        renderAttStudentDropdown(document.getElementById('attendanceStudentFilterInput')?.value || '')
+                        renderAttStudentDropdown('')
+                        const inp = document.getElementById('attendanceStudentFilterInput')
+                        if (inp) { inp.value = ''; inp.placeholder = 'Tất cả học sinh' }
+                        const hid = document.getElementById('attendanceStudentFilter')
+                        if (hid) hid.value = ''
                     }
                 } catch (err) {
                     console.error('Load students error:', err)
