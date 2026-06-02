@@ -31,6 +31,8 @@
   - Stats: Đã đóng / Tổng thu nhập (thêm 2 stat card vào hàng đầu)
   - Badge Đã đóng (xanh) / Chưa đóng (vàng) cho từng học sinh
 - Lọc member active trong attendance: API chỉ trả `m.status = 'active'`
+- Refresh attendance dropdown sau khi thêm/sửa/khoá member (`loadAttendanceStudents()` trong form submit + toggle status)
+- Filter inactive/deleted members khỏi dropdown search member (`?status=active`)
 
 ## Modified Files
 - src/pages/game-roadmap.astro
@@ -48,4 +50,4 @@
 - (đã replace) attendanceStudentFilter từ plain `<select>` → searchable dropdown + hidden select (giữ backward compat)
 
 ## Next Step
-- Restart `pnpm dev` và test toàn bộ: điểm danh, ghi chú ngày, học phí
+- Restart `pnpm dev` và test toàn bộ: điểm danh, ghi chú ngày, học phí, thêm member mới → dropdown cập nhật, member inactive không hiện

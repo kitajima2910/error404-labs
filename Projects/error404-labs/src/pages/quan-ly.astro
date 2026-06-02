@@ -4105,6 +4105,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                         showToast(isEdit ? 'Cập nhật thành công' : 'Thêm mới thành công', 'success')
                         closeModal()
                         fetchMembers()
+                        loadAttendanceStudents()
                     } else {
                         const err = await res.json()
                         showToast(err.error || 'Lỗi thao tác', 'error')
@@ -4529,6 +4530,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                         )
                         closeDeleteModal()
                         fetchMembers()
+                        loadAttendanceStudents()
                     } else {
                         const data = await res.json()
                         showToast(data.error || 'Lỗi khi thay đổi trạng thái', 'error')
