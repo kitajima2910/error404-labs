@@ -16,7 +16,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
         <title>Quản lý tài khoản | Error404-Labs</title>
         <meta name="description" content="Trang quản trị tài khoản dành cho Admin" />
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-        <style>
+        <style is:global>
             .view-section {
                 transition: all 0.3s ease;
             }
@@ -266,11 +266,12 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 height: 28px;
                 padding: 0 !important;
                 vertical-align: middle;
+                text-align: center;
                 box-sizing: border-box;
                 cursor: pointer;
+                border: 1px solid #e2e8f0;
             }
             #attendanceView .attendance-table td.att-cell .att-toggle {
-                margin: 0 auto;
                 pointer-events: none;
             }
             #attendanceView .attendance-table td.att-cell:hover .att-toggle:not(.att-toggle--empty) {
@@ -369,10 +370,10 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
-                width: 28px;
-                height: 28px;
+                width: 24px;
+                height: 24px;
                 border-radius: 50%;
-                font-size: 13px;
+                font-size: 12px;
                 font-weight: 700;
                 cursor: pointer;
                 transition: all 0.2s ease;
@@ -386,6 +387,8 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 cursor: default;
                 background: transparent;
                 border: 1px solid transparent;
+                width: 24px;
+                height: 24px;
             }
             #attendanceView .att-toggle[data-checked='true'] {
                 background: #dcfce7;
@@ -2679,7 +2682,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 // Event delegation for attendance toggle clicks
                 const attTableBody = document.getElementById('attendanceTableBody')
                 if (attTableBody) {
-                    attTableBody.addEventListener('click', function(e) {
+                    attTableBody.addEventListener('click', function (e) {
                         const cell = e.target.closest('td.att-cell')
                         if (!cell) return
                         const toggle = cell.querySelector('.att-toggle')
