@@ -19,6 +19,8 @@
 - src/pages/game-roadmap.astro
 - src/pages/quan-ly.astro
 - src/pages/api/admin/attendance.ts
+- src/pages/api/admin/expected-sessions.ts (new)
+- migrations/008_add_expected_sessions.sql (new)
 
 ## Known Issues
 - (đã fix) Toggle checkout trước đây xoá không được do date comparison không khớp

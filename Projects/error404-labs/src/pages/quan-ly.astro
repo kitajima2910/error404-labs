@@ -2705,7 +2705,34 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 if (attYearSel) attYearSel.addEventListener('change', fetchAttendanceSummary)
 
                 const attExpectedInput = document.getElementById('attendanceExpectedSessions')
-                if (attExpectedInput) attExpectedInput.addEventListener('change', fetchAttendanceSummary)
+                if (attExpectedInput) {
+                    ;(async () => {
+                        try {
+                            const token = localStorage.getItem('auth_token')
+                            const res = await fetch('/api/admin/expected-sessions', {
+                                headers: { Authorization: 'Bearer ' + token },
+                            })
+                            const data = await res.json()
+                            if (data.expected_sessions) attExpectedInput.value = data.expected_sessions
+                        } catch (e) {
+                            console.error('Load expected_sessions error:', e)
+                        }
+                    })()
+                    attExpectedInput.addEventListener('change', async () => {
+                        const v = attExpectedInput.value
+                        fetchAttendanceSummary()
+                        try {
+                            const token = localStorage.getItem('auth_token')
+                            await fetch('/api/admin/expected-sessions', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+                                body: JSON.stringify({ expected_sessions: parseInt(v) || 8 }),
+                            })
+                        } catch (e) {
+                            console.error('Save expected_sessions error:', e)
+                        }
+                    })
+                }
 
                 if (attStudentFilter) attStudentFilter.addEventListener('change', fetchAttendanceSummary)
 
