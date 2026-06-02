@@ -59,7 +59,11 @@ export const GET: APIRoute = async ({ request, url }) => {
         `
         const notes: Record<string, string> = {}
         for (const row of rows) {
-            const d = row.note_date instanceof Date ? row.note_date.toISOString().split('T')[0] : String(row.note_date)
+            const raw = row.note_date
+            const d =
+                raw instanceof Date
+                    ? `${raw.getFullYear()}-${String(raw.getMonth() + 1).padStart(2, '0')}-${String(raw.getDate()).padStart(2, '0')}`
+                    : String(raw).slice(0, 10)
             notes[d] = row.note
         }
         return new Response(JSON.stringify({ notes }), {
@@ -87,11 +91,11 @@ export const POST: APIRoute = async ({ request }) => {
         }
 
         if (note === '' || note === null) {
-            // Empty note = delete
-            await sql`
-                DELETE FROM error404labs.date_notes WHERE note_date = ${note_date}::date
+            const result = await sql`
+                DELETE FROM error404labs.date_notes WHERE note_date = ${note_date}::date RETURNING id
             `
-            return new Response(JSON.stringify({ success: true, deleted: true }), { status: 200 })
+            const deleted = result && result.length > 0
+            return new Response(JSON.stringify({ success: true, deleted }), { status: deleted ? 200 : 404 })
         }
 
         await sql`
@@ -124,7 +128,10 @@ export const DELETE: APIRoute = async ({ request, url }) => {
             DELETE FROM error404labs.date_notes WHERE note_date = ${noteDate}::date RETURNING id
         `
         const deleted = result && result.length > 0
-        return new Response(JSON.stringify({ success: true, deleted }), { status: 200 })
+        if (!deleted) {
+            return new Response(JSON.stringify({ error: 'Không tìm thấy ghi chú ngày này' }), { status: 404 })
+        }
+        return new Response(JSON.stringify({ success: true, deleted: true }), { status: 200 })
     } catch (error) {
         console.error('Date-notes DELETE error:', error)
         return new Response(JSON.stringify({ error: 'Database error' }), { status: 500 })
