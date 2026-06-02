@@ -1,57 +1,28 @@
 # AGENTS
 
-This is the only entry file you need.
+Đây là file luật chính. Chỉ cần đọc file này trước khi làm việc.
 
-## Startup
-Always do this first:
-1. Read .aiignore
-2. Read STATUS.md
-3. Read PROJECT.md
-4. Read only the source files relevant to the current task
-5. Follow the rules below
-6. Do only the requested task
-7. Update STATUS.md after finishing
-8. Update PROJECT.md only if the project reality changed
-9. Explain the result in Vietnamese
+## Trình tự bắt buộc
+1. Đọc .aiignore
+2. Đọc STATUS.md
+3. Chỉ đọc file source liên quan trực tiếp tới task
+4. Làm đúng phạm vi task
+5. Cập nhật STATUS.md sau khi xong
+6. Trả lời bằng tiếng Việt
 
-## Core rules
-- Make the smallest safe patch
-- Do not redesign unless asked
-- Do not rename variables/functions/classes/files unless needed
-- Do not touch unrelated code
-- Do not load big files, logs, build output, or generated files unless necessary
-- Keep context and token usage low
-- Prefer simple, stable, maintainable changes
+## Luật cốt lõi
+- Patch nhỏ nhất có thể
+- Không redesign nếu không được yêu cầu
+- Không đổi tên biến / hàm / class / file nếu không cần
+- Không đụng code không liên quan
+- Không mở file nặng, build output, logs, assets lớn nếu không cần
+- Ưu tiên token thấp, context gọn, tốc độ cao
 
-## PROJECT.md maintenance
-PROJECT.md is long-term memory, not a changelog.
-
-Update PROJECT.md only when one of these changes:
-- tech stack changes
-- architecture changes
-- major modules are added or removed
-- important decisions change
-- current systems change
-
-Keep PROJECT.md short and current.
-Remove obsolete information.
-Keep it under 150 lines when possible.
-
-## STATUS.md maintenance
-STATUS.md is short-term memory.
-Update it after every task with:
-- current task
-- current focus
-- completed work
-- modified files
-- known issues
-- next step
-
-## Output format
-After each task, respond in Vietnamese with:
+## Khi xong task
+Báo ngắn gọn:
 - Đã làm gì
 - File nào đã sửa
 - Vì sao sửa
 - Ảnh hưởng hệ thống
 - Bước tiếp theo
-- Commit message
+- Commit message ngắn
