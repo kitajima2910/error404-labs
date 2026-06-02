@@ -2526,6 +2526,35 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
             window.__VIBE_PROMPTS__ = JSON.parse(vibePromptsJson)
         </script>
 
+        <!-- Confirm Modal -->
+        <div
+            id="confirmModal"
+            class="fixed inset-0 z-[99998] hidden items-center justify-center bg-black/50 p-4 transition-opacity"
+        >
+            <div
+                id="confirmModalContent"
+                class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden transform transition-all scale-95 opacity-0"
+            >
+                <div class="p-6">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800">Xác nhận xoá</h3>
+                            <p id="confirmModalMessage" class="text-sm text-slate-500 mt-0.5">Bạn có chắc chắn muốn xoá?</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-3 justify-end">
+                        <button id="confirmModalCancel" class="px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer">Huỷ</button>
+                        <button id="confirmModalOk" class="px-4 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-sm font-semibold text-white transition-colors cursor-pointer">Xoá</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Toast Notification -->
         <div
             id="toastNotification"
@@ -2621,6 +2650,13 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
             const toastTitle = document.getElementById('toastTitle')
             const toastIcon = document.getElementById('toastIcon')
             const toastClose = document.getElementById('toastClose')
+            // Confirm Modal
+            const confirmModal = document.getElementById('confirmModal')
+            const confirmModalContent = document.getElementById('confirmModalContent')
+            const confirmModalMessage = document.getElementById('confirmModalMessage')
+            const confirmModalOk = document.getElementById('confirmModalOk')
+            const confirmModalCancel = document.getElementById('confirmModalCancel')
+            let confirmResolve = null
 
             // Roadmap Modal Elements
             const roadmapModal = document.getElementById('roadmapModal')
@@ -3320,7 +3356,8 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                         tbody.querySelectorAll('.att-pay-delete').forEach((btn) => {
                             btn.addEventListener('click', async () => {
                                 const payId = parseInt(btn.dataset.payId)
-                                if (!confirm('Xoá khoản học phí này?')) return
+                                const confirmed = await showConfirmModal('Xoá khoản học phí này?')
+                                if (!confirmed) return
                                 try {
                                     const res = await fetch('/api/admin/payments?id=' + payId, {
                                         method: 'DELETE',
@@ -5148,6 +5185,37 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 }
             }
             if (toastClose) toastClose.onclick = () => toast.classList.add('translate-x-full', 'opacity-0')
+
+            // Confirm Modal
+            function showConfirmModal(msg) {
+                return new Promise((resolve) => {
+                    confirmModalMessage.textContent = msg
+                    confirmResolve = resolve
+                    confirmModal.classList.remove('hidden')
+                    confirmModal.classList.add('flex')
+                    requestAnimationFrame(() => {
+                        confirmModalContent.classList.remove('scale-95', 'opacity-0')
+                        confirmModalContent.classList.add('scale-100', 'opacity-100')
+                    })
+                })
+            }
+            function closeConfirmModal(result) {
+                confirmModalContent.classList.remove('scale-100', 'opacity-100')
+                confirmModalContent.classList.add('scale-95', 'opacity-0')
+                setTimeout(() => {
+                    confirmModal.classList.add('hidden')
+                    confirmModal.classList.remove('flex')
+                    if (confirmResolve) {
+                        confirmResolve(result)
+                        confirmResolve = null
+                    }
+                }, 150)
+            }
+            if (confirmModalOk) confirmModalOk.addEventListener('click', () => closeConfirmModal(true))
+            if (confirmModalCancel) confirmModalCancel.addEventListener('click', () => closeConfirmModal(false))
+            if (confirmModal) confirmModal.addEventListener('click', (e) => {
+                if (e.target === confirmModal) closeConfirmModal(false)
+            })
 
             // ── Vibe Tools Member Management ──────────────────────────────────────
             async function fetchVibeToolsMembers() {
