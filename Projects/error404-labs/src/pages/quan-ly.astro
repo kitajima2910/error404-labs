@@ -312,10 +312,101 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
             #attendanceView .weekend-col {
                 background: #f8f8f8;
             }
-            #attendanceView .today-col {
-                background: #eef4ff;
-            }
-            @media (max-width: 768px) {
+                #attendanceView .today-col {
+                    background: #eef4ff;
+                }
+                /* ── Day-header note indicator ── */
+                #attendanceView .attendance-table th.day-header.has-note {
+                    background: #fef3c7 !important;
+                    color: #92400e;
+                    position: relative;
+                }
+                #attendanceView .attendance-table th.day-header.has-note::after {
+                    content: '';
+                    position: absolute;
+                    bottom: 2px;
+                    right: 2px;
+                    width: 5px;
+                    height: 5px;
+                    border-radius: 50%;
+                    background: #f59e0b;
+                }
+                #attendanceView .attendance-table th.day-header:hover {
+                    background: #e2e8f0 !important;
+                    cursor: pointer;
+                }
+                /* ── Date note popover ── */
+                .date-note-popover {
+                    position: fixed;
+                    z-index: 99999;
+                    background: white;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 12px;
+                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+                    padding: 16px;
+                    width: 260px;
+                    font-family: inherit;
+                }
+                .date-note-popover .popover-date {
+                    font-size: 13px;
+                    font-weight: 700;
+                    color: #475569;
+                    margin-bottom: 8px;
+                }
+                .date-note-popover textarea {
+                    width: 100%;
+                    min-height: 72px;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 8px;
+                    padding: 8px 10px;
+                    font-size: 13px;
+                    font-family: inherit;
+                    resize: vertical;
+                    box-sizing: border-box;
+                    outline: none;
+                    transition: border-color 0.15s;
+                }
+                .date-note-popover textarea:focus {
+                    border-color: #6366f1;
+                    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
+                }
+                .date-note-popover .popover-actions {
+                    display: flex;
+                    gap: 6px;
+                    margin-top: 10px;
+                }
+                .date-note-popover .popover-btn {
+                    padding: 6px 14px;
+                    border-radius: 8px;
+                    font-size: 13px;
+                    font-weight: 600;
+                    border: none;
+                    cursor: pointer;
+                    transition: background 0.15s;
+                }
+                .date-note-popover .popover-btn-save {
+                    background: #6366f1;
+                    color: white;
+                }
+                .date-note-popover .popover-btn-save:hover {
+                    background: #4f46e5;
+                }
+                .date-note-popover .popover-btn-delete {
+                    background: #fee2e2;
+                    color: #dc2626;
+                }
+                .date-note-popover .popover-btn-delete:hover {
+                    background: #fecaca;
+                }
+                .date-note-popover .popover-btn-cancel {
+                    background: #f1f5f9;
+                    color: #64748b;
+                    margin-left: auto;
+                }
+                .date-note-popover .popover-btn-cancel:hover {
+                    background: #e2e8f0;
+                }
+                @media (max-width: 768px) {
                 #attendanceView .attendance-table th.day-header {
                     min-width: 28px;
                     width: 28px;
@@ -2506,6 +2597,8 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
 
             // Toast State
             let toastTimeout
+            let dateNotes = {}
+            let activeNotePopover = null
 
             // ─────────────────────────────────────────────────────────────────────
             // 2. ĐỊNH NGHĨA HÀM
@@ -2749,6 +2842,23 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                         if (memberId && dateStr) {
                             toggleCellAttendance(memberId, dateStr, toggle)
                         }
+                    })
+                }
+
+                // Event delegation for day-header note popover
+                const attTable = document.querySelector('.attendance-table')
+                if (attTable) {
+                    attTable.addEventListener('click', function (e) {
+                        const th = e.target.closest('th.day-header')
+                        if (!th) return
+                        const day = parseInt(th.textContent.trim())
+                        if (!day) return
+                        const month = document.getElementById('attendanceMonth').value || new Date().getMonth() + 1
+                        const year = document.getElementById('attendanceYear').value || new Date().getFullYear()
+                        const daysInMonth = new Date(year, month, 0).getDate()
+                        if (day > daysInMonth) return
+                        const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+                        showNotePopover(th, dateStr)
                     })
                 }
 
@@ -3023,6 +3133,9 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                             (s) => s.total_days > 0,
                         ).length
                     }
+                    // Also fetch & update date notes for day-header indicators
+                    updateDayHeaderNotes()
+                    fetchDateNotes()
                 } catch (err) {
                     console.error('Attendance fetch error:', err)
                     tbody.innerHTML = `<tr><td colspan="33" class="text-center px-4 py-8 text-red-400">Lỗi tải dữ liệu</td></tr>`
@@ -3145,6 +3258,144 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                     el.style.pointerEvents = ''
                 }
             }
+
+            // ── Date notes ────────────────────────────────────────────────────────
+            async function fetchDateNotes() {
+                const month = document.getElementById('attendanceMonth').value || new Date().getMonth() + 1
+                const year = document.getElementById('attendanceYear').value || new Date().getFullYear()
+                const token = localStorage.getItem('auth_token')
+                try {
+                    const res = await fetch(`/api/admin/date-notes?year=${year}&month=${month}`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                    })
+                    const data = await res.json()
+                    dateNotes = data.notes || {}
+                } catch (err) {
+                    console.error('Fetch date notes error:', err)
+                    dateNotes = {}
+                }
+                updateDayHeaderNotes()
+            }
+
+            function updateDayHeaderNotes() {
+                document.querySelectorAll('th.day-header').forEach((th) => {
+                    const day = parseInt(th.textContent.trim())
+                    if (!day) return
+                    const month = document.getElementById('attendanceMonth').value || new Date().getMonth() + 1
+                    const year = document.getElementById('attendanceYear').value || new Date().getFullYear()
+                    const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+                    const note = dateNotes[dateStr]
+                    if (note) {
+                        th.classList.add('has-note')
+                        th.title = note
+                    } else {
+                        th.classList.remove('has-note')
+                        th.title = ''
+                    }
+                })
+            }
+
+            function closeNotePopover() {
+                if (activeNotePopover) {
+                    activeNotePopover.remove()
+                    activeNotePopover = null
+                }
+            }
+
+            function showNotePopover(th, dateStr) {
+                closeNotePopover()
+                const rect = th.getBoundingClientRect()
+                const existingNote = dateNotes[dateStr] || ''
+                const popover = document.createElement('div')
+                popover.className = 'date-note-popover'
+                popover.style.top = rect.bottom + 8 + 'px'
+                const leftPos = rect.left + rect.width / 2 - 130
+                popover.style.left = Math.max(4, Math.min(leftPos, window.innerWidth - 270)) + 'px'
+
+                popover.innerHTML = `
+                    <div class="popover-date">${dateStr}</div>
+                    <textarea id="noteTextarea" rows="3" placeholder="Nhập ghi chú (nghỉ lễ, lý do...)...">${existingNote.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')}</textarea>
+                    <div class="popover-actions">
+                        <button type="button" class="popover-btn popover-btn-save">Lưu</button>
+                        ${existingNote ? '<button type="button" class="popover-btn popover-btn-delete">Xoá</button>' : ''}
+                        <button type="button" class="popover-btn popover-btn-cancel">Huỷ</button>
+                    </div>
+                `
+
+                document.body.appendChild(popover)
+                activeNotePopover = popover
+
+                const textarea = popover.querySelector('#noteTextarea')
+                if (textarea) {
+                    textarea.focus()
+                    textarea.setSelectionRange(textarea.value.length, textarea.value.length)
+                }
+
+                popover.querySelector('.popover-btn-save').addEventListener('click', async () => {
+                    const note = textarea.value.trim()
+                    const token = localStorage.getItem('auth_token')
+                    try {
+                        const res = await fetch('/api/admin/date-notes', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+                            body: JSON.stringify({ note_date: dateStr, note }),
+                        })
+                        if (res.ok) {
+                            if (note) {
+                                dateNotes[dateStr] = note
+                            } else {
+                                delete dateNotes[dateStr]
+                            }
+                            updateDayHeaderNotes()
+                            closeNotePopover()
+                            showToast(note ? 'Đã lưu ghi chú' : 'Đã xoá ghi chú', 'success')
+                        } else {
+                            showToast('Lỗi lưu ghi chú', 'error')
+                        }
+                    } catch (err) {
+                        showToast('Lỗi kết nối khi lưu ghi chú', 'error')
+                    }
+                })
+
+                const delBtn = popover.querySelector('.popover-btn-delete')
+                if (delBtn) {
+                    delBtn.addEventListener('click', async () => {
+                        const token = localStorage.getItem('auth_token')
+                        try {
+                            const res = await fetch('/api/admin/date-notes?date=' + encodeURIComponent(dateStr), {
+                                method: 'DELETE',
+                                headers: { Authorization: 'Bearer ' + token },
+                            })
+                            if (res.ok) {
+                                delete dateNotes[dateStr]
+                                updateDayHeaderNotes()
+                                closeNotePopover()
+                                showToast('Đã xoá ghi chú', 'info')
+                            } else {
+                                showToast('Lỗi xoá ghi chú', 'error')
+                            }
+                        } catch (err) {
+                            showToast('Lỗi kết nối khi xoá ghi chú', 'error')
+                        }
+                    })
+                }
+
+                popover.querySelector('.popover-btn-cancel').addEventListener('click', closeNotePopover)
+            }
+
+            // Close note popover on outside click
+            document.addEventListener('click', function (e) {
+                if (activeNotePopover && !activeNotePopover.contains(e.target) && !e.target.closest('th.day-header')) {
+                    closeNotePopover()
+                }
+            })
+            // Close on Escape
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && activeNotePopover) {
+                    closeNotePopover()
+                }
+            })
+
             async function fetchMembers() {
                 const offset = (currentPage - 1) * limit
                 try {
