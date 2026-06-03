@@ -1,58 +1,52 @@
 # AGENTS — Error404-Labs Monorepo
 
-## Tổng quan
-- Monorepo playground chứa nhiều dự án độc lập, **không có workspace root**.
-- **Dự án chính (production)**: `Projects/error404-labs` — Astro 5 SSR site.
-- Mọi dự án khác là thử nghiệm cá nhân, **không deploy**, không dependency chung.
+## Repo nature
+- Monorepo chứa ~50 dự án **hoàn toàn độc lập**, không workspace root, không dependency chung.
+- Root không có `package.json`, không lint/typecheck/build script. Mỗi project tự quản.
+- Root `.gitignore`: chỉ `.vs`, `*.class`. Mỗi project có `.gitignore` riêng.
+- **Không có CI/CD, test suite, test runner.**
 
-## Dự án chính — `Projects/error404-labs`
-- **Astro 5** SSR, deploy Vercel (`@astrojs/vercel`), region `sin1`
-- **Tailwind CSS v4** — chỉ dùng `@tailwindcss/postcss`, không có `tailwind.config.*`
-- **Neon PostgreSQL** — schema `error404labs`, query bằng `sql\`...\`` (`@neondatabase/serverless`)
-- **pnpm** — package manager. Node 22 (`.nvmrc`)
-- **Pagefind** — search index chạy trong `pnpm build`
-- **KaTeX** — math rendering qua `remark-math` + `rehype-katex`
-- **Prettier** — semi=false, singleQuote, tabWidth=4, printWidth=120, multilineArraysWrapThreshold=1
-- **Không có test suite, CI/CD, test runner**
+## Dự án production duy nhất — `Projects/error404-labs`
+- **Astro 5 SSR**, deploy Vercel (`@astrojs/vercel`), site `error404-labs.info.vn`, region `sin1`.
+- **Tailwind CSS v4**: chỉ `@tailwindcss/postcss` Vite plugin, **không có** `tailwind.config.*`.
+- **Neon PostgreSQL**: schema `error404labs`, query = `sql\`...\`` (`@neondatabase/serverless`). Migrations: `migrations/` (001–012, SQL thuần).
+- **pnpm** (Node 22, xem `.nvmrc`). Chạy lệnh từ `Projects/error404-labs/`.
+  ```
+  pnpm dev          # astro dev
+  pnpm build        # astro build && pagefind --site dist && copyfiles -u 1 dist/pagefind/** public
+  pnpm preview      # astro preview
+  ```
+- **Auth**: JWT (`jsonwebtoken`) + bcrypt, rate limit 5 lần/phút/IP. Endpoints: `src/pages/api/login.ts`, `verify.ts`, `logout.ts`.
+- **ImageKit**: upload ảnh qua `/api/admin/upload-image`.
+- **Pagefind** search index + **KaTeX** math (`remark-math` + `rehype-katex`).
+- **Prettier**: semi=false, singleQuote, tabWidth=4, printWidth=120, `` multilineArraysWrapThreshold: 1 ``.
+- Mọi API route cần `export const prerender = false`. Mutation endpoints validate origin (CSRF).
+- UI text, comments, error messages = **tiếng Việt**. Code identifiers = tiếng Anh. Props = `interface Props` trong frontmatter.
+- File noise: `FINAL_*`, `QUICK_*`, `IMPLEMENTATION_*` — bỏ qua.
+- `.agents/skills/` (13 skill) + `.agents/workflows/` (5 workflow). Dùng tool `skill` để load.
+- `CLAUDE.md` chỉ ghi `Follow AGENTS.md.` — không đọc riêng.
 
-## Lệnh (dự án chính)
-```bash
-pnpm dev          # astro dev
-pnpm build        # astro build && pagefind --site dist && copyfiles -u 1 dist/pagefind/** public
-pnpm preview      # astro preview
-```
+## Các project khác trong `Projects/`
+| Project | Stack |
+|---|---|
+| `error404-labs-launcher` | Chrome extension MV2 (manifest v2) |
+| `slicesprite-...-v5` | React 19 + Vite 6 + Tailwind v4 + Gemini AI |
 
-## Conventions bắt buộc
-- **Giao tiếp = tiếng Việt**. Code identifiers = tiếng Anh.
-- **Patch tối thiểu**: không đổi tên biến/function/file, không refactor nếu không được yêu cầu. (`rules.md`)
-- Nếu task ảnh hưởng dự án chính: đọc `STATUS.md` + `PROJECT.md` từ `Projects/error404-labs/`.
-- **Mọi API route** phải có `export const prerender = false`.
-- Mutation endpoints: validate origin (CSRF). Auth endpoints: rate limit 5 attempts/minute/IP.
-- UI text, comments, error messages = tiếng Việt. Props typed `interface Props` trong frontmatter.
-
-## Agent skills system (dự án chính)
-- `Projects/error404-labs/.agents/skills/` có 13 skill (web-app, h5-game, database, ai-app...)
-- `Projects/error404-labs/.agents/workflows/` có 5 workflow mẫu
-- Dùng tool `skill` để load skill phù hợp
-
-## Cấu trúc thư mục root
+## Cấu trúc root
 | Thư mục | Nội dung |
 |---|---|
-| `Projects/` | Dự án chính (Astro) + launcher + slicesprite |
+| `Projects/` | Production site + launcher + slicesprite SPA |
 | `game/` | HTML5 games (Phaser, Godot, GDevelop, vanilla) |
 | `htmlcssjs/` | Static HTML/CSS/JS experiments, vibe projects |
 | `react/` | React Native + web React experiments |
-| `Svelte/` | Svelte learning projects |
-| `python/` | Python (AI, OpenCV) |
-| `c/` | C/C++/C# learning |
-| `Laravel/` | PHP Laravel experiments |
-| `nestjs/` | NestJS experiments |
-| `vibe-coding/` | AI-vibe-coded projects |
+| `Svelte/` | SvelteKit learning projects |
+| `python/`, `c/` (C++/C#), `Laravel/`, `nestjs/` | Learning projects |
 | `skills-ai/` | AI skill packs / agents |
-| `Scratch/` | Scratch exports |
+| `Scratch/`, `java/` | Scratch exports, Java learning |
+| `test/` | Workspace tạm cho agent (có `AGENTS.md` riêng, không phải test suite) |
 
-## Lưu ý
-- Root `package.json` không tồn tại — mỗi project tự quản lý dependencies riêng.
-- Root `.gitignore` chỉ có `.vs` và `*.class`. Mỗi project có `.gitignore` riêng.
-- Các file `.md` báo cáo cũ (FINAL_*, QUICK_*, IMPLEMENTATION_*, DELIVERY_SUMMARY*) trong `Projects/error404-labs/` là noise lịch sử — bỏ qua.
-- `CLAUDE.md` trong dự án chính chỉ ghi `Follow AGENTS.md.` — không đọc riêng.
+## Khi làm việc
+- Task ảnh hưởng dự án chính: đọc `STATUS.md` + `PROJECT.md` từ `Projects/error404-labs/`.
+- `test/` có `.aiignore` và `STATUS.md` — đọc trước khi động vào.
+- Patch tối thiểu: không đổi tên, không refactor, không đụng code ngoài task.
+- Giao tiếp = tiếng Việt. Báo xong task ngắn gọn: đã làm gì, file nào, vì sao, ảnh hưởng, commit message.
