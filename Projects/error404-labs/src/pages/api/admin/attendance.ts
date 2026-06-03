@@ -195,8 +195,8 @@ export const POST: APIRoute = async ({ request }) => {
                 }
             } else if (note) {
                 await sql`
-                    INSERT INTO error404labs.attendance (member_id, check_in_date, session, note)
-                    VALUES (${member_id}, ${check_in_date}::date, ${noteSession}, ${note})
+                    INSERT INTO error404labs.attendance (member_id, check_in_date, session, check_in_time, note)
+                    VALUES (${member_id}, ${check_in_date}::date, ${noteSession}, NULL, ${note})
                 `
             }
             return new Response(JSON.stringify({ success: true }), { status: 200 })
