@@ -73,9 +73,9 @@ export const GET: APIRoute = async ({ request, url }) => {
                     COUNT(a.id)::int as total_days,
                     COALESCE(
                         jsonb_object_agg(
-                            a.check_in_date::text,
+                            a.check_in_date::text || '_' || a.session,
                             a.id
-                            ORDER BY a.check_in_date
+                            ORDER BY a.check_in_date, a.session
                         ) FILTER (WHERE a.id IS NOT NULL),
                         '{}'::jsonb
                     ) as attendance_map
@@ -101,12 +101,12 @@ export const GET: APIRoute = async ({ request, url }) => {
             const lastDay = `${year}-${String(month).padStart(2, '0')}-${String(lastDayDate.getDate()).padStart(2, '0')}`
 
             const records = await sql`
-                SELECT id, check_in_date, check_in_time, created_at
+                SELECT id, check_in_date, check_in_time, session, created_at
                 FROM error404labs.attendance
                 WHERE member_id = ${parseInt(memberId)}
                     AND check_in_date >= ${firstDay}::date
                     AND check_in_date <= ${lastDay}::date
-                ORDER BY check_in_date DESC
+                ORDER BY check_in_date DESC, session DESC
             `
 
             return new Response(JSON.stringify({ records }), { status: 200 })
@@ -129,7 +129,7 @@ export const GET: APIRoute = async ({ request, url }) => {
 }
 
 // POST: Check in/out a student (attendance)
-// Body: { member_id, check_in_date, check_in_time?, attendance_id?, action: 'checkin' | 'checkout' }
+// Body: { member_id, check_in_date, session?, check_in_time?, attendance_id?, action: 'checkin' | 'checkout' }
 export const POST: APIRoute = async ({ request }) => {
     const admin = await checkAdmin(request)
     if (!admin) {
@@ -137,10 +137,12 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     try {
-        const { member_id, check_in_date, check_in_time, attendance_id, action } = await request.json()
+        const { member_id, check_in_date, session, check_in_time, attendance_id, action } = await request.json()
         if (!member_id || !check_in_date) {
             return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 })
         }
+
+        const ses = session || 'morning'
 
         if (action === 'checkout') {
             let deleted = false
@@ -153,14 +155,14 @@ export const POST: APIRoute = async ({ request }) => {
             if (!deleted) {
                 const result = await sql`
                     DELETE FROM error404labs.attendance
-                    WHERE member_id = ${member_id} AND check_in_date = ${check_in_date}::date
+                    WHERE member_id = ${member_id} AND check_in_date = ${check_in_date}::date AND session = ${ses}
                     RETURNING id
                 `
                 deleted = result && result.length > 0
             }
             if (!deleted) {
                 console.log(
-                    `[Attendance] Checkout: no record found for member_id=${member_id}, check_in_date=${check_in_date}`,
+                    `[Attendance] Checkout: no record found for member_id=${member_id}, check_in_date=${check_in_date}, session=${ses}`,
                 )
             }
             return new Response(JSON.stringify({ success: true, deleted }), { status: 200 })
@@ -172,16 +174,17 @@ export const POST: APIRoute = async ({ request }) => {
 
         const existing = await sql`
             SELECT id FROM error404labs.attendance
-            WHERE member_id = ${member_id} AND check_in_date = ${dateStr}::date
+            WHERE member_id = ${member_id} AND check_in_date = ${dateStr}::date AND session = ${ses}
         `
 
         if (existing.length > 0) {
-            return new Response(JSON.stringify({ error: 'Học viên đã được điểm danh ngày này' }), { status: 409 })
+            const sesLabel = ses === 'morning' ? 'buổi sáng' : 'buổi chiều'
+            return new Response(JSON.stringify({ error: `Học viên đã được điểm danh ${sesLabel} ngày này` }), { status: 409 })
         }
 
         const inserted = await sql`
-            INSERT INTO error404labs.attendance (member_id, check_in_date, check_in_time)
-            VALUES (${member_id}, ${dateStr}::date, ${timeStr}::time)
+            INSERT INTO error404labs.attendance (member_id, check_in_date, check_in_time, session)
+            VALUES (${member_id}, ${dateStr}::date, ${timeStr}::time, ${ses})
             RETURNING id
         `
 
@@ -194,7 +197,7 @@ export const POST: APIRoute = async ({ request }) => {
 }
 
 // DELETE: Remove an attendance record (admin only)
-// Body: { member_id, check_in_date } - deletes by member + date
+// Body: { member_id, check_in_date, session?, attendance_id? } - deletes by member + date + session
 export const DELETE: APIRoute = async ({ request }) => {
     const admin = await checkAdmin(request)
     if (!admin) {
@@ -202,10 +205,12 @@ export const DELETE: APIRoute = async ({ request }) => {
     }
 
     try {
-        const { member_id, check_in_date, attendance_id } = await request.json()
+        const { member_id, check_in_date, session, attendance_id } = await request.json()
         if (!member_id || !check_in_date) {
             return new Response(JSON.stringify({ error: 'Missing member_id or check_in_date' }), { status: 400 })
         }
+
+        const ses = session || 'morning'
 
         let result
         if (attendance_id) {
@@ -217,7 +222,7 @@ export const DELETE: APIRoute = async ({ request }) => {
         } else {
             result = await sql`
                 DELETE FROM error404labs.attendance
-                WHERE member_id = ${member_id} AND check_in_date = ${check_in_date}::date
+                WHERE member_id = ${member_id} AND check_in_date = ${check_in_date}::date AND session = ${ses}
                 RETURNING id
             `
         }

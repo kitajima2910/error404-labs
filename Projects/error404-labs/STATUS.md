@@ -33,6 +33,15 @@
 - Lọc member active trong attendance: API chỉ trả `m.status = 'active'`
 - Refresh attendance dropdown sau khi thêm/sửa/khoá member (`loadAttendanceStudents()` trong form submit + toggle status)
 - Filter inactive/deleted members khỏi dropdown search member (`?status=active`)
+- **Phân ca sáng/chiều trong điểm danh**: migration 011 + API + UI
+  - Migration 011: thêm cột `session TEXT` (`morning`/`afternoon`), đổi UNIQUE thành (member_id, check_in_date, session)
+  - API GET: attendance_map dùng key `date_session` (vd `"2026-06-03_morning"`)
+  - API POST: nhận `session`, mặc định `'morning'` cho backward compat
+  - API DELETE: nhận `session` cho fallback
+  - UI: day header động hiển thị Thứ (T2–CN) + Ngày (1–31)
+  - Mỗi cell có 2 toggle xếp dọc: ☀ buổi sáng, ☾ buổi chiều
+  - Nút "Điểm danh hôm nay": tự động chọn session theo giờ (trước 12h = sáng, sau 12h = chiều)
+  - Stats cập nhật đúng với attendance_map key mới
 
 ## Modified Files
 - src/pages/game-roadmap.astro
@@ -44,10 +53,11 @@
 - migrations/008_add_expected_sessions.sql (new)
 - migrations/009_create_date_notes.sql (new)
 - migrations/010_create_payments.sql (new)
+- migrations/011_add_session_to_attendance.sql (new)
 
 ## Known Issues
 - (đã fix) Toggle checkout trước đây xoá không được do date comparison không khớp
 - (đã replace) attendanceStudentFilter từ plain `<select>` → searchable dropdown + hidden select (giữ backward compat)
 
 ## Next Step
-- Restart `pnpm dev` và test toàn bộ: điểm danh, ghi chú ngày, học phí, thêm member mới → dropdown cập nhật, member inactive không hiện
+- Restart `pnpm dev` và test toàn bộ: điểm danh sáng/chiều, ghi chú ngày, học phí, thêm member mới → dropdown cập nhật, member inactive không hiện
