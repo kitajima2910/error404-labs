@@ -3635,6 +3635,10 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                             showToast('Lỗi kết nối', 'error')
                         }
                     } else if (action === 'save-note') {
+                        if (!note) {
+                            showToast('Ghi chú chưa viết gì', 'warning')
+                            return
+                        }
                         overlay.remove()
                         const token = localStorage.getItem('auth_token')
                         try {
