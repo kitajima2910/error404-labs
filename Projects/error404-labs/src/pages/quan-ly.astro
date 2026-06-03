@@ -286,7 +286,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 line-height: 0;
             }
 
-            #attendanceView .attendance-table td.att-cell:hover .att-toggle:not(.att-toggle--empty) {
+            #attendanceView .attendance-table td.att-cell:hover .att-toggle {
                 transform: scale(1.3);
             }
             #attendanceView .attendance-table tbody tr:nth-child(even) td {
@@ -481,14 +481,18 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 margin: 3px auto;
             }
             #attendanceView .att-toggle.att-toggle--empty {
-                cursor: default;
-                background: transparent;
-                border: 1px solid transparent;
+                background: #f8fafc;
+                border: 1.5px dashed #cbd5e1;
                 width: 16px;
                 height: 16px;
                 margin: 3px auto;
             }
 
+            #attendanceView .att-toggle--has-note {
+                border: 1.5px solid #fca5a5;
+                background: #fef2f2;
+                color: #dc2626;
+            }
             #attendanceView .att-toggle--morning[data-checked='true'] {
                 background: #dbeafe;
                 color: #2563eb;
@@ -2948,13 +2952,18 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 if (attTableBody) {
                     attTableBody.addEventListener('click', function (e) {
                         const toggle = e.target.closest('.att-toggle')
-                        if (!toggle || toggle.classList.contains('att-toggle--empty')) return
+                        if (!toggle) return
                         const cell = toggle.closest('td.att-cell')
                         if (!cell) return
                         const memberId = parseInt(toggle.dataset.member || '')
                         const dateStr = toggle.dataset.date
-                        if (memberId && dateStr) {
+                        const session = toggle.dataset.session
+                        if (!memberId || !dateStr) return
+
+                        if (toggle.dataset.checked === 'true') {
                             toggleCellAttendance(memberId, dateStr, toggle)
+                        } else {
+                            showAttendanceActionPopup(memberId, dateStr, session, toggle)
                         }
                     })
                 }
@@ -3283,12 +3292,15 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                             html += `<tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">`
                             html += `<td class="px-4 py-2.5 font-medium text-slate-800 text-left">${student.display_name || student.member}</td>`
                             const attendanceMap = student.attendance_map || {}
+                            const notesMap = student.notes_map || {}
                             for (let d = 1; d <= daysInMonth; d++) {
                                 const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`
                                 const morningKey = dateStr + '_morning'
                                 const afternoonKey = dateStr + '_afternoon'
                                 const morningAttId = attendanceMap[morningKey]
                                 const afternoonAttId = attendanceMap[afternoonKey]
+                                const morningNote = notesMap[morningKey] || notesMap[dateStr + '_absent_morning'] || ''
+                                const afternoonNote = notesMap[afternoonKey] || notesMap[dateStr + '_absent_afternoon'] || ''
 
                                 const dayDate = new Date(year, month - 1, d)
                                 const dayOfWeek = dayDate.getDay()
@@ -3300,9 +3312,13 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                 if (isToday) tdClass += ' today-col'
 
                                 const memberId = student.id
+                                const morningAttClass = morningAttId ? 'att-toggle--present' : morningNote ? 'att-toggle--has-note' : 'att-toggle--empty'
+                                const afternoonAttClass = afternoonAttId ? 'att-toggle--present' : afternoonNote ? 'att-toggle--has-note' : 'att-toggle--empty'
+                                const morningText = morningAttId ? 'S' : morningNote ? 'N' : ''
+                                const afternoonText = afternoonAttId ? 'C' : afternoonNote ? 'N' : ''
                                 html += `<td class="${tdClass}" title="${dateStr}">
-                                    <span class="att-toggle att-toggle--morning" data-member="${memberId}" data-date="${dateStr}" data-session="morning" data-attendance-id="${morningAttId || ''}" data-checked="${morningAttId ? 'true' : 'false'}">${morningAttId ? 'S' : ''}</span>
-                                    <span class="att-toggle att-toggle--afternoon" data-member="${memberId}" data-date="${dateStr}" data-session="afternoon" data-attendance-id="${afternoonAttId || ''}" data-checked="${afternoonAttId ? 'true' : 'false'}">${afternoonAttId ? 'C' : ''}</span>
+                                    <span class="att-toggle att-toggle--morning ${morningAttClass}" data-member="${memberId}" data-date="${dateStr}" data-session="morning" data-attendance-id="${morningAttId || ''}" data-checked="${morningAttId ? 'true' : 'false'}" data-note="${morningNote}">${morningText}</span>
+                                    <span class="att-toggle att-toggle--afternoon ${afternoonAttClass}" data-member="${memberId}" data-date="${dateStr}" data-session="afternoon" data-attendance-id="${afternoonAttId || ''}" data-checked="${afternoonAttId ? 'true' : 'false'}" data-note="${afternoonNote}">${afternoonText}</span>
                                 </td>`
                             }
                             const rate = targetSessions > 0 ? Math.min(100, Math.round((days / targetSessions) * 100)) : 0
@@ -3479,14 +3495,18 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
             async function toggleCellAttendance(memberId, dateStr, el) {
                 const token = localStorage.getItem('auth_token')
                 if (!el) return
-                if (el.classList.contains('att-toggle--empty')) return
                 if (el.dataset.busy === '1') return
 
                 const session = el.dataset.session || 'morning'
                 const wasPresent = el.dataset.checked === 'true'
                 const nextPresent = !wasPresent
+
                 el.dataset.checked = nextPresent ? 'true' : 'false'
                 el.textContent = nextPresent ? (session === 'morning' ? 'S' : 'C') : ''
+                el.className = el.className.replace(/att-toggle--\w+/g, '').trim()
+                el.classList.add('att-toggle', session === 'morning' ? 'att-toggle--morning' : 'att-toggle--afternoon')
+                if (!nextPresent) el.classList.add('att-toggle--empty')
+                if (!nextPresent) el.dataset.note = ''
                 recomputeAttendanceStatsFromDOM()
 
                 el.dataset.busy = '1'
@@ -3513,13 +3533,6 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                         if (data.id) {
                             el.dataset.attendanceId = String(data.id)
                         }
-                        if (data.deleted === false) {
-                            console.warn('Toggle checkout: server could not find record, UI cleared anyway', {
-                                memberId,
-                                dateStr,
-                                session,
-                            })
-                        }
                         const sesLabel = session === 'morning' ? 'sáng' : 'chiều'
                         showToast(
                             nextPresent ? `Đã điểm danh ${sesLabel} ngày ${dateStr}` : `Đã bỏ điểm danh ${sesLabel} ngày ${dateStr}`,
@@ -3531,6 +3544,9 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                         showToast('Lỗi khi cập nhật điểm danh', 'error')
                         el.dataset.checked = wasPresent ? 'true' : 'false'
                         el.textContent = wasPresent ? (session === 'morning' ? 'S' : 'C') : ''
+                        el.className = el.className.replace(/att-toggle--\w+/g, '').trim()
+                        el.classList.add('att-toggle', session === 'morning' ? 'att-toggle--morning' : 'att-toggle--afternoon')
+                        if (wasPresent) el.classList.add('att-toggle--present')
                         recomputeAttendanceStatsFromDOM()
                     }
                 } catch (err) {
@@ -3538,12 +3554,113 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                     showToast('Lỗi kết nối khi cập nhật điểm danh', 'error')
                     el.dataset.checked = wasPresent ? 'true' : 'false'
                     el.textContent = wasPresent ? (session === 'morning' ? 'S' : 'C') : ''
+                    el.className = el.className.replace(/att-toggle--\w+/g, '').trim()
+                    el.classList.add('att-toggle', session === 'morning' ? 'att-toggle--morning' : 'att-toggle--afternoon')
+                    if (wasPresent) el.classList.add('att-toggle--present')
                     recomputeAttendanceStatsFromDOM()
                 } finally {
                     el.dataset.busy = '0'
                     el.style.opacity = ''
                     el.style.pointerEvents = ''
                 }
+            }
+
+            function showAttendanceActionPopup(memberId, dateStr, session, toggleEl) {
+                const existingNote = toggleEl.dataset.note || ''
+                const sesLabel = session === 'morning' ? 'Sáng' : 'Chiều'
+
+                const overlay = document.createElement('div')
+                overlay.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/40'
+                overlay.innerHTML = `
+                    <div class="att-action-popup bg-white rounded-2xl shadow-xl p-5 w-80 text-center">
+                        <p class="text-sm font-semibold text-slate-600 mb-1">${dateStr}</p>
+                        <p class="text-lg font-bold text-slate-800 mb-4">${sesLabel}</p>
+                        <div class="flex gap-3 mb-4">
+                            <button class="flex-1 py-2.5 rounded-xl font-bold text-sm border-2 border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 cursor-pointer" data-action="checkin">
+                                Điểm danh
+                            </button>
+                        </div>
+                        <div class="border-t border-slate-100 pt-4">
+                            <label class="block text-xs font-semibold text-slate-500 mb-1.5 text-left">Ghi chú</label>
+                            <textarea class="att-note-input w-full border border-slate-200 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:border-blue-400" rows="3" placeholder="Nhập ghi chú...">${existingNote}</textarea>
+                            <button class="mt-2 w-full py-2 rounded-xl font-semibold text-sm bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer" data-action="save-note">
+                                Lưu ghi chú
+                            </button>
+                        </div>
+                        <button class="mt-2 text-xs text-slate-400 hover:text-slate-600 cursor-pointer" data-cancel>Đóng</button>
+                    </div>
+                `
+                document.body.appendChild(overlay)
+
+                overlay.addEventListener('click', async (e) => {
+                    const target = e.target.closest('[data-action], [data-cancel]')
+                    if (!target) {
+                        if (e.target === overlay) { overlay.remove(); return }
+                        return
+                    }
+                    if (target.dataset.cancel !== undefined) { overlay.remove(); return }
+
+                    const action = target.dataset.action
+                    const textarea = overlay.querySelector('.att-note-input')
+                    const note = textarea ? textarea.value.trim() : ''
+
+                    if (action === 'checkin') {
+                        overlay.remove()
+                        const token = localStorage.getItem('auth_token')
+                        const ts = new Date().getHours().toString().padStart(2, '0') + ':' + new Date().getMinutes().toString().padStart(2, '0')
+                        try {
+                            const res = await fetch('/api/admin/attendance', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+                                body: JSON.stringify({
+                                    member_id: memberId,
+                                    check_in_date: dateStr,
+                                    session: session,
+                                    check_in_time: ts,
+                                    action: 'checkin',
+                                    note: note || undefined,
+                                }),
+                            })
+                            if (res.ok) {
+                                showToast(`Đã điểm danh ${sesLabel.toLowerCase()} ngày ${dateStr}`, 'success')
+                                await fetchAttendanceSummary()
+                            } else if (res.status === 409) {
+                                showToast(`Học sinh đã điểm danh ${sesLabel.toLowerCase()} hôm nay`, 'info')
+                                await fetchAttendanceSummary()
+                            } else {
+                                showToast('Lỗi khi điểm danh', 'error')
+                            }
+                        } catch (err) {
+                            console.error('Checkin error:', err)
+                            showToast('Lỗi kết nối', 'error')
+                        }
+                    } else if (action === 'save-note') {
+                        overlay.remove()
+                        const token = localStorage.getItem('auth_token')
+                        try {
+                            const res = await fetch('/api/admin/attendance', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+                                body: JSON.stringify({
+                                    member_id: memberId,
+                                    check_in_date: dateStr,
+                                    session: session,
+                                    action: 'note',
+                                    note: note || null,
+                                }),
+                            })
+                            if (res.ok) {
+                                showToast(note ? 'Đã lưu ghi chú' : 'Đã xoá ghi chú', 'success')
+                                await fetchAttendanceSummary()
+                            } else {
+                                showToast('Lỗi khi lưu ghi chú', 'error')
+                            }
+                        } catch (err) {
+                            console.error('Save note error:', err)
+                            showToast('Lỗi kết nối', 'error')
+                        }
+                    }
+                })
             }
 
             // ── Date notes ────────────────────────────────────────────────────────

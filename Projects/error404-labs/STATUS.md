@@ -1,7 +1,7 @@
 # STATUS
 
 ## Current Task
-- Sửa format copy prompt ở modal "Sử dụng Prompt Template" (game-roadmap)
+- Ghi chú điểm danh sáng/chiều + popup action
 
 ## Current Focus
 -
@@ -54,6 +54,8 @@
 - migrations/009_create_date_notes.sql (new)
 - migrations/010_create_payments.sql (new)
 - migrations/011_add_session_to_attendance.sql (new)
+- migrations/012_add_note_to_attendance.sql (new)
+- src/pages/api/admin/attendance.ts — GET trả notes_map, POST accept note + action 'note'
 
 ## Known Issues
 - (đã fix) Toggle checkout trước đây xoá không được do date comparison không khớp

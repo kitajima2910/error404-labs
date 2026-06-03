@@ -70,15 +70,23 @@ export const GET: APIRoute = async ({ request, url }) => {
                     m.id,
                     m.member,
                     m.display_name,
-                    COUNT(a.id)::int as total_days,
+                    COUNT(a.check_in_time)::int as total_days,
                     COALESCE(
                         jsonb_object_agg(
                             a.check_in_date::text || '_' || a.session,
                             a.id
                             ORDER BY a.check_in_date, a.session
-                        ) FILTER (WHERE a.id IS NOT NULL),
+                        ) FILTER (WHERE a.check_in_time IS NOT NULL),
                         '{}'::jsonb
-                    ) as attendance_map
+                    ) as attendance_map,
+                    COALESCE(
+                        jsonb_object_agg(
+                            a.check_in_date::text || '_' || a.session,
+                            a.note
+                            ORDER BY a.check_in_date, a.session
+                        ) FILTER (WHERE a.note IS NOT NULL),
+                        '{}'::jsonb
+                    ) as notes_map
                 FROM error404labs.members m
                 LEFT JOIN error404labs.attendance a ON a.member_id = m.id
                     AND a.check_in_date >= ${firstDay}::date
@@ -137,7 +145,7 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     try {
-        const { member_id, check_in_date, session, check_in_time, attendance_id, action } = await request.json()
+        const { member_id, check_in_date, session, check_in_time, attendance_id, action, note } = await request.json()
         if (!member_id || !check_in_date) {
             return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 })
         }
@@ -168,6 +176,32 @@ export const POST: APIRoute = async ({ request }) => {
             return new Response(JSON.stringify({ success: true, deleted }), { status: 200 })
         }
 
+        if (action === 'note') {
+            const noteSession = 'absent_' + ses
+            const existing = await sql`
+                SELECT id FROM error404labs.attendance
+                WHERE member_id = ${member_id} AND check_in_date = ${check_in_date}::date AND session = ${noteSession}
+            `
+            if (existing.length > 0) {
+                if (note) {
+                    await sql`
+                        UPDATE error404labs.attendance SET note = ${note}
+                        WHERE id = ${existing[0].id}
+                    `
+                } else {
+                    await sql`
+                        DELETE FROM error404labs.attendance WHERE id = ${existing[0].id}
+                    `
+                }
+            } else if (note) {
+                await sql`
+                    INSERT INTO error404labs.attendance (member_id, check_in_date, session, note)
+                    VALUES (${member_id}, ${check_in_date}::date, ${noteSession}, ${note})
+                `
+            }
+            return new Response(JSON.stringify({ success: true }), { status: 200 })
+        }
+
         // Default: checkin
         const dateStr = check_in_date || 'CURRENT_DATE'
         const timeStr = check_in_time || 'CURRENT_TIME'
@@ -183,8 +217,8 @@ export const POST: APIRoute = async ({ request }) => {
         }
 
         const inserted = await sql`
-            INSERT INTO error404labs.attendance (member_id, check_in_date, check_in_time, session)
-            VALUES (${member_id}, ${dateStr}::date, ${timeStr}::time, ${ses})
+            INSERT INTO error404labs.attendance (member_id, check_in_date, check_in_time, session, note)
+            VALUES (${member_id}, ${dateStr}::date, ${timeStr}::time, ${ses}, ${note || null})
             RETURNING id
         `
 
