@@ -178,6 +178,12 @@ export const POST: APIRoute = async ({ request }) => {
 
         if (action === 'note') {
             const noteSession = 'absent_' + ses
+            // Nếu có row present (check_in_time IS NOT NULL), xoá nó trước
+            await sql`
+                DELETE FROM error404labs.attendance
+                WHERE member_id = ${member_id} AND check_in_date = ${check_in_date}::date AND session = ${ses} AND check_in_time IS NOT NULL
+            `
+
             const existing = await sql`
                 SELECT id FROM error404labs.attendance
                 WHERE member_id = ${member_id} AND check_in_date = ${check_in_date}::date AND session = ${noteSession}
