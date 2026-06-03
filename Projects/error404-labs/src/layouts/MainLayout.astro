@@ -31,7 +31,11 @@ const {
         <!-- <div class="max-w-3xl mx-auto">
             <Marquee />
         </div> -->
-        <main class="min-h-[70vh]" data-pagefind-body={searchable ? true : undefined} data-pagefind-ignore={searchable ? undefined : true}>
+        <main
+            class="min-h-[70vh]"
+            data-pagefind-body={searchable ? true : undefined}
+            data-pagefind-ignore={searchable ? undefined : true}
+        >
             <slot />
         </main>
         <Footer />
@@ -115,24 +119,24 @@ const {
                 icon: '<i class="fa fa-star" aria-hidden="true"></i>',
                 action: () => (window.location.href = '/thu-nghiem'),
             },
-            // {
-            //     label: 'Prompts Game H5',
-            //     icon: '<i class="fa fa-gamepad" aria-hidden="true"></i>',
-            //     action: () => {
-            //         if (localStorage.getItem('auth_token')) {
-            //             window.location.href = '/cau-lenh-prompts-game'
-            //         } else {
-            //             // @ts-ignore
-            //             if (window.showToast) {
-            //                 // @ts-ignore
-            //                 window.showToast('Vui lòng đăng nhập để truy cập trang này!', 'warning')
-            //             } else {
-            //                 alert('Vui lòng đăng nhập để truy cập trang này!')
-            //             }
-            //             document.getElementById('openLoginModal')?.click()
-            //         }
-            //     },
-            // },
+            {
+                label: 'Prompts Game H5',
+                icon: '<i class="fa fa-gamepad" aria-hidden="true"></i>',
+                action: () => {
+                    if (localStorage.getItem('auth_token')) {
+                        window.location.href = '/cau-lenh-prompts-game'
+                    } else {
+                        // @ts-ignore
+                        if (window.showToast) {
+                            // @ts-ignore
+                            window.showToast('Vui lòng đăng nhập để truy cập trang này!', 'warning')
+                        } else {
+                            alert('Vui lòng đăng nhập để truy cập trang này!')
+                        }
+                        document.getElementById('openLoginModal')?.click()
+                    }
+                },
+            },
             {
                 label: 'Tư duy Sáng tạo H5',
                 icon: '<i class="fa fa-road" aria-hidden="true"></i>',
