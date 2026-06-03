@@ -222,6 +222,13 @@ export const POST: APIRoute = async ({ request }) => {
             RETURNING id
         `
 
+        // Remove any existing absent note for this session
+        const absentSession = 'absent_' + ses
+        await sql`
+            DELETE FROM error404labs.attendance
+            WHERE member_id = ${member_id} AND check_in_date = ${dateStr}::date AND session = ${absentSession}
+        `
+
         const newId = inserted && inserted.length > 0 ? inserted[0].id : null
         return new Response(JSON.stringify({ success: true, id: newId }), { status: 201 })
     } catch (error) {
