@@ -2981,26 +2981,23 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                     attCheckInBtn.addEventListener('click', async () => {
                         const memberId = attStudentFilter ? attStudentFilter.value : ''
 
-                    if (!memberId) {
+                        if (!memberId) {
                             showToast('Vui lòng chọn học sinh trước khi điểm danh', 'warning')
-
                             return
                         }
 
+                        const session = await showSessionPicker()
+                        if (!session) return
+
                         try {
                             const token = localStorage.getItem('auth_token')
-
                             const today = new Date()
-                            const hour = today.getHours()
-                            const session = hour < 12 ? 'morning' : 'afternoon'
-
                             const ds =
                                 today.getFullYear() +
                                 '-' +
                                 String(today.getMonth() + 1).padStart(2, '0') +
                                 '-' +
                                 String(today.getDate()).padStart(2, '0')
-
                             const ts =
                                 String(today.getHours()).padStart(2, '0') +
                                 ':' +
@@ -3008,9 +3005,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
 
                             const res = await fetch('/api/admin/attendance', {
                                 method: 'POST',
-
                                 headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-
                                 body: JSON.stringify({
                                     member_id: parseInt(memberId),
                                     check_in_date: ds,
@@ -3030,9 +3025,36 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                             } else showToast('Lỗi khi điểm danh', 'error')
                         } catch (err) {
                             console.error('Check-in error:', err)
-
                             showToast('Lỗi kết nối khi điểm danh', 'error')
                         }
+                    })
+                }
+
+                function showSessionPicker() {
+                    return new Promise((resolve) => {
+                        const overlay = document.createElement('div')
+                        overlay.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/40'
+                        overlay.innerHTML = `
+                            <div class="bg-white rounded-2xl shadow-xl p-6 w-72 text-center">
+                                <p class="text-sm font-semibold text-slate-600 mb-4">Chọn buổi điểm danh</p>
+                                <div class="flex gap-3">
+                                    <button class="flex-1 py-3 rounded-xl font-bold text-sm border-2 border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 cursor-pointer" data-session="morning">Sáng</button>
+                                    <button class="flex-1 py-3 rounded-xl font-bold text-sm border-2 border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 cursor-pointer" data-session="afternoon">Chiều</button>
+                                </div>
+                                <button class="mt-3 text-xs text-slate-400 hover:text-slate-600 cursor-pointer" data-cancel>Huỷ</button>
+                            </div>
+                        `
+                        document.body.appendChild(overlay)
+                        overlay.addEventListener('click', (e) => {
+                            const btn = e.target.closest('[data-session]')
+                            if (btn) {
+                                overlay.remove()
+                                resolve(btn.dataset.session)
+                            } else if (e.target.closest('[data-cancel]') || e.target === overlay) {
+                                overlay.remove()
+                                resolve(null)
+                            }
+                        })
                     })
                 }
             }
