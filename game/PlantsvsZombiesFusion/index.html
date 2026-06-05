@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <title>Fusion Phòng Thủ - Plants vs Zombies</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%; height: 100%; overflow: hidden;
+      background: #1a1a2e; font-family: 'Segoe UI', Arial, sans-serif;
+      -webkit-user-select: none; user-select: none;
+    }
+    canvas { display: block; }
+
+    #ui-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 10;
+    }
+    #ui-overlay > * { pointer-events: auto; }
+
+    #top-bar {
+      position: absolute; top: 0; left: 0; right: 0; height: 56px;
+      background: linear-gradient(180deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.4) 100%);
+      display: flex; align-items: center; padding: 0 20px;
+      gap: 16px; backdrop-filter: blur(8px);
+    }
+    #home-btn {
+      width: 32px; height: 32px; border-radius: 50%; border: none;
+      background: rgba(255,255,255,0.1); color: #fff; font-size: 16px;
+      cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    #home-btn:hover { background: rgba(255,255,255,0.25); transform: scale(1.1); }
+    #sun-counter {
+      display: flex; align-items: center; gap: 6px;
+      color: #ffd700; font-size: 20px; font-weight: bold;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+      background: rgba(255,215,0,0.15); padding: 4px 14px;
+      border-radius: 20px; border: 1px solid rgba(255,215,0,0.3);
+    }
+    #sun-counter .icon { font-size: 22px; }
+    #wave-info {
+      color: #fff; font-size: 14px; font-weight: 600;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+      margin-left: auto; padding: 4px 14px;
+      background: rgba(255,255,255,0.1); border-radius: 12px;
+    }
+    #score-display {
+      color: #fff; font-size: 14px; font-weight: 600;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+      padding: 4px 14px; background: rgba(255,255,255,0.1); border-radius: 12px;
+    }
+
+    #plant-bar {
+      position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 8px; padding: 10px 16px;
+      background: linear-gradient(180deg, rgba(30,30,50,0.85) 0%, rgba(20,20,40,0.95) 100%);
+      border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);
+      backdrop-filter: blur(12px); box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    }
+    .plant-card {
+      width: 64px; height: 80px; border-radius: 10px;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; cursor: pointer; transition: all 0.2s;
+      position: relative; gap: 2px;
+    }
+    .plant-card:hover { background: rgba(255,255,255,0.12); transform: translateY(-4px); border-color: rgba(255,255,255,0.2); }
+    .plant-card.active { border-color: #ffd700; background: rgba(255,215,0,0.15); box-shadow: 0 0 20px rgba(255,215,0,0.2); }
+    .plant-card.disabled { opacity: 0.4; cursor: not-allowed; filter: grayscale(0.5); }
+    .plant-card .emoji { font-size: 26px; line-height: 1; }
+    .plant-card .cost {
+      font-size: 11px; font-weight: 700; color: #ffd700;
+      background: rgba(0,0,0,0.5); padding: 1px 8px; border-radius: 8px;
+    }
+    .plant-card .name-label { font-size: 9px; color: #aaa; font-weight: 600; }
+    .plant-card .cooldown-overlay {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 0%; background: rgba(0,0,0,0.6);
+      border-radius: 0 0 10px 10px; transition: height 0.1s;
+    }
+
+    #fusion-panel {
+      position: absolute; display: none;
+      background: linear-gradient(180deg, rgba(30,30,60,0.95), rgba(20,20,40,0.98));
+      border: 1px solid rgba(255,215,0,0.3); border-radius: 16px;
+      padding: 16px; backdrop-filter: blur(16px);
+      box-shadow: 0 12px 48px rgba(0,0,0,0.7);
+      min-width: 240px; z-index: 20;
+    }
+    #fusion-panel .title { color: #ffd700; font-size: 14px; font-weight: bold; margin-bottom: 10px; text-align: center; }
+    #fusion-panel .options { display: flex; flex-direction: column; gap: 6px; }
+    #fusion-panel .fusion-option {
+      padding: 8px 12px; border-radius: 10px;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      color: #fff; cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center; gap: 8px; font-size: 13px;
+    }
+    #fusion-panel .fusion-option:hover { background: rgba(255,215,0,0.15); border-color: #ffd700; }
+    #fusion-panel .fusion-option .result-em { font-size: 20px; }
+    #fusion-panel .fusion-option .info { display: flex; flex-direction: column; }
+    #fusion-panel .fusion-option .info .desc { font-size: 11px; color: #aaa; }
+
+    #message-toast {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      color: #fff; font-size: 32px; font-weight: bold; text-align: center;
+      text-shadow: 0 4px 12px rgba(0,0,0,0.8);
+      opacity: 0; transition: opacity 0.3s;
+      pointer-events: none;
+    }
+    #message-toast.show { opacity: 1; }
+
+    #game-over, #victory-screen {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      display: none; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+      z-index: 100;
+    }
+    #game-over .panel, #victory-screen .panel {
+      background: linear-gradient(180deg, rgba(40,20,20,0.95), rgba(20,10,10,0.98));
+      border: 1px solid rgba(255,100,100,0.3); border-radius: 20px;
+      padding: 40px 50px; text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+    }
+    #victory-screen .panel {
+      background: linear-gradient(180deg, rgba(20,40,20,0.95), rgba(10,20,10,0.98));
+      border-color: rgba(100,255,100,0.3);
+    }
+    #game-over h1 { color: #ff4444; font-size: 48px; margin-bottom: 8px; }
+    #victory-screen h1 { color: #44ff44; font-size: 48px; margin-bottom: 8px; }
+    #game-over p, #victory-screen p { color: #ccc; font-size: 18px; margin-bottom: 24px; }
+    .btn {
+      padding: 12px 36px; border: none; border-radius: 12px;
+      font-size: 18px; font-weight: bold; cursor: pointer;
+      transition: all 0.2s; color: #fff;
+      background: linear-gradient(135deg, #ff6b35, #e8451a);
+      box-shadow: 0 4px 16px rgba(255,107,53,0.3);
+    }
+    .btn:hover { transform: scale(1.05); box-shadow: 0 6px 24px rgba(255,107,53,0.5); }
+    #victory-screen .btn { background: linear-gradient(135deg, #35b35b, #1a8a3a); box-shadow: 0 4px 16px rgba(53,179,91,0.3); }
+    #victory-screen .btn:hover { box-shadow: 0 6px 24px rgba(53,179,91,0.5); }
+
+    #endless-btn {
+      margin-left: 10px; padding: 12px 36px; border: none; border-radius: 12px;
+      font-size: 18px; font-weight: bold; cursor: pointer;
+      transition: all 0.2s; color: #fff;
+      background: linear-gradient(135deg, #ffd700, #ff8c00);
+      box-shadow: 0 4px 16px rgba(255,215,0,0.3);
+    }
+    #endless-btn:hover { transform: scale(1.05); box-shadow: 0 6px 24px rgba(255,215,0,0.5); }
+
+    #start-screen {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: radial-gradient(ellipse at center, #2d5a3d, #1a2e1f);
+      z-index: 200;
+    }
+    #start-screen .panel {
+      text-align: center;
+    }
+    #start-screen h1 {
+      font-size: 56px; color: #fff; margin-bottom: 8px;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+    #start-screen h1 .highlight { color: #ffd700; }
+    #start-screen .subtitle { color: #8fbc8f; font-size: 18px; margin-bottom: 32px; }
+    #start-screen .btn-start {
+      padding: 16px 52px; border: none; border-radius: 16px;
+      font-size: 22px; font-weight: bold; cursor: pointer;
+      color: #fff; background: linear-gradient(135deg, #ff6b35, #e8451a);
+      box-shadow: 0 6px 24px rgba(255,107,53,0.4);
+      transition: all 0.2s;
+    }
+    #start-screen .btn-start:hover { transform: scale(1.08); box-shadow: 0 8px 32px rgba(255,107,53,0.6); }
+    #start-screen .btn-guide {
+      padding: 10px 28px; border: none; border-radius: 12px;
+      font-size: 16px; font-weight: bold; cursor: pointer;
+      color: #fff; background: rgba(255,255,255,0.12);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      transition: all 0.2s; margin-top: 14px; margin-left: 12px;
+    }
+    #start-screen .btn-guide:hover { background: rgba(255,255,255,0.2); transform: scale(1.05); }
+    #start-screen .features {
+      display: flex; gap: 24px; margin-top: 32px;
+      color: #aaa; font-size: 13px;
+    }
+    #start-screen .features span { padding: 8px 16px; background: rgba(255,255,255,0.05); border-radius: 10px; }
+
+    .hp-bar {
+      position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%);
+      width: 40px; height: 4px; background: rgba(0,0,0,0.5); border-radius: 2px; overflow: hidden;
+    }
+    .hp-bar .fill {
+      height: 100%; background: #44ff44; border-radius: 2px; transition: width 0.2s;
+    }
+    .hp-bar .fill.danger { background: #ff4444; }
+
+    #level-select {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      display: none; align-items: center; justify-content: center;
+      background: radial-gradient(ellipse at center, #2d5a3d, #1a2e1f);
+      z-index: 200;
+    }
+    #level-select .panel {
+      text-align: center; max-width: 700px; width: 90%;
+    }
+    #level-select h2 {
+      font-size: 36px; color: #ffd700; margin-bottom: 4px;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+    #level-select .subtitle {
+      color: #8fbc8f; font-size: 14px; margin-bottom: 24px;
+    }
+    .level-grid {
+      display: grid; grid-template-columns: repeat(5, 1fr);
+      gap: 12px; margin-bottom: 24px;
+    }
+    .level-card {
+      aspect-ratio: 1; border-radius: 16px;
+      background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.03));
+      border: 2px solid rgba(255,255,255,0.15);
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; cursor: pointer; transition: all 0.25s;
+      position: relative; gap: 4px; padding: 12px;
+    }
+    .level-card:hover:not(.locked) {
+      transform: translateY(-6px) scale(1.05);
+      border-color: #ffd700;
+      box-shadow: 0 12px 32px rgba(255,215,0,0.2);
+    }
+    .level-card.locked {
+      opacity: 0.4; cursor: not-allowed; filter: grayscale(0.7);
+    }
+    .level-card.completed {
+      border-color: rgba(100,255,100,0.4);
+      background: linear-gradient(145deg, rgba(100,255,100,0.08), rgba(100,255,100,0.02));
+    }
+    .level-card .level-num {
+      font-size: 28px; font-weight: bold; color: #fff;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    }
+    .level-card .level-icon { font-size: 28px; }
+    .level-card .level-label {
+      font-size: 10px; color: #aaa; font-weight: 600;
+    }
+    .level-card .lock-overlay {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 36px; background: rgba(0,0,0,0.3);
+      border-radius: 14px;
+    }
+    .level-card .level-plants {
+      font-size: 10px; color: #8fbc8f; font-weight: 600;
+    }
+    .level-card .boss-badge {
+      position: absolute; top: 4px; right: 6px;
+      font-size: 13px;
+    }
+    .level-card.completed .level-num { color: #88ff88; }
+    .btn-back {
+      padding: 10px 28px; border: none; border-radius: 12px;
+      font-size: 15px; font-weight: bold; cursor: pointer;
+      color: #fff; background: rgba(255,255,255,0.1);
+      transition: all 0.2s; border: 1px solid rgba(255,255,255,0.2);
+    }
+    .btn-back:hover { background: rgba(255,255,255,0.2); transform: scale(1.05); }
+
+    .btn-group {
+      display: flex; gap: 10px; justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    #cheat-toggle {
+      position: fixed; bottom: 90px; right: 12px; z-index: 50;
+      width: 36px; height: 36px; border-radius: 50%; border: none;
+      background: rgba(255,215,0,0.2); color: #ffd700; font-size: 18px;
+      cursor: pointer; transition: all 0.2s;
+      backdrop-filter: blur(4px); border: 1px solid rgba(255,215,0,0.2);
+    }
+    #cheat-toggle:hover { background: rgba(255,215,0,0.35); transform: scale(1.1); }
+
+    #cheat-panel {
+      position: fixed; bottom: 130px; right: 12px; z-index: 49;
+      display: none; flex-direction: column; gap: 6px;
+      padding: 14px; min-width: 200px;
+      background: rgba(10,10,30,0.92); border: 1px solid rgba(255,215,0,0.25);
+      border-radius: 14px; backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    }
+    #cheat-panel.open { display: flex; }
+    #cheat-panel .cheat-title {
+      color: #ffd700; font-size: 13px; font-weight: bold;
+      text-align: center; margin-bottom: 4px; position: relative;
+    }
+    #cheat-panel .cheat-btn {
+      padding: 8px 14px; border: none; border-radius: 8px;
+      font-size: 12px; font-weight: 600; cursor: pointer;
+      transition: all 0.15s; text-align: left;
+      color: #fff; background: rgba(255,255,255,0.08);
+    }
+    #cheat-panel .cheat-btn:hover { background: rgba(255,215,0,0.2); transform: translateX(3px); }
+    #cheat-panel .cheat-row {
+      display: flex; gap: 6px; align-items: center;
+    }
+    #cheat-panel .cheat-row select {
+      flex: 1; padding: 6px 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.08); color: #fff; font-size: 12px; outline: none;
+    }
+    #cheat-panel .cheat-row select option { background: #1a1a2e; color: #fff; }
+    #cheat-panel .cheat-row .cheat-btn { flex: 0 0 auto; }
+    #cheat-panel .cheat-close {
+      position: absolute; top: 6px; right: 8px;
+      background: none; border: none; color: rgba(255,255,255,0.4);
+      font-size: 16px; cursor: pointer; padding: 2px 6px; border-radius: 4px;
+    }
+    #cheat-panel .cheat-close:hover { color: #fff; background: rgba(255,255,255,0.1); }
+    #cheat-panel .cheat-divider {
+      height: 1px; background: rgba(255,255,255,0.1); margin: 4px 0;
+    }
+    #cheat-panel .cheat-btn.danger {
+      color: #ff6666;
+    }
+    #cheat-panel .cheat-btn.danger:hover { background: rgba(255,50,50,0.25); }
+
+    #deck-select {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      display: none; align-items: center; justify-content: center;
+      background: radial-gradient(ellipse at center, #2d3a5d, #1a1e2f);
+      z-index: 200;
+    }
+    #deck-select .panel {
+      text-align: center; max-width: 720px; width: 92%;
+    }
+    #deck-select h2 { font-size: 30px; color: #ffd700; margin-bottom: 2px; text-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+    #deck-select .subtitle { color: #8fbc8f; font-size: 14px; margin-bottom: 12px; }
+    .deck-slots {
+      display: flex; gap: 6px; justify-content: center; margin-bottom: 6px;
+      padding: 10px; background: rgba(0,0,0,0.3); border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .deck-slot {
+      width: 56px; height: 66px; border-radius: 10px;
+      background: rgba(255,255,255,0.04); border: 2px dashed rgba(255,255,255,0.15);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      font-size: 22px; color: rgba(255,255,255,0.2); transition: all 0.2s;
+      position: relative;
+    }
+    .deck-slot.filled { border-style: solid; border-color: rgba(255,215,0,0.4); background: rgba(255,215,0,0.08); }
+    .deck-slot .slot-cost { font-size: 9px; color: #ffd700; font-weight: 700; }
+    .deck-slot .slot-name { font-size: 7px; color: #aaa; }
+    .deck-slot .slot-remove {
+      position: absolute; top: -4px; right: -4px; width: 16px; height: 16px;
+      border-radius: 50%; background: rgba(255,50,50,0.8); border: none;
+      color: #fff; font-size: 10px; cursor: pointer; display: flex;
+      align-items: center; justify-content: center; line-height: 1;
+    }
+    .deck-count {
+      font-size: 12px; color: #aaa; margin-bottom: 10px;
+    }
+    .collection-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+      gap: 6px; margin-bottom: 14px; padding: 10px;
+      background: rgba(0,0,0,0.2); border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.05);
+      max-height: 280px; overflow-y: auto;
+    }
+    .collection-grid::-webkit-scrollbar { width: 4px; }
+    .collection-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+    .collect-card {
+      width: 100%; aspect-ratio: 1; border-radius: 10px;
+      background: rgba(255,255,255,0.06); border: 2px solid rgba(255,255,255,0.1);
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; cursor: pointer; transition: all 0.2s;
+      font-size: 18px; gap: 1px; padding: 4px;
+    }
+    .collect-card:hover { background: rgba(255,255,255,0.12); transform: scale(1.05); border-color: rgba(255,255,255,0.25); }
+    .collect-card.selected { border-color: #ffd700; background: rgba(255,215,0,0.12); box-shadow: 0 0 12px rgba(255,215,0,0.15); }
+    .collect-card .cc-cost { font-size: 9px; color: #ffd700; font-weight: 700; }
+    .collect-card .cc-name { font-size: 7px; color: #888; }
+    .collect-card.locked-card { opacity: 0.3; cursor: not-allowed; filter: grayscale(0.7); }
+    .collect-card.locked-card:hover { transform: none; background: rgba(255,255,255,0.06); }
+
+    #guide-btn {
+      width: 32px; height: 32px; border-radius: 50%; border: none;
+      background: rgba(255,255,255,0.1); color: #fff; font-size: 16px;
+      cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    #guide-btn:hover { background: rgba(255,255,255,0.25); transform: scale(1.1); }
+    #guide-panel {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: min(520px, 90vw); max-height: min(520px, 75vh);
+      background: linear-gradient(180deg, rgba(30,30,60,0.97), rgba(20,20,40,0.99));
+      border: 1px solid rgba(255,255,255,0.15); border-radius: 16px;
+      backdrop-filter: blur(16px); box-shadow: 0 16px 64px rgba(0,0,0,0.8);
+      display: none; flex-direction: column; z-index: 200;
+      overflow: hidden;
+    }
+    #guide-panel.show { display: flex; }
+    .guide-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .guide-title { color: #fff; font-size: 16px; font-weight: bold; }
+    .guide-close {
+      width: 28px; height: 28px; border-radius: 50%; border: none;
+      background: rgba(255,255,255,0.1); color: #fff; font-size: 14px;
+      cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .guide-close:hover { background: rgba(255,50,50,0.4); }
+    .guide-tabs {
+      display: flex; gap: 4px; padding: 10px 14px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .guide-tab {
+      padding: 8px 16px; border: none; border-radius: 8px 8px 0 0;
+      background: transparent; color: #888; font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .guide-tab:hover { color: #ddd; background: rgba(255,255,255,0.05); }
+    .guide-tab.active { color: #ffd700; background: rgba(255,215,0,0.1); }
+    .guide-content {
+      flex: 1; overflow-y: auto; padding: 14px 18px;
+      scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent;
+    }
+    .guide-content::-webkit-scrollbar { width: 4px; }
+    .guide-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+    .guide-loading { color: #888; text-align: center; padding: 40px 0; font-size: 14px; }
+    .guide-grid {
+      display: grid; grid-template-columns: 1fr; gap: 6px;
+    }
+    .guide-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 12px; border-radius: 10px;
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+      transition: background 0.2s;
+    }
+    .guide-item:hover { background: rgba(255,255,255,0.06); }
+    .guide-item .emoji { font-size: 22px; width: 28px; text-align: center; flex-shrink: 0; }
+    .guide-item .info { flex: 1; min-width: 0; }
+    .guide-item .name { color: #fff; font-size: 13px; font-weight: 600; }
+    .guide-item .desc { color: #888; font-size: 11px; }
+    .guide-item .cost { color: #ffd700; font-size: 11px; font-weight: 600; white-space: nowrap; }
+    .guide-item .hp { color: #44ff44; font-size: 11px; font-weight: 600; white-space: nowrap; }
+    .guide-item .dmg { color: #ff6666; font-size: 11px; font-weight: 600; white-space: nowrap; }
+    .guide-item .spd { color: #66ccff; font-size: 11px; font-weight: 600; white-space: nowrap; }
+    .guide-item .stats { display: flex; gap: 8px; margin-top: 2px; flex-wrap: wrap; }
+    .guide-sublabel { color: #999; font-size: 11px; margin: 10px 0 4px 4px; font-weight: 600; }
+    .guide-fusion-row { color: #aaa; font-size: 11px; margin-top: 1px; }
+    .guide-fusion-row span { color: #ffd700; }
+
+    @keyframes sunFloat {
+      0% { transform: translateY(0) scale(1); opacity: 1; }
+      100% { transform: translateY(-60px) scale(0.5); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div id="ui-overlay">
+    <div id="top-bar">
+      <div id="sun-counter"><span class="icon">☀️</span><span id="sun-amount">150</span></div>
+      <div id="wave-info">🌊 Đợt 1</div>
+      <div id="score-display">🏆 <span id="score-amount">0</span></div>
+      <button id="guide-btn" title="Hướng dẫn">📖</button>
+      <button id="home-btn" title="Về màn chính">🏠</button>
+    </div>
+
+    <div id="plant-bar"></div>
+
+    <div id="fusion-panel">
+      <div class="title">⚗️ Kết Hợp</div>
+      <div class="options"></div>
+    </div>
+
+    <div id="message-toast"></div>
+
+    <div id="game-over">
+      <div class="panel">
+        <h1>💀 Thua Cuộc</h1>
+        <p>Zombie đã ăn não bạn!</p>
+        <div class="btn-group" id="gameover-btns"></div>
+      </div>
+    </div>
+
+    <div id="victory-screen">
+      <div class="panel">
+        <h1>🎉 Chiến Thắng!</h1>
+        <p>Bạn đã sống sót!</p>
+        <div class="btn-group" id="victory-btns"></div>
+      </div>
+    </div>
+
+    <div id="level-select">
+      <div class="panel">
+        <h2>🏰 Chọn Màn Chơi</h2>
+        <div class="subtitle">Vượt qua màn trước để mở khoá màn tiếp theo</div>
+        <div class="level-grid" id="level-grid"></div>
+        <button class="btn-back" id="level-back-btn">← Quay Lại</button>
+      </div>
+    </div>
+
+    <div id="deck-select">
+      <div class="panel">
+        <h2>🎒 Chọn Cây Mang Theo</h2>
+        <div class="subtitle" id="deck-level-name">Màn 1</div>
+        <div class="deck-slots" id="deck-slots">
+          <div class="deck-slot empty">+</div>
+          <div class="deck-slot empty">+</div>
+          <div class="deck-slot empty">+</div>
+          <div class="deck-slot empty">+</div>
+          <div class="deck-slot empty">+</div>
+          <div class="deck-slot empty">+</div>
+          <div class="deck-slot empty">+</div>
+          <div class="deck-slot empty">+</div>
+        </div>
+        <div class="deck-count" id="deck-count">Đã chọn: 0/8</div>
+        <div class="collection-grid" id="collection-grid"></div>
+        <div class="btn-group">
+          <button class="btn" id="deck-confirm-btn">✅ Xác Nhận</button>
+          <button class="btn-back" id="deck-back-btn">← Quay Lại</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="start-screen">
+      <div class="panel">
+        <h1>🌱 <span class="highlight">Fusion</span> Phòng Thủ</h1>
+        <div class="subtitle">⚗️ Kết Hợp Cây · Tiêu Diệt Zombie · Sinh Tồn</div>
+        <button class="btn-start" id="start-btn">▶  Bắt Đầu</button>
+        <button class="btn-guide" id="start-guide-btn">📖 Hướng Dẫn</button>
+        <div class="features">
+          <span>🌻 50 Loại Cây</span>
+          <span>⚗️ Hệ Thống Fusion</span>
+          <span>🧟 Trùm Zombie</span>
+          <span>♾️ Chế Độ Bất Tận</span>
+        </div>
+      </div>
+    </div>
+    <button id="cheat-toggle">⚡</button>
+    <div id="cheat-panel">
+      <div class="cheat-title">
+        ⚡ Menu Cheat
+        <button class="cheat-close" data-cheat="close">✕</button>
+      </div>
+      <button class="cheat-btn" data-cheat="sun">☀️ +1000 Nắng</button>
+      <button class="cheat-btn" data-cheat="kill">💀 Giết Hết Zombie</button>
+      <button class="cheat-btn" data-cheat="win">🏆 Chiến Thắng Đợt</button>
+      <button class="cheat-btn" data-cheat="unlock">🔓 Mở Khoá Tất Cả</button>
+      <button class="cheat-btn" data-cheat="nocooldown">⏰ Không Cooldown</button>
+      <div class="cheat-row">
+        <select id="cheat-level-select">
+          <option value="0">Màn 1 - Bãi Cỏ</option>
+          <option value="1">Màn 2 - Rừng Tre</option>
+          <option value="2">Màn 3 - Sa Mạc</option>
+          <option value="3">Màn 4 - Đầm Lầy</option>
+          <option value="4">Màn 5 - Tuyết</option>
+          <option value="5">Màn 6 - Hoàng Hôn</option>
+          <option value="6">Màn 7 - Biển Đêm</option>
+          <option value="7">Màn 8 - Núi Lửa</option>
+          <option value="8">Màn 9 - Rừng Ma</option>
+          <option value="9">Màn 10 - Không Gian</option>
+        </select>
+        <button class="cheat-btn" data-cheat="warp">🚀</button>
+      </div>
+      <div class="cheat-divider"></div>
+      <button class="cheat-btn danger" data-cheat="reset-factory">🔄 Reset Ban Đầu</button>
+    </div>
+
+    <div id="guide-panel">
+      <div class="guide-header">
+        <span class="guide-title">📖 Hướng Dẫn</span>
+        <button class="guide-close" id="guide-close-btn">✕</button>
+      </div>
+      <div class="guide-tabs">
+        <button class="guide-tab active" data-tab="plants">🌱 Cây</button>
+        <button class="guide-tab" data-tab="fusion">⚗️ Fusion</button>
+        <button class="guide-tab" data-tab="zombies">🧟 Zombie</button>
+      </div>
+      <div class="guide-content" id="guide-content">
+        <div class="guide-loading">Đang tải...</div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
