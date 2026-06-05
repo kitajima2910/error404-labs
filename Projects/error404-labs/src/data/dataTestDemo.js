@@ -1,5 +1,10 @@
 export const DATA_DEMO = [
     {
+        name: 'Plants vs Zombies Fusion',
+        link: '/thu-nghiem/game/PlantsvsZombiesFusion/index.html',
+        image: '/thu-nghiem/game/PlantsvsZombiesFusion/PlantsvsZombiesFusion.avif',
+    },
+    {
         name: 'Neural-Token-Dash',
         link: '/thu-nghiem/game/Neural-Token-Dash/index.html',
         image: '/thu-nghiem/game/Neural-Token-Dash/Neural-Token-Dash.avif',
