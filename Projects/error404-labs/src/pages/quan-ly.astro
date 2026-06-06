@@ -1437,6 +1437,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                                             <th class="px-6 py-4 font-bold">ID</th>
                                             <th class="px-6 py-4 font-bold">Game</th>
                                             <th class="px-6 py-4 font-bold">Genre</th>
+                                            <th class="px-6 py-4 font-bold">Ảnh</th>
                                             <th class="px-6 py-4 font-bold">Verified</th>
                                             <th class="px-6 py-4 font-bold text-right">Thao tác</th>
                                         </tr>
@@ -5016,7 +5017,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                     renderRoadmapGames()
                     renderRoadmapGamePagination()
                 } catch (err) {
-                    roadmapGameTableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-red-500">${err.message}</td></tr>`
+                    roadmapGameTableBody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-red-500">${err.message}</td></tr>`
                 }
             }
 
@@ -5024,7 +5025,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 roadmapGameTableBody.innerHTML = ''
                 if (roadmapGames.length === 0) {
                     roadmapGameTableBody.innerHTML =
-                        '<tr><td colspan="5" class="px-6 py-12 text-center text-slate-400 italic">Không có game phù hợp.</td></tr>'
+                        '<tr><td colspan="6" class="px-6 py-12 text-center text-slate-400 italic">Không có game phù hợp.</td></tr>'
                     return
                 }
 
@@ -5035,9 +5036,20 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                         <td class="px-6 py-4 text-sm font-medium text-slate-600">#${game.id}</td>
                         <td class="px-6 py-4">
                             <div class="font-bold text-slate-900">${game.name}</div>
-                            <div class="text-xs text-slate-400">${game.image_url || '-'}</div>
+                            <div class="text-xs text-slate-400">${game.image_url ? 'Có ảnh' : 'Chưa có ảnh'}</div>
                         </td>
                         <td class="px-6 py-4 text-sm text-slate-600">${game.genre}</td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-2">
+                                ${game.image_url
+                                    ? `<img src="${game.image_url}" alt="${game.name}" class="w-10 h-10 rounded-lg object-cover border border-slate-200 flex-shrink-0">`
+                                    : `<div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400 flex-shrink-0"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div>`
+                                }
+                                <button onclick="window.updateGameImage(${game.id})" class="text-xs font-bold px-2 py-1.5 rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-100 hover:bg-indigo-100 transition-all cursor-pointer whitespace-nowrap">
+                                    ${game.image_url ? 'Đổi ảnh' : 'Tải ảnh'}
+                                </button>
+                            </div>
+                        </td>
                         <td class="px-6 py-4">
                             <span class="inline-flex px-2.5 py-1 rounded-full text-xs font-bold ${game.is_verified ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-slate-50 text-slate-500 border border-slate-200'}">
                                 ${game.is_verified ? 'Verified' : 'Draft'}
@@ -5132,6 +5144,57 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
             window.editRoadmapGame = (id) => {
                 const game = roadmapGames.find((item) => item.id === id)
                 if (game) openRoadmapGameModal(true, game)
+            }
+
+            window.updateGameImage = (id) => {
+                const game = roadmapGames.find((item) => item.id === id)
+                if (!game) return
+                const input = document.createElement('input')
+                input.type = 'file'
+                input.accept = 'image/*'
+                input.onchange = async () => {
+                    const file = input.files?.[0]
+                    if (!file) return
+                    const formData = new FormData()
+                    formData.append('file', file)
+                    formData.append('fileName', `roadmap-game-${Date.now()}-${file.name}`)
+                    try {
+                        const uploadRes = await fetch('/api/admin/upload-image', {
+                            method: 'POST',
+                            headers: { Authorization: `Bearer ${localStorage.getItem('auth_token')}` },
+                            body: formData,
+                        })
+                        const uploadData = await uploadRes.json()
+                        if (!uploadRes.ok || !uploadData.url) {
+                            showToast(uploadData.error || 'Lỗi upload ảnh', 'error')
+                            return
+                        }
+                        const saveRes = await fetch('/api/admin/roadmap-games', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
+                            },
+                            body: JSON.stringify({
+                                id: game.id,
+                                name: game.name,
+                                genre: game.genre,
+                                image_url: uploadData.url,
+                                image_file_id: uploadData.fileId || '',
+                                is_verified: game.is_verified,
+                            }),
+                        })
+                        if (saveRes.ok) {
+                            showToast('Đã cập nhật ảnh', 'success')
+                            fetchRoadmapGames()
+                        } else {
+                            showToast('Lỗi lưu ảnh', 'error')
+                        }
+                    } catch {
+                        showToast('Lỗi kết nối', 'error')
+                    }
+                }
+                input.click()
             }
 
             window.deleteRoadmapGame = (id) => {

@@ -1,7 +1,7 @@
 # STATUS
 
 ## Current Task
-- Button đóng/mở sidebar ở desktop (quan-ly.astro)
+- Thêm cột Ảnh + inline upload ImageKit trong CRUD Prompts (quan-ly.astro)
 
 ## Current Focus
 -
@@ -63,4 +63,5 @@
 
 ## Next Step
 - Restart `pnpm dev` và test toàn bộ: điểm danh sáng/chiều, ghi chú ngày, học phí, thêm member mới → dropdown cập nhật, member inactive không hiện
-- Test sidebar toggle trên desktop: thu gọn/mở rộng, check margin attendanceView
+- Test sidebar toggle trên desktop
+- Test cột Ảnh + upload ImageKit trong CRUD Prompts
