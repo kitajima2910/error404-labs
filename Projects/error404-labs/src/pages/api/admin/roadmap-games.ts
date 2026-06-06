@@ -158,15 +158,16 @@ export const POST: APIRoute = async ({ request }) => {
         const isVerified = body.isVerified ?? body.is_verified ?? false
         const designUrl = body.designUrl || body.design_url || null
         const youtubeUrl = body.youtubeUrl || body.youtube_url || null
+        const gameplayAndMechanics = body.gameplayAndMechanics ?? body.gameplay_and_mechanics ?? null
         if (!name || !genre) {
             return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 })
         }
 
         await sql`
             INSERT INTO error404labs.roadmap_games
-                (month, week, name, genre, prompt_content, image_url, image_file_id, sort_order, is_verified, design_url, youtube_url)
+                (month, week, name, genre, prompt_content, image_url, image_file_id, sort_order, is_verified, design_url, youtube_url, gameplay_and_mechanics)
             VALUES
-                (${Number(month || 0)}, ${Number(week || 0)}, ${name}, ${genre}, ${promptContent}, ${imageUrl}, ${imageFileId}, ${Number(sortOrder)}, ${toBool(isVerified)}, ${designUrl}, ${youtubeUrl})
+                (${Number(month || 0)}, ${Number(week || 0)}, ${name}, ${genre}, ${promptContent}, ${imageUrl}, ${imageFileId}, ${Number(sortOrder)}, ${toBool(isVerified)}, ${designUrl}, ${youtubeUrl}, ${gameplayAndMechanics})
         `
 
         return new Response(JSON.stringify({ success: true }), { status: 201 })
@@ -196,6 +197,7 @@ export const PUT: APIRoute = async ({ request }) => {
         const isVerified = body.isVerified ?? body.is_verified ?? false
         const designUrl = body.designUrl || body.design_url || null
         const youtubeUrl = body.youtubeUrl || body.youtube_url || null
+        const gameplayAndMechanics = body.gameplayAndMechanics ?? body.gameplay_and_mechanics ?? null
         if (!id || !name || !genre) {
             return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 })
         }
@@ -214,6 +216,7 @@ export const PUT: APIRoute = async ({ request }) => {
                 is_verified = ${toBool(isVerified)},
                 design_url = ${designUrl},
                 youtube_url = ${youtubeUrl},
+                gameplay_and_mechanics = ${gameplayAndMechanics},
                 updated_at = NOW()
             WHERE id = ${Number(id)}
         `

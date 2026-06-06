@@ -1,7 +1,7 @@
 # STATUS
 
 ## Current Task
-- Thêm cột Ảnh + inline upload ImageKit trong CRUD Prompts (quan-ly.astro)
+- Click thumbnail zoom ảnh, bỏ nút Đổi ảnh inline trong bảng CRUD Prompts
 
 ## Current Focus
 -
@@ -64,4 +64,4 @@
 ## Next Step
 - Restart `pnpm dev` và test toàn bộ: điểm danh sáng/chiều, ghi chú ngày, học phí, thêm member mới → dropdown cập nhật, member inactive không hiện
 - Test sidebar toggle trên desktop
-- Test cột Ảnh + upload ImageKit trong CRUD Prompts
+- Test cột Gameplay & Mechanics + Ảnh + upload ImageKit trong CRUD Prompts
