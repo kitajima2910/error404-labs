@@ -113,7 +113,7 @@ Build: Xuất bản thành một bản HTML/CSS/JavaScript chạy trực tiếp 
 Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genre}.`
 
 const roadmapGameRows = (await sql`
-    SELECT id, month, week, name, genre, prompt_content, image_url, youtube_url, sort_order, is_verified
+    SELECT id, month, week, name, genre, prompt_content, image_url, youtube_url, sort_order, is_verified, gameplay_and_mechanics
     FROM error404labs.roadmap_games
     WHERE is_verified = true
     ORDER BY month ASC, week ASC, sort_order ASC, id ASC
@@ -132,6 +132,7 @@ const roadmap = months.map((month, monthIndex) => ({
                 promptContent: game.prompt_content ?? '',
                 imageUrl: game.image_url ?? '',
                 youtubeUrl: game.youtube_url ?? '',
+                gameplay_and_mechanics: game.gameplay_and_mechanics ?? '',
                 isVerified: Boolean(game.is_verified),
             })),
         }
@@ -147,6 +148,7 @@ const allGamesData = roadmapGameRows.map((game) => ({
     promptContent: game.prompt_content ?? '',
     imageUrl: game.image_url ?? '',
     youtubeUrl: game.youtube_url ?? '',
+    gameplay_and_mechanics: game.gameplay_and_mechanics ?? '',
     isVerified: Boolean(game.is_verified),
 }))
 
@@ -543,6 +545,8 @@ const monthSvgs = [
                         encodeURIComponent(game.promptContent || '') +
                         '" data-youtube-url="' +
                         encodeURIComponent(game.youtubeUrl || game.youtube_url || '') +
+                        '" data-gameplay="' +
+                        encodeURIComponent(game.gameplay_and_mechanics || '') +
                         '" class="game-card-button game-card-clickable cursor-pointer bg-white rounded-3xl border-[2px] border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 overflow-hidden transition-all flex flex-col">' +
                         '<div class="h-44 w-full relative p-3.5 flex flex-col justify-between bg-gradient-to-br ' +
                         gradBg +
@@ -664,6 +668,8 @@ const monthSvgs = [
                         encodeURIComponent(game.promptContent || '') +
                         '" data-youtube-url="' +
                         encodeURIComponent(game.youtubeUrl || game.youtube_url || '') +
+                        '" data-gameplay="' +
+                        encodeURIComponent(game.gameplay_and_mechanics || '') +
                         '" class="game-card-button game-card-clickable cursor-pointer bg-white rounded-3xl border-[2px] border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 overflow-hidden transition-all flex flex-col">' +
                         '<div class="h-44 w-full relative p-3.5 flex flex-col justify-between bg-gradient-to-br ' +
                         gradBg +
@@ -962,7 +968,18 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
             const subtitleEl = document.getElementById('game-prompt-modal-subtitle')
             const contentEl = document.getElementById('game-prompt-modal-content')
             const demoBtn = document.getElementById('game-prompt-modal-demo')
+            const gameplayImg = document.getElementById('game-prompt-modal-gameplay')
             activeGameYoutubeUrl = decodeURIComponent(card.dataset.youtubeUrl || '').trim()
+            const gameplayUrl = decodeURIComponent(card.dataset.gameplay || '').trim()
+            if (gameplayImg) {
+                if (gameplayUrl) {
+                    gameplayImg.classList.remove('hidden')
+                    gameplayImg.src = gameplayUrl
+                } else {
+                    gameplayImg.classList.add('hidden')
+                    gameplayImg.src = ''
+                }
+            }
 
             if (titleEl) titleEl.textContent = game
             if (subtitleEl) {
@@ -987,6 +1004,21 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
             const modal = document.getElementById('game-prompt-modal')
             if (modal) modal.classList.add('hidden')
         }
+        window.openImageZoom = (url) => {
+            const overlay = document.createElement('div')
+            overlay.className = 'fixed inset-0 z-[99999] bg-black/70 flex items-center justify-center p-4 cursor-zoom-out'
+            overlay.onclick = () => overlay.remove()
+            const img = document.createElement('img')
+            img.src = url
+            img.className = 'max-w-full max-h-full rounded-2xl shadow-2xl object-contain'
+            img.onclick = (e) => { e.stopPropagation() }
+            overlay.appendChild(img)
+            document.body.appendChild(overlay)
+            document.addEventListener('keydown', function escHandler(e) {
+                if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', escHandler) }
+            })
+        }
+
         function getYouTubeVideoId(url) {
             try {
                 const parsed = new URL(url, window.location.origin)
@@ -1251,6 +1283,9 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
                         <h2 id="game-prompt-modal-title" class="text-xl font-extrabold text-slate-800">Game Prompt</h2>
                         <p id="game-prompt-modal-subtitle" class="text-xs text-slate-500"></p>
                     </div>
+                    <img id="game-prompt-modal-gameplay" src="" alt="Gameplay"
+                        class="hidden w-14 h-14 rounded-xl object-cover border border-indigo-200 flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity ml-3"
+                        onclick="window.openImageZoom(this.src)">
                 </div>
                 <button
                     id="game-prompt-modal-close"
