@@ -572,6 +572,48 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 background: #fef3c7;
                 color: #92400e;
             }
+            /* ── Sidebar collapse ── */
+            #sidebarToggleBtn {
+                width: 24px;
+                height: 48px;
+                border-radius: 0 8px 8px 0;
+                box-shadow: 2px 0 8px rgba(0, 0, 0, 0.08);
+                transition: all 0.3s ease;
+                cursor: pointer;
+                z-index: 51;
+                background: white;
+                border: 1px solid #e2e8f0;
+                border-left: none;
+                color: #94a3b8;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            #sidebarToggleBtn:hover {
+                color: #475569;
+                background: #f8fafc;
+            }
+            body.sidebar-collapsed #sidebar {
+                transform: translateX(-100%);
+            }
+            body.sidebar-collapsed #mainContent {
+                margin-left: 0;
+            }
+            body.sidebar-collapsed #sidebarToggleBtn svg {
+                transform: rotate(180deg);
+            }
+            #sidebarToggleBtn svg {
+                transition: transform 0.3s ease;
+            }
+            /* attendanceView margin khi sidebar collapsed */
+            body.sidebar-collapsed #attendanceView {
+                margin-left: 0;
+            }
+            @media (max-width: 1023px) {
+                #sidebarToggleBtn {
+                    display: none;
+                }
+            }
         </style>
     </head>
     <body class="bg-slate-50 min-h-screen font-sans" style="font-family: 'Montserrat', sans-serif;">
@@ -626,6 +668,15 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 id="sidebar"
                 class="w-80 bg-white border-r border-slate-200 p-6 flex flex-col min-h-screen fixed -translate-x-full lg:translate-x-0 transition-transform duration-300 z-50"
             >
+                <button
+                    id="sidebarToggleBtn"
+                    class="absolute top-1/2 -translate-y-1/2 -right-0 translate-x-full"
+                    aria-label="Thu gọn sidebar"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                </button>
                 <div class="flex items-center gap-3 mb-8">
                     <img src="/avatar_v2.avif" alt="Logo" class="w-10 h-10 rounded-full" />
                     <span class="font-bold text-slate-800 text-lg">Error404-Labs</span>
@@ -5607,10 +5658,11 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 }
             })()
 
-            // ── Hamburger sidebar toggle ────────────────────────────────────────
+            // ── Sidebar toggle ────────────────────────────────────────────────
             const sidebar = document.getElementById('sidebar')
             const overlay = document.getElementById('sidebarOverlay')
             const hamburgerBtn = document.getElementById('hamburgerBtn')
+            const sidebarToggleBtn = document.getElementById('sidebarToggleBtn')
 
             function openSidebar() {
                 if (sidebar) sidebar.classList.remove('-translate-x-full')
@@ -5630,8 +5682,15 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 document.body.style.overflow = ''
             }
 
+            function toggleSidebarCollapse() {
+                document.body.classList.toggle('sidebar-collapsed')
+                const isCollapsed = document.body.classList.contains('sidebar-collapsed')
+                sidebarToggleBtn.setAttribute('aria-label', isCollapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar')
+            }
+
             if (hamburgerBtn) hamburgerBtn.onclick = openSidebar
             if (overlay) overlay.onclick = closeSidebar
+            if (sidebarToggleBtn) sidebarToggleBtn.onclick = toggleSidebarCollapse
         </script>
     </body>
 </html>
