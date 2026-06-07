@@ -573,26 +573,6 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 color: #92400e;
             }
             /* ── Sidebar collapse ── */
-            #sidebarToggleBtn {
-                width: 24px;
-                height: 48px;
-                border-radius: 0 8px 8px 0;
-                box-shadow: 2px 0 8px rgba(0, 0, 0, 0.08);
-                transition: all 0.3s ease;
-                cursor: pointer;
-                z-index: 51;
-                background: white;
-                border: 1px solid #e2e8f0;
-                border-left: none;
-                color: #94a3b8;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-            #sidebarToggleBtn:hover {
-                color: #475569;
-                background: #f8fafc;
-            }
             body.sidebar-collapsed #sidebar {
                 transform: translateX(-100%);
             }
@@ -602,12 +582,38 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
             body.sidebar-collapsed #sidebarToggleBtn svg {
                 transform: rotate(180deg);
             }
-            #sidebarToggleBtn svg {
-                transition: transform 0.3s ease;
+            body.sidebar-collapsed .sidebar-toggle-label {
+                opacity: 0;
+                width: 0;
+                overflow: hidden;
+                display: inline-block;
+                transition: all 0.2s ease;
+                padding: 0;
+                margin: 0;
             }
             /* attendanceView margin khi sidebar collapsed */
             body.sidebar-collapsed #attendanceView {
                 margin-left: 0;
+            }
+            /* Sidebar toggle button positioning */
+            #sidebarToggleBtn {
+                left: 24px;
+                bottom: 24px;
+                width: calc(20rem - 48px);
+            }
+            body.sidebar-collapsed #sidebarToggleBtn {
+                left: 12px;
+                width: auto;
+                border-radius: 9999px;
+                padding: 10px 12px;
+                border-color: #c7d2fe;
+                color: #6366f1;
+                background: #eef2ff;
+            }
+            body.sidebar-collapsed #sidebarToggleBtn:hover {
+                background: #e0e7ff;
+                border-color: #a5b4fc;
+                box-shadow: 0 4px 16px rgba(99, 102, 241, 0.2);
             }
             @media (max-width: 1023px) {
                 #sidebarToggleBtn {
@@ -668,18 +674,11 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 id="sidebar"
                 class="w-80 bg-white border-r border-slate-200 p-6 flex flex-col min-h-screen fixed -translate-x-full lg:translate-x-0 transition-transform duration-300 z-50"
             >
-                <button
-                    id="sidebarToggleBtn"
-                    class="absolute top-1/2 -translate-y-1/2 -right-0 translate-x-full"
-                    aria-label="Thu gọn sidebar"
-                >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path>
-                    </svg>
-                </button>
-                <div class="flex items-center gap-3 mb-8">
-                    <img src="/avatar_v2.avif" alt="Logo" class="w-10 h-10 rounded-full" />
-                    <span class="font-bold text-slate-800 text-lg">Error404-Labs</span>
+                <div class="flex items-center justify-between mb-8">
+                    <div class="flex items-center gap-3">
+                        <img src="/avatar_v2.avif" alt="Logo" class="w-10 h-10 rounded-full" />
+                        <span class="font-bold text-slate-800 text-lg">Error404-Labs</span>
+                    </div>
                 </div>
                 <nav class="space-y-2 flex-1">
                     <a
@@ -865,6 +864,18 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
 
             <!-- Overlay for mobile sidebar -->
             <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden"></div>
+
+            <!-- Sidebar Toggle Button -->
+            <button
+                id="sidebarToggleBtn"
+                class="fixed z-[51] flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 cursor-pointer bg-white border border-slate-200 text-slate-500 hover:text-indigo-600 hover:border-indigo-200 hover:shadow-md shadow-sm"
+                aria-label="Thu gọn sidebar"
+            >
+                <svg class="w-5 h-5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+                </svg>
+                <span class="text-sm font-bold sidebar-toggle-label">Thu gọn sidebar</span>
+            </button>
 
             <!-- Main Content -->
             <main id="mainContent" class="flex-1 ml-0 lg:ml-80">
@@ -5847,6 +5858,8 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 document.body.classList.toggle('sidebar-collapsed')
                 const isCollapsed = document.body.classList.contains('sidebar-collapsed')
                 sidebarToggleBtn.setAttribute('aria-label', isCollapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar')
+                const label = sidebarToggleBtn.querySelector('.sidebar-toggle-label')
+                if (label) label.textContent = isCollapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar'
             }
 
             if (hamburgerBtn) hamburgerBtn.onclick = openSidebar
