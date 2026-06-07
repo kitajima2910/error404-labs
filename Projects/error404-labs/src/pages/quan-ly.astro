@@ -458,8 +458,10 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
             body:has(#attendanceView:not(.hidden)) > #auth-guard #mainContent {
                 display: none !important;
             }
-            body:has(#attendanceView:not(.hidden)) > #auth-guard #sidebarOverlay {
-                display: none !important;
+            @media (min-width: 1024px) {
+                body:has(#attendanceView:not(.hidden)) > #auth-guard #sidebarOverlay {
+                    display: none !important;
+                }
             }
 
             /* Attendance toggle option styles */
@@ -1492,23 +1494,34 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 >
                 </div>
                 <div class="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div>
-                        <div class="flex items-center gap-3 mb-2">
-                            <div
-                                class="w-10 h-10 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center"
-                            >
-                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
-                                    ></path>
-                                </svg>
+                    <div class="flex items-center gap-3">
+                        <button
+                            id="attHamburgerBtn"
+                            class="lg:hidden p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer flex-shrink-0"
+                            aria-label="Toggle sidebar"
+                        >
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                            </svg>
+                        </button>
+                        <div>
+                            <div class="flex items-center gap-3 mb-2">
+                                <div
+                                    class="w-10 h-10 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center"
+                                >
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                                        ></path>
+                                    </svg>
+                                </div>
+                                <h2 class="text-2xl font-bold text-white">Điểm danh học sinh</h2>
                             </div>
-                            <h2 class="text-2xl font-bold text-white">Điểm danh học sinh</h2>
+                            <p class="text-indigo-200 text-sm">Theo dõi chuyên cần và điểm danh hàng ngày</p>
                         </div>
-                        <p class="text-indigo-200 text-sm">Theo dõi chuyên cần và điểm danh hàng ngày</p>
                     </div>
                     <div class="flex items-center gap-2">
                         <select
@@ -5857,7 +5870,10 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 sidebarToggleBtn.setAttribute('aria-label', isCollapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar')
             }
 
+            const attHamburgerBtn = document.getElementById('attHamburgerBtn')
+
             if (hamburgerBtn) hamburgerBtn.onclick = openSidebar
+            if (attHamburgerBtn) attHamburgerBtn.onclick = openSidebar
             if (overlay) overlay.onclick = closeSidebar
             if (sidebarToggleBtn) sidebarToggleBtn.onclick = toggleSidebarCollapse
         </script>
