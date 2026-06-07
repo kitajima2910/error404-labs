@@ -16,6 +16,7 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
         <title>Quản lý tài khoản | Error404-Labs</title>
         <meta name="description" content="Trang quản trị tài khoản dành cho Admin" />
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+<link rel="stylesheet" href="/font-awesome/css/font-awesome.min.css" />
         <style is:global>
             .view-section {
                 transition: all 0.3s ease;
@@ -579,41 +580,40 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
             body.sidebar-collapsed #mainContent {
                 margin-left: 0;
             }
-            body.sidebar-collapsed #sidebarToggleBtn svg {
+            body.sidebar-collapsed .sidebar-toggle-icon {
                 transform: rotate(180deg);
             }
-            body.sidebar-collapsed .sidebar-toggle-label {
-                opacity: 0;
-                width: 0;
-                overflow: hidden;
+            .sidebar-toggle-icon {
+                transition: transform 0.3s ease;
                 display: inline-block;
-                transition: all 0.2s ease;
-                padding: 0;
-                margin: 0;
             }
+
             /* attendanceView margin khi sidebar collapsed */
             body.sidebar-collapsed #attendanceView {
                 margin-left: 0;
             }
             /* Sidebar toggle button positioning */
             #sidebarToggleBtn {
-                left: 24px;
+                left: 296px;
                 bottom: 24px;
-                width: calc(20rem - 48px);
+                width: 44px;
+                height: 44px;
+                border-radius: 9999px;
+                padding: 0;
+                border-color: #e2e8f0;
             }
             body.sidebar-collapsed #sidebarToggleBtn {
-                left: 12px;
-                width: auto;
-                border-radius: 9999px;
-                padding: 10px 12px;
-                border-color: #c7d2fe;
-                color: #6366f1;
-                background: #eef2ff;
+                left: 16px;
+                border-color: #e0e7ff;
+                color: #4f46e5;
+                background: white;
+                box-shadow: 0 4px 16px rgba(99, 102, 241, 0.2);
             }
             body.sidebar-collapsed #sidebarToggleBtn:hover {
-                background: #e0e7ff;
-                border-color: #a5b4fc;
-                box-shadow: 0 4px 16px rgba(99, 102, 241, 0.2);
+                background: #eef2ff;
+                border-color: #818cf8;
+                box-shadow: 0 6px 24px rgba(99, 102, 241, 0.3);
+                transform: scale(1.05);
             }
             @media (max-width: 1023px) {
                 #sidebarToggleBtn {
@@ -868,13 +868,10 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
             <!-- Sidebar Toggle Button -->
             <button
                 id="sidebarToggleBtn"
-                class="fixed z-[51] flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 cursor-pointer bg-white border border-slate-200 text-slate-500 hover:text-indigo-600 hover:border-indigo-200 hover:shadow-md shadow-sm"
+                class="fixed z-[51] flex items-center justify-center rounded-xl transition-all duration-300 cursor-pointer bg-white border border-slate-200 text-slate-400 hover:text-indigo-600 hover:border-indigo-200 hover:shadow-md shadow-sm"
                 aria-label="Thu gọn sidebar"
             >
-                <svg class="w-5 h-5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
-                </svg>
-                <span class="text-sm font-bold sidebar-toggle-label">Thu gọn sidebar</span>
+                <i class="fa fa-angle-double-left text-lg sidebar-toggle-icon"></i>
             </button>
 
             <!-- Main Content -->
@@ -5858,8 +5855,6 @@ const vibePromptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: `vibe_${p.
                 document.body.classList.toggle('sidebar-collapsed')
                 const isCollapsed = document.body.classList.contains('sidebar-collapsed')
                 sidebarToggleBtn.setAttribute('aria-label', isCollapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar')
-                const label = sidebarToggleBtn.querySelector('.sidebar-toggle-label')
-                if (label) label.textContent = isCollapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar'
             }
 
             if (hamburgerBtn) hamburgerBtn.onclick = openSidebar
