@@ -1,5 +1,10 @@
 export const DATA_DEMO = [
     {
+        name: 'Bắn Tank 2D',
+        link: '/thu-nghiem/game/BanTank2D/index.html',
+        image: '/thu-nghiem/game/BanTank2D/BanTank2D.avif',
+    },
+    {
         name: 'Plants vs Zombies Fusion',
         link: '/thu-nghiem/game/PlantsvsZombiesFusion/index.html',
         image: '/thu-nghiem/game/PlantsvsZombiesFusion/PlantsvsZombiesFusion.avif',
