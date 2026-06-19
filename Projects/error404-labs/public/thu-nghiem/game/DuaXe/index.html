@@ -110,6 +110,7 @@ function loadData(){
     if(d){
       highScore=d.hs||0; totalCoins=d.coins||0;
       unlockedCars=new Set(d.unlocks||[0]);
+      unlockedCars.add(0); // luôn đảm bảo xe mặc định được mở khoá
       selectedCar=d.sel||0;
     }
   }catch(e){}
@@ -385,6 +386,7 @@ function drawCar(x,y,w,h,color,accent,isPlayer,flash){
 
 // ── HUD ──────────────────────────────────────────────────
 function drawHUD(){
+  ctx.textBaseline='alphabetic';
   // Top bar background
   ctx.fillStyle='rgba(0,0,0,0.55)';
   ctx.beginPath(); roundRect(ctx,0,0,W,54,0); ctx.fill();
@@ -640,6 +642,7 @@ function updateGame(dt){
 
 // ── Render Game ──────────────────────────────────────────
 function renderGame(){
+  ctx.textBaseline='alphabetic';
   ctx.save();
   ctx.translate(shakeX,shakeY);
 
@@ -742,6 +745,7 @@ function renderGame(){
 
 // ── Menu Screens ─────────────────────────────────────────
 function drawTitleScreen(){
+  ctx.textBaseline='alphabetic';
   drawBackground();
   ctx.fillStyle='rgba(0,0,0,0.45)';
   ctx.fillRect(0,0,W,H);
@@ -822,6 +826,7 @@ function drawTitleScreen(){
 }
 
 function drawGameOverScreen(){
+  ctx.textBaseline='alphabetic';
   renderGame();
   ctx.fillStyle='rgba(0,0,0,0.7)';
   ctx.fillRect(0,0,W,H);
@@ -873,6 +878,7 @@ function drawGameOverScreen(){
 }
 
 function drawGarageScreen(){
+  ctx.textBaseline='alphabetic';
   drawBackground();
   ctx.fillStyle='rgba(0,0,0,0.65)';
   ctx.fillRect(0,0,W,H);
@@ -886,7 +892,7 @@ function drawGarageScreen(){
   ctx.fillText('Chọn hoặc mở khoá xe',W/2,74);
 
   ctx.fillStyle='#ffd700'; ctx.font='18px "Segoe UI",system-ui,sans-serif';
-  ctx.textAlign='right'; ctx.fillText('\u{1FA99} '+totalCoins,W-14,56);
+  ctx.textAlign='right'; ctx.fillText('$ '+totalCoins,W-14,56);
 
   const cols=3, cellW=138, cellH=158, gap=10;
   const gridW=cols*cellW-(cols-1)*gap;

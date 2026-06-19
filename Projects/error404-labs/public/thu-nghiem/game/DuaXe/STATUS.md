@@ -1,6 +1,6 @@
 # 🏁 Turbo Rush — Arcade Racing Game
 
-## Status: ✅ Complete (Bug Fixed: 2026-06-19 | Việt hoá: 2026-06-20)
+## Status: ✅ Complete (Debug: 2026-06-20 | Bug Fixed: 2026-06-19 | Việt hoá: 2026-06-20)
 
 A polished 2D arcade racing game built in a single `index.html` file using HTML5 Canvas and vanilla JavaScript (no dependencies).
 
@@ -52,6 +52,14 @@ A polished 2D arcade racing game built in a single `index.html` file using HTML5
 | 9 | Title screen "RUSH" shadow glow overlay "ARCADE RACING" | shadowBlur=45 + khoảng cách 2px quá gần | Đẩy "ARCADE RACING" từ y=208 xuống y=235 |
 | 10 | Favicon thiếu | Không có favicon | Thêm `favicon.svg` với xe đua neon |
 
+## Debug & Fix (2026-06-20)
+
+| # | Bug | Root Cause | Fix |
+|---|-----|-----------|-----|
+| 11 | Garage vẫn dùng `\u{1FA99}` 🪙 (Bug #7 còn sót) | Quên sửa line 889 khi fix Bug #7 | Thay `\u{1FA99}` bằng `$` ở garage |
+| 12 | `textBaseline` rò rỉ giữa các màn hình | Các hàm vẽ không reset `textBaseline` về `alphabetic` | Thêm `ctx.textBaseline='alphabetic'` đầu mỗi hàm vẽ |
+| 13 | `unlockedCars` mất xe mặc định nếu dữ liệu lưu bị hỏng | `loadData()` không đảm bảo xe 0 luôn unlocked | Thêm `unlockedCars.add(0)` sau khi load |
+
 ## Việt Hoá (2026-06-20)
 
 Toàn bộ giao diện người dùng đã được chuyển sang tiếng Việt:
@@ -69,7 +77,7 @@ Toàn bộ giao diện người dùng đã được chuyển sang tiếng Việt
 
 ## Files
 
-- `index.html` — Single-file game (1091 lines)
+- `index.html` — Single-file game (1099 lines)
 - `favicon.svg` — SVG favicon (xe đua neon style)
 - `STATUS.md` — This file
 
