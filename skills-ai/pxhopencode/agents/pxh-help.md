@@ -36,20 +36,20 @@ Dựa vào câu trả lời, đề xuất workflow CHÍNH XÁC:
 #### 🌐 Web (web.workflow)
 Dùng khi: Web app, landing page, dashboard, API, full-stack, frontend/backend
 Công nghệ điển hình: React, Vue, Next.js, FastAPI, Node.js, Tailwind, Django
-→ Gọi `@web.workflow` để vibe code web
+→ Gọi `@web` để vibe code web
 
 #### 🎮 Game (game.workflow)
 Dùng khi: Game H5, game 2D/2.5D/3D, Godot, Unity, game mobile
 Skill đi kèm: `skills/games/` có sẵn template 2D, 2.5D, 3D
-→ Gọi `@game.workflow` để vibe code game
+→ Gọi `@game` để vibe code game
 
 #### 🤖 AI (ai.workflow)
 Dùng khi: Chatbot, RAG, LLM integration, AI agent, ML model, NLP, computer vision
-→ Gọi `@ai.workflow` để vibe code AI
+→ Gọi `@ai` để vibe code AI
 
 #### 🐛 Debug (debug.workflow)
 Dùng khi: Fix bug, tối ưu hiệu năng, refactor code, migration, troubleshooting
-→ Gọi `@debug.workflow` để debug
+→ Gọi `@debug` để debug
 
 ### Bước 3: So sánh & Giải thích lý do
 
@@ -91,7 +91,7 @@ Dựa trên mô tả "web bán hàng", mình đề xuất:
 - Cấu trúc: full-stack với admin panel, giỏ hàng, thanh toán
 
 Cách vibe code:
-1️⃣ Gõ `@web.workflow Tạo web bán hàng với React + Node.js, có giỏ hàng và thanh toán`
+1️⃣ Gõ `@web Tạo web bán hàng với React + Node.js, có giỏ hàng và thanh toán`
 2️⃣ Nếu cần thiết kế game, dùng skill tại `skills/webs/`
 3️⃣ Sau đó dùng `@pxh-review-code` để review trước khi commit
 
@@ -107,7 +107,7 @@ Chào bạn! Mình sẽ phân tích:
 - Nếu cần thiết kế game, tham khảo `skills/games/3d/game-design-h5-3d.md`
 
 Cách vibe code:
-1️⃣ Gõ `@game.workflow Làm game bắn súng 3D trên web, dùng Three.js`
+1️⃣ Gõ `@game Làm game bắn súng 3D trên web, dùng Three.js`
 2️⃣ Skill 3D có sẵn template để bắt đầu nhanh
 3️⃣ Dùng `@pxh-fix-bugs` nếu gặp lỗi trong quá trình làm
 
@@ -131,9 +131,9 @@ User → @pxh-pm (CEO)
 
 **Luồng khuyến nghị:**
 1. Bạn viết prompt → `@pxh-pm` (default) tự động chạy
-2. PM triệu tập `@meeting.workflow` → agents thảo luận
+2. PM triệu tập `@meeting` → agents thảo luận
 3. Chọn workflow phù hợp → code → test → fix → review → release
-4. Tự động: `@company.workflow <mô tả>` chạy toàn bộ quy trình
+4. Tự động: `@vibe <mô tả>` chạy toàn bộ quy trình
 
 ## NGUYÊN TẮC
 
@@ -145,8 +145,8 @@ User → @pxh-pm (CEO)
 6. **Giới thiệu AI Company cho user mới**: Đề xuất họ đọc `pxhopencode/README.md`
 7. **Giới thiệu các agent khác khi cần**:
    - `@pxh-pm` → CEO, default_agent, điều phối toàn bộ
-   - `@company.workflow` → Full quy trình AI Company
-   - `@meeting.workflow` → Agents thảo luận
+   - `@vibe` → Full quy trình AI Company
+   - `@meeting` → Agents thảo luận
    - `@pxh-expert` → Vibe code tự động
    - `@pxh-architect` → Thiết kế kiến trúc
    - `@pxh-qa` → Kiểm tra chất lượng

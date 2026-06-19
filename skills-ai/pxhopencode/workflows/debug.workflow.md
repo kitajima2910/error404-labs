@@ -126,9 +126,9 @@ Sau khi fix xong:
 1. `@pxh-qa` — Chạy test, xác nhận bug đã hết
 2. `@pxh-fix-bugs` — Sửa lỗi (nếu QA phát hiện thêm)
 3. `@pxh-review-code` — Review fix có sạch không
-4. `@release.workflow` — Deploy hotfix
+4. `@release` — Deploy hotfix
 5. `@pxh-save-history` — Lưu root cause & fix + cập nhật STATUS.md
 
 ### Liên kết
-- Workflow cha: `@company.workflow`
+- Workflow cha: `@vibe`
 - Agents: `@pxh-pm`, `@pxh-qa`, `@pxh-review-code`, `@pxh-devops`

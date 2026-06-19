@@ -34,7 +34,7 @@ Phân tích prompt của user để xác định:
 Ghi chú lại phân tích để chuyển cho meeting.
 
 ### Phase 2: Triệu tập Meeting (MEETING)
-Gọi `@meeting.workflow` với các thông tin đã phân tích.
+Gọi `@meeting` với các thông tin đã phân tích.
 Các agents tham gia thảo luận:
 - `@pxh-architect` — Thiết kế hệ thống
 - `@pxh-expert` — Ý kiến kỹ thuật, khả thi
@@ -48,12 +48,12 @@ Dựa trên kết quả meeting, chọn:
 
 | Dự án | Workflow | Skills |
 |-------|----------|--------|
-| Web | `@web.workflow` | `webs/*` |
-| Game 2D | `@game.workflow` | `games/2d/*` |
-| Game 3D | `@game.workflow` | `games/3d/*` |
-| AI | `@ai.workflow` | `ais/*` |
+| Web | `@web` | `webs/*` |
+| Game 2D | `@game` | `games/2d/*` |
+| Game 3D | `@game` | `games/3d/*` |
+| AI | `@ai` | `ais/*` |
 | Tool | → gọi `@pxh-expert` | `tools/*` |
-| Debug | `@debug.workflow` | — |
+| Debug | `@debug` | — |
 
 ### Phase 4: Khởi chạy (CODE)
 Gọi agent phù hợp để bắt đầu code:
@@ -70,7 +70,7 @@ Sau khi code xong, gọi `@pxh-qa` để:
 Nếu có lỗi → quay lại Phase 4 với `@pxh-fix-bugs`.
 
 ### Phase 6: Build (BUILD)
-Khi QA pass, gọi `@release.workflow` để:
+Khi QA pass, gọi `@release` để:
 1. Lint + Typecheck
 2. Build
 3. Báo user build xong → user tự deploy

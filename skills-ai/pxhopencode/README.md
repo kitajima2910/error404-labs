@@ -16,6 +16,7 @@ Hệ thống agents tự động vibe code như một AI Company. Viết prompt 
 pxhopencode/
 ├── opencode.json          # Config chính: default_agent, commands, skills paths
 ├── README.md
+├── .gitignore             # Ignore node_modules, .env, .opencode, ...
 ├── agents/                # Định nghĩa 9 agents
 │   ├── pxh-pm.md          # default_agent — CEO / Project Manager
 │   ├── pxh-architect.md   # Thiết kế kiến trúc, chọn tech stack

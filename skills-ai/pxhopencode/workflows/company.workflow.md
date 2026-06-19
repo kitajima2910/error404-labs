@@ -54,7 +54,7 @@ Nhận prompt từ user. Đây có thể là:
 
 ## Bước 3: MEETING — Agents thảo luận
 
-Gọi `@meeting.workflow` với kết quả phân tích.
+Gọi `@meeting` với kết quả phân tích.
 Agents tham gia:
 - `@pxh-architect` — Phản biện kiến trúc
 - `@pxh-expert` — Đánh giá khả thi
@@ -118,10 +118,10 @@ Dựa vào kết quả meeting, chọn workflow phù hợp:
 
 | Dự án | Gọi |
 |-------|-----|
-| Web | `@web.workflow <mô tả>` |
-| Game 2D | `@game.workflow <mô tả>` + skill `skills/games/2d/game-h5-2d.md` |
-| Game 3D | `@game.workflow <mô tả>` + skill `skills/games/3d/game-h5-3d.md` |
-| AI | `@ai.workflow <mô tả>` + skill `skills/ais/*` |
+| Web | `@web <mô tả>` |
+| Game 2D | `@game <mô tả>` + skill `skills/games/2d/game-h5-2d.md` |
+| Game 3D | `@game <mô tả>` + skill `skills/games/3d/game-h5-3d.md` |
+| AI | `@ai <mô tả>` + skill `skills/ais/*` |
 | CLI Tool | `@pxh-expert` + skill `skills/tools/cli/SKILL.md` |
 | Fix bug | `@pxh-fix-bugs <bug description>` |
 
@@ -137,7 +137,7 @@ Sau đó, setup Playwright cho debug UI:
 - Nếu chưa có → chạy `npm install -D @playwright/test && npx playwright install chromium`
 - Verify Playwright connected: dùng `browser_tabs` để kiểm tra browser
 
-Nếu dự án chạy browser (web/game): tạo favicon SVG theo hướng dẫn trong `@web.workflow` (Bước 2.2) hoặc `@game.workflow` (Bước 2.2).
+Nếu dự án chạy browser (web/game): tạo favicon SVG theo hướng dẫn trong `@web` (Bước 2.2) hoặc `@game` (Bước 2.2).
 
 Sau đó:
 - `git add . && git commit -m "feat: <mô tả>"`
@@ -188,7 +188,7 @@ Nếu OK → Bước 10.
 
 ## Bước 10: PHÁT HÀNH — Build & báo user
 
-Gọi `@release.workflow`:
+Gọi `@release`:
 1. Lint + Typecheck
 2. Build
 3. Báo user build xong → user tự deploy
@@ -226,5 +226,5 @@ Tối đa 3 lần lặp cho mỗi vòng. Nếu vẫn lỗi → báo user.
 | User cung cấp thông tin không đủ | Hỏi user, không đoán |
 | Bug không fix được sau 3 lần | Báo user, đề xuất giải pháp thay thế |
 | Build fail | Log lỗi, báo user |
-| User muốn thay đổi giữa chừng | Dừng workflow hiện tại, bắt đầu analysis lại |
+| User muốn thay đổi giữa chừng / cancel | Dừng workflow ngay, lưu state hiện tại vào STATUS.md, báo PM. Nếu user muốn quay lại → gọi `@vibe` với mô tả tiếp theo |
 | Conflict giữa các agents | PM quyết định, user là sếp cuối cùng |

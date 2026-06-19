@@ -11,7 +11,7 @@ description: Production AI — caching, rate limit, fallback model, monitoring, 
 from functools import lru_cache
 import json, time, hashlib
 
-class AIReponseCache:
+class AIResponseCache:
     def __init__(self, ttl_seconds: int = 300, max_size: int = 1000):
         self.ttl = ttl_seconds
         self.cache: dict[str, tuple[float, str]] = {}

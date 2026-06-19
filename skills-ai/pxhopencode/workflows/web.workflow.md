@@ -119,12 +119,12 @@ Sau khi code xong, workflow này báo PM để chạy:
 1. `@pxh-qa` — Kiểm tra chất lượng, chạy test
 2. `@pxh-fix-bugs` — Sửa lỗi (nếu QA phát hiện)
 3. `@pxh-review-code` — Code review
-4. `@release.workflow` — Build
+4. `@release` — Build
 5. `@pxh-save-history` — Lưu quyết định + cập nhật STATUS.md
 
 > Sau build xong, bạn tự deploy (hoặc chạy live server cho game HTML5).
 
 ### Liên kết
-- Workflow cha: `@company.workflow` — Toàn bộ quy trình AI Company
+- Workflow cha: `@vibe` — Toàn bộ quy trình AI Company
 - Skills: `webs/*` — Web development skills
 - Agents: `@pxh-pm` (CEO), `@pxh-expert` (Coder), `@pxh-architect` (Architect)

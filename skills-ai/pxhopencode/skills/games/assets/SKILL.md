@@ -76,102 +76,108 @@ Skill này cung cấp nguồn assets free hợp pháp và script tự động do
 
 Khi vibe code game, agent phải chạy script này để download assets **trước khi code**.
 
-```bash
-# assets/download.sh — Chạy đầu phiên vibe code game
-$assetType = "2d" # hoặc "3d" hoặc "2.5d"
-$gameStyle = "platformer" # platformer, rpg, shooter, puzzle, casual
+```powershell
+# assets/download.ps1 — Chạy đầu phiên vibe code game
+$assetType = "2d"   # 2d | 3d | 2.5d
+$gameStyle = "platformer" # platformer | rpg | shooter | puzzle | casual
 
-function Download-Assets {
-  param([string]$url, [string]$output)
-
-  $outDir = Split-Path $output -Parent
+# === Helper: Tải file với retry và timeout ===
+function Invoke-AssetDownload {
+  param([string]$Url, [string]$OutFile)
+  $outDir = Split-Path $OutFile -Parent
   if (-not (Test-Path $outDir)) { New-Item -ItemType Directory -Path $outDir -Force | Out-Null }
-
-  if (Test-Path $output) {
-    Write-Output "  ✓ $output (cached)"
-    return
+  if (Test-Path $OutFile) { Write-Output "  ✓ $OutFile (cached)"; return $true }
+  for ($i = 0; $i -lt 3; $i++) {
+    try {
+      Invoke-WebRequest -Uri $Url -OutFile $OutFile -TimeoutSec 30 -ErrorAction Stop
+      Write-Output "  ✓ $OutFile"; return $true
+    } catch { Write-Warning "  ✗ Retry $($i+1)/3: $Url" }
+    Start-Sleep -Seconds 2
   }
+  Write-Warning "  ✗ Failed after 3 retries: $Url"
+  return $false
+}
 
+# === Helper: Lấy download URL thật từ Kenney asset page ===
+function Get-KenneyDownloadUrl {
+  param([string]$AssetName)
+  $pageUrl = "https://kenney.nl/assets/$AssetName"
   try {
-    Invoke-WebRequest -Uri $url -OutFile $output -TimeoutSec 30
-    Write-Output "  ✓ Downloaded: $output"
-  } catch {
-    Write-Warning "  ✗ Failed: $url — $($_.Exception.Message)"
-  }
+    $html = Invoke-WebRequest -Uri $pageUrl -UseBasicParsing -TimeoutSec 15 -ErrorAction Stop
+    $pattern = "id='donate-text' href='(.+?)'"
+    $match = [regex]::Match($html.Content, $pattern)
+    if ($match.Success) { return $match.Groups[1].Value }
+  } catch { }
+  return $null
 }
 
-# === 2D: Sprite sheets từ Kenney (CC0) ===
+# === Helper: Tải Kenney asset ZIP và extract ===
+function Install-KenneyAsset {
+  param([string]$AssetName, [string]$OutDir = "assets")
+  $zipUrl = Get-KenneyDownloadUrl $AssetName
+  if (-not $zipUrl) { Write-Warning "  ✗ Cannot resolve download URL for $AssetName"; return $false }
+  $zipFile = "$OutDir/$AssetName.zip"
+  $ok = Invoke-AssetDownload -Url $zipUrl -OutFile $zipFile
+  if (-not $ok) { return $false }
+  try {
+    Expand-Archive -Path $zipFile -DestinationPath "$OutDir/$AssetName/" -Force
+    Remove-Item $zipFile
+    Write-Output "  ✓ Extracted to $OutDir/$AssetName/"
+    return $true
+  } catch { Write-Warning "  ✗ Extract failed: $zipFile"; return $false }
+}
+
+# ===================================================================
+# 2D: Sprite sheets từ Kenney (CC0) — download ZIP rồi map file
+# ===================================================================
 if ($assetType -eq "2d") {
-  # Character spritesheets — idle, run, jump, attack, hurt, die
-  switch ($gameStyle) {
-    "platformer" {
-      # Player
-      Download-Assets "https://kenney.nl/platformer-character" "assets/player.png"
-      Download-Assets "https://kenney.nl/platformer-character" "assets/player.json"
-      # Enemy
-      Download-Assets "https://kenney.nl/platformer-enemies" "assets/enemy.png"
-      Download-Assets "https://kenney.nl/platformer-enemies" "assets/enemy.json"
-      # Tiles
-      Download-Assets "https://kenney.nl/platformer-tiles" "assets/tiles.png"
-      Download-Assets "https://kenney.nl/platformer-tiles" "assets/tiles.json"
-    }
-    "rpg" {
-      Download-Assets "https://kenney.nl/rpg-characters" "assets/player.png"
-      Download-Assets "https://kenney.nl/rpg-enemies" "assets/enemy.png"
-    }
+  # Platformer assets — chứa spritesheet player, tiles, icons
+  $kenneyAsset = switch ($gameStyle) {
+    "platformer" { "new-platformer-pack" }
+    "rpg"        { "tiny-dungeon" }
+    "shooter"    { "desert-shooter-pack" }
+    default      { "new-platformer-pack" }
   }
+  Install-KenneyAsset -AssetName $kenneyAsset -OutDir "assets"
 
-  # Audio theo thể loại game
-  switch ($gameStyle) {
-    "platformer" {
-      Download-Assets "https://kenney.nl/data/audio/platformer-audio.zip" "assets/audio/sfx.zip"
-      Download-Assets "https://cdn.pixabay.com/download/audio/2022/03/15/audio_8b3c5c0f8c.mp3" "assets/audio/bgm.mp3"
-    }
-    "rpg" {
-      Download-Assets "https://kenney.nl/data/audio/rpg-audio.zip" "assets/audio/sfx.zip"
-      Download-Assets "https://cdn.pixabay.com/download/audio/2022/05/27/audio_8b4f2a5d4c.mp3" "assets/audio/bgm.mp3"
-    }
-    "shooter" {
-      Download-Assets "https://kenney.nl/data/audio/shooter-audio.zip" "assets/audio/sfx.zip"
-    }
-    default {
-      Download-Assets "https://kenney.nl/data/audio/platformer-audio.zip" "assets/audio/sfx.zip"
-    }
-  }
+  # Audio — Impact/SFX pack từ Kenney
+  Install-KenneyAsset -AssetName "impact-sfx" -OutDir "assets/audio"
 
-  # Extract SFX zip
-  if (Test-Path "assets/audio/sfx.zip") {
-    Expand-Archive -Path "assets/audio/sfx.zip" -DestinationPath "assets/audio/" -Force
-    Remove-Item "assets/audio/sfx.zip"
-    Write-Output "  ✓ Extracted SFX to assets/audio/"
-  }
+  # Map extracted files → game-expected paths (agent tự điều chỉnh)
+  Write-Output "  ℹ️  Map files from assets/$kenneyAsset/ to game code (player.png, enemy.png, tiles.png)"
+  Write-Output "  ℹ️  Audio in assets/audio/impact-sfx/ — map .wav/.mp3 to code"
 }
 
-# === 3D: GLB models từ Poly Pizza (CC0) ===
+# ===================================================================
+# 3D: GLB models từ Poly Pizza (CC0) + Kenney 3D Kit
+# ===================================================================
 if ($assetType -eq "3d") {
-  # Dùng API của Poly Pizza để search và download
-  $query = $gameStyle -eq "rpg" ? "character" : "player"
+  Install-KenneyAsset -AssetName "platformer-kit" -OutDir "assets"
+
+  $query = if ($gameStyle -eq "rpg") { "character" } else { "player" }
   $apiUrl = "https://api.poly.pizza/v0.1/models?q=$query&limit=1"
   try {
-    $response = Invoke-RestMethod -Uri $apiUrl
+    $response = Invoke-RestMethod -Uri $apiUrl -TimeoutSec 15 -ErrorAction Stop
     $modelUrl = $response.results[0].url
-    Download-Assets $modelUrl "assets/player.glb"
+    Invoke-AssetDownload -Url $modelUrl -OutFile "assets/player.glb"
   } catch {
-    Write-Warning "Poly Pizza API fail, dùng fallback URL"
-    Download-Assets "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/DamagedHelmet/glTF/DamagedHelmet.gltf" "assets/player.gltf"
+    Write-Warning "Poly Pizza API fail — dùng Kenney 3D model"
   }
 }
 
-# === 2.5D: Isometric tiles từ Kenney ===
+# ===================================================================
+# 2.5D: Isometric tiles từ Kenney
+# ===================================================================
 if ($assetType -eq "2.5d") {
-  Download-Assets "https://kenney.nl/isometric-tiles" "assets/tiles.png"
-  Download-Assets "https://kenney.nl/isometric-buildings" "assets/buildings.png"
+  Install-KenneyAsset -AssetName "isometric-forest-pack" -OutDir "assets"
+  Install-KenneyAsset -AssetName "isometric-buildings-pack" -OutDir "assets"
+  Write-Output "  ℹ️  Map tiles from extracted dirs to game code"
 }
 
-Write-Output "`n✅ Assets downloaded to assets/"
+Write-Output "`n✅ Asset download complete — adjust game code to match extracted file names"
 ```
 
-> **Fallback khi không internet**: Dùng procedural generation — vẽ shape bằng code, sinh âm thanh bằng Web Audio API.
+> **Fallback khi không internet**: Dùng procedural generation — vẽ shape bằng code, sinh âm thanh bằng Web Audio API (xem `games/core/SKILL.md` và `game-h5-2d.md`).
 
 ---
 

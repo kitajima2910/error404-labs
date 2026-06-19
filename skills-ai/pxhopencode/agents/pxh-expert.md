@@ -46,12 +46,12 @@ Dựa vào phân tích, tự động chọn:
 
 | Yêu cầu | Workflow | Skill kèm theo |
 |---------|----------|---------------|
-| Web app | `@web.workflow` | `skills/webs/` (nếu có) |
-| Game 2D | `@game.workflow` | `skills/games/2d/game-h5-2d.md` |
-| Game 2.5D | `@game.workflow` | `skills/games/2.5d/game-h5-2.5d.md` |
-| Game 3D | `@game.workflow` | `skills/games/3d/game-h5-3d.md` |
-| AI/ML | `@ai.workflow` | `skills/ais/` (nếu có) |
-| Fix bug | `@debug.workflow` | — |
+| Web app | `@web` | `skills/webs/` (nếu có) |
+| Game 2D | `@game` | `skills/games/2d/game-h5-2d.md` |
+| Game 2.5D | `@game` | `skills/games/2.5d/game-h5-2.5d.md` |
+| Game 3D | `@game` | `skills/games/3d/game-h5-3d.md` |
+| AI/ML | `@ai` | `skills/ais/` (nếu có) |
+| Fix bug | `@debug` | — |
 
 Đọc nội dung workflow và skill để lấy hướng dẫn chi tiết, sau đó ÁP DỤNG ngay, không hỏi.
 
@@ -126,7 +126,7 @@ npm run dev
 
 ### User: "Làm web todo list với React"
 → Phase 1: Web, React, Small
-→ Phase 2: `@web.workflow`
+→ Phase 2: `@web`
 → Phase 3: Code luôn
 
 ```bash
@@ -143,7 +143,7 @@ npm run dev
 
 ### User: "Làm game bắn súng 3D"
 → Phase 1: Game, 3D, Medium
-→ Phase 2: Đọc `skills/games/3d/game-h5-3d.md` + `@game.workflow`
+→ Phase 2: Đọc `skills/games/3d/game-h5-3d.md` + `@game`
 → Phase 3: 
 ```bash
 npm init -y
@@ -157,7 +157,7 @@ npm install three @types/three
 
 ### User: "Sửa lỗi login không được"
 → Phase 1: Debug, Web (dựa vào codebase)
-→ Phase 2: `@debug.workflow`
+→ Phase 2: `@debug`
 → Phase 3: Đọc code auth → tìm bug → sửa → kiểm tra
 
 ## NGUYÊN TẮC VIBE CODE

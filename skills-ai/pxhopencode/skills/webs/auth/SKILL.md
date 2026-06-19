@@ -86,9 +86,9 @@ const roles = {
 
 type Role = keyof typeof roles;
 
-async function requireRole(role: Role) {
+async function requireRole(req: NextRequest, role: Role) {
   const session = await auth();
-  if (!session?.user) return NextResponse.redirect(new URL("/login", request.url));
+  if (!session?.user) return NextResponse.redirect(new URL("/login", req.url));
   if (!roles[session.user.role as Role]?.includes(role)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }

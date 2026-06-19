@@ -118,10 +118,10 @@ Sau khi code xong:
 1. `@pxh-qa` — Test AI response quality, edge cases
 2. `@pxh-fix-bugs` — Fix LLM response issues
 3. `@pxh-review-code` — Review security & performance
-4. `@release.workflow` — Build + Deploy
+4. `@release` — Build + Deploy
 5. `@pxh-save-history` — Lưu prompt & quyết định + cập nhật STATUS.md
 
 ### Liên kết
-- Workflow cha: `@company.workflow`
+- Workflow cha: `@vibe`
 - Skills: `ais/*` (LLM, RAG, Agent, Prompt, Production)
 - Agents: `@pxh-pm`, `@pxh-expert`, `@pxh-architect`

@@ -144,12 +144,12 @@ Sau khi code xong:
 1. `@pxh-qa` — Kiểm tra gameplay, performance
 2. `@pxh-fix-bugs` — Fix bug (nếu có)
 3. `@pxh-review-code` — Review cấu trúc & performance
-4. `@release.workflow` — Build
+4. `@release` — Build
 5. `@pxh-save-history` — Lưu quyết định game design + cập nhật STATUS.md
 
 > Game HTML5 chạy bằng `npx vite` hoặc Live Server — bạn tự test và deploy.
 
 ### Liên kết
-- Workflow cha: `@company.workflow`
+- Workflow cha: `@vibe`
 - Skills: `games/*`, `games/2d/*`, `games/3d/*`
 - Agents: `@pxh-pm`, `@pxh-expert`, `@pxh-architect`
