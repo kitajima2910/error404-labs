@@ -49,8 +49,8 @@ pip install psycopg2-binary sqlalchemy pgvector
 ### Bước 2.1: Setup `.gitignore`
 
 Sau khi setup, đảm bảo `.gitignore` đúng chuẩn Python/AI:
-- Luôn có `.opencode`, `.playwright-mcp`, `__pycache__/`, `*.pyc`, `.venv/`, `.env`, `*.egg-info/`, `dist/`
-- Nếu đã có `.gitignore` → chỉ cần ensure `.opencode` và `.playwright-mcp` được thêm vào
+- Luôn có `.opencode`, `.playwright-mcp`, `.gitignore`, `__pycache__/`, `*.pyc`, `.venv/`, `.env`, `*.egg-info/`, `dist/`
+- Nếu đã có `.gitignore` → chỉ cần ensure `.opencode`, `.playwright-mcp`, `.gitignore` được thêm vào
 
 ### Bước 3: Cấu trúc thư mục AI chuẩn
 

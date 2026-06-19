@@ -52,10 +52,10 @@ npm install -D tailwindcss @tailwindcss/vite
 ### Bước 2.1: Setup `.gitignore`
 
 Sau khi cài dependencies, đảm bảo `.gitignore` đúng chuẩn web:
-- Luôn có `.opencode`, `.playwright-mcp`, `node_modules/`, `.env`, `dist/`, `*.log`
+- Luôn có `.opencode`, `.playwright-mcp`, `.gitignore`, `node_modules/`, `.env`, `dist/`, `*.log`
 - Nếu Next.js: thêm `.next/`, `out/`
 - Nếu Vite: thêm `dist/`
-- Nếu đã có `.gitignore` → chỉ cần ensure `.opencode` và `.playwright-mcp` được thêm vào
+- Nếu đã có `.gitignore` → chỉ cần ensure `.opencode`, `.playwright-mcp`, `.gitignore` được thêm vào
 
 ### Bước 2.2: Tạo favicon SVG
 

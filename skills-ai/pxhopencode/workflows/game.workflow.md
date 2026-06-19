@@ -36,9 +36,9 @@ npm install phaser
 ### Bước 2.1: Setup `.gitignore`
 
 Sau khi cài dependencies, đảm bảo `.gitignore` đúng chuẩn game H5:
-- Luôn có `.opencode`, `.playwright-mcp`, `node_modules/`, `dist/`, `*.log`, `.env`
+- Luôn có `.opencode`, `.playwright-mcp`, `.gitignore`, `node_modules/`, `dist/`, `*.log`, `.env`
 - Nếu download assets: thêm `public/assets/` hoặc thư mục chứa assets
-- Nếu đã có `.gitignore` → chỉ cần ensure `.opencode` và `.playwright-mcp` được thêm vào
+- Nếu đã có `.gitignore` → chỉ cần ensure `.opencode`, `.playwright-mcp`, `.gitignore` được thêm vào
 
 ### Bước 2.2: Tạo favicon SVG
 
