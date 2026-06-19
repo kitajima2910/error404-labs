@@ -2,6 +2,8 @@
 
 Dùng workflow này khi bạn làm: chatbot, RAG system, LLM integration, AI agent, ML inference API, NLP processing, computer vision, automation AI.
 
+> **🌏 LUẬT NGÔN NGỮ**: UI text trong AI app (chat message, label, thông báo, hướng dẫn) phải là **tiếng Việt**.
+
 ## 🚀 Quy trình vibe code AI
 
 ### Bước 1: Chọn stack
@@ -43,6 +45,12 @@ pip install fastapi uvicorn langchain openai pydantic
 # PostgreSQL + pgvector
 pip install psycopg2-binary sqlalchemy pgvector
 ```
+
+### Bước 2.1: Setup `.gitignore`
+
+Sau khi setup, đảm bảo `.gitignore` đúng chuẩn Python/AI:
+- Luôn có `.opencode`, `__pycache__/`, `*.pyc`, `.venv/`, `.env`, `*.egg-info/`, `dist/`
+- Nếu đã có `.gitignore` → chỉ cần ensure `.opencode` được thêm vào
 
 ### Bước 3: Cấu trúc thư mục AI chuẩn
 
@@ -111,7 +119,7 @@ Sau khi code xong:
 2. `@pxh-fix-bugs` — Fix LLM response issues
 3. `@pxh-review-code` — Review security & performance
 4. `@release.workflow` — Build + Deploy
-5. `@pxh-save-history` — Lưu prompt & quyết định
+5. `@pxh-save-history` — Lưu prompt & quyết định + cập nhật STATUS.md
 
 ### Liên kết
 - Workflow cha: `@company.workflow`

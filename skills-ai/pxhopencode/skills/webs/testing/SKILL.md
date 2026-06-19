@@ -41,24 +41,24 @@ import { Button } from "./Button";
 
 describe("Button", () => {
   it("renders with text", () => {
-    render(<Button>Click me</Button>);
-    expect(screen.getByRole("button")).toHaveTextContent("Click me");
+    render(<Button>Bấm vào tôi</Button>);
+    expect(screen.getByRole("button")).toHaveTextContent("Bấm vào tôi");
   });
 
   it("calls onClick when clicked", async () => {
     const onClick = vi.fn();
-    render(<Button onClick={onClick}>Click</Button>);
+    render(<Button onClick={onClick}>Bấm</Button>);
     await userEvent.click(screen.getByRole("button"));
     expect(onClick).toHaveBeenCalledTimes(1);
   });
 
   it("shows loading state", () => {
-    render(<Button loading>Loading</Button>);
+    render(<Button loading>Đang tải</Button>);
     expect(screen.getByRole("button")).toBeDisabled();
   });
 
   it("applies variant classes", () => {
-    const { rerender } = render(<Button variant="primary">Primary</Button>);
+    const { rerender } = render(<Button variant="primary">Chính</Button>);
     expect(screen.getByRole("button")).toHaveClass("bg-blue-600");
 
     rerender(<Button variant="ghost">Ghost</Button>);
@@ -106,7 +106,7 @@ export const handlers = [
   http.get("/api/todos", () => {
     return HttpResponse.json({
       data: [
-        { id: "1", title: "Test todo", completed: false },
+        { id: "1", title: "Việc cần làm", completed: false },
       ],
       total: 1,
     });
@@ -138,15 +138,15 @@ describe("TodoPage", () => {
   it("loads and displays todos", async () => {
     render(<TodoPage />);
     await waitFor(() => {
-      expect(screen.getByText("Test todo")).toBeInTheDocument();
+      expect(screen.getByText("Việc cần làm")).toBeInTheDocument();
     });
   });
 
   it("creates a new todo", async () => {
     render(<TodoPage />);
-    await userEvent.type(screen.getByPlaceholderText("Add todo..."), "New task{enter}");
+    await userEvent.type(screen.getByPlaceholderText("Thêm việc..."), "Việc mới{enter}");
     await waitFor(() => {
-      expect(screen.getByText("New task")).toBeInTheDocument();
+      expect(screen.getByText("Việc mới")).toBeInTheDocument();
     });
   });
 });
@@ -164,23 +164,23 @@ test.describe("Todo App", () => {
   });
 
   test("shows empty state", async ({ page }) => {
-    await expect(page.getByText("No todos yet")).toBeVisible();
+    await expect(page.getByText("Chưa có việc nào")).toBeVisible();
   });
 
   test("adds and completes a todo", async ({ page }) => {
-    await page.getByPlaceholder("Add todo...").fill("Buy milk");
-    await page.getByRole("button", { name: "Add" }).click();
-    await expect(page.getByText("Buy milk")).toBeVisible();
+    await page.getByPlaceholder("Thêm việc...").fill("Mua sữa");
+    await page.getByRole("button", { name: "Thêm" }).click();
+    await expect(page.getByText("Mua sữa")).toBeVisible();
 
     await page.getByRole("checkbox").check();
-    await expect(page.getByText("Buy milk")).toHaveClass(/completed/);
+    await expect(page.getByText("Mua sữa")).toHaveClass(/completed/);
   });
 
   test("persists after reload", async ({ page }) => {
-    await page.getByPlaceholder("Add todo...").fill("Persistent task");
-    await page.getByRole("button", { name: "Add" }).click();
+    await page.getByPlaceholder("Thêm việc...").fill("Việc cố định");
+    await page.getByRole("button", { name: "Thêm" }).click();
     await page.reload();
-    await expect(page.getByText("Persistent task")).toBeVisible();
+    await expect(page.getByText("Việc cố định")).toBeVisible();
   });
 });
 ```

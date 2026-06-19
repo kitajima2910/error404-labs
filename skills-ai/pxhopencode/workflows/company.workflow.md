@@ -2,6 +2,8 @@
 
 Workflow master điều phối toàn bộ AI Company. Khi user viết prompt, workflow này tự động chạy để biến ý tưởng thành sản phẩm release.
 
+> **🌏 LUẬT NGÔN NGỮ**: Toàn bộ UI text trong code phải là **tiếng Việt** (nút bấm, tiêu đề, thông báo, menu, mô tả, label, placeholder, error message). Chỉ giữ tiếng Anh cho tên biến, hàm, class, API endpoint, package name. Code comments ưu tiên tiếng Việt.
+
 ## 🔄 QUY TRÌNH 11 BƯỚC
 
 ```
@@ -31,6 +33,7 @@ Nhận prompt từ user. Đây có thể là:
 - Bug report: "Login bị lỗi 500"
 - Câu hỏi kỹ thuật: "Nên dùng DB gì?"
 
+→ Gọi `@pxh-save-history update-status` để khởi tạo STATUS.md với giai đoạn NHẬN.
 → Chuyển sang Bước 2.
 
 ## Bước 2: ANALYZE — Phân tích (do PM thực hiện)
@@ -46,6 +49,7 @@ Nhận prompt từ user. Đây có thể là:
 | Ràng buộc | [...] |
 ```
 
+→ Gọi `@pxh-save-history update-status` cập nhật giai đoạn PHÂN TÍCH, công nghệ, mục tiêu.
 → Nếu rõ ràng → Bước 3. Nếu thiếu thông tin → hỏi user.
 
 ## Bước 3: MEETING — Agents thảo luận
@@ -66,6 +70,7 @@ Kết quả meeting:
 - Timeline: [ước lượng]
 ```
 
+→ Gọi `@pxh-save-history update-status` cập nhật giai đoạn HỌP, kết quả thảo luận, công nghệ quyết định.
 → Bước 4.
 
 ## Bước 4: PLAN — Lập kế hoạch
@@ -76,6 +81,7 @@ Viết kế hoạch chi tiết:
 
 ### Phase 1: Khởi tạo
 - Setup project structure
+- Setup `.gitignore` (phù hợp tech stack, luôn có `.opencode`)
 - Cài dependencies
 
 ### Phase 2: Core features
@@ -90,6 +96,7 @@ Viết kế hoạch chi tiết:
 - Build + Deploy
 ```
 
+→ Gọi `@pxh-save-history update-status` cập nhật giai đoạn KẾ HOẠCH, kế hoạch chi tiết.
 → Bước 5.
 
 ## Bước 5: ARCHITECT — Thiết kế
@@ -102,6 +109,7 @@ Gọi `@pxh-architect <kế hoạch>` để thiết kế:
 
 Lưu ADR (Architecture Decision Record) vào `docs/decisions/`.
 
+→ Gọi `@pxh-save-history update-status` cập nhật giai đoạn THIẾT KẾ, quyết định kiến trúc.
 → Bước 6.
 
 ## Bước 6: CODE — Vibe code
@@ -111,18 +119,31 @@ Dựa vào kết quả meeting, chọn workflow phù hợp:
 | Dự án | Gọi |
 |-------|-----|
 | Web | `@web.workflow <mô tả>` |
-| Game 2D | `@game.workflow <mô tả>` + skill `games/2d/game-h5-2d.md` |
-| Game 3D | `@game.workflow <mô tả>` + skill `games/3d/game-h5-3d.md` |
-| AI | `@ai.workflow <mô tả>` + skill `ais/*` |
-| CLI Tool | `@pxh-expert` + skill `tools/cli/SKILL.md` |
+| Game 2D | `@game.workflow <mô tả>` + skill `skills/games/2d/game-h5-2d.md` |
+| Game 3D | `@game.workflow <mô tả>` + skill `skills/games/3d/game-h5-3d.md` |
+| AI | `@ai.workflow <mô tả>` + skill `skills/ais/*` |
+| CLI Tool | `@pxh-expert` + skill `skills/tools/cli/SKILL.md` |
 | Fix bug | `@pxh-fix-bugs <bug description>` |
 
 Nếu dự án phức tạp → gọi `@pxh-expert` để nó chọn workflow và code tự động.
 
-Sau khi code xong:
+Sau khi code xong, chạy setup `.gitignore`:
+- Nếu chưa có → tạo `.gitignore` với nội dung phù hợp tech stack + luôn thêm `.opencode`
+- Nếu đã có → chỉ cần ensure dòng `.opencode` tồn tại trong file
+
+Sau đó, setup Playwright cho debug UI:
+- Playwright MCP đã cấu hình trong `opencode.json` → tự động connected khi opencode khởi động
+- Nếu dự án là web/game (có `package.json`) → kiểm tra `@playwright/test` trong devDependencies
+- Nếu chưa có → chạy `npm install -D @playwright/test && npx playwright install chromium`
+- Verify Playwright connected: dùng `browser_tabs` để kiểm tra browser
+
+Nếu dự án chạy browser (web/game): tạo favicon SVG theo hướng dẫn trong `@web.workflow` (Bước 2.2) hoặc `@game.workflow` (Bước 2.2).
+
+Sau đó:
 - `git add . && git commit -m "feat: <mô tả>"`
 - `git push` (nếu có remote)
 
+→ Gọi `@pxh-save-history update-status` cập nhật giai đoạn VIẾT CODE, tính năng đã hoàn thành.
 → Bước 7.
 
 ## Bước 7: TEST — QA kiểm tra
@@ -139,6 +160,7 @@ Gọi `@pxh-qa` để:
 - Quyết định: [PASS / CẦN FIX]
 ```
 
+→ Gọi `@pxh-save-history update-status` cập nhật giai đoạn KIỂM TRA, kết quả QA.
 - Nếu PASS → Bước 9
 - Nếu CÓ BUG → Bước 8
 
@@ -147,10 +169,12 @@ Gọi `@pxh-qa` để:
 Gọi `@pxh-fix-bugs` với danh sách bug từ QA.
 Sau khi fix → quay lại Bước 7 (test lại).
 
+→ Gọi `@pxh-save-history update-status` cập nhật giai đoạn SỬA LỖI, bug đã sửa.
+
 Vòng lặp: **Test → Fix → Test → Fix** tới khi pass hoặc quá 3 lần.
 Nếu quá 3 lần → báo PM.
 
-## Bước 9: REVIEW — Code review
+## Bước 9: RÀ SOÁT — Code review
 
 Gọi `@pxh-review-code` để review toàn bộ code thay đổi:
 - Security scan
@@ -159,21 +183,25 @@ Gọi `@pxh-review-code` để review toàn bộ code thay đổi:
 - Code quality
 
 Nếu có issue → fix → quay lại Bước 7.
+→ Gọi `@pxh-save-history update-status` cập nhật giai đoạn RÀ SOÁT, kết quả review.
 Nếu OK → Bước 10.
 
-## Bước 10: BUILD — Build & báo user
+## Bước 10: PHÁT HÀNH — Build & báo user
 
 Gọi `@release.workflow`:
 1. Lint + Typecheck
 2. Build
 3. Báo user build xong → user tự deploy
 
+→ Gọi `@pxh-save-history update-status` cập nhật giai đoạn PHÁT HÀNH, build version.
+
 ## Bước 11: SAVE — Lưu lịch sử
 
-Gọi `@pxh-save-history` để lưu:
-- Session log vào `docs/changelog/YYYY-MM-DD.md`
-- ADR vào `docs/decisions/`
-- Bug report vào `docs/bugs/`
+Gọi `@pxh-save-history` để:
+1. Lưu session log vào `docs/changelog/YYYY-MM-DD.md`
+2. Lưu ADR vào `docs/decisions/`
+3. Lưu bug report vào `docs/bugs/`
+4. Cập nhật STATUS.md: giai đoạn LƯU ✅ — dự án hoàn tất
 
 ---
 
@@ -181,10 +209,10 @@ Gọi `@pxh-save-history` để lưu:
 
 ```
 Bước 6 (Code) → Bước 7 (Test)
-  ↑                ↓ (có bug)
-  ├──────── Bước 8 (Fix)
-  ↑
-Bước 9 (Review có issue)
+                     ↓ (có bug)
+                 Bước 8 (Fix) ─→ quay lại Bước 7
+
+Bước 9 (Có issue) → fix → quay lại Bước 7 (Test lại)
 
 Bước 10 (Build fail) → Fix → Bước 7 (Test lại)
 ```

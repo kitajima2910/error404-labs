@@ -121,8 +121,8 @@ Dùng `Phaser.Scale.FIT` để tự động scale.
 ### HUD Layout
 ```
 ┌──────────────────────────┐
-│ ❤️❤️❤️      Score: 1234  │  ← Top: health, score
-│          Level 3         │
+│ ❤️❤️❤️      Điểm: 1234  │  ← Trên: máu, điểm
+│           Màn 3          │
 ├──────────────────────────┤
 │                          │
 │                          │  ← Game area
@@ -148,18 +148,18 @@ Dùng `Phaser.Scale.FIT` để tự động scale.
 
 ### Menu Flow
 ```
-Main Menu
-├── Play → Level Select → Game → Pause
-│                                 ├── Resume
-│                                 ├── Restart
-│                                 ├── Settings
-│                                 └── Quit
-├── Settings
-│   ├── Sound (SFX / BGM)
-│   ├── Graphics (Quality)
-│   └── Controls
-├── Shop (nếu có)
-└── Credits
+Menu chính
+├── Chơi → Chọn màn → Game → Tạm dừng
+│                              ├── Tiếp tục
+│                              ├── Chơi lại
+│                              ├── Cài đặt
+│                              └── Thoát
+├── Cài đặt
+│   ├── Âm thanh (SFX / BGM)
+│   ├── Đồ hoạ (Chất lượng)
+│   └── Điều khiển
+├── Cửa hàng (nếu có)
+└── Giới thiệu
 ```
 
 ## 5. Feedback Systems

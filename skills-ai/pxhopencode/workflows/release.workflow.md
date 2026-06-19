@@ -61,6 +61,10 @@ Build xong, báo user:
 👉 Bạn chạy live server hoặc deploy lên hosting tuỳ ý.
 ```
 
+Sau khi build xong, gọi `@pxh-save-history update-status` để:
+- Cập nhật phase RELEASE ✅
+- Ghi lại build version, output size, ngày release
+
 ---
 
 ## 📋 MẪU BÁO CÁO RELEASE

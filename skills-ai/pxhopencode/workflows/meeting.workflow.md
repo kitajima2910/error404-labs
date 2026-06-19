@@ -90,6 +90,14 @@ Chọn: [Giải pháp cuối cùng]
 - [ ] QA: Chuẩn bị test strategy
 ```
 
+### Step 5: Cập nhật STATUS.md
+
+Gọi `@pxh-save-history update-status` với:
+- Phase hiện tại: MEETING
+- Quyết định: [giải pháp được chọn]
+- Tech stack: [công nghệ đã chọn]
+- Action items: [danh sách]
+
 ## 📊 MA TRẬN QUYẾT ĐỊNH
 
 Khi có nhiều lựa chọn, dùng ma trận:

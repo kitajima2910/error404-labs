@@ -2,6 +2,8 @@
 
 Dùng workflow này khi bạn làm: web app, landing page, dashboard, API, full-stack, frontend/backend, e-commerce, blog, CMS, SaaS.
 
+> **🌏 LUẬT NGÔN NGỮ**: Toàn bộ UI text trong web (nút, tiêu đề, label, placeholder, thông báo, menu, error message) phải là **tiếng Việt**.
+
 ## 🚀 Quy trình vibe code web
 
 ### Bước 1: Chọn tech stack
@@ -47,6 +49,40 @@ npm install
 npm install -D tailwindcss @tailwindcss/vite
 ```
 
+### Bước 2.1: Setup `.gitignore`
+
+Sau khi cài dependencies, đảm bảo `.gitignore` đúng chuẩn web:
+- Luôn có `.opencode`, `node_modules/`, `.env`, `dist/`, `*.log`
+- Nếu Next.js: thêm `.next/`, `out/`
+- Nếu Vite: thêm `dist/`
+- Nếu đã có `.gitignore` → chỉ cần ensure `.opencode` được thêm vào
+
+### Bước 2.2: Tạo favicon SVG
+
+Favicon là biểu tượng hiển thị trên tab trình duyệt. Tạo `public/favicon.svg`:
+
+````svg
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="8" fill="url(#g)"/>
+  <text x="16" y="22" text-anchor="middle" fill="white" font-family="system-ui,sans-serif" font-size="18" font-weight="700">[CHỮ CÁI ĐẦU]</text>
+</svg>
+````
+
+Thêm vào `<head>` trong `index.html` hoặc layout:
+```html
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+```
+
+Có thể đổi màu gradient và chữ cái theo dự án. Nếu dùng Vite, kiểm tra file `index.html` đã có link favicon chưa, nếu chưa thì thêm vào.
+
+> Nếu dùng Next.js: đặt file vào `app/` thư mục public và dùng `<link>` trong `layout.tsx`.
+
 ### Bước 3: Cấu trúc thư mục chuẩn
 
 ```
@@ -84,7 +120,7 @@ Sau khi code xong, workflow này báo PM để chạy:
 2. `@pxh-fix-bugs` — Sửa lỗi (nếu QA phát hiện)
 3. `@pxh-review-code` — Code review
 4. `@release.workflow` — Build
-5. `@pxh-save-history` — Lưu quyết định
+5. `@pxh-save-history` — Lưu quyết định + cập nhật STATUS.md
 
 > Sau build xong, bạn tự deploy (hoặc chạy live server cho game HTML5).
 

@@ -130,12 +130,12 @@ export class MenuScene extends Phaser.Scene {
   create() {
     const { width, height } = this.cameras.main;
 
-    this.add.text(width / 2, height / 3, "GAME TITLE", {
+    this.add.text(width / 2, height / 3, "TÊN GAME", {
       fontSize: "48px",
       color: "#ffffff",
     }).setOrigin(0.5);
 
-    const playBtn = this.add.text(width / 2, height / 2, "▶ PLAY", {
+    const playBtn = this.add.text(width / 2, height / 2, "▶ CHƠI", {
       fontSize: "32px",
       color: "#00ff00",
     }).setOrigin(0.5).setInteractive();
@@ -380,7 +380,7 @@ export class GameScene extends Phaser.Scene {
     });
 
     // UI
-    this.scoreText = this.add.text(16, 16, "Score: 0", {
+    this.scoreText = this.add.text(16, 16, "Điểm: 0", {
       fontSize: "24px", color: "#ffffff",
     });
     this.healthBar = new HealthBar(this, 16, 48, 200, 20, 100);
@@ -438,7 +438,7 @@ export class GameScene extends Phaser.Scene {
 
     if (enemy.active === false) {
       this.score += 100;
-      this.scoreText.setText(`Score: ${this.score}`);
+      this.scoreText.setText(`Điểm: ${this.score}`);
     }
   }
 

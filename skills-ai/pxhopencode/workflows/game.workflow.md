@@ -2,6 +2,8 @@
 
 Dùng workflow này khi bạn làm: game HTML5, game 2D/2.5D/3D, game mobile web, Godot Web export, Unity WebGL, game canvas.
 
+> **🌏 LUẬT NGÔN NGỮ**: UI game (nút bấm, menu, thông báo, HUD, hướng dẫn) phải là **tiếng Việt**. Animation state (`idle`, `run`, `jump`) giữ tiếng Anh vì là kỹ thuật.
+
 ## 🚀 Quy trình vibe code game
 
 > **Bước 0: Download assets** — Chạy `skills/games/assets/SKILL.md`:
@@ -30,6 +32,37 @@ npm install -D vite
 # Phaser (2D)
 npm install phaser
 ```
+
+### Bước 2.1: Setup `.gitignore`
+
+Sau khi cài dependencies, đảm bảo `.gitignore` đúng chuẩn game H5:
+- Luôn có `.opencode`, `node_modules/`, `dist/`, `*.log`, `.env`
+- Nếu download assets: thêm `public/assets/` hoặc thư mục chứa assets
+- Nếu đã có `.gitignore` → chỉ cần ensure `.opencode` được thêm vào
+
+### Bước 2.2: Tạo favicon SVG
+
+Favicon là biểu tượng hiển thị trên tab trình duyệt. Tạo `public/favicon.svg` hoặc `favicon.svg` ở root:
+
+````svg
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f43f5e"/>
+      <stop offset="100%" stop-color="#e11d48"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="8" fill="url(#g)"/>
+  <text x="16" y="22" text-anchor="middle" fill="white" font-family="system-ui,sans-serif" font-size="18" font-weight="700">[CHỮ CÁI ĐẦU]</text>
+</svg>
+````
+
+Thêm vào `<head>` trong `index.html`:
+```html
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+```
+
+Tuỳ chỉnh màu gradient (hồng/đỏ cho game, xanh cho web, tím cho AI). Nếu là Canvas game thuần, vẫn có `index.html` → thêm link favicon vào đó.
 
 ### Bước 3: Cấu trúc thư mục game chuẩn
 
@@ -112,7 +145,7 @@ Sau khi code xong:
 2. `@pxh-fix-bugs` — Fix bug (nếu có)
 3. `@pxh-review-code` — Review cấu trúc & performance
 4. `@release.workflow` — Build
-5. `@pxh-save-history` — Lưu quyết định game design
+5. `@pxh-save-history` — Lưu quyết định game design + cập nhật STATUS.md
 
 > Game HTML5 chạy bằng `npx vite` hoặc Live Server — bạn tự test và deploy.
 

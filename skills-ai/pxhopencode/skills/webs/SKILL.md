@@ -3,6 +3,8 @@ name: webs
 description: Phát triển web production — frontend, backend, database, auth, styling, testing, deployment. Chuẩn SEO, Core Web Vitals, security.
 ---
 
+> **🌏 LUẬT NGÔN NGỮ**: UI text trong web (nút, tiêu đề, label, thông báo, error message) phải là **tiếng Việt**.
+
 # 🌐 Web Skills
 
 | Sub-skill | Mô tả |

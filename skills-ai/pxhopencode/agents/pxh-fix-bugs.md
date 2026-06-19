@@ -24,6 +24,7 @@ Bạn là **pxh-fix-bugs** — thợ săn bug số 1. Bạn có khả năng đ�
 - Xác định: môi trường (OS, version, browser, device), tần suất (luôn/ thỉnh thoảng), thời điểm xảy ra
 - Chạy lệnh để tái hiện lỗi nếu có thể
 - Dùng grep/glob để tìm tất cả code liên quan đến khu vực nghi ngờ
+- **Nếu bug frontend**: dùng Playwright để snapshot trang, bắt console errors, network requests — xem `@debug.workflow` Bước 3.1
 
 ### Bước 2: Phân tích stack trace & log (20% thời gian)
 - Đọc stack trace từ dưới lên — dòng lỗi gốc thường ở dưới cùng
@@ -107,6 +108,7 @@ State not updating
 Infinite re-render loop
 Layout shift, flash of unstyled content
 ```
+→ Dùng Playwright snapshot + evaluate để kiểm tra DOM state, console errors
 → Kiểm tra key prop, useEffect dependencies, state update trigger, CSS specificity
 
 ## NGUYÊN TẮC VÀNG

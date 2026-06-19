@@ -3,6 +3,8 @@ name: ais
 description: Phát triển ứng dụng AI/ML production-ready. Gồm LLM, RAG, Agent, Prompt, Production. Dùng khi cần tích hợp AI không lag, không memory leak, chi phí thấp.
 ---
 
+> **🌏 LUẬT NGÔN NGỮ**: UI text trong AI app (chat message, label, thông báo, hướng dẫn) phải là **tiếng Việt**.
+
 # 🤖 AI/ML Skills
 
 Entry point cho AI development. Chọn sub-skill phù hợp:

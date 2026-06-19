@@ -2,6 +2,8 @@
 
 Dùng workflow này khi bạn: fix bug, troubleshoot error, tối ưu hiệu năng, refactor code khẩn cấp, migrate data, gỡ rối deployment.
 
+> **🌏 LUẬT NGÔN NGỮ**: Khi fix UI bug, đảm bảo UI text sau fix vẫn là **tiếng Việt**.
+
 ## 🚀 Quy trình debug chuẩn
 
 ### Bước 0: Bình tĩnh — đọc lỗi!
@@ -44,6 +46,41 @@ Sử dụng:
 - Git blame để xem ai sửa gì gần đây
 - `git log --oneline -20` để xem thay đổi gần nhất
 
+### Bước 3.1: Debug UI/Browser với Playwright
+
+> Playwright MCP đã cấu hình trong `opencode.json` → auto-start khi opencode chạy.
+> Nếu chưa connected (hiếm khi xảy ra): kiểm tra log opencode hoặc restart.
+> Nếu cần chạy Playwright test (`npx playwright test`):
+> - `npm ls @playwright/test` nếu lỗi thì `npm install -D @playwright/test && npx playwright install chromium`
+> - Verify MCP connected: dùng `browser_tabs`
+
+Khi bug liên quan đến frontend (UI sai, network lỗi, JavaScript runtime), dùng Playwright để khảo sát:
+
+| Bước | Playwright tool | Mục đích |
+|------|----------------|----------|
+| 1 | `browser_navigate` + `browser_snapshot` | Chụp cấu trúc accessibility của trang để phát hiện element thiếu/sai |
+| 2 | `browser_take_screenshot` | Chụp ảnh trực quan để so sánh UI đúng/sai |
+| 3 | `browser_console_messages(level: "error")` | Bắt lỗi JavaScript ẩn (uncaught exception, network fail) |
+| 4 | `browser_console_messages(level: "warning")` | Tìm warning không hiện trên UI |
+| 5 | `browser_network_requests(static: false)` | Liệt kê requests — phát hiện API fail, 4xx, 5xx, timeout |
+| 6 | `browser_network_request(index)` | Xem chi tiết headers + body của request/response đáng ngờ |
+| 7 | `browser_evaluate(function)` | Inject JavaScript để inspect state, variables, store |
+| 8 | `browser_click` / `browser_fill_form` | Tái hiện chính xác thao tác user — kiểm tra behavior |
+
+Khi dùng Playwright để debug, luôn theo trình tự:
+
+```markdown
+1. **Snapshot**: `browser_snapshot` → xem cấu trúc DOM có đúng không
+2. **Console**: `browser_console_messages(error)` → có lỗi JS gì không
+3. **Network**: `browser_network_requests` → request nào fail
+4. **Inspect**: `browser_evaluate` → check state/component
+5. **Tái hiện**: `browser_click` / `browser_fill_form` → reproduce bug step-by-step
+```
+
+> Nếu bug là UI rendering sai → ưu tiên snapshot + screenshot trước.
+> Nếu bug là API/network → ưu tiên console messages + network requests.
+> Nếu bug là logic tương tác → ưu tiên click + fill form + evaluate.
+
 ### Bước 4: Tìm root cause
 
 Kỹ thuật tìm nguyên nhân:
@@ -69,7 +106,8 @@ Kỹ thuật tìm nguyên nhân:
 
 | Language | Tools |
 |----------|-------|
-| TypeScript/JavaScript | Chrome DevTools, `node --inspect`, `console.trace()`, `debugger;` |
+| TypeScript/JavaScript (Browser) | **Playwright** 🎯, Chrome DevTools, React DevTools, Vue DevTools |
+| TypeScript/JavaScript (Node) | `node --inspect`, `console.trace()`, `debugger;`, `ndb` |
 | Python | `pdb`, `ipdb`, `logging`, `traceback` |
 | Rust | `println!`, `dbg!`, `RUST_BACKTRACE=1`, `cargo-insta` |
 | Go | `fmt.Println`, `pprof`, `delve` |
@@ -86,9 +124,10 @@ Kỹ thuật tìm nguyên nhân:
 
 Sau khi fix xong:
 1. `@pxh-qa` — Chạy test, xác nhận bug đã hết
-2. `@pxh-review-code` — Review fix có sạch không
-3. `@release.workflow` — Deploy hotfix
-4. `@pxh-save-history` — Lưu root cause & fix
+2. `@pxh-fix-bugs` — Sửa lỗi (nếu QA phát hiện thêm)
+3. `@pxh-review-code` — Review fix có sạch không
+4. `@release.workflow` — Deploy hotfix
+5. `@pxh-save-history` — Lưu root cause & fix + cập nhật STATUS.md
 
 ### Liên kết
 - Workflow cha: `@company.workflow`

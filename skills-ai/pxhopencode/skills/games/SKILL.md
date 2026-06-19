@@ -3,6 +3,8 @@ name: games
 description: Phát triển game H5 production — 2D, 2.5D, 3D. Game loop fixed-timestep, object pool, audio pool, frustum culling, không lag, không memory leak.
 ---
 
+> **🌏 LUẬT NGÔN NGỮ**: UI text trong game (nút, menu, HUD, thông báo) phải là **tiếng Việt**. Animation state, tên biến, tên class giữ tiếng Anh.
+
 # 🎮 Game Skills
 
 | Sub-skill | Mô tả |

@@ -3,6 +3,8 @@ name: tools
 description: Phát triển công cụ production — CLI, automation, codegen, extension, packaging. Code gọn, không dependency thừa, cross-platform.
 ---
 
+> **🌏 LUẬT NGÔN NGỮ**: UI text trong tool (thông báo, menu, label, hướng dẫn) phải là **tiếng Việt**.
+
 # 🔧 Tools Skills
 
 | Sub-skill | Mô tả |

@@ -146,6 +146,97 @@ YYYY-MM-DD
 [người fix] - [ngày]
 ```
 
+### 4. STATUS.md — Bảng điều khiển dự án thời gian thực
+
+`STATUS.md` là bảng điều khiển trạng thái dự án **thời gian thực**, đặt ở thư mục gốc. Nó cho biết ngay lập tức dự án đang ở đâu, đã làm gì, sắp làm gì.
+
+#### Ai cập nhật?
+**pxh-save-history** là chủ quản duy nhất của `STATUS.md`. Các agents khác gọi `@pxh-save-history update-status <data>` để yêu cầu cập nhật.
+
+#### Khi nào cập nhật?
+- 🏁 **Đầu dự án**: Tạo STATUS.md lần đầu sau Phase 2 (ANALYZE)
+- 🔄 **Sau mỗi phase**: Khi chuyển phase trong company workflow
+- 📌 **Sau meeting**: Ghi lại quyết định quan trọng
+- 🐛 **Khi có bug**: Cập nhật bug tracking
+- 🚀 **Sau release**: Cập nhật trạng thái build & phiên bản
+- 📝 **Khi user yêu cầu**: Bất kỳ lúc nào
+
+#### Format STATUS.md
+
+```markdown
+# 📊 [Tên dự án]
+
+## 🎯 Tổng quan
+| Trường | Giá trị |
+|--------|---------|
+| Mục tiêu | [mô tả ngắn] |
+| Công nghệ | [công nghệ] |
+| Quy trình | [quy trình đang dùng] |
+| Giai đoạn hiện tại | [NHẬN / PHÂN TÍCH / HỌP / KẾ HOẠCH / THIẾT KẾ / VIẾT CODE / KIỂM TRA / SỬA LỖI / RÀ SOÁT / PHÁT HÀNH / LƯU] |
+
+## 🚦 Tiến độ
+`[████████░░░░] 60%`
+
+| Giai đoạn | Trạng thái | Ghi chú |
+|-------|--------|---------|
+| 1. NHẬN | ✅ | Tiếp nhận yêu cầu |
+| 2. PHÂN TÍCH | ✅ | Phân tích hoàn tất |
+| 3. HỌP | ✅ | Đã thống nhất công nghệ |
+| 4. KẾ HOẠCH | ✅ | Kế hoạch chi tiết |
+| 5. THIẾT KẾ | 🔄 | Đang thiết kế CSDL |
+| 6. VIẾT CODE | ⏳ | - |
+| 7. KIỂM TRA | ⏳ | - |
+| 8. SỬA LỖI | ⏳ | - |
+| 9. RÀ SOÁT | ⏳ | - |
+| 10. PHÁT HÀNH | ⏳ | - |
+| 11. LƯU | ⏳ | - |
+
+## ✅ Đã hoàn thành
+- [ ] Tính năng A: Mô tả
+- [ ] Thiết lập cấu trúc dự án
+
+## 🔄 Đang làm
+- [ ] Tính năng B: Đang ở bước X
+
+## ⏳ Sắp làm
+- [ ] Tính năng C
+- [ ] Tính năng D
+
+## 🐞 Lỗi đang theo dõi
+| Lỗi | Trạng thái | Mức độ |
+|-----|-----------|--------|
+| Lỗi đăng nhập | 🔴 Đang sửa | Nghiêm trọng |
+| Lỗi giao diện | 🟡 Chờ xử lý | Thấp |
+
+## 📝 Quyết định kỹ thuật
+| Quyết định | Lựa chọn | Lý do |
+|-----------|---------|-------|
+| Cơ sở dữ liệu | PostgreSQL | ACID, quen thuộc |
+| Giao diện | React + Vite | Nhanh, linh hoạt |
+
+## 📦 Release
+| Trường | Giá trị |
+|--------|---------|
+| Phiên bản | v0.1.0 |
+| Xây dựng | ✅ Thành công |
+| Ngày | 2026-06-19 |
+
+## 📋 Nhật ký phiên
+- [2026-06-19](./docs/changelog/2026-06-19.md)
+```
+
+#### Cách cập nhật
+
+Khi nhận được lệnh `update-status`, làm theo các bước:
+
+1. **Đọc** STATUS.md hiện tại (nếu có)
+2. **Phân tích** dữ liệu mới (giai đoạn nào thay đổi, tính năng nào hoàn thành, lỗi mới, v.v.)
+3. **Cập nhật** các section tương ứng, giữ nguyên phần chưa thay đổi
+4. **Ghi đè** STATUS.md với nội dung mới
+
+Nếu STATUS.md chưa tồn tại → tạo mới với template đầy đủ.
+Nếu thiếu thông tin → hỏi user trước khi ghi.
+
 ## NGUYÊN TẮC
 
 1. **Chính xác**: Ghi lại sự thật, không suy diễn. "Đã thử A nhưng fail vì B" — không phải "Chắc A không được"

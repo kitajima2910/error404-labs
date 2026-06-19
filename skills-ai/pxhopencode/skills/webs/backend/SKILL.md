@@ -43,12 +43,12 @@ export async function POST(request: NextRequest) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+    return NextResponse.json({ error: "JSON không hợp lệ" }, { status: 400 });
   }
 
   const result = CreateTodoSchema.safeParse(body);
   if (!result.success) {
-    return NextResponse.json({ error: "Validation failed", details: result.error.flatten() }, { status: 400 });
+    return NextResponse.json({ error: "Dữ liệu không hợp lệ", details: result.error.flatten() }, { status: 400 });
   }
 
   const todo = await prisma.todo.create({ data: result.data });
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const id = searchParams.get("id");
-  if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
+  if (!id) return NextResponse.json({ error: "Thiếu id" }, { status: 400 });
 
   await prisma.todo.delete({ where: { id } });
   return NextResponse.json({ success: true });
@@ -85,13 +85,13 @@ export function handleError(error: unknown) {
 
   if (error instanceof z.ZodError) {
     return NextResponse.json(
-      { error: "Validation failed", details: error.flatten() },
+      { error: "Dữ liệu không hợp lệ", details: error.flatten() },
       { status: 400 }
     );
   }
 
   console.error("[Unhandled]", error);
-  return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  return NextResponse.json({ error: "Lỗi máy chủ nội bộ" }, { status: 500 });
 }
 ```
 

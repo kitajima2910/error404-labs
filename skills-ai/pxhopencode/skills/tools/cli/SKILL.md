@@ -22,7 +22,7 @@ program
   .version("1.0.0")
   .hook("preAction", () => {
     process.on("SIGINT", () => {
-      console.log("\n👋 Bye!");
+      console.log("\n👋 Tạm biệt!");
       process.exit(0);
     });
   });
@@ -33,9 +33,9 @@ program
   .option("-n, --name <name>", "Project name")
   .option("-t, --type <type>", "Project type", "web")
   .action(async (options) => {
-    const name = options.name || await input({ message: "Project name:", validate: v => v.length > 0 });
+    const name = options.name || await input({ message: "Tên dự án:", validate: v => v.length > 0 });
     const type = options.type || await select({
-      message: "Project type:",
+      message: "Loại dự án:",
       choices: [
         { name: "Web", value: "web" },
         { name: "Game", value: "game" },
@@ -43,12 +43,12 @@ program
       ]
     });
 
-    const spinner = ora(`Creating ${name}...`).start();
+    const spinner = ora(`Đang tạo ${name}...`).start();
     try {
       await createProject(name, type);
-      spinner.succeed(chalk.green(`✅ Created ${name}`));
+      spinner.succeed(chalk.green(`✅ Đã tạo ${name}`));
     } catch (err) {
-      spinner.fail(chalk.red(`❌ Failed: ${err}`));
+      spinner.fail(chalk.red(`❌ Thất bại: ${err}`));
       process.exit(1);
     }
   });
