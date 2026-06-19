@@ -1,0 +1,79 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "default_agent": "pxh-pm",
+  "instructions": ["pxhopencode/README.md"],
+
+  "skills": {
+    "paths": ["pxhopencode/skills"]
+  },
+
+  "agent": {
+    "pxh-pm": {
+      "description": "Project Manager AI Company. Tiếp nhận yêu cầu, triệu tập meeting agents, chọn workflow, phối hợp toàn bộ quy trình vibe code đến release.",
+      "mode": "primary"
+    },
+    "pxh-architect": {
+      "description": "Kiến trúc sư hệ thống. Thiết kế kiến trúc, chọn tech stack, thiết kế database, API design.",
+      "mode": "subagent"
+    },
+    "pxh-qa": {
+      "description": "QA Engineer. Tự động chạy test, kiểm tra chất lượng, validate tính năng, báo cáo bug.",
+      "mode": "subagent"
+    },
+    "pxh-devops": {
+      "description": "Build Engineer. Lint → typecheck → test → build.",
+      "mode": "subagent"
+    },
+    "pxh-help": {
+      "description": "Hướng dẫn chọn workflow phù hợp để vibe code.",
+      "mode": "primary"
+    },
+    "pxh-expert": {
+      "description": "Cỗ máy vibe code tự động. Chọn workflow, code luôn không cần đợi.",
+      "mode": "subagent"
+    },
+    "pxh-fix-bugs": {
+      "description": "Chuyên gia săn và sửa bug. Phân tích stack trace, tìm root cause, fix chính xác.",
+      "mode": "subagent"
+    },
+    "pxh-review-code": {
+      "description": "Code reviewer khó tính. Kiểm tra security, performance, conventions, testing.",
+      "mode": "subagent"
+    },
+    "pxh-save-history": {
+      "description": "Thư ký lưu lịch sử quyết định kỹ thuật và session log.",
+      "mode": "subagent"
+    }
+  },
+
+  "command": {
+    "vibe": {
+      "description": "Vibe code: nhập mô tả và auto chạy toàn bộ quy trình AI Company",
+      "template": "pxhopencode/workflows/company.workflow.md"
+    },
+    "meeting": {
+      "description": "Triệu tập meeting các agents để thảo luận giải pháp",
+      "template": "pxhopencode/workflows/meeting.workflow.md"
+    },
+    "release": {
+      "description": "Chạy build pipeline: lint → test → build",
+      "template": "pxhopencode/workflows/release.workflow.md"
+    },
+    "debug": {
+      "description": "Debug + fix bug tự động",
+      "template": "pxhopencode/workflows/debug.workflow.md"
+    },
+    "web": {
+      "description": "Phát triển web app",
+      "template": "pxhopencode/workflows/web.workflow.md"
+    },
+    "game": {
+      "description": "Phát triển game HTML5: 2D, 2.5D, 3D",
+      "template": "pxhopencode/workflows/game.workflow.md"
+    },
+    "ai": {
+      "description": "Phát triển ứng dụng AI: chatbot, RAG, agent",
+      "template": "pxhopencode/workflows/ai.workflow.md"
+    }
+  }
+}
