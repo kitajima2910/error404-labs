@@ -81,7 +81,7 @@ Viết kế hoạch chi tiết:
 
 ### Phase 1: Khởi tạo
 - Setup project structure
-- Setup `.gitignore` (phù hợp tech stack, luôn có `.opencode`)
+- Setup `.gitignore` (phù hợp tech stack, luôn có `.opencode` và `.playwright-mcp`)
 - Cài dependencies
 
 ### Phase 2: Core features
@@ -128,8 +128,8 @@ Dựa vào kết quả meeting, chọn workflow phù hợp:
 Nếu dự án phức tạp → gọi `@pxh-expert` để nó chọn workflow và code tự động.
 
 Sau khi code xong, chạy setup `.gitignore`:
-- Nếu chưa có → tạo `.gitignore` với nội dung phù hợp tech stack + luôn thêm `.opencode`
-- Nếu đã có → chỉ cần ensure dòng `.opencode` tồn tại trong file
+- Nếu chưa có → tạo `.gitignore` với nội dung phù hợp tech stack + luôn thêm `.opencode` và `.playwright-mcp`
+- Nếu đã có → chỉ cần ensure dòng `.opencode` và `.playwright-mcp` tồn tại trong file
 
 Sau đó, setup Playwright cho debug UI:
 - Playwright MCP đã cấu hình trong `opencode.json` → tự động connected khi opencode khởi động

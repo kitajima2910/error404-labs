@@ -5,7 +5,7 @@ Hệ thống agents tự động vibe code như một AI Company. Viết prompt 
 ## Tính năng nổi bật
 
 - **STATUS.md tự động** — pxh-save-history cập nhật real-time qua từng giai đoạn
-- **.gitignore tự động** — tạo nếu chưa có, luôn ensure `.opencode` được ignore
+- **.gitignore tự động** — tạo nếu chưa có, luôn ensure `.opencode` và `.playwright-mcp` được ignore
 - **Playwright MCP tích hợp** — debug UI tự động, auto-install nếu chưa có
 - **LUẬT NGÔN NGỮ** — UI text 100% tiếng Việt, giữ tiếng Anh cho code
 - **Favicon SVG** — tự tạo favicon gradient + chữ cái đầu cho web/game
