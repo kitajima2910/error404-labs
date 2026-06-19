@@ -1,6 +1,6 @@
 # 🏁 Turbo Rush — Arcade Racing Game
 
-## Status: ✅ Complete (Debug: 2026-06-20 | Bug Fixed: 2026-06-19 | Việt hoá: 2026-06-20)
+## Status: ✅ Complete (Pause Menu: 2026-06-20 | Debug: 2026-06-20 | Bug Fixed: 2026-06-19 | Việt hoá: 2026-06-20)
 
 A polished 2D arcade racing game built in a single `index.html` file using HTML5 Canvas and vanilla JavaScript (no dependencies).
 
@@ -25,17 +25,13 @@ A polished 2D arcade racing game built in a single `index.html` file using HTML5
 | Procedural sound effects (Web Audio API) | ✅ |
 | High score + coin persistence (localStorage) | ✅ |
 | Title screen, Game Over, Garage menus | ✅ |
+| Pause overlay + Main Menu button (ESC/HUD ⏸) | ✅ |
 
 ## Controls
 
 - **Desktop**: Arrow Keys (← →) or WASD to switch lanes, Space/↑ for Nitro
 - **Mobile**: On-screen touch buttons (left, right, nitro)
 - **Menus**: Tap/click to navigate
-
-## Files
-
-- `index.html` — Single-file game (37.8 KB, 1091 lines)
-- `STATUS.md` — This file
 
 ## Bug Fixes (2026-06-19)
 
@@ -60,6 +56,16 @@ A polished 2D arcade racing game built in a single `index.html` file using HTML5
 | 12 | `textBaseline` rò rỉ giữa các màn hình | Các hàm vẽ không reset `textBaseline` về `alphabetic` | Thêm `ctx.textBaseline='alphabetic'` đầu mỗi hàm vẽ |
 | 13 | `unlockedCars` mất xe mặc định nếu dữ liệu lưu bị hỏng | `loadData()` không đảm bảo xe 0 luôn unlocked | Thêm `unlockedCars.add(0)` sau khi load |
 
+## Pause & Main Menu (2026-06-20)
+
+| # | Tính năng | Chi tiết |
+|---|-----------|----------|
+| 1 | Phím Escape | Tạm dừng / Tiếp tục game. Cũng dùng để quay lại Main Menu từ Game Over và Garage |
+| 2 | Nút ⏸ trên HUD | Góc trên-trái màn hình game, dùng cho mobile/ click chuột |
+| 3 | Màn hình Pause | Overlay với 2 nút: **TIẾP TỤC** (tiếp tục chơi) và **MÀN HÌNH CHÍNH** (về title) |
+| 4 | Block input khi pause | Không thể chuyển làn, dùng nitro khi game đang tạm dừng |
+| 5 | Touch controls ẩn/hiện | Touch controls tự động ẩn khi pause, hiện lại khi unpause |
+
 ## Việt Hoá (2026-06-20)
 
 Toàn bộ giao diện người dùng đã được chuyển sang tiếng Việt:
@@ -77,7 +83,7 @@ Toàn bộ giao diện người dùng đã được chuyển sang tiếng Việt
 
 ## Files
 
-- `index.html` — Single-file game (1099 lines)
+- `index.html` — Single-file game (1184 lines)
 - `favicon.svg` — SVG favicon (xe đua neon style)
 - `STATUS.md` — This file
 

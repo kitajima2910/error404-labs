@@ -128,6 +128,7 @@ let trafficCars=[], coins=[], particles=[], floatingTexts=[], speedLines=[];
 let shakeX=0, shakeY=0, shakeIntensity=0;
 let roadOffset=0, gameTime=0, invincibleTimer=0, hitFlash=0;
 let bgHue=220;
+let paused=false;
 
 let selectedCar=0;
 let unlockedCars=new Set([0]);
@@ -454,6 +455,14 @@ function drawHUD(){
   // Nitro tick marks
   ctx.fillStyle='rgba(255,255,255,0.08)';
   for(let i=1;i<5;i++) ctx.fillRect(nbX+nbW*(i/5),nbY,1,nbH);
+
+  // Pause button (top-left area of HUD)
+  ctx.fillStyle='rgba(255,255,255,0.08)';
+  ctx.beginPath(); roundRect(ctx,12,56,30,24,6); ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,0.3)';
+  ctx.font='bold 13px "Segoe UI",system-ui,sans-serif';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('\u23F8',27,68);
 }
 
 // ── Screen Shake ─────────────────────────────────────────
@@ -468,7 +477,7 @@ function rectOverlap(a,b){
 
 // ── Game Update ──────────────────────────────────────────
 function updateGame(dt){
-  if(screen!=='game') return;
+  if(screen!=='game'||paused) return;
 
   gameTime+=dt;
 
@@ -880,7 +889,7 @@ function drawGameOverScreen(){
 function drawGarageScreen(){
   ctx.textBaseline='alphabetic';
   drawBackground();
-  ctx.fillStyle='rgba(0,0,0,0.65)';
+  ctx.fillStyle='rgba(0,0,0,0.7)';
   ctx.fillRect(0,0,W,H);
 
   // ── Header ──
@@ -888,84 +897,133 @@ function drawGarageScreen(){
   ctx.fillStyle='#fff';
   ctx.font='bold 30px "Segoe UI",system-ui,sans-serif';
   ctx.textAlign='center';
-  ctx.fillText('\uD83D\uDD27 GARAGE',W/2,40);
+  ctx.fillText('\uD83D\uDD27 GARAGE',W/2,38);
 
   ctx.fillStyle='#ffd700'; ctx.font='bold 18px "Segoe UI",system-ui,sans-serif';
   ctx.textAlign='right';
-  ctx.fillText('$ '+totalCoins,W-16,40);
+  ctx.fillText('$ '+totalCoins,W-14,38);
 
   ctx.fillStyle='rgba(255,255,255,0.3)';
   ctx.font='13px "Segoe UI",system-ui,sans-serif';
   ctx.textAlign='center';
-  ctx.fillText('Chọn hoặc mở khoá xe',W/2,68);
+  ctx.fillText('Chọn hoặc mở khoá xe',W/2,64);
 
-  // ── Car Grid (3 cols, 2 rows for 5 cars) ──
-  const cols=3, cellW=135, cellH=138, gap=10;
+  // ── Car Grid (3 cols x 2 rows cho 5 xe) ──
+  const cols=3, cellW=140, cellH=150, gap=10;
   const gridW=cols*cellW+(cols-1)*gap;
-  const sx=(W-gridW)/2, sy=90;
+  const sx=(W-gridW)/2, sy=88;
 
   for(let i=0;i<5;i++){
     const col=i%cols, row=Math.floor(i/cols);
-    const cx=sx+col*(cellW+gap)+cellW/2;
-    const cy=sy+row*(cellH+gap)+cellH/2;
+    const cx=Math.round(sx+col*(cellW+gap)+cellW/2);
+    const cy=Math.round(sy+row*(cellH+gap)+cellH/2);
 
     const isUnlocked=unlockedCars.has(i);
     const isSelected=selectedCar===i;
     const canBuy=!isUnlocked&&totalCoins>=CAR_COSTS[i];
 
-    // Card background
-    ctx.fillStyle=isSelected?'rgba(0,200,255,0.15)':isUnlocked?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.35)';
-    ctx.strokeStyle=isSelected?'#00ccff':isUnlocked?'rgba(255,255,255,0.15)':'rgba(255,255,255,0.05)';
-    ctx.lineWidth=isSelected?2:1;
-    ctx.beginPath(); roundRect(ctx,cx-cellW/2,cy-cellH/2,cellW,cellH,12); ctx.fill(); ctx.stroke();
-
-    // Car render
-    drawCar(cx,cy-8,34,56,CAR_COLORS[i],CAR_ACCENTS[i],false,false);
-
-    // Car name
-    ctx.fillStyle=isUnlocked?'#fff':'rgba(255,255,255,0.3)';
-    ctx.font='11px "Segoe UI",system-ui,sans-serif';
-    ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText(CAR_NAMES[i],cx,cy+48);
-
-    // Status / price
+    // Card — glow cho selected
     if(isSelected){
-      ctx.fillStyle='#00ccff'; ctx.font='bold 12px "Segoe UI",system-ui,sans-serif';
-      ctx.fillText('\u2713 ĐÃ CHỌN',cx,cy+66);
+      ctx.shadowColor='rgba(0,200,255,0.3)';
+      ctx.shadowBlur=24;
+    }
+    ctx.fillStyle=isSelected?'rgba(0,200,255,0.12)':isUnlocked?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.4)';
+    ctx.strokeStyle=isSelected?'#00ccff':isUnlocked?'rgba(255,255,255,0.18)':'rgba(255,255,255,0.07)';
+    ctx.lineWidth=isSelected?2:1;
+    ctx.beginPath(); roundRect(ctx,cx-cellW/2,cy-cellH/2,cellW,cellH,14); ctx.fill(); ctx.stroke();
+    ctx.shadowBlur=0;
+
+    // Hình xe
+    drawCar(cx,cy-10,34,52,CAR_COLORS[i],CAR_ACCENTS[i],false,false);
+
+    // Tên xe
+    ctx.textBaseline='middle';
+    ctx.textAlign='center';
+    ctx.fillStyle=isUnlocked?'#fff':'rgba(255,255,255,0.35)';
+    ctx.font='12px "Segoe UI",system-ui,sans-serif';
+    ctx.fillText(CAR_NAMES[i],cx,cy+34);
+
+    // Trạng thái / giá
+    if(isSelected){
+      ctx.fillStyle='#00ccff'; ctx.font='bold 11px "Segoe UI",system-ui,sans-serif';
+      ctx.fillText('\u2713 ĐÃ CHỌN',cx,cy+50);
     }else if(isUnlocked){
       ctx.fillStyle='rgba(255,255,255,0.35)'; ctx.font='11px "Segoe UI",system-ui,sans-serif';
-      ctx.fillText('ĐÃ SỞ HỮU',cx,cy+66);
+      ctx.fillText('ĐÃ SỞ HỮU',cx,cy+50);
     }else{
       ctx.fillStyle=canBuy?'#ffd700':'rgba(255,255,255,0.2)';
-      ctx.font='bold 12px "Segoe UI",system-ui,sans-serif';
-      ctx.fillText('$ '+CAR_COSTS[i],cx,cy+66);
+      ctx.font='bold 11px "Segoe UI",system-ui,sans-serif';
+      ctx.fillText('$ '+CAR_COSTS[i],cx,cy+50);
       if(!canBuy){
-        ctx.fillStyle='rgba(255,255,255,0.12)'; ctx.font='10px "Segoe UI",system-ui,sans-serif';
-        ctx.fillText('KHOÁ',cx,cy+80);
+        ctx.fillStyle='rgba(255,255,255,0.15)'; ctx.font='10px "Segoe UI",system-ui,sans-serif';
+        ctx.fillText('KHOÁ',cx,cy+64);
       }
     }
   }
 
   // ── Back Button ──
-  const bw=180,bh=46,bx=(W-bw)/2,by=392;
+  const bw=180,bh=46,bx=(W-bw)/2,by=408;
+  ctx.shadowColor='rgba(0,0,0,0.3)'; ctx.shadowBlur=12;
   ctx.fillStyle='rgba(255,255,255,0.07)';
   ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=2;
   ctx.beginPath(); roundRect(ctx,bx,by,bw,bh,14); ctx.fill(); ctx.stroke();
+  ctx.shadowBlur=0;
+  ctx.textBaseline='middle';
   ctx.fillStyle='rgba(255,255,255,0.65)';
-  ctx.font='16px "Segoe UI",system-ui,sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillText('\u2190 QUAY LẠI',W/2,by+bh/2+1);
+  ctx.font='16px "Segoe UI",system-ui,sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText('\u2190 QUAY LẠI',W/2,by+bh/2);
 
-  // ── Clickable areas ──
+  // ── Vùng click ──
   garageButtons=[{type:'back',x:bx,y:by,w:bw,h:bh}];
   for(let i=0;i<5;i++){
     const col=i%cols,row=Math.floor(i/cols);
-    const cx=sx+col*(cellW+gap)+cellW/2;
-    const cy=sy+row*(cellH+gap)+cellH/2;
+    const cx=Math.round(sx+col*(cellW+gap)+cellW/2);
+    const cy=Math.round(sy+row*(cellH+gap)+cellH/2);
     garageButtons.push({type:'car',index:i,x:cx-cellW/2,y:cy-cellH/2,w:cellW,h:cellH});
   }
 }
 
 let garageButtons=[];
+
+// ── Pause Screen ───────────────────────────────────────────
+function drawPauseScreen(){
+  ctx.textBaseline='alphabetic';
+  ctx.fillStyle='rgba(0,0,0,0.7)';
+  ctx.fillRect(0,0,W,H);
+
+  ctx.fillStyle='#fff';
+  ctx.font='bold 42px "Segoe UI",system-ui,sans-serif';
+  ctx.textAlign='center';
+  ctx.shadowColor='rgba(255,255,255,0.15)'; ctx.shadowBlur=25;
+  ctx.fillText('TẠM DỪNG',W/2,175);
+  ctx.shadowBlur=0;
+
+  // Continue button
+  const bx=W/2-120,by=270,bw=240,bh=58;
+  const bg=ctx.createLinearGradient(bx,by,bx,by+bh);
+  bg.addColorStop(0,'#00cc66'); bg.addColorStop(1,'#009944');
+  ctx.fillStyle=bg; ctx.shadowColor='#00ff88'; ctx.shadowBlur=22;
+  ctx.beginPath(); roundRect(ctx,bx,by,bw,bh,16); ctx.fill();
+  ctx.shadowBlur=0;
+  ctx.fillStyle='#fff'; ctx.font='bold 24px "Segoe UI",system-ui,sans-serif';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('\u25B6  TIẾP TỤC',W/2,by+bh/2+1);
+
+  // Main Menu button
+  const tx=W/2-120,ty=by+bh+24,tw=240,th=52;
+  ctx.fillStyle='rgba(255,255,255,0.07)';
+  ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=2;
+  ctx.beginPath(); roundRect(ctx,tx,ty,tw,th,14); ctx.fill(); ctx.stroke();
+  ctx.fillStyle='rgba(255,255,255,0.65)';
+  ctx.font='18px "Segoe UI",system-ui,sans-serif'; ctx.textBaseline='middle';
+  ctx.fillText('\u{1F3E0}  MÀN HÌNH CHÍNH',W/2,ty+th/2+1);
+
+  // Hint
+  ctx.fillStyle='rgba(255,255,255,0.15)';
+  ctx.font='12px "Segoe UI",system-ui,sans-serif'; ctx.textBaseline='bottom';
+  ctx.fillText('ESC \u2192 Tiếp tục',W/2,H-36);
+}
 
 // ══════════════════════════════════════════════════════════════
 // ── Input ──────────────────────────────────────────────────
@@ -979,7 +1037,14 @@ document.addEventListener('keydown',e=>{
     e.preventDefault();
   // ENTER to restart on game over
   if(e.code==='Enter'&&screen==='over') startGame();
-  if(e.code==='Escape'&&screen==='over') screen='title';
+  if(e.code==='Escape'){
+    if(screen==='game'){
+      paused=!paused;
+      document.getElementById('touchCtrls').classList.toggle('active',!paused);
+    }else if(screen==='over'||screen==='garage'){
+      screen='title';
+    }
+  }
 });
 document.addEventListener('keyup',e=>{keys[e.code]=false});
 
@@ -1021,6 +1086,16 @@ function handleTap(mx,my){
   if(screen==='title'){
     if(mx>=W/2-110&&mx<=W/2+110&&my>=290&&my<=350){SFX.click();startGame()}
     else if(mx>=W/2-85&&mx<=W/2+85&&my>=372&&my<=418){SFX.click();screen='garage'}
+  }else if(screen==='game'){
+    if(!paused){
+      // Pause button ở HUD (góc trên-trái)
+      if(mx>=12&&mx<=42&&my>=56&&my<=80){paused=true;document.getElementById('touchCtrls').classList.remove('active');SFX.click()}
+    }else{
+      // Tiếp Tục
+      if(mx>=W/2-120&&mx<=W/2+120&&my>=270&&my<=328){paused=false;document.getElementById('touchCtrls').classList.add('active');SFX.click()}
+      // Màn Hình Chính
+      else if(mx>=W/2-120&&mx<=W/2+120&&my>=352&&my<=404){screen='title';paused=false;SFX.click();document.getElementById('touchCtrls').classList.remove('active')}
+    }
   }else if(screen==='over'){
     if(mx>=W/2-125&&mx<=W/2+125&&my>=370&&my<=426){SFX.click();startGame()}
     else if(mx>=W/2-85&&mx<=W/2+85&&my>=444&&my<=486){SFX.click();screen='title'}
@@ -1053,7 +1128,7 @@ function startGame(){
   roadOffset=0; gameTime=0; invincibleTimer=0; hitFlash=0;
   shakeIntensity=0; shakeX=0; shakeY=0;
   spawnTimer=1.5; coinSpawnTimer=0.8;
-  screen='game';
+  paused=false; screen='game';
   document.getElementById('touchCtrls').classList.add('active');
 }
 
@@ -1069,7 +1144,7 @@ function gameLoop(time){
   const rightIn=touchRight||keys['ArrowRight']||keys['KeyD'];
   const nitroIn=touchNitro||keys['Space']||keys['ArrowUp']||keys['KeyW'];
 
-  if(screen==='game'){
+  if(screen==='game'&&!paused){
     if(leftIn&&!leftPressed){
       if(playerTargetLane>0){playerTargetLane--;playerSway=-5;triggerShake(0.5)}
     }
@@ -1089,7 +1164,7 @@ function gameLoop(time){
 
   ctx.clearRect(0,0,W,H);
   if(screen==='title') drawTitleScreen();
-  else if(screen==='game') renderGame();
+  else if(screen==='game'){renderGame();if(paused)drawPauseScreen()}
   else if(screen==='over') drawGameOverScreen();
   else if(screen==='garage') drawGarageScreen();
 
