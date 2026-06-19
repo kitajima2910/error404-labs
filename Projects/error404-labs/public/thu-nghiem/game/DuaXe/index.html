@@ -883,20 +883,26 @@ function drawGarageScreen(){
   ctx.fillStyle='rgba(0,0,0,0.65)';
   ctx.fillRect(0,0,W,H);
 
+  // ── Header ──
+  ctx.textBaseline='middle';
   ctx.fillStyle='#fff';
   ctx.font='bold 30px "Segoe UI",system-ui,sans-serif';
   ctx.textAlign='center';
-  ctx.fillText('\uD83D\uDD27 GARAGE',W/2,52);
+  ctx.fillText('\uD83D\uDD27 GARAGE',W/2,40);
+
+  ctx.fillStyle='#ffd700'; ctx.font='bold 18px "Segoe UI",system-ui,sans-serif';
+  ctx.textAlign='right';
+  ctx.fillText('$ '+totalCoins,W-16,40);
+
   ctx.fillStyle='rgba(255,255,255,0.3)';
   ctx.font='13px "Segoe UI",system-ui,sans-serif';
-  ctx.fillText('Chọn hoặc mở khoá xe',W/2,74);
+  ctx.textAlign='center';
+  ctx.fillText('Chọn hoặc mở khoá xe',W/2,68);
 
-  ctx.fillStyle='#ffd700'; ctx.font='18px "Segoe UI",system-ui,sans-serif';
-  ctx.textAlign='right'; ctx.fillText('$ '+totalCoins,W-14,56);
-
-  const cols=3, cellW=138, cellH=158, gap=10;
-  const gridW=cols*cellW-(cols-1)*gap;
-  const sx=(W-gridW)/2, sy=100;
+  // ── Car Grid (3 cols, 2 rows for 5 cars) ──
+  const cols=3, cellW=135, cellH=138, gap=10;
+  const gridW=cols*cellW+(cols-1)*gap;
+  const sx=(W-gridW)/2, sy=90;
 
   for(let i=0;i<5;i++){
     const col=i%cols, row=Math.floor(i/cols);
@@ -907,51 +913,55 @@ function drawGarageScreen(){
     const isSelected=selectedCar===i;
     const canBuy=!isUnlocked&&totalCoins>=CAR_COSTS[i];
 
+    // Card background
     ctx.fillStyle=isSelected?'rgba(0,200,255,0.15)':isUnlocked?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.35)';
     ctx.strokeStyle=isSelected?'#00ccff':isUnlocked?'rgba(255,255,255,0.15)':'rgba(255,255,255,0.05)';
     ctx.lineWidth=isSelected?2:1;
-    ctx.beginPath(); roundRect(ctx,cx-cellW/2,cy-cellH/2+8,cellW,cellH,12); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); roundRect(ctx,cx-cellW/2,cy-cellH/2,cellW,cellH,12); ctx.fill(); ctx.stroke();
 
-    drawCar(cx,cy-6,34,56,CAR_COLORS[i],CAR_ACCENTS[i],false,false);
+    // Car render
+    drawCar(cx,cy-8,34,56,CAR_COLORS[i],CAR_ACCENTS[i],false,false);
 
+    // Car name
     ctx.fillStyle=isUnlocked?'#fff':'rgba(255,255,255,0.3)';
     ctx.font='11px "Segoe UI",system-ui,sans-serif';
     ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillText(CAR_NAMES[i],cx,cy+48);
 
+    // Status / price
     if(isSelected){
       ctx.fillStyle='#00ccff'; ctx.font='bold 12px "Segoe UI",system-ui,sans-serif';
-      ctx.fillText('\u2713 ĐÃ CHỌN',cx,cy+68);
+      ctx.fillText('\u2713 ĐÃ CHỌN',cx,cy+66);
     }else if(isUnlocked){
       ctx.fillStyle='rgba(255,255,255,0.35)'; ctx.font='11px "Segoe UI",system-ui,sans-serif';
-      ctx.fillText('ĐÃ SỞ HỮU',cx,cy+68);
+      ctx.fillText('ĐÃ SỞ HỮU',cx,cy+66);
     }else{
       ctx.fillStyle=canBuy?'#ffd700':'rgba(255,255,255,0.2)';
       ctx.font='bold 12px "Segoe UI",system-ui,sans-serif';
-      ctx.fillText('$ '+CAR_COSTS[i],cx,cy+68);
+      ctx.fillText('$ '+CAR_COSTS[i],cx,cy+66);
       if(!canBuy){
         ctx.fillStyle='rgba(255,255,255,0.12)'; ctx.font='10px "Segoe UI",system-ui,sans-serif';
-        ctx.fillText('KHOÁ',cx,cy+82);
+        ctx.fillText('KHOÁ',cx,cy+80);
       }
     }
   }
 
-  // Back button
-  const bx=W/2-80,by=420,bw=160,bh=44;
+  // ── Back Button ──
+  const bw=180,bh=46,bx=(W-bw)/2,by=392;
   ctx.fillStyle='rgba(255,255,255,0.07)';
   ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=2;
-  ctx.beginPath(); roundRect(ctx,bx,by,bw,bh,12); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); roundRect(ctx,bx,by,bw,bh,14); ctx.fill(); ctx.stroke();
   ctx.fillStyle='rgba(255,255,255,0.65)';
   ctx.font='16px "Segoe UI",system-ui,sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
   ctx.fillText('\u2190 QUAY LẠI',W/2,by+bh/2+1);
 
-  // Build clickable areas
+  // ── Clickable areas ──
   garageButtons=[{type:'back',x:bx,y:by,w:bw,h:bh}];
   for(let i=0;i<5;i++){
     const col=i%cols,row=Math.floor(i/cols);
     const cx=sx+col*(cellW+gap)+cellW/2;
     const cy=sy+row*(cellH+gap)+cellH/2;
-    garageButtons.push({type:'car',index:i,x:cx-cellW/2,y:cy-cellH/2+8,w:cellW,h:cellH});
+    garageButtons.push({type:'car',index:i,x:cx-cellW/2,y:cy-cellH/2,w:cellW,h:cellH});
   }
 }
 
