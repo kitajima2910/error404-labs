@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>Turbo Rush — Arcade Racer</title>
+<title>Turbo Rush — Đua Xe Arcade</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta name="theme-color" content="#0a0a2e">
 <style>
@@ -60,8 +60,8 @@ canvas{display:block;image-rendering:auto;max-width:100%;max-height:100%}
 </div>
 <script>
 // ══════════════════════════════════════════════════════════════
-// TURBO RUSH — 2D Arcade Racing Game
-// Single-file HTML5 Canvas implementation
+// TURBO RUSH — Game Đua Xe Arcade 2D
+// Triển khai HTML5 Canvas trong một file duy nhất
 // ══════════════════════════════════════════════════════════════
 
 // ── Canvas Setup ──────────────────────────────────────────
@@ -131,7 +131,7 @@ let bgHue=220;
 let selectedCar=0;
 let unlockedCars=new Set([0]);
 const CAR_COSTS=[0,800,2000,4000,7000];
-const CAR_NAMES=['Sonic Blue','Flame Red','Shadow','Gold Crown','Cyber Neon'];
+const CAR_NAMES=['Sonic Xanh','Lửa Đỏ','Bóng Tối','Vương Miện Vàng','Cyber Neon'];
 const CAR_COLORS=['#2a7fff','#ff3344','#222244','#ffcc00','#00e5ff'];
 const CAR_ACCENTS=['#0055cc','#cc1122','#8844ff','#ffaa00','#ff00ff'];
 
@@ -414,7 +414,7 @@ function drawHUD(){
 
   // Level
   ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.font='11px "Segoe UI",system-ui,sans-serif';
-  ctx.textAlign='left'; ctx.fillText('LV.'+level,14,52);
+  ctx.textAlign='left';   ctx.fillText('CẤP '+level,14,52);
 
   // Coins right side
   ctx.fillStyle='#ffd700'; ctx.font='bold 18px "Segoe UI",system-ui,sans-serif';
@@ -447,7 +447,7 @@ function drawHUD(){
   ctx.textAlign='center';
   ctx.fillStyle=nitroActive?'#0ff':'rgba(255,255,255,0.5)';
   ctx.font='bold 11px "Segoe UI",system-ui,sans-serif';
-  ctx.fillText(nitroActive?'\u26A1 NITRO BOOST \u26A1':'NITRO',W/2,nbY-5);
+  ctx.fillText(nitroActive?'\u26A1 NITRO TĂNG TỐC \u26A1':'NITRO',W/2,nbY-5);
 
   // Nitro tick marks
   ctx.fillStyle='rgba(255,255,255,0.08)';
@@ -536,7 +536,7 @@ function updateGame(dt){
       combo++; comboTimer=2; comboSpeed=0;
       const bonus=50*combo;
       score+=bonus; nearMissStreak++;
-      spawnFloatingText(playerX,playerY-65,'NEAR MISS! +'+bonus,'#ffaa00',18);
+      spawnFloatingText(playerX,playerY-65,'SUÝT! +'+bonus,'#ffaa00',18);
       spawnParticles(playerX,playerY,12,'#ffaa00',120,3,0.5);
       spawnParticles(c.x,c.y,8,'#ff6600',90,2,0.4);
       triggerShake(3); SFX.nearMiss();
@@ -730,7 +730,7 @@ function renderGame(){
     ctx.fillStyle='rgba(255,170,0,0.55)';
     ctx.font='bold 13px "Segoe UI",system-ui,sans-serif';
     ctx.textAlign='center';
-    ctx.fillText('\u{1F525} '+nearMissStreak+'x Near Miss Streak!',W/2,70);
+    ctx.fillText('\u{1F525} '+nearMissStreak+'x Suýt Va Chạm!',W/2,70);
   }
 
   // Nitro screen pulse
@@ -768,7 +768,7 @@ function drawTitleScreen(){
   ctx.fillStyle='rgba(255,255,255,0.35)';
   ctx.font='14px "Segoe UI",system-ui,sans-serif';
   ctx.textAlign='center';
-  ctx.fillText('\u{1F3C1} ARCADE RACING',W/2,235);
+  ctx.fillText('\u{1F3C1} ĐUA XE ARCADE',W/2,235);
 
   // Play button
   const bx=W/2-110,by=290,bw=220,bh=60;
@@ -788,7 +788,7 @@ function drawTitleScreen(){
   ctx.fillStyle='#fff';
   ctx.font='bold 26px "Segoe UI",system-ui,sans-serif';
   ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillText('\u25B6  PLAY',W/2,by+bh/2+1);
+  ctx.fillText('\u25B6  CHƠI',W/2,by+bh/2+1);
   ctx.restore();
 
   // Garage button
@@ -805,7 +805,7 @@ function drawTitleScreen(){
   ctx.fillStyle='rgba(255,255,255,0.3)';
   ctx.font='14px "Segoe UI",system-ui,sans-serif';
   ctx.textAlign='center';
-  ctx.fillText('\u{1F3C6} High Score: '+highScore,W/2,490);
+  ctx.fillText('\u{1F3C6} Điểm Cao: '+highScore,W/2,490);
   ctx.fillStyle='#ffd700';
   ctx.font='16px "Segoe UI",system-ui,sans-serif';
   ctx.fillText('$ '+totalCoins,W/2,520);
@@ -814,7 +814,7 @@ function drawTitleScreen(){
   ctx.fillStyle='rgba(255,255,255,0.15)';
   ctx.font='11px "Segoe UI",system-ui,sans-serif';
   ctx.textAlign='center';
-  ctx.fillText('\u2190 \u2192 Arrow Keys  \u00B7  Tap sides on mobile  \u00B7 SPACE for Nitro',W/2,H-24);
+  ctx.fillText('\u2190 \u2192 Phím Mũi Tên  \u00B7  Chạm 2 bên trên Mobile  \u00B7 SPACE: Nitro',W/2,H-24);
 
   // Animate road on title screen
   roadOffset+=60*0.016;
@@ -830,22 +830,22 @@ function drawGameOverScreen(){
   ctx.font='bold 50px "Segoe UI",system-ui,sans-serif';
   ctx.textAlign='center';
   ctx.shadowColor='#ff0000'; ctx.shadowBlur=30;
-  ctx.fillText('GAME OVER',W/2,150);
+  ctx.fillText('KẾT THÚC',W/2,150);
   ctx.shadowBlur=0;
 
   ctx.fillStyle='#fff'; ctx.font='24px "Segoe UI",system-ui,sans-serif';
-  ctx.fillText('Score: '+endScore,W/2,222);
+  ctx.fillText('Điểm: '+endScore,W/2,222);
 
   ctx.fillStyle='#ffd700'; ctx.font='18px "Segoe UI",system-ui,sans-serif';
-  ctx.fillText('$ +'+gameCoins+' coins',W/2,262);
+  ctx.fillText('$ +'+gameCoins+' xu',W/2,262);
 
   ctx.fillStyle=endScore>=highScore?'#ffaa00':'rgba(255,255,255,0.5)';
   ctx.font='16px "Segoe UI",system-ui,sans-serif';
-  ctx.fillText(endScore>=highScore?'\u{1F3C6} NEW HIGH SCORE!':'High Score: '+highScore,W/2,300);
+  ctx.fillText(endScore>=highScore?'\u{1F3C6} ĐIỂM CAO MỚI!':'Điểm Cao: '+highScore,W/2,300);
 
   ctx.fillStyle='rgba(255,255,255,0.35)';
   ctx.font='13px "Segoe UI",system-ui,sans-serif';
-  ctx.fillText('Level '+level+'  \u00B7  '+Math.round(speed*0.45)+' KM/H max',W/2,330);
+  ctx.fillText('Cấp '+level+'  \u00B7  '+Math.round(speed*0.45)+' KM/H tối đa',W/2,330);
 
   // Restart button
   const bx=W/2-125,by=370,bw=250,bh=56;
@@ -856,7 +856,7 @@ function drawGameOverScreen(){
   ctx.shadowBlur=0;
   ctx.fillStyle='#fff'; ctx.font='bold 24px "Segoe UI",system-ui,sans-serif';
   ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillText('\u21BB  PLAY AGAIN',W/2,by+bh/2+1);
+  ctx.fillText('\u21BB  CHƠI LẠI',W/2,by+bh/2+1);
 
   // Title button
   const tx=W/2-85,ty=by+bh+18,tw=170,th=42;
@@ -865,11 +865,11 @@ function drawGameOverScreen(){
   ctx.beginPath(); roundRect(ctx,tx,ty,tw,th,12); ctx.fill(); ctx.stroke();
   ctx.fillStyle='rgba(255,255,255,0.6)';
   ctx.font='15px "Segoe UI",system-ui,sans-serif'; ctx.textBaseline='middle';
-  ctx.fillText('\u{1F3E0} TITLE SCREEN',W/2,ty+th/2+1);
+  ctx.fillText('\u{1F3E0} MÀN HÌNH CHÍNH',W/2,ty+th/2+1);
 
   ctx.fillStyle='rgba(255,255,255,0.12)';
   ctx.font='12px "Segoe UI",system-ui,sans-serif'; ctx.textBaseline='bottom';
-  ctx.fillText('Tap or press ENTER to restart',W/2,H-40);
+  ctx.fillText('Chạm hoặc nhấn ENTER để chơi lại',W/2,H-40);
 }
 
 function drawGarageScreen(){
@@ -883,7 +883,7 @@ function drawGarageScreen(){
   ctx.fillText('\uD83D\uDD27 GARAGE',W/2,52);
   ctx.fillStyle='rgba(255,255,255,0.3)';
   ctx.font='13px "Segoe UI",system-ui,sans-serif';
-  ctx.fillText('Select or unlock vehicles',W/2,74);
+  ctx.fillText('Chọn hoặc mở khoá xe',W/2,74);
 
   ctx.fillStyle='#ffd700'; ctx.font='18px "Segoe UI",system-ui,sans-serif';
   ctx.textAlign='right'; ctx.fillText('\u{1FA99} '+totalCoins,W-14,56);
@@ -915,17 +915,17 @@ function drawGarageScreen(){
 
     if(isSelected){
       ctx.fillStyle='#00ccff'; ctx.font='bold 12px "Segoe UI",system-ui,sans-serif';
-      ctx.fillText('\u2713 SELECTED',cx,cy+68);
+      ctx.fillText('\u2713 ĐÃ CHỌN',cx,cy+68);
     }else if(isUnlocked){
       ctx.fillStyle='rgba(255,255,255,0.35)'; ctx.font='11px "Segoe UI",system-ui,sans-serif';
-      ctx.fillText('OWNED',cx,cy+68);
+      ctx.fillText('ĐÃ SỞ HỮU',cx,cy+68);
     }else{
       ctx.fillStyle=canBuy?'#ffd700':'rgba(255,255,255,0.2)';
       ctx.font='bold 12px "Segoe UI",system-ui,sans-serif';
       ctx.fillText('$ '+CAR_COSTS[i],cx,cy+68);
       if(!canBuy){
         ctx.fillStyle='rgba(255,255,255,0.12)'; ctx.font='10px "Segoe UI",system-ui,sans-serif';
-        ctx.fillText('LOCKED',cx,cy+82);
+        ctx.fillText('KHOÁ',cx,cy+82);
       }
     }
   }
@@ -937,7 +937,7 @@ function drawGarageScreen(){
   ctx.beginPath(); roundRect(ctx,bx,by,bw,bh,12); ctx.fill(); ctx.stroke();
   ctx.fillStyle='rgba(255,255,255,0.65)';
   ctx.font='16px "Segoe UI",system-ui,sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillText('\u2190 BACK',W/2,by+bh/2+1);
+  ctx.fillText('\u2190 QUAY LẠI',W/2,by+bh/2+1);
 
   // Build clickable areas
   garageButtons=[{type:'back',x:bx,y:by,w:bw,h:bh}];
@@ -1085,9 +1085,9 @@ function gameLoop(time){
 loadData();
 requestAnimationFrame(gameLoop);
 
-console.log('\u{1F3C1} Turbo Rush — Arcade Racer loaded!');
-console.log('Controls: Arrow Keys / WASD to switch lanes, Space for Nitro');
-console.log('Mobile: Tap left/right sides on screen, Nitro button');
+console.log('\u{1F3C1} Turbo Rush — Game Đua Xe Arcade!');
+console.log('Điều khiển: Phím Mũi Tên / WASD để chuyển làn, Space cho Nitro');
+console.log('Mobile: Chạm trái/phải trên màn hình, nút Nitro');
 </script>
 </body>
 </html>

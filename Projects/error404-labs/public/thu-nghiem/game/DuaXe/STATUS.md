@@ -1,6 +1,6 @@
 # 🏁 Turbo Rush — Arcade Racing Game
 
-## Status: ✅ Complete (Bug Fixed: 2026-06-19)
+## Status: ✅ Complete (Bug Fixed: 2026-06-19 | Việt hoá: 2026-06-20)
 
 A polished 2D arcade racing game built in a single `index.html` file using HTML5 Canvas and vanilla JavaScript (no dependencies).
 
@@ -51,6 +51,21 @@ A polished 2D arcade racing game built in a single `index.html` file using HTML5
 | 8 | Nitro boost không ảnh hưởng KM/H và road scroll | `spd=speed*dt` dùng base speed, `currentSpeed` tính sau | Chuyển nitro logic lên trước `spd`, dùng `currentSpeed` cho road & HUD |
 | 9 | Title screen "RUSH" shadow glow overlay "ARCADE RACING" | shadowBlur=45 + khoảng cách 2px quá gần | Đẩy "ARCADE RACING" từ y=208 xuống y=235 |
 | 10 | Favicon thiếu | Không có favicon | Thêm `favicon.svg` với xe đua neon |
+
+## Việt Hoá (2026-06-20)
+
+Toàn bộ giao diện người dùng đã được chuyển sang tiếng Việt:
+
+| Khu vực | Chi tiết |
+|---------|----------|
+| HTML | `lang="vi"`, title: "Turbo Rush — Đua Xe Arcade" |
+| Title Screen | "CHƠI", "ĐUA XE ARCADE", "Điểm Cao", hướng dẫn "Phím Mũi Tên · Chạm 2 bên trên Mobile · SPACE: Nitro" |
+| HUD | "CẤP", "NITRO TĂNG TỐC" khi boost |
+| Game Over | "KẾT THÚC", "Điểm", "xu", "ĐIỂM CAO MỚI", "CHƠI LẠI", "MÀN HÌNH CHÍNH" |
+| Garage | "Chọn hoặc mở khoá xe", "ĐÃ CHỌN", "ĐÃ SỞ HỮU", "KHOÁ", "QUAY LẠI" |
+| In-game | "SUÝT!", "Suýt Va Chạm" |
+| Tên xe | Sonic Xanh, Lửa Đỏ, Bóng Tối, Vương Miện Vàng, Cyber Neon |
+| Console | Thông báo và hướng dẫn bằng tiếng Việt |
 
 ## Files
 
