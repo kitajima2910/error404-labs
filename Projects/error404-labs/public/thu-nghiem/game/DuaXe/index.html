@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>Turbo Rush — Arcade Racer</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<meta name="theme-color" content="#0a0a2e">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html,body{
@@ -401,8 +403,9 @@ function drawHUD(){
     ctx.fillText('x'+combo,14+ctx.measureText('\u{1F3C6} '+score+' ').width,36);
   }
 
-  // Speed digital gauge
-  const spd=Math.round(speed*0.45);
+  // Speed digital gauge (bao gồm nitro boost 1.7x)
+  const displaySpeed=speed*(nitroActive?1.7:1);
+  const spd=Math.round(displaySpeed*0.45);
   ctx.fillStyle='#8cf'; ctx.font='bold 20px "Segoe UI",system-ui,sans-serif';
   ctx.textAlign='center';
   ctx.fillText(spd,W*0.72,28);
@@ -466,11 +469,21 @@ function updateGame(dt){
   if(screen!=='game') return;
 
   gameTime+=dt;
-  const spd=speed*dt;
 
-  // Speed ramp
+  // Speed ramp (tính speed cơ bản trước)
   speed=Math.min(MAX_SPEED,BASE_SPEED+gameTime*0.55);
   level=Math.floor(speed/BASE_SPEED)+1;
+
+  // Nitro (cần tính trước spd để currentSpeed có hiệu lực)
+  if(nitroActive){
+    nitro-=NITRO_DRAIN*dt;
+    if(nitro<=0){nitro=0;nitroActive=false}
+    nitroTimer+=dt;
+  }else{
+    nitro=Math.min(NITRO_MAX,nitro+NITRO_REFILL*dt);
+  }
+  const currentSpeed=speed*(nitroActive?1.7:1);
+  const spd=currentSpeed*dt;
 
   // Road scroll
   roadOffset+=spd;
@@ -487,16 +500,6 @@ function updateGame(dt){
   // Visual bob
   carBob+=dt*4;
   playerSway=lerp(playerSway,0,dt*6);
-
-  // Nitro
-  if(nitroActive){
-    nitro-=NITRO_DRAIN*dt;
-    if(nitro<=0){nitro=0;nitroActive=false}
-    nitroTimer+=dt;
-  }else{
-    nitro=Math.min(NITRO_MAX,nitro+NITRO_REFILL*dt);
-  }
-  const currentSpeed=speed*(nitroActive?1.7:1);
 
   // Invincibility flash
   if(invincibleTimer>0){invincibleTimer-=dt;hitFlash+=dt*8}

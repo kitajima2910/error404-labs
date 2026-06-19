@@ -48,6 +48,15 @@ A polished 2D arcade racing game built in a single `index.html` file using HTML5
 | 5 | Collision bị bỏ qua khi nitro | Điều kiện `&&!nitroActive` | Bỏ `&&!nitroActive` khỏi check |
 | 6 | Biến `distance` dead code | Khai báo nhưng không dùng | Xóa khai báo, increment và reset |
 | 7 | Icon coin `\u{1FA99}` (🪙) hiển thị hình chữ nhật trên Canvas | Emoji Unicode 13.0 không được font hỗ trợ | Thay bằng `$` — tương thích mọi trình duyệt |
+| 8 | Nitro boost không ảnh hưởng KM/H và road scroll | `spd=speed*dt` dùng base speed, `currentSpeed` tính sau | Chuyển nitro logic lên trước `spd`, dùng `currentSpeed` cho road & HUD |
+| 9 | Title screen "RUSH" shadow glow overlay "ARCADE RACING" | shadowBlur=45 + khoảng cách 2px quá gần | Đẩy "ARCADE RACING" từ y=208 xuống y=235 |
+| 10 | Favicon thiếu | Không có favicon | Thêm `favicon.svg` với xe đua neon |
+
+## Files
+
+- `index.html` — Single-file game (1091 lines)
+- `favicon.svg` — SVG favicon (xe đua neon style)
+- `STATUS.md` — This file
 
 ## Saved Data (localStorage key: `turborush`)
 
