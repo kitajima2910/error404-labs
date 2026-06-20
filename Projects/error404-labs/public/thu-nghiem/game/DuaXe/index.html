@@ -100,6 +100,12 @@ const NITRO_MAX=100, NITRO_DRAIN=45, NITRO_REFILL=12;
 const THEME_CHANGE_INTERVAL=35; // seconds between theme transitions
 const THEME_TRANSITION_DURATION=4; // seconds for smooth transition
 
+// ── Device Detection & Performance ─────────────────────────
+const IS_LOW_END=!/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)&&navigator.hardwareConcurrency?navigator.hardwareConcurrency<4:true;
+const PARTICLE_CAP=IS_LOW_END?30:80;
+const SMOKE_CAP=IS_LOW_END?8:20;
+const SKID_CAP=IS_LOW_END?15:40;
+
 // ── Utility ────────────────────────────────────────────────
 function lerp(a,b,t){return a+(b-a)*t}
 function clamp(v,mn,mx){return Math.max(mn,Math.min(mx,v))}
@@ -310,6 +316,18 @@ let playerLane=1, playerTargetLane=1, playerX=0, playerY=650;
 let playerSway=0, carBob=0;
 let trafficCars=[], coins=[], obstacles=[], particles=[], floatingTexts=[], speedLines=[];
 let rainDrops=[], dustParticles=[];
+let tireSmoke=[];          // Khói lốp
+let skidMarks=[];          // Vết trượt trên đường
+let sparks=[];             // Tia lửa đặc biệt
+let uiTransAlpha=1;        // UI transition alpha
+let uiTransScale=1;        // UI transition scale
+let uiTransScreen='';      // Screen đang transition đến
+let uiTransTimer=0;        // Timer cho transition
+let engineOsc=null;        // Âm thanh động cơ continuous
+let engineGain=null;       // Gain node cho engine
+let windOsc=null;          // Âm thanh gió
+let windGain=null;         // Gain node cho gió
+let audioStarted=false;    // Audio context đã được khởi tạo chưa
 let shakeX=0, shakeY=0, shakeIntensity=0;
 let roadOffset=0, gameTime=0, invincibleTimer=0, hitFlash=0;
 let paused=false;
@@ -431,6 +449,43 @@ class FloatingText{
     this.life=1; this.vy=-80;
   }
 }
+
+// ── Tire Smoke & Skid Mark ───────────────────────────────
+class TireSmokeParticle{
+  constructor(x,y,size,alpha){
+    this.x=x; this.y=y; this.size=size||rand(4,10);
+    this.alpha=alpha||rand(0.15,0.35);
+    this.vx=rand(-12,12); this.vy=rand(-25,-8);
+    this.life=rand(0.4,0.9); this.maxLife=this.life;
+    this.gravity=-5; this.active=true;
+  }
+}
+class SkidMark{
+  constructor(x,y,width,alpha){
+    this.x=x; this.y=y; this.w=width||rand(4,8);
+    this.h=rand(6,14); this.alpha=alpha||rand(0.08,0.2);
+    this.life=rand(1.5,3.5); this.maxLife=this.life;
+    this.active=true;
+  }
+}
+
+// ── Object Pool cho Particle ─────────────────────────────
+class SimplePool{
+  constructor(factory,reset,initialSize=20){
+    this.pool=[]; this.factory=factory; this.reset=reset;
+    for(let i=0;i<initialSize;i++) this.pool.push(factory());
+  }
+  acquire(){
+    return this.pool.pop()||this.factory();
+  }
+  release(obj){
+    this.reset(obj); this.pool.push(obj);
+  }
+}
+const particlePool=new SimplePool(
+  ()=>new Particle(0,0,0,0,0,'#fff',2),
+  (p)=>{p.active=false;p.life=0;}
+);
 
 // ── Spawn Helpers ─────────────────────────────────────────
 let spawnTimer=2, coinSpawnTimer=1.5, endScore=0;
@@ -555,12 +610,41 @@ function spawnParticles(x,y,count,color,speed,size,life){
 function spawnFloatingText(x,y,text,color,size){
   floatingTexts.push(new FloatingText(x,y,text,color,size));
 }
+function spawnTireSmoke(x,y,count, intensity){
+  const n=Math.min(count||3, SMOKE_CAP-tireSmoke.length);
+  for(let i=0;i<n;i++){
+    tireSmoke.push(new TireSmokeParticle(
+      x+rand(-8,8), y+rand(-4,4),
+      rand(3,8+intensity*4), rand(0.08,0.15+intensity*0.1)
+    ));
+  }
+}
+function spawnSkidMark(x,y,width,alpha){
+  if(skidMarks.length>=SKID_CAP){skidMarks.shift();}
+  skidMarks.push(new SkidMark(x,y,width,alpha));
+}
+function spawnSparks(x,y,count,color,dir){
+  for(let i=0;i<Math.min(count,15);i++){
+    const a=dir||rand(0,Math.PI*2);
+    const sp=rand(60,200);
+    sparks.push({
+      x,y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp-60,
+      life:rand(0.15,0.4), maxLife:0.4, color:color||'#ffcc44',
+      size:rand(1.5,3.5), active:true,
+    });
+  }
+}
+
 function spawnSpeedLines(){
   const theme=getCurrentTheme();
   const alphaMax=theme.hasRain?0.12:0.3;
-  for(let i=0;i<3;i++){
+  const count=nitroActive?5:3;
+  for(let i=0;i<count;i++){
     const x=rand(ROAD_L+20,ROAD_R-20);
-    speedLines.push({x,y:rand(-H,0),speed:rand(600,1200),alpha:rand(0.1,alphaMax),w:rand(1,3)});
+    const sp=nitroActive?rand(800,1600):rand(600,1200);
+    const w=nitroActive?rand(1,4):rand(1,3);
+    const alpha=nitroActive?rand(0.15,alphaMax+0.1):rand(0.1,alphaMax);
+    speedLines.push({x,y:rand(-H,0),speed:sp,alpha,w});
   }
 }
 
@@ -606,7 +690,87 @@ function roundRect(ctx,x,y,w,h,r){
 
 // ── Sound System (procedural Web Audio) ──────────────────
 let audioCtx=null;
-function initAudio(){if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)()}
+function initAudio(){
+  if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state==='suspended') audioCtx.resume();
+}
+function startEngineSound(){
+  if(!audioCtx||engineOsc) return;
+  try{
+    // Engine hum
+    engineOsc=audioCtx.createOscillator();
+    engineGain=audioCtx.createGain();
+    engineOsc.type='sawtooth';
+    engineOsc.frequency.setValueAtTime(55,audioCtx.currentTime);
+    engineGain.gain.setValueAtTime(0.015,audioCtx.currentTime);
+    engineOsc.connect(engineGain); engineGain.connect(audioCtx.destination);
+    engineOsc.start();
+
+    // Wind noise
+    windOsc=audioCtx.createOscillator();
+    windGain=audioCtx.createGain();
+    windOsc.type='sine';
+    windOsc.frequency.setValueAtTime(800,audioCtx.currentTime);
+    windGain.gain.setValueAtTime(0.003,audioCtx.currentTime);
+    windOsc.connect(windGain); windGain.connect(audioCtx.destination);
+    windOsc.start();
+  }catch(e){}
+}
+function updateEngineSound(spd, nitroOn){
+  if(!engineOsc||!audioCtx) return;
+  try{
+    const freq=55+spd*0.12;
+    engineOsc.frequency.setTargetAtTime(Math.min(freq,220),audioCtx.currentTime,0.1);
+    const vol=0.008+spd*0.00006;
+    engineGain.gain.setTargetAtTime(Math.min(vol,0.05),audioCtx.currentTime,0.1);
+    if(nitroOn){
+      const nFreq=220+Math.sin(audioCtx.currentTime*8)*30;
+      engineOsc.frequency.setTargetAtTime(nFreq,audioCtx.currentTime,0.05);
+      engineGain.gain.setTargetAtTime(0.06,audioCtx.currentTime,0.05);
+    }
+    // Wind
+    windOsc.frequency.setTargetAtTime(600+spd*0.5,audioCtx.currentTime,0.15);
+    windGain.gain.setTargetAtTime(Math.min(0.001+spd*0.00003,0.02),audioCtx.currentTime,0.15);
+  }catch(e){}
+}
+function stopEngineSound(){
+  try{
+    if(engineOsc){engineOsc.stop();engineOsc=null}
+    if(windOsc){windOsc.stop();windOsc=null}
+    if(engineGain){engineGain.disconnect();engineGain=null}
+    if(windGain){windGain.disconnect();windGain=null}
+  }catch(e){}
+}
+function playTireScreech(){
+  if(!audioCtx) return;
+  try{
+    initAudio();
+    const osc=audioCtx.createOscillator();
+    const gain=audioCtx.createGain();
+    osc.type='square';
+    osc.frequency.setValueAtTime(120+rand(-30,30),audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(80,audioCtx.currentTime+0.1);
+    gain.gain.setValueAtTime(0.03,audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.15);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime+0.15);
+  }catch(e){}
+}
+function playEngineRev(){
+  if(!audioCtx) return;
+  try{
+    initAudio();
+    const osc=audioCtx.createOscillator();
+    const gain=audioCtx.createGain();
+    osc.type='sawtooth';
+    osc.frequency.setValueAtTime(80,audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(200,audioCtx.currentTime+0.2);
+    gain.gain.setValueAtTime(0.03,audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.25);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime+0.25);
+  }catch(e){}
+}
 function playBeep(freq,dur,type,vol){
   try{
     initAudio();
@@ -625,13 +789,18 @@ function playBeep(freq,dur,type,vol){
 const SFX={
   coin(){playBeep(880,0.07,'sine',0.08);setTimeout(()=>playBeep(1320,0.09,'sine',0.06),60)},
   nearMiss(){playBeep(600,0.05,'sine',0.07);setTimeout(()=>playBeep(900,0.05,'sine',0.05),40)},
-  nitro(){playBeep(200,0.12,'sawtooth',0.05);setTimeout(()=>playBeep(300,0.18,'sawtooth',0.04),80)},
-  crash(){playBeep(100,0.25,'sawtooth',0.12);setTimeout(()=>playBeep(60,0.35,'square',0.08),50)},
+  nitro(){playBeep(200,0.12,'sawtooth',0.05);setTimeout(()=>playBeep(300,0.18,'sawtooth',0.04),80);playTireScreech()},
+  crash(){playBeep(100,0.25,'sawtooth',0.12);setTimeout(()=>playBeep(60,0.35,'square',0.08),50);playBeep(80,0.4,'sawtooth',0.06)},
   select(){playBeep(660,0.06,'sine',0.06);setTimeout(()=>playBeep(880,0.06,'sine',0.05),50)},
   click(){playBeep(440,0.04,'sine',0.05)},
   oil(){playBeep(150,0.3,'sine',0.06);playBeep(120,0.4,'sawtooth',0.04)},
   barrier(){playBeep(180,0.2,'square',0.1);setTimeout(()=>playBeep(100,0.3,'square',0.08),100)},
   themeChange(){playBeep(330,0.1,'sine',0.05);setTimeout(()=>playBeep(440,0.1,'sine',0.05),100);setTimeout(()=>playBeep(550,0.15,'sine',0.05),200)},
+  uiOpen(){playBeep(440,0.05,'sine',0.04);setTimeout(()=>playBeep(660,0.05,'sine',0.03),60)},
+  uiClose(){playBeep(660,0.04,'sine',0.03);setTimeout(()=>playBeep(440,0.06,'sine',0.04),50)},
+  combo(cnt){for(let i=0;i<cnt&&i<5;i++)setTimeout(()=>playBeep(440+i*220,0.08,'sine',0.05),i*60)},
+  levelUp(){playBeep(440,0.08,'sine',0.06);setTimeout(()=>playBeep(550,0.08,'sine',0.06),80);setTimeout(()=>playBeep(660,0.12,'sine',0.06),160)},
+  skid(){playTireScreech()},
 };
 
 // ══════════════════════════════════════════════════════════════
@@ -878,6 +1047,44 @@ function drawBackground(){
     const cx=(ROAD_L+ROAD_R)/2-1;
     for(let y=-(roadOffset%120);y<H;y+=120)
       if(y%240<120&&y>0) ctx.fillRect(cx,y,2,55);
+  }
+
+  // ── Reflective Wet Road (Rain theme) ──
+  if(theme.themeHue>230&&theme.themeHue<250){
+    // Wet road shine streaks
+    ctx.save();
+    for(let y=-(roadOffset%30);y<H;y+=30){
+      const alpha=0.02+Math.sin(y*0.1+gameTime*0.5)*0.015;
+      if(alpha<0.01) continue;
+      ctx.fillStyle=`rgba(180,200,255,${alpha})`;
+      const streakW=4+Math.sin(y*0.2)*2;
+      const streakX=ROAD_L+Math.sin(y*0.15+gameTime)*10+(y%60)*4;
+      ctx.fillRect(streakX,y,streakW,8);
+      // Mirror reflection (upside down)
+      ctx.fillStyle=`rgba(180,200,255,${alpha*0.5})`;
+      ctx.fillRect(streakX+2,y-16,streakW-1,6);
+    }
+    // Road mirror (horizontal reflection lines)
+    ctx.fillStyle='rgba(150,180,230,0.03)';
+    for(let y=-(roadOffset%40);y<H;y+=40){
+      ctx.fillRect(ROAD_L,y,ROAD_W,1);
+    }
+    // Street light reflections on wet road
+    for(let i=0;i<6;i++){
+      const rx=ROAD_L+20+i*((ROAD_W-40)/5);
+      const ry=(roadOffset*0.5+i*130)%H;
+      const refA=0.04+Math.sin(gameTime*2+i)*0.02;
+      ctx.fillStyle=`rgba(255,220,100,${refA})`;
+      ctx.beginPath();
+      ctx.ellipse(rx,ry,6,20,0,0,Math.PI*2);
+      ctx.fill();
+      // Elongated reflection
+      ctx.fillStyle=`rgba(255,220,100,${refA*0.3})`;
+      ctx.beginPath();
+      ctx.ellipse(rx,ry-40,4,30,0,0,Math.PI*2);
+      ctx.fill();
+    }
+    ctx.restore();
   }
 }
 
@@ -1158,29 +1365,60 @@ function drawCar(x,y,w,h,color,accent,isPlayer,flash,typeKey){
   ctx.fillRect(x-bw+1,frontY+bh*0.6,4,h*0.22);
   ctx.fillRect(x+bw-5,frontY+bh*0.6,4,h*0.22);
 
-  // ── Đèn pha LED ──
-  ctx.shadowColor='#ffffcc'; ctx.shadowBlur=22;
-  ctx.fillStyle='#eeeedd';
+  // ── Đèn pha LED (animated) ──
+  const headPulse=isPlayer?0.85+Math.sin(gameTime*6+playerSway)*0.15:1;
+  ctx.shadowColor='#ffffcc'; ctx.shadowBlur=16*headPulse;
+  ctx.fillStyle=isPlayer?`rgb(${220+Math.floor(Math.sin(gameTime*5)*35)},${220+Math.floor(Math.sin(gameTime*5)*30)},${200})`:'#eeeedd';
   ctx.beginPath(); ctx.ellipse(x-w*0.28,frontY+2,4,2.5,0,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.ellipse(x+w*0.28,frontY+2,4,2.5,0,0,Math.PI*2); ctx.fill();
-  // LED DRL
-  ctx.fillStyle='rgba(255,255,200,0.15)';
+  // LED DRL (Daytime Running Lights) — dải sáng ban ngày
+  const drlBright=isPlayer?0.2+Math.sin(gameTime*4)*0.08:0.15;
+  ctx.fillStyle=`rgba(255,255,200,${drlBright})`;
   ctx.fillRect(x-w*0.24,frontY-12,3,12);
   ctx.fillRect(x+w*0.21,frontY-12,3,12);
+  // Đèn xi-nhan trái/phải (khi chuyển làn)
+  if(isPlayer&&Math.abs(playerSway)>2){
+    const turnFlash=Math.sin(gameTime*12)>0;
+    const turnSide=playerSway>0?'right':'left';
+    ctx.shadowColor=turnFlash?'#ff8800':'transparent';
+    ctx.shadowBlur=turnFlash?18:0;
+    ctx.fillStyle=turnFlash?'#ff8800':'rgba(255,136,0,0.2)';
+    if(turnSide==='left'){
+      ctx.fillRect(x-w*0.35,frontY-4,5,3);
+      ctx.fillRect(x-w*0.35,rearY-4,5,3);
+    }else{
+      ctx.fillRect(x+w*0.30,frontY-4,5,3);
+      ctx.fillRect(x+w*0.30,rearY-4,5,3);
+    }
+    ctx.shadowBlur=0;
+  }
 
-  // ── Đèn hậu LED ──
-  ctx.shadowColor='#ff3333'; ctx.shadowBlur=10;
-  ctx.fillStyle='#ff2222';
+  // ── Đèn hậu LED (animated) ──
+  const brakeGlow=isPlayer&&(speed<120||leftPressed||rightPressed)?1:(!isPlayer?0.7:0.4);
+  const brakeBlur=10+brakeGlow*20;
+  ctx.shadowColor='#ff3333'; ctx.shadowBlur=brakeBlur;
+  ctx.fillStyle=`rgb(${Math.floor(180+brakeGlow*75)},${Math.floor(30-brakeGlow*20)},${Math.floor(30-brakeGlow*20)})`;
   ctx.fillRect(x-w*0.28,rearY-6,6,5);
   ctx.fillRect(x+w*0.22,rearY-6,6,5);
+  // Brake light glow halo
+  if(brakeGlow>0.5){
+    ctx.shadowBlur=30;
+    ctx.fillStyle=`rgba(255,0,0,${brakeGlow*0.15})`;
+    ctx.beginPath(); ctx.arc(x-w*0.25,rearY-4,8,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(x+w*0.25,rearY-4,8,0,Math.PI*2); ctx.fill();
+  }
   // Brake light cho traffic
   if(!isPlayer){
     const tc=trafficCars.find(c=>c.x===x&&c.y===y);
     if(tc&&tc.brakeLight){
-      ctx.shadowColor='#ff0000'; ctx.shadowBlur=25;
-      ctx.fillStyle='#ff0000';
+      ctx.shadowColor='#ff0000'; ctx.shadowBlur=30;
+      ctx.fillStyle='#ff2200';
       ctx.fillRect(x-w*0.28,rearY-6,6,6);
       ctx.fillRect(x+w*0.22,rearY-6,6,6);
+      // Brake glow
+      ctx.fillStyle='rgba(255,0,0,0.12)';
+      ctx.beginPath(); ctx.arc(x-w*0.25,rearY-4,12,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(x+w*0.25,rearY-4,12,0,Math.PI*2); ctx.fill();
     }
   }
   ctx.shadowBlur=0;
@@ -1219,128 +1457,267 @@ function drawCar(x,y,w,h,color,accent,isPlayer,flash,typeKey){
     ctx.fillRect(x-w*0.32,rearY-2,w*0.64,2);
   }
 
-  // ── Nitro (ngọn lửa) ──
+  // ── Nitro (ngọn lửa đa lớp) ──
   if(isPlayer&&nitroActive){
-    ctx.shadowColor='#ff4400'; ctx.shadowBlur=35;
+    const nTime=gameTime*20;
+    // Lớp 1: Lửa xanh trong (core nhiệt độ cao)
+    ctx.shadowColor='#00ccff'; ctx.shadowBlur=40;
+    for(let i=0;i<4;i++){
+      const fx=x+(i-1.5)*10+Math.sin(nTime+i*2)*3;
+      const fy=rearY+rand(2,8);
+      const len=rand(18,35);
+      ctx.fillStyle='#00ddff';
+      ctx.beginPath();
+      ctx.moveTo(fx-2,fy);
+      ctx.quadraticCurveTo(fx-1,fy+len*0.6,fx,fy+len);
+      ctx.quadraticCurveTo(fx+1,fy+len*0.6,fx+2,fy);
+      ctx.fill();
+    }
+    // Lớp 2: Lửa cam (giữa)
+    ctx.shadowColor='#ff6600'; ctx.shadowBlur=35;
     for(let i=0;i<5;i++){
-      const fx=x+(i-2)*8, fy=rearY+rand(2,15);
-      ctx.fillStyle=i%2?'#ff6600':'#ffcc00';
-      const len=rand(10,28);
+      const fx=x+(i-2)*9+Math.sin(nTime+10+i*3)*4;
+      const fy=rearY+rand(3,12);
+      const len=rand(14,28);
+      ctx.fillStyle='#ff8800';
       ctx.beginPath();
       ctx.moveTo(fx-3,fy);
       ctx.lineTo(fx,fy+len);
       ctx.lineTo(fx+3,fy);
       ctx.fill();
     }
+    // Lớp 3: Tia lửa (sparks từ ống xả)
+    ctx.shadowBlur=25;
+    ctx.shadowColor='#ffcc00';
+    for(let i=0;i<3;i++){
+      const fx=x+(i-1)*12+Math.sin(nTime+20+i*5)*5;
+      const fy=rearY+rand(5,15);
+      ctx.fillStyle=i%2?'#ffff44':'#ff4400';
+      const sz=rand(2,5);
+      ctx.beginPath(); ctx.arc(fx,fy,sz,0,Math.PI*2); ctx.fill();
+    }
+    // Lớp 4: Khói xả
+    ctx.shadowBlur=0;
+    ctx.fillStyle='rgba(180,180,200,0.06)';
+    for(let i=0;i<3;i++){
+      const fx=x+(i-1)*15+Math.sin(nTime+30+i*7)*3;
+      const fy=rearY+rand(8,20);
+      ctx.beginPath(); ctx.arc(fx,fy,rand(8,16),0,Math.PI*2); ctx.fill();
+    }
     ctx.shadowBlur=0;
   }
   ctx.globalAlpha=1;
 }
 
-// ── HUD ──────────────────────────────────────────────────
+// ── HUD (Modern Arcade) ──────────────────────────────────
 function drawHUD(){
   ctx.textBaseline='alphabetic';
-  // Top bar background
-  ctx.fillStyle='rgba(0,0,0,0.55)';
-  ctx.beginPath(); roundRect(ctx,0,0,W,54,0); ctx.fill();
+  const mode=GAME_MODES[selectedMode]||GAME_MODES.endless;
 
-  // Score
-  ctx.textAlign='left';
-  ctx.shadowColor='rgba(0,0,0,0.5)'; ctx.shadowBlur=4;
-  ctx.fillStyle='#fff'; ctx.font='bold 22px "Segoe UI",system-ui,sans-serif';
-  ctx.fillText('\u{1F3C6} '+score,14,36);
+  // ── Top bar glass morphism ──
+  ctx.save();
+  ctx.shadowColor='rgba(0,0,0,0.3)'; ctx.shadowBlur=20;
+  ctx.fillStyle='rgba(0,0,0,0.5)';
+  ctx.beginPath(); roundRect(ctx,0,0,W,56,0); ctx.fill();
   ctx.shadowBlur=0;
+  // Bottom border glow
+  ctx.fillStyle='rgba(0,200,255,0.08)';
+  ctx.fillRect(0,54,W,2);
 
-  // (Combo multiplier đã bỏ — gây overlap score)
+  // ── Row 1: Score (left) | Timer (center) | Speed + KM/H (right) ──
+  // ── Row 2: Level (left) | Coins + Hearts (right) ──
+  const row1Y=26, row2Y=48;
+  const rightEdge=W-14;
 
-  // Mode timer (Time Trial)
-  const gameMode=GAME_MODES[selectedMode]||GAME_MODES.endless;
-  if(gameMode.hasTimer&&gameMode.timerDuration){
-    const remaining=Math.max(0,gameMode.timerDuration-gameModeTimer);
+  // ── Score (trái, hàng trên) ──
+  ctx.textAlign='left';
+  const scorePulse=Math.sin(gameTime*3)*0.04+1;
+  ctx.save();
+  ctx.translate(14,row1Y);
+  ctx.scale(scorePulse,scorePulse);
+  ctx.shadowColor='rgba(255,255,255,0.15)'; ctx.shadowBlur=8;
+  ctx.fillStyle='#fff'; ctx.font='bold 22px "Segoe UI",system-ui,sans-serif';
+  ctx.fillText('\u{1F3C6} '+score,0,0);
+  ctx.restore();
+
+  // ── Mode Timer (Time Trial) ──
+  if(mode.hasTimer&&mode.timerDuration){
+    const remaining=Math.max(0,mode.timerDuration-gameModeTimer);
     const secs=Math.ceil(remaining);
-    ctx.fillStyle=secs<=10?'#ff4444':'#ffd700';
-    ctx.font='bold 20px "Segoe UI",system-ui,sans-serif';
-    ctx.textAlign='center';
-    ctx.fillText('\u23F1\uFE0F '+secs+'s',W/2,30);
-    if(secs<=10){
-      ctx.fillStyle=`rgba(255,50,50,${0.1+Math.sin(gameTime*10)*0.05})`;
-      ctx.fillRect(0,0,W,54);
+    const timerWarn=secs<=10;
+    ctx.textAlign='left';
+    ctx.shadowColor=timerWarn?'rgba(255,50,50,0.5)':'rgba(255,215,0,0.2)';
+    ctx.shadowBlur=timerWarn?16:8;
+    ctx.fillStyle=timerWarn?`rgb(255,${50+Math.floor(Math.sin(gameTime*12)*40)},${50+Math.floor(Math.sin(gameTime*12)*40)})`:'#ffd700';
+    ctx.font='bold 18px "Segoe UI",system-ui,sans-serif';
+    // Đặt timer bên phải score, tránh speed bar
+    ctx.fillText('\u23F1\uFE0F '+secs+'s',100,row1Y);
+    if(timerWarn){
+      ctx.fillStyle=`rgba(255,30,30,${0.08+Math.sin(gameTime*10)*0.06})`;
+      ctx.fillRect(0,0,W,56);
     }
+    ctx.shadowBlur=0;
   }
 
-  // Speed digital gauge (dời sang trái để không đụng hearts)
+  // ── Speed Gauge ──
   const displaySpeed=speed*(nitroActive?1.7:1);
-  const spd=Math.round(displaySpeed*0.45);
-  ctx.fillStyle='#8cf'; ctx.font='bold 20px "Segoe UI",system-ui,sans-serif';
-  ctx.textAlign='center';
-  ctx.fillText(spd,W*0.68,28);
-  ctx.fillStyle='rgba(150,200,255,0.5)'; ctx.font='10px "Segoe UI",system-ui,sans-serif';
-  ctx.fillText('KM/H',W*0.68,43);
-
-  // Level (trái) + Hearts (phải) — cùng hàng dưới
-  ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.font='11px "Segoe UI",system-ui,sans-serif';
-  ctx.textAlign='left';   ctx.fillText('CẤP '+level,14,52);
-
-  // Hearts — bên phải, không còn overlay theme name
-  ctx.textAlign='right'; ctx.font='18px "Segoe UI",system-ui,sans-serif';
-  const modeCfg=GAME_MODES[selectedMode]||GAME_MODES.endless;
-  const maxHearts=Math.min(modeCfg.lives||3,5);
-  let h=''; for(let i=0;i<maxHearts;i++) h+=i<lives?'\u2764\uFE0F':'\u{1F9F6}';
-  ctx.fillText(h,W-14,52);
-
-  // Coins right side (hàng trên cùng bên phải)
-  ctx.fillStyle='#ffd700'; ctx.font='bold 18px "Segoe UI",system-ui,sans-serif';
-  ctx.textAlign='right'; ctx.shadowColor='rgba(255,200,0,0.3)'; ctx.shadowBlur=6;
-  ctx.fillText('$ '+(totalCoins+gameCoins),W-14,34);
+  const spdVal=Math.round(displaySpeed*0.45);
+  const speedPct=displaySpeed/MAX_SPEED;
+  // Speed bar (ngắn lại để nhường chỗ text bên phải)
+  const sbX=W*0.48,sbY=10,sbW=W*0.32,sbH=4;
+  ctx.shadowBlur=0;
+  ctx.fillStyle='rgba(255,255,255,0.08)';
+  ctx.beginPath(); roundRect(ctx,sbX,sbY,sbW,sbH,2); ctx.fill();
+  // Speed bar fill
+  const sbG=ctx.createLinearGradient(sbX,sbY,sbX+sbW,sbY);
+  sbG.addColorStop(0,nitroActive?'#00ff88':'#0088ff');
+  sbG.addColorStop(0.6,nitroActive?'#00e5ff':'#00ccff');
+  sbG.addColorStop(1,nitroActive?'#ff00ff':'#ff6600');
+  ctx.fillStyle=sbG;
+  ctx.shadowColor=nitroActive?'#00ffaa':'#0088ff';
+  ctx.shadowBlur=nitroActive?10:4;
+  ctx.beginPath(); roundRect(ctx,sbX,sbY,sbW*Math.min(speedPct,1),sbH,2); ctx.fill();
   ctx.shadowBlur=0;
 
-  // Difficulty indicator (subtle)
+  // ── Speed number + KM/H (phải, hàng trên) ──
+  ctx.fillStyle=nitroActive?'#0ff':'#8cf';
+  ctx.font='bold 18px "Segoe UI",system-ui,sans-serif';
+  const spdStr=String(spdVal).padStart(3,'0');
+  // KM/H font 9px ~22px rộng. Cả cụm speed+KM/H khít lề phải (rightEdge=466)
+  const kmhW=22; // approximate
+  const spdEndX=rightEdge-kmhW-2; // speed kết thúc tại đây, KM/H bắt đầu sau 2px
+  ctx.textAlign='right';
+  ctx.fillText(spdStr,spdEndX,row1Y);
+  ctx.fillStyle='rgba(150,200,255,0.4)'; ctx.font='9px "Segoe UI",system-ui,sans-serif';
+  ctx.textAlign='left';
+  ctx.fillText('KM/H',spdEndX+2,row1Y);
+
+  // ── Level (trái, hàng dưới) ──
+  ctx.fillStyle='rgba(255,255,255,0.35)'; ctx.font='10px "Segoe UI",system-ui,sans-serif';
+  ctx.textAlign='left';
+  ctx.fillText('LV.'+level,14,row2Y);
+
+  // ── Right side bottom row: Hearts (phải) + Coins (trái của Hearts) ──
+  ctx.textAlign='right';
+  const maxHearts=Math.min(mode.lives||3,5);
+  const heartsTotalW=maxHearts*22;
+
+  // Coins — đặt bên trái hearts, cách 8px
+  const coinText='\u25CB '+(totalCoins+gameCoins);
+  ctx.fillStyle='#ffd700'; ctx.font='bold 14px "Segoe UI",system-ui,sans-serif';
+  ctx.shadowColor='rgba(255,200,0,0.35)'; ctx.shadowBlur=8;
+  ctx.fillText(coinText,rightEdge-heartsTotalW-8,row2Y);
+  ctx.shadowBlur=0;
+
+  // Hearts — sát lề phải
+  for(let i=0;i<maxHearts;i++){
+    const hx=rightEdge-i*22;
+    const alive=i<lives;
+    ctx.shadowColor=alive?'rgba(255,50,50,0.3)':'transparent';
+    ctx.shadowBlur=alive?10:0;
+    ctx.font=alive?'14px "Segoe UI",system-ui,sans-serif':'13px "Segoe UI",system-ui,sans-serif';
+    ctx.fillStyle=alive?'#ff3355':'rgba(255,255,255,0.15)';
+    ctx.fillText(alive?'\u2764\uFE0F':'\u{1F9F6}',hx,row2Y);
+  }
+  ctx.shadowBlur=0;
+
+  // ── Near miss streak ──
+  if(nearMissStreak>=3){
+    ctx.fillStyle='rgba(255,170,0,0.5)';
+    ctx.font='bold 11px "Segoe UI",system-ui,sans-serif';
+    ctx.textAlign='center';
+    const nmFlash=Math.sin(gameTime*5)*0.2+0.8;
+    ctx.globalAlpha=nmFlash;
+    ctx.fillText('\u26A1 '+nearMissStreak+'x SUÝT!',W/2,76);
+    ctx.globalAlpha=1;
+  }
+
+  // ── Difficulty indicator ──
   if(adaptDifficulty>0.3){
-    ctx.fillStyle='rgba(255,100,50,'+((adaptDifficulty-0.3)*0.5)+')';
-    ctx.font='10px "Segoe UI",system-ui,sans-serif';
+    const diffAlpha=(adaptDifficulty-0.3)*0.5;
+    ctx.fillStyle=`rgba(255,100,50,${diffAlpha})`;
+    ctx.font='9px "Segoe UI",system-ui,sans-serif';
     ctx.textAlign='left';
     const diffLabel=adaptDifficulty<0.5?'NORMAL':adaptDifficulty<0.7?'KHÓ':'ÁC MỘNG';
-    ctx.fillText(diffLabel,14,70);
+    ctx.shadowColor='rgba(255,100,50,0.2)'; ctx.shadowBlur=4;
+    ctx.fillText('\u26A0 '+diffLabel,14,66);
+    ctx.shadowBlur=0;
   }
 
-  // Nitro bar (bottom)
-  const nbW=280,nbH=14,nbX=(W-nbW)/2,nbY=H-36;
+  // ── Nitro Bar (Bottom - Modern) ──
+  const nbW=260,nbH=10,nbX=(W-nbW)/2,nbY=H-32;
+  // Outer glow container
+  ctx.shadowColor=nitroActive?'rgba(0,255,170,0.25)':'rgba(0,100,255,0.1)';
+  ctx.shadowBlur=nitroActive?20:8;
   ctx.fillStyle='rgba(0,0,0,0.5)';
   ctx.beginPath(); roundRect(ctx,nbX-4,nbY-4,nbW+8,nbH+8,8); ctx.fill();
-
-  const nRatio=nitro/NITRO_MAX;
-  const nG=ctx.createLinearGradient(nbX,nbY,nbX+nbW,nbY);
-  if(nitroActive){
-    nG.addColorStop(0,'#00e5ff'); nG.addColorStop(0.5,'#00ff88'); nG.addColorStop(1,'#00e5ff');
-  }else{
-    nG.addColorStop(0,'#0055ff'); nG.addColorStop(0.5,'#0088ff'); nG.addColorStop(1,'#0055ff');
-  }
-  ctx.fillStyle=nG;
-  if(nitroActive){ctx.shadowColor='#00ffaa';ctx.shadowBlur=18}
-  ctx.beginPath(); roundRect(ctx,nbX,nbY,nbW*nRatio,nbH,6); ctx.fill();
   ctx.shadowBlur=0;
 
+  const nRatio=nitro/NITRO_MAX;
+  // Segment-based nitro bar
+  const segCount=10;
+  for(let i=0;i<segCount;i++){
+    const segW=(nbW-4)/segCount-2;
+    const segX=nbX+2+i*((nbW-4)/segCount);
+    const filled=i/segCount<nRatio;
+    if(nitroActive){
+      ctx.fillStyle=filled?(i%2===0?'#00ff88':'#00e5ff'):'rgba(255,255,255,0.05)';
+      ctx.shadowColor=filled?'#00ffaa':'transparent';
+      ctx.shadowBlur=filled?12:0;
+    }else{
+      ctx.fillStyle=filled?(i%2===0?'#0066ff':'#0088ff'):'rgba(255,255,255,0.04)';
+      ctx.shadowColor=filled?'#0066ff':'transparent';
+      ctx.shadowBlur=filled?6:0;
+    }
+    ctx.beginPath(); roundRect(ctx,segX,nbY,segW,nbH,3); ctx.fill();
+  }
+  ctx.shadowBlur=0;
+
+  // Nitro label
   ctx.textAlign='center';
-  ctx.fillStyle=nitroActive?'#0ff':'rgba(255,255,255,0.5)';
+  ctx.fillStyle=nitroActive?'#0ff':'rgba(255,255,255,0.4)';
+  ctx.font='bold 9px "Segoe UI",system-ui,sans-serif';
+  const nitroLabelFlash=nitroActive?Math.sin(gameTime*8)*0.3+0.7:1;
+  ctx.globalAlpha=nitroLabelFlash;
+  ctx.fillText(nitroActive?'NITRO \u26A1 TĂNG TỐC':'NITRO',W/2,nbY-6);
+  ctx.globalAlpha=1;
+
+  // ── Pause button (glass) ──
+  ctx.fillStyle='rgba(255,255,255,0.06)';
+  ctx.shadowColor='rgba(0,0,0,0.2)'; ctx.shadowBlur=8;
+  ctx.beginPath(); roundRect(ctx,10,58,28,22,6); ctx.fill();
+  ctx.shadowBlur=0;
+  ctx.fillStyle='rgba(255,255,255,0.25)';
   ctx.font='bold 11px "Segoe UI",system-ui,sans-serif';
-  ctx.fillText(nitroActive?'\u26A1 NITRO TĂNG TỐC \u26A1':'NITRO',W/2,nbY-5);
-
-  // Nitro tick marks
-  ctx.fillStyle='rgba(255,255,255,0.08)';
-  for(let i=1;i<5;i++) ctx.fillRect(nbX+nbW*(i/5),nbY,1,nbH);
-
-  // Pause button
-  ctx.fillStyle='rgba(255,255,255,0.08)';
-  ctx.beginPath(); roundRect(ctx,12,56,30,24,6); ctx.fill();
-  ctx.fillStyle='rgba(255,255,255,0.3)';
-  ctx.font='bold 13px "Segoe UI",system-ui,sans-serif';
   ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillText('\u23F8',27,68);
+  ctx.fillText('\u23F8',24,69);
+  ctx.restore();
 }
 
-// ── Screen Shake ─────────────────────────────────────────
-function triggerShake(intensity){
+// ── Screen Shake (directional + frequency) ──────────────
+let shakeFreq=0; // shake frequency multiplier
+let shakeDirX=0, shakeDirY=0; // directional bias
+function triggerShake(intensity, dirX, dirY, freq){
   shakeIntensity=Math.max(shakeIntensity,intensity);
+  shakeDirX=dirX||0;
+  shakeDirY=dirY||-1;
+  shakeFreq=Math.max(shakeFreq,freq||1);
+}
+function updateShake(dt){
+  if(shakeIntensity>0){
+    // Smooth decay
+    shakeIntensity*=0.92-dt*0.3;
+    shakeFreq=lerp(shakeFreq,1,dt*3);
+    // Directional shake: bias towards direction
+    const fx=shakeDirX*shakeIntensity*0.3;
+    const fy=shakeDirY*shakeIntensity*0.3;
+    shakeX=rand(-shakeIntensity,shakeIntensity)*1.2*shakeFreq+fx;
+    shakeY=rand(-shakeIntensity,shakeIntensity)*0.8*shakeFreq+fy;
+    if(shakeIntensity<0.15){
+      shakeIntensity=0;shakeX=0;shakeY=0;
+      shakeDirX=0;shakeDirY=0;shakeFreq=0;
+    }
+  }
 }
 
 // ── Collision ────────────────────────────────────────────
@@ -1455,7 +1832,9 @@ function updateGame(dt){
       totalCoins+=gameCoins;
       saveData();
       spawnParticles(playerX,playerY,80,'#00ffaa',350,7,0.8);
+      spawnSparks(playerX,playerY,20,'#00ffaa');
       document.getElementById('touchCtrls').classList.remove('active');
+      stopEngineSound();
       return;
     }
   }
@@ -1586,7 +1965,9 @@ function updateGame(dt){
             totalCoins+=gameCoins;
             saveData();
             spawnParticles(playerX,playerY,60,'#ff6600',300,6,0.8);
+            spawnSparks(playerX,playerY,25,'#ff6600');
             document.getElementById('touchCtrls').classList.remove('active');
+            stopEngineSound();
             break;
           }
           invincibleTimer=1.5;
@@ -1604,7 +1985,9 @@ function updateGame(dt){
             totalCoins+=gameCoins;
             saveData();
             spawnParticles(playerX,playerY,70,'#ff2200',350,7,0.8);
+            spawnSparks(playerX,playerY,30,'#ff2200');
             document.getElementById('touchCtrls').classList.remove('active');
+            stopEngineSound();
             break;
           }
           invincibleTimer=2;
@@ -1624,6 +2007,11 @@ function updateGame(dt){
     if(comboTimer<=0){combo=0;nearMissStreak=0}
   }
 
+  // ── Combo milestone sound ──
+  if(combo===3&&comboTimer>0) SFX.combo(3);
+  if(combo===5&&comboTimer>0) SFX.combo(5);
+  if(combo===10&&comboTimer>0) SFX.levelUp();
+
   // ── Collision with traffic ──
   if(invincibleTimer<=0){
     const pr={x:playerX-PLAYER_W/2,y:playerY-PLAYER_H/2,w:PLAYER_W,h:PLAYER_H};
@@ -1640,7 +2028,9 @@ function updateGame(dt){
           saveData();
           spawnParticles(playerX,playerY,60,'#ff2200',300,6,0.8);
           spawnParticles(playerX,playerY,30,'#ffaa00',200,4,0.6);
+          spawnSparks(playerX,playerY,25,'#ff4400');
           document.getElementById('touchCtrls').classList.remove('active');
+          stopEngineSound();
         }else{
           speed=Math.max(BASE_SPEED,speed*0.55);
           combo=0; comboTimer=0;
@@ -1650,24 +2040,40 @@ function updateGame(dt){
     }
   }
 
-  // ── Speed Lines ──
-  if(Math.random()<(currentSpeed/MAX_SPEED)*0.3) spawnSpeedLines();
+  // ── Speed Lines (tăng khi nitro) ──
+  const speedLineChance=nitroActive?0.6:(currentSpeed/MAX_SPEED)*0.35;
+  if(Math.random()<speedLineChance) spawnSpeedLines();
   for(let i=speedLines.length-1;i>=0;i--){
     const sl=speedLines[i];
     sl.y+=sl.speed*dt; sl.alpha-=dt*0.4;
     if(sl.y>H||sl.alpha<=0){speedLines.splice(i,1)}
   }
 
-  // ── Exhaust Particles ──
-  if(Math.random()<0.35){
+  // ── Exhaust Particles (enhanced) ──
+  if(Math.random()<0.4+speed/MAX_SPEED*0.3){
+    const exColor=nitroActive?'#66ddff':'#888899';
+    const exSize=nitroActive?rand(2,6):rand(2,5);
+    const exVy=nitroActive?rand(40,80):rand(25,55);
     particles.push(new Particle(
       playerX+rand(-14,14), playerY+PLAYER_H/2,
-      rand(-6,6), rand(25,55),
-      rand(0.3,0.7), nitroActive?'#66ddff':'#888899', rand(2,5)
+      rand(-8,8), exVy,
+      rand(0.3,0.8), exColor, exSize
     ));
+    // Khói xả phụ (secondary exhaust)
+    if(speed>BASE_SPEED*2&&Math.random()<0.3){
+      particles.push(new Particle(
+        playerX+rand(-8,8), playerY+PLAYER_H/2+5,
+        rand(-4,4), rand(15,30),
+        rand(0.4,0.9), 'rgba(150,150,170,0.3)', rand(3,7)
+      ));
+    }
   }
-  if(nitroActive&&Math.random()<0.5)
-    spawnParticles(playerX,playerY+PLAYER_H/2,2,'#ff6600',rand(100,200),3,0.4);
+  if(nitroActive&&Math.random()<0.6)
+    spawnParticles(playerX,playerY+PLAYER_H/2,rand(1,3),'#ff6600',rand(100,200),3,0.4);
+  // Fire sparks from exhaust when nitro
+  if(nitroActive&&Math.random()<0.2){
+    spawnSparks(playerX+rand(-12,12), playerY+PLAYER_H/2, rand(1,3), '#ffcc00', Math.PI/2+rand(-0.5,0.5));
+  }
 
   // ── Update Particles ──
   for(let i=particles.length-1;i>=0;i--){
@@ -1683,12 +2089,60 @@ function updateGame(dt){
     if(ft.life<=0) floatingTexts.splice(i,1);
   }
 
-  // ── Shake Decay (smoother) ──
-  if(shakeIntensity>0){
-    shakeX=rand(-shakeIntensity,shakeIntensity)*1.2;
-    shakeY=rand(-shakeIntensity,shakeIntensity)*0.8;
-    shakeIntensity*=0.92;
-    if(shakeIntensity<0.2){shakeIntensity=0;shakeX=0;shakeY=0}
+  // ── Tire Smoke ──
+  // Khi chuyển làn gấp (sway lớn) hoặc nitro + chuyển làn
+  const turningHard=Math.abs(playerSway)>3;
+  const braking=leftPressed||rightPressed;
+  if((turningHard||(nitroActive&&turningHard))&&tireSmoke.length<SMOKE_CAP){
+    const intensity=Math.min(1,Math.abs(playerSway)/8);
+    const smokeCount=Math.floor(1+intensity*2);
+    const tireY=playerY+PLAYER_H*0.3;
+    spawnTireSmoke(playerX-PLAYER_W*0.3,tireY,smokeCount,intensity);
+    spawnTireSmoke(playerX+PLAYER_W*0.3,tireY,smokeCount,intensity);
+    if(nitroActive&&turningHard) spawnTireSmoke(playerX-PLAYER_W*0.3,tireY,2,1);
+    if(nitroActive&&turningHard) spawnTireSmoke(playerX+PLAYER_W*0.3,tireY,2,1);
+  }
+  // Update tire smoke
+  for(let i=tireSmoke.length-1;i>=0;i--){
+    const s=tireSmoke[i];
+    s.x+=s.vx*dt; s.y+=s.vy*dt; s.vy+=s.gravity*dt;
+    s.life-=dt; s.alpha*=0.97;
+    if(s.life<=0||s.alpha<0.01) tireSmoke.splice(i,1);
+  }
+
+  // ── Skid Marks ──
+  if(turningHard&&Math.abs(playerSway)>4&&Math.random()<0.4){
+    const markAlpha=Math.min(0.25,Math.abs(playerSway)*0.03);
+    spawnSkidMark(playerX-PLAYER_W*0.35,playerY+PLAYER_H*0.4,rand(3,7),markAlpha);
+    spawnSkidMark(playerX+PLAYER_W*0.35,playerY+PLAYER_H*0.4,rand(3,7),markAlpha);
+  }
+  // Nitro skid marks (lửa cháy trên đường khi drift + nitro)
+  if(nitroActive&&turningHard&&Math.random()<0.3){
+    spawnSkidMark(playerX-PLAYER_W*0.35,playerY+PLAYER_H*0.45,rand(5,9),0.18);
+    spawnSkidMark(playerX+PLAYER_W*0.35,playerY+PLAYER_H*0.45,rand(5,9),0.18);
+  }
+  // Update skid marks
+  for(let i=skidMarks.length-1;i>=0;i--){
+    const m=skidMarks[i];
+    m.y+=spd*0.95;
+    m.life-=dt; m.alpha*=0.98;
+    if(m.life<=0||m.alpha<0.01||m.y>H+20) skidMarks.splice(i,1);
+  }
+
+  // ── Spark updates ──
+  for(let i=sparks.length-1;i>=0;i--){
+    const s=sparks[i];
+    s.x+=s.vx*dt; s.y+=s.vy*dt; s.vy+=200*dt;
+    s.life-=dt; s.size*=0.96;
+    if(s.life<=0||s.size<0.3) sparks.splice(i,1);
+  }
+
+  // ── Enhanced Shake ──
+  updateShake(dt);
+
+  // ── Engine Audio ──
+  if(audioStarted&&engineOsc){
+    updateEngineSound(currentSpeed,nitroActive);
   }
 }
 
@@ -1708,11 +2162,39 @@ function renderGame(){
   // Dust particles (behind everything)
   drawDust();
 
-  // Speed lines
+  // Speed lines (enhanced - hiệu ứng tốc độ cao)
   for(const sl of speedLines){
-    ctx.fillStyle='rgba(255,255,255,'+(sl.alpha*0.25)+')';
+    const slAlpha=sl.alpha*(nitroActive?1.8:1);
+    const speedPct=Math.min(1,(sl.speed-600)/1000);
+    // Color shifts from white to blue at high speed
+    const hue=200+speedPct*40;
+    ctx.fillStyle=`hsla(${hue},80%,70%,${slAlpha*0.15})`;
     ctx.fillRect(sl.x,sl.y,sl.w,sl.h*2.5);
+    // Outer glow
+    const blurW=sl.w+2+speedPct*2;
+    ctx.fillStyle=`hsla(${hue},80%,80%,${slAlpha*0.05})`;
+    ctx.fillRect(sl.x-blurW/2,sl.y-1,blurW,sl.h*2.5+2);
   }
+
+  // ── Skid Marks (vết trượt trên đường) ──
+  for(const m of skidMarks){
+    ctx.fillStyle=`rgba(30,30,40,${m.alpha})`;
+    ctx.fillRect(m.x-m.w/2,m.y-m.h/2,m.w,m.h);
+    // Vết trượt đậm hơn ở giữa
+    ctx.fillStyle=`rgba(20,20,30,${m.alpha*0.5})`;
+    ctx.fillRect(m.x-m.w/4,m.y-m.h/4,m.w/2,m.h/2);
+  }
+
+  // ── Tire Smoke (khói lốp) ──
+  for(const s of tireSmoke){
+    const lifeRatio=s.life/s.maxLife;
+    ctx.globalAlpha=s.alpha*lifeRatio;
+    ctx.fillStyle='rgba(180,180,200,0.2)';
+    ctx.beginPath(); ctx.arc(s.x,s.y,s.size*lifeRatio,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='rgba(200,200,220,0.08)';
+    ctx.beginPath(); ctx.arc(s.x-2,s.y-1,s.size*lifeRatio*0.6,0,Math.PI*2); ctx.fill();
+  }
+  ctx.globalAlpha=1;
 
   // Coins
   const coinG=ctx.createRadialGradient(0,0,0,0,0,COIN_R);
@@ -1744,43 +2226,79 @@ function renderGame(){
     drawCar(c.x,c.y,c.w,c.h,c.color,typeInfo.accent,false,false,c.typeKey);
   }
 
-  // ── Đèn pha player (headlight beam) ──
-  const headLightIntensity=Math.max(0,(1-theme.ambientLight)*0.8);
-  if(headLightIntensity>0.1&&screen==='play'){
+  // ── Đèn pha player (dynamic headlight beam) ──
+  const hlIntensity=Math.max(0,(1-theme.ambientLight)*0.9+speed/MAX_SPEED*0.2);
+  if(hlIntensity>0.08){
     ctx.save();
-    // Chế độ hoà trộn làm sáng
     ctx.globalCompositeOperation='lighter';
-    // Ánh sáng chính - chùm hẹp phía trước xe
+    const hlPulse=0.9+Math.sin(gameTime*5+playerSway)*0.1;
+    const beamIntensity=hlIntensity*hlPulse;
+
+    // Chùm sáng chính (hình nón)
     const hlGrad=ctx.createRadialGradient(
-      playerX,playerY-10,3,
-      playerX,playerY-100,45
+      playerX,playerY-12,3,
+      playerX,playerY-90,50
     );
-    hlGrad.addColorStop(0,`rgba(255,255,230,${headLightIntensity*0.2})`);
-    hlGrad.addColorStop(0.5,`rgba(200,220,255,${headLightIntensity*0.06})`);
+    hlGrad.addColorStop(0,`rgba(255,255,230,${beamIntensity*0.25})`);
+    hlGrad.addColorStop(0.4,`rgba(200,220,255,${beamIntensity*0.08})`);
     hlGrad.addColorStop(1,'rgba(200,220,255,0)');
     ctx.fillStyle=hlGrad;
-    // Hình nón đèn
     ctx.beginPath();
-    ctx.moveTo(playerX-10,playerY-5);
-    ctx.lineTo(playerX-30,playerY-140);
-    ctx.lineTo(playerX+30,playerY-140);
-    ctx.lineTo(playerX+10,playerY-5);
+    ctx.moveTo(playerX-12,playerY-5);
+    ctx.quadraticCurveTo(playerX-28,playerY-70,playerX-35,playerY-150);
+    ctx.lineTo(playerX+35,playerY-150);
+    ctx.quadraticCurveTo(playerX+28,playerY-70,playerX+12,playerY-5);
     ctx.closePath(); ctx.fill();
 
-    // Ánh sáng gần xe
-    const nearGrad=ctx.createRadialGradient(
-      playerX,playerY,5,
-      playerX,playerY,50
+    // Chùm sáng phụ (loe rộng hơn)
+    const wideGrad=ctx.createRadialGradient(
+      playerX,playerY-20,5,
+      playerX,playerY-60,80
     );
-    nearGrad.addColorStop(0,`rgba(255,255,220,${headLightIntensity*0.04})`);
-    nearGrad.addColorStop(1,'rgba(255,255,220,0)');
-    ctx.fillStyle=nearGrad;
-    ctx.beginPath(); ctx.arc(playerX,playerY,50,0,Math.PI*2); ctx.fill();
+    wideGrad.addColorStop(0,`rgba(200,220,255,${beamIntensity*0.06})`);
+    wideGrad.addColorStop(1,'rgba(200,220,255,0)');
+    ctx.fillStyle=wideGrad;
+    ctx.beginPath();
+    ctx.moveTo(playerX-20,playerY-5);
+    ctx.lineTo(playerX-50,playerY-120);
+    ctx.lineTo(playerX+50,playerY-120);
+    ctx.lineTo(playerX+20,playerY-5);
+    ctx.closePath(); ctx.fill();
+
+    // Vệt sáng trên mặt đường (ánh sáng phản xạ)
+    const roadGlow=ctx.createRadialGradient(
+      playerX,playerY+PLAYER_H/2,5,
+      playerX,playerY+PLAYER_H/2+40,60
+    );
+    roadGlow.addColorStop(0,`rgba(255,240,200,${beamIntensity*0.04})`);
+    roadGlow.addColorStop(1,'rgba(255,240,200,0)');
+    ctx.fillStyle=roadGlow;
+    ctx.beginPath(); ctx.arc(playerX,playerY+PLAYER_H/2+20,60,0,Math.PI*2); ctx.fill();
 
     ctx.restore();
   }
 
-  // Player (with sway tilt, oil spin)
+  // Player dynamic shadow/glow
+  const playerGlowIntensity=nitroActive?0.35:0.1+speed/MAX_SPEED*0.15;
+  if(playerGlowIntensity>0.05){
+    const glowColor=CAR_COLORS[selectedCar];
+    const pg=ctx.createRadialGradient(playerX,playerY,10,playerX,playerY,80);
+    pg.addColorStop(0,glowColor+Math.floor(playerGlowIntensity*40).toString(16).padStart(2,'0'));
+    pg.addColorStop(1,'transparent');
+    ctx.fillStyle=pg;
+    ctx.fillRect(playerX-80,playerY-80,160,160);
+    // Nitro glow ring
+    if(nitroActive){
+      const ringG=ctx.createRadialGradient(playerX,playerY+PLAYER_H/2,5,playerX,playerY+PLAYER_H/2,40);
+      ringG.addColorStop(0,'rgba(255,100,0,0.15)');
+      ringG.addColorStop(0.5,'rgba(255,200,0,0.08)');
+      ringG.addColorStop(1,'transparent');
+      ctx.fillStyle=ringG;
+      ctx.beginPath(); ctx.arc(playerX,playerY+PLAYER_H/2,40,0,Math.PI*2); ctx.fill();
+    }
+  }
+
+  // Player (with sway tilt, oil spin, enhanced animation)
   const tilt=playerSway*0.03;
   const pBob=Math.sin(carBob)*1.5;
   const rotAngle=tilt+oilAngle;
@@ -1808,33 +2326,75 @@ function renderGame(){
     ctx.fillRect(0,0,W,H);
   }
 
-  // Floating texts
+  // ── Sparks (tia lửa) ──
+  for(const s of sparks){
+    ctx.globalAlpha=s.life/s.maxLife;
+    ctx.shadowColor=s.color; ctx.shadowBlur=8;
+    ctx.fillStyle=s.color;
+    ctx.beginPath(); ctx.arc(s.x,s.y,s.size,0,Math.PI*2); ctx.fill();
+  }
+  ctx.shadowBlur=0; ctx.globalAlpha=1;
+
+  // ── Floating texts (animated scale + bounce) ──
   for(const ft of floatingTexts){
-    ctx.globalAlpha=ft.life;
-    ctx.fillStyle=ft.color; ctx.font='bold '+ft.size+'px "Segoe UI",system-ui,sans-serif';
-    ctx.textAlign='center';
+    const lifeRatio=Math.max(0,ft.life);
+    const scale=1+Math.sin(lifeRatio*Math.PI)*0.15;
+    ctx.save();
+    ctx.translate(ft.x,ft.y);
+    ctx.scale(scale,scale);
+    ctx.globalAlpha=Math.min(1,lifeRatio*2);
+    ctx.fillStyle=ft.color;
+    ctx.font='bold '+ft.size+'px "Segoe UI",system-ui,sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.shadowColor=ft.color; ctx.shadowBlur=14;
-    ctx.fillText(ft.text,ft.x,ft.y);
+    ctx.fillText(ft.text,0,0);
+    ctx.restore();
   }
   ctx.globalAlpha=1; ctx.shadowBlur=0;
 
-  // Combo banner
+  // Combo banner (animated scale + pulse)
   if(combo>1){
     const ca=Math.sin(comboSpeed*4)*0.2+0.8;
+    const cScale=1+Math.sin(comboSpeed*6)*0.05;
+    ctx.save();
+    ctx.translate(W/2,92);
+    ctx.scale(cScale,cScale);
     ctx.globalAlpha=ca;
     ctx.fillStyle=hslStr(combo*40,100,55);
     ctx.font='bold 34px "Segoe UI",system-ui,sans-serif';
-    ctx.textAlign='center';
-    ctx.shadowColor=ctx.fillStyle; ctx.shadowBlur=25;
-    ctx.fillText(combo+'x COMBO!',W/2,88);
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.shadowColor=ctx.fillStyle; ctx.shadowBlur=30;
+    ctx.fillText(combo+'x COMBO!',0,0);
+    // Subtitle for high combos
+    if(combo>=5){
+      ctx.fillStyle='#ffd700';
+      ctx.font='bold 14px "Segoe UI",system-ui,sans-serif';
+      ctx.shadowColor='rgba(255,215,0,0.3)'; ctx.shadowBlur=12;
+      ctx.fillText('\u26A1 INSANE \u26A1',0,24);
+    }
     ctx.shadowBlur=0; ctx.globalAlpha=1;
+    ctx.restore();
   }
 
-  // Speed blur
+  // Speed blur (motion blur effect)
   const sr=speed/MAX_SPEED;
-  if(sr>0.5){
-    ctx.fillStyle=`rgba(0,0,0,${(sr-0.5)*0.12})`;
+  if(sr>0.35){
+    const blurAlpha=(sr-0.35)*0.18;
+    ctx.fillStyle=`rgba(0,0,0,${blurAlpha})`;
     ctx.fillRect(0,0,W,H);
+    // Directional blur - streaks at edges
+    if(sr>0.6){
+      ctx.fillStyle=`rgba(100,150,255,${(sr-0.6)*0.02})`;
+      for(let i=0;i<3;i++){
+        const bx=i*W/3;
+        ctx.fillRect(bx-2,0,2,H);
+      }
+    }
+    // Nitro blur enhancement
+    if(nitroActive){
+      ctx.fillStyle=`rgba(0,100,255,${blurAlpha*0.5})`;
+      ctx.fillRect(0,0,W,H);
+    }
   }
 
   // Theme transition vignette
@@ -1866,9 +2426,24 @@ function renderGame(){
     ctx.fillText('\u{1F525} '+nearMissStreak+'x Suýt Va Chạm!',W/2,70);
   }
 
-  // Nitro screen pulse
+  // Nitro screen pulse (enhanced)
   if(nitroActive){
-    ctx.fillStyle=`rgba(0,180,255,${Math.sin(nitroTimer*25)*0.025+0.025})`;
+    const nPulse=Math.sin(nitroTimer*25);
+    // Blue pulse
+    ctx.fillStyle=`rgba(0,180,255,${nPulse*0.03+0.03})`;
+    ctx.fillRect(0,0,W,H);
+    // Red shift edge glow
+    const edgeG=ctx.createRadialGradient(W/2,H/2,H*0.3,W/2,H/2,H*0.55);
+    edgeG.addColorStop(0,'rgba(0,0,0,0)');
+    edgeG.addColorStop(1,`rgba(255,100,0,${nPulse*0.01+0.01})`);
+    ctx.fillStyle=edgeG;
+    ctx.fillRect(0,0,W,H);
+  }
+
+  // UI transition overlay
+  if(uiTransAlpha<1&&uiTransScreen){
+    const fadeAlpha=1-uiTransAlpha;
+    ctx.fillStyle=`rgba(0,0,0,${fadeAlpha*0.4})`;
     ctx.fillRect(0,0,W,H);
   }
 }
@@ -1877,11 +2452,36 @@ function renderGame(){
 // ── MENU SCREENS ──────────────────────────────────────────
 // ══════════════════════════════════════════════════════════════
 
+// ── UI Transition helper ─────────────────────────────────
+function transitionTo(screenTarget){
+  if(screen===screenTarget) return;
+  uiTransScreen=screen;
+  uiTransAlpha=0;
+  uiTransTimer=0.15;
+  screen=screenTarget;
+  if(screenTarget!=='game') stopEngineSound();
+  // Audio feedback
+  if(screenTarget==='title'||screenTarget==='garage') SFX.uiClose();
+  else SFX.uiOpen();
+}
+
+// ── Title Screen ─────────────────────────────────────────
 function drawTitleScreen(){
   ctx.textBaseline='alphabetic';
+  // UI transition: khi mới vào title từ màn hình khác
+  const uiAlpha=Math.min(1,uiTransAlpha+0.02);
+  uiTransAlpha=uiAlpha;
+
   drawBackground();
-  ctx.fillStyle='rgba(0,0,0,0.45)';
+  ctx.fillStyle=`rgba(0,0,0,${0.45*(1-uiTransAlpha*0.2)})`;
   ctx.fillRect(0,0,W,H);
+
+  // UI fade-in scale
+  const uiScale=uiAlpha*0.2+0.8;
+  ctx.save();
+  ctx.translate(W/2,H/2);
+  ctx.scale(uiScale,uiScale);
+  ctx.translate(-W/2,-H/2);
 
   // Animated title
   const pulse=Math.sin(gameTime*2)*0.04+1;
@@ -1907,7 +2507,7 @@ function drawTitleScreen(){
   ctx.fillStyle='rgba(255,255,255,0.4)';
   ctx.font='13px "Segoe UI",system-ui,sans-serif';
   ctx.textAlign='center';
-  ctx.fillText('V2.0 — Chủ đề + AI Thông Minh',W/2,200);
+  ctx.fillText('V2.2 — Premium Visual + Arcade HUD',W/2,200);
   ctx.shadowBlur=0;
 
   ctx.shadowColor='rgba(0,0,0,0.6)'; ctx.shadowBlur=8;
@@ -2069,6 +2669,15 @@ function drawTitleScreen(){
   ctx.fillText('\u2190 \u2192 Phím Mũi Tên  \u00B7  Chạm 2 bên  \u00B7 SPACE: Nitro',W/2,H-24);
   ctx.shadowBlur=0;
 
+  ctx.restore(); // end UI scale
+
+  // Transition overlay
+  if(uiTransAlpha<1&&uiTransScreen){
+    const fadeAlpha=1-uiTransAlpha;
+    ctx.fillStyle=`rgba(0,0,0,${fadeAlpha*0.5})`;
+    ctx.fillRect(0,0,W,H);
+  }
+
   roadOffset+=60*0.016;
   gameTime+=0.016;
 }
@@ -2076,7 +2685,11 @@ function drawTitleScreen(){
 function drawGameOverScreen(){
   ctx.textBaseline='alphabetic';
   renderGame();
-  ctx.fillStyle='rgba(0,0,0,0.7)';
+  // Transition fade-in effect
+  const uiAlpha=Math.min(1,uiTransAlpha+0.02);
+  uiTransAlpha=uiAlpha;
+  const fadeIn=Math.min(1,uiAlpha*1.5);
+  ctx.fillStyle=`rgba(0,0,0,${0.7*fadeIn})`;
   ctx.fillRect(0,0,W,H);
 
   ctx.fillStyle='#ff3344';
@@ -2092,18 +2705,35 @@ function drawGameOverScreen(){
   ctx.fillStyle='#ffd700'; ctx.font='18px "Segoe UI",system-ui,sans-serif';
   ctx.fillText('$ +'+gameCoins+' xu',W/2,248);
 
-  ctx.fillStyle=endScore>=highScore?'#ffaa00':'rgba(255,255,255,0.5)';
-  ctx.font='16px "Segoe UI",system-ui,sans-serif';
-  ctx.fillText(endScore>=highScore?'\u{1F3C6} ĐIỂM CAO MỚI!':'Điểm Cao: '+highScore,W/2,286);
+  const isNewHighScore=endScore>=highScore&&endScore>0;
+  ctx.fillStyle=isNewHighScore?'#ffaa00':'rgba(255,255,255,0.5)';
+  ctx.font='bold 16px "Segoe UI",system-ui,sans-serif';
+  ctx.shadowColor=isNewHighScore?'rgba(255,170,0,0.3)':'transparent';
+  ctx.shadowBlur=isNewHighScore?14:0;
+  const hsFlash=isNewHighScore?Math.sin(gameTime*5)*0.3+0.7:1;
+  ctx.globalAlpha=hsFlash;
+  ctx.fillText(isNewHighScore?'\u{1F3C6} ĐIỂM CAO MỚI!':'Điểm Cao: '+highScore,W/2,286);
+  ctx.shadowBlur=0; ctx.globalAlpha=1;
 
   ctx.fillStyle='rgba(255,255,255,0.35)';
   ctx.font='13px "Segoe UI",system-ui,sans-serif';
   ctx.fillText('Cấp '+level+'  \u00B7  '+Math.round(speed*0.45)+' KM/H  \u00B7  '+getCurrentTheme().name,W/2,316);
 
-  // Stats
+  // Stats với icon
   ctx.fillStyle='rgba(255,255,255,0.2)';
   ctx.font='12px "Segoe UI",system-ui,sans-serif';
-  ctx.fillText('Suýt va chạm: '+nearMissStreak+'x  \u00B7  Combo cao nhất: '+combo+'x',W/2,346);
+  ctx.fillText('\u26A1 Suýt: '+nearMissStreak+'x  \u00B7  \u{1F300} Combo: '+combo+'x  \u00B7  \u{1F3C6} '+Math.round(gameTime)+'s',W/2,346);
+
+  // Celebration particles for high score
+  if(isNewHighScore){
+    const ceAlpha=0.1+Math.sin(gameTime*3)*0.05;
+    ctx.fillStyle=`rgba(255,215,0,${ceAlpha})`;
+    for(let i=0;i<8;i++){
+      const cx=50+(i*55)%W;
+      const cy=130+Math.sin(gameTime*2+i*1.5)*20;
+      ctx.beginPath(); ctx.arc(cx,cy,2+Math.sin(gameTime*5+i)*1.5,0,Math.PI*2); ctx.fill();
+    }
+  }
 
   // Restart button
   const bx=W/2-125,by=370,bw=250,bh=54;
@@ -2132,8 +2762,10 @@ function drawGameOverScreen(){
 
 function drawGarageScreen(){
   ctx.textBaseline='alphabetic';
+  const uiAlpha=Math.min(1,uiTransAlpha+0.02);
+  uiTransAlpha=uiAlpha;
   drawBackground();
-  ctx.fillStyle='rgba(0,0,0,0.7)';
+  ctx.fillStyle=`rgba(0,0,0,${0.7*(1-uiAlpha*0.1)})`;
   ctx.fillRect(0,0,W,H);
 
   ctx.textBaseline='middle';
@@ -2276,8 +2908,11 @@ document.addEventListener('keydown',e=>{
     if(screen==='game'){
       paused=!paused;
       document.getElementById('touchCtrls').classList.toggle('active',!paused);
-    }else if(screen==='over'||screen==='garage'){
-      screen='title';
+      if(paused) stopEngineSound(); else startEngineSound();
+    }else if(screen==='over'){
+      transitionTo('title');
+    }else if(screen==='garage'){
+      transitionTo('title');
     }
   }
 });
@@ -2318,7 +2953,7 @@ canvas.addEventListener('touchstart',e=>{
 function handleTap(mx,my){
   if(screen==='title'){
     if(mx>=W/2-110&&mx<=W/2+110&&my>=300&&my<=356){SFX.click();startGame()}
-    else if(mx>=W/2-85&&mx<=W/2+85&&my>=374&&my<=418){SFX.click();screen='garage'}
+    else if(mx>=W/2-85&&mx<=W/2+85&&my>=374&&my<=418){SFX.click();transitionTo('garage')}
     else {
       // Check mode buttons
       for(const b of modeButtons){
@@ -2330,18 +2965,18 @@ function handleTap(mx,my){
     }
   }else if(screen==='game'){
     if(!paused){
-      if(mx>=12&&mx<=42&&my>=56&&my<=80){paused=true;document.getElementById('touchCtrls').classList.remove('active');SFX.click()}
+      if(mx>=12&&mx<=42&&my>=56&&my<=80){paused=true;document.getElementById('touchCtrls').classList.remove('active');stopEngineSound();SFX.click()}
     }else{
-      if(mx>=W/2-120&&mx<=W/2+120&&my>=270&&my<=328){paused=false;document.getElementById('touchCtrls').classList.add('active');SFX.click()}
-      else if(mx>=W/2-120&&mx<=W/2+120&&my>=352&&my<=404){screen='title';paused=false;SFX.click();document.getElementById('touchCtrls').classList.remove('active')}
+      if(mx>=W/2-120&&mx<=W/2+120&&my>=270&&my<=328){paused=false;document.getElementById('touchCtrls').classList.add('active');startEngineSound();SFX.click()}
+      else if(mx>=W/2-120&&mx<=W/2+120&&my>=352&&my<=404){transitionTo('title');paused=false;SFX.click();document.getElementById('touchCtrls').classList.remove('active')}
     }
   }else if(screen==='over'){
     if(mx>=W/2-125&&mx<=W/2+125&&my>=370&&my<=424){SFX.click();startGame()}
-    else if(mx>=W/2-85&&mx<=W/2+85&&my>=442&&my<=484){SFX.click();screen='title'}
+    else if(mx>=W/2-85&&mx<=W/2+85&&my>=442&&my<=484){SFX.click();transitionTo('title')}
   }else if(screen==='garage'){
     for(const b of garageButtons){
       if(mx>=b.x&&mx<=b.x+b.w&&my>=b.y&&my<=b.y+b.h){
-        if(b.type==='back'){SFX.click();screen='title';return}
+        if(b.type==='back'){SFX.click();transitionTo('title');return}
         if(b.type==='car'){
           const i=b.index;
           if(unlockedCars.has(i)){
@@ -2386,6 +3021,8 @@ function startGame(){
   }
   paused=false; screen='game';
   initRain(); initDust();
+  initAudio();
+  startEngineSound();
   document.getElementById('touchCtrls').classList.add('active');
 }
 
@@ -2403,12 +3040,18 @@ function gameLoop(time){
   const rightIn=touchRight||keys['ArrowRight']||keys['KeyD'];
   const nitroIn=touchNitro||keys['Space']||keys['ArrowUp']||keys['KeyW'];
 
+  // Start audio on first interaction
+  if(!audioStarted&&(leftIn||rightIn||nitroIn||screen!=='title')){
+    initAudio();
+    audioStarted=true;
+  }
+
   if(screen==='game'&&!paused){
     if(leftIn&&!leftPressed){
-      if(playerTargetLane>0){playerTargetLane--;playerSway=-5;triggerShake(0.5)}
+      if(playerTargetLane>0){playerTargetLane--;playerSway=-5;triggerShake(0.5,1,0,1.5);SFX.skid()}
     }
     if(rightIn&&!rightPressed){
-      if(playerTargetLane<LANE_COUNT-1){playerTargetLane++;playerSway=5;triggerShake(0.5)}
+      if(playerTargetLane<LANE_COUNT-1){playerTargetLane++;playerSway=5;triggerShake(0.5,1,0,1.5);SFX.skid()}
     }
     leftPressed=leftIn;
     rightPressed=rightIn;
