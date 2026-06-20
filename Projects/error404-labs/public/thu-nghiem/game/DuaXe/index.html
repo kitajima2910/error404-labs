@@ -1601,8 +1601,12 @@ function drawHUD(){
     ctx.shadowBlur=timerWarn?16:8;
     ctx.fillStyle=timerWarn?`rgb(255,${50+Math.floor(Math.sin(gameTime*12)*40)},${50+Math.floor(Math.sin(gameTime*12)*40)})`:'#ffd700';
     ctx.font='bold 18px "Segoe UI",system-ui,sans-serif';
-    // Đặt timer bên phải score, tránh speed bar
-    ctx.fillText('\u23F1\uFE0F '+secs+'s',100,row1Y);
+    // Đặt timer ngay sau score (đo độ rộng score để tránh overlap)
+    ctx.font='bold 22px "Segoe UI",system-ui,sans-serif';
+    const scoreW=ctx.measureText('\u{1F3C6} '+Math.floor(score)).width;
+    const timerX=Math.max(110,14+scoreW*scorePulse+16);
+    ctx.font='bold 18px "Segoe UI",system-ui,sans-serif';
+    ctx.fillText('\u23F1\uFE0F '+secs+'s',timerX,row1Y);
     if(timerWarn){
       ctx.fillStyle=`rgba(255,30,30,${0.08+Math.sin(gameTime*10)*0.06})`;
       ctx.fillRect(0,0,W,56);
