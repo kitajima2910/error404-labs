@@ -741,9 +741,205 @@ function roundRect(ctx,x,y,w,h,r){
 
 // ── Sound System (procedural Web Audio) ──────────────────
 let audioCtx=null;
+let bgmSource=null;
+let bgmGain=null;
+let bgmBuffer=null;
 function initAudio(){
   if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
   if(audioCtx.state==='suspended') audioCtx.resume();
+}
+
+// ── Procedural BGM: Synthwave Racing Loop (140 BPM, Am) ──
+function generateBGM(){
+  if(!audioCtx) return null;
+  const bpm=140;
+  const beatsPerMeasure=4;
+  const measureCount=8;
+  const totalBeats=measureCount*beatsPerMeasure;
+  const beatDur=60/bpm;
+  const totalDur=totalBeats*beatDur;
+  const sampleRate=audioCtx.sampleRate;
+  const length=Math.ceil(sampleRate*totalDur);
+
+  // Tạo OfflineAudioContext để render
+  const offline=new OfflineAudioContext(2,length,sampleRate);
+  const now=0;
+
+  // === BASS: Sawtooth, root-fifth pattern ===
+  const bassNotes=[110,82.4,110,82.4,110,82.4,110,82.4, // Am-E
+                   98,82.4,98,82.4,98,82.4,98,82.4,     // G-E
+                   130.8,82.4,130.8,82.4,130.8,82.4,130.8,82.4, // C-E
+                   110,98,110,98,110,98,110,98];         // Am-G
+  const bassOsc=offline.createOscillator();
+  bassOsc.type='sawtooth';
+  const bassGain=offline.createGain();
+  bassGain.gain.setValueAtTime(0.18,now);
+  bassOsc.connect(bassGain);
+  bassGain.connect(offline.destination);
+  const bassLfo=offline.createOscillator();
+  bassLfo.type='sine';
+  bassLfo.frequency.value=4; // tremolo 4Hz
+  const bassLfoGain=offline.createGain();
+  bassLfoGain.gain.value=0.06;
+  bassLfo.connect(bassLfoGain);
+  bassLfoGain.connect(bassGain.gain);
+  bassLfo.start(now);
+  bassOsc.start(now);
+  for(let i=0;i<bassNotes.length;i++){
+    const t=i*(beatDur/2);
+    bassOsc.frequency.setValueAtTime(bassNotes[i],now+t);
+  }
+  bassOsc.stop(now+totalDur);
+
+  // === ARP: Square wave arpeggio 16th notes ===
+  // 8 measures of arpeggiated Am chord
+  const arpRoots=[440,440,440,440, 392,392,392,392, 523.3,523.3,523.3,523.3, 440,440,440,440,
+                  440,440,440,440, 392,392,392,392, 523.3,523.3,523.3,523.3, 440,440,440,440];
+  const arpOsc=offline.createOscillator();
+  arpOsc.type='square';
+  const arpGain=offline.createGain();
+  arpGain.gain.setValueAtTime(0.04,now);
+  arpGain.gain.linearRampToValueAtTime(0.0,now+totalDur);
+  arpOsc.connect(arpGain);
+  arpGain.connect(offline.destination);
+  arpOsc.start(now);
+  for(let i=0;i<arpRoots.length;i++){
+    const t=i*(beatDur*2);
+    const offset=[0,4,7,12,7,4,0,4][i%8]; // semitone offsets
+    arpOsc.frequency.setValueAtTime(arpRoots[i]*Math.pow(2,offset/12),now+t);
+  }
+  arpOsc.stop(now+totalDur);
+
+  // === PAD: Soft sine chords ===
+  const chordProg=[ [220,261.6,329.6], [174.6,220,261.6], [261.6,329.6,392], [196,220,261.6] ]; // Am, F, C, G
+  const padOsc=[
+    offline.createOscillator(),offline.createOscillator(),offline.createOscillator()
+  ];
+  const padGain=offline.createGain();
+  padGain.gain.setValueAtTime(0.04,now);
+  padGain.connect(offline.destination);
+  for(let o=0;o<3;o++){
+    padOsc[o].type='sine';
+    padOsc[o].connect(padGain);
+    padOsc[o].start(now);
+    for(let m=0;m<measureCount;m++){
+      const ch=chordProg[m%4];
+      const tStart=m*beatDur*4;
+      const tEnd=tStart+beatDur*4-0.01;
+      padOsc[o].frequency.setValueAtTime(ch[o],now+tStart);
+      padOsc[o].frequency.setValueAtTime(ch[o],now+tEnd);
+    }
+    padOsc[o].stop(now+totalDur);
+  }
+
+  // === KICK: Low sine burst on beats 1,3 ===
+  for(let i=0;i<totalBeats;i+=2){
+    const t=i*beatDur;
+    if(t>=totalDur) break;
+    const kickOsc=offline.createOscillator();
+    kickOsc.type='sine';
+    kickOsc.frequency.setValueAtTime(120,now+t);
+    kickOsc.frequency.exponentialRampToValueAtTime(40,now+t+0.08);
+    const kickGain=offline.createGain();
+    kickGain.gain.setValueAtTime(0.35,now+t);
+    kickGain.gain.exponentialRampToValueAtTime(0.001,now+t+0.12);
+    kickOsc.connect(kickGain);
+    kickGain.connect(offline.destination);
+    kickOsc.start(now+t);
+    kickOsc.stop(now+t+0.12);
+
+    // Noise burst for kick attack
+    const kickNoise=offline.createBufferSource();
+    const noiseLen=Math.ceil(sampleRate*0.05);
+    const noiseBuf=offline.createBuffer(1,noiseLen,sampleRate);
+    const noiseData=noiseBuf.getChannelData(0);
+    for(let j=0;j<noiseLen;j++) noiseData[j]=Math.random()*2-1;
+    kickNoise.buffer=noiseBuf;
+    const noiseGain=offline.createGain();
+    noiseGain.gain.setValueAtTime(0.12,now+t);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001,now+t+0.04);
+    kickNoise.connect(noiseGain);
+    noiseGain.connect(offline.destination);
+    kickNoise.start(now+t);
+  }
+
+  // === HIHAT: Noise burst on 8th notes ===
+  for(let i=0;i<totalBeats*2;i++){
+    const t=i*(beatDur/2);
+    if(t>=totalDur) break;
+    const hhOsc=offline.createBufferSource();
+    const hhLen=Math.ceil(sampleRate*0.04);
+    const hhBuf=offline.createBuffer(1,hhLen,sampleRate);
+    const hhData=hhBuf.getChannelData(0);
+    for(let j=0;j<hhLen;j++) hhData[j]=Math.random()*2-1;
+    hhOsc.buffer=hhBuf;
+    const hhGain=offline.createGain();
+    const vol=(i%2===0)?0.06:0.03; // louder on downbeat
+    hhGain.gain.setValueAtTime(vol,now+t);
+    hhGain.gain.exponentialRampToValueAtTime(0.001,now+t+0.03);
+    hhOsc.connect(hhGain);
+    hhGain.connect(offline.destination);
+    hhOsc.start(now+t);
+  }
+
+  // === CLAP: Noise burst on beats 2,4 ===
+  for(let i=1;i<totalBeats;i+=2){
+    const t=i*beatDur;
+    if(t>=totalDur) break;
+    const clapOsc=offline.createBufferSource();
+    const clapLen=Math.ceil(sampleRate*0.08);
+    const clapBuf=offline.createBuffer(1,clapLen,sampleRate);
+    const clapData=clapBuf.getChannelData(0);
+    for(let j=0;j<clapLen;j++){
+      clapData[j]=(Math.random()*2-1)*Math.max(0,1-j/clapLen);
+    }
+    clapOsc.buffer=clapBuf;
+    const clapGain=offline.createGain();
+    clapGain.gain.setValueAtTime(0.08,now+t);
+    clapGain.gain.exponentialRampToValueAtTime(0.001,now+t+0.06);
+    clapOsc.connect(clapGain);
+    clapGain.connect(offline.destination);
+    clapOsc.start(now+t);
+  }
+
+  // Render offline -> buffer
+  return offline.startRendering().then(buf=>{
+    bgmBuffer=buf;
+    return buf;
+  }).catch(()=>null);
+}
+
+function startBGM(){
+  if(!audioCtx||bgmSource||!bgmBuffer) return;
+  try{
+    bgmSource=audioCtx.createBufferSource();
+    bgmSource.buffer=bgmBuffer;
+    bgmSource.loop=true;
+    bgmGain=audioCtx.createGain();
+    bgmGain.gain.setValueAtTime(0.25,audioCtx.currentTime);
+    bgmSource.connect(bgmGain);
+    bgmGain.connect(audioCtx.destination);
+    bgmSource.start();
+  }catch(e){}
+}
+
+function stopBGM(){
+  try{
+    if(bgmSource){bgmSource.stop();bgmSource.disconnect();bgmSource=null}
+    if(bgmGain){bgmGain.disconnect();bgmGain=null}
+  }catch(e){}
+}
+
+function resumeBGM(){
+  if(!audioCtx||bgmSource||!bgmBuffer) startBGM();
+}
+
+function fadeOutBGM(dur){
+  if(!bgmGain||!audioCtx) return;
+  try{
+    bgmGain.gain.setTargetAtTime(0,audioCtx.currentTime,dur||0.3);
+    setTimeout(()=>{if(bgmGain) bgmGain.gain.value=0},(dur||0.3)*5000);
+  }catch(e){}
 }
 function startEngineSound(){
   if(!audioCtx||engineOsc) return;
@@ -2069,7 +2265,7 @@ function updateGame(dt){
             spawnParticles(playerX,playerY,60,'#ff6600',300,6,0.8);
             spawnSparks(playerX,playerY,25,'#ff6600');
             document.getElementById('touchCtrls').classList.remove('active');
-            stopEngineSound();
+            stopEngineSound();stopBGM();
             break;
           }
           invincibleTimer=1.5;
@@ -2089,7 +2285,7 @@ function updateGame(dt){
             spawnParticles(playerX,playerY,70,'#ff2200',350,7,0.8);
             spawnSparks(playerX,playerY,30,'#ff2200');
             document.getElementById('touchCtrls').classList.remove('active');
-            stopEngineSound();
+            stopEngineSound();stopBGM();
             break;
           }
           invincibleTimer=2+bonusInvincible;
@@ -2132,7 +2328,8 @@ function updateGame(dt){
           spawnParticles(playerX,playerY,30,'#ffaa00',200,4,0.6);
           spawnSparks(playerX,playerY,25,'#ff4400');
           document.getElementById('touchCtrls').classList.remove('active');
-          stopEngineSound();
+          stopEngineSound();stopBGM();
+          break;
         }else{
           speed=Math.max(BASE_SPEED,speed*0.55);
           combo=0; comboTimer=0;
@@ -2561,7 +2758,7 @@ function transitionTo(screenTarget){
   uiTransAlpha=0;
   uiTransTimer=0.15;
   screen=screenTarget;
-  if(screenTarget!=='game') stopEngineSound();
+  if(screenTarget!=='game'){stopEngineSound();stopBGM()}
   // Audio feedback
   if(screenTarget==='title'||screenTarget==='garage') SFX.uiClose();
   else SFX.uiOpen();
@@ -3021,7 +3218,7 @@ document.addEventListener('keydown',e=>{
     if(screen==='game'){
       paused=!paused;
       document.getElementById('touchCtrls').classList.toggle('active',!paused);
-      if(paused) stopEngineSound(); else startEngineSound();
+      if(paused){stopEngineSound();stopBGM()}else{startEngineSound();resumeBGM()}
     }else if(screen==='over'){
       transitionTo('title');
     }else if(screen==='garage'){
@@ -3078,9 +3275,9 @@ function handleTap(mx,my){
     }
   }else if(screen==='game'){
     if(!paused){
-      if(mx>=12&&mx<=42&&my>=56&&my<=80){paused=true;document.getElementById('touchCtrls').classList.remove('active');stopEngineSound();SFX.click()}
+      if(mx>=12&&mx<=42&&my>=56&&my<=80){paused=true;document.getElementById('touchCtrls').classList.remove('active');stopEngineSound();stopBGM();SFX.click()}
     }else{
-      if(mx>=W/2-120&&mx<=W/2+120&&my>=270&&my<=328){paused=false;document.getElementById('touchCtrls').classList.add('active');startEngineSound();SFX.click()}
+      if(mx>=W/2-120&&mx<=W/2+120&&my>=270&&my<=328){paused=false;document.getElementById('touchCtrls').classList.add('active');startEngineSound();resumeBGM();SFX.click()}
       else if(mx>=W/2-120&&mx<=W/2+120&&my>=352&&my<=404){transitionTo('title');paused=false;SFX.click();document.getElementById('touchCtrls').classList.remove('active')}
     }
   }else if(screen==='over'){
@@ -3137,6 +3334,7 @@ function startGame(){
   paused=false; screen='game';
   initRain(); initDust();
   initAudio();
+  if(!bgmBuffer) try{generateBGM().then(()=>startBGM())}catch(e){}else startBGM();
   startEngineSound();
   document.getElementById('touchCtrls').classList.add('active');
 }
