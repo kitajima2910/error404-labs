@@ -1,8 +1,25 @@
-# 🏁 Turbo Rush 2 — Arcade Racing Game (V2.2)
+# 🏁 Turbo Rush 2 — Arcade Racing Game (V2.3)
 
-## Status: ✅ Complete (2026-06-20) — V2.2: Premium Visual Polish
+## Status: ✅ Complete (2026-06-20) — V2.3: XP Progression & Level Perks
 
-Massive visual overhaul with premium arcade-quality effects while maintaining 60 FPS on mobile.
+Complete XP-based level system với 10 cấp, mỗi cấp mở khóa perk tăng sức mạnh tích lũy.
+
+## Phiên bản 2.3 — XP & Level Perk System
+
+| Tính năng | Mô tả |
+|-----------|-------|
+| ⬆️ **Cấp dựa trên XP** | Level tính từ tổng XP tích lũy (persistent). Công thức: `100×(N²−1)` XP để đạt cấp N |
+| 💯 **XP từ mọi điểm** | Pass xe (+XP), suýt (+XP × nearMissMult), nhặt xu (+XP × coinValueMult), bonus cuối game |
+| 🏅 **10 Perks tích lũy** | Mỗi cấp mới buff mạnh hơn, stack dần trong run |
+| ⚡ **Nitro refill nhanh hơn** | Cấp 2+: nitro hồi 1.2x, hồi nhanh hơn 20% |
+| ❤️ **+1 Mạng sống** | Cấp 3: max 4 mạng. Cấp 6: max 5. Cấp 10: max 6 |
+| 💰 **Xu x2** | Cấp 4+: mỗi xu đáng giá gấp đôi |
+| 🌟 **Score multiplier** | Cấp 5: 1.5x. Cấp 9: 2x |
+| 🛡️ **Invincibility +0.5s** | Cấp 7+: thời gian bất tử sau va chạm dài hơn |
+| ⚠️ **Near miss x2** | Cấp 8+: điểm suýt nhân đôi |
+| 📊 **XP Bar HUD** | Thanh progress gradient + level number + biểu tượng buff bên cạnh |
+| 🎆 **Level-up hiệu ứng** | Screen shake + particle burst + floating text + 4-note SFX ascending |
+| 💾 **Lưu XP giữa các run** | localStorage key `turborush2` mới có `xp` + `lvl`, level xuyên suốt |
 
 ## Phiên bản 2.2 — Premium Visual Polish
 
@@ -54,13 +71,43 @@ Massive visual overhaul with premium arcade-quality effects while maintaining 60
 
 ## Files
 
-- `index.html` — Single-file game (~3050 lines)
+- `index.html` — Single-file game (~3250 lines)
 - `favicon.svg` — SVG favicon (xe đua neon style)
 - `STATUS.md` — This file
 
 ## Saved Data (localStorage key: `turborush2`)
 
-- High score, total coins, unlocked cars, selected car
+- High score, total coins, unlocked cars, selected car, **xp**, **level**
+
+## Perk Chart
+
+| Cấp | Perk | Chi tiết |
+|-----|------|----------|
+| 1 | — | Khởi đầu |
+| 2 | ⚡ Nitro hồi 1.2x | `NITRO_REFILL × 1.2` |
+| 3 | ❤️ +1 mạng | maxLives = 4 |
+| 4 | 💰 Xu x2 | coinValueMult = 2 |
+| 5 | 🌟 Score 1.5x | scoreMult = 1.5 |
+| 6 | ❤️ +1 mạng | maxLives = 5 |
+| 7 | 🛡️ Bất tử +0.5s | bonusInvincible = 0.5 |
+| 8 | ⚠️ Near miss x2 | nearMissMult = 2 |
+| 9 | 🌟 Score 2x | scoreMult = 2 |
+| 10 | ❤️ +1 mạng | maxLives = 6 |
+
+## XP Requirements
+
+| Cấp | Tổng XP cần | XP cho cấp tiếp |
+|-----|-------------|-----------------|
+| 1 | 0 | 300 |
+| 2 | 300 | 500 |
+| 3 | 800 | 700 |
+| 4 | 1500 | 900 |
+| 5 | 2400 | 1100 |
+| 6 | 3500 | 1300 |
+| 7 | 4800 | 1500 |
+| 8 | 6300 | 1700 |
+| 9 | 8000 | 1900 |
+| 10 | 9900 | — (max) |
 
 ## Performance Notes
 

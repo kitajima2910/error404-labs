@@ -123,9 +123,54 @@ function lerpColor(c1,c2,t){
 }
 
 // ── Persistence ───────────────────────────────────────────
+// ── XP / Level helpers ──────────────────────────────────
+// Công thức: lên cấp N cần 100×(N²−1) XP tích lũy
+// Level 1→2: 300XP, 2→3: 500XP, 3→4: 700XP...
+function getTotalXpForLevel(lvl){return 100*(lvl*lvl-1)}
+function getLevelFromXp(xp){return Math.max(1,Math.floor(Math.sqrt(xp/100+1)))}
+function getXpForNextLevel(lvl){return 100*(2*lvl+1)}
+function getXpProgress(xp,lvl){
+  const curr=getTotalXpForLevel(lvl);
+  const next=getTotalXpForLevel(lvl+1);
+  return (xp-curr)/(next-curr);
+}
+// ── Level-up Effect ──
+function spawnLevelUpEffect(newLevel){
+  // Flash màn hình
+  shakeIntensity=8; triggerShake(5);
+  // Text nổi bật
+  spawnFloatingText(W/2,playerY-120,'⬆ CẤP '+newLevel+'!','#00ffaa',32);
+  spawnFloatingText(W/2,playerY-90,'\u2728','#ffdd00',28);
+  // Particles
+  spawnParticles(playerX,playerY,40,'#00ffaa',300,6,0.7);
+  spawnParticles(playerX,playerY,30,'#ffdd00',250,5,0.6);
+  spawnSparks(playerX,playerY,15,'#00ffaa');
+  // SFX
+  playBeep(440,0.06,'sine',0.08);
+  setTimeout(()=>playBeep(550,0.06,'sine',0.08),70);
+  setTimeout(()=>playBeep(660,0.08,'sine',0.08),140);
+  setTimeout(()=>playBeep(880,0.15,'sine',0.10),210);
+}
+// ── Apply Perks cho level hiện tại ──
+function applyLevelPerks(lvl){
+  scoreMult=1; coinValueMult=1; nitroRefillMult=1;
+  nearMissMult=1; bonusInvincible=0; maxLives=3;
+  if(lvl>=2) nitroRefillMult=1.2;
+  if(lvl>=3) maxLives=4;
+  if(lvl>=4) coinValueMult=2;
+  if(lvl>=5) scoreMult=1.5;
+  if(lvl>=6) maxLives=5;
+  if(lvl>=7) bonusInvincible=0.5;
+  if(lvl>=8) nearMissMult=2;
+  if(lvl>=9) scoreMult=2;
+  if(lvl>=10) maxLives=6;
+  if(lives<maxLives) lives=maxLives;
+}
+
 function saveData(){
   try{localStorage.setItem('turborush2',JSON.stringify({
-    hs:highScore, coins:totalCoins, unlocks:[...unlockedCars], sel:selectedCar
+    hs:highScore, coins:totalCoins, unlocks:[...unlockedCars], sel:selectedCar,
+    xp:xp, lvl:level
   }))}catch(e){}
 }
 function loadData(){
@@ -136,6 +181,8 @@ function loadData(){
       unlockedCars=new Set(d.unlocks||[0]);
       unlockedCars.add(0);
       selectedCar=d.sel||0;
+      xp=d.xp||0;
+      level=d.lvl||getLevelFromXp(xp);
     }
   }catch(e){}
 }
@@ -309,7 +356,11 @@ const MODE_KEYS=Object.keys(GAME_MODES);
 let screen='title'; // title | game | over | garage
 let selectedMode='endless';
 let score=0, highScore=0, totalCoins=0, gameCoins=0;
-let lives=3, speed=BASE_SPEED, level=1;
+let xp=0; // Tổng XP tích lũy (persistent)
+let lives=3, speed=BASE_SPEED, level=1, maxLives=3;
+// Perks active trong run hiện tại
+let scoreMult=1, coinValueMult=1, nitroRefillMult=1;
+let nearMissMult=1, bonusInvincible=0;
 let nitro=NITRO_MAX, nitroActive=false, nitroTimer=0;
 let combo=0, comboTimer=0, comboSpeed=0, nearMissStreak=0;
 let playerLane=1, playerTargetLane=1, playerX=0, playerY=650;
@@ -1592,10 +1643,53 @@ function drawHUD(){
   ctx.textAlign='left';
   ctx.fillText('KM/H',spdEndX+2,row1Y);
 
-  // ── Level (trái, hàng dưới) ──
-  ctx.fillStyle='rgba(255,255,255,0.35)'; ctx.font='10px "Segoe UI",system-ui,sans-serif';
+  // ── Level + XP Bar (trái, hàng dưới) ──
+  const xpProgress=getXpProgress(xp,level);
+  const xpForNext=getXpForNextLevel(level);
+  const xpBarW=90, xpBarH=4, xpBarX=14, xpBarY=row2Y+4;
+  // Level number
+  ctx.fillStyle='rgba(200,255,220,0.6)'; ctx.font='bold 10px "Segoe UI",system-ui,sans-serif';
   ctx.textAlign='left';
-  ctx.fillText('LV.'+level,14,row2Y);
+  ctx.fillText('LV.'+level,xpBarX,xpBarY-1);
+  // XP bar background
+  ctx.fillStyle='rgba(255,255,255,0.08)';
+  ctx.beginPath(); roundRect(ctx,xpBarX,xpBarY,xpBarW,xpBarH,2); ctx.fill();
+  // XP bar fill (gradient cyan→green)
+  if(xpProgress>0){
+    const grad=ctx.createLinearGradient(xpBarX,xpBarY,xpBarX+xpBarW,xpBarY);
+    grad.addColorStop(0,'#00cc88'); grad.addColorStop(1,'#00ffaa');
+    ctx.fillStyle=grad;
+    ctx.shadowColor='rgba(0,255,170,0.25)'; ctx.shadowBlur=6;
+    ctx.beginPath(); roundRect(ctx,xpBarX+1,xpBarY+1,(xpBarW-2)*Math.min(xpProgress,1),xpBarH-2,1.5); ctx.fill();
+    ctx.shadowBlur=0;
+  }
+  // XP text nhỏ bên cạnh bar
+  ctx.fillStyle='rgba(255,255,255,0.2)'; ctx.font='7px "Segoe UI",system-ui,sans-serif';
+  ctx.fillText(xp+'/'+(getTotalXpForLevel(level)+xpForNext),xpBarX+94,xpBarY+5);
+
+  // ── Buff icons (hàng thứ 3, dưới pause button) ──
+  const buffY=94;
+  let buffX=xpBarX;
+  if(scoreMult>1){buffX+=22;
+    ctx.fillStyle='rgba(255,200,50,0.5)'; ctx.font='8px "Segoe UI",system-ui,sans-serif';
+    ctx.fillText('\u2B50x'+scoreMult,buffX,buffY);
+  }
+  if(coinValueMult>1){buffX+=34;
+    ctx.fillStyle='rgba(255,215,0,0.5)'; ctx.font='8px "Segoe UI",system-ui,sans-serif';
+    ctx.fillText('$x'+coinValueMult,buffX,buffY);
+  }
+  if(nitroRefillMult>1){buffX+=30;
+    ctx.fillStyle='rgba(0,200,255,0.45)'; ctx.font='8px "Segoe UI",system-ui,sans-serif';
+    ctx.fillText('\u26A1x'+nitroRefillMult.toFixed(1),buffX,buffY);
+  }
+  if(nearMissMult>1){buffX+=32;
+    ctx.fillStyle='rgba(255,150,0,0.45)'; ctx.font='8px "Segoe UI",system-ui,sans-serif';
+    ctx.fillText('\u26A0x'+nearMissMult,buffX,buffY);
+  }
+  if(bonusInvincible>0){buffX+=26;
+    ctx.fillStyle='rgba(100,200,255,0.45)'; ctx.font='8px "Segoe UI",system-ui,sans-serif';
+    ctx.fillText('\u{1F6E1} +'+bonusInvincible+'s',buffX,buffY);
+  }
 
   // ── Right side bottom row: Hearts (phải) + Coins (trái của Hearts) ──
   ctx.textAlign='right';
@@ -1640,7 +1734,7 @@ function drawHUD(){
     ctx.textAlign='left';
     const diffLabel=adaptDifficulty<0.5?'NORMAL':adaptDifficulty<0.7?'KHÓ':'ÁC MỘNG';
     ctx.shadowColor='rgba(255,100,50,0.2)'; ctx.shadowBlur=4;
-    ctx.fillText('\u26A0 '+diffLabel,14,66);
+    ctx.fillText('\u26A0 '+diffLabel,14,88);
     ctx.shadowBlur=0;
   }
 
@@ -1756,7 +1850,17 @@ function updateGame(dt){
 
   // ── Speed Ramp ──
   speed=Math.min(MAX_SPEED,BASE_SPEED+gameTime*0.55);
-  level=Math.floor(speed/BASE_SPEED)+1;
+
+  // ── Level từ XP tích lũy ──
+  const newLevel=getLevelFromXp(xp);
+  if(newLevel>level){
+    level=newLevel;
+    applyLevelPerks(level);
+    spawnLevelUpEffect(level);
+    saveData(); // Lưu ngay level mới
+  }else if(level!==getLevelFromXp(xp)){
+    level=getLevelFromXp(xp);
+  }
 
   // ── Adaptive Difficulty ──
   difficultyTimer+=dt;
@@ -1774,7 +1878,7 @@ function updateGame(dt){
     if(nitro<=0){nitro=0;nitroActive=false}
     nitroTimer+=dt;
   }else{
-    nitro=Math.min(NITRO_MAX,nitro+NITRO_REFILL*dt);
+    nitro=Math.min(NITRO_MAX,nitro+NITRO_REFILL*dt*nitroRefillMult);
   }
   const currentSpeed=speed*(nitroActive?1.7:1);
   const spd=currentSpeed*dt;
@@ -1826,7 +1930,8 @@ function updateGame(dt){
     const remaining=mode.timerDuration-gameModeTimer;
     if(remaining<=0){
       // Time's up! end with bonus score
-      score+=Math.floor(gameTime*10);
+      const timeBonus=Math.floor(gameTime*10*scoreMult);
+      score+=timeBonus; xp+=timeBonus;
       screen='over';endScore=score;
       if(score>highScore) highScore=score;
       totalCoins+=gameCoins;
@@ -1901,7 +2006,8 @@ function updateGame(dt){
     if(c.y>H+160){trafficCars.splice(i,1);continue}
     if(!c.passed&&c.y>playerY+PLAYER_H/2+15){
       c.passed=true;
-      score+=Math.floor(5+speed*0.02);
+      const passScore=Math.floor((5+speed*0.02)*scoreMult);
+      score+=passScore; xp+=passScore;
     }
     // Near-miss
     const dx=Math.abs(c.x-playerX), dy=Math.abs(c.y-playerY);
@@ -1909,8 +2015,9 @@ function updateGame(dt){
       c.sparkTimer=1;
       combo++; comboTimer=2; comboSpeed=0;
       const bonus=50*combo;
-      score+=bonus; nearMissStreak++;
-      spawnFloatingText(playerX,playerY-65,'SUÝT! +'+bonus,'#ffaa00',18);
+      const nmScore=Math.floor(bonus*nearMissMult*scoreMult);
+      score+=nmScore; nearMissStreak++; xp+=nmScore;
+      spawnFloatingText(playerX,playerY-65,'SUÝT! +'+nmScore,'#ffaa00',18);
       spawnParticles(playerX,playerY,12,'#ffaa00',120,3,0.5);
       spawnParticles(c.x,c.y,8,'#ff6600',90,2,0.4);
       triggerShake(3); SFX.nearMiss();
@@ -1925,8 +2032,10 @@ function updateGame(dt){
     const dx=Math.abs(c.x-playerX), dy=Math.abs(c.y-playerY);
     if(dx<PLAYER_W/2+COIN_R&&dy<PLAYER_H/2+COIN_R){
       const bonus=Math.floor(100*(combo||1));
-      gameCoins++; score+=bonus;
-      spawnFloatingText(c.x,c.y,'+'+bonus+' $','#ffd700',20);
+      gameCoins++; 
+      const coinScore=Math.floor(bonus*coinValueMult*scoreMult);
+      score+=coinScore; xp+=coinScore;
+      spawnFloatingText(c.x,c.y,'+'+coinScore+' $','#ffd700',20);
       spawnParticles(c.x,c.y,10,'#ffd700',100,3,0.5);
       combo++; comboTimer=2;
       coins.splice(i,1); triggerShake(1.5);
@@ -1990,7 +2099,7 @@ function updateGame(dt){
             stopEngineSound();
             break;
           }
-          invincibleTimer=2;
+          invincibleTimer=2+bonusInvincible;
           speed=Math.max(BASE_SPEED*0.5,speed*0.3);
           combo=0;
           spawnFloatingText(playerX,playerY-80,'RÀO CHẮN!','#ff2222',22);
@@ -2017,7 +2126,7 @@ function updateGame(dt){
     const pr={x:playerX-PLAYER_W/2,y:playerY-PLAYER_H/2,w:PLAYER_W,h:PLAYER_H};
     for(const c of trafficCars){
       if(rectOverlap(pr,c.rect)){
-        lives--; invincibleTimer=2; hitFlash=0;
+        lives--; invincibleTimer=2+bonusInvincible; hitFlash=0;
         spawnParticles(playerX,playerY,35,c.color,200,5,0.6);
         spawnParticles(playerX,playerY,25,'#ff4400',250,4,0.5);
         triggerShake(14); SFX.crash();
@@ -2719,10 +2828,24 @@ function drawGameOverScreen(){
   ctx.font='13px "Segoe UI",system-ui,sans-serif';
   ctx.fillText('Cấp '+level+'  \u00B7  '+Math.round(speed*0.45)+' KM/H  \u00B7  '+getCurrentTheme().name,W/2,316);
 
+  // XP bar (game over)
+  const xpEnd=getTotalXpForLevel(level);
+  const xpEndNext=getTotalXpForLevel(level+1);
+  const xpEndProg=(xp-xpEnd)/(xpEndNext-xpEnd);
+  ctx.fillStyle='rgba(255,255,255,0.08)';
+  ctx.beginPath(); roundRect(ctx,W/2-55,322,110,5,2.5); ctx.fill();
+  if(xpEndProg>0){
+    ctx.fillStyle='rgba(0,255,170,0.25)';
+    ctx.beginPath(); roundRect(ctx,W/2-54,323,108*Math.min(xpEndProg,1),3,2); ctx.fill();
+  }
+  ctx.fillStyle='rgba(255,255,255,0.15)';
+  ctx.font='8px "Segoe UI",system-ui,sans-serif';
+  ctx.fillText('XP '+xp+' / '+(xpEnd+xpEndNext-xpEnd),W/2,336);
+
   // Stats với icon
   ctx.fillStyle='rgba(255,255,255,0.2)';
   ctx.font='12px "Segoe UI",system-ui,sans-serif';
-  ctx.fillText('\u26A1 Suýt: '+nearMissStreak+'x  \u00B7  \u{1F300} Combo: '+combo+'x  \u00B7  \u{1F3C6} '+Math.round(gameTime)+'s',W/2,346);
+  ctx.fillText('\u26A1 Suýt: '+nearMissStreak+'x  \u00B7  \u{1F300} Combo: '+combo+'x  \u00B7  \u{1F3C6} '+Math.round(gameTime)+'s',W/2,360);
 
   // Celebration particles for high score
   if(isNewHighScore){
@@ -2995,7 +3118,9 @@ function handleTap(mx,my){
 
 function startGame(){
   const mode=GAME_MODES[selectedMode]||GAME_MODES.endless;
-  score=0; gameCoins=0; lives=mode.lives||3; speed=mode.initialSpeed||BASE_SPEED; level=1;
+  score=0; gameCoins=0; lives=mode.lives||3; speed=mode.initialSpeed||BASE_SPEED;
+  level=getLevelFromXp(xp); // Level từ XP tích lũy
+  applyLevelPerks(level);   // Áp dụng perks cho level hiện tại
   nitro=NITRO_MAX; nitroActive=false; nitroTimer=0;
   combo=0; comboTimer=0; comboSpeed=0; nearMissStreak=0;
   playerLane=1; playerTargetLane=1; playerSway=0;
