@@ -1758,11 +1758,11 @@ function drawTitleScreen(){
   ctx.beginPath(); ctx.arc(fx-ln,fcY,2,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.arc(fx+fw+ln,fcY,2,0,Math.PI*2); ctx.fill();
 
-  const modeCols=2, modeBtnW=175, modeBtnH=54, modeGapX=18, modeGapY=14;
+  const modeCols=2, modeBtnW=175, modeBtnH=64, modeGapX=18, modeGapY=14;
   const modeGridW=modeCols*modeBtnW+(modeCols-1)*modeGapX;
   const modeGridH=2*modeBtnH+modeGapY;
   const modeStartX=(W-modeGridW)/2;
-  const modeStartY=466;
+  const modeStartY=476;
   modeButtons=[];
   for(let i=0;i<MODE_KEYS.length;i++){
     const col=i%modeCols, row=Math.floor(i/modeCols);
@@ -1781,25 +1781,39 @@ function drawTitleScreen(){
     ctx.beginPath(); roundRect(ctx,mx,my,modeBtnW,modeBtnH,12); ctx.fill(); ctx.stroke();
     ctx.shadowBlur=0;
 
-    // Icon + tên (có shadow, tự động rút gọn nếu quá dài)
+    // Icon + tên (tự động xuống dòng nếu quá dài)
     ctx.shadowColor='rgba(0,0,0,0.5)'; ctx.shadowBlur=4;
     ctx.fillStyle=isSel?'#00ccff':'rgba(255,255,255,0.6)';
     ctx.font='bold 13px "Segoe UI",system-ui,sans-serif';
     ctx.textBaseline='middle'; ctx.textAlign='center';
-    let nameText=mode.icon+' '+mode.name;
+    const nameText=mode.icon+' '+mode.name;
     const maxNameW=modeBtnW-16;
-    if(ctx.measureText(nameText).width>maxNameW){
-      while(ctx.measureText(nameText+'…').width>maxNameW&&nameText.length>1)
-        nameText=nameText.slice(0,-1);
-      nameText+='…';
+    const needWrap=ctx.measureText(nameText).width>maxNameW;
+    if(needWrap){
+      ctx.fillText(mode.icon,mx+modeBtnW/2,my+14);
+      ctx.fillText(mode.name,mx+modeBtnW/2,my+27);
+    }else{
+      ctx.fillText(nameText,mx+modeBtnW/2,my+21);
     }
-    ctx.fillText(nameText,mx+modeBtnW/2,my+19);
 
-    // Mô tả
+    // Mô tả (tự động xuống dòng, center)
     ctx.shadowBlur=0;
     ctx.fillStyle=isSel?'rgba(255,255,255,0.55)':'rgba(255,255,255,0.35)';
-    ctx.font='9px "Segoe UI",system-ui,sans-serif';
-    ctx.fillText(mode.desc,mx+modeBtnW/2,my+40);
+    ctx.font='8px "Segoe UI",system-ui,sans-serif';
+    // Word-wrap theo chiều rộng button
+    const descMaxW=modeBtnW-20;
+    const descWords=mode.desc.split(' ');
+    const descLines=[];
+    let curLine='';
+    for(const w of descWords){
+      const test=curLine?curLine+' '+w:w;
+      if(ctx.measureText(test).width>descMaxW&&curLine){descLines.push(curLine);curLine=w}
+      else curLine=test;
+    }
+    if(curLine) descLines.push(curLine);
+    const descLH=10, descMaxLines=2, descSY=my+44;
+    for(let li=0;li<descLines.length&&li<descMaxLines;li++)
+      ctx.fillText(descLines[li],mx+modeBtnW/2,descSY+li*descLH);
 
     // Lưu rect để xử lý tap
     modeButtons.push({key:mk,x:mx,y:my,w:modeBtnW,h:modeBtnH});
@@ -1811,11 +1825,11 @@ function drawTitleScreen(){
   ctx.font='bold 15px "Segoe UI",system-ui,sans-serif';
   ctx.textAlign='center';
   ctx.textBaseline='alphabetic';
-  ctx.fillText('\u{1F3C6} Điểm Cao: '+highScore,W/2,604);
+  ctx.fillText('\u{1F3C6} Điểm Cao: '+highScore,W/2,648);
   ctx.shadowColor='rgba(255,200,0,0.2)'; ctx.shadowBlur=8;
   ctx.fillStyle='#ffd700';
   ctx.font='bold 17px "Segoe UI",system-ui,sans-serif';
-  ctx.fillText('$ '+totalCoins,W/2,628);
+  ctx.fillText('$ '+totalCoins,W/2,672);
   ctx.shadowBlur=0;
 
   // Controls help
