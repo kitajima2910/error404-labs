@@ -146,10 +146,10 @@ function spawnLevelUpEffect(newLevel){
   spawnParticles(playerX,playerY,30,'#ffdd00',250,5,0.6);
   spawnSparks(playerX,playerY,15,'#00ffaa');
   // SFX
-  playBeep(440,0.06,'sine',0.08);
-  setTimeout(()=>playBeep(550,0.06,'sine',0.08),70);
-  setTimeout(()=>playBeep(660,0.08,'sine',0.08),140);
-  setTimeout(()=>playBeep(880,0.15,'sine',0.10),210);
+  playBeep(440,0.06,'sine',0.04);
+  setTimeout(()=>playBeep(550,0.06,'sine',0.04),70);
+  setTimeout(()=>playBeep(660,0.08,'sine',0.04),140);
+  setTimeout(()=>playBeep(880,0.15,'sine',0.05),210);
 }
 // ── Apply Perks cho level hiện tại ──
 function applyLevelPerks(lvl){
@@ -749,164 +749,201 @@ function initAudio(){
   if(audioCtx.state==='suspended') audioCtx.resume();
 }
 
-// ── Procedural BGM: Synthwave Racing Loop (140 BPM, Am) ──
+// ── BGM: Procedural Synthwave Racing Track ──
+// Generates a high-energy synthwave loop using Web Audio API
+// No external dependencies needed!
+const BGM_BPM=128;
+const BGM_BEAT=60/BGM_BPM;
+let bgmLoading=false;
+
 function generateBGM(){
-  if(!audioCtx) return null;
-  const bpm=140;
-  const beatsPerMeasure=4;
-  const measureCount=8;
-  const totalBeats=measureCount*beatsPerMeasure;
-  const beatDur=60/bpm;
-  const totalDur=totalBeats*beatDur;
-  const sampleRate=audioCtx.sampleRate;
-  const length=Math.ceil(sampleRate*totalDur);
+  if(!audioCtx||bgmLoading) return Promise.resolve(null);
+  bgmLoading=true;
+  try{
+    // Offline rendering to create a seamless loop
+    const beats=8; // 8-bar loop
+    const totalTime=beats*4*BGM_BEAT;
+    const sampleRate=audioCtx.sampleRate;
+    const offline=new OfflineAudioContext(2,Math.ceil(sampleRate*totalTime),sampleRate);
 
-  // Tạo OfflineAudioContext để render
-  const offline=new OfflineAudioContext(2,length,sampleRate);
-  const now=0;
+    const masterGain=offline.createGain();
+    masterGain.gain.setValueAtTime(0.65,0);
+    masterGain.connect(offline.destination);
 
-  // === BASS: Sawtooth, root-fifth pattern ===
-  const bassNotes=[110,82.4,110,82.4,110,82.4,110,82.4, // Am-E
-                   98,82.4,98,82.4,98,82.4,98,82.4,     // G-E
-                   130.8,82.4,130.8,82.4,130.8,82.4,130.8,82.4, // C-E
-                   110,98,110,98,110,98,110,98];         // Am-G
-  const bassOsc=offline.createOscillator();
-  bassOsc.type='sawtooth';
-  const bassGain=offline.createGain();
-  bassGain.gain.setValueAtTime(0.18,now);
-  bassOsc.connect(bassGain);
-  bassGain.connect(offline.destination);
-  const bassLfo=offline.createOscillator();
-  bassLfo.type='sine';
-  bassLfo.frequency.value=4; // tremolo 4Hz
-  const bassLfoGain=offline.createGain();
-  bassLfoGain.gain.value=0.06;
-  bassLfo.connect(bassLfoGain);
-  bassLfoGain.connect(bassGain.gain);
-  bassLfo.start(now);
-  bassOsc.start(now);
-  for(let i=0;i<bassNotes.length;i++){
-    const t=i*(beatDur/2);
-    bassOsc.frequency.setValueAtTime(bassNotes[i],now+t);
-  }
-  bassOsc.stop(now+totalDur);
+    // ── Bassline (acid-style square wave arpeggio) ──
+    const bassNotes=[55,55,65.4,55, 73.4,65.4,55,49, 55,55,65.4,55, 82.4,73.4,65.4,73.4];
+    const bassOsc=offline.createOscillator();
+    const bassGain=offline.createGain();
+    bassOsc.type='sawtooth';
+    bassOsc.frequency.setValueAtTime(55,0);
+    bassGain.gain.setValueAtTime(0.12,0);
+    bassOsc.connect(bassGain);
 
-  // === ARP: Square wave arpeggio 16th notes ===
-  // 8 measures of arpeggiated Am chord
-  const arpRoots=[440,440,440,440, 392,392,392,392, 523.3,523.3,523.3,523.3, 440,440,440,440,
-                  440,440,440,440, 392,392,392,392, 523.3,523.3,523.3,523.3, 440,440,440,440];
-  const arpOsc=offline.createOscillator();
-  arpOsc.type='square';
-  const arpGain=offline.createGain();
-  arpGain.gain.setValueAtTime(0.04,now);
-  arpGain.gain.linearRampToValueAtTime(0.0,now+totalDur);
-  arpOsc.connect(arpGain);
-  arpGain.connect(offline.destination);
-  arpOsc.start(now);
-  for(let i=0;i<arpRoots.length;i++){
-    const t=i*(beatDur*2);
-    const offset=[0,4,7,12,7,4,0,4][i%8]; // semitone offsets
-    arpOsc.frequency.setValueAtTime(arpRoots[i]*Math.pow(2,offset/12),now+t);
-  }
-  arpOsc.stop(now+totalDur);
+    // Bass filter
+    const bassFilter=offline.createBiquadFilter();
+    bassFilter.type='lowpass';
+    bassFilter.frequency.setValueAtTime(400,0);
+    bassFilter.Q.setValueAtTime(2,0);
+    bassGain.connect(bassFilter);
+    bassFilter.connect(masterGain);
 
-  // === PAD: Soft sine chords ===
-  const chordProg=[ [220,261.6,329.6], [174.6,220,261.6], [261.6,329.6,392], [196,220,261.6] ]; // Am, F, C, G
-  const padOsc=[
-    offline.createOscillator(),offline.createOscillator(),offline.createOscillator()
-  ];
-  const padGain=offline.createGain();
-  padGain.gain.setValueAtTime(0.04,now);
-  padGain.connect(offline.destination);
-  for(let o=0;o<3;o++){
-    padOsc[o].type='sine';
-    padOsc[o].connect(padGain);
-    padOsc[o].start(now);
-    for(let m=0;m<measureCount;m++){
-      const ch=chordProg[m%4];
-      const tStart=m*beatDur*4;
-      const tEnd=tStart+beatDur*4-0.01;
-      padOsc[o].frequency.setValueAtTime(ch[o],now+tStart);
-      padOsc[o].frequency.setValueAtTime(ch[o],now+tEnd);
+    for(let i=0;i<bassNotes.length*2;i++){
+      const note=bassNotes[i%bassNotes.length];
+      const t=i*BGM_BEAT;
+      // Slide between notes for that synthwave feel
+      bassOsc.frequency.setTargetAtTime(note*2,t,0.05);
+      const vol=0.12+Math.sin(i*0.5)*0.03;
+      bassGain.gain.setTargetAtTime(vol,t,0.03);
+      bassGain.gain.setTargetAtTime(0.01,t+BGM_BEAT*0.7,0.02);
     }
-    padOsc[o].stop(now+totalDur);
-  }
+    bassOsc.start(0);
+    bassOsc.stop(totalTime);
 
-  // === KICK: Low sine burst on beats 1,3 ===
-  for(let i=0;i<totalBeats;i+=2){
-    const t=i*beatDur;
-    if(t>=totalDur) break;
-    const kickOsc=offline.createOscillator();
-    kickOsc.type='sine';
-    kickOsc.frequency.setValueAtTime(120,now+t);
-    kickOsc.frequency.exponentialRampToValueAtTime(40,now+t+0.08);
+    // ── Arpeggio (synthwave classic) ──
+    const arpNotes=[261.6,329.6,392,523.3, 392,329.6,261.6,196, 293.7,349.2,440,587.3, 440,349.2,293.7,220];
+    const arpOsc=offline.createOscillator();
+    const arpGain=offline.createGain();
+    arpOsc.type='square';
+    arpGain.gain.setValueAtTime(0.08,0);
+
+    const arpFilter=offline.createBiquadFilter();
+    arpFilter.type='lowpass';
+    arpFilter.frequency.setValueAtTime(800,0);
+    arpFilter.frequency.setTargetAtTime(3000,8,0.5);
+    arpOsc.connect(arpGain);
+    arpGain.connect(arpFilter);
+    arpFilter.connect(masterGain);
+
+    for(let i=0;i<arpNotes.length*4;i++){
+      const note=arpNotes[i%arpNotes.length];
+      const t=i*BGM_BEAT*0.5;
+      arpOsc.frequency.setTargetAtTime(note,t,0.02);
+      arpGain.gain.setTargetAtTime(0.07+Math.sin(i*0.3)*0.02,t,0.02);
+      arpGain.gain.setTargetAtTime(0.001,t+BGM_BEAT*0.35,0.01);
+    }
+    arpOsc.start(0);
+    arpOsc.stop(totalTime);
+
+    // ── Lead pad (evolving synthwave chords) ──
+    const chordProg=[[261.6,329.6,392],[293.7,349.2,440],[220,277.2,329.6],[196,246.9,293.7]];
+    const padOsc1=offline.createOscillator();
+    const padOsc2=offline.createOscillator();
+    const padGain=offline.createGain();
+    padOsc1.type='sine';
+    padOsc2.type='sine';
+    padGain.gain.setValueAtTime(0.06,0);
+
+    const padFilter=offline.createBiquadFilter();
+    padFilter.type='lowpass';
+    padFilter.frequency.setValueAtTime(1200,0);
+    padFilter.frequency.setTargetAtTime(4000,totalTime*0.5,1);
+    padFilter.Q.setValueAtTime(1,0);
+    padOsc1.connect(padGain);
+    padOsc2.connect(padGain);
+    padGain.connect(padFilter);
+    padFilter.connect(masterGain);
+
+    for(let i=0;i<chordProg.length*2;i++){
+      const chord=chordProg[i%chordProg.length];
+      const t=i*2*BGM_BEAT;
+      padOsc1.frequency.setTargetAtTime(chord[0],t,0.05);
+      padOsc2.frequency.setTargetAtTime(chord[1],t,0.05);
+      // Also add the 3rd note via frequency modulation
+      const chordVol=0.05+Math.sin(i*1.2)*0.02;
+      padGain.gain.setTargetAtTime(chordVol,t,0.1);
+    }
+    padOsc1.start(0);
+    padOsc2.start(0);
+    padOsc1.stop(totalTime);
+    padOsc2.stop(totalTime);
+
+    // ── Kick drum ──
     const kickGain=offline.createGain();
-    kickGain.gain.setValueAtTime(0.35,now+t);
-    kickGain.gain.exponentialRampToValueAtTime(0.001,now+t+0.12);
-    kickOsc.connect(kickGain);
-    kickGain.connect(offline.destination);
-    kickOsc.start(now+t);
-    kickOsc.stop(now+t+0.12);
+    kickGain.gain.setValueAtTime(0.3,0);
+    kickGain.connect(masterGain);
 
-    // Noise burst for kick attack
-    const kickNoise=offline.createBufferSource();
-    const noiseLen=Math.ceil(sampleRate*0.05);
-    const noiseBuf=offline.createBuffer(1,noiseLen,sampleRate);
-    const noiseData=noiseBuf.getChannelData(0);
-    for(let j=0;j<noiseLen;j++) noiseData[j]=Math.random()*2-1;
-    kickNoise.buffer=noiseBuf;
-    const noiseGain=offline.createGain();
-    noiseGain.gain.setValueAtTime(0.12,now+t);
-    noiseGain.gain.exponentialRampToValueAtTime(0.001,now+t+0.04);
-    kickNoise.connect(noiseGain);
-    noiseGain.connect(offline.destination);
-    kickNoise.start(now+t);
-  }
-
-  // === HIHAT: Noise burst on 8th notes ===
-  for(let i=0;i<totalBeats*2;i++){
-    const t=i*(beatDur/2);
-    if(t>=totalDur) break;
-    const hhOsc=offline.createBufferSource();
-    const hhLen=Math.ceil(sampleRate*0.04);
-    const hhBuf=offline.createBuffer(1,hhLen,sampleRate);
-    const hhData=hhBuf.getChannelData(0);
-    for(let j=0;j<hhLen;j++) hhData[j]=Math.random()*2-1;
-    hhOsc.buffer=hhBuf;
-    const hhGain=offline.createGain();
-    const vol=(i%2===0)?0.06:0.03; // louder on downbeat
-    hhGain.gain.setValueAtTime(vol,now+t);
-    hhGain.gain.exponentialRampToValueAtTime(0.001,now+t+0.03);
-    hhOsc.connect(hhGain);
-    hhGain.connect(offline.destination);
-    hhOsc.start(now+t);
-  }
-
-  // === CLAP: Noise burst on beats 2,4 ===
-  for(let i=1;i<totalBeats;i+=2){
-    const t=i*beatDur;
-    if(t>=totalDur) break;
-    const clapOsc=offline.createBufferSource();
-    const clapLen=Math.ceil(sampleRate*0.08);
-    const clapBuf=offline.createBuffer(1,clapLen,sampleRate);
-    const clapData=clapBuf.getChannelData(0);
-    for(let j=0;j<clapLen;j++){
-      clapData[j]=(Math.random()*2-1)*Math.max(0,1-j/clapLen);
+    for(let i=0;i<beats*4;i++){
+      const t=i*BGM_BEAT;
+      // Only on quarter notes (beats 1,2,3,4)
+      const kickOsc=offline.createOscillator();
+      const kickEnv=offline.createGain();
+      kickOsc.type='sine';
+      kickOsc.frequency.setValueAtTime(150,t);
+      kickOsc.frequency.exponentialRampToValueAtTime(30,t+0.08);
+      kickEnv.gain.setValueAtTime(0.5,t);
+      kickEnv.gain.exponentialRampToValueAtTime(0.001,t+0.15);
+      kickOsc.connect(kickEnv);
+      kickEnv.connect(kickGain);
+      kickOsc.start(t);
+      kickOsc.stop(t+0.15);
     }
-    clapOsc.buffer=clapBuf;
-    const clapGain=offline.createGain();
-    clapGain.gain.setValueAtTime(0.08,now+t);
-    clapGain.gain.exponentialRampToValueAtTime(0.001,now+t+0.06);
-    clapOsc.connect(clapGain);
-    clapGain.connect(offline.destination);
-    clapOsc.start(now+t);
-  }
 
-  // Render offline -> buffer
-  return offline.startRendering().then(buf=>{
-    bgmBuffer=buf;
-    return buf;
-  }).catch(()=>null);
+    // ── Hi-hat / Closed hat pattern ──
+    const hatGain=offline.createGain();
+    hatGain.gain.setValueAtTime(0.08,0);
+    hatGain.connect(masterGain);
+
+    for(let i=0;i<beats*8;i++){
+      const t=i*BGM_BEAT*0.5;
+      // Noise-based hi-hat
+      const hatOsc=offline.createOscillator();
+      const hatEnv=offline.createGain();
+      hatOsc.type='square';
+      hatOsc.frequency.setValueAtTime(6000+Math.random()*2000,t);
+      hatEnv.gain.setValueAtTime(0.15+Math.random()*0.05,t);
+      hatEnv.gain.exponentialRampToValueAtTime(0.001,t+0.04);
+      hatOsc.connect(hatEnv);
+      hatEnv.connect(hatGain);
+      hatOsc.start(t);
+      hatOsc.stop(t+0.04);
+    }
+
+    // ── Snare/clap on beats 2 & 4 ──
+    const snareGain=offline.createGain();
+    snareGain.gain.setValueAtTime(0.15,0);
+    snareGain.connect(masterGain);
+
+    for(let i=1;i<beats*4;i+=2){
+      const t=i*BGM_BEAT;
+      const snareOsc=offline.createOscillator();
+      const snareNoise=offline.createOscillator();
+      const snareEnv=offline.createGain();
+      snareOsc.type='triangle';
+      snareOsc.frequency.setValueAtTime(200,t);
+      snareOsc.frequency.exponentialRampToValueAtTime(80,t+0.08);
+      snareNoise.type='sawtooth';
+      snareNoise.frequency.setValueAtTime(3000,t);
+      snareEnv.gain.setValueAtTime(0.2,t);
+      snareEnv.gain.exponentialRampToValueAtTime(0.001,t+0.12);
+      snareOsc.connect(snareEnv);
+      snareNoise.connect(snareEnv);
+      snareEnv.connect(snareGain);
+      snareOsc.start(t);
+      snareNoise.start(t);
+      snareOsc.stop(t+0.12);
+      snareNoise.stop(t+0.12);
+    }
+
+    // ── Compressor on master for punch ──
+    const compressor=offline.createDynamicsCompressor();
+    compressor.threshold.setValueAtTime(-24,0);
+    compressor.knee.setValueAtTime(30,0);
+    compressor.ratio.setValueAtTime(12,0);
+    compressor.attack.setValueAtTime(0.003,0);
+    compressor.release.setValueAtTime(0.25,0);
+    masterGain.disconnect();
+    masterGain.connect(compressor);
+    compressor.connect(offline.destination);
+
+    // Render the buffer
+    return offline.startRendering()
+      .then(buf=>{bgmBuffer=buf;bgmLoading=false;return buf})
+      .catch(err=>{console.warn('BGM render failed:',err);bgmLoading=false;return null});
+  }catch(e){
+    console.warn('BGM init failed:',e);
+    bgmLoading=false;
+    return Promise.resolve(null);
+  }
 }
 
 function startBGM(){
@@ -916,7 +953,7 @@ function startBGM(){
     bgmSource.buffer=bgmBuffer;
     bgmSource.loop=true;
     bgmGain=audioCtx.createGain();
-    bgmGain.gain.setValueAtTime(0.25,audioCtx.currentTime);
+    bgmGain.gain.setValueAtTime(0.40,audioCtx.currentTime);
     bgmSource.connect(bgmGain);
     bgmGain.connect(audioCtx.destination);
     bgmSource.start();
@@ -949,7 +986,7 @@ function startEngineSound(){
     engineGain=audioCtx.createGain();
     engineOsc.type='sawtooth';
     engineOsc.frequency.setValueAtTime(55,audioCtx.currentTime);
-    engineGain.gain.setValueAtTime(0.015,audioCtx.currentTime);
+    engineGain.gain.setValueAtTime(0.003,audioCtx.currentTime);
     engineOsc.connect(engineGain); engineGain.connect(audioCtx.destination);
     engineOsc.start();
 
@@ -958,7 +995,7 @@ function startEngineSound(){
     windGain=audioCtx.createGain();
     windOsc.type='sine';
     windOsc.frequency.setValueAtTime(800,audioCtx.currentTime);
-    windGain.gain.setValueAtTime(0.003,audioCtx.currentTime);
+    windGain.gain.setValueAtTime(0.0015,audioCtx.currentTime);
     windOsc.connect(windGain); windGain.connect(audioCtx.destination);
     windOsc.start();
   }catch(e){}
@@ -968,16 +1005,16 @@ function updateEngineSound(spd, nitroOn){
   try{
     const freq=55+spd*0.12;
     engineOsc.frequency.setTargetAtTime(Math.min(freq,220),audioCtx.currentTime,0.1);
-    const vol=0.008+spd*0.00006;
-    engineGain.gain.setTargetAtTime(Math.min(vol,0.05),audioCtx.currentTime,0.1);
+    const vol=0.002+spd*0.000015;
+    engineGain.gain.setTargetAtTime(Math.min(vol,0.012),audioCtx.currentTime,0.1);
     if(nitroOn){
       const nFreq=220+Math.sin(audioCtx.currentTime*8)*30;
       engineOsc.frequency.setTargetAtTime(nFreq,audioCtx.currentTime,0.05);
-      engineGain.gain.setTargetAtTime(0.06,audioCtx.currentTime,0.05);
+      engineGain.gain.setTargetAtTime(0.015,audioCtx.currentTime,0.05);
     }
     // Wind
     windOsc.frequency.setTargetAtTime(600+spd*0.5,audioCtx.currentTime,0.15);
-    windGain.gain.setTargetAtTime(Math.min(0.001+spd*0.00003,0.02),audioCtx.currentTime,0.15);
+    windGain.gain.setTargetAtTime(Math.min(0.0005+spd*0.000015,0.008),audioCtx.currentTime,0.15);
   }catch(e){}
 }
 function stopEngineSound(){
@@ -997,7 +1034,7 @@ function playTireScreech(){
     osc.type='square';
     osc.frequency.setValueAtTime(120+rand(-30,30),audioCtx.currentTime);
     osc.frequency.exponentialRampToValueAtTime(80,audioCtx.currentTime+0.1);
-    gain.gain.setValueAtTime(0.03,audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.015,audioCtx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.15);
     osc.connect(gain); gain.connect(audioCtx.destination);
     osc.start(); osc.stop(audioCtx.currentTime+0.15);
@@ -1012,7 +1049,7 @@ function playEngineRev(){
     osc.type='sawtooth';
     osc.frequency.setValueAtTime(80,audioCtx.currentTime);
     osc.frequency.exponentialRampToValueAtTime(200,audioCtx.currentTime+0.2);
-    gain.gain.setValueAtTime(0.03,audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.015,audioCtx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.25);
     osc.connect(gain); gain.connect(audioCtx.destination);
     osc.start(); osc.stop(audioCtx.currentTime+0.25);
@@ -1027,26 +1064,26 @@ function playBeep(freq,dur,type,vol){
     osc.frequency.setValueAtTime(freq,audioCtx.currentTime);
     if(typeof freq==='object'&&freq.end)
       osc.frequency.exponentialRampToValueAtTime(freq.end,audioCtx.currentTime+dur);
-    gain.gain.setValueAtTime(vol||0.08,audioCtx.currentTime);
+    gain.gain.setValueAtTime(vol||0.04,audioCtx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+dur);
     osc.connect(gain); gain.connect(audioCtx.destination);
     osc.start(); osc.stop(audioCtx.currentTime+dur);
   }catch(e){}
 }
 const SFX={
-  coin(){playBeep(880,0.07,'sine',0.08);setTimeout(()=>playBeep(1320,0.09,'sine',0.06),60)},
-  nearMiss(){playBeep(600,0.05,'sine',0.07);setTimeout(()=>playBeep(900,0.05,'sine',0.05),40)},
-  nitro(){playBeep(200,0.12,'sawtooth',0.05);setTimeout(()=>playBeep(300,0.18,'sawtooth',0.04),80);playTireScreech()},
-  crash(){playBeep(100,0.25,'sawtooth',0.12);setTimeout(()=>playBeep(60,0.35,'square',0.08),50);playBeep(80,0.4,'sawtooth',0.06)},
-  select(){playBeep(660,0.06,'sine',0.06);setTimeout(()=>playBeep(880,0.06,'sine',0.05),50)},
-  click(){playBeep(440,0.04,'sine',0.05)},
-  oil(){playBeep(150,0.3,'sine',0.06);playBeep(120,0.4,'sawtooth',0.04)},
-  barrier(){playBeep(180,0.2,'square',0.1);setTimeout(()=>playBeep(100,0.3,'square',0.08),100)},
-  themeChange(){playBeep(330,0.1,'sine',0.05);setTimeout(()=>playBeep(440,0.1,'sine',0.05),100);setTimeout(()=>playBeep(550,0.15,'sine',0.05),200)},
-  uiOpen(){playBeep(440,0.05,'sine',0.04);setTimeout(()=>playBeep(660,0.05,'sine',0.03),60)},
-  uiClose(){playBeep(660,0.04,'sine',0.03);setTimeout(()=>playBeep(440,0.06,'sine',0.04),50)},
-  combo(cnt){for(let i=0;i<cnt&&i<5;i++)setTimeout(()=>playBeep(440+i*220,0.08,'sine',0.05),i*60)},
-  levelUp(){playBeep(440,0.08,'sine',0.06);setTimeout(()=>playBeep(550,0.08,'sine',0.06),80);setTimeout(()=>playBeep(660,0.12,'sine',0.06),160)},
+  coin(){playBeep(880,0.07,'sine',0.04);setTimeout(()=>playBeep(1320,0.09,'sine',0.03),60)},
+  nearMiss(){playBeep(600,0.05,'sine',0.035);setTimeout(()=>playBeep(900,0.05,'sine',0.025),40)},
+  nitro(){playBeep(200,0.12,'sawtooth',0.025);setTimeout(()=>playBeep(300,0.18,'sawtooth',0.02),80);playTireScreech()},
+  crash(){playBeep(100,0.25,'sawtooth',0.06);setTimeout(()=>playBeep(60,0.35,'square',0.04),50);playBeep(80,0.4,'sawtooth',0.03)},
+  select(){playBeep(660,0.06,'sine',0.03);setTimeout(()=>playBeep(880,0.06,'sine',0.025),50)},
+  click(){playBeep(440,0.04,'sine',0.025)},
+  oil(){playBeep(150,0.3,'sine',0.03);playBeep(120,0.4,'sawtooth',0.02)},
+  barrier(){playBeep(180,0.2,'square',0.05);setTimeout(()=>playBeep(100,0.3,'square',0.04),100)},
+  themeChange(){playBeep(330,0.1,'sine',0.025);setTimeout(()=>playBeep(440,0.1,'sine',0.025),100);setTimeout(()=>playBeep(550,0.15,'sine',0.025),200)},
+  uiOpen(){playBeep(440,0.05,'sine',0.02);setTimeout(()=>playBeep(660,0.05,'sine',0.015),60)},
+  uiClose(){playBeep(660,0.04,'sine',0.015);setTimeout(()=>playBeep(440,0.06,'sine',0.02),50)},
+  combo(cnt){for(let i=0;i<cnt&&i<5;i++)setTimeout(()=>playBeep(440+i*220,0.08,'sine',0.025),i*60)},
+  levelUp(){playBeep(440,0.08,'sine',0.03);setTimeout(()=>playBeep(550,0.08,'sine',0.03),80);setTimeout(()=>playBeep(660,0.12,'sine',0.03),160)},
   skid(){playTireScreech()},
 };
 

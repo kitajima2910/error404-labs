@@ -1,0 +1,91 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "default_agent": "pxh-pm",
+  "instructions": ["README.md", "runtime/README.md"],
+
+  "mcp": {
+    "playwright": {
+      "type": "local",
+      "enabled": true,
+      "command": [
+        "npx.cmd",
+        "-y",
+        "@playwright/mcp@latest"
+      ]
+    }
+  },
+
+  "skills": {
+    "paths": ["skills", ".opencode/skills"]
+  },
+
+  "agent": {
+    "pxh-pm": {
+      "description": "[Tầng 2 — Điều phối] Project Manager AI Company. Route tasks, track state, enforce retry/recovery/reflection policies. Xem runtime/layers/02-orchestration.md.",
+      "mode": "primary"
+    },
+    "pxh-architect": {
+      "description": "[Tầng 3 — Nhân công / Kiến trúc sư] Kiến trúc sư hệ thống. Thiết kế kiến trúc, chọn tech stack, database, API. Xem runtime/layers/03-worker.md.",
+      "mode": "subagent"
+    },
+    "pxh-qa": {
+      "description": "[Tầng 3 — Nhân công / Kiểm thử] QA Engineer. Chạy test, validate, phát hiện bug. Xem runtime/layers/03-worker.md.",
+      "mode": "subagent"
+    },
+    "pxh-devops": {
+      "description": "[Tầng 3 — Nhân công / Xây dựng] Build Engineer. Lint → typecheck → test → build. Xem runtime/layers/03-worker.md.",
+      "mode": "subagent"
+    },
+    "pxh-help": {
+      "description": "[Tầng 1 — Giao diện] Hướng dẫn chọn workflow. Validate input, build Request contract. Xem runtime/layers/01-interface.md.",
+      "mode": "primary"
+    },
+    "pxh-expert": {
+      "description": "[Tầng 3 — Nhân công / Lập trình] Cỗ máy vibe code tự động. Dùng skills/ + workflows/ để code. Xem runtime/layers/03-worker.md.",
+      "mode": "subagent"
+    },
+    "pxh-fix-bugs": {
+      "description": "[Tầng 3 — Nhân công / Sửa lỗi] Chuyên gia săn bug. Phân tích stack trace, root cause, fix. Xem runtime/layers/03-worker.md.",
+      "mode": "subagent"
+    },
+    "pxh-review-code": {
+      "description": "[Tầng 3 — Nhân công / Rà soát] Code reviewer khó tính. Security, performance, conventions. Xem runtime/layers/03-worker.md.",
+      "mode": "subagent"
+    },
+    "pxh-save-history": {
+      "description": "[Tầng 4 — Hạ tầng] Thư ký lưu lịch sử. Persist state, checkpoint, phục vụ recovery. Xem runtime/layers/04-infrastructure.md.",
+      "mode": "subagent"
+    }
+  },
+
+  "command": {
+    "vibe": {
+      "description": "Vibe code: nhập mô tả và auto chạy toàn bộ quy trình AI Company",
+      "template": "workflows/company.workflow.md"
+    },
+    "meeting": {
+      "description": "Triệu tập meeting các agents để thảo luận giải pháp",
+      "template": "workflows/meeting.workflow.md"
+    },
+    "release": {
+      "description": "Chạy build pipeline: lint → test → build",
+      "template": "workflows/release.workflow.md"
+    },
+    "debug": {
+      "description": "Debug + fix bug tự động",
+      "template": "workflows/debug.workflow.md"
+    },
+    "web": {
+      "description": "Phát triển web app",
+      "template": "workflows/web.workflow.md"
+    },
+    "game": {
+      "description": "Phát triển game HTML5: 2D, 2.5D, 3D",
+      "template": "workflows/game.workflow.md"
+    },
+    "ai": {
+      "description": "Phát triển ứng dụng AI: chatbot, RAG, agent",
+      "template": "workflows/ai.workflow.md"
+    }
+  }
+}
