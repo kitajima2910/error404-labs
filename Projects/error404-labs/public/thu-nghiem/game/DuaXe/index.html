@@ -319,6 +319,8 @@ let gameModeTimer=0; // Timer for time-based modes
 // Oil spill effect
 let oilSlide=0; // -1..1 sliding direction, decays to 0
 let oilDuration=0;
+let oilAngle=0; // rotation angle khi trơn trượt (xoay tròn)
+let oilTargetLane=-1; // lane đích sau khi trượt xong
 
 // Difficulty adaptation
 const perfMetrics={
@@ -517,7 +519,9 @@ function spawnCoin(){
 }
 
 function spawnObstacle(){
-  if(obstacles.length>=3+Math.floor(adaptDifficulty*2)) return;
+  const mode=GAME_MODES[selectedMode]||GAME_MODES.endless;
+  const maxObs=mode.key==='obstacleRush' ? 5+Math.floor(adaptDifficulty*2) : 3+Math.floor(adaptDifficulty*2);
+  if(obstacles.length>=maxObs) return;
   // Pick hazard type based on theme weights
   const theme=getCurrentTheme();
   const hazTotal=theme.hazardWeights.oil+theme.hazardWeights.construction+theme.hazardWeights.barrier;
@@ -889,90 +893,46 @@ function drawObstacles(){
     const cx=o.x, cy=o.y;
 
     if(o.type==='construction'){
-      // Construction zone with cones
-      const coneColor='#ff6600';
-      // Warning stripes
-      ctx.fillStyle='rgba(255,200,0,0.2)';
-      ctx.fillRect(cx-o.w/2,cy,o.w,o.h);
-      // Striped pattern
-      for(let sx=-o.w/2;sx<o.w/2;sx+=12){
-        ctx.fillStyle=(Math.floor((sx+cy*0.5)/6)%2)?'#ff8800':'#ffcc00';
-        ctx.fillRect(cx+sx,cy+2,8,o.h-4);
-      }
-      // Cones
-      for(let i=-1;i<=1;i+=1){
-        const coneX=cx+i*12+Math.sin(o.animTimer*3+i)*2;
-        ctx.fillStyle=coneColor;
-        ctx.shadowColor='#ff4400'; ctx.shadowBlur=8;
-        ctx.beginPath();
-        ctx.moveTo(coneX-5,cy+o.h);
-        ctx.lineTo(coneX,cy+o.h-18);
-        ctx.lineTo(coneX+5,cy+o.h);
-        ctx.fill();
-        ctx.fillStyle='#fff';
-        ctx.fillRect(coneX-4,cy+o.h-8,8,2);
-        ctx.fillRect(coneX-3,cy+o.h-14,6,2);
-      }
+      // Construction zone — đơn giản, rõ ràng
+      ctx.shadowColor='#ff6600'; ctx.shadowBlur=10;
+      ctx.fillStyle='#cc5500';
+      roundRect(ctx,cx-o.w/2,cy,o.w,o.h,4); ctx.fill();
       ctx.shadowBlur=0;
-      // Warning sign
+      // Viền cảnh báo
+      ctx.strokeStyle='#ffcc00'; ctx.lineWidth=2;
+      roundRect(ctx,cx-o.w/2,cy,o.w,o.h,4); ctx.stroke();
+      // Icon ⚠
       ctx.fillStyle='#ffcc00';
-      ctx.font='bold 10px sans-serif';
-      ctx.textAlign='center';
-      ctx.fillText('⚠',cx,cy-8);
+      ctx.font='bold 14px sans-serif';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('⚠',cx,cy+o.h/2);
     }
 
     else if(o.type==='oil'){
-      // Oil spill - shiny dark patch
-      const wobble=Math.sin(o.animTimer*2)*2;
-      ctx.shadowColor='rgba(0,255,200,0.1)'; ctx.shadowBlur=15;
-      // Main oil puddle
-      const oilG=ctx.createRadialGradient(cx,cy+o.h/2,0,cx,cy+o.h/2,o.w/2);
-      oilG.addColorStop(0,'rgba(30,30,50,0.6)');
-      oilG.addColorStop(0.4,'rgba(10,10,30,0.5)');
-      oilG.addColorStop(0.7,'rgba(40,60,80,0.3)');
-      oilG.addColorStop(1,'rgba(30,30,50,0.1)');
-      ctx.fillStyle=oilG;
+      // Oil spill — vệt dầu đơn giản
+      ctx.shadowColor='rgba(0,255,200,0.15)'; ctx.shadowBlur=12;
+      ctx.fillStyle='rgba(20,20,40,0.55)';
       ctx.beginPath();
-      ctx.ellipse(cx+wobble,cy+o.h/2,o.w/2,o.h/2,0,0,Math.PI*2);
+      ctx.ellipse(cx,cy+o.h/2,o.w/2,o.h/2,0,0,Math.PI*2);
       ctx.fill();
-      // Rainbow sheen
-      for(let i=0;i<3;i++){
-        ctx.fillStyle=`hsla(${(o.animTimer*40+i*120)%360},80%,50%,${0.06})`;
-        ctx.beginPath();
-        ctx.ellipse(cx+wobble+i*3,cy+o.h/2-3+i*4,o.w/3,o.h/4,0,0,Math.PI*2);
-        ctx.fill();
-      }
       ctx.shadowBlur=0;
     }
 
     else if(o.type==='barrier'){
-      // Moving barrier - road block with warning lights
-      const bw=o.w, bh=o.h;
-      // Base
-      ctx.fillStyle='#cc4444';
-      ctx.shadowColor='#ff0000'; ctx.shadowBlur=12;
-      ctx.beginPath(); roundRect(ctx,cx-bw/2,cy-bh/2,bw,bh,4); ctx.fill();
+      // Barrier — rào chắn đơn giản
+      ctx.shadowColor='#ff0000'; ctx.shadowBlur=14;
+      ctx.fillStyle='#cc2222';
+      roundRect(ctx,cx-o.w/2,cy-o.h/2,o.w,o.h,5); ctx.fill();
       ctx.shadowBlur=0;
-      // Stripes
-      ctx.fillStyle='#ffffff';
-      for(let sy=-bh/2;sy<bh/2;sy+=8){
-        if(Math.floor((sy+cx*0.3)/4)%2){
-          ctx.fillRect(cx-bw/2+2,cy+sy,bw-4,4);
-        }
-      }
-      // Flashing light
-      const flashIntensity=Math.sin(o.animTimer*8)>0?1:0.2;
-      ctx.fillStyle=flashIntensity?'#ff0000':'#880000';
-      ctx.shadowColor='#ff0000'; ctx.shadowBlur=flashIntensity?20:5;
-      ctx.beginPath();
-      ctx.arc(cx,cy-bh/2-8,6,0,Math.PI*2);
-      ctx.fill();
-      ctx.shadowBlur=0;
-      // Warning label
+      // Dải phản quang trắng
+      ctx.fillStyle='rgba(255,255,255,0.7)';
+      ctx.fillRect(cx-o.w/2+4,cy-o.h/2+6,o.w-8,4);
+      ctx.fillRect(cx-o.w/2+4,cy+o.h/2-10,o.w-8,4);
+      // Chữ STOP
       ctx.fillStyle='#fff';
-      ctx.font='bold 11px sans-serif';
-      ctx.textAlign='center';
-      ctx.fillText('STOP',cx,cy+4);
+      ctx.font='bold 12px sans-serif';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('STOP',cx,cy);
     }
 
     ctx.restore();
@@ -1239,11 +1199,22 @@ function updateGame(dt){
   // ── Oil Slide Effect ──
   if(oilDuration>0){
     oilDuration-=dt;
-    oilSlide=lerp(oilSlide,0,dt*2);
-    // Apply oil slide to player lane
-    const slideAmount=oilSlide*0.5*dt;
-    playerLane=clamp(playerLane+slideAmount,0,LANE_COUNT-1);
-    if(oilDuration<=0) oilSlide=0;
+    // Xoay tròn xe
+    const spinSpeed=oilSlide*4;
+    oilAngle+=spinSpeed*dt;
+    oilSlide=lerp(oilSlide,0,dt*1.8);
+    // Trôi làn theo góc xoay
+    const drift=Math.sin(oilAngle)*0.15;
+    playerLane=clamp(playerLane+drift*dt*2,0,LANE_COUNT-1);
+    // Khi sắp hết hiệu ứng, kéo về target lane
+    if(oilDuration<0.4 && oilTargetLane>=0){
+      const diff=oilTargetLane-playerLane;
+      if(Math.abs(diff)>0.05) playerLane+=diff*dt*3;
+      else playerLane=oilTargetLane;
+    }
+    if(oilDuration<=0){
+      oilSlide=0; oilAngle=0; oilTargetLane=-1;
+    }
   }
 
   // ── Visual Bob ──
@@ -1288,9 +1259,15 @@ function updateGame(dt){
   // Obstacle spawner (mode-adjusted)
   obstacleTimer-=dt;
   if(obstacleTimer<=0){
-    spawnObstacle();
+    if(mode.key==='obstacleRush'){
+      // Spawn 1-2 obstacles mỗi lần
+      spawnObstacle();
+      if(Math.random()<0.45) spawnObstacle();
+    }else{
+      spawnObstacle();
+    }
     const baseInterval=(3.5-adaptDifficulty*1.5)/mode.obstacleMult;
-    obstacleTimer=rand(Math.max(1.5,baseInterval-1),Math.max(2.5,baseInterval+1));
+    obstacleTimer=rand(Math.max(1.0,baseInterval-0.8),Math.max(2.0,baseInterval+0.8));
   }
 
   // ── Update Rain ──
@@ -1366,7 +1343,7 @@ function updateGame(dt){
   // ── Update Obstacles ──
   for(let i=obstacles.length-1;i>=0;i--){
     const o=obstacles[i];
-    o.update(dt,spd/currentSpeed);
+    o.update(dt,spd);
     if(!o.active||o.y>H+120){obstacles.splice(i,1);continue}
 
     // Collision with player
@@ -1375,9 +1352,13 @@ function updateGame(dt){
       if(rectOverlap(pr,o.rect)){
         o.hit=true;
         if(o.type==='oil'){
-          // Oil spill: slide effect
-          oilSlide=(Math.random()<0.5?1:-1)*rand(1,2.5);
-          oilDuration=rand(0.8,1.5);
+          // Oil spill: trượt + xoay tròn
+          const spinDir=Math.random()<0.5?1:-1;
+          const laneShift=Math.random()<0.5?-1:1;
+          oilAngle=0;
+          oilSlide=spinDir*rand(1.5,3);
+          oilDuration=rand(1.0,1.8);
+          oilTargetLane=clamp(Math.round(playerLane)+laneShift,0,LANE_COUNT-1);
           spawnFloatingText(playerX,playerY-65,'TRƠN TRƯỢT!','#88aaff',16);
           spawnParticles(o.x,o.y,15,'#446688',80,4,0.5);
           triggerShake(5); SFX.oil();
@@ -1548,12 +1529,13 @@ function renderGame(){
     drawCar(c.x,c.y,c.w,c.h,c.color,typeInfo.accent,false,false,c.typeKey);
   }
 
-  // Player (with sway tilt, oil drift visual)
-  const tilt=playerSway*0.03+oilSlide*0.02;
+  // Player (with sway tilt, oil spin)
+  const tilt=playerSway*0.03;
   const pBob=Math.sin(carBob)*1.5;
+  const rotAngle=tilt+oilAngle;
   ctx.save();
   ctx.translate(playerX,playerY+pBob);
-  ctx.rotate(tilt);
+  ctx.rotate(rotAngle);
   ctx.translate(-playerX,-playerY-pBob);
   const flash=invincibleTimer>0&&Math.floor(hitFlash)%2===0;
   drawCar(playerX,playerY+pBob,PLAYER_W,PLAYER_H,CAR_COLORS[selectedCar],CAR_ACCENTS[selectedCar],true,flash);
@@ -2118,8 +2100,9 @@ function startGame(){
   trafficCars=[]; coins=[]; obstacles=[]; particles=[]; floatingTexts=[]; speedLines=[];
   roadOffset=0; gameTime=0; invincibleTimer=0; hitFlash=0;
   shakeIntensity=0; shakeX=0; shakeY=0;
-  spawnTimer=1.5; coinSpawnTimer=0.8; obstacleTimer=3;
-  oilSlide=0; oilDuration=0;
+  spawnTimer=1.5; coinSpawnTimer=0.8;
+  obstacleTimer=mode.key==='obstacleRush'?0.5:3;
+  oilSlide=0; oilDuration=0; oilAngle=0; oilTargetLane=-1;
   adaptDifficulty=0; difficultyTimer=0;
   gameStartTime=0; gameModeTimer=0;
   // Theme: force theme if mode specifies, else random
