@@ -74,7 +74,7 @@ Sau khi code xong, tạo `Task{phase: "test", target: code, context: test suite}
 Nếu `Result{status: fail}` → quay lại Giai đoạn 4 với `Task{phase: "fix", target: bugs}` → `@pxh-fix-bugs`.
 
 ### Giai đoạn 6: Build (BUILD) [Tầng 2 → Tầng 3]
-Khi `Result{status: pass}` từ QA, tạo `Task{phase: "build", gate: {qa: pass, review: pass}}` → route đến `@release`:
+Khi `Result{status: pass}` từ QA, tạo `Task{phase: "build", gate: {qa: pass, review: pass}}` → route đến `@pxh-devops`:
 1. Lint + Typecheck
 2. Build → `Result{build: pass/fail, size}`
 3. Tầng 1: Báo user build xong → user tự deploy
@@ -144,4 +144,4 @@ Kết quả meeting:
 - **Infrastructure:** `runtime/layers/04-infrastructure.md` — State persistence, checkpoint recovery
 - **Policies:** `runtime/policies/retry.md`, `runtime/policies/recovery.md`, `runtime/policies/reflection.md`
 - **Workflows:** `workflows/company.workflow.md`, `workflows/meeting.workflow.md`
-- **Commands:** `@vibe`, `@meeting`, `@release`, `@debug`, `@web`, `@game`, `@ai` — defined in `opencode.json`
+- **Commands:** `/vibe`, `/meeting`, `/release`, `/debug`, `/web`, `/game`, `/ai` — defined in `opencode.json`

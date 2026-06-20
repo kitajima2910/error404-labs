@@ -121,7 +121,7 @@ Sau khi code xong, Orchestration tạo Task contracts và route đến Workers:
 | test | `Task{target: AI code, type: response quality + edge cases}` | `@pxh-qa` | `Result{pass/fail, issues[]}` |
 | fix | `Task{target: LLM issues từ QA, type: fix}` | `@pxh-fix-bugs` | `Result{fixed[], status}` |
 | review | `Task{target: AI code, type: review, focus: security/perf}` | `@pxh-review-code` | `Result{issues[], score}` |
-| build | `Task{target: AI project, type: build}` | `@release` | `Result{build_size, status}` |
+| build | `Task{target: AI project, type: build}` | `@pxh-devops` | `Result{build_size, status}` |
 | persist | `Event{type: decision, phase: done, data: prompts + decisions}` | `@pxh-save-history` | `Confirmed{status: saved}` |
 
 ### Luồng Runtime (Các tầng)

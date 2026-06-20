@@ -147,7 +147,7 @@ Sau khi code xong, Orchestration tạo Task contracts và route đến Workers:
 | test | `Task{target: game code, type: gameplay + perf test}` | `@pxh-qa` | `Result{pass/fail, bugs[], fps}` |
 | fix | `Task{target: bugs từ QA, type: fix}` | `@pxh-fix-bugs` | `Result{fixed[], status}` |
 | review | `Task{target: game code, type: review, focus: structure/perf}` | `@pxh-review-code` | `Result{issues[], score}` |
-| build | `Task{target: game project, type: build}` | `@release` | `Result{build_size, status}` |
+| build | `Task{target: game project, type: build}` | `@pxh-devops` | `Result{build_size, status}` |
 | persist | `Event{type: decision, phase: done, data: game design}` | `@pxh-save-history` | `Confirmed{status: saved}` |
 
 > Game HTML5 chạy bằng `npx vite` hoặc Live Server — bạn tự test và deploy.

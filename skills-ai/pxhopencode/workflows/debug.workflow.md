@@ -129,7 +129,7 @@ Sau khi fix xong, Orchestration tạo Task contracts và route đến Workers:
 | test | `Task{target: fix code, type: verify bug fixed}` | `@pxh-qa` | `Result{bug_fixed?, new_bugs[]}` |
 | fix | `Task{target: bugs QA tìm thêm, type: fix}` | `@pxh-fix-bugs` | `Result{fixed[], status}` |
 | review | `Task{target: fix code, type: review, focus: clean code}` | `@pxh-review-code` | `Result{approved?, issues[]}` |
-| build | `Task{target: project, type: hotfix build}` | `@release` | `Result{build_status}` |
+| build | `Task{target: project, type: hotfix build}` | `@pxh-devops` | `Result{build_status}` |
 | persist | `Event{type: bug_report, data: root_cause + fix}` | `@pxh-save-history` | `Confirmed{status: saved}` |
 
 ### Luồng Runtime (Các tầng)

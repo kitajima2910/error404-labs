@@ -213,4 +213,4 @@ Hỏi tối đa 2-3 câu, sau đó code tiếp.
 - **Policies:** `runtime/policies/retry.md`, `runtime/policies/reflection.md`
 - **Skills:** `skills/webs-*`, `skills/games-*`, `skills/ais-*`, `skills/tools-*` — Kỹ năng thực thi
 - **Workflows:** `workflows/web.workflow.md`, `workflows/game.workflow.md`, `workflows/ai.workflow.md`, `workflows/debug.workflow.md`, `workflows/company.workflow.md`
-- **Commands:** `@vibe`, `@web`, `@game`, `@ai` — defined in `opencode.json`
+- **Commands:** `/vibe`, `/web`, `/game`, `/ai` — defined in `opencode.json`

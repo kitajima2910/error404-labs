@@ -100,5 +100,5 @@ Build xong, báo user:
 - **Orchestration:** `runtime/layers/02-orchestration.md` — Nhận Task từ Orchestration, trả Result
 - **Policies:** `runtime/policies/retry.md`, `runtime/policies/recovery.md`, `runtime/policies/reflection.md`
 - **Workflows:** `workflows/release.workflow.md` — Build pipeline script
-- **Commands:** `@release` — defined in `opencode.json`
+- **Commands:** `/release` — defined in `opencode.json`
 - **Gates:** QA pass (`@pxh-qa`), Code review pass (`@pxh-review-code`)

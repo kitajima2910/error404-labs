@@ -37,13 +37,13 @@ Tầng 4 (Hạ tầng)       → lưu trạng thái, checkpoint, phục vụ ph�
 
 | Lệnh | Làm được |
 |------|----------|
-| `@vibe` | Full AI Company: 11 bước từ nhận prompt → release |
-| `@web` | Web app: React/Next.js + TypeScript + Tailwind + PostgreSQL |
-| `@game` | Game H5: 2D (Phaser), 2.5D (Isometric), 3D (Three.js) |
-| `@ai` | AI app: LLM, RAG pipeline, AI Agent, streaming |
-| `@debug` | Debug: stack trace analysis, Playwright UI debug, root cause |
-| `@meeting` | Agents thảo luận: architect, expert, qa, devops |
-| `@release` | Build pipeline: lint → typecheck → test → build |
+| `/vibe` | Full AI Company: 11 bước từ nhận prompt → release |
+| `/web` | Web app: React/Next.js + TypeScript + Tailwind + PostgreSQL |
+| `/game` | Game H5: 2D (Phaser), 2.5D (Isometric), 3D (Three.js) |
+| `/ai` | AI app: LLM, RAG pipeline, AI Agent, streaming |
+| `/debug` | Debug: stack trace analysis, Playwright UI debug, root cause |
+| `/meeting` | Agents thảo luận: architect, expert, qa, devops |
+| `/release` | Build pipeline: lint → typecheck → test → build |
 
 ### 🛠 25 Skills (4 lĩnh vực)
 
@@ -98,21 +98,21 @@ cp -r ../pxhopencode .opencode
 │   ├── contracts/          # 6 contract giao tiếp
 │   └── policies/           # Thử lại, Phục hồi, Phản ánh
 ├── workflows/              # 7 workflow templates
-└── skills/                 # 4 lĩnh vực, 29 skill files
+└── skills/                 # 4 lĩnh vực, 25 skill files
 ```
 
 ## Cách dùng
 
 **Cách 1 — Prompt trực tiếp:** Gõ mô tả dự án. `pxh-pm` tự động phân tích → triệu tập meeting → chọn workflow → code → test → fix → review → release.
 
-**Cách 2 — Lệnh workflow:**
-- `@vibe` — Full AI Company
-- `@web`, `@game`, `@ai` — Theo lĩnh vực
-- `@debug` — Sửa lỗi
-- `@release` — Build pipeline
-- `@meeting` — Agents thảo luận
+**Cách 2 — Lệnh workflow (gõ `/` trong TUI):**
+- `/vibe` — Full AI Company
+- `/web`, `/game`, `/ai` — Theo lĩnh vực
+- `/debug` — Sửa lỗi
+- `/release` — Build pipeline
+- `/meeting` — Agents thảo luận
 
-**Cách 3 — Gọi agent trực tiếp:**
+**Cách 3 — Gọi agent trực tiếp (dùng `@` trong prompt):**
 `@pxh-expert`, `@pxh-architect`, `@pxh-qa`, `@pxh-fix-bugs`, `@pxh-review-code`, `@pxh-devops`, `@pxh-save-history`, `@pxh-help`
 
 ---

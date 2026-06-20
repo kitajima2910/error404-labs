@@ -215,7 +215,7 @@ Nếu OK → Bước 10.
 
 ## Bước 10: PHÁT HÀNH — Build & báo user [Tầng 2 → Tầng 3]
 
-Tầng 2 (Orchestration) tạo `Task{phase: "build", gate_check: {qa: pass, review: pass}}` → route đến `@release`:
+Tầng 2 (Orchestration) tạo `Task{phase: "build", gate_check: {qa: pass, review: pass}}` → route đến `@pxh-devops`:
 1. Lint + Typecheck → `Result{lint: pass/fail}`
 2. Build → `Result{build: pass/fail, size, path}`
 3. Tầng 1 (Interface): Báo user build xong → user tự deploy

@@ -26,7 +26,7 @@ Tầng 4 (Hạ tầng)      pxh-save-history   → Tầng 2 (trạng thái/phụ
 | Thành phần | Agents | Runtime | Workflows | Skills | Contracts | Policies | Cấu hình |
 |-----------|--------|---------|-----------|--------|-----------|----------|---------|
 | **agents/** (9 files) | — | ✅ Thẻ layer + tham chiếu | ✅ Liên kết giai đoạn | ✅ Tham chiếu skill | ✅ Tham chiếu contract | ✅ Tham chiếu policy | ✅ opencode.json |
-| **runtime/** (11 files) | ✅ Agents chủ quản | — | ✅ Luồng thực thi | — | ✅ Sơ đồ đầy đủ | ✅ Tham chiếu thi hành | ✅ instructions |
+| **runtime/** (9 files) | ✅ Agents chủ quản | — | ✅ Luồng thực thi | — | ✅ Sơ đồ đầy đủ | ✅ Tham chiếu thi hành | ✅ instructions |
 | **workflows/** (7 files) | ✅ Tham chiếu agent | ✅ Luồng layer | — | ✅ Tham chiếu skill | ✅ Tham chiếu contract | ✅ Tham chiếu policy | ✅ Lệnh |
 | **skills/** (4 lĩnh vực) | ✅ Agent sử dụng | ✅ Ngữ cảnh layer | ✅ Được gọi bởi | — | ✅ Tham chiếu contract | — | ✅ skills.paths |
 | **contracts/** (1 file) | ✅ Người gửi/nhận | ✅ Hướng layer | ✅ Luồng theo giai đoạn | — | — | ✅ Tương tác policy | — |
@@ -77,11 +77,11 @@ Tầng 4 (Hạ tầng)      pxh-save-history   → Tầng 2 (trạng thái/phụ
 │   ├── debug.workflow.md  # Sửa lỗi và tối ưu
 │   └── release.workflow.md # Build pipeline
 │
-└── skills/                # 4 bộ kỹ năng theo lĩnh vực
-    ├── webs/              # Frontend, Backend, Database, Auth, Styling, Testing, Deployment
-    ├── games/             # 2D, 2.5D, 3D, Core, Physics, Audio, Optimization
-    ├── ais/               # LLM, RAG, Agent, Prompt, Production
-    └── tools/             # CLI, Automation, Codegen, Extensions, Packaging
+└── skills/                # 4 lĩnh vực, 25 skills
+    ├── webs-*/            # Frontend, Backend, Database, Auth, Styling, Testing, Deployment
+    ├── games-*/           # 2D, 2.5D, 3D, Core, Physics, Audio, Assets, Optimization
+    ├── ais-*/             # LLM, RAG, Agent, Prompt, Production
+    └── tools-*/           # CLI, Automation, Codegen, Extensions, Packaging
 ```
 
 ## 📋 Luồng thực thi đầy đủ
@@ -120,5 +120,5 @@ Người dùng nhập prompt
 - [x] Mọi file đều có tham chiếu chéo đến file liên quan
 - [x] Đường dẫn tương đối — không còn `pxhopencode/` cứng
 - [x] Đường dẫn skills dự phòng: `["skills", ".opencode/skills"]`
-- [x] Phiên bản MCP cố định: `@playwright/mcp@1.0.2`
+- [x] MCP Playwright: `@playwright/mcp@latest`
 - [x] README hướng dẫn copy vào `.opencode/`
