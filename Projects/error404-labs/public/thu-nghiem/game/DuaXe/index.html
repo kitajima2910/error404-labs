@@ -1089,12 +1089,7 @@ function drawHUD(){
   ctx.fillText('\u{1F3C6} '+score,14,36);
   ctx.shadowBlur=0;
 
-  // Combo multiplier next to score
-  if(combo>1){
-    ctx.fillStyle=hslStr(combo*40,100,55);
-    ctx.font='bold 16px "Segoe UI",system-ui,sans-serif';
-    ctx.fillText('x'+combo,14+ctx.measureText('\u{1F3C6} '+score+' ').width,36);
-  }
+  // (Combo multiplier đã bỏ — gây overlap score)
 
   // Mode timer (Time Trial)
   const gameMode=GAME_MODES[selectedMode]||GAME_MODES.endless;
@@ -1111,33 +1106,31 @@ function drawHUD(){
     }
   }
 
-  // Speed digital gauge
+  // Speed digital gauge (dời sang trái để không đụng hearts)
   const displaySpeed=speed*(nitroActive?1.7:1);
   const spd=Math.round(displaySpeed*0.45);
   ctx.fillStyle='#8cf'; ctx.font='bold 20px "Segoe UI",system-ui,sans-serif';
   ctx.textAlign='center';
-  ctx.fillText(spd,W*0.72,28);
+  ctx.fillText(spd,W*0.68,28);
   ctx.fillStyle='rgba(150,200,255,0.5)'; ctx.font='10px "Segoe UI",system-ui,sans-serif';
-  ctx.fillText('KM/H',W*0.72,43);
+  ctx.fillText('KM/H',W*0.68,43);
 
-  // Level & Theme indicator
+  // Level (trái) + Hearts (phải) — cùng hàng dưới
   ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.font='11px "Segoe UI",system-ui,sans-serif';
   ctx.textAlign='left';   ctx.fillText('CẤP '+level,14,52);
-  const theme=getCurrentTheme();
-  ctx.fillStyle='rgba(255,255,255,0.25)'; ctx.font='10px "Segoe UI",system-ui,sans-serif';
-  ctx.textAlign='right';
-  ctx.fillText(theme.name,W-14,52);
 
-  // Coins right side
+  // Hearts — bên phải, không còn overlay theme name
+  ctx.textAlign='right'; ctx.font='18px "Segoe UI",system-ui,sans-serif';
+  const modeCfg=GAME_MODES[selectedMode]||GAME_MODES.endless;
+  const maxHearts=Math.min(modeCfg.lives||3,5);
+  let h=''; for(let i=0;i<maxHearts;i++) h+=i<lives?'\u2764\uFE0F':'\u{1F9F6}';
+  ctx.fillText(h,W-14,52);
+
+  // Coins right side (hàng trên cùng bên phải)
   ctx.fillStyle='#ffd700'; ctx.font='bold 18px "Segoe UI",system-ui,sans-serif';
   ctx.textAlign='right'; ctx.shadowColor='rgba(255,200,0,0.3)'; ctx.shadowBlur=6;
   ctx.fillText('$ '+(totalCoins+gameCoins),W-14,34);
   ctx.shadowBlur=0;
-
-  // Hearts
-  ctx.textAlign='right'; ctx.font='18px "Segoe UI",system-ui,sans-serif';
-  let h=''; for(let i=0;i<3;i++) h+=i<lives?'\u2764\uFE0F':'\u{1F9F6}';
-  ctx.fillText(h,W-14,52);
 
   // Difficulty indicator (subtle)
   if(adaptDifficulty>0.3){
