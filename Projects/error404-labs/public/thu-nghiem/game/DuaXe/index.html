@@ -475,9 +475,9 @@ function getHazardWeight(type){
 function pickTrafficType(){
   // Weight based on difficulty and theme
   const weights={
-    normal:0.35, aggressive:0.15+adaptDifficulty*0.2,
-    cautious:0.2-adaptDifficulty*0.1, weaver:0.1+adaptDifficulty*0.1,
-    truck:0.1, sports:0.1+adaptDifficulty*0.15
+    normal:0.35, aggressive:0.15+adaptDifficulty*0.1,
+    cautious:0.2, weaver:0.1+adaptDifficulty*0.05,
+    truck:0.1, sports:0.1+adaptDifficulty*0.08
   };
   let total=0;
   for(const k of Object.keys(weights)) total+=weights[k];
@@ -638,83 +638,70 @@ function updateTrafficAI(c,dt,currentSpeed){
   c.switchTimer-=dt;
   if(c.switchTimer>0) return;
 
-  // Check if obstacle ahead in current lane
-  let obstacleAhead=false;
-  let obstacleDist=999;
+  // Check if obstacle ahead
+  let obstacleAhead=false, obstacleDist=999;
   for(const o of obstacles){
     if(!o.active) continue;
     if(Math.abs(o.lane-c.lane)<0.8 && o.y>c.y && o.y-c.y<250 && o.y-c.y>0){
-      obstacleAhead=true;
-      obstacleDist=o.y-c.y;
+      obstacleAhead=true; obstacleDist=o.y-c.y;
     }
   }
 
   // Check for slow car ahead
-  let carAhead=false;
-  let carAheadDist=999;
+  let carAhead=false, carAheadDist=999;
   for(const tc of trafficCars){
     if(tc===c) continue;
     if(Math.abs(tc.lane-c.lane)<0.6 && tc.y>c.y && tc.y-c.y<200 && tc.y-c.y>0){
-      carAhead=true;
-      carAheadDist=tc.y-c.y;
+      carAhead=true; carAheadDist=tc.y-c.y;
     }
   }
 
-  // Check if player is nearby
-  let playerNear=false;
-  let playerLaneDiff=playerLane-c.lane;
-  let playerDist=Math.abs(c.y-playerY);
-  if(playerDist<250) playerNear=true;
+  // Player info
+  const playerLaneDiff=playerLane-c.lane;
+  const playerDist=Math.abs(c.y-playerY);
+  const playerNear=playerDist<200;
 
-  // Check adjacent lanes for space
+  // Adjacent lanes
   const leftClear=laneClear(c.lane-1,c.y,currentSpeed);
   const rightClear=laneClear(c.lane+1,c.y,currentSpeed);
 
-  // Decision matrix
-  let shouldSwitch=false;
-  let targetDir=0;
+  let shouldSwitch=false, targetDir=0;
 
-  // Aggressive behavior: try to box in player or get ahead
-  if(c.aggressive>0.5 && playerNear){
-    if(playerLaneDiff>0 && playerLaneDiff<2 && c.lane<LANE_COUNT-1 && rightClear){
-      // Move right to block player
-      shouldSwitch=true; targetDir=1;
-    }else if(playerLaneDiff<0 && playerLaneDiff>-2 && c.lane>0 && leftClear){
-      shouldSwitch=true; targetDir=-1;
-    }
-  }
-
-  // Weaving behavior
-  if(!shouldSwitch && TRAFFIC_TYPES[c.typeKey]?.name==='Rắn'){
-    if(Math.random()<0.3){
-      const dir=Math.random()<0.5?1:-1;
-      const nl=c.lane+dir;
-      if(nl>=0&&nl<LANE_COUNT&&laneClear(nl,c.y,currentSpeed)){
-        shouldSwitch=true; targetDir=dir;
-      }else{
-        // Try opposite direction
-        const nl2=c.lane-dir;
-        if(nl2>=0&&nl2<LANE_COUNT&&laneClear(nl2,c.y,currentSpeed)){
-          shouldSwitch=true; targetDir=-dir;
-        }
+  // ─── ƯU TIÊN 1: Né player ───
+  // Nếu player đang cùng làn hoặc sắp đâm từ phía sau → né ra xa player
+  if(playerNear){
+    const sameLane=Math.abs(playerLaneDiff)<1.0;
+    const willHit=playerDist<100 && sameLane;
+    const closeLane=Math.abs(playerLaneDiff)<1.8 && playerDist<80;
+    if(sameLane || willHit || closeLane){
+      // Xác định hướng né: luôn ra xa player
+      let avoidDir=0;
+      if(playerLaneDiff>0.3) avoidDir=-1;           // player bên phải → né trái
+      else if(playerLaneDiff<-0.3) avoidDir=1;      // player bên trái → né phải
+      else if(c.lane>0) avoidDir=-1;                // cùng làn, ưu tiên trái
+      else if(c.lane<LANE_COUNT-1) avoidDir=1;      // cùng làn, phải nếu trái hết
+      // Chỉ né nếu làn đó an toàn, KHÔNG bao giờ né vào hướng player
+      const targetLane=c.lane+avoidDir;
+      if(avoidDir!==0 && targetLane>=0 && targetLane<LANE_COUNT && laneClear(targetLane,c.y,currentSpeed)){
+        shouldSwitch=true; targetDir=avoidDir;
       }
     }
   }
 
-  // Avoid obstacle ahead
-  if(obstacleAhead && obstacleDist<180){
-    if(leftClear && c.lane>0){shouldSwitch=true;targetDir=-1;}
-    else if(rightClear && c.lane<LANE_COUNT-1){shouldSwitch=true;targetDir=1;}
+  // ─── ƯU TIÊN 2: Tránh chướng ngại vật ───
+  if(!shouldSwitch && obstacleAhead && obstacleDist<180){
+    if(leftClear && c.lane>0){shouldSwitch=true;targetDir=-1}
+    else if(rightClear && c.lane<LANE_COUNT-1){shouldSwitch=true;targetDir=1}
   }
 
-  // Avoid slow car ahead
-  if(carAhead && carAheadDist<120 && !shouldSwitch){
-    if(leftClear && c.lane>0){shouldSwitch=true;targetDir=-1;}
-    else if(rightClear && c.lane<LANE_COUNT-1){shouldSwitch=true;targetDir=1;}
+  // ─── ƯU TIÊN 3: Tránh xe chậm phía trước ───
+  if(!shouldSwitch && carAhead && carAheadDist<120){
+    if(leftClear && c.lane>0){shouldSwitch=true;targetDir=-1}
+    else if(rightClear && c.lane<LANE_COUNT-1){shouldSwitch=true;targetDir=1}
   }
 
-  // Random lane change (normal traffic behavior)
-  if(!shouldSwitch && Math.random()<c.switchChance){
+  // ─── Random lane change (CHỈ khi player ở xa) ───
+  if(!shouldSwitch && !playerNear && Math.random()<c.switchChance){
     const dir=Math.random()<0.5?1:-1;
     const nl=c.lane+dir;
     if(nl>=0&&nl<LANE_COUNT&&laneClear(nl,c.y,currentSpeed)){
@@ -722,17 +709,17 @@ function updateTrafficAI(c,dt,currentSpeed){
     }
   }
 
-  // Cautious: rarely changes lanes
-  if(c.cautious>0.5 && Math.random()>0.1) shouldSwitch=false;
+  // Cautious override (nhưng không ghi đè né player)
+  if(c.cautious>0.5 && Math.random()>0.1 && !playerNear) shouldSwitch=false;
 
   if(shouldSwitch && targetDir!==0){
     c.lane+=targetDir;
     c.lane=clamp(c.lane,0,LANE_COUNT-1);
-    c.switchTimer=rand(0.5,c.maxSwitchTimer);
+    c.switchTimer=rand(0.8,c.maxSwitchTimer);
     c.brakeLight=true;
     setTimeout(()=>{c.brakeLight=false;},300);
   }else{
-    c.switchTimer=rand(0.3,1);
+    c.switchTimer=rand(0.5,1.2);
   }
 }
 
