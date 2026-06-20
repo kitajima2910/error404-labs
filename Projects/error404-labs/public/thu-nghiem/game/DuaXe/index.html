@@ -355,7 +355,7 @@ const MODE_KEYS=Object.keys(GAME_MODES);
 // ── Game State Variable ───────────────────────────────────
 let screen='title'; // title | game | over | garage
 let selectedMode='endless';
-let score=0, highScore=0, totalCoins=0, gameCoins=0;
+let score=0, highScore=0, totalCoins=0; // totalCoins = tổng điểm tích lũy -> dùng mua xe
 let xp=0; // Tổng XP tích lũy (persistent)
 let lives=3, speed=BASE_SPEED, level=1, maxLives=3;
 // Perks active trong run hiện tại
@@ -1691,19 +1691,9 @@ function drawHUD(){
     ctx.fillText('\u{1F6E1} +'+bonusInvincible+'s',buffX,buffY);
   }
 
-  // ── Right side bottom row: Hearts (phải) + Coins (trái của Hearts) ──
+  // ── Right side bottom row: Hearts ──
   ctx.textAlign='right';
-  const maxHearts=Math.min(mode.lives||3,5);
-  const heartsTotalW=maxHearts*22;
-
-  // Coins — đặt bên trái hearts, cách 8px
-  const coinText='\u25CB '+(totalCoins+gameCoins);
-  ctx.fillStyle='#ffd700'; ctx.font='bold 14px "Segoe UI",system-ui,sans-serif';
-  ctx.shadowColor='rgba(255,200,0,0.35)'; ctx.shadowBlur=8;
-  ctx.fillText(coinText,rightEdge-heartsTotalW-8,row2Y);
-  ctx.shadowBlur=0;
-
-  // Hearts — sát lề phải
+  const maxHearts=Math.min(Math.max(mode.lives||3,maxLives),6);
   for(let i=0;i<maxHearts;i++){
     const hx=rightEdge-i*22;
     const alive=i<lives;
@@ -1934,7 +1924,7 @@ function updateGame(dt){
       score+=timeBonus; xp+=timeBonus;
       screen='over';endScore=score;
       if(score>highScore) highScore=score;
-      totalCoins+=gameCoins;
+      totalCoins+=score;
       saveData();
       spawnParticles(playerX,playerY,80,'#00ffaa',350,7,0.8);
       spawnSparks(playerX,playerY,20,'#00ffaa');
@@ -2032,10 +2022,9 @@ function updateGame(dt){
     const dx=Math.abs(c.x-playerX), dy=Math.abs(c.y-playerY);
     if(dx<PLAYER_W/2+COIN_R&&dy<PLAYER_H/2+COIN_R){
       const bonus=Math.floor(100*(combo||1));
-      gameCoins++; 
       const coinScore=Math.floor(bonus*coinValueMult*scoreMult);
       score+=coinScore; xp+=coinScore;
-      spawnFloatingText(c.x,c.y,'+'+coinScore+' $','#ffd700',20);
+      spawnFloatingText(c.x,c.y,'+'+coinScore,'#ffd700',20);
       spawnParticles(c.x,c.y,10,'#ffd700',100,3,0.5);
       combo++; comboTimer=2;
       coins.splice(i,1); triggerShake(1.5);
@@ -2071,7 +2060,7 @@ function updateGame(dt){
           if(lives<=0){
             screen='over';endScore=score;
             if(score>highScore) highScore=score;
-            totalCoins+=gameCoins;
+            totalCoins+=score;
             saveData();
             spawnParticles(playerX,playerY,60,'#ff6600',300,6,0.8);
             spawnSparks(playerX,playerY,25,'#ff6600');
@@ -2091,7 +2080,7 @@ function updateGame(dt){
           if(lives<=0){
             screen='over';endScore=score;
             if(score>highScore) highScore=score;
-            totalCoins+=gameCoins;
+            totalCoins+=score;
             saveData();
             spawnParticles(playerX,playerY,70,'#ff2200',350,7,0.8);
             spawnSparks(playerX,playerY,30,'#ff2200');
@@ -2133,7 +2122,7 @@ function updateGame(dt){
         if(lives<=0){
           screen='over'; endScore=score;
           if(score>highScore) highScore=score;
-          totalCoins+=gameCoins;
+          totalCoins+=score;
           saveData();
           spawnParticles(playerX,playerY,60,'#ff2200',300,6,0.8);
           spawnParticles(playerX,playerY,30,'#ffaa00',200,4,0.6);
@@ -2811,9 +2800,6 @@ function drawGameOverScreen(){
   ctx.fillStyle='#fff'; ctx.font='24px "Segoe UI",system-ui,sans-serif';
   ctx.fillText('Điểm: '+endScore,W/2,210);
 
-  ctx.fillStyle='#ffd700'; ctx.font='18px "Segoe UI",system-ui,sans-serif';
-  ctx.fillText('$ +'+gameCoins+' xu',W/2,248);
-
   const isNewHighScore=endScore>=highScore&&endScore>0;
   ctx.fillStyle=isNewHighScore?'#ffaa00':'rgba(255,255,255,0.5)';
   ctx.font='bold 16px "Segoe UI",system-ui,sans-serif';
@@ -3118,7 +3104,7 @@ function handleTap(mx,my){
 
 function startGame(){
   const mode=GAME_MODES[selectedMode]||GAME_MODES.endless;
-  score=0; gameCoins=0; lives=mode.lives||3; speed=mode.initialSpeed||BASE_SPEED;
+  score=0; lives=mode.lives||3; speed=mode.initialSpeed||BASE_SPEED;
   level=getLevelFromXp(xp); // Level từ XP tích lũy
   applyLevelPerks(level);   // Áp dụng perks cho level hiện tại
   nitro=NITRO_MAX; nitroActive=false; nitroTimer=0;
