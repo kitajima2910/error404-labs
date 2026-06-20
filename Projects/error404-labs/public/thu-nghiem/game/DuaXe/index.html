@@ -822,29 +822,53 @@ function drawBackground(){
   rGrad.addColorStop(1,theme.roadTop);
   ctx.fillStyle=rGrad; ctx.fillRect(ROAD_L,0,ROAD_W,H);
 
-  // Edge markers (red/white posts per theme)
-  const edgeColor0=theme.roadEdge0;
-  const edgeColor1=theme.roadEdge1;
-  for(let y=-(roadOffset%60);y<H;y+=60){
-    if(y>0){
-      ctx.fillStyle=y%120<60?edgeColor0:edgeColor1;
-      ctx.fillRect(ROAD_L-8,y,4,28);
-      ctx.fillRect(ROAD_R+4,y,4,28);
+  // Road texture nhẹ
+  ctx.fillStyle='rgba(255,255,255,0.02)';
+  for(let y=-(roadOffset%12);y<H;y+=12){
+    const xOff=Math.floor(y/24)%2;
+    ctx.fillRect(ROAD_L+(xOff*6),y,6,6);
+  }
+
+  // Lề đường (curb) — dải trắng hai bên
+  ctx.fillStyle='rgba(255,255,255,0.2)';
+  ctx.fillRect(ROAD_L-3,0,3,H);
+  ctx.fillRect(ROAD_R,0,3,H);
+
+  // Edge markers (cọc tiêu đỏ/trắng)
+  const edgeColor0=theme.roadEdge0; // màu thứ nhất (thường đỏ/cam)
+  const edgeColor1=theme.roadEdge1; // màu thứ hai (thường trắng/vàng)
+  for(let y=-(roadOffset%48);y<H;y+=48){
+    if(y>8){
+      // Cọc tiêu trái
+      ctx.fillStyle=y%96<48?edgeColor0:edgeColor1;
+      ctx.fillRect(ROAD_L-8,y,5,24);
+      // Cọc tiêu phải
+      ctx.fillRect(ROAD_R+3,y,5,24);
     }
   }
 
-  // Lane markings
+  // Lane markings (vạch kẻ lane)
   ctx.fillStyle=theme.laneMark;
   for(let l=1;l<LANE_COUNT;l++){
     const lx=ROAD_L+l*LANE_W-1;
-    // Rain theme: continuous faint lines instead of dashes
     if(theme.themeHue>230&&theme.themeHue<250){
-      ctx.globalAlpha=0.15;
+      ctx.globalAlpha=0.18;
       ctx.fillRect(lx,0,2,H);
       ctx.globalAlpha=1;
     }else{
       for(let y=-(roadOffset%80);y<H;y+=80)
         if(y%160<80&&y>0) ctx.fillRect(lx,y,2,36);
+    }
+  }
+
+  // Cat's eye reflectors (chấm phản quang giữa lane)
+  ctx.fillStyle='rgba(255,200,100,0.15)';
+  for(let l=0;l<LANE_COUNT;l++){
+    const cx=ROAD_L+l*LANE_W+LANE_W/2;
+    for(let y=-(roadOffset%160);y<H;y+=160){
+      if(y>0) {
+        ctx.beginPath(); ctx.arc(cx-1,y+40,2,0,Math.PI*2); ctx.fill();
+      }
     }
   }
 
@@ -890,132 +914,323 @@ function drawObstacles(){
   for(const o of obstacles){
     if(!o.active) continue;
     ctx.save();
-    const cx=o.x, cy=o.y;
+    const cx=o.x, cy=o.y, bw=o.w, bh=o.h;
 
     if(o.type==='construction'){
-      // Construction zone — đơn giản, rõ ràng
+      // ── Rào chắn công trường ──
+      // Bóng đổ
+      ctx.fillStyle='rgba(0,0,0,0.25)';
+      ctx.beginPath(); roundRect(ctx,cx-bw/2+3,cy+3,bw,bh,3); ctx.fill();
+
+      // Thân rào chắn
       ctx.shadowColor='#ff6600'; ctx.shadowBlur=10;
       ctx.fillStyle='#cc5500';
-      roundRect(ctx,cx-o.w/2,cy,o.w,o.h,4); ctx.fill();
+      ctx.beginPath(); roundRect(ctx,cx-bw/2,cy,bw,bh,3); ctx.fill();
       ctx.shadowBlur=0;
-      // Viền cảnh báo
-      ctx.strokeStyle='#ffcc00'; ctx.lineWidth=2;
-      roundRect(ctx,cx-o.w/2,cy,o.w,o.h,4); ctx.stroke();
-      // Icon ⚠
-      ctx.fillStyle='#ffcc00';
-      ctx.font='bold 14px sans-serif';
+
+      // Sọc cảnh báo chéo (chevron pattern)
+      ctx.save();
+      ctx.beginPath(); roundRect(ctx,cx-bw/2,cy,bw,bh,3); ctx.clip();
+      for(let s=-bw;s<bw+bh;s+=14){
+        ctx.fillStyle=(Math.floor(s/14)%2)?'rgba(255,200,0,0.5)':'rgba(255,255,255,0.3)';
+        ctx.save(); ctx.translate(cx,cy+bh/2);
+        ctx.rotate(0.5);
+        ctx.fillRect(s-bw/2,-bh/2,12,bh);
+        ctx.restore();
+      }
+      ctx.restore();
+
+      // Viền
+      ctx.strokeStyle='rgba(255,200,0,0.6)'; ctx.lineWidth=1.5;
+      ctx.beginPath(); roundRect(ctx,cx-bw/2,cy,bw,bh,3); ctx.stroke();
+
+      // Icon công trường
+      ctx.fillStyle='#ffdd00';
+      ctx.font='bold 16px sans-serif';
       ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText('⚠',cx,cy+o.h/2);
+      ctx.shadowColor='#ff6600'; ctx.shadowBlur=6;
+      ctx.fillText('\u26A1',cx,cy+bh/2);
+      ctx.shadowBlur=0;
     }
 
     else if(o.type==='oil'){
-      // Oil spill — vệt dầu đơn giản
-      ctx.shadowColor='rgba(0,255,200,0.15)'; ctx.shadowBlur=12;
-      ctx.fillStyle='rgba(20,20,40,0.55)';
+      // ── Vệt dầu loang ──
+      const wobble=Math.sin(o.animTimer*1.5)*2;
+
+      // Bóng
+      ctx.fillStyle='rgba(0,0,0,0.15)';
       ctx.beginPath();
-      ctx.ellipse(cx,cy+o.h/2,o.w/2,o.h/2,0,0,Math.PI*2);
+      ctx.ellipse(cx+2,cy+bh/2+3,bw/2+2,bh/2+2,0,0,Math.PI*2);
       ctx.fill();
+
+      // Vệt dầu chính
+      ctx.shadowColor='rgba(0,255,200,0.12)'; ctx.shadowBlur=18;
+      const oilG=ctx.createRadialGradient(cx,cy+bh/2,0,cx,cy+bh/2,bw/2);
+      oilG.addColorStop(0,'rgba(15,10,30,0.7)');
+      oilG.addColorStop(0.3,'rgba(25,20,45,0.55)');
+      oilG.addColorStop(0.6,'rgba(45,55,75,0.3)');
+      oilG.addColorStop(1,'rgba(30,30,50,0.08)');
+      ctx.fillStyle=oilG;
+      ctx.beginPath();
+      ctx.ellipse(cx+wobble,cy+bh/2,bw/2,bh/2,0,0,Math.PI*2);
+      ctx.fill();
+
+      // Ánh cầu vồng
+      for(let i=0;i<4;i++){
+        const hue=(o.animTimer*30+i*90)%360;
+        ctx.fillStyle=`hsla(${hue},90%,55%,${0.05+Math.sin(o.animTimer*2+i)*0.02})`;
+        ctx.beginPath();
+        ctx.ellipse(cx+wobble+i*2,cy+bh/2-2+i*3,bw/3-i*2,bh/4,0.2,0,Math.PI*2);
+        ctx.fill();
+      }
       ctx.shadowBlur=0;
+
+      // Bọt khí nhỏ
+      for(let i=0;i<3;i++){
+        const bx=cx+Math.sin(o.animTimer*1.5+i*2)*bw*0.3;
+        const by=cy+bh/2+Math.cos(o.animTimer*2+i)*bh*0.2;
+        ctx.fillStyle='rgba(200,220,255,0.08)';
+        ctx.beginPath(); ctx.arc(bx,by,2+Math.sin(o.animTimer+i)*0.5,0,Math.PI*2); ctx.fill();
+      }
     }
 
     else if(o.type==='barrier'){
-      // Barrier — rào chắn đơn giản
-      ctx.shadowColor='#ff0000'; ctx.shadowBlur=14;
+      // ── Rào chắn bê-tông ──
+      const bobY=Math.sin(o.animTimer*2)*2;
+
+      // Bóng
+      ctx.fillStyle='rgba(0,0,0,0.3)';
+      ctx.beginPath(); roundRect(ctx,cx-bw/2+4,cy-bh/2+bobY+5,bw,bh,4); ctx.fill();
+
+      // Thân rào
+      ctx.shadowColor='#cc0000'; ctx.shadowBlur=14;
       ctx.fillStyle='#cc2222';
-      roundRect(ctx,cx-o.w/2,cy-o.h/2,o.w,o.h,5); ctx.fill();
+      ctx.beginPath(); roundRect(ctx,cx-bw/2,cy-bh/2+bobY,bw,bh,4); ctx.fill();
       ctx.shadowBlur=0;
-      // Dải phản quang trắng
-      ctx.fillStyle='rgba(255,255,255,0.7)';
-      ctx.fillRect(cx-o.w/2+4,cy-o.h/2+6,o.w-8,4);
-      ctx.fillRect(cx-o.w/2+4,cy+o.h/2-10,o.w-8,4);
+
+      // Sọc phản quang trắng
+      ctx.fillStyle='rgba(255,255,255,0.8)';
+      ctx.fillRect(cx-bw/2+3,cy-bh/2+bobY+5,bw-6,4);
+      ctx.fillRect(cx-bw/2+3,cy+bh/2+bobY-9,bw-6,4);
+
+      // Chevron pattern
+      ctx.save();
+      ctx.beginPath(); roundRect(ctx,cx-bw/2,cy-bh/2+bobY,bw,bh,4); ctx.clip();
+      for(let y=-bh/2;y<bh/2;y+=10){
+        const px=cx-bw/2+((y+bh/2)%20<10?2:bw*0.3);
+        ctx.fillStyle='rgba(255,255,255,0.15)';
+        ctx.fillRect(px,cy+y+bobY,bw*0.4,5);
+      }
+      ctx.restore();
+
+      // Đèn nháy cảnh báo
+      const flashOn=Math.sin(o.animTimer*6)>0;
+      ctx.shadowColor=flashOn?'#ff0000':'#880000';
+      ctx.shadowBlur=flashOn?22:8;
+      ctx.fillStyle=flashOn?'#ff2200':'#991111';
+      ctx.beginPath();
+      ctx.arc(cx,cy-bh/2+bobY-7,5,0,Math.PI*2);
+      ctx.fill();
+
+      // Đèn phụ
+      ctx.fillStyle=flashOn?'#ff8800':'#884400';
+      ctx.shadowColor=flashOn?'#ff8800':'#884400';
+      ctx.shadowBlur=flashOn?15:5;
+      ctx.beginPath();
+      ctx.arc(cx-10,cy-bh/2+bobY-7,3,0,Math.PI*2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(cx+10,cy-bh/2+bobY-7,3,0,Math.PI*2);
+      ctx.fill();
+      ctx.shadowBlur=0;
+
       // Chữ STOP
       ctx.fillStyle='#fff';
-      ctx.font='bold 12px sans-serif';
+      ctx.font='bold 11px sans-serif';
       ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText('STOP',cx,cy);
+      ctx.shadowColor='#000'; ctx.shadowBlur=4;
+      ctx.fillText('STOP',cx,cy+bobY);
+      ctx.shadowBlur=0;
     }
 
     ctx.restore();
   }
 }
 
-// ── Car Drawer (enhanced) ────────────────────────────────
+// ── Car Drawer (đẹp như asset free) ──────────────────────────
 function drawCar(x,y,w,h,color,accent,isPlayer,flash,typeKey){
-  x=Math.round(x); y=Math.round(y); const r=Math.min(w,h)*0.1;
+  x=Math.round(x); y=Math.round(y);
+  const r=Math.min(w,h)*0.1;
+  const frontY=y-h*0.48;  // đầu xe (hướng lên)
+  const rearY=y+h*0.48;   // đuôi xe
 
   // Player glow
   if(isPlayer){
-    const g=ctx.createRadialGradient(x,y,0,x,y,65);
-    g.addColorStop(0,color+'30'); g.addColorStop(1,'transparent');
-    ctx.fillStyle=g; ctx.fillRect(x-65,y-65,130,130);
+    const g=ctx.createRadialGradient(x,y,0,x,y,85);
+    g.addColorStop(0,color+'60'); g.addColorStop(1,'transparent');
+    ctx.fillStyle=g; ctx.fillRect(x-85,y-85,170,170);
   }
 
-  const alpha=flash?0.5:1;
+  const alpha=flash?0.35:1;
   ctx.globalAlpha=alpha;
 
-  // Shadow
-  ctx.fillStyle='rgba(0,0,0,0.3)';
-  ctx.beginPath(); roundRect(ctx,x-w/2+4,y-h/2+6,w,h,r); ctx.fill();
+  // ── Shadow ──
+  ctx.fillStyle='rgba(0,0,0,0.35)';
+  ctx.beginPath();
+  ctx.ellipse(x+4,y+6,w*0.52,h*0.52,0,0,0,Math.PI*2);
+  ctx.fill();
 
-  // Body
+  // ── Body xe thể thao ──
+  ctx.shadowColor=isPlayer?color+'80':'transparent'; ctx.shadowBlur=isPlayer?18:0;
   ctx.fillStyle=color;
-  ctx.beginPath(); roundRect(ctx,x-w/2,y-h/2,w,h,r); ctx.fill();
-
-  // Highlight gradient
-  const hl=ctx.createLinearGradient(x,y-h/2,x,y+h/2);
-  hl.addColorStop(0,'rgba(255,255,255,0.22)');
-  hl.addColorStop(0.3,'rgba(255,255,255,0.05)');
-  hl.addColorStop(1,'rgba(0,0,0,0.2)');
-  ctx.fillStyle=hl;
-  ctx.beginPath(); roundRect(ctx,x-w/2,y-h/2,w,h,r); ctx.fill();
-
-  // Windshield
-  ctx.fillStyle='rgba(150,200,255,0.4)';
-  ctx.beginPath(); roundRect(ctx,x-w*0.3,y-h*0.35,w*0.6,h*0.18,3); ctx.fill();
-  ctx.fillStyle='rgba(150,200,255,0.25)';
-  ctx.beginPath(); roundRect(ctx,x-w*0.25,y-h*0.13,w*0.5,h*0.12,2); ctx.fill();
-  ctx.beginPath(); roundRect(ctx,x-w*0.25,y+h*0.22,w*0.5,h*0.1,2); ctx.fill();
-
-  // Accents
-  ctx.fillStyle=accent;
-  ctx.fillRect(x-w/2+4,y-h/2+5,w-8,3);
-  ctx.fillRect(x-w/2+4,y+h/2-8,w-8,3);
-
-  // Lights
-  ctx.shadowBlur=10; ctx.shadowColor='#ffffcc';
-  ctx.fillStyle='#ffffcc';
-  ctx.fillRect(x-w*0.3,y-h/2-2,7,4); ctx.fillRect(x+w*0.3-7,y-h/2-2,7,4);
-  ctx.shadowColor='#ff3333'; ctx.fillStyle='#ff3333';
-  ctx.fillRect(x-w*0.3,y+h/2-2,7,4); ctx.fillRect(x+w*0.3-7,y+h/2-2,7,4);
+  ctx.beginPath();
+  const bw=w*0.38, bh=h*0.42;
+  const noseW=w*0.28;
+  // Nửa trái thân xe
+  ctx.moveTo(x-noseW,frontY+2);
+  ctx.bezierCurveTo(x-bw-2,frontY+bh*0.15, x-bw,frontY+bh*0.5, x-bw,frontY+bh);
+  ctx.lineTo(x-bw,rearY-bh);
+  ctx.bezierCurveTo(x-bw,rearY-bh*0.5, x-bw-2,rearY-2, x-noseW,rearY-2);
+  // Nửa phải thân xe
+  ctx.lineTo(x+noseW,rearY-2);
+  ctx.bezierCurveTo(x+bw+2,rearY-2, x+bw,rearY-bh*0.5, x+bw,rearY-bh);
+  ctx.lineTo(x+bw,frontY+bh);
+  ctx.bezierCurveTo(x+bw,frontY+bh*0.5, x+bw+2,frontY+bh*0.15, x+noseW,frontY+2);
+  ctx.closePath(); ctx.fill();
   ctx.shadowBlur=0;
 
-  // Brake light for traffic
+  // ── Highlight body ──
+  const hl=ctx.createLinearGradient(x,frontY-5,x,rearY+5);
+  hl.addColorStop(0,'rgba(255,255,255,0.28)');
+  hl.addColorStop(0.3,'rgba(255,255,255,0.1)');
+  hl.addColorStop(0.6,'rgba(0,0,0,0.05)');
+  hl.addColorStop(1,'rgba(0,0,0,0.3)');
+  ctx.fillStyle=hl;
+  ctx.beginPath();
+  ctx.moveTo(x-noseW,frontY+2);
+  ctx.bezierCurveTo(x-bw-2,frontY+bh*0.15, x-bw,frontY+bh*0.5, x-bw,frontY+bh);
+  ctx.lineTo(x-bw,rearY-bh);
+  ctx.bezierCurveTo(x-bw,rearY-bh*0.5, x-bw-2,rearY-2, x-noseW,rearY-2);
+  ctx.lineTo(x+noseW,rearY-2);
+  ctx.bezierCurveTo(x+bw+2,rearY-2, x+bw,rearY-bh*0.5, x+bw,rearY-bh);
+  ctx.lineTo(x+bw,frontY+bh);
+  ctx.bezierCurveTo(x+bw,frontY+bh*0.5, x+bw+2,frontY+bh*0.15, x+noseW,frontY+2);
+  ctx.closePath(); ctx.fill();
+
+  // ── Racing stripe ──
+  if(isPlayer){
+    ctx.fillStyle='rgba(255,255,255,0.18)';
+    ctx.fillRect(x-w*0.06,frontY+3,w*0.12,h*0.5);
+    ctx.fillStyle='rgba(255,255,255,0.08)';
+    ctx.fillRect(x-w*0.035,frontY+3,w*0.07,h*0.5);
+    // Side stripe
+    ctx.fillStyle='rgba(255,255,255,0.1)';
+    ctx.fillRect(x-bw+2,frontY+bh*0.7,3,h*0.35);
+    ctx.fillRect(x+bw-5,frontY+bh*0.7,3,h*0.35);
+  }
+
+  // ── Kính lái ──
+  const windG=ctx.createLinearGradient(x,frontY+bh*0.1,x,frontY+bh*0.55);
+  windG.addColorStop(0,'rgba(170,210,255,0.65)');
+  windG.addColorStop(0.5,'rgba(130,180,240,0.4)');
+  windG.addColorStop(1,'rgba(100,160,230,0.2)');
+  ctx.fillStyle=windG;
+  ctx.beginPath();
+  ctx.moveTo(x-w*0.34,frontY+bh*0.2);
+  ctx.quadraticCurveTo(x-w*0.28,frontY+bh*0.08,x-w*0.14,frontY+bh*0.04);
+  ctx.lineTo(x+w*0.14,frontY+bh*0.04);
+  ctx.quadraticCurveTo(x+w*0.28,frontY+bh*0.08,x+w*0.34,frontY+bh*0.2);
+  ctx.lineTo(x+w*0.28,frontY+bh*0.55);
+  ctx.lineTo(x-w*0.28,frontY+bh*0.55);
+  ctx.closePath(); ctx.fill();
+
+  // ── Kính sau ──
+  ctx.fillStyle='rgba(130,180,240,0.25)';
+  ctx.beginPath();
+  ctx.moveTo(x-w*0.24,rearY-bh*0.45);
+  ctx.quadraticCurveTo(x-w*0.28,rearY-bh*0.25,x-w*0.3,rearY-bh*0.1);
+  ctx.lineTo(x+w*0.3,rearY-bh*0.1);
+  ctx.quadraticCurveTo(x+w*0.28,rearY-bh*0.25,x+w*0.24,rearY-bh*0.45);
+  ctx.closePath(); ctx.fill();
+
+  // ── Kính hông ──
+  ctx.fillStyle='rgba(100,160,230,0.12)';
+  ctx.fillRect(x-bw+1,frontY+bh*0.6,4,h*0.22);
+  ctx.fillRect(x+bw-5,frontY+bh*0.6,4,h*0.22);
+
+  // ── Đèn pha LED ──
+  ctx.shadowColor='#ffffcc'; ctx.shadowBlur=22;
+  ctx.fillStyle='#eeeedd';
+  ctx.beginPath(); ctx.ellipse(x-w*0.28,frontY+2,4,2.5,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(x+w*0.28,frontY+2,4,2.5,0,0,Math.PI*2); ctx.fill();
+  // LED DRL
+  ctx.fillStyle='rgba(255,255,200,0.15)';
+  ctx.fillRect(x-w*0.24,frontY-12,3,12);
+  ctx.fillRect(x+w*0.21,frontY-12,3,12);
+
+  // ── Đèn hậu LED ──
+  ctx.shadowColor='#ff3333'; ctx.shadowBlur=10;
+  ctx.fillStyle='#ff2222';
+  ctx.fillRect(x-w*0.28,rearY-6,6,5);
+  ctx.fillRect(x+w*0.22,rearY-6,6,5);
+  // Brake light cho traffic
   if(!isPlayer){
     const tc=trafficCars.find(c=>c.x===x&&c.y===y);
     if(tc&&tc.brakeLight){
+      ctx.shadowColor='#ff0000'; ctx.shadowBlur=25;
       ctx.fillStyle='#ff0000';
-      ctx.shadowColor='#ff0000'; ctx.shadowBlur=15;
-      ctx.fillRect(x-w*0.3,y+h/2-2,7,4);
-      ctx.fillRect(x+w*0.3-7,y+h/2-2,7,4);
-      ctx.shadowBlur=0;
+      ctx.fillRect(x-w*0.28,rearY-6,6,6);
+      ctx.fillRect(x+w*0.22,rearY-6,6,6);
     }
   }
+  ctx.shadowBlur=0;
 
-  // Wheels
+  // ── Bánh xe ──
+  const wheelW=5, wheelH=10;
+  const wPosX=x-w*0.47, wPosX2=x+w*0.47;
+  const wPosY1=frontY+bh*0.55, wPosY2=rearY-bh*0.55;
+
+  // Wheel arches (lốp)
   ctx.fillStyle='#111';
-  ctx.fillRect(x-w/2-4,y-h*0.32,6,16); ctx.fillRect(x+w/2-2,y-h*0.32,6,16);
-  ctx.fillRect(x-w/2-4,y+h*0.22,6,16); ctx.fillRect(x+w/2-2,y+h*0.22,6,16);
-  ctx.fillStyle='#444';
-  ctx.fillRect(x-w/2-3,y-h*0.3,3,12); ctx.fillRect(x+w/2-1,y-h*0.3,3,12);
-  ctx.fillRect(x-w/2-3,y+h*0.24,3,12); ctx.fillRect(x+w/2-1,y+h*0.24,3,12);
+  ctx.beginPath(); ctx.ellipse(wPosX,wPosY1,wheelW,wheelH,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(wPosX2,wPosY1,wheelW,wheelH,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(wPosX,wPosY2,wheelW,wheelH,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(wPosX2,wPosY2,wheelW,wheelH,0,0,Math.PI*2); ctx.fill();
 
-  // Nitro flame
+  // Rims (mâm xe)
+  ctx.fillStyle='#777';
+  ctx.beginPath(); ctx.ellipse(wPosX,wPosY1,wheelW-2,wheelH-3,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(wPosX2,wPosY1,wheelW-2,wheelH-3,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(wPosX,wPosY2,wheelW-2,wheelH-3,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(wPosX2,wPosY2,wheelW-2,wheelH-3,0,0,Math.PI*2); ctx.fill();
+  // Center hub
+  ctx.fillStyle='#aaa';
+  const hubR=2.5;
+  ctx.beginPath(); ctx.arc(wPosX,wPosY1,hubR,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(wPosX2,wPosY1,hubR,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(wPosX,wPosY2,hubR,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(wPosX2,wPosY2,hubR,0,Math.PI*2); ctx.fill();
+
+  // ── Spoiler ──
+  if(isPlayer){
+    ctx.fillStyle='rgba(0,0,0,0.35)';
+    ctx.fillRect(x-w*0.38,rearY-3,w*0.76,3);
+    ctx.fillStyle='rgba(255,255,255,0.1)';
+    ctx.fillRect(x-w*0.32,rearY-2,w*0.64,2);
+  }
+
+  // ── Nitro (ngọn lửa) ──
   if(isPlayer&&nitroActive){
-    ctx.shadowColor='#ff4400'; ctx.shadowBlur=25;
-    for(let i=0;i<4;i++){
-      const fx=x+(i-1.5)*9, fy=y+h/2+rand(3,18);
-      ctx.fillStyle=i%2?'#ff6600':'#ffaa00';
-      ctx.fillRect(fx-4,fy,8,rand(10,22));
+    ctx.shadowColor='#ff4400'; ctx.shadowBlur=35;
+    for(let i=0;i<5;i++){
+      const fx=x+(i-2)*8, fy=rearY+rand(2,15);
+      ctx.fillStyle=i%2?'#ff6600':'#ffcc00';
+      const len=rand(10,28);
+      ctx.beginPath();
+      ctx.moveTo(fx-3,fy);
+      ctx.lineTo(fx,fy+len);
+      ctx.lineTo(fx+3,fy);
+      ctx.fill();
     }
     ctx.shadowBlur=0;
   }
