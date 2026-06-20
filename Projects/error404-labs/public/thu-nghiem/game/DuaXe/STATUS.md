@@ -1,24 +1,69 @@
-# 🏁 Turbo Rush — Arcade Racing Game
+# 🏁 Turbo Rush 2 — Arcade Racing Game (V2.0)
 
-## Status: ✅ Complete (Pause Menu: 2026-06-20 | Debug: 2026-06-20 | Bug Fixed: 2026-06-19 | Việt hoá: 2026-06-20)
+## Status: ✅ Complete (2026-06-20) — V2.1: Chế độ chơi + Center fix
 
-A polished 2D arcade racing game built in a single `index.html` file using HTML5 Canvas and vanilla JavaScript (no dependencies).
+Massive update từ phiên bản 1.0 lên 2.0. Game đua xe arcade 2D chạy trên HTML5 Canvas đơn file, zero dependencies.
 
-## Features Implemented
+## Phiên bản 2.0 — Tính năng mới
+
+| Tính năng | Mô tả |
+|-----------|-------|
+| 🌆 **5 Chủ đề đường phố** | City, Highway, Desert, Rain, Night — mỗi theme có màu sắc, bầu trời, mặt đường, hiệu ứng thời tiết riêng |
+| 🚗 **6 Loại xe AI** | Normal, Aggressive (Đua Xe), Cautious (Cẩn Thận), Weaver (Rắn), Truck (Xe Tải), Sports (Thể Thao) |
+| 🧠 **AI chuyển làn thông minh** | Xe tự đánh giá không gian làn bên cạnh, né chướng ngại vật, tránh xe chậm, phản ứng với người chơi |
+| 🚧 **Công trường xây dựng** | Chướng ngại vật có nón cảnh báo, dải phân cách — gây sát thương và giảm tốc |
+| 🛢️ **Vết dầu trơn** | Vệt dầu trên đường — xe người chơi bị trượt làn mất kiểm soát tạm thời |
+| ⛔ **Rào chắn di động** | Barrier di chuyển qua lại giữa các làn, đèn cảnh báo nhấp nháy |
+| 🎯 **Độ khó thích ứng** | Game tự động điều chỉnh mật độ xe, tần suất chướng ngại vật dựa trên hiệu suất người chơi |
+| 🌧️ **Hiệu ứng thời tiết** | Mưa (Rain theme) với hạt mưa rơi, bụi sa mạc (Desert theme), sương mù |
+| 🔄 **Chuyển cảnh mượt mà** | Transition giữa các theme kéo dài 4 giây với hiệu ứng làm mờ dần |
+| 🎨 **Đồ hoạ cải tiến** | Lane markings theo theme, road edge markers màu sắc động, cây cối sa mạc, toà nhà thành phố |
+| 📊 **HUD nâng cao** | Hiển thị tên theme hiện tại, chỉ số độ khó, thống kê sau game over |
+
+## V2.1 — Cập nhật (2026-06-20)
+
+| Tính năng | Chi tiết |
+|-----------|----------|
+| 🎮 **4 chế độ chơi** | Vô Tận, Tính Giờ (60s), Vượt Chướng Ngại Vật, Đêm Tối |
+| 📐 **Canvas center fix** | Sử dụng `100dvw`/`100dvh`, ResizeObserver, `flex-shrink:0`, `margin:auto` |
+| ⏱️ **Timer HUD** | Hiển thị đồng hồ đếm ngược khi chơi chế độ Tính Giờ |
+| 🎯 **Mode multipliers** | Mỗi chế độ có hệ số riêng cho obstacle, traffic, coin spawn |
+
+### Chế độ chơi chi tiết
+
+| Chế độ | Mạng | Tốc độ đầu | Đặc điểm |
+|--------|------|-----------|----------|
+| 🔄 Vô Tận | 3 | 240 | Endless mặc định, tất cả theme |
+| ⏱️ Tính Giờ | 5 | 280 | Sống sót 60s, điểm + xu x2 |
+| ⚠️ Vượt Chướng Ngại Vật | 3 | 260 | Obstacle x2, traffic x0.5, coin x2.5 |
+| 🌙 Đêm Tối | 4 | 220 | Chỉ theme Night, obstacle x1.5 |
+
+## So sánh V1.0 vs V2.0
+
+| Khía cạnh | V1.0 | V2.0 |
+|-----------|------|------|
+| Chủ đề đường | 1 (cố định) | 5 (luân phiên) |
+| Loại xe AI | 1 loại (màu sắc khác nhau) | 6 loại (hành vi khác nhau) |
+| AI chuyển làn | Ngẫu nhiên đơn giản | Đa mục tiêu (né obstacle, tránh xe, phản ứng player) |
+| Chướng ngại vật | ❌ Không có | ✅ Công trường, dầu trơn, rào chắn |
+| Độ khó | Tuyến tính (tốc độ tăng dần) | Thích ứng (dựa trên điểm + thời gian sống) |
+| Thời tiết | ❌ Không có | ✅ Mưa, bụi, sương mù |
+| Chuyển cảnh | ❌ Không có | ✅ Smooth 4 giây |
+| Kích thước | 1184 dòng | 2028 dòng |
+
+## Features V1.0 (Giữ nguyên)
 
 | Feature | Status |
 |---------|--------|
 | 4-lane road with smooth lane switching | ✅ |
-| AI traffic cars (weaving, multiple colors) | ✅ |
 | Nitro boost with visual flame effects | ✅ |
 | Coin collection with earn mechanics | ✅ |
 | Near-miss bonus scoring system | ✅ |
 | Escalating speed progression + level system | ✅ |
 | 5 unlockable vehicles in Garage (coin purchase) | ✅ |
 | Responsive mobile (touch buttons) + desktop (keyboard) | ✅ |
-| Dynamic road with scrolling lane markings | ✅ |
 | Particle systems (exhaust, sparks, coins, crash) | ✅ |
-| Screen shake on actions | ✅ |
+| Screen shake on actions | ✅ (cải tiến mượt hơn) |
 | Combo multiplier (x2, x3, x4...) | ✅ |
 | Premium HUD (score, speed gauge, hearts, nitro bar) | ✅ |
 | Neon arcade visuals with glow effects | ✅ |
@@ -33,60 +78,33 @@ A polished 2D arcade racing game built in a single `index.html` file using HTML5
 - **Mobile**: On-screen touch buttons (left, right, nitro)
 - **Menus**: Tap/click to navigate
 
-## Bug Fixes (2026-06-19)
+## Road Themes Chi Tiết
 
-| # | Bug | Root Cause | Fix |
-|---|-----|-----------|-----|
-| 1 | Nitro cạn nhưng speed boost vẫn active | Thiếu `nitroActive=false` khi nitro ≤ 0 | Thêm `nitroActive=false` khi nitro cạn |
-| 2 | `nitro=false` gán boolean vào biến number | Dòng `nitro=false;nitro=0` | Bỏ `nitro=false`, chỉ giữ `nitro=0` |
-| 3 | Speed blur vẽ full-screen rect không điều kiện | `ctx.fillRect` nằm ngoài `if(sr>0.5)` | Đưa `fillRect` vào trong block `if` |
-| 4 | Game Over — tap bất kỳ đâu cũng restart | `else startGame()` ở cuối handler | Xóa dòng `else startGame()` |
-| 5 | Collision bị bỏ qua khi nitro | Điều kiện `&&!nitroActive` | Bỏ `&&!nitroActive` khỏi check |
-| 6 | Biến `distance` dead code | Khai báo nhưng không dùng | Xóa khai báo, increment và reset |
-| 7 | Icon coin `\u{1FA99}` (🪙) hiển thị hình chữ nhật trên Canvas | Emoji Unicode 13.0 không được font hỗ trợ | Thay bằng `$` — tương thích mọi trình duyệt |
-| 8 | Nitro boost không ảnh hưởng KM/H và road scroll | `spd=speed*dt` dùng base speed, `currentSpeed` tính sau | Chuyển nitro logic lên trước `spd`, dùng `currentSpeed` cho road & HUD |
-| 9 | Title screen "RUSH" shadow glow overlay "ARCADE RACING" | shadowBlur=45 + khoảng cách 2px quá gần | Đẩy "ARCADE RACING" từ y=208 xuống y=235 |
-| 10 | Favicon thiếu | Không có favicon | Thêm `favicon.svg` với xe đua neon |
+| Theme | Màu chủ đạo | Hiệu ứng đặc biệt | Loại hazard chính |
+|-------|-------------|-------------------|-------------------|
+| 🌃 City | Xanh đêm | Toà nhà, sao | Dầu trơn + công trường |
+| 🛣️ Highway | Xanh dương | Dải cỏ sọc | Công trường + rào chắn |
+| 🏜️ Sa Mạc | Cam nắng | Cây xương rồng, bụi | Công trường + rào chắn |
+| 🌧️ Mưa | Xám tối | Hạt mưa, lane mờ | Dầu trơn + rào chắn |
+| 🌙 Đêm | Tối đen | Nhiều sao, building | Cân bằng |
 
-## Debug & Fix (2026-06-20)
+## Traffic Types Chi Tiết
 
-| # | Bug | Root Cause | Fix |
-|---|-----|-----------|-----|
-| 11 | Garage vẫn dùng `\u{1FA99}` 🪙 (Bug #7 còn sót) | Quên sửa line 889 khi fix Bug #7 | Thay `\u{1FA99}` bằng `$` ở garage |
-| 12 | `textBaseline` rò rỉ giữa các màn hình | Các hàm vẽ không reset `textBaseline` về `alphabetic` | Thêm `ctx.textBaseline='alphabetic'` đầu mỗi hàm vẽ |
-| 13 | `unlockedCars` mất xe mặc định nếu dữ liệu lưu bị hỏng | `loadData()` không đảm bảo xe 0 luôn unlocked | Thêm `unlockedCars.add(0)` sau khi load |
-
-## Pause & Main Menu (2026-06-20)
-
-| # | Tính năng | Chi tiết |
-|---|-----------|----------|
-| 1 | Phím Escape | Tạm dừng / Tiếp tục game. Cũng dùng để quay lại Main Menu từ Game Over và Garage |
-| 2 | Nút ⏸ trên HUD | Góc trên-trái màn hình game, dùng cho mobile/ click chuột |
-| 3 | Màn hình Pause | Overlay với 2 nút: **TIẾP TỤC** (tiếp tục chơi) và **MÀN HÌNH CHÍNH** (về title) |
-| 4 | Block input khi pause | Không thể chuyển làn, dùng nitro khi game đang tạm dừng |
-| 5 | Touch controls ẩn/hiện | Touch controls tự động ẩn khi pause, hiện lại khi unpause |
-
-## Việt Hoá (2026-06-20)
-
-Toàn bộ giao diện người dùng đã được chuyển sang tiếng Việt:
-
-| Khu vực | Chi tiết |
-|---------|----------|
-| HTML | `lang="vi"`, title: "Turbo Rush — Đua Xe Arcade" |
-| Title Screen | "CHƠI", "ĐUA XE ARCADE", "Điểm Cao", hướng dẫn "Phím Mũi Tên · Chạm 2 bên trên Mobile · SPACE: Nitro" |
-| HUD | "CẤP", "NITRO TĂNG TỐC" khi boost |
-| Game Over | "KẾT THÚC", "Điểm", "xu", "ĐIỂM CAO MỚI", "CHƠI LẠI", "MÀN HÌNH CHÍNH" |
-| Garage | "Chọn hoặc mở khoá xe", "ĐÃ CHỌN", "ĐÃ SỞ HỮU", "KHOÁ", "QUAY LẠI" |
-| In-game | "SUÝT!", "Suýt Va Chạm" |
-| Tên xe | Sonic Xanh, Lửa Đỏ, Bóng Tối, Vương Miện Vàng, Cyber Neon |
-| Console | Thông báo và hướng dẫn bằng tiếng Việt |
+| Loại | Tốc độ | Hành vi |
+|------|--------|---------|
+| Normal | 60-85% | Chuyển làn ngẫu nhiên cơ bản |
+| Đua Xe | 80-100% | Chủ động chặn người chơi, chuyển làn nhanh |
+| Cẩn Thận | 40-65% | Hiếm khi chuyển làn, lái chậm |
+| Rắn | 70-90% | Liên tục đổi làn như rắn |
+| Xe Tải | 35-55% | To, chậm, chiếm nhiều không gian |
+| Thể Thao | 90-115% | Nhanh, hung hãn, áp sát người chơi |
 
 ## Files
 
-- `index.html` — Single-file game (1184 lines)
+- `index.html` — Single-file game (2163 lines, 81KB)
 - `favicon.svg` — SVG favicon (xe đua neon style)
 - `STATUS.md` — This file
 
-## Saved Data (localStorage key: `turborush`)
+## Saved Data (localStorage key: `turborush2`)
 
 - High score, total coins, unlocked cars, selected car

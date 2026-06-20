@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>Turbo Rush — Đua Xe Arcade</title>
+<title>Turbo Rush 2 — Đua Xe Arcade</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta name="theme-color" content="#0a0a2e">
 <style>
@@ -15,10 +15,10 @@ html,body{
   -webkit-overflow-scrolling:none;overscroll-behavior:none;
 }
 #gameWrap{
-  position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;
-  background:#0a0a12;
+  position:relative;width:100dvw;height:100dvh;display:flex;align-items:center;justify-content:center;
+  background:#0a0a12;overflow:hidden;
 }
-canvas{display:block;image-rendering:auto;max-width:100%;max-height:100%}
+canvas#c{display:block;image-rendering:auto;flex-shrink:0;margin:auto}
 #touchCtrls{
   position:fixed;bottom:0;left:0;right:0;height:50vh;pointer-events:none;z-index:10;
   display:flex;justify-content:space-between;align-items:flex-end;padding:0 8px 24px;
@@ -60,8 +60,8 @@ canvas{display:block;image-rendering:auto;max-width:100%;max-height:100%}
 </div>
 <script>
 // ══════════════════════════════════════════════════════════════
-// TURBO RUSH — Game Đua Xe Arcade 2D
-// Triển khai HTML5 Canvas trong một file duy nhất
+// TURBO RUSH 2 — Game Đua Xe Arcade 2D
+// Version 2.0: Chủ đề đường phố, AI thông minh, chướng ngại vật
 // ══════════════════════════════════════════════════════════════
 
 // ── Canvas Setup ──────────────────────────────────────────
@@ -72,11 +72,20 @@ canvas.width=W; canvas.height=H;
 
 function fitCanvas(){
   const wrap=document.getElementById('gameWrap');
-  const scale=Math.min(wrap.clientWidth/W, wrap.clientHeight/H);
-  canvas.style.width=(W*scale)+'px';
-  canvas.style.height=(H*scale)+'px';
+  const wrapW=wrap.clientWidth;
+  const wrapH=wrap.clientHeight;
+  if(wrapW===0||wrapH===0) return;
+  const scale=Math.min(wrapW/W, wrapH/H);
+  canvas.style.width=Math.round(W*scale)+'px';
+  canvas.style.height=Math.round(H*scale)+'px';
 }
+// ResizeObserver theo dõi kích thước wrap chính xác hơn resize event
+const ro=new ResizeObserver(()=>fitCanvas());
+ro.observe(document.getElementById('gameWrap'));
 window.addEventListener('resize',fitCanvas);
+// Gọi nhiều lần để đảm bảo canvas center đúng
+setTimeout(fitCanvas,50);
+setTimeout(fitCanvas,200);
 fitCanvas();
 
 // ── Constants ──────────────────────────────────────────────
@@ -88,6 +97,8 @@ const COIN_R=12;
 const BASE_SPEED=240;
 const MAX_SPEED=720;
 const NITRO_MAX=100, NITRO_DRAIN=45, NITRO_REFILL=12;
+const THEME_CHANGE_INTERVAL=35; // seconds between theme transitions
+const THEME_TRANSITION_DURATION=4; // seconds for smooth transition
 
 // ── Utility ────────────────────────────────────────────────
 function lerp(a,b,t){return a+(b-a)*t}
@@ -97,38 +108,226 @@ function randi(mn,mx){return Math.floor(rand(mn,mx+1))}
 function hslStr(h,s,l,a=1){
   return a<1?`hsla(${h},${s}%,${l}%,${a.toFixed(2)})`:`hsl(${h},${s}%,${l}%)`;
 }
+function rgbStr(r,g,b,a=1){return a<1?`rgba(${r|0},${g|0},${b|0},${a.toFixed(2)})`:`rgb(${r|0},${g|0},${b|0})`}
+function hexToRgb(hex){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return{r,g,b}}
+function lerpColor(c1,c2,t){
+  return rgbStr(
+    lerp(c1.r,c2.r,t),lerp(c1.g,c2.g,t),lerp(c1.b,c2.b,t)
+  );
+}
 
 // ── Persistence ───────────────────────────────────────────
 function saveData(){
-  try{localStorage.setItem('turborush',JSON.stringify({
+  try{localStorage.setItem('turborush2',JSON.stringify({
     hs:highScore, coins:totalCoins, unlocks:[...unlockedCars], sel:selectedCar
   }))}catch(e){}
 }
 function loadData(){
   try{
-    const d=JSON.parse(localStorage.getItem('turborush'));
+    const d=JSON.parse(localStorage.getItem('turborush2'));
     if(d){
       highScore=d.hs||0; totalCoins=d.coins||0;
       unlockedCars=new Set(d.unlocks||[0]);
-      unlockedCars.add(0); // luôn đảm bảo xe mặc định được mở khoá
+      unlockedCars.add(0);
       selectedCar=d.sel||0;
     }
   }catch(e){}
 }
 
+// ══════════════════════════════════════════════════════════════
+// ── ROAD THEME SYSTEM ───────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+
+const THEMES={
+  city:{
+    name:'City',
+    skyTop:hexToRgb('#0a0a2e'), skyMid:hexToRgb('#1a1a3e'), skyBot:hexToRgb('#2a2a4e'),
+    roadTop:hexToRgb('#2a2a38'), roadBot:hexToRgb('#353545'),
+    roadEdge:[hexToRgb('#ff4444'),hexToRgb('#ffffff')],
+    grass:hexToRgb('#1a2a1a'), grassAlt:hexToRgb('#2a3a2a'),
+    laneMark:'rgba(255,255,255,0.45)',
+    fogColor:'rgba(50,50,80,0)', fogDensity:0,
+    ambientLight:1,
+    hasBuildings:true, hasStars:true, starCount:25,
+    hasRain:false, rainCount:0,
+    dustColor:null, dustCount:0,
+    themeHue:220,
+    // Theme-specific hazards: more traffic, oil spills
+    hazardWeights:{oil:0.4,construction:0.3,barrier:0.1},
+    trafficDensity:1.2,
+  },
+  highway:{
+    name:'Highway',
+    skyTop:hexToRgb('#1a2a4a'), skyMid:hexToRgb('#3a5a8a'), skyBot:hexToRgb('#6a8aba'),
+    roadTop:hexToRgb('#3a3a45'), roadBot:hexToRgb('#4a4a55'),
+    roadEdge:[hexToRgb('#ffcc00'),hexToRgb('#ffffff')],
+    grass:hexToRgb('#2a4a2a'), grassAlt:hexToRgb('#3a5a3a'),
+    laneMark:'rgba(255,255,200,0.5)',
+    fogColor:'rgba(100,130,180,0.08)', fogDensity:0.08,
+    ambientLight:1,
+    hasBuildings:false, hasStars:false, starCount:0,
+    hasRain:false, rainCount:0,
+    dustColor:null, dustCount:0,
+    themeHue:210,
+    hazardWeights:{oil:0.2,construction:0.4,barrier:0.3},
+    trafficDensity:1.5,
+  },
+  desert:{
+    name:'Sa Mạc',
+    skyTop:hexToRgb('#d4873a'), skyMid:hexToRgb('#f0b84d'), skyBot:hexToRgb('#f5d98a'),
+    roadTop:hexToRgb('#5a4a35'), roadBot:hexToRgb('#6a5a45'),
+    roadEdge:[hexToRgb('#ff6600'),hexToRgb('#ffcc00')],
+    grass:hexToRgb('#8a7a4a'), grassAlt:hexToRgb('#9a8a5a'),
+    laneMark:'rgba(255,200,100,0.4)',
+    fogColor:'rgba(200,160,100,0.12)', fogDensity:0.12,
+    ambientLight:1.2,
+    hasBuildings:false, hasStars:false, starCount:5,
+    hasRain:false, rainCount:0,
+    dustColor:{r:200,g:160,b:100}, dustCount:30,
+    themeHue:35,
+    hazardWeights:{oil:0.1,construction:0.5,barrier:0.2},
+    trafficDensity:0.8,
+  },
+  rain:{
+    name:'Mưa',
+    skyTop:hexToRgb('#1a1a2e'), skyMid:hexToRgb('#2a2a3e'), skyBot:hexToRgb('#3a3a4e'),
+    roadTop:hexToRgb('#2a2a35'), roadBot:hexToRgb('#1a1a25'),
+    roadEdge:[hexToRgb('#ff4444'),hexToRgb('#888888')],
+    grass:hexToRgb('#1a2a1a'), grassAlt:hexToRgb('#1a2a1a'),
+    laneMark:'rgba(180,200,255,0.3)',
+    fogColor:'rgba(80,80,120,0.2)', fogDensity:0.2,
+    ambientLight:0.6,
+    hasBuildings:false, hasStars:false, starCount:0,
+    hasRain:true, rainCount:120,
+    dustColor:null, dustCount:0,
+    themeHue:240,
+    hazardWeights:{oil:0.6,construction:0.2,barrier:0.1},
+    trafficDensity:0.9,
+  },
+  night:{
+    name:'Đêm',
+    skyTop:hexToRgb('#050510'), skyMid:hexToRgb('#0a0a1a'), skyBot:hexToRgb('#0f0f20'),
+    roadTop:hexToRgb('#1a1a25'), roadBot:hexToRgb('#222230'),
+    roadEdge:[hexToRgb('#ff0044'),hexToRgb('#00ccff')],
+    grass:hexToRgb('#0a1a0a'), grassAlt:hexToRgb('#0a1a0a'),
+    laneMark:'rgba(150,200,255,0.25)',
+    fogColor:'rgba(20,20,40,0.15)', fogDensity:0.15,
+    ambientLight:0.4,
+    hasBuildings:true, hasStars:true, starCount:60,
+    hasRain:false, rainCount:0,
+    dustColor:null, dustCount:0,
+    themeHue:260,
+    hazardWeights:{oil:0.3,construction:0.3,barrier:0.3},
+    trafficDensity:1.0,
+  }
+};
+
+const THEME_KEYS=Object.keys(THEMES);
+let currentThemeIdx=0, nextThemeIdx=1;
+let themeTransition=1; // 0..1, 1=fully in current theme
+let themeTimer=0;
+
+// ══════════════════════════════════════════════════════════════
+// ── TRAFFIC PERSONALITIES ──────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+
+const TRAFFIC_TYPES={
+  normal:{
+    name:'Normal',w:50,h:88,color:'#3498db',accent:'#555',
+    speedMult:rand(0.6,0.85),switchChance:0.008,
+    aggressive:0.3,cautious:0.2,maxSwitchTimer:3,
+  },
+  aggressive:{
+    name:'Đua Xe',w:48,h:84,color:'#e74c3c',accent:'#ff4444',
+    speedMult:rand(0.8,1.0),switchChance:0.025,
+    aggressive:0.9,cautious:0.05,maxSwitchTimer:1.5,
+  },
+  cautious:{
+    name:'Cẩn Thận',w:52,h:92,color:'#2ecc71',accent:'#555',
+    speedMult:rand(0.4,0.65),switchChance:0.003,
+    aggressive:0.1,cautious:0.9,maxSwitchTimer:5,
+  },
+  weaver:{
+    name:'Rắn',w:46,h:82,color:'#f39c12',accent:'#ff8800',
+    speedMult:rand(0.7,0.9),switchChance:0.04,
+    aggressive:0.5,cautious:0.1,maxSwitchTimer:1.2,
+  },
+  truck:{
+    name:'Xe Tải',w:60,h:110,color:'#8e44ad',accent:'#663399',
+    speedMult:rand(0.35,0.55),switchChance:0.002,
+    aggressive:0.05,cautious:0.8,maxSwitchTimer:6,
+  },
+  sports:{
+    name:'Thể Thao',w:44,h:78,color:'#ff6b81',accent:'#ff00ff',
+    speedMult:rand(0.9,1.15),switchChance:0.015,
+    aggressive:0.7,cautious:0.1,maxSwitchTimer:2,
+  }
+};
+const TRAFFIC_TYPE_KEYS=Object.keys(TRAFFIC_TYPES);
+
+// ══════════════════════════════════════════════════════════════
+// ── OBSTACLE TYPES ─────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+
+// ── Game Mode System ─────────────────────────────────────
+const GAME_MODES={
+  endless:{
+    key:'endless',name:'Vô Tận',icon:'\u{1F504}',
+    desc:'Chạy không giới hạn, độ khó tăng dần',
+    lives:3, initialSpeed:240, hasTimer:false,
+    obstacleMult:1, trafficMult:1, coinMult:1,
+  },
+  timeTrial:{
+    key:'timeTrial',name:'Tính Giờ',icon:'\u23F1\uFE0F',
+    desc:'Sống sót 60 giây, điểm càng xa càng cao',
+    lives:5, initialSpeed:280, hasTimer:true,timerDuration:60,
+    obstacleMult:1.2, trafficMult:1.3, coinMult:1.5,
+  },
+  obstacleRush:{
+    key:'obstacleRush',name:'Vượt Chướng Ngại Vật',icon:'\u26A0\uFE0F',
+    desc:'Chướng ngại vật dày đặc, ít xe hơn, nhiều xu hơn',
+    lives:3, initialSpeed:260, hasTimer:false,
+    obstacleMult:2.0, trafficMult:0.5, coinMult:2.5,
+  },
+  nightRide:{
+    key:'nightRide',name:'Đêm Tối',icon:'\u{1F319}',
+    desc:'Chỉ chạy ban đêm, tầm nhìn hạn chế',
+    lives:4, initialSpeed:220, hasTimer:false,
+    obstacleMult:1.5, trafficMult:1.2, coinMult:1.3,
+    forceTheme:'night',
+  },
+};
+const MODE_KEYS=Object.keys(GAME_MODES);
+
 // ── Game State Variable ───────────────────────────────────
 let screen='title'; // title | game | over | garage
+let selectedMode='endless';
 let score=0, highScore=0, totalCoins=0, gameCoins=0;
 let lives=3, speed=BASE_SPEED, level=1;
 let nitro=NITRO_MAX, nitroActive=false, nitroTimer=0;
 let combo=0, comboTimer=0, comboSpeed=0, nearMissStreak=0;
 let playerLane=1, playerTargetLane=1, playerX=0, playerY=650;
 let playerSway=0, carBob=0;
-let trafficCars=[], coins=[], particles=[], floatingTexts=[], speedLines=[];
+let trafficCars=[], coins=[], obstacles=[], particles=[], floatingTexts=[], speedLines=[];
+let rainDrops=[], dustParticles=[];
 let shakeX=0, shakeY=0, shakeIntensity=0;
 let roadOffset=0, gameTime=0, invincibleTimer=0, hitFlash=0;
-let bgHue=220;
 let paused=false;
+let obstacleTimer=5;
+let gameModeTimer=0; // Timer for time-based modes
+
+// Oil spill effect
+let oilSlide=0; // -1..1 sliding direction, decays to 0
+let oilDuration=0;
+
+// Difficulty adaptation
+const perfMetrics={
+  avgSurvival:0, totalGames:0, bestScore:0,
+  nearMissRate:0, totalNearMisses:0, totalTimeAlive:0,
+};
+let gameStartTime=0;
+let adaptDifficulty=0; // 0..1, how hard the game should be
+let difficultyTimer=0;
 
 let selectedCar=0;
 let unlockedCars=new Set([0]);
@@ -139,19 +338,35 @@ const CAR_ACCENTS=['#0055cc','#cc1122','#8844ff','#ffaa00','#ff00ff'];
 
 // ── Classes ────────────────────────────────────────────────
 class TrafficCar{
-  constructor(lane,y,speed,color,type){
+  constructor(lane,y,speed,typeKey,themeIdx){
+    const type=TRAFFIC_TYPES[typeKey]||TRAFFIC_TYPES.normal;
     this.lane=lane; this.y=y; this.speed=speed;
-    this.color=color; this.type=type||0;
-    this.w=TRAFFIC_W; this.h=TRAFFIC_H;
+    this.typeKey=typeKey;
+    this.color=type.color; this.accent=type.accent;
+    this.w=type.w; this.h=type.h;
     this.passed=false; this.active=true;
     this.x=ROAD_L+this.lane*LANE_W+LANE_W/2;
-    this.switchTimer=0; this.switchLane=null;
+    this.switchTimer=rand(0,type.maxSwitchTimer);
+    this.switchLane=null;
+    this.targetLane=lane;
     this.sparkTimer=0;
+    this.speedMult=type.speedMult;
+    this.aggressive=type.aggressive;
+    this.cautious=type.cautious;
+    this.switchChance=type.switchChance;
+    this.maxSwitchTimer=type.maxSwitchTimer;
+    this.honkTimer=0;
+    this.brakeLight=false;
+    this.bobOff=rand(0,Math.PI*2);
   }
   get rect(){
     return{x:this.x-this.w/2,y:this.y-this.h/2,w:this.w,h:this.h};
   }
+  get laneX(){
+    return ROAD_L+this.lane*LANE_W+LANE_W/2;
+  }
 }
+
 class CoinObj{
   constructor(lane,y){
     this.lane=lane; this.y=y; this.collected=false;
@@ -159,6 +374,47 @@ class CoinObj{
     this.r=COIN_R; this.bob=rand(0,Math.PI*2);
   }
 }
+
+// Obstacle base - for construction zones, oil spills, moving barriers
+class Obstacle{
+  constructor(type,lane,y,width,height){
+    this.type=type; // 'construction' | 'oil' | 'barrier'
+    this.lane=lane;
+    this.baseLane=lane;
+    this.y=y; this.w=width; this.h=height;
+    this.x=ROAD_L+this.lane*LANE_W+LANE_W/2;
+    this.active=true;
+    this.animTimer=0;
+    this.hit=false;
+    // For moving barriers
+    this.moveDir=1;
+    this.moveSpeed=0;
+    this.moveRange=0;
+    if(type==='barrier'){
+      this.moveDir=Math.random()<0.5?1:-1;
+      this.moveSpeed=rand(0.8,1.8);
+      this.moveRange=randi(1,2);
+    }
+    // For construction zones
+    this.coneBob=rand(0,Math.PI*2);
+  }
+  get rect(){
+    return{x:this.x-this.w/2,y:this.y-this.h/2,w:this.w,h:this.h};
+  }
+  update(dt,spd){
+    this.animTimer+=dt;
+    if(this.type==='barrier'){
+      // Move back and forth across lanes
+      const rangePx=this.moveRange*LANE_W;
+      const dx=Math.sin(this.animTimer*this.moveSpeed)*rangePx*0.8;
+      this.lane=this.baseLane+(dx/LANE_W);
+      this.x=ROAD_L+this.lane*LANE_W+LANE_W/2;
+    }
+    this.y+=spd*0.85;
+    if(this.y>H+120) this.active=false;
+  }
+}
+
 class Particle{
   constructor(x,y,vx,vy,life,color,size){
     this.x=x; this.y=y; this.vx=vx; this.vy=vy;
@@ -177,23 +433,114 @@ class FloatingText{
 // ── Spawn Helpers ─────────────────────────────────────────
 let spawnTimer=2, coinSpawnTimer=1.5, endScore=0;
 
+function getCurrentTheme(){
+  const ct=THEMES[THEME_KEYS[currentThemeIdx]];
+  const nt=THEMES[THEME_KEYS[nextThemeIdx]];
+  const t=themeTransition;
+  // Smooth blend between current and next theme
+  // For boolean/categorical props, snap at midpoint
+  const isRain=nt===THEMES.rain;
+  return {
+    name: t>0.5?nt.name:ct.name,
+    skyTop:lerpColor(ct.skyTop,nt.skyTop,t),
+    skyMid:lerpColor(ct.skyMid,nt.skyMid,t),
+    skyBot:lerpColor(ct.skyBot,nt.skyBot,t),
+    roadTop:lerpColor(ct.roadTop,nt.roadTop,t),
+    roadBot:lerpColor(ct.roadBot,nt.roadBot,t),
+    roadEdge0:lerpColor(ct.roadEdge[0],nt.roadEdge[0],t),
+    roadEdge1:lerpColor(ct.roadEdge[1],nt.roadEdge[1],t),
+    grass:lerpColor(ct.grass,nt.grass,t),
+    grassAlt:lerpColor(ct.grassAlt,nt.grassAlt,t),
+    laneMark:isRain?'rgba(180,200,255,0.3)':'rgba(255,255,255,0.45)',
+    fogColor:t>0.5?nt.fogColor:ct.fogColor,
+    ambientLight:lerp(ct.ambientLight,nt.ambientLight,t),
+    hasBuildings:t>0.5?nt.hasBuildings:ct.hasBuildings,
+    hasStars:t>0.5?nt.hasStars:ct.hasStars,
+    starCount:Math.round(lerp(ct.starCount,nt.starCount,t)),
+    hasRain:t>0.5?nt.hasRain:ct.hasRain,
+    rainCount:Math.round(lerp(ct.rainCount,nt.rainCount,t)),
+    themeHue:lerp(ct.themeHue,nt.themeHue,t),
+    hazardWeights:t>0.5?nt.hazardWeights:ct.hazardWeights,
+    trafficDensity:lerp(ct.trafficDensity,nt.trafficDensity,t),
+    dustColor:t>0.5?nt.dustColor:ct.dustColor,
+    dustCount:Math.round(lerp(ct.dustCount,nt.dustCount,t)),
+  };
+}
+
+function getHazardWeight(type){
+  const theme=getCurrentTheme();
+  return theme.hazardWeights[type]||0.3;
+}
+
+function pickTrafficType(){
+  // Weight based on difficulty and theme
+  const weights={
+    normal:0.35, aggressive:0.15+adaptDifficulty*0.2,
+    cautious:0.2-adaptDifficulty*0.1, weaver:0.1+adaptDifficulty*0.1,
+    truck:0.1, sports:0.1+adaptDifficulty*0.15
+  };
+  let total=0;
+  for(const k of Object.keys(weights)) total+=weights[k];
+  let r=Math.random()*total;
+  for(const k of Object.keys(weights)){
+    r-=weights[k];
+    if(r<=0) return k;
+  }
+  return 'normal';
+}
+
 function spawnTraffic(){
-  if(trafficCars.length>=6) return;
+  const theme=getCurrentTheme();
+  const maxCars=Math.round(4+adaptDifficulty*4+theme.trafficDensity*2);
+  if(trafficCars.length>=maxCars) return;
   const lane=randi(0,LANE_COUNT-1);
-  for(const c of trafficCars) if(c.lane===lane&&c.y<200) return;
-  const colors=['#e74c3c','#3498db','#2ecc71','#f39c12','#9b59b6','#1abc9c','#e67e22','#ff6b81'];
-  const car=new TrafficCar(lane,-rand(80,160),speed*rand(0.6,0.85),colors[randi(0,colors.length-1)],randi(0,2));
-  if(Math.random()<0.15&&lane>0&&lane<LANE_COUNT-1)
-    car.switchLane=Math.random()<0.5?lane-1:lane+1;
+  // Check for other cars in same lane nearby
+  for(const c of trafficCars) if(Math.abs(c.lane-lane)<0.8&&c.y<300&&c.y>-120) return;
+  const typeKey=pickTrafficType();
+  const spdMult=TRAFFIC_TYPES[typeKey].speedMult;
+  const carSpeed=speed*spdMult*(0.9+adaptDifficulty*0.1);
+  const car=new TrafficCar(lane,-rand(80,200),carSpeed,typeKey,currentThemeIdx);
+  // Maybe pre-assign lane change for variety
+  if(Math.random()<0.12+adaptDifficulty*0.08&&lane>0&&lane<LANE_COUNT-1){
+    car.targetLane=Math.random()<0.5?lane-1:lane+1;
+  }
   trafficCars.push(car);
 }
+
 function spawnCoin(){
   if(coins.length>=5) return;
   const lane=randi(0,LANE_COUNT-1);
   for(const c of coins) if(c.lane===lane&&c.y<200) return;
-  for(const c of trafficCars) if(c.lane===lane&&c.y<300) return;
+  // Don't spawn on obstacles
+  for(const o of obstacles) if(Math.abs(o.lane-lane)<0.8&&o.y<300) return;
   coins.push(new CoinObj(lane,-rand(60,200)));
 }
+
+function spawnObstacle(){
+  if(obstacles.length>=3+Math.floor(adaptDifficulty*2)) return;
+  // Pick hazard type based on theme weights
+  const theme=getCurrentTheme();
+  const hazTotal=theme.hazardWeights.oil+theme.hazardWeights.construction+theme.hazardWeights.barrier;
+  let r=Math.random()*hazTotal;
+  let type='oil';
+  if((r-=theme.hazardWeights.oil)<=0) type='oil';
+  else if((r-=theme.hazardWeights.construction)<=0) type='construction';
+  else type='barrier';
+
+  // Pick lanes that aren't too crowded
+  const lane=randi(0,LANE_COUNT-1);
+  for(const o of obstacles) if(Math.abs(o.lane-lane)<0.8&&o.y<300) return;
+  for(const c of trafficCars) if(Math.abs(c.lane-lane)<0.6&&c.y<200) return;
+
+  let w,h;
+  if(type==='construction'){w=LANE_W*0.7;h=30;}
+  else if(type==='oil'){w=LANE_W*0.8;h=18;}
+  else {w=LANE_W*0.6;h=50;}
+
+  const obs=new Obstacle(type,lane,-rand(80,150),w,h);
+  obstacles.push(obs);
+}
+
 function spawnParticles(x,y,count,color,speed,size,life){
   for(let i=0;i<count;i++){
     const a=rand(0,Math.PI*2);
@@ -205,9 +552,36 @@ function spawnFloatingText(x,y,text,color,size){
   floatingTexts.push(new FloatingText(x,y,text,color,size));
 }
 function spawnSpeedLines(){
+  const theme=getCurrentTheme();
+  const alphaMax=theme.hasRain?0.12:0.3;
   for(let i=0;i<3;i++){
     const x=rand(ROAD_L+20,ROAD_R-20);
-    speedLines.push({x,y:rand(-H,0),speed:rand(600,1200),alpha:rand(0.1,0.3),w:rand(1,3)});
+    speedLines.push({x,y:rand(-H,0),speed:rand(600,1200),alpha:rand(0.1,alphaMax),w:rand(1,3)});
+  }
+}
+
+function initRain(){
+  rainDrops=[];
+  const theme=getCurrentTheme();
+  for(let i=0;i<theme.rainCount;i++){
+    rainDrops.push({
+      x:rand(0,W),y:rand(-H,H),
+      speed:rand(400,700),len:rand(8,18),
+      alpha:rand(0.1,0.3),wind:rand(-30,30)
+    });
+  }
+}
+
+function initDust(){
+  dustParticles=[];
+  const theme=getCurrentTheme();
+  if(!theme.dustColor) return;
+  for(let i=0;i<theme.dustCount;i++){
+    dustParticles.push({
+      x:rand(ROAD_L,ROAD_R),y:rand(-H,0),
+      speed:rand(20,80),size:rand(2,6),
+      alpha:rand(0.05,0.2),drift:rand(-10,10)
+    });
   }
 }
 
@@ -251,71 +625,375 @@ const SFX={
   crash(){playBeep(100,0.25,'sawtooth',0.12);setTimeout(()=>playBeep(60,0.35,'square',0.08),50)},
   select(){playBeep(660,0.06,'sine',0.06);setTimeout(()=>playBeep(880,0.06,'sine',0.05),50)},
   click(){playBeep(440,0.04,'sine',0.05)},
+  oil(){playBeep(150,0.3,'sine',0.06);playBeep(120,0.4,'sawtooth',0.04)},
+  barrier(){playBeep(180,0.2,'square',0.1);setTimeout(()=>playBeep(100,0.3,'square',0.08),100)},
+  themeChange(){playBeep(330,0.1,'sine',0.05);setTimeout(()=>playBeep(440,0.1,'sine',0.05),100);setTimeout(()=>playBeep(550,0.15,'sine',0.05),200)},
 };
 
-// ── Background / Road ────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+// ── AI Lane-Changing Logic ──────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+
+function updateTrafficAI(c,dt,currentSpeed){
+  c.switchTimer-=dt;
+  if(c.switchTimer>0) return;
+
+  // Check if obstacle ahead in current lane
+  let obstacleAhead=false;
+  let obstacleDist=999;
+  for(const o of obstacles){
+    if(!o.active) continue;
+    if(Math.abs(o.lane-c.lane)<0.8 && o.y>c.y && o.y-c.y<250 && o.y-c.y>0){
+      obstacleAhead=true;
+      obstacleDist=o.y-c.y;
+    }
+  }
+
+  // Check for slow car ahead
+  let carAhead=false;
+  let carAheadDist=999;
+  for(const tc of trafficCars){
+    if(tc===c) continue;
+    if(Math.abs(tc.lane-c.lane)<0.6 && tc.y>c.y && tc.y-c.y<200 && tc.y-c.y>0){
+      carAhead=true;
+      carAheadDist=tc.y-c.y;
+    }
+  }
+
+  // Check if player is nearby
+  let playerNear=false;
+  let playerLaneDiff=playerLane-c.lane;
+  let playerDist=Math.abs(c.y-playerY);
+  if(playerDist<250) playerNear=true;
+
+  // Check adjacent lanes for space
+  const leftClear=laneClear(c.lane-1,c.y,currentSpeed);
+  const rightClear=laneClear(c.lane+1,c.y,currentSpeed);
+
+  // Decision matrix
+  let shouldSwitch=false;
+  let targetDir=0;
+
+  // Aggressive behavior: try to box in player or get ahead
+  if(c.aggressive>0.5 && playerNear){
+    if(playerLaneDiff>0 && playerLaneDiff<2 && c.lane<LANE_COUNT-1 && rightClear){
+      // Move right to block player
+      shouldSwitch=true; targetDir=1;
+    }else if(playerLaneDiff<0 && playerLaneDiff>-2 && c.lane>0 && leftClear){
+      shouldSwitch=true; targetDir=-1;
+    }
+  }
+
+  // Weaving behavior
+  if(!shouldSwitch && TRAFFIC_TYPES[c.typeKey]?.name==='Rắn'){
+    if(Math.random()<0.3){
+      const dir=Math.random()<0.5?1:-1;
+      const nl=c.lane+dir;
+      if(nl>=0&&nl<LANE_COUNT&&laneClear(nl,c.y,currentSpeed)){
+        shouldSwitch=true; targetDir=dir;
+      }else{
+        // Try opposite direction
+        const nl2=c.lane-dir;
+        if(nl2>=0&&nl2<LANE_COUNT&&laneClear(nl2,c.y,currentSpeed)){
+          shouldSwitch=true; targetDir=-dir;
+        }
+      }
+    }
+  }
+
+  // Avoid obstacle ahead
+  if(obstacleAhead && obstacleDist<180){
+    if(leftClear && c.lane>0){shouldSwitch=true;targetDir=-1;}
+    else if(rightClear && c.lane<LANE_COUNT-1){shouldSwitch=true;targetDir=1;}
+  }
+
+  // Avoid slow car ahead
+  if(carAhead && carAheadDist<120 && !shouldSwitch){
+    if(leftClear && c.lane>0){shouldSwitch=true;targetDir=-1;}
+    else if(rightClear && c.lane<LANE_COUNT-1){shouldSwitch=true;targetDir=1;}
+  }
+
+  // Random lane change (normal traffic behavior)
+  if(!shouldSwitch && Math.random()<c.switchChance){
+    const dir=Math.random()<0.5?1:-1;
+    const nl=c.lane+dir;
+    if(nl>=0&&nl<LANE_COUNT&&laneClear(nl,c.y,currentSpeed)){
+      shouldSwitch=true; targetDir=dir;
+    }
+  }
+
+  // Cautious: rarely changes lanes
+  if(c.cautious>0.5 && Math.random()>0.1) shouldSwitch=false;
+
+  if(shouldSwitch && targetDir!==0){
+    c.lane+=targetDir;
+    c.lane=clamp(c.lane,0,LANE_COUNT-1);
+    c.switchTimer=rand(0.5,c.maxSwitchTimer);
+    c.brakeLight=true;
+    setTimeout(()=>{c.brakeLight=false;},300);
+  }else{
+    c.switchTimer=rand(0.3,1);
+  }
+}
+
+function laneClear(lane,y,currentSpeed){
+  if(lane<0||lane>=LANE_COUNT) return false;
+  // Check for cars in target lane
+  for(const c of trafficCars){
+    if(Math.abs(c.lane-lane)<0.6 && Math.abs(c.y-y)<120) return false;
+  }
+  // Check for obstacles
+  for(const o of obstacles){
+    if(!o.active) continue;
+    if(Math.abs(o.lane-lane)<0.8 && Math.abs(o.y-y)<150) return false;
+  }
+  return true;
+}
+
+// ── Background / Road (Theme-aware) ──────────────────────
 function drawBackground(){
-  const skyHue=bgHue;
+  const theme=getCurrentTheme();
+  const skyHue=theme.themeHue;
+
+  // Sky gradient
   const grad=ctx.createLinearGradient(0,0,0,H);
-  grad.addColorStop(0,hslStr(skyHue,60,6));
-  grad.addColorStop(0.3,hslStr(skyHue,50,10));
-  grad.addColorStop(0.6,hslStr(skyHue,40,14));
-  grad.addColorStop(1,hslStr(skyHue,30,18));
+  grad.addColorStop(0,theme.skyTop);
+  grad.addColorStop(0.3,theme.skyMid);
+  grad.addColorStop(0.6,theme.skyBot);
+  grad.addColorStop(1,theme.skyBot);
   ctx.fillStyle=grad; ctx.fillRect(0,0,W,H);
 
   // City silhouettes
-  ctx.fillStyle='rgba(0,0,0,0.25)';
-  const bld=[180,25,150,35,190,20,140,40,170,30,130,25,160,35,180,20,145,30,170,25,155,40,185,20,140,35,165,30,150,25,175,35];
-  for(let i=0;i<16;i++){
-    const bw=18+((i*7)%15), bh=60+((i*13)%60);
-    const bx=(i*29)%W;
-    ctx.fillRect(bx,50+bh-bw,bw,bh);
-    ctx.fillStyle='rgba(255,200,50,0.1)';
-    for(let wy=0;wy<bh-14;wy+=12)
-      for(let wx=3;wx<bw-6;wx+=10)
-        if(((i+wx+wy)*7)%10>2) ctx.fillRect(bx+wx,50+bh-bw+6+wy,5,6);
+  if(theme.hasBuildings){
     ctx.fillStyle='rgba(0,0,0,0.25)';
+    for(let i=0;i<16;i++){
+      const bw=18+((i*7)%15), bh=60+((i*13)%60);
+      const bx=(i*29)%W;
+      ctx.fillRect(bx,50+bh-bw,bw,bh);
+      // Windows
+      ctx.fillStyle='rgba(255,200,50,0.1)';
+      for(let wy=0;wy<bh-14;wy+=12)
+        for(let wx=3;wx<bw-6;wx+=10)
+          if(((i+wx+wy)*7)%10>2) ctx.fillRect(bx+wx,50+bh-bw+6+wy,5,6);
+      ctx.fillStyle='rgba(0,0,0,0.25)';
+    }
+  }
+
+  // Desert landscape
+  if(theme.themeHue>30&&theme.themeHue<50){
+    ctx.fillStyle='rgba(180,130,60,0.15)';
+    for(let i=0;i<12;i++){
+      const cx=(i*43+17)%W, cy=100+((i*13)%60);
+      ctx.beginPath();
+      ctx.arc(cx,cy+20,18+((i*7)%15),Math.PI,0);
+      ctx.fill();
+    }
+    // Cacti
+    ctx.fillStyle='rgba(40,60,20,0.2)';
+    for(let i=0;i<5;i++){
+      const cx=(i*97+33)%W, cy=90+((i*17)%40);
+      ctx.fillRect(cx-2,cy-25,4,30);
+      const armDir=i%2?1:-1;
+      ctx.fillRect(cx+armDir*8,cy-18,10,3);
+      ctx.fillRect(cx+armDir*8,cy-25,3,12);
+    }
   }
 
   // Stars
-  for(let i=0;i<25;i++){
-    ctx.globalAlpha=0.2+Math.sin(gameTime*2+i*1.7)*0.2;
-    ctx.fillStyle='#fff';
-    const sz=0.5+(i%3)*0.5;
-    ctx.fillRect((i*137+50)%W,(i*97+15)%180,sz,sz);
+  if(theme.hasStars){
+    for(let i=0;i<theme.starCount;i++){
+      ctx.globalAlpha=(0.2+Math.sin(gameTime*2+i*1.7)*0.2)*(theme.themeHue>200?1:0.5);
+      ctx.fillStyle='#fff';
+      const sz=0.5+(i%3)*0.5;
+      ctx.fillRect((i*137+50)%W,(i*97+15)%180,sz,sz);
+    }
+    ctx.globalAlpha=1;
   }
-  ctx.globalAlpha=1;
 
-  // Grass verges
-  ctx.fillStyle='#1a2a1a';
-  ctx.fillRect(0,0,ROAD_L-8,H);
-  ctx.fillRect(ROAD_R+8,0,W-ROAD_R-8,H);
+  // Grass verges (alternating for highway feel)
+  if(theme.themeHue>200&&theme.themeHue<230){
+    // Highway: striped grass
+    for(let y=-(roadOffset%40);y<H;y+=80){
+      ctx.fillStyle=y%160<80?'#2a5a2a':'#3a6a3a';
+      ctx.fillRect(0,y,ROAD_L-8,40);
+      ctx.fillRect(ROAD_R+8,y,W-ROAD_R-8,40);
+    }
+  }else{
+    ctx.fillStyle=theme.grass;
+    ctx.fillRect(0,0,ROAD_L-8,H);
+    ctx.fillRect(ROAD_R+8,0,W-ROAD_R-8,H);
+  }
 
-  // Road surface
+  // Road surface (gradient top to bottom)
   const rGrad=ctx.createLinearGradient(0,0,0,H);
-  rGrad.addColorStop(0,'#2a2a35'); rGrad.addColorStop(0.5,'#333340'); rGrad.addColorStop(1,'#2a2a35');
+  rGrad.addColorStop(0,theme.roadTop);
+  rGrad.addColorStop(0.5,theme.roadBot);
+  rGrad.addColorStop(1,theme.roadTop);
   ctx.fillStyle=rGrad; ctx.fillRect(ROAD_L,0,ROAD_W,H);
 
-  // Edge markers (red/white posts)
+  // Edge markers (red/white posts per theme)
+  const edgeColor0=theme.roadEdge0;
+  const edgeColor1=theme.roadEdge1;
   for(let y=-(roadOffset%60);y<H;y+=60){
     if(y>0){
-      ctx.fillStyle=y%120<60?'#ff4444':'#ffffff';
+      ctx.fillStyle=y%120<60?edgeColor0:edgeColor1;
       ctx.fillRect(ROAD_L-8,y,4,28);
       ctx.fillRect(ROAD_R+4,y,4,28);
     }
   }
 
-  // Lane dashes
-  ctx.fillStyle='rgba(255,255,255,0.45)';
+  // Lane markings
+  ctx.fillStyle=theme.laneMark;
   for(let l=1;l<LANE_COUNT;l++){
     const lx=ROAD_L+l*LANE_W-1;
-    for(let y=-(roadOffset%80);y<H;y+=80)
-      if(y%160<80&&y>0) ctx.fillRect(lx,y,2,36);
+    // Rain theme: continuous faint lines instead of dashes
+    if(theme.themeHue>230&&theme.themeHue<250){
+      ctx.globalAlpha=0.15;
+      ctx.fillRect(lx,0,2,H);
+      ctx.globalAlpha=1;
+    }else{
+      for(let y=-(roadOffset%80);y<H;y+=80)
+        if(y%160<80&&y>0) ctx.fillRect(lx,y,2,36);
+    }
+  }
+
+  // Road center reflective marker
+  if(!(theme.themeHue>230&&theme.themeHue<250)){
+    ctx.fillStyle='rgba(255,255,100,0.05)';
+    const cx=(ROAD_L+ROAD_R)/2-1;
+    for(let y=-(roadOffset%120);y<H;y+=120)
+      if(y%240<120&&y>0) ctx.fillRect(cx,y,2,55);
   }
 }
 
-// ── Car Drawer ────────────────────────────────────────────
-function drawCar(x,y,w,h,color,accent,isPlayer,flash){
+// ── Rain Render ───────────────────────────────────────────
+function drawRain(){
+  const theme=getCurrentTheme();
+  if(!theme.hasRain||rainDrops.length===0) return;
+  ctx.strokeStyle='rgba(180,200,255,0.15)';
+  ctx.lineWidth=1;
+  for(const drop of rainDrops){
+    const windOffset=Math.sin(drop.y*0.01+gameTime*2)*drop.wind;
+    ctx.globalAlpha=drop.alpha;
+    ctx.beginPath();
+    ctx.moveTo(drop.x+windOffset,drop.y);
+    ctx.lineTo(drop.x+windOffset+drop.wind*0.1,drop.y+drop.len);
+    ctx.stroke();
+  }
+  ctx.globalAlpha=1;
+}
+
+function drawDust(){
+  const theme=getCurrentTheme();
+  if(!theme.dustColor||dustParticles.length===0) return;
+  for(const d of dustParticles){
+    ctx.globalAlpha=d.alpha*(0.5+Math.sin(gameTime*0.5+d.x)*0.5);
+    ctx.fillStyle=`rgb(${theme.dustColor.r},${theme.dustColor.g},${theme.dustColor.b})`;
+    ctx.fillRect(d.x,d.y,d.size,d.size*0.5);
+  }
+  ctx.globalAlpha=1;
+}
+
+// ── Obstacle Render ───────────────────────────────────────
+function drawObstacles(){
+  for(const o of obstacles){
+    if(!o.active) continue;
+    ctx.save();
+    const cx=o.x, cy=o.y;
+
+    if(o.type==='construction'){
+      // Construction zone with cones
+      const coneColor='#ff6600';
+      // Warning stripes
+      ctx.fillStyle='rgba(255,200,0,0.2)';
+      ctx.fillRect(cx-o.w/2,cy,o.w,o.h);
+      // Striped pattern
+      for(let sx=-o.w/2;sx<o.w/2;sx+=12){
+        ctx.fillStyle=(Math.floor((sx+cy*0.5)/6)%2)?'#ff8800':'#ffcc00';
+        ctx.fillRect(cx+sx,cy+2,8,o.h-4);
+      }
+      // Cones
+      for(let i=-1;i<=1;i+=1){
+        const coneX=cx+i*12+Math.sin(o.animTimer*3+i)*2;
+        ctx.fillStyle=coneColor;
+        ctx.shadowColor='#ff4400'; ctx.shadowBlur=8;
+        ctx.beginPath();
+        ctx.moveTo(coneX-5,cy+o.h);
+        ctx.lineTo(coneX,cy+o.h-18);
+        ctx.lineTo(coneX+5,cy+o.h);
+        ctx.fill();
+        ctx.fillStyle='#fff';
+        ctx.fillRect(coneX-4,cy+o.h-8,8,2);
+        ctx.fillRect(coneX-3,cy+o.h-14,6,2);
+      }
+      ctx.shadowBlur=0;
+      // Warning sign
+      ctx.fillStyle='#ffcc00';
+      ctx.font='bold 10px sans-serif';
+      ctx.textAlign='center';
+      ctx.fillText('⚠',cx,cy-8);
+    }
+
+    else if(o.type==='oil'){
+      // Oil spill - shiny dark patch
+      const wobble=Math.sin(o.animTimer*2)*2;
+      ctx.shadowColor='rgba(0,255,200,0.1)'; ctx.shadowBlur=15;
+      // Main oil puddle
+      const oilG=ctx.createRadialGradient(cx,cy+o.h/2,0,cx,cy+o.h/2,o.w/2);
+      oilG.addColorStop(0,'rgba(30,30,50,0.6)');
+      oilG.addColorStop(0.4,'rgba(10,10,30,0.5)');
+      oilG.addColorStop(0.7,'rgba(40,60,80,0.3)');
+      oilG.addColorStop(1,'rgba(30,30,50,0.1)');
+      ctx.fillStyle=oilG;
+      ctx.beginPath();
+      ctx.ellipse(cx+wobble,cy+o.h/2,o.w/2,o.h/2,0,0,Math.PI*2);
+      ctx.fill();
+      // Rainbow sheen
+      for(let i=0;i<3;i++){
+        ctx.fillStyle=`hsla(${(o.animTimer*40+i*120)%360},80%,50%,${0.06})`;
+        ctx.beginPath();
+        ctx.ellipse(cx+wobble+i*3,cy+o.h/2-3+i*4,o.w/3,o.h/4,0,0,Math.PI*2);
+        ctx.fill();
+      }
+      ctx.shadowBlur=0;
+    }
+
+    else if(o.type==='barrier'){
+      // Moving barrier - road block with warning lights
+      const bw=o.w, bh=o.h;
+      // Base
+      ctx.fillStyle='#cc4444';
+      ctx.shadowColor='#ff0000'; ctx.shadowBlur=12;
+      ctx.beginPath(); roundRect(ctx,cx-bw/2,cy-bh/2,bw,bh,4); ctx.fill();
+      ctx.shadowBlur=0;
+      // Stripes
+      ctx.fillStyle='#ffffff';
+      for(let sy=-bh/2;sy<bh/2;sy+=8){
+        if(Math.floor((sy+cx*0.3)/4)%2){
+          ctx.fillRect(cx-bw/2+2,cy+sy,bw-4,4);
+        }
+      }
+      // Flashing light
+      const flashIntensity=Math.sin(o.animTimer*8)>0?1:0.2;
+      ctx.fillStyle=flashIntensity?'#ff0000':'#880000';
+      ctx.shadowColor='#ff0000'; ctx.shadowBlur=flashIntensity?20:5;
+      ctx.beginPath();
+      ctx.arc(cx,cy-bh/2-8,6,0,Math.PI*2);
+      ctx.fill();
+      ctx.shadowBlur=0;
+      // Warning label
+      ctx.fillStyle='#fff';
+      ctx.font='bold 11px sans-serif';
+      ctx.textAlign='center';
+      ctx.fillText('STOP',cx,cy+4);
+    }
+
+    ctx.restore();
+  }
+}
+
+// ── Car Drawer (enhanced) ────────────────────────────────
+function drawCar(x,y,w,h,color,accent,isPlayer,flash,typeKey){
   x=Math.round(x); y=Math.round(y); const r=Math.min(w,h)*0.1;
 
   // Player glow
@@ -364,6 +1042,18 @@ function drawCar(x,y,w,h,color,accent,isPlayer,flash){
   ctx.fillRect(x-w*0.3,y+h/2-2,7,4); ctx.fillRect(x+w*0.3-7,y+h/2-2,7,4);
   ctx.shadowBlur=0;
 
+  // Brake light for traffic
+  if(!isPlayer){
+    const tc=trafficCars.find(c=>c.x===x&&c.y===y);
+    if(tc&&tc.brakeLight){
+      ctx.fillStyle='#ff0000';
+      ctx.shadowColor='#ff0000'; ctx.shadowBlur=15;
+      ctx.fillRect(x-w*0.3,y+h/2-2,7,4);
+      ctx.fillRect(x+w*0.3-7,y+h/2-2,7,4);
+      ctx.shadowBlur=0;
+    }
+  }
+
   // Wheels
   ctx.fillStyle='#111';
   ctx.fillRect(x-w/2-4,y-h*0.32,6,16); ctx.fillRect(x+w/2-2,y-h*0.32,6,16);
@@ -406,7 +1096,22 @@ function drawHUD(){
     ctx.fillText('x'+combo,14+ctx.measureText('\u{1F3C6} '+score+' ').width,36);
   }
 
-  // Speed digital gauge (bao gồm nitro boost 1.7x)
+  // Mode timer (Time Trial)
+  const gameMode=GAME_MODES[selectedMode]||GAME_MODES.endless;
+  if(gameMode.hasTimer&&gameMode.timerDuration){
+    const remaining=Math.max(0,gameMode.timerDuration-gameModeTimer);
+    const secs=Math.ceil(remaining);
+    ctx.fillStyle=secs<=10?'#ff4444':'#ffd700';
+    ctx.font='bold 20px "Segoe UI",system-ui,sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText('\u23F1\uFE0F '+secs+'s',W/2,30);
+    if(secs<=10){
+      ctx.fillStyle=`rgba(255,50,50,${0.1+Math.sin(gameTime*10)*0.05})`;
+      ctx.fillRect(0,0,W,54);
+    }
+  }
+
+  // Speed digital gauge
   const displaySpeed=speed*(nitroActive?1.7:1);
   const spd=Math.round(displaySpeed*0.45);
   ctx.fillStyle='#8cf'; ctx.font='bold 20px "Segoe UI",system-ui,sans-serif';
@@ -415,9 +1120,13 @@ function drawHUD(){
   ctx.fillStyle='rgba(150,200,255,0.5)'; ctx.font='10px "Segoe UI",system-ui,sans-serif';
   ctx.fillText('KM/H',W*0.72,43);
 
-  // Level
+  // Level & Theme indicator
   ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.font='11px "Segoe UI",system-ui,sans-serif';
   ctx.textAlign='left';   ctx.fillText('CẤP '+level,14,52);
+  const theme=getCurrentTheme();
+  ctx.fillStyle='rgba(255,255,255,0.25)'; ctx.font='10px "Segoe UI",system-ui,sans-serif';
+  ctx.textAlign='right';
+  ctx.fillText(theme.name,W-14,52);
 
   // Coins right side
   ctx.fillStyle='#ffd700'; ctx.font='bold 18px "Segoe UI",system-ui,sans-serif';
@@ -429,6 +1138,15 @@ function drawHUD(){
   ctx.textAlign='right'; ctx.font='18px "Segoe UI",system-ui,sans-serif';
   let h=''; for(let i=0;i<3;i++) h+=i<lives?'\u2764\uFE0F':'\u{1F9F6}';
   ctx.fillText(h,W-14,52);
+
+  // Difficulty indicator (subtle)
+  if(adaptDifficulty>0.3){
+    ctx.fillStyle='rgba(255,100,50,'+((adaptDifficulty-0.3)*0.5)+')';
+    ctx.font='10px "Segoe UI",system-ui,sans-serif';
+    ctx.textAlign='left';
+    const diffLabel=adaptDifficulty<0.5?'NORMAL':adaptDifficulty<0.7?'KHÓ':'ÁC MỘNG';
+    ctx.fillText(diffLabel,14,70);
+  }
 
   // Nitro bar (bottom)
   const nbW=280,nbH=14,nbX=(W-nbW)/2,nbY=H-36;
@@ -456,7 +1174,7 @@ function drawHUD(){
   ctx.fillStyle='rgba(255,255,255,0.08)';
   for(let i=1;i<5;i++) ctx.fillRect(nbX+nbW*(i/5),nbY,1,nbH);
 
-  // Pause button (top-left area of HUD)
+  // Pause button
   ctx.fillStyle='rgba(255,255,255,0.08)';
   ctx.beginPath(); roundRect(ctx,12,56,30,24,6); ctx.fill();
   ctx.fillStyle='rgba(255,255,255,0.3)';
@@ -475,17 +1193,47 @@ function rectOverlap(a,b){
   return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
 }
 
-// ── Game Update ──────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+// ── GAME UPDATE (enhanced) ──────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+
 function updateGame(dt){
   if(screen!=='game'||paused) return;
 
   gameTime+=dt;
 
-  // Speed ramp (tính speed cơ bản trước)
+  // ── Theme Transition ──
+  themeTimer+=dt;
+  if(themeTimer>=THEME_CHANGE_INTERVAL){
+    themeTimer=0;
+    // Start transition to next theme
+    currentThemeIdx=nextThemeIdx;
+    nextThemeIdx=(currentThemeIdx+1)%THEME_KEYS.length;
+    themeTransition=0;
+    SFX.themeChange();
+    // Reinitialize weather
+    initRain();
+    initDust();
+  }
+  if(themeTransition<1){
+    themeTransition=Math.min(1,themeTransition+dt/THEME_TRANSITION_DURATION);
+  }
+
+  // ── Speed Ramp ──
   speed=Math.min(MAX_SPEED,BASE_SPEED+gameTime*0.55);
   level=Math.floor(speed/BASE_SPEED)+1;
 
-  // Nitro (cần tính trước spd để currentSpeed có hiệu lực)
+  // ── Adaptive Difficulty ──
+  difficultyTimer+=dt;
+  if(difficultyTimer>5){ // Recalculate every 5 seconds
+    difficultyTimer=0;
+    const timeAlive=gameTime-gameStartTime;
+    const baseAdapt=Math.min(1,timeAlive/120); // Max difficulty after 2 minutes
+    const perfBonus=Math.min(0.3,(score/5000)*0.3);
+    adaptDifficulty=Math.min(1,baseAdapt+perfBonus);
+  }
+
+  // ── Nitro ──
   if(nitroActive){
     nitro-=NITRO_DRAIN*dt;
     if(nitro<=0){nitro=0;nitroActive=false}
@@ -496,10 +1244,10 @@ function updateGame(dt){
   const currentSpeed=speed*(nitroActive?1.7:1);
   const spd=currentSpeed*dt;
 
-  // Road scroll
+  // ── Road Scroll ──
   roadOffset+=spd;
 
-  // Lane switch (smooth interpolation)
+  // ── Lane Switch (smooth) ──
   if(playerTargetLane!==playerLane){
     const step=6*dt;
     const diff=playerTargetLane-playerLane;
@@ -508,41 +1256,105 @@ function updateGame(dt){
   }
   playerX=ROAD_L+playerLane*LANE_W+LANE_W/2;
 
-  // Visual bob
+  // ── Oil Slide Effect ──
+  if(oilDuration>0){
+    oilDuration-=dt;
+    oilSlide=lerp(oilSlide,0,dt*2);
+    // Apply oil slide to player lane
+    const slideAmount=oilSlide*0.5*dt;
+    playerLane=clamp(playerLane+slideAmount,0,LANE_COUNT-1);
+    if(oilDuration<=0) oilSlide=0;
+  }
+
+  // ── Visual Bob ──
   carBob+=dt*4;
   playerSway=lerp(playerSway,0,dt*6);
 
-  // Invincibility flash
+  // ── Invincibility ──
   if(invincibleTimer>0){invincibleTimer-=dt;hitFlash+=dt*8}
 
-  // Spawners
+  // ── Mode Timer ──
+  const mode=GAME_MODES[selectedMode]||GAME_MODES.endless;
+  if(mode.hasTimer&&mode.timerDuration){
+    gameModeTimer+=dt;
+    const remaining=mode.timerDuration-gameModeTimer;
+    if(remaining<=0){
+      // Time's up! end with bonus score
+      score+=Math.floor(gameTime*10);
+      screen='over';endScore=score;
+      if(score>highScore) highScore=score;
+      totalCoins+=gameCoins;
+      saveData();
+      spawnParticles(playerX,playerY,80,'#00ffaa',350,7,0.8);
+      document.getElementById('touchCtrls').classList.remove('active');
+      return;
+    }
+  }
+
+  // ── Spawners (mode-adjusted) ──
   spawnTimer-=dt;
   if(spawnTimer<=0){
     spawnTraffic();
-    spawnTimer=rand(0.6,1.6)/Math.max(1,(speed/BASE_SPEED)*0.6);
+    const minSpawn=(0.3-adaptDifficulty*0.15)/mode.trafficMult;
+    const maxSpawn=(1.6-adaptDifficulty*0.4)/mode.trafficMult;
+    spawnTimer=rand(Math.max(0.2,minSpawn),Math.max(0.4,maxSpawn));
   }
   coinSpawnTimer-=dt;
-  if(coinSpawnTimer<=0){spawnCoin();coinSpawnTimer=rand(0.8,2.2)}
+  if(coinSpawnTimer<=0){
+    spawnCoin();
+    coinSpawnTimer=rand(0.6/mode.coinMult,1.8/mode.coinMult);
+  }
 
-  // Update traffic
+  // Obstacle spawner (mode-adjusted)
+  obstacleTimer-=dt;
+  if(obstacleTimer<=0){
+    spawnObstacle();
+    const baseInterval=(3.5-adaptDifficulty*1.5)/mode.obstacleMult;
+    obstacleTimer=rand(Math.max(1.5,baseInterval-1),Math.max(2.5,baseInterval+1));
+  }
+
+  // ── Update Rain ──
+  const theme=getCurrentTheme();
+  if(theme.hasRain){
+    for(const drop of rainDrops){
+      drop.y+=drop.speed*dt;
+      drop.x+=drop.wind*dt*0.3;
+      if(drop.y>H){drop.y=-rand(0,20);drop.x=rand(0,W)}
+      if(drop.x>W) drop.x=0;
+      if(drop.x<0) drop.x=W;
+    }
+  }
+
+  // ── Update Dust ──
+  if(theme.dustColor){
+    for(const d of dustParticles){
+      d.y+=d.speed*dt;
+      d.x+=d.drift*dt*0.5;
+      if(d.y>H){d.y=-rand(10,40);d.x=rand(ROAD_L,ROAD_R)}
+    }
+  }
+
+  // ── Update Traffic ──
   for(let i=trafficCars.length-1;i>=0;i--){
     const c=trafficCars[i];
-    c.y+=spd*0.85;
-    if(c.switchLane!==null){
-      c.switchTimer+=dt;
-      if(c.switchTimer>0.8){
-        c.lane=c.switchLane; c.switchLane=null; c.switchTimer=0;
-      }
-    }
-    c.x=ROAD_L+c.lane*LANE_W+LANE_W/2;
-    if(c.y>H+100){trafficCars.splice(i,1);continue}
+    // Move car based on its own speed
+    c.y+=currentSpeed*dt*c.speedMult*0.85;
+
+    // AI lane-changing logic
+    updateTrafficAI(c,dt,currentSpeed);
+
+    // Smooth lane movement
+    const targetX=c.laneX;
+    c.x=lerp(c.x,targetX,dt*5);
+
+    if(c.y>H+160){trafficCars.splice(i,1);continue}
     if(!c.passed&&c.y>playerY+PLAYER_H/2+15){
       c.passed=true;
       score+=Math.floor(5+speed*0.02);
     }
     // Near-miss
     const dx=Math.abs(c.x-playerX), dy=Math.abs(c.y-playerY);
-    if(!c.sparkTimer&&dy<PLAYER_H*0.55&&dx<LANE_W*0.5&&dx>PLAYER_W*0.3){
+    if(!c.sparkTimer&&dy<PLAYER_H*0.55&&dx<LANE_W*0.5&&dx>PLAYER_W*0.25){
       c.sparkTimer=1;
       combo++; comboTimer=2; comboSpeed=0;
       const bonus=50*combo;
@@ -554,7 +1366,7 @@ function updateGame(dt){
     }
   }
 
-  // Update coins
+  // ── Update Coins ──
   for(let i=coins.length-1;i>=0;i--){
     const c=coins[i];
     c.y+=spd*0.9; c.bob+=dt*3;
@@ -571,13 +1383,72 @@ function updateGame(dt){
     }
   }
 
-  // Combo decay
+  // ── Update Obstacles ──
+  for(let i=obstacles.length-1;i>=0;i--){
+    const o=obstacles[i];
+    o.update(dt,spd/currentSpeed);
+    if(!o.active||o.y>H+120){obstacles.splice(i,1);continue}
+
+    // Collision with player
+    if(invincibleTimer<=0&&!o.hit){
+      const pr={x:playerX-PLAYER_W/2,y:playerY-PLAYER_H/2,w:PLAYER_W,h:PLAYER_H};
+      if(rectOverlap(pr,o.rect)){
+        o.hit=true;
+        if(o.type==='oil'){
+          // Oil spill: slide effect
+          oilSlide=(Math.random()<0.5?1:-1)*rand(1,2.5);
+          oilDuration=rand(0.8,1.5);
+          spawnFloatingText(playerX,playerY-65,'TRƠN TRƯỢT!','#88aaff',16);
+          spawnParticles(o.x,o.y,15,'#446688',80,4,0.5);
+          triggerShake(5); SFX.oil();
+        }else if(o.type==='construction'){
+          // Construction: damage + slow
+          lives--;
+          if(lives<=0){
+            screen='over';endScore=score;
+            if(score>highScore) highScore=score;
+            totalCoins+=gameCoins;
+            saveData();
+            spawnParticles(playerX,playerY,60,'#ff6600',300,6,0.8);
+            document.getElementById('touchCtrls').classList.remove('active');
+            break;
+          }
+          invincibleTimer=1.5;
+          speed=Math.max(BASE_SPEED,speed*0.5);
+          combo=0;
+          spawnFloatingText(playerX,playerY-65,'VA CHẠM!','#ff6600',20);
+          spawnParticles(o.x,o.y,30,'#ff8800',200,5,0.6);
+          triggerShake(12); SFX.crash();
+        }else if(o.type==='barrier'){
+          // Barrier: heavy damage
+          lives-=2;
+          if(lives<=0){
+            screen='over';endScore=score;
+            if(score>highScore) highScore=score;
+            totalCoins+=gameCoins;
+            saveData();
+            spawnParticles(playerX,playerY,70,'#ff2200',350,7,0.8);
+            document.getElementById('touchCtrls').classList.remove('active');
+            break;
+          }
+          invincibleTimer=2;
+          speed=Math.max(BASE_SPEED*0.5,speed*0.3);
+          combo=0;
+          spawnFloatingText(playerX,playerY-80,'RÀO CHẮN!','#ff2222',22);
+          spawnParticles(o.x,o.y,40,'#ff4400',250,6,0.7);
+          triggerShake(18); SFX.barrier();
+        }
+      }
+    }
+  }
+
+  // ── Combo decay ──
   if(comboTimer>0){
     comboTimer-=dt; comboSpeed+=dt*2;
     if(comboTimer<=0){combo=0;nearMissStreak=0}
   }
 
-  // Collision
+  // ── Collision with traffic ──
   if(invincibleTimer<=0){
     const pr={x:playerX-PLAYER_W/2,y:playerY-PLAYER_H/2,w:PLAYER_W,h:PLAYER_H};
     for(const c of trafficCars){
@@ -603,7 +1474,7 @@ function updateGame(dt){
     }
   }
 
-  // Speed lines
+  // ── Speed Lines ──
   if(Math.random()<(currentSpeed/MAX_SPEED)*0.3) spawnSpeedLines();
   for(let i=speedLines.length-1;i>=0;i--){
     const sl=speedLines[i];
@@ -611,7 +1482,7 @@ function updateGame(dt){
     if(sl.y>H||sl.alpha<=0){speedLines.splice(i,1)}
   }
 
-  // Exhaust particles
+  // ── Exhaust Particles ──
   if(Math.random()<0.35){
     particles.push(new Particle(
       playerX+rand(-14,14), playerY+PLAYER_H/2,
@@ -622,52 +1493,50 @@ function updateGame(dt){
   if(nitroActive&&Math.random()<0.5)
     spawnParticles(playerX,playerY+PLAYER_H/2,2,'#ff6600',rand(100,200),3,0.4);
 
-  // Update particles
+  // ── Update Particles ──
   for(let i=particles.length-1;i>=0;i--){
     const p=particles[i];
     p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=90*dt; p.life-=dt;
     if(p.life<=0||p.x<-60||p.x>W+60||p.y>H+60) particles.splice(i,1);
   }
 
-  // Floating texts
+  // ── Floating Texts ──
   for(let i=floatingTexts.length-1;i>=0;i--){
     const ft=floatingTexts[i];
     ft.y+=ft.vy*dt; ft.life-=dt*0.7;
     if(ft.life<=0) floatingTexts.splice(i,1);
   }
 
-  // Shake decay
+  // ── Shake Decay (smoother) ──
   if(shakeIntensity>0){
-    shakeX=rand(-shakeIntensity,shakeIntensity);
-    shakeY=rand(-shakeIntensity,shakeIntensity);
-    shakeIntensity*=0.9;
-    if(shakeIntensity<0.3){shakeIntensity=0;shakeX=0;shakeY=0}
+    shakeX=rand(-shakeIntensity,shakeIntensity)*1.2;
+    shakeY=rand(-shakeIntensity,shakeIntensity)*0.8;
+    shakeIntensity*=0.92;
+    if(shakeIntensity<0.2){shakeIntensity=0;shakeX=0;shakeY=0}
   }
-
-  // Sky color shifts over time
-  bgHue+=dt*4;
-  if(bgHue>360) bgHue-=360;
 }
 
-// ── Render Game ──────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+// ── RENDER (enhanced) ──────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+
 function renderGame(){
   ctx.textBaseline='alphabetic';
   ctx.save();
   ctx.translate(shakeX,shakeY);
 
+  const theme=getCurrentTheme();
+
   drawBackground();
+
+  // Dust particles (behind everything)
+  drawDust();
 
   // Speed lines
   for(const sl of speedLines){
     ctx.fillStyle='rgba(255,255,255,'+(sl.alpha*0.25)+')';
     ctx.fillRect(sl.x,sl.y,sl.w,sl.h*2.5);
   }
-
-  // Road center marker
-  ctx.fillStyle='rgba(255,255,100,0.07)';
-  const cx=(ROAD_L+ROAD_R)/2-1;
-  for(let y=-(roadOffset%120);y<H;y+=120)
-    if(y%240<120&&y>0) ctx.fillRect(cx,y,2,55);
 
   // Coins
   const coinG=ctx.createRadialGradient(0,0,0,0,0,COIN_R);
@@ -689,11 +1558,18 @@ function renderGame(){
     ctx.restore();
   }
 
-  // Traffic cars
-  for(const c of trafficCars) drawCar(c.x,c.y,c.w,c.h,c.color,'#555',false,false);
+  // Obstacles (behind traffic but on road)
+  drawObstacles();
 
-  // Player (with sway tilt)
-  const tilt=playerSway*0.03;
+  // Traffic cars (sorted by y for depth)
+  const sortedTraffic=[...trafficCars].sort((a,b)=>a.y-b.y);
+  for(const c of sortedTraffic){
+    const typeInfo=TRAFFIC_TYPES[c.typeKey]||TRAFFIC_TYPES.normal;
+    drawCar(c.x,c.y,c.w,c.h,c.color,typeInfo.accent,false,false,c.typeKey);
+  }
+
+  // Player (with sway tilt, oil drift visual)
+  const tilt=playerSway*0.03+oilSlide*0.02;
   const pBob=Math.sin(carBob)*1.5;
   ctx.save();
   ctx.translate(playerX,playerY+pBob);
@@ -702,6 +1578,15 @@ function renderGame(){
   const flash=invincibleTimer>0&&Math.floor(hitFlash)%2===0;
   drawCar(playerX,playerY+pBob,PLAYER_W,PLAYER_H,CAR_COLORS[selectedCar],CAR_ACCENTS[selectedCar],true,flash);
   ctx.restore();
+
+  // Rain (on top of everything on road)
+  drawRain();
+
+  // Fog overlay
+  if(theme.fogDensity>0){
+    ctx.fillStyle=`rgba(80,80,120,${theme.fogDensity*0.5})`;
+    ctx.fillRect(0,0,W,H);
+  }
 
   // Floating texts
   for(const ft of floatingTexts){
@@ -732,6 +1617,13 @@ function renderGame(){
     ctx.fillRect(0,0,W,H);
   }
 
+  // Theme transition vignette
+  if(themeTransition<1){
+    const v=Math.abs(themeTransition-0.5)*2;
+    ctx.fillStyle=`rgba(0,0,0,${(1-v)*0.15})`;
+    ctx.fillRect(0,0,W,H);
+  }
+
   ctx.restore(); // end shake transform
 
   // HUD (fixed, no shake)
@@ -752,7 +1644,10 @@ function renderGame(){
   }
 }
 
-// ── Menu Screens ─────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+// ── MENU SCREENS ──────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+
 function drawTitleScreen(){
   ctx.textBaseline='alphabetic';
   drawBackground();
@@ -762,7 +1657,7 @@ function drawTitleScreen(){
   // Animated title
   const pulse=Math.sin(gameTime*2)*0.04+1;
   ctx.save();
-  ctx.translate(W/2,140);
+  ctx.translate(W/2,120);
   ctx.scale(pulse,pulse);
 
   ctx.shadowColor='#00aaff'; ctx.shadowBlur=45;
@@ -778,13 +1673,35 @@ function drawTitleScreen(){
   ctx.shadowBlur=0;
   ctx.restore();
 
+  // Version indicator
+  ctx.fillStyle='rgba(255,255,255,0.2)';
+  ctx.font='11px "Segoe UI",system-ui,sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText('V2.0 — Chủ đề + AI Thông Minh',W/2,200);
+
   ctx.fillStyle='rgba(255,255,255,0.35)';
   ctx.font='14px "Segoe UI",system-ui,sans-serif';
   ctx.textAlign='center';
-  ctx.fillText('\u{1F3C1} ĐUA XE ARCADE',W/2,235);
+  ctx.fillText('\u{1F3C1} ĐUA XE ARCADE',W/2,228);
+
+  // Theme preview strip
+  const stripY=250,stripH=20;
+  for(let i=0;i<THEME_KEYS.length;i++){
+    const t=THEMES[THEME_KEYS[i]];
+    const tx=W/2-120+i*60;
+    ctx.fillStyle=t.skyBot;
+    ctx.fillRect(tx,stripY,55,stripH);
+    // Road color
+    ctx.fillStyle=t.roadBot;
+    ctx.fillRect(tx+15,stripY+2,25,stripH-4);
+    ctx.fillStyle='rgba(255,255,255,0.25)';
+    ctx.font='8px sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText(t.name,tx+27,stripY+stripH+10);
+  }
 
   // Play button
-  const bx=W/2-110,by=290,bw=220,bh=60;
+  const bx=W/2-110,by=300,bw=220,bh=56;
   const btnP=Math.sin(gameTime*3)*0.06+1;
   ctx.save();
   ctx.translate(W/2,by+bh/2);
@@ -799,37 +1716,105 @@ function drawTitleScreen(){
   ctx.shadowBlur=0;
 
   ctx.fillStyle='#fff';
-  ctx.font='bold 26px "Segoe UI",system-ui,sans-serif';
+  ctx.font='bold 24px "Segoe UI",system-ui,sans-serif';
   ctx.textAlign='center'; ctx.textBaseline='middle';
   ctx.fillText('\u25B6  CHƠI',W/2,by+bh/2+1);
   ctx.restore();
 
   // Garage button
-  const gx=W/2-85,gy=by+bh+22,gw=170,gh=46;
+  const gx=W/2-85,gy=by+bh+18,gw=170,gh=44;
   ctx.fillStyle='rgba(255,255,255,0.07)';
   ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=2;
   ctx.beginPath(); roundRect(ctx,gx,gy,gw,gh,12); ctx.fill(); ctx.stroke();
   ctx.fillStyle='rgba(255,255,255,0.7)';
-  ctx.font='16px "Segoe UI",system-ui,sans-serif';
+  ctx.font='15px "Segoe UI",system-ui,sans-serif';
   ctx.textAlign='center'; ctx.textBaseline='middle';
   ctx.fillText('\uD83D\uDD27 GARAGE',W/2,gy+gh/2+1);
+
+  // ── Mode Selection Header (khung đẹp) ──
+  const sectionLabel='CHỌN CHẾ ĐỘ CHƠI';
+  ctx.font='bold 10px "Segoe UI",system-ui,sans-serif';
+  const labelW=ctx.measureText(sectionLabel).width;
+  const padX=18,padY=6;
+  const fw=labelW+padX*2,fh=12+padY*2;
+  const fcY=425; // center Y
+  const fx=W/2-fw/2,fy=fcY-fh/2;
+
+  // Outer glow
+  ctx.shadowColor='rgba(0,200,255,0.12)'; ctx.shadowBlur=14;
+  // Glass-morphism background
+  ctx.fillStyle='rgba(0,20,50,0.5)';
+  ctx.beginPath(); roundRect(ctx,fx,fy,fw,fh,10); ctx.fill();
+  ctx.shadowBlur=0;
+  // Viền neon mỏng
+  ctx.strokeStyle='rgba(0,200,255,0.35)'; ctx.lineWidth=1.2;
+  ctx.beginPath(); roundRect(ctx,fx,fy,fw,fh,10); ctx.stroke();
+  // Chữ
+  ctx.fillStyle='rgba(180,230,255,0.85)';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(sectionLabel,W/2,fcY);
+  // Trang trí 2 bên: gạch ngang + chấm tròn
+  ctx.strokeStyle='rgba(0,200,255,0.15)'; ctx.lineWidth=1;
+  const ln=22;
+  ctx.beginPath(); ctx.moveTo(fx-ln,fcY); ctx.lineTo(fx-8,fcY); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(fx+fw+8,fcY); ctx.lineTo(fx+fw+ln,fcY); ctx.stroke();
+  ctx.fillStyle='rgba(0,200,255,0.25)';
+  ctx.beginPath(); ctx.arc(fx-ln,fcY,2,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(fx+fw+ln,fcY,2,0,Math.PI*2); ctx.fill();
+
+  const modeCols=2, modeBtnW=130, modeBtnH=50, modeGapX=14, modeGapY=10;
+  const modeGridW=modeCols*modeBtnW+(modeCols-1)*modeGapX;
+  const modeGridH=2*modeBtnH+modeGapY;
+  const modeStartX=(W-modeGridW)/2;
+  const modeStartY=448;
+  modeButtons=[];
+  for(let i=0;i<MODE_KEYS.length;i++){
+    const col=i%modeCols, row=Math.floor(i/modeCols);
+    const mk=MODE_KEYS[i];
+    const mode=GAME_MODES[mk];
+    const isSel=selectedMode===mk;
+    const mx=modeStartX+col*(modeBtnW+modeGapX);
+    const my=modeStartY+row*(modeBtnH+modeGapY);
+
+    // Button
+    ctx.shadowColor=isSel?'rgba(0,200,255,0.25)':'transparent';
+    ctx.shadowBlur=isSel?14:0;
+    ctx.fillStyle=isSel?'rgba(0,200,255,0.15)':'rgba(255,255,255,0.04)';
+    ctx.strokeStyle=isSel?'rgba(0,200,255,0.5)':'rgba(255,255,255,0.1)';
+    ctx.lineWidth=isSel?1.5:1;
+    ctx.beginPath(); roundRect(ctx,mx,my,modeBtnW,modeBtnH,10); ctx.fill(); ctx.stroke();
+    ctx.shadowBlur=0;
+
+    // Icon + tên
+    ctx.fillStyle=isSel?'#00ccff':'rgba(255,255,255,0.4)';
+    ctx.font='bold 13px "Segoe UI",system-ui,sans-serif';
+    ctx.textBaseline='middle'; ctx.textAlign='center';
+    ctx.fillText(mode.icon+' '+mode.name,mx+modeBtnW/2,my+19);
+
+    // Mô tả
+    ctx.fillStyle=isSel?'rgba(255,255,255,0.35)':'rgba(255,255,255,0.15)';
+    ctx.font='7px "Segoe UI",system-ui,sans-serif';
+    ctx.fillText(mode.desc,mx+modeBtnW/2,my+37);
+
+    // Lưu rect để xử lý tap
+    modeButtons.push({key:mk,x:mx,y:my,w:modeBtnW,h:modeBtnH});
+  }
 
   // High score & coins
   ctx.fillStyle='rgba(255,255,255,0.3)';
   ctx.font='14px "Segoe UI",system-ui,sans-serif';
   ctx.textAlign='center';
-  ctx.fillText('\u{1F3C6} Điểm Cao: '+highScore,W/2,490);
+  ctx.fillText('\u{1F3C6} Điểm Cao: '+highScore,W/2,556);
   ctx.fillStyle='#ffd700';
   ctx.font='16px "Segoe UI",system-ui,sans-serif';
-  ctx.fillText('$ '+totalCoins,W/2,520);
+  ctx.fillText('$ '+totalCoins,W/2,582);
 
   // Controls help
   ctx.fillStyle='rgba(255,255,255,0.15)';
   ctx.font='11px "Segoe UI",system-ui,sans-serif';
   ctx.textAlign='center';
-  ctx.fillText('\u2190 \u2192 Phím Mũi Tên  \u00B7  Chạm 2 bên trên Mobile  \u00B7 SPACE: Nitro',W/2,H-24);
+  ctx.fillText('\u2190 \u2192 Phím Mũi Tên  \u00B7  Chạm 2 bên  \u00B7 SPACE: Nitro',W/2,H-24);
 
-  // Animate road on title screen
   roadOffset+=60*0.016;
   gameTime+=0.016;
 }
@@ -844,31 +1829,36 @@ function drawGameOverScreen(){
   ctx.font='bold 50px "Segoe UI",system-ui,sans-serif';
   ctx.textAlign='center';
   ctx.shadowColor='#ff0000'; ctx.shadowBlur=30;
-  ctx.fillText('KẾT THÚC',W/2,150);
+  ctx.fillText('KẾT THÚC',W/2,140);
   ctx.shadowBlur=0;
 
   ctx.fillStyle='#fff'; ctx.font='24px "Segoe UI",system-ui,sans-serif';
-  ctx.fillText('Điểm: '+endScore,W/2,222);
+  ctx.fillText('Điểm: '+endScore,W/2,210);
 
   ctx.fillStyle='#ffd700'; ctx.font='18px "Segoe UI",system-ui,sans-serif';
-  ctx.fillText('$ +'+gameCoins+' xu',W/2,262);
+  ctx.fillText('$ +'+gameCoins+' xu',W/2,248);
 
   ctx.fillStyle=endScore>=highScore?'#ffaa00':'rgba(255,255,255,0.5)';
   ctx.font='16px "Segoe UI",system-ui,sans-serif';
-  ctx.fillText(endScore>=highScore?'\u{1F3C6} ĐIỂM CAO MỚI!':'Điểm Cao: '+highScore,W/2,300);
+  ctx.fillText(endScore>=highScore?'\u{1F3C6} ĐIỂM CAO MỚI!':'Điểm Cao: '+highScore,W/2,286);
 
   ctx.fillStyle='rgba(255,255,255,0.35)';
   ctx.font='13px "Segoe UI",system-ui,sans-serif';
-  ctx.fillText('Cấp '+level+'  \u00B7  '+Math.round(speed*0.45)+' KM/H tối đa',W/2,330);
+  ctx.fillText('Cấp '+level+'  \u00B7  '+Math.round(speed*0.45)+' KM/H  \u00B7  '+getCurrentTheme().name,W/2,316);
+
+  // Stats
+  ctx.fillStyle='rgba(255,255,255,0.2)';
+  ctx.font='12px "Segoe UI",system-ui,sans-serif';
+  ctx.fillText('Suýt va chạm: '+nearMissStreak+'x  \u00B7  Combo cao nhất: '+combo+'x',W/2,346);
 
   // Restart button
-  const bx=W/2-125,by=370,bw=250,bh=56;
+  const bx=W/2-125,by=370,bw=250,bh=54;
   const bg=ctx.createLinearGradient(bx,by,bx,by+bh);
   bg.addColorStop(0,'#00cc66'); bg.addColorStop(1,'#009944');
   ctx.fillStyle=bg; ctx.shadowColor='#00ff88'; ctx.shadowBlur=20;
   ctx.beginPath(); roundRect(ctx,bx,by,bw,bh,16); ctx.fill();
   ctx.shadowBlur=0;
-  ctx.fillStyle='#fff'; ctx.font='bold 24px "Segoe UI",system-ui,sans-serif';
+  ctx.fillStyle='#fff'; ctx.font='bold 22px "Segoe UI",system-ui,sans-serif';
   ctx.textAlign='center'; ctx.textBaseline='middle';
   ctx.fillText('\u21BB  CHƠI LẠI',W/2,by+bh/2+1);
 
@@ -892,7 +1882,6 @@ function drawGarageScreen(){
   ctx.fillStyle='rgba(0,0,0,0.7)';
   ctx.fillRect(0,0,W,H);
 
-  // ── Header ──
   ctx.textBaseline='middle';
   ctx.fillStyle='#fff';
   ctx.font='bold 30px "Segoe UI",system-ui,sans-serif';
@@ -908,7 +1897,6 @@ function drawGarageScreen(){
   ctx.textAlign='center';
   ctx.fillText('Chọn hoặc mở khoá xe',W/2,64);
 
-  // ── Car Grid (3 cols x 2 rows cho 5 xe) ──
   const cols=3, cellW=140, cellH=150, gap=10;
   const gridW=cols*cellW+(cols-1)*gap;
   const sx=(W-gridW)/2, sy=88;
@@ -922,7 +1910,6 @@ function drawGarageScreen(){
     const isSelected=selectedCar===i;
     const canBuy=!isUnlocked&&totalCoins>=CAR_COSTS[i];
 
-    // Card — glow cho selected
     if(isSelected){
       ctx.shadowColor='rgba(0,200,255,0.3)';
       ctx.shadowBlur=24;
@@ -933,17 +1920,14 @@ function drawGarageScreen(){
     ctx.beginPath(); roundRect(ctx,cx-cellW/2,cy-cellH/2,cellW,cellH,14); ctx.fill(); ctx.stroke();
     ctx.shadowBlur=0;
 
-    // Hình xe
     drawCar(cx,cy-10,34,52,CAR_COLORS[i],CAR_ACCENTS[i],false,false);
 
-    // Tên xe
     ctx.textBaseline='middle';
     ctx.textAlign='center';
     ctx.fillStyle=isUnlocked?'#fff':'rgba(255,255,255,0.35)';
     ctx.font='12px "Segoe UI",system-ui,sans-serif';
     ctx.fillText(CAR_NAMES[i],cx,cy+34);
 
-    // Trạng thái / giá
     if(isSelected){
       ctx.fillStyle='#00ccff'; ctx.font='bold 11px "Segoe UI",system-ui,sans-serif';
       ctx.fillText('\u2713 ĐÃ CHỌN',cx,cy+50);
@@ -961,7 +1945,6 @@ function drawGarageScreen(){
     }
   }
 
-  // ── Back Button ──
   const bw=180,bh=46,bx=(W-bw)/2,by=408;
   ctx.shadowColor='rgba(0,0,0,0.3)'; ctx.shadowBlur=12;
   ctx.fillStyle='rgba(255,255,255,0.07)';
@@ -974,7 +1957,6 @@ function drawGarageScreen(){
   ctx.textAlign='center';
   ctx.fillText('\u2190 QUAY LẠI',W/2,by+bh/2);
 
-  // ── Vùng click ──
   garageButtons=[{type:'back',x:bx,y:by,w:bw,h:bh}];
   for(let i=0;i<5;i++){
     const col=i%cols,row=Math.floor(i/cols);
@@ -985,6 +1967,7 @@ function drawGarageScreen(){
 }
 
 let garageButtons=[];
+let modeButtons=[];
 
 // ── Pause Screen ───────────────────────────────────────────
 function drawPauseScreen(){
@@ -999,7 +1982,6 @@ function drawPauseScreen(){
   ctx.fillText('TẠM DỪNG',W/2,175);
   ctx.shadowBlur=0;
 
-  // Continue button
   const bx=W/2-120,by=270,bw=240,bh=58;
   const bg=ctx.createLinearGradient(bx,by,bx,by+bh);
   bg.addColorStop(0,'#00cc66'); bg.addColorStop(1,'#009944');
@@ -1010,7 +1992,6 @@ function drawPauseScreen(){
   ctx.textAlign='center'; ctx.textBaseline='middle';
   ctx.fillText('\u25B6  TIẾP TỤC',W/2,by+bh/2+1);
 
-  // Main Menu button
   const tx=W/2-120,ty=by+bh+24,tw=240,th=52;
   ctx.fillStyle='rgba(255,255,255,0.07)';
   ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=2;
@@ -1019,14 +2000,15 @@ function drawPauseScreen(){
   ctx.font='18px "Segoe UI",system-ui,sans-serif'; ctx.textBaseline='middle';
   ctx.fillText('\u{1F3E0}  MÀN HÌNH CHÍNH',W/2,ty+th/2+1);
 
-  // Hint
   ctx.fillStyle='rgba(255,255,255,0.15)';
   ctx.font='12px "Segoe UI",system-ui,sans-serif'; ctx.textBaseline='bottom';
   ctx.fillText('ESC \u2192 Tiếp tục',W/2,H-36);
 }
 
 // ══════════════════════════════════════════════════════════════
-// ── Input ──────────────────────────────────────────────────
+// ── INPUT ──────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+
 const keys={};
 let touchLeft=false,touchRight=false,touchNitro=false;
 let leftPressed=false,rightPressed=false;
@@ -1035,7 +2017,6 @@ document.addEventListener('keydown',e=>{
   keys[e.code]=true;
   if(['ArrowLeft','ArrowRight','ArrowUp','KeyA','KeyD','KeyW','Space'].includes(e.code))
     e.preventDefault();
-  // ENTER to restart on game over
   if(e.code==='Enter'&&screen==='over') startGame();
   if(e.code==='Escape'){
     if(screen==='game'){
@@ -1048,7 +2029,6 @@ document.addEventListener('keydown',e=>{
 });
 document.addEventListener('keyup',e=>{keys[e.code]=false});
 
-// Touch buttons
 const tzL=document.getElementById('tzL'),tzR=document.getElementById('tzR'),tzN=document.getElementById('tzN');
 function tPress(el,v){el.classList.toggle('pressed',v)}
 tzL.addEventListener('touchstart',e=>{e.preventDefault();touchLeft=true;tPress(tzL,true)});
@@ -1071,7 +2051,6 @@ tzN.addEventListener('mousedown',()=>{touchNitro=true;tPress(tzN,true)});
 tzN.addEventListener('mouseup',()=>{touchNitro=false;tPress(tzN,false)});
 tzN.addEventListener('mouseleave',()=>{touchNitro=false;tPress(tzN,false)});
 
-// Canvas tap/click for menus
 canvas.addEventListener('click',e=>{
   const r=canvas.getBoundingClientRect();
   handleTap((e.clientX-r.left)*(W/r.width),(e.clientY-r.top)*(H/r.height));
@@ -1084,21 +2063,27 @@ canvas.addEventListener('touchstart',e=>{
 
 function handleTap(mx,my){
   if(screen==='title'){
-    if(mx>=W/2-110&&mx<=W/2+110&&my>=290&&my<=350){SFX.click();startGame()}
-    else if(mx>=W/2-85&&mx<=W/2+85&&my>=372&&my<=418){SFX.click();screen='garage'}
+    if(mx>=W/2-110&&mx<=W/2+110&&my>=300&&my<=356){SFX.click();startGame()}
+    else if(mx>=W/2-85&&mx<=W/2+85&&my>=374&&my<=418){SFX.click();screen='garage'}
+    else {
+      // Check mode buttons
+      for(const b of modeButtons){
+        if(mx>=b.x&&mx<=b.x+b.w&&my>=b.y&&my<=b.y+b.h){
+          if(selectedMode!==b.key){selectedMode=b.key;SFX.select()}
+          return;
+        }
+      }
+    }
   }else if(screen==='game'){
     if(!paused){
-      // Pause button ở HUD (góc trên-trái)
       if(mx>=12&&mx<=42&&my>=56&&my<=80){paused=true;document.getElementById('touchCtrls').classList.remove('active');SFX.click()}
     }else{
-      // Tiếp Tục
       if(mx>=W/2-120&&mx<=W/2+120&&my>=270&&my<=328){paused=false;document.getElementById('touchCtrls').classList.add('active');SFX.click()}
-      // Màn Hình Chính
       else if(mx>=W/2-120&&mx<=W/2+120&&my>=352&&my<=404){screen='title';paused=false;SFX.click();document.getElementById('touchCtrls').classList.remove('active')}
     }
   }else if(screen==='over'){
-    if(mx>=W/2-125&&mx<=W/2+125&&my>=370&&my<=426){SFX.click();startGame()}
-    else if(mx>=W/2-85&&mx<=W/2+85&&my>=444&&my<=486){SFX.click();screen='title'}
+    if(mx>=W/2-125&&mx<=W/2+125&&my>=370&&my<=424){SFX.click();startGame()}
+    else if(mx>=W/2-85&&mx<=W/2+85&&my>=442&&my<=484){SFX.click();screen='title'}
   }else if(screen==='garage'){
     for(const b of garageButtons){
       if(mx>=b.x&&mx<=b.x+b.w&&my>=b.y&&my<=b.y+b.h){
@@ -1120,20 +2105,36 @@ function handleTap(mx,my){
 }
 
 function startGame(){
-  score=0; gameCoins=0; lives=3; speed=BASE_SPEED; level=1;
+  const mode=GAME_MODES[selectedMode]||GAME_MODES.endless;
+  score=0; gameCoins=0; lives=mode.lives||3; speed=mode.initialSpeed||BASE_SPEED; level=1;
   nitro=NITRO_MAX; nitroActive=false; nitroTimer=0;
   combo=0; comboTimer=0; comboSpeed=0; nearMissStreak=0;
   playerLane=1; playerTargetLane=1; playerSway=0;
-  trafficCars=[]; coins=[]; particles=[]; floatingTexts=[]; speedLines=[];
+  trafficCars=[]; coins=[]; obstacles=[]; particles=[]; floatingTexts=[]; speedLines=[];
   roadOffset=0; gameTime=0; invincibleTimer=0; hitFlash=0;
   shakeIntensity=0; shakeX=0; shakeY=0;
-  spawnTimer=1.5; coinSpawnTimer=0.8;
+  spawnTimer=1.5; coinSpawnTimer=0.8; obstacleTimer=3;
+  oilSlide=0; oilDuration=0;
+  adaptDifficulty=0; difficultyTimer=0;
+  gameStartTime=0; gameModeTimer=0;
+  // Theme: force theme if mode specifies, else random
+  if(mode.forceTheme){
+    currentThemeIdx=THEME_KEYS.indexOf(mode.forceTheme);
+    if(currentThemeIdx<0) currentThemeIdx=0;
+  }else{
+    currentThemeIdx=randi(0,THEME_KEYS.length-1);
+  }
+  nextThemeIdx=(currentThemeIdx+1)%THEME_KEYS.length;
+  themeTimer=0; themeTransition=1;
   paused=false; screen='game';
+  initRain(); initDust();
   document.getElementById('touchCtrls').classList.add('active');
 }
 
 // ══════════════════════════════════════════════════════════════
-// ── Game Loop ──────────────────────────────────────────────
+// ── GAME LOOP ──────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+
 let lastTime=0;
 
 function gameLoop(time){
@@ -1172,13 +2173,18 @@ function gameLoop(time){
 }
 
 // ══════════════════════════════════════════════════════════════
-// ── Init ──────────────────────────────────────────────────
+// ── INIT ──────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+
 loadData();
+initRain();
+initDust();
 requestAnimationFrame(gameLoop);
 
-console.log('\u{1F3C1} Turbo Rush — Game Đua Xe Arcade!');
-console.log('Điều khiển: Phím Mũi Tên / WASD để chuyển làn, Space cho Nitro');
-console.log('Mobile: Chạm trái/phải trên màn hình, nút Nitro');
+console.log('\u{1F3C1} Turbo Rush 2 — Game Đua Xe Arcade!');
+console.log('Chủ đề đường: City, Highway, Desert, Rain, Night');
+console.log('AI xe cộ thông minh, chướng ngại vật đa dạng!');
+console.log('Điều khiển: Phím Mũi Tên / WASD, Space cho Nitro');
 </script>
 </body>
 </html>
