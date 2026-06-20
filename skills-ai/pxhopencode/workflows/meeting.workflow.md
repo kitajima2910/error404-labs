@@ -1,4 +1,4 @@
-# 👥 Meeting Workflow — Agents thảo luận & quyết định
+# 👥 Workflow Họp — Agents thảo luận & quyết định
 
 Workflow này triệu tập các agents lại để thảo luận, phản biện, và đưa ra quyết định chung. Mỗi agent đóng góp ý kiến từ chuyên môn của mình.
 
@@ -20,7 +20,7 @@ Khi được gọi với chủ đề, workflow sẽ:
 | `@pxh-devops` | DevOps | Deploy, infra cost, monitoring |
 | `@pxh-save-history` | Thư ký | Ghi lại biên bản meeting |
 
-## 📋 QUY TRÌNH MEETING
+## 📋 QUY TRÌNH HỌP
 
 ### Step 1: Khai mạc (PM)
 ```
@@ -67,7 +67,7 @@ DevOps: "Vercel deploy Next.js rất dễ, không cần DevOps phức tạp"
 ### Step 4: Tổng hợp & Quyết định
 
 ```markdown
-## 📋 BIÊN BẢN MEETING
+## 📋 BIÊN BẢN HỌP
 
 ### 🎯 Chủ đề: [Chủ đề]
 
@@ -90,13 +90,18 @@ Chọn: [Giải pháp cuối cùng]
 - [ ] QA: Chuẩn bị test strategy
 ```
 
-### Step 5: Cập nhật STATUS.md
+### Step 5: Persist — Tầng 2 gửi Event contract đến Tầng 4
 
-Gọi `@pxh-save-history update-status` với:
-- Phase hiện tại: MEETING
-- Quyết định: [giải pháp được chọn]
-- Tech stack: [công nghệ đã chọn]
-- Action items: [danh sách]
+Orchestration gửi `Event{type: decision}` đến `@pxh-save-history`:
+```json
+{
+  "phase": "MEETING",
+  "decision": "[giải pháp được chọn]",
+  "tech_stack": "[công nghệ đã chọn]",
+  "action_items": ["[danh sách]"]
+}
+```
+Tầng 4 nhận Event → lưu biên bản + cập nhật .opencode/STATUS.md. Trả về `Confirmed` cho Tầng 2.
 
 ## 📊 MA TRẬN QUYẾT ĐỊNH
 
@@ -120,3 +125,18 @@ Khi có nhiều lựa chọn, dùng ma trận:
 | Không đạt consensus | PM quyết định, nhưng ghi lại dissent |
 | User có ý kiến riêng | User là sếp → làm theo user |
 | Vấn đề quá phức tạp | Tạm dừng, yêu cầu user cung cấp thêm thông tin |
+
+## Ngữ cảnh Runtime (Các tầng)
+```
+Tầng 2 (Orchestration): pxh-pm triệu tập meeting
+Tầng 3 (Worker / Planner): pxh-architect phản biện architecture
+Tầng 3 (Worker / Executor): pxh-expert đánh giá khả thi
+Tầng 3 (Worker / Validator): pxh-qa đề xuất test strategy
+Tầng 3 (Worker / Builder): pxh-devops đánh giá infra cost
+Tầng 4 (Infrastructure): pxh-save-history ghi biên bản + quyết định
+```
+
+## Liên kết
+- Runtime: `runtime/layers/02-orchestration.md`, `runtime/layers/03-worker.md`, `runtime/layers/04-infrastructure.md`
+- Contracts: `runtime/contracts/README.md` — Event{decision}
+- Agents: Tất cả 9 agents tham gia tuỳ chủ đề

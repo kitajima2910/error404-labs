@@ -1,4 +1,4 @@
-# 🤖 AI Workflow — Phát triển ứng dụng AI
+# 🤖 Workflow AI — Phát triển ứng dụng AI
 
 Dùng workflow này khi bạn làm: chatbot, RAG system, LLM integration, AI agent, ML inference API, NLP processing, computer vision, automation AI.
 
@@ -93,7 +93,7 @@ Chi tiết:
 5. **Frontend Chat**: UI chat box (Streamlit / React), markdown rendering
 6. **Deploy**: Docker + Cloud Run / Railway / tự host
 
-### Bước 5: Các pattern AI phổ biến
+### Bước 5: Các mẫu AI phổ biến
 
 | Pattern | Cài đặt |
 |---------|---------|
@@ -112,16 +112,33 @@ Chi tiết:
 - ✅ Token limits & cost monitoring
 - ✅ Logging tất cả LLM calls (audit)
 
-### Quality & Release
+### Chất lượng & Phát hành — Tầng 2 (Điều phối) route Task contracts
 
-Sau khi code xong:
-1. `@pxh-qa` — Test AI response quality, edge cases
-2. `@pxh-fix-bugs` — Fix LLM response issues
-3. `@pxh-review-code` — Review security & performance
-4. `@release` — Build + Deploy
-5. `@pxh-save-history` — Lưu prompt & quyết định + cập nhật STATUS.md
+Sau khi code xong, Orchestration tạo Task contracts và route đến Workers:
+
+| Phase | Task contract | Route đến | Result mong đợi |
+|-------|--------------|-----------|-----------------|
+| test | `Task{target: AI code, type: response quality + edge cases}` | `@pxh-qa` | `Result{pass/fail, issues[]}` |
+| fix | `Task{target: LLM issues từ QA, type: fix}` | `@pxh-fix-bugs` | `Result{fixed[], status}` |
+| review | `Task{target: AI code, type: review, focus: security/perf}` | `@pxh-review-code` | `Result{issues[], score}` |
+| build | `Task{target: AI project, type: build}` | `@release` | `Result{build_size, status}` |
+| persist | `Event{type: decision, phase: done, data: prompts + decisions}` | `@pxh-save-history` | `Confirmed{status: saved}` |
+
+### Luồng Runtime (Các tầng)
+```
+Tầng 1 (Interface): User prompt → Request
+Tầng 2 (Orchestration): pxh-pm phân tích, chọn workflow
+Tầng 3 (Worker / Executor): pxh-expert code AI app theo skills/ais-
+Tầng 3 (Worker / Validator): pxh-qa test AI response quality
+Tầng 3 (Worker / Fixer): pxh-fix-bugs fix LLM issues
+Tầng 3 (Worker / Reviewer): pxh-review-code security & perf
+Tầng 3 (Worker / Builder): pxh-devops build
+Tầng 4 (Infrastructure): pxh-save-history persist prompts & decisions
+```
 
 ### Liên kết
 - Workflow cha: `@vibe`
-- Skills: `ais/*` (LLM, RAG, Agent, Prompt, Production)
-- Agents: `@pxh-pm`, `@pxh-expert`, `@pxh-architect`
+- Runtime: `runtime/README.md`, `runtime/layers/03-worker.md`
+- Skills: `skills/ais-*` (LLM, RAG, Agent, Prompt, Production)
+- Contracts: `runtime/contracts/README.md`
+- Agents: `@pxh-pm` (Tầng 2), `@pxh-expert` (Tầng 3 Executor), `@pxh-architect` (Tầng 3 Planner)

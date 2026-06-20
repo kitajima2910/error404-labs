@@ -1,4 +1,4 @@
-# 🌐 Web Workflow — Phát triển web app
+# 🌐 Workflow Web — Phát triển web app
 
 Dùng workflow này khi bạn làm: web app, landing page, dashboard, API, full-stack, frontend/backend, e-commerce, blog, CMS, SaaS.
 
@@ -113,18 +113,37 @@ src/
 Setup → Components UI → Pages → API Routes → Database → Auth → Deploy
 ```
 
-### Bước 5: Quality & Release
+### Bước 5: Chất lượng & Phát hành — Tầng 2 (Điều phối) route Task contracts
 
-Sau khi code xong, workflow này báo PM để chạy:
-1. `@pxh-qa` — Kiểm tra chất lượng, chạy test
-2. `@pxh-fix-bugs` — Sửa lỗi (nếu QA phát hiện)
-3. `@pxh-review-code` — Code review
-4. `@release` — Build
-5. `@pxh-save-history` — Lưu quyết định + cập nhật STATUS.md
+Sau khi code xong, Orchestration tạo Task contracts và route đến Workers:
 
-> Sau build xong, bạn tự deploy (hoặc chạy live server cho game HTML5).
+| Phase | Task contract | Route đến | Result mong đợi |
+|-------|--------------|-----------|-----------------|
+| test | `Task{target: code, type: test, context: web app}` | `@pxh-qa` | `Result{pass/fail, bugs[], coverage}` |
+| fix | `Task{target: bugs từ QA, type: fix}` | `@pxh-fix-bugs` | `Result{fixed[], status}` |
+| review | `Task{target: toàn bộ code, type: review, focus: security/perf}` | `@pxh-review-code` | `Result{issues[], score}` |
+| build | `Task{target: project, type: build}` | `@release` | `Result{build_size, status}` |
+| persist | `Event{type: decision, phase: done, data: ...}` | `@pxh-save-history` | `Confirmed{status: saved}` |
+
+> Sau build xong, bạn tự deploy (hoặc chạy live server cho game HTML5). Tầng 1 (Interface) báo kết quả cho user.
+
+### Luồng Runtime (Các tầng)
+```
+Tầng 1 (Interface): User prompt → Request
+Tầng 2 (Orchestration): pxh-pm phân tích, chọn workflow
+Tầng 3 (Worker / Executor): pxh-expert code web theo skills/webs-
+Tầng 3 (Worker / Validator): pxh-qa test
+Tầng 3 (Worker / Fixer): pxh-fix-bugs (nếu có)
+Tầng 3 (Worker / Reviewer): pxh-review-code
+Tầng 3 (Worker / Builder): pxh-devops build
+Tầng 4 (Infrastructure): pxh-save-history persist
+Tầng 2 (Orchestration): Evaluate → Response
+Tầng 1 (Interface): Kết quả → user
+```
 
 ### Liên kết
 - Workflow cha: `@vibe` — Toàn bộ quy trình AI Company
-- Skills: `webs/*` — Web development skills
-- Agents: `@pxh-pm` (CEO), `@pxh-expert` (Coder), `@pxh-architect` (Architect)
+- Runtime: `runtime/README.md`, `runtime/layers/03-worker.md`
+- Skills: `skills/webs-*` — Web development skills
+- Contracts: `runtime/contracts/README.md` — Task, Result, Event
+- Agents: `@pxh-pm` (Tầng 2), `@pxh-expert` (Tầng 3 Executor), `@pxh-architect` (Tầng 3 Planner)

@@ -1,18 +1,20 @@
-# 🚀 Release Workflow — Build Pipeline
+# 🚀 Workflow Phát hành — Build Pipeline
 
-Workflow này thực hiện build pipeline: lint → typecheck → test → build. Bạn tự deploy sau khi build xong.
+Workflow này thực hiện build pipeline (đường ống xây dựng): lint → typecheck → test → build. Bạn tự deploy sau khi build xong.
 
-## 🚀 QUY TRÌNH RELEASE
+## 🚀 QUY TRÌNH PHÁT HÀNH
 
-### Gate Check (Điều kiện tiên quyết)
+### Kiểm tra cổng (Điều kiện tiên quyết)
+
+Tầng 2 (Orchestration) kiểm tra Result contracts từ các phase trước:
 
 ```
-☐ QA passed (`@pxh-qa` đã approve)
-☐ Code reviewed (`@pxh-review-code` đã approve)
+☐ QA passed — Result{test, status: pass} từ @pxh-qa
+☐ Code reviewed — Result{review, approved: true} từ @pxh-review-code
 ☐ Git status clean (git status)
 ```
 
-Nếu bất kỳ điều kiện nào không thỏa → **TỪ CHỐI RELEASE**, báo PM.
+Nếu bất kỳ điều kiện nào không thỏa → **TỪ CHỐI PHÁT HÀNH**, Orchestration gửi Event{type: reject} đến Tầng 4 + báo user.
 
 ---
 
@@ -82,13 +84,13 @@ Build xong, báo user:
 👉 Bạn chạy live server hoặc deploy lên hosting tuỳ ý.
 ```
 
-Sau khi build xong, gọi `@pxh-save-history update-status` để:
-- Cập nhật phase RELEASE ✅
-- Ghi lại build version, output size, ngày release
+Sau khi build xong, Orchestration gửi Event{type: build_complete} đến `@pxh-save-history`:
+- `Event{phase: release, status: success, data: {version, size, date}}`
+- Tầng 4 lưu + cập nhật .opencode/STATUS.md ✅
 
 ---
 
-## 📋 MẪU BÁO CÁO RELEASE
+## 📋 MẪU BÁO CÁO PHÁT HÀNH
 
 ```markdown
 ## 🚀 BUILD REPORT — v[version]
@@ -110,6 +112,23 @@ Sau khi build xong, gọi `@pxh-save-history update-status` để:
 | Lint lỗi | Fix → commit lại → chạy lại pipeline |
 | Test fail | Báo QA, không release |
 | Build fail | Kiểm tra log, fix dependency |
+
+## Luồng Runtime (Các tầng)
+```
+Tầng 3 (Worker / Builder): pxh-devops chạy build pipeline
+Tầng 3 (Worker / Validator): pxh-qa gate check (đã pass trước đó)
+Tầng 3 (Worker / Reviewer): pxh-review-code gate check (đã pass trước đó)
+Tầng 4 (Infrastructure): pxh-save-history ghi lại build version
+Tầng 2 (Orchestration): pxh-pm đánh giá build result → báo user
+Tầng 1 (Interface): Kết quả build → user
+```
+
+## Liên kết
+- Runtime: `runtime/README.md`, `runtime/layers/03-worker.md`
+- Contracts: `runtime/contracts/README.md` — Task, Result, Event
+- Policies: `runtime/policies/retry.md`, `runtime/policies/recovery.md`
+- Agents: `@pxh-devops` (Tầng 3 Builder), `@pxh-qa` (Tầng 3 Validator), `@pxh-review-code` (Tầng 3 Reviewer), `@pxh-pm` (Tầng 2), `@pxh-save-history` (Tầng 4)
+- Skill: `skills/webs-deployment/SKILL.md` — Deployment guide
 
 ## NGUYÊN TẮC
 

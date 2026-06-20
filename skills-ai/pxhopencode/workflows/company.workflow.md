@@ -1,23 +1,46 @@
-# 🏢 Company Workflow — AI Company Master Orchestration
+# 🏢 Company Workflow — AI Company Master Orchestration (Điều phối tổng thể)
 
-Workflow master điều phối toàn bộ AI Company. Khi user viết prompt, workflow này tự động chạy để biến ý tưởng thành sản phẩm release.
+Workflow master điều phối toàn bộ AI Company (Công ty AI). Khi user viết prompt, workflow này tự động chạy để biến ý tưởng thành sản phẩm phát hành.
 
 > **🌏 LUẬT NGÔN NGỮ**: Toàn bộ UI text trong code phải là **tiếng Việt** (nút bấm, tiêu đề, thông báo, menu, mô tả, label, placeholder, error message). Chỉ giữ tiếng Anh cho tên biến, hàm, class, API endpoint, package name. Code comments ưu tiên tiếng Việt.
 
-## 🔄 QUY TRÌNH 11 BƯỚC
+## 🔄 QUY TRÌNH 11 BƯỚC (Runtime 4-Tầng Model)
+
+Mỗi bước chạy qua Runtime layers theo thứ tự: **1 → 2 → 3 → 4 → 2 → 1**
 
 ```
-1. RECEIVE  ← Tiếp nhận prompt từ user
-2. ANALYZE  ← PM phân tích yêu cầu
-3. MEETING  ← Agents thảo luận, chọn giải pháp
-4. PLAN     ← Lập kế hoạch chi tiết
-5. ARCHITECT ← Thiết kế kiến trúc
-6. CODE     ← Vibe code với workflow + skill phù hợp
-7. TEST     ← QA chạy test, phát hiện bug
-8. FIX      ← Fix-bugs sửa lỗi (nếu có)
-9. REVIEW   ← Review-code kiểm tra chất lượng
-10. RELEASE ← DevOps build + deploy
-11. SAVE    ← Save-history lưu quyết định
+Tầng 1 (Interface): Tiếp nhận & validate prompt → build Request contract
+       │
+       ▼
+Tầng 2 (Orchestration): Analyze → Plan → Route
+       │
+       ▼
+Tầng 3 (Worker): Execute domain tasks (architect → code → test → fix → review → build)
+       │
+       ▼
+Tầng 4 (Infrastructure): Persist state, log, checkpoint
+       │
+       ▼
+Tầng 2 (Orchestration): Evaluate → next step or Response
+       │
+       ▼
+Tầng 1 (Interface): Format output → present to user
+```
+
+### 11 bước chi tiết
+
+```
+1. NHẬN     ← Tiếp nhận prompt từ user [Tầng 1 → 2]
+2. PHÂN TÍCH ← PM phân tích yêu cầu [Tầng 2]
+3. HỌP       ← Agents thảo luận, chọn giải pháp [Tầng 2]
+4. KẾ HOẠCH  ← Lập kế hoạch chi tiết [Tầng 2]
+5. THIẾT KẾ  ← Thiết kế kiến trúc [Tầng 3 — Nhân công / Kiến trúc sư]
+6. CODE      ← Vibe code với workflow + skill phù hợp [Tầng 3 — Nhân công / Lập trình]
+7. KIỂM TRA  ← QA chạy test, phát hiện bug [Tầng 3 — Nhân công / Kiểm thử]
+8. SỬA       ← Sửa lỗi (nếu có) [Tầng 3 — Nhân công / Sửa lỗi]
+9. RÀ SOÁT   ← Rà soát chất lượng [Tầng 3 — Nhân công / Rà soát]
+10. PHÁT HÀNH ← Build + deploy [Tầng 3 — Nhân công / Xây dựng]
+11. LƯU       ← Lưu quyết định [Tầng 4 — Hạ tầng]
 ```
 
 Nếu bất kỳ bước nào fail → tự động quay lại bước phù hợp để fix.
@@ -25,7 +48,7 @@ Vòng lặp tiếp diễn tới khi release thành công hoặc user cancel.
 
 ---
 
-## Bước 1: RECEIVE — Tiếp nhận
+## Bước 1: NHẬN — Tiếp nhận
 
 Nhận prompt từ user. Đây có thể là:
 - Mô tả dự án mới: "Làm web bán hàng"
@@ -33,10 +56,10 @@ Nhận prompt từ user. Đây có thể là:
 - Bug report: "Login bị lỗi 500"
 - Câu hỏi kỹ thuật: "Nên dùng DB gì?"
 
-→ Gọi `@pxh-save-history update-status` để khởi tạo STATUS.md với giai đoạn NHẬN.
-→ Chuyển sang Bước 2.
+→ Tầng 4: Gửi `Event{type: status, phase: "receive"}` đến `@pxh-save-history` để khởi tạo .opencode/STATUS.md với giai đoạn NHẬN.
+→ Tầng 2: Evaluate → Chuyển sang Bước 2.
 
-## Bước 2: ANALYZE — Phân tích (do PM thực hiện)
+## Bước 2: PHÂN TÍCH — Phân tích (do PM thực hiện)
 
 ```markdown
 ### 📊 Phân tích
@@ -49,10 +72,10 @@ Nhận prompt từ user. Đây có thể là:
 | Ràng buộc | [...] |
 ```
 
-→ Gọi `@pxh-save-history update-status` cập nhật giai đoạn PHÂN TÍCH, công nghệ, mục tiêu.
+→ Tầng 4: Gửi `Event{type: status, phase: "analyze", data: {tech, goal}}` đến `@pxh-save-history`.
 → Nếu rõ ràng → Bước 3. Nếu thiếu thông tin → hỏi user.
 
-## Bước 3: MEETING — Agents thảo luận
+## Bước 3: HỌP — Agents thảo luận
 
 Gọi `@meeting` với kết quả phân tích.
 Agents tham gia:
@@ -70,62 +93,65 @@ Kết quả meeting:
 - Timeline: [ước lượng]
 ```
 
-→ Gọi `@pxh-save-history update-status` cập nhật giai đoạn HỌP, kết quả thảo luận, công nghệ quyết định.
+→ Tầng 4: Gửi `Event{type: decision, phase: "meeting", data: {consensus, tech_stack}}` đến `@pxh-save-history`.
 → Bước 4.
 
-## Bước 4: PLAN — Lập kế hoạch
+## Bước 4: KẾ HOẠCH — Lập kế hoạch
 
 Viết kế hoạch chi tiết:
 ```markdown
 ## 📋 Kế hoạch
 
-### Phase 1: Khởi tạo
+### Giai đoạn 1: Khởi tạo
 - Setup project structure
 - Setup `.gitignore` (phù hợp tech stack, luôn có `.opencode`, `.playwright-mcp`, `.gitignore`)
 - Cài dependencies
 
-### Phase 2: Core features
+### Giai đoạn 2: Tính năng chính
 - [Feature 1] → [thời gian]
 - [Feature 2] → [thời gian]
 
-### Phase 3: Testing
+### Giai đoạn 3: Kiểm thử
 - Unit test cho logic
 - Integration test cho API
 
-### Phase 4: Release
+### Giai đoạn 4: Phát hành
 - Build + Deploy
 ```
 
-→ Gọi `@pxh-save-history update-status` cập nhật giai đoạn KẾ HOẠCH, kế hoạch chi tiết.
+→ Tầng 4: Gửi `Event{type: status, phase: "plan", data: {plan}}` đến `@pxh-save-history`.
 → Bước 5.
 
-## Bước 5: ARCHITECT — Thiết kế
+## Bước 5: THIẾT KẾ — Thiết kế [Tầng 2 → Tầng 3]
 
-Gọi `@pxh-architect <kế hoạch>` để thiết kế:
+Tầng 2 (Orchestration) tạo `Task{phase: "architect", target: plan, type: design}` → route đến `@pxh-architect`:
 - Database schema
 - API design
 - Component tree
 - Data flow
 
-Lưu ADR (Architecture Decision Record) vào `docs/decisions/`.
+Tầng 3 trả về `Result{status: done, artifacts: [schema, api_docs, ...]}`.
+Lưu ADR (Architecture Decision Record) vào `.opencode/docs/decisions/`.
 
-→ Gọi `@pxh-save-history update-status` cập nhật giai đoạn THIẾT KẾ, quyết định kiến trúc.
+→ Tầng 4: Gửi `Event{type: status, phase: "architect", data: {decisions}}` đến `@pxh-save-history`.
 → Bước 6.
 
-## Bước 6: CODE — Vibe code
+## Bước 6: CODE — Vibe code [Tầng 2 → Tầng 3]
 
-Dựa vào kết quả meeting, chọn workflow phù hợp:
+Dựa vào kết quả meeting, Tầng 2 (Orchestration) chọn workflow phù hợp và tạo Task contracts:
 
-| Dự án | Gọi |
-|-------|-----|
-| Web | `@web <mô tả>` |
-| Game 2D | `@game <mô tả>` + skill `skills/games/2d/game-h5-2d.md` |
-| Game 3D | `@game <mô tả>` + skill `skills/games/3d/game-h5-3d.md` |
-| AI | `@ai <mô tả>` + skill `skills/ais/*` |
-| CLI Tool | `@pxh-expert` + skill `skills/tools/cli/SKILL.md` |
-| Fix bug | `@pxh-fix-bugs <bug description>` |
+| Dự án | Task contract | Route đến |
+|-------|--------------|-----------|
+| Web | `Task{phase: "code", workflow: "web", target: mô tả}` | `@web` |
+| Game 2D | `Task{phase: "code", workflow: "game", skill: "2d", target: mô tả}` | `@game` |
+| Game 3D | `Task{phase: "code", workflow: "game", skill: "3d", target: mô tả}` | `@game` |
+| AI | `Task{phase: "code", workflow: "ai", skills: "ais/*", target: mô tả}` | `@ai` |
+| CLI Tool | `Task{phase: "code", target: mô tả, skill: "tools/cli"}` | `@pxh-expert` |
+| Fix bug | `Task{phase: "fix", target: bug description}` | `@pxh-fix-bugs` |
 
-Nếu dự án phức tạp → gọi `@pxh-expert` để nó chọn workflow và code tự động.
+Nếu dự án phức tạp → route `Task{phase: "code", type: "auto"}` đến `@pxh-expert` để tự chọn workflow và code.
+
+Tầng 3 (Worker / Executor) code theo workflow + skill → trả về `Result{status: done, features: [], output: files}`.
 
 Sau khi code xong, chạy setup `.gitignore` ở folder root project:
 - Nếu chưa có → tạo `.gitignore` với nội dung phù hợp tech stack + luôn thêm `.opencode`, `.playwright-mcp`, `.gitignore`
@@ -137,71 +163,74 @@ Sau đó, setup Playwright cho debug UI:
 - Nếu chưa có → chạy `npm install -D @playwright/test && npx playwright install chromium`
 - Verify Playwright connected: dùng `browser_tabs` để kiểm tra browser
 
-Nếu dự án chạy browser (web/game): tạo favicon SVG theo hướng dẫn trong `@web` (Bước 2.2) hoặc `@game` (Bước 2.2).
+Nếu dự án chạy browser (web/game): tạo favicon SVG theo hướng dẫn trong `web.workflow.md` (Bước 2.2) hoặc `game.workflow.md` (Bước 2.2).
 
 Sau đó:
 - `git add . && git commit -m "feat: <mô tả>"`
 - `git push` (nếu có remote)
 
-→ Gọi `@pxh-save-history update-status` cập nhật giai đoạn VIẾT CODE, tính năng đã hoàn thành.
+→ Tầng 4: Gửi `Event{type: status, phase: "code", data: {features}}` đến `@pxh-save-history`.
 → Bước 7.
 
-## Bước 7: TEST — QA kiểm tra
+## Bước 7: KIỂM TRA — QA kiểm tra [Tầng 2 → Tầng 3]
 
-Gọi `@pxh-qa` để:
+Tầng 2 (Orchestration) tạo `Task{phase: "test", target: code, context: test suite}` → route đến `@pxh-qa`:
 1. Kiểm tra test suite
 2. Chạy test
-3. Báo cáo kết quả
+3. Trả về `Result{status: pass/fail, pass_count: N, fail_count: N, bugs: []}`
 
 ```markdown
 ### Kết quả QA
 - Pass: [N] / Fail: [N]
 - Bug critical: [N]
-- Quyết định: [PASS / CẦN FIX]
+- Quyết định: [ĐẠT / CẦN SỬA]
 ```
 
-→ Gọi `@pxh-save-history update-status` cập nhật giai đoạn KIỂM TRA, kết quả QA.
+→ Tầng 4: Gửi `Event{type: status, phase: "test", data: {qa_result}}` đến `@pxh-save-history`.
 - Nếu PASS → Bước 9
 - Nếu CÓ BUG → Bước 8
 
-## Bước 8: FIX — Sửa lỗi
+## Bước 8: SỬA — Sửa lỗi [Tầng 2 → Tầng 3]
 
-Gọi `@pxh-fix-bugs` với danh sách bug từ QA.
-Sau khi fix → quay lại Bước 7 (test lại).
+Tầng 2 (Orchestration) đọc `Result.bugs[]` từ QA → tạo `Task{phase: "fix", target: bugs, context: stack_trace}` → route đến `@pxh-fix-bugs`.
+Sau khi fix → `Result{status: fixed, changes: []}` → Tầng 2 evaluate → quay lại Bước 7 (test lại).
 
-→ Gọi `@pxh-save-history update-status` cập nhật giai đoạn SỬA LỖI, bug đã sửa.
+→ Tầng 4: Gửi `Event{type: status, phase: "fix", data: {fixed_bugs}}` đến `@pxh-save-history`.
 
-Vòng lặp: **Test → Fix → Test → Fix** tới khi pass hoặc quá 3 lần.
-Nếu quá 3 lần → báo PM.
+Vòng lặp: **Test → Fix → Test → Fix** tới khi `Result{status: pass}` hoặc quá 3 lần.
+Nếu quá 3 lần → Tầng 2 escalates → báo user.
 
-## Bước 9: RÀ SOÁT — Code review
+## Bước 9: RÀ SOÁT — Rà soát code [Tầng 2 → Tầng 3]
 
-Gọi `@pxh-review-code` để review toàn bộ code thay đổi:
+Tầng 2 (Orchestration) tạo `Task{phase: "review", target: code_diff, focus: [security, perf, convention, quality]}` → route đến `@pxh-review-code`:
 - Security scan
 - Performance check
 - Convention check
 - Code quality
+- Trả về `Result{approved: true/false, issues: [], score}`
 
-Nếu có issue → fix → quay lại Bước 7.
-→ Gọi `@pxh-save-history update-status` cập nhật giai đoạn RÀ SOÁT, kết quả review.
+Nếu có issue → Tầng 2 route `Task{phase: "fix", target: issues}` → fix → quay lại Bước 7.
+→ Tầng 4: Gửi `Event{type: status, phase: "review", data: {review_result}}` đến `@pxh-save-history`.
 Nếu OK → Bước 10.
 
-## Bước 10: PHÁT HÀNH — Build & báo user
+## Bước 10: PHÁT HÀNH — Build & báo user [Tầng 2 → Tầng 3]
 
-Gọi `@release`:
-1. Lint + Typecheck
-2. Build
-3. Báo user build xong → user tự deploy
+Tầng 2 (Orchestration) tạo `Task{phase: "build", gate_check: {qa: pass, review: pass}}` → route đến `@release`:
+1. Lint + Typecheck → `Result{lint: pass/fail}`
+2. Build → `Result{build: pass/fail, size, path}`
+3. Tầng 1 (Interface): Báo user build xong → user tự deploy
 
-→ Gọi `@pxh-save-history update-status` cập nhật giai đoạn PHÁT HÀNH, build version.
+→ Tầng 4: Gửi `Event{type: status, phase: "release", data: {build_version, size}}` đến `@pxh-save-history`.
 
-## Bước 11: SAVE — Lưu lịch sử
+## Bước 11: LƯU — Lưu lịch sử [Tầng 2 → Tầng 4]
 
-Gọi `@pxh-save-history` để:
-1. Lưu session log vào `docs/changelog/YYYY-MM-DD.md`
-2. Lưu ADR vào `docs/decisions/`
-3. Lưu bug report vào `docs/bugs/`
-4. Cập nhật STATUS.md: giai đoạn LƯU ✅ — dự án hoàn tất
+Tầng 2 (Orchestration) gửi `Event{type: session_end, data: {logs, decisions, bugs, phase: complete}}` đến `@pxh-save-history`:
+1. Lưu session log vào `.opencode/docs/changelog/YYYY-MM-DD.md`
+2. Lưu ADR vào `.opencode/docs/decisions/`
+3. Lưu bug report vào `.opencode/docs/bugs/`
+4. Cập nhật .opencode/STATUS.md: giai đoạn LƯU ✅ — dự án hoàn tất
+
+Tầng 4 trả về `Confirmed{status: saved}` → Tầng 2 báo thành công qua Tầng 1 đến user.
 
 ---
 
@@ -223,8 +252,8 @@ Tối đa 3 lần lặp cho mỗi vòng. Nếu vẫn lỗi → báo user.
 
 | Tình huống | Xử lý |
 |-----------|-------|
-| User cung cấp thông tin không đủ | Hỏi user, không đoán |
-| Bug không fix được sau 3 lần | Báo user, đề xuất giải pháp thay thế |
-| Build fail | Log lỗi, báo user |
-| User muốn thay đổi giữa chừng / cancel | Dừng workflow ngay, lưu state hiện tại vào STATUS.md, báo PM. Nếu user muốn quay lại → gọi `@vibe` với mô tả tiếp theo |
-| Conflict giữa các agents | PM quyết định, user là sếp cuối cùng |
+| User cung cấp thông tin không đủ | Tầng 1 hỏi user, không đoán |
+| Bug không fix được sau 3 lần | Tầng 2 escalate → báo user, đề xuất giải pháp thay thế |
+| Build fail | Tầng 2 log lỗi → Tầng 4 persist → báo user |
+| User muốn thay đổi giữa chừng / cancel | Tầng 2 dừng workflow ngay, gửi `Event{type: cancel, state: current}` đến Tầng 4 để lưu state. Nếu user muốn quay lại → tạo Request mới |
+| Conflict giữa các agents | Tầng 2 (Orchestration) phân xử, user là sếp cuối cùng |

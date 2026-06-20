@@ -1,4 +1,4 @@
-# 🐛 Debug Workflow — Sửa lỗi & Tối ưu
+# 🐛 Workflow Gỡ lỗi — Sửa lỗi & Tối ưu
 
 Dùng workflow này khi bạn: fix bug, troubleshoot error, tối ưu hiệu năng, refactor code khẩn cấp, migrate data, gỡ rối deployment.
 
@@ -102,7 +102,7 @@ Kỹ thuật tìm nguyên nhân:
 - [ ] Thêm validation
 - [ ] Log lỗi cho monitoring
 
-## Các công cụ debug theo ngôn ngữ
+## Các công cụ gỡ lỗi theo ngôn ngữ
 
 | Language | Tools |
 |----------|-------|
@@ -120,15 +120,32 @@ Kỹ thuật tìm nguyên nhân:
 - Dùng websearch tra error message (Stack Overflow, GitHub Issues)
 - Nếu 15 phút không tìm ra → dừng, hỏi user thêm context
 
-## Quality & Release
+## Chất lượng & Phát hành — Tầng 2 (Điều phối) route Task contracts
 
-Sau khi fix xong:
-1. `@pxh-qa` — Chạy test, xác nhận bug đã hết
-2. `@pxh-fix-bugs` — Sửa lỗi (nếu QA phát hiện thêm)
-3. `@pxh-review-code` — Review fix có sạch không
-4. `@release` — Deploy hotfix
-5. `@pxh-save-history` — Lưu root cause & fix + cập nhật STATUS.md
+Sau khi fix xong, Orchestration tạo Task contracts và route đến Workers:
+
+| Phase | Task contract | Route đến | Result mong đợi |
+|-------|--------------|-----------|-----------------|
+| test | `Task{target: fix code, type: verify bug fixed}` | `@pxh-qa` | `Result{bug_fixed?, new_bugs[]}` |
+| fix | `Task{target: bugs QA tìm thêm, type: fix}` | `@pxh-fix-bugs` | `Result{fixed[], status}` |
+| review | `Task{target: fix code, type: review, focus: clean code}` | `@pxh-review-code` | `Result{approved?, issues[]}` |
+| build | `Task{target: project, type: hotfix build}` | `@release` | `Result{build_status}` |
+| persist | `Event{type: bug_report, data: root_cause + fix}` | `@pxh-save-history` | `Confirmed{status: saved}` |
+
+### Luồng Runtime (Các tầng)
+```
+Tầng 1 (Interface): User bug report → Request
+Tầng 2 (Orchestration): pxh-pm phân tích, route debug workflow
+Tầng 3 (Worker / Fixer): pxh-fix-bugs diagnose + fix (dùng Playwright nếu frontend)
+Tầng 3 (Worker / Validator): pxh-qa verify fix
+Tầng 3 (Worker / Reviewer): pxh-review-code review fix
+Tầng 3 (Worker / Builder): pxh-devops build hotfix
+Tầng 4 (Infrastructure): pxh-save-history persist root cause + fix
+```
 
 ### Liên kết
 - Workflow cha: `@vibe`
-- Agents: `@pxh-pm`, `@pxh-qa`, `@pxh-review-code`, `@pxh-devops`
+- Runtime: `runtime/README.md`, `runtime/layers/03-worker.md`
+- Contracts: `runtime/contracts/README.md` — Task, Result, Event (bug report)
+- Policies: `runtime/policies/recovery.md`, `runtime/policies/reflection.md`
+- Agents: `@pxh-pm` (Tầng 2), `@pxh-fix-bugs` (Tầng 3 Fixer), `@pxh-qa` (Tầng 3 Validator), `@pxh-review-code` (Tầng 3 Reviewer), `@pxh-devops` (Tầng 3 Builder)

@@ -1,4 +1,4 @@
-# 🎮 Game Workflow — Phát triển game H5
+# 🎮 Workflow Game — Phát triển game H5
 
 Dùng workflow này khi bạn làm: game HTML5, game 2D/2.5D/3D, game mobile web, Godot Web export, Unity WebGL, game canvas.
 
@@ -6,7 +6,7 @@ Dùng workflow này khi bạn làm: game HTML5, game 2D/2.5D/3D, game mobile web
 
 ## 🚀 Quy trình vibe code game
 
-> **Bước 0: Download assets** — Chạy `skills/games/assets/SKILL.md`:
+> **Bước 0: Download assets** — Chạy `skills/games-assets/SKILL.md`:
 > ```bash
 > # Auto-download sprites/models từ Kenney / Poly Pizza / Mixamo
 > # Fallback procedural nếu không có internet
@@ -18,9 +18,9 @@ Dùng workflow này khi bạn làm: game HTML5, game 2D/2.5D/3D, game mobile web
 
 | Loại | Engine / Library | Skill có sẵn |
 |------|-----------------|-------------|
-| 🟦 Game 2D | Phaser 3 / PixiJS / Canvas API | `skills/games/2d/game-h5-2d.md` |
-| 🟪 Game 2.5D | Isometric + Phaser / Custom engine | `skills/games/2.5d/game-h5-2.5d.md` |
-| 🟥 Game 3D | Three.js / Babylon.js / Godot → Web | `skills/games/3d/game-h5-3d.md` |
+| 🟦 Game 2D | Phaser 3 / PixiJS / Canvas API | `skills/games-2d/game-h5-2d.md` |
+| 🟪 Game 2.5D | Isometric + Phaser / Custom engine | `skills/games-isometric/game-h5-2.5d.md` |
+| 🟥 Game 3D | Three.js / Babylon.js / Godot → Web | `skills/games-3d/game-h5-3d.md` |
 
 ### Bước 2: Setup engine
 
@@ -109,7 +109,7 @@ Chi tiết từng bước:
 
 ### Bước 6: Entity State Machine
 
-Mọi entity (player, enemy, NPC) phải có FSM với đủ states: `idle`, `run`, `jump`, `attack`, `hurt`, `die`. Dùng pattern từ `skills/games/core/SKILL.md`.
+Mọi entity (player, enemy, NPC) phải có FSM với đủ states: `idle`, `run`, `jump`, `attack`, `hurt`, `die`. Dùng pattern từ `skills/games-core/SKILL.md`.
 
 Kiểm tra:
 - Transition không hợp lệ bị chặn (vd: die → idle)
@@ -134,22 +134,39 @@ npm run build
 ### Bước 9: Game Design (nếu cần)
 
 Đọc skill design tương ứng trước khi code:
-- 2D: `skills/games/2d/game-design-h5-2d.md`
-- 2.5D: `skills/games/2.5d/game-design-h5-2.5d.md`
-- 3D: `skills/games/3d/game-design-h5-3d.md`
+- 2D: `skills/games-2d/game-design-h5-2d.md`
+- 2.5D: `skills/games-isometric/game-design-h5-2.5d.md`
+- 3D: `skills/games-3d/game-design-h5-3d.md`
 
-### Quality & Release
+### Chất lượng & Phát hành — Tầng 2 (Điều phối) route Task contracts
 
-Sau khi code xong:
-1. `@pxh-qa` — Kiểm tra gameplay, performance
-2. `@pxh-fix-bugs` — Fix bug (nếu có)
-3. `@pxh-review-code` — Review cấu trúc & performance
-4. `@release` — Build
-5. `@pxh-save-history` — Lưu quyết định game design + cập nhật STATUS.md
+Sau khi code xong, Orchestration tạo Task contracts và route đến Workers:
+
+| Phase | Task contract | Route đến | Result mong đợi |
+|-------|--------------|-----------|-----------------|
+| test | `Task{target: game code, type: gameplay + perf test}` | `@pxh-qa` | `Result{pass/fail, bugs[], fps}` |
+| fix | `Task{target: bugs từ QA, type: fix}` | `@pxh-fix-bugs` | `Result{fixed[], status}` |
+| review | `Task{target: game code, type: review, focus: structure/perf}` | `@pxh-review-code` | `Result{issues[], score}` |
+| build | `Task{target: game project, type: build}` | `@release` | `Result{build_size, status}` |
+| persist | `Event{type: decision, phase: done, data: game design}` | `@pxh-save-history` | `Confirmed{status: saved}` |
 
 > Game HTML5 chạy bằng `npx vite` hoặc Live Server — bạn tự test và deploy.
 
+### Luồng Runtime (Các tầng)
+```
+Tầng 1 (Interface): User prompt → Request
+Tầng 2 (Orchestration): pxh-pm phân tích, chọn workflow
+Tầng 3 (Worker / Executor): pxh-expert code game theo skills/games-
+Tầng 3 (Worker / Validator): pxh-qa test gameplay
+Tầng 3 (Worker / Fixer): pxh-fix-bugs (nếu có)
+Tầng 3 (Worker / Reviewer): pxh-review-code
+Tầng 3 (Worker / Builder): pxh-devops build
+Tầng 4 (Infrastructure): pxh-save-history persist game design decisions
+```
+
 ### Liên kết
 - Workflow cha: `@vibe`
-- Skills: `games/*`, `games/2d/*`, `games/3d/*`
-- Agents: `@pxh-pm`, `@pxh-expert`, `@pxh-architect`
+- Runtime: `runtime/README.md`, `runtime/layers/03-worker.md`
+- Skills: `skills/games-*` (2D, 2.5D, 3D, core, physics, audio, assets)
+- Contracts: `runtime/contracts/README.md`
+- Agents: `@pxh-pm` (Tầng 2), `@pxh-expert` (Tầng 3 Executor), `@pxh-architect` (Tầng 3 Planner)
