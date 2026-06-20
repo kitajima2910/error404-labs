@@ -1684,22 +1684,6 @@ function drawTitleScreen(){
   ctx.textAlign='center';
   ctx.fillText('\u{1F3C1} ĐUA XE ARCADE',W/2,228);
 
-  // Theme preview strip
-  const stripY=250,stripH=20;
-  for(let i=0;i<THEME_KEYS.length;i++){
-    const t=THEMES[THEME_KEYS[i]];
-    const tx=W/2-120+i*60;
-    ctx.fillStyle=t.skyBot;
-    ctx.fillRect(tx,stripY,55,stripH);
-    // Road color
-    ctx.fillStyle=t.roadBot;
-    ctx.fillRect(tx+15,stripY+2,25,stripH-4);
-    ctx.fillStyle='rgba(255,255,255,0.25)';
-    ctx.font='8px sans-serif';
-    ctx.textAlign='center';
-    ctx.fillText(t.name,tx+27,stripY+stripH+10);
-  }
-
   // Play button
   const bx=W/2-110,by=300,bw=220,bh=56;
   const btnP=Math.sin(gameTime*3)*0.06+1;
@@ -1737,7 +1721,7 @@ function drawTitleScreen(){
   const labelW=ctx.measureText(sectionLabel).width;
   const padX=18,padY=6;
   const fw=labelW+padX*2,fh=12+padY*2;
-  const fcY=425; // center Y
+  const fcY=448; // center Y (cách garage button 18px)
   const fx=W/2-fw/2,fy=fcY-fh/2;
 
   // Outer glow
@@ -1766,7 +1750,7 @@ function drawTitleScreen(){
   const modeGridW=modeCols*modeBtnW+(modeCols-1)*modeGapX;
   const modeGridH=2*modeBtnH+modeGapY;
   const modeStartX=(W-modeGridW)/2;
-  const modeStartY=448;
+  const modeStartY=466;
   modeButtons=[];
   for(let i=0;i<MODE_KEYS.length;i++){
     const col=i%modeCols, row=Math.floor(i/modeCols);
@@ -1804,10 +1788,11 @@ function drawTitleScreen(){
   ctx.fillStyle='rgba(255,255,255,0.3)';
   ctx.font='14px "Segoe UI",system-ui,sans-serif';
   ctx.textAlign='center';
-  ctx.fillText('\u{1F3C6} Điểm Cao: '+highScore,W/2,556);
+  ctx.textBaseline='alphabetic';
+  ctx.fillText('\u{1F3C6} Điểm Cao: '+highScore,W/2,582);
   ctx.fillStyle='#ffd700';
   ctx.font='16px "Segoe UI",system-ui,sans-serif';
-  ctx.fillText('$ '+totalCoins,W/2,582);
+  ctx.fillText('$ '+totalCoins,W/2,606);
 
   // Controls help
   ctx.fillStyle='rgba(255,255,255,0.15)';
