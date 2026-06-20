@@ -1674,15 +1674,19 @@ function drawTitleScreen(){
   ctx.restore();
 
   // Version indicator
-  ctx.fillStyle='rgba(255,255,255,0.2)';
-  ctx.font='11px "Segoe UI",system-ui,sans-serif';
+  ctx.shadowColor='rgba(0,0,0,0.7)'; ctx.shadowBlur=6;
+  ctx.fillStyle='rgba(255,255,255,0.4)';
+  ctx.font='13px "Segoe UI",system-ui,sans-serif';
   ctx.textAlign='center';
   ctx.fillText('V2.0 — Chủ đề + AI Thông Minh',W/2,200);
+  ctx.shadowBlur=0;
 
-  ctx.fillStyle='rgba(255,255,255,0.35)';
-  ctx.font='14px "Segoe UI",system-ui,sans-serif';
+  ctx.shadowColor='rgba(0,0,0,0.6)'; ctx.shadowBlur=8;
+  ctx.fillStyle='rgba(255,255,255,0.6)';
+  ctx.font='bold 15px "Segoe UI",system-ui,sans-serif';
   ctx.textAlign='center';
   ctx.fillText('\u{1F3C1} ĐUA XE ARCADE',W/2,228);
+  ctx.shadowBlur=0;
 
   // Play button
   const bx=W/2-110,by=300,bw=220,bh=56;
@@ -1699,44 +1703,52 @@ function drawTitleScreen(){
   ctx.beginPath(); roundRect(ctx,bx,by,bw,bh,16); ctx.fill();
   ctx.shadowBlur=0;
 
+  ctx.shadowColor='rgba(0,0,0,0.4)'; ctx.shadowBlur=8;
   ctx.fillStyle='#fff';
-  ctx.font='bold 24px "Segoe UI",system-ui,sans-serif';
+  ctx.font='bold 26px "Segoe UI",system-ui,sans-serif';
   ctx.textAlign='center'; ctx.textBaseline='middle';
   ctx.fillText('\u25B6  CHƠI',W/2,by+bh/2+1);
+  ctx.shadowBlur=0;
   ctx.restore();
 
   // Garage button
   const gx=W/2-85,gy=by+bh+18,gw=170,gh=44;
-  ctx.fillStyle='rgba(255,255,255,0.07)';
-  ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=2;
+  ctx.shadowColor='rgba(255,255,255,0.05)'; ctx.shadowBlur=12;
+  ctx.fillStyle='rgba(255,255,255,0.08)';
+  ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=1.5;
   ctx.beginPath(); roundRect(ctx,gx,gy,gw,gh,12); ctx.fill(); ctx.stroke();
-  ctx.fillStyle='rgba(255,255,255,0.7)';
-  ctx.font='15px "Segoe UI",system-ui,sans-serif';
+  ctx.shadowBlur=0;
+  ctx.shadowColor='rgba(0,0,0,0.5)'; ctx.shadowBlur=5;
+  ctx.fillStyle='rgba(255,255,255,0.85)';
+  ctx.font='bold 16px "Segoe UI",system-ui,sans-serif';
   ctx.textAlign='center'; ctx.textBaseline='middle';
   ctx.fillText('\uD83D\uDD27 GARAGE',W/2,gy+gh/2+1);
+  ctx.shadowBlur=0;
 
   // ── Mode Selection Header (khung đẹp) ──
   const sectionLabel='CHỌN CHẾ ĐỘ CHƠI';
-  ctx.font='bold 10px "Segoe UI",system-ui,sans-serif';
+  ctx.font='bold 12px "Segoe UI",system-ui,sans-serif';
   const labelW=ctx.measureText(sectionLabel).width;
-  const padX=18,padY=6;
-  const fw=labelW+padX*2,fh=12+padY*2;
-  const fcY=448; // center Y (cách garage button 18px)
+  const padX=20,padY=7;
+  const fw=labelW+padX*2,fh=14+padY*2;
+  const fcY=450; // center Y (cách garage button 20px)
   const fx=W/2-fw/2,fy=fcY-fh/2;
 
   // Outer glow
-  ctx.shadowColor='rgba(0,200,255,0.12)'; ctx.shadowBlur=14;
+  ctx.shadowColor='rgba(0,200,255,0.15)'; ctx.shadowBlur=16;
   // Glass-morphism background
-  ctx.fillStyle='rgba(0,20,50,0.5)';
-  ctx.beginPath(); roundRect(ctx,fx,fy,fw,fh,10); ctx.fill();
+  ctx.fillStyle='rgba(0,20,50,0.55)';
+  ctx.beginPath(); roundRect(ctx,fx,fy,fw,fh,12); ctx.fill();
   ctx.shadowBlur=0;
   // Viền neon mỏng
-  ctx.strokeStyle='rgba(0,200,255,0.35)'; ctx.lineWidth=1.2;
-  ctx.beginPath(); roundRect(ctx,fx,fy,fw,fh,10); ctx.stroke();
-  // Chữ
-  ctx.fillStyle='rgba(180,230,255,0.85)';
+  ctx.strokeStyle='rgba(0,200,255,0.4)'; ctx.lineWidth=1.5;
+  ctx.beginPath(); roundRect(ctx,fx,fy,fw,fh,12); ctx.stroke();
+  // Chữ (có shadow nhẹ)
+  ctx.shadowColor='rgba(0,150,255,0.3)'; ctx.shadowBlur=6;
+  ctx.fillStyle='rgba(210,240,255,0.95)';
   ctx.textAlign='center'; ctx.textBaseline='middle';
   ctx.fillText(sectionLabel,W/2,fcY);
+  ctx.shadowBlur=0;
   // Trang trí 2 bên: gạch ngang + chấm tròn
   ctx.strokeStyle='rgba(0,200,255,0.15)'; ctx.lineWidth=1;
   const ln=22;
@@ -1746,7 +1758,7 @@ function drawTitleScreen(){
   ctx.beginPath(); ctx.arc(fx-ln,fcY,2,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.arc(fx+fw+ln,fcY,2,0,Math.PI*2); ctx.fill();
 
-  const modeCols=2, modeBtnW=130, modeBtnH=50, modeGapX=14, modeGapY=10;
+  const modeCols=2, modeBtnW=175, modeBtnH=54, modeGapX=18, modeGapY=14;
   const modeGridW=modeCols*modeBtnW+(modeCols-1)*modeGapX;
   const modeGridH=2*modeBtnH+modeGapY;
   const modeStartX=(W-modeGridW)/2;
@@ -1766,39 +1778,53 @@ function drawTitleScreen(){
     ctx.fillStyle=isSel?'rgba(0,200,255,0.15)':'rgba(255,255,255,0.04)';
     ctx.strokeStyle=isSel?'rgba(0,200,255,0.5)':'rgba(255,255,255,0.1)';
     ctx.lineWidth=isSel?1.5:1;
-    ctx.beginPath(); roundRect(ctx,mx,my,modeBtnW,modeBtnH,10); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); roundRect(ctx,mx,my,modeBtnW,modeBtnH,12); ctx.fill(); ctx.stroke();
     ctx.shadowBlur=0;
 
-    // Icon + tên
-    ctx.fillStyle=isSel?'#00ccff':'rgba(255,255,255,0.4)';
+    // Icon + tên (có shadow, tự động rút gọn nếu quá dài)
+    ctx.shadowColor='rgba(0,0,0,0.5)'; ctx.shadowBlur=4;
+    ctx.fillStyle=isSel?'#00ccff':'rgba(255,255,255,0.6)';
     ctx.font='bold 13px "Segoe UI",system-ui,sans-serif';
     ctx.textBaseline='middle'; ctx.textAlign='center';
-    ctx.fillText(mode.icon+' '+mode.name,mx+modeBtnW/2,my+19);
+    let nameText=mode.icon+' '+mode.name;
+    const maxNameW=modeBtnW-16;
+    if(ctx.measureText(nameText).width>maxNameW){
+      while(ctx.measureText(nameText+'…').width>maxNameW&&nameText.length>1)
+        nameText=nameText.slice(0,-1);
+      nameText+='…';
+    }
+    ctx.fillText(nameText,mx+modeBtnW/2,my+19);
 
     // Mô tả
-    ctx.fillStyle=isSel?'rgba(255,255,255,0.35)':'rgba(255,255,255,0.15)';
-    ctx.font='7px "Segoe UI",system-ui,sans-serif';
-    ctx.fillText(mode.desc,mx+modeBtnW/2,my+37);
+    ctx.shadowBlur=0;
+    ctx.fillStyle=isSel?'rgba(255,255,255,0.55)':'rgba(255,255,255,0.35)';
+    ctx.font='9px "Segoe UI",system-ui,sans-serif';
+    ctx.fillText(mode.desc,mx+modeBtnW/2,my+40);
 
     // Lưu rect để xử lý tap
     modeButtons.push({key:mk,x:mx,y:my,w:modeBtnW,h:modeBtnH});
   }
 
   // High score & coins
-  ctx.fillStyle='rgba(255,255,255,0.3)';
-  ctx.font='14px "Segoe UI",system-ui,sans-serif';
+  ctx.shadowColor='rgba(0,0,0,0.6)'; ctx.shadowBlur=6;
+  ctx.fillStyle='rgba(255,255,255,0.5)';
+  ctx.font='bold 15px "Segoe UI",system-ui,sans-serif';
   ctx.textAlign='center';
   ctx.textBaseline='alphabetic';
-  ctx.fillText('\u{1F3C6} Điểm Cao: '+highScore,W/2,596);
+  ctx.fillText('\u{1F3C6} Điểm Cao: '+highScore,W/2,604);
+  ctx.shadowColor='rgba(255,200,0,0.2)'; ctx.shadowBlur=8;
   ctx.fillStyle='#ffd700';
-  ctx.font='16px "Segoe UI",system-ui,sans-serif';
-  ctx.fillText('$ '+totalCoins,W/2,620);
+  ctx.font='bold 17px "Segoe UI",system-ui,sans-serif';
+  ctx.fillText('$ '+totalCoins,W/2,628);
+  ctx.shadowBlur=0;
 
   // Controls help
-  ctx.fillStyle='rgba(255,255,255,0.15)';
-  ctx.font='11px "Segoe UI",system-ui,sans-serif';
+  ctx.shadowColor='rgba(0,0,0,0.6)'; ctx.shadowBlur=5;
+  ctx.fillStyle='rgba(255,255,255,0.35)';
+  ctx.font='12px "Segoe UI",system-ui,sans-serif';
   ctx.textAlign='center';
   ctx.fillText('\u2190 \u2192 Phím Mũi Tên  \u00B7  Chạm 2 bên  \u00B7 SPACE: Nitro',W/2,H-24);
+  ctx.shadowBlur=0;
 
   roadOffset+=60*0.016;
   gameTime+=0.016;
