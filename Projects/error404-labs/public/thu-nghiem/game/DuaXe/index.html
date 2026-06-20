@@ -1358,20 +1358,23 @@ function updateGame(dt){
   gameTime+=dt;
 
   // ── Theme Transition ──
-  themeTimer+=dt;
-  if(themeTimer>=THEME_CHANGE_INTERVAL){
-    themeTimer=0;
-    // Start transition to next theme
-    currentThemeIdx=nextThemeIdx;
-    nextThemeIdx=(currentThemeIdx+1)%THEME_KEYS.length;
-    themeTransition=0;
-    SFX.themeChange();
-    // Reinitialize weather
-    initRain();
-    initDust();
-  }
-  if(themeTransition<1){
-    themeTransition=Math.min(1,themeTransition+dt/THEME_TRANSITION_DURATION);
+  const gameMode=GAME_MODES[selectedMode]||GAME_MODES.endless;
+  if(!gameMode.forceTheme){
+    themeTimer+=dt;
+    if(themeTimer>=THEME_CHANGE_INTERVAL){
+      themeTimer=0;
+      // Start transition to next theme
+      currentThemeIdx=nextThemeIdx;
+      nextThemeIdx=(currentThemeIdx+1)%THEME_KEYS.length;
+      themeTransition=0;
+      SFX.themeChange();
+      // Reinitialize weather
+      initRain();
+      initDust();
+    }
+    if(themeTransition<1){
+      themeTransition=Math.min(1,themeTransition+dt/THEME_TRANSITION_DURATION);
+    }
   }
 
   // ── Speed Ramp ──
@@ -1471,18 +1474,15 @@ function updateGame(dt){
     coinSpawnTimer=rand(0.6/mode.coinMult,1.8/mode.coinMult);
   }
 
-  // Obstacle spawner (mode-adjusted)
-  obstacleTimer-=dt;
-  if(obstacleTimer<=0){
-    if(mode.key==='obstacleRush'){
-      // Spawn 1-2 obstacles mỗi lần
+  // Obstacle spawner (CHỈ ở mode Vượt Chướng Ngại Vật)
+  if(mode.key==='obstacleRush'){
+    obstacleTimer-=dt;
+    if(obstacleTimer<=0){
       spawnObstacle();
       if(Math.random()<0.45) spawnObstacle();
-    }else{
-      spawnObstacle();
+      const baseInterval=(3.5-adaptDifficulty*1.5)/mode.obstacleMult;
+      obstacleTimer=rand(Math.max(1.0,baseInterval-0.8),Math.max(2.0,baseInterval+0.8));
     }
-    const baseInterval=(3.5-adaptDifficulty*1.5)/mode.obstacleMult;
-    obstacleTimer=rand(Math.max(1.0,baseInterval-0.8),Math.max(2.0,baseInterval+0.8));
   }
 
   // ── Update Rain ──
@@ -1744,6 +1744,42 @@ function renderGame(){
     drawCar(c.x,c.y,c.w,c.h,c.color,typeInfo.accent,false,false,c.typeKey);
   }
 
+  // ── Đèn pha player (headlight beam) ──
+  const headLightIntensity=Math.max(0,(1-theme.ambientLight)*0.8);
+  if(headLightIntensity>0.1&&screen==='play'){
+    ctx.save();
+    // Chế độ hoà trộn làm sáng
+    ctx.globalCompositeOperation='lighter';
+    // Ánh sáng chính - chùm hẹp phía trước xe
+    const hlGrad=ctx.createRadialGradient(
+      playerX,playerY-10,3,
+      playerX,playerY-100,45
+    );
+    hlGrad.addColorStop(0,`rgba(255,255,230,${headLightIntensity*0.2})`);
+    hlGrad.addColorStop(0.5,`rgba(200,220,255,${headLightIntensity*0.06})`);
+    hlGrad.addColorStop(1,'rgba(200,220,255,0)');
+    ctx.fillStyle=hlGrad;
+    // Hình nón đèn
+    ctx.beginPath();
+    ctx.moveTo(playerX-10,playerY-5);
+    ctx.lineTo(playerX-30,playerY-140);
+    ctx.lineTo(playerX+30,playerY-140);
+    ctx.lineTo(playerX+10,playerY-5);
+    ctx.closePath(); ctx.fill();
+
+    // Ánh sáng gần xe
+    const nearGrad=ctx.createRadialGradient(
+      playerX,playerY,5,
+      playerX,playerY,50
+    );
+    nearGrad.addColorStop(0,`rgba(255,255,220,${headLightIntensity*0.04})`);
+    nearGrad.addColorStop(1,'rgba(255,255,220,0)');
+    ctx.fillStyle=nearGrad;
+    ctx.beginPath(); ctx.arc(playerX,playerY,50,0,Math.PI*2); ctx.fill();
+
+    ctx.restore();
+  }
+
   // Player (with sway tilt, oil spin)
   const tilt=playerSway*0.03;
   const pBob=Math.sin(carBob)*1.5;
@@ -1759,9 +1795,16 @@ function renderGame(){
   // Rain (on top of everything on road)
   drawRain();
 
-  // Fog overlay
+  // Fog overlay (dùng màu từ theme)
   if(theme.fogDensity>0){
-    ctx.fillStyle=`rgba(80,80,120,${theme.fogDensity*0.5})`;
+    ctx.fillStyle=theme.fogColor;
+    ctx.fillRect(0,0,W,H);
+  }
+
+  // Dark overlay dựa trên ambientLight (tối cho ban đêm)
+  const darkAmount=Math.max(0,1-theme.ambientLight)*0.85;
+  if(darkAmount>0.01){
+    ctx.fillStyle=`rgba(0,0,0,${darkAmount})`;
     ctx.fillRect(0,0,W,H);
   }
 
@@ -1799,6 +1842,15 @@ function renderGame(){
     const v=Math.abs(themeTransition-0.5)*2;
     ctx.fillStyle=`rgba(0,0,0,${(1-v)*0.15})`;
     ctx.fillRect(0,0,W,H);
+  }
+
+  // Vignette ban đêm — tối dần về rìa màn hình
+  const vignetteStrength=Math.max(0,(1-theme.ambientLight)*0.7);
+  if(vignetteStrength>0.01){
+    const vg=ctx.createRadialGradient(W/2,H/2,H*0.2,W/2,H/2,H*0.7);
+    vg.addColorStop(0,'rgba(0,0,0,0)');
+    vg.addColorStop(1,`rgba(0,0,0,${vignetteStrength})`);
+    ctx.fillStyle=vg; ctx.fillRect(0,0,W,H);
   }
 
   ctx.restore(); // end shake transform
@@ -2324,11 +2376,14 @@ function startGame(){
   if(mode.forceTheme){
     currentThemeIdx=THEME_KEYS.indexOf(mode.forceTheme);
     if(currentThemeIdx<0) currentThemeIdx=0;
+    nextThemeIdx=currentThemeIdx; // Giữ nguyên theme, không chuyển
+    themeTransition=0;
+    themeTimer=9999; // Không bao giờ hết hạn
   }else{
     currentThemeIdx=randi(0,THEME_KEYS.length-1);
+    nextThemeIdx=(currentThemeIdx+1)%THEME_KEYS.length;
+    themeTimer=0; themeTransition=1;
   }
-  nextThemeIdx=(currentThemeIdx+1)%THEME_KEYS.length;
-  themeTimer=0; themeTransition=1;
   paused=false; screen='game';
   initRain(); initDust();
   document.getElementById('touchCtrls').classList.add('active');
