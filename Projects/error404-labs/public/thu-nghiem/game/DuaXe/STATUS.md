@@ -10,7 +10,7 @@ Hệ thống độ xe (Garage Customization) toàn diện với các nâng cấp
 |-----------|-------|
 | 🎨 **Sơn xe đa dạng** | 8 màu sắc phân chia theo độ hiếm (Common, Rare, Epic, Legendary) mở khóa bằng xu |
 | ✨ **Tem xe đua độc đáo** | Thiết kế decal Sọc dọc thể thao, Ngọn lửa hông, Ngôi sao vàng tốc độ, Lưới ma trận Cyber Grid |
-| 🛞 **Mâm xe thể thao & Neon** | Các kiểu mâm Cổ điển nan hoa, Hợp kim thể thao 5 chấu, Đĩa sáng Neon phát quang, Mâm Vàng 24K |
+| ⚙️ **Mâm xe thể thao & Neon** | Các kiểu mâm Cổ điển nan hoa, Hợp kim thể thao 5 chấu, Đĩa sáng Neon phát quang, Mâm Vàng 24K |
 | 🏁 **Cánh gió khí động học** | 4 thiết kế đuôi vịt nhỏ (Low profile), Cánh thể thao, Cánh đua GT cỡ lớn, Carbon Active 2 tầng |
 | 💡 **Đèn Neon Underglow** | Hiệu ứng phát sáng dưới gầm xe: Xanh băng, Đỏ rực, Xanh Toxic, Vòng màu RGB biến đổi |
 | 🔥 **Màu lửa xả Nitro** | Hạt lửa xả đa lớp đổi màu: Mặc định (Cyan/Orange), Hỏa ngục đỏ, Plasma tím, Acid xanh lá, Tinh vân vàng |
@@ -40,7 +40,7 @@ Hệ thống độ xe (Garage Customization) toàn diện với các nâng cấp
 | Tính năng | Mô tả |
 |-----------|-------|
 | 💨 **Tire Smoke System** | Khói lốp khi đánh lái gấp, dày hơn khi bật nitro, vật lý bay lên nhẹ |
-| 🛞 **Skid Marks** | Vết trượt đen trên đường khi vào cua gấp, tự động fade sau vài giây |
+| ⚙️ **Skid Marks** | Vết trượt đen trên đường khi vào cua gấp, tự động fade sau vài giây |
 | 🎯 **Enhanced Speed Lines** | Vạch tốc độ đổi màu (trắng → xanh) khi tốc độ cao, dày hơn khi nitro |
 | 💡 **Animated Headlights** | Đèn pha nhấp nháy tự nhiên, chùm sáng hình nón động, độ sáng theo tốc độ |
 | 🔴 **Animated Taillights** | Đèn hậu sáng mạnh khi phanh/giảm tốc, hiệu ứng glow halo đỏ |
