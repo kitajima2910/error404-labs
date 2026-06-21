@@ -330,7 +330,7 @@ canvas#c{display:block;image-rendering:auto;flex-shrink:0;margin:auto}
   <div id="garageUI" style="display:none;">
     <!-- Top bar -->
     <div class="showroom-header">
-      <div class="showroom-title"><span class="showroom-title-icon">★</span> SHOWROOM</div>
+      <div class="showroom-title"><span class="showroom-title-icon">★</span> PHÒNG TRƯNG BÀY</div>
       <div class="showroom-stats">
         <span class="showroom-xp" id="garageXpText">Cấp 1</span>
         <span class="showroom-coins" id="garageCoinsText">0</span>
@@ -352,7 +352,7 @@ canvas#c{display:block;image-rendering:auto;flex-shrink:0;margin:auto}
         <button class="showroom-tab" data-tab="underglow">💡 Neon gầm</button>
         <button class="showroom-tab" data-tab="nitro">🔥 Lửa Nitro</button>
         <button class="showroom-tab" data-tab="plate">💳 Biển số</button>
-        <button class="showroom-tab" data-tab="loadout">💾 Loadouts</button>
+        <button class="showroom-tab" data-tab="loadout">💾 Trang Bị</button>
       </div>
       
       <!-- Items list -->
@@ -540,7 +540,7 @@ function loadData(){
 
 const THEMES={
   city:{
-    name:'City',
+    name:'Thành Phố',
     skyTop:hexToRgb('#0a0a2e'), skyMid:hexToRgb('#1a1a3e'), skyBot:hexToRgb('#2a2a4e'),
     roadTop:hexToRgb('#2a2a38'), roadBot:hexToRgb('#353545'),
     roadEdge:[hexToRgb('#ff4444'),hexToRgb('#ffffff')],
@@ -557,7 +557,7 @@ const THEMES={
     trafficDensity:1.2,
   },
   highway:{
-    name:'Highway',
+    name:'Đường Cao Tốc',
     skyTop:hexToRgb('#1a2a4a'), skyMid:hexToRgb('#3a5a8a'), skyBot:hexToRgb('#6a8aba'),
     roadTop:hexToRgb('#3a3a45'), roadBot:hexToRgb('#4a4a55'),
     roadEdge:[hexToRgb('#ffcc00'),hexToRgb('#ffffff')],
@@ -633,7 +633,7 @@ let themeTimer=0;
 
 const TRAFFIC_TYPES={
   normal:{
-    name:'Normal',w:50,h:88,color:'#3498db',accent:'#555',
+    name:'Bình Thường',w:50,h:88,color:'#3498db',accent:'#555',
     speedMult:rand(0.6,0.85),switchChance:0.008,
     aggressive:0.3,cautious:0.2,maxSwitchTimer:3,
   },
@@ -661,6 +661,26 @@ const TRAFFIC_TYPES={
     name:'Thể Thao',w:44,h:78,color:'#ff6b81',accent:'#ff00ff',
     speedMult:rand(0.9,1.15),switchChance:0.015,
     aggressive:0.7,cautious:0.1,maxSwitchTimer:2,
+  },
+  bus:{
+    name:'Xe Buýt',w:64,h:130,color:'#f39c12',accent:'#e67e22',
+    speedMult:rand(0.3,0.5),switchChance:0.001,
+    aggressive:0.02,cautious:0.95,maxSwitchTimer:8,
+  },
+  motorcycle:{
+    name:'Xe Máy',w:28,h:52,color:'#1abc9c',accent:'#16a085',
+    speedMult:rand(0.85,1.2),switchChance:0.06,
+    aggressive:0.4,cautious:0.15,maxSwitchTimer:0.8,
+  },
+  ambulance:{
+    name:'Cấp Cứu',w:56,h:100,color:'#ecf0f1',accent:'#e74c3c',
+    speedMult:rand(0.85,1.1),switchChance:0.035,
+    aggressive:0.8,cautious:0.05,maxSwitchTimer:1,
+  },
+  police:{
+    name:'Cảnh Sát',w:52,h:92,color:'#2c3e50',accent:'#3498db',
+    speedMult:rand(0.7,0.95),switchChance:0.03,
+    aggressive:0.7,cautious:0.1,maxSwitchTimer:1.2,
   }
 };
 const TRAFFIC_TYPE_KEYS=Object.keys(TRAFFIC_TYPES);
@@ -731,6 +751,28 @@ let roadOffset=0, gameTime=0, invincibleTimer=0, hitFlash=0;
 let paused=false;
 let obstacleTimer=5;
 let gameModeTimer=0; // Timer for time-based modes
+
+// ── Living Traffic Ecosystem State ──
+let pedestrians=[];           // Animated pedestrians on sidewalks
+let billboards=[];            // Dynamic roadside billboards
+let sceneryItems=[];          // Procedural roadside scenery (trees, poles, signs)
+let railwayGates=[];          // Railway crossing gates
+let trains=[];                // Trains crossing the road
+let helicopters=[];           // Helicopters flying overhead
+let trafficLights=[];         // Synchronized traffic lights
+let policeChase=null;         // Active police pursuit
+let wantedLevel=0;            // 0-3 police wanted level
+let wantedTimer=0;            // Timer for wanted level decay
+let accidentSites=[];         // Active accident sites with debris
+let wildlifeAnimals=[];       // Animals crossing rural roads
+let weatherIntensity=0;       // 0-1 weather intensity (rain/wind)
+let windDirection=0;          // Wind direction for weather-reactive traffic
+let railwayCooldown=0;        // Cooldown between train crossings
+let railwayBlocked=false;     // Player blocked by railway gate
+let railwayBlockMsgTimer=0;  // Cooldown for "ĐỢI TÀU" message
+let lastSceneryY=0;           // Last Y position where scenery was spawned
+let lastPedestrianY=0;        // Last Y for pedestrian spawn
+let lastBillboardY=0;         // Last Y for billboard spawn
 
 // Oil spill effect
 let oilSlide=0; // -1..1 sliding direction, decays to 0
@@ -948,9 +990,10 @@ function getHazardWeight(type){
 function pickTrafficType(){
   // Weight based on difficulty and theme
   const weights={
-    normal:0.35, aggressive:0.15+adaptDifficulty*0.1,
-    cautious:0.2, weaver:0.1+adaptDifficulty*0.05,
-    truck:0.1, sports:0.1+adaptDifficulty*0.08
+    normal:0.28, aggressive:0.12+adaptDifficulty*0.08,
+    cautious:0.15, weaver:0.08+adaptDifficulty*0.04,
+    truck:0.08, sports:0.08+adaptDifficulty*0.06,
+    bus:0.05, motorcycle:0.08, ambulance:0.02, police:0.01+adaptDifficulty*0.02
   };
   let total=0;
   for(const k of Object.keys(weights)) total+=weights[k];
@@ -1086,6 +1129,965 @@ function initDust(){
       speed:rand(20,80),size:rand(2,6),
       alpha:rand(0.05,0.2),drift:rand(-10,10)
     });
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// ── LIVING TRAFFIC ECOSYSTEM ────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+
+// ── Pedestrian System ──
+const PEDESTRIAN_COLORS=['#e74c3c','#3498db','#2ecc71','#f39c12','#9b59b6','#1abc9c','#e67e22','#34495e'];
+const PEDESTRIAN_NAMES=['Ng','Tn','Hn','Lm','Qn','Bh'];
+class Pedestrian{
+  constructor(x,y,dir){
+    this.x=x; this.y=y; this.dir=dir; // dir: 1=down(screen), -1=up
+    this.speed=rand(15,35);
+    this.color=PEDESTRIAN_COLORS[randi(0,PEDESTRIAN_COLORS.length-1)];
+    this.walkPhase=rand(0,Math.PI*2);
+    this.active=true;
+    this.armSwing=0;
+    this.headBob=0;
+  }
+  update(dt){
+    this.y+=this.speed*this.dir*dt;
+    this.walkPhase+=dt*8;
+    this.armSwing=Math.sin(this.walkPhase)*3;
+    this.headBob=Math.abs(Math.sin(this.walkPhase*0.5))*1.5;
+    if(this.dir>0&&this.y>H+30) this.active=false;
+    if(this.dir<0&&this.y<-30) this.active=false;
+  }
+  draw(ctx){
+    const bobY=this.headBob;
+    const armA=this.armSwing;
+    // Body
+    ctx.fillStyle=this.color;
+    ctx.beginPath(); roundRect(ctx,this.x-4,this.y-8+bobY,8,12,2); ctx.fill();
+    // Head
+    ctx.fillStyle='#f5cba7';
+    ctx.beginPath(); ctx.arc(this.x,this.y-12+bobY,4,0,Math.PI*2); ctx.fill();
+    // Hair
+    ctx.fillStyle='#2c3e50';
+    ctx.beginPath(); ctx.arc(this.x,this.y-14+bobY,4,Math.PI,0); ctx.fill();
+    // Legs
+    ctx.fillStyle='#2c3e50';
+    ctx.fillRect(this.x-3,this.y+4,2,6+armA*0.3);
+    ctx.fillRect(this.x+1,this.y+4,2,6-armA*0.3);
+    // Arms
+    ctx.strokeStyle=this.color; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(this.x-4,this.y-4+bobY); ctx.lineTo(this.x-7,this.y+armA); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(this.x+4,this.y-4+bobY); ctx.lineTo(this.x+7,this.y-armA); ctx.stroke();
+  }
+}
+
+function spawnPedestrians(){
+  if(pedestrians.length>=12) return;
+  // Spawn on both sidewalks
+  const sides=[ROAD_L-20,ROAD_R+20];
+  for(const sx of sides){
+    if(Math.random()<0.15){
+      const dir=Math.random()<0.5?1:-1;
+      pedestrians.push(new Pedestrian(sx+rand(-8,8),-rand(20,100),dir));
+    }
+  }
+}
+
+function updatePedestrians(dt){
+  for(let i=pedestrians.length-1;i>=0;i--){
+    pedestrians[i].update(dt);
+    if(!pedestrians[i].active) pedestrians.splice(i,1);
+  }
+}
+
+function drawPedestrians(){
+  for(const p of pedestrians) p.draw(ctx);
+}
+
+// ── Billboard System ──
+const BILLBOARD_MSGS=[
+  'TURBO RUSH','VÙNG NITRO','VUA DRIFT','TỐC ĐỘ CAO',
+  'ĐIỂM DỪNG','THỜI GIAN ĐUA','CHẠY NHANH','KHÔNG GIỚI HẠN',
+  'THÀNH PHỐ NEON','ÁC QUỶ TỐC ĐỘ','CHIẾN BINH ĐƯỜNG','TĂNG TỐC',
+  'KHU VỰC ARCADE','ĐƯỜNG 1','GIỜ CAO ĐIỂM','ĐENTITY THROTLE'
+];
+const BILLBOARD_COLORS=['#ff4444','#44aaff','#44ff44','#ffaa00','#ff44ff','#44ffff'];
+
+class Billboard{
+  constructor(x,y){
+    this.x=x; this.y=y;
+    this.w=rand(30,50); this.h=rand(18,28);
+    this.msg=BILLBOARD_MSGS[randi(0,BILLBOARD_MSGS.length-1)];
+    this.bgColor=BILLBOARD_COLORS[randi(0,BILLBOARD_COLORS.length-1)];
+    this.glowPhase=rand(0,Math.PI*2);
+    this.active=true;
+  }
+  update(dt,speed){
+    this.y+=speed*dt;
+    this.glowPhase+=dt*2;
+    if(this.y>H+60) this.active=false;
+  }
+  draw(ctx){
+    const glow=0.6+Math.sin(this.glowPhase)*0.2;
+    // Pole
+    ctx.fillStyle='rgba(100,100,120,0.6)';
+    ctx.fillRect(this.x-1.5,this.y,3,30);
+    // Board
+    ctx.shadowColor=this.bgColor; ctx.shadowBlur=8*glow;
+    ctx.fillStyle='rgba(20,20,40,0.85)';
+    ctx.beginPath(); roundRect(ctx,this.x-this.w/2,this.y-this.h/2-4,this.w,this.h,4); ctx.fill();
+    // Border
+    ctx.strokeStyle=this.bgColor; ctx.lineWidth=1.5;
+    ctx.globalAlpha=glow;
+    ctx.beginPath(); roundRect(ctx,this.x-this.w/2,this.y-this.h/2-4,this.w,this.h,4); ctx.stroke();
+    ctx.globalAlpha=1;
+    // Text
+    ctx.shadowBlur=0;
+    ctx.fillStyle=this.bgColor;
+    ctx.font=`bold ${Math.min(8,this.w/this.msg.length*1.2)|0}px sans-serif`;
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(this.msg,this.x,this.y-4);
+  }
+}
+
+function spawnBillboards(){
+  if(billboards.length>=4) return;
+  const side=Math.random()<0.5?ROAD_L-40:ROAD_R+40;
+  billboards.push(new Billboard(side+rand(-10,10),-rand(50,200)));
+}
+
+function updateBillboards(dt,spd){
+  for(let i=billboards.length-1;i>=0;i--){
+    billboards[i].update(dt,spd);
+    if(!billboards[i].active) billboards.splice(i,1);
+  }
+}
+
+function drawBillboards(){
+  for(const b of billboards) b.draw(ctx);
+}
+
+// ── Procedural Roadside Scenery ──
+const SCENARY_TYPES=['tree','pole','bush','sign','fireHydrant','trashCan'];
+class SceneryItem{
+  constructor(x,y,type){
+    this.x=x; this.y=y; this.type=type||SCENARY_TYPES[randi(0,SCENARY_TYPES.length-1)];
+    this.active=true;
+    this.scale=rand(0.7,1.2);
+    this.variant=randi(0,3);
+  }
+  update(dt,speed){
+    this.y+=speed*dt;
+    if(this.y>H+40) this.active=false;
+  }
+  draw(ctx){
+    ctx.save();
+    ctx.translate(this.x,this.y);
+    ctx.scale(this.scale,this.scale);
+    const v=this.variant;
+    if(this.type==='tree'){
+      // Trunk
+      ctx.fillStyle='#5d4037';
+      ctx.fillRect(-2,-20,4,22);
+      // Foliage layers
+      ctx.fillStyle=v===0?'#2e7d32':v===1?'#388e3c':'#1b5e20';
+      ctx.beginPath(); ctx.arc(0,-26,10+v*2,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle=v===0?'#43a047':v===1?'#4caf50':'#2e7d32';
+      ctx.beginPath(); ctx.arc(0,-30,7+v,0,Math.PI*2); ctx.fill();
+    }else if(this.type==='pole'){
+      // Street light pole
+      ctx.fillStyle='#78909c';
+      ctx.fillRect(-1.5,-35,3,37);
+      // Lamp head
+      ctx.fillStyle='#eceff1';
+      ctx.beginPath(); ctx.arc(0,-35,5,0,Math.PI*2); ctx.fill();
+      // Light glow
+      ctx.fillStyle='rgba(255,240,180,0.08)';
+      ctx.beginPath(); ctx.arc(0,-35,12,0,Math.PI*2); ctx.fill();
+    }else if(this.type==='bush'){
+      ctx.fillStyle=v===0?'#558b2f':v===1?'#689f38':'#33691e';
+      ctx.beginPath(); ctx.arc(0,-5,8+v*2,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle=v===0?'#7cb342':v===1?'#8bc34a':'#558b2f';
+      ctx.beginPath(); ctx.arc(3,-7,6+v,0,Math.PI*2); ctx.fill();
+    }else if(this.type==='sign'){
+      // Road sign
+      ctx.fillStyle='#78909c'; ctx.fillRect(-1.5,-25,3,27);
+      ctx.fillStyle='#1565c0';
+      ctx.beginPath(); roundRect(ctx,-10,-32,20,14,2); ctx.fill();
+      ctx.fillStyle='#fff'; ctx.font='bold 6px sans-serif';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(v===0?'TỐC ĐỘ':v===1?'ĐUA':'ĐI!',0,-25);
+    }else if(this.type==='fireHydrant'){
+      ctx.fillStyle='#c62828';
+      ctx.fillRect(-3,-10,6,12);
+      ctx.beginPath(); ctx.arc(0,-10,4,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#e53935';
+      ctx.fillRect(-5,-8,10,3);
+    }else if(this.type==='trashCan'){
+      ctx.fillStyle='#546e7a';
+      ctx.beginPath(); roundRect(ctx,-4,-12,8,14,2); ctx.fill();
+      ctx.fillStyle='#78909c';
+      ctx.fillRect(-5,-12,10,3);
+    }
+    ctx.restore();
+  }
+}
+
+function spawnScenery(){
+  if(sceneryItems.length>=20) return;
+  // Left sidewalk
+  if(Math.random()<0.3){
+    sceneryItems.push(new SceneryItem(ROAD_L-randi(12,35),-rand(20,150)));
+  }
+  // Right sidewalk
+  if(Math.random()<0.3){
+    sceneryItems.push(new SceneryItem(ROAD_R+randi(12,35),-rand(20,150)));
+  }
+}
+
+function updateScenery(dt,spd){
+  for(let i=sceneryItems.length-1;i>=0;i--){
+    sceneryItems[i].update(dt,spd);
+    if(!sceneryItems[i].active) sceneryItems.splice(i,1);
+  }
+}
+
+function drawScenery(){
+  for(const s of sceneryItems) s.draw(ctx);
+}
+
+// ── Railway Crossing System ──
+class RailwayCrossing{
+  constructor(y){
+    this.y=y; this.active=true;
+    this.gateAngle=0; // 0=open, PI/2=closed
+    this.gateTarget=0;
+    this.warningPhase=0;
+    this.trainPassed=false;
+    this.trainTimer=rand(3,6); // time before train arrives
+    this.gateX_left=ROAD_L-15;
+    this.gateX_right=ROAD_R+15;
+    this.warningFlash=false;
+  }
+  update(dt,speed){
+    this.y+=speed*dt;
+    this.warningPhase+=dt*6;
+    this.warningFlash=Math.sin(this.warningPhase)>0;
+    
+    if(this.y<-100){this.active=false;return}
+    
+    // Train approaching - close gates
+    if(this.trainTimer>0){
+      this.trainTimer-=dt;
+      if(this.trainTimer<2){
+        this.gateTarget=Math.PI/2.2; // close gates
+      }
+    }
+    
+    // Smooth gate animation
+    this.gateAngle+=(this.gateTarget-this.gateAngle)*dt*5;
+  }
+  draw(ctx){
+    if(this.y<-50||this.y>H+50) return;
+    
+    // Crossing posts
+    ctx.fillStyle='#424242';
+    ctx.fillRect(ROAD_L-20,this.y-15,4,30);
+    ctx.fillRect(ROAD_R+16,this.y-15,4,30);
+    
+    // Warning lights (flashing red)
+    if(this.gateTarget>0.5){
+      const flash=this.warningFlash;
+      ctx.shadowColor=flash?'#ff0000':'#660000';
+      ctx.shadowBlur=flash?20:5;
+      ctx.fillStyle=flash?'#ff2200':'#881111';
+      ctx.beginPath(); ctx.arc(ROAD_L-18,this.y-15,4,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(ROAD_R+18,this.y-15,4,0,Math.PI*2); ctx.fill();
+      ctx.shadowBlur=0;
+    }
+    
+    // Gate arms (animated closing)
+    const gateLen=(ROAD_R-ROAD_L)/2+15;
+    ctx.save();
+    // Left gate
+    ctx.translate(ROAD_L-15,this.y+5);
+    ctx.rotate(this.gateAngle);
+    ctx.fillStyle='#ff6600';
+    ctx.fillRect(0,-1.5,gateLen,3);
+    // Stripes
+    ctx.fillStyle='#fff';
+    for(let i=5;i<gateLen;i+=12){
+      ctx.fillRect(i,-1.5,5,3);
+    }
+    ctx.restore();
+    
+    ctx.save();
+    // Right gate
+    ctx.translate(ROAD_R+15,this.y+5);
+    ctx.rotate(-this.gateAngle);
+    ctx.fillStyle='#ff6600';
+    ctx.fillRect(-gateLen,-1.5,gateLen,3);
+    ctx.fillStyle='#fff';
+    for(let i=-gateLen+5;i<0;i+=12){
+      ctx.fillRect(i,-1.5,5,3);
+    }
+    ctx.restore();
+    
+    // Crossbuck sign
+    ctx.save();
+    ctx.translate((ROAD_L+ROAD_R)/2,this.y-20);
+    ctx.strokeStyle='#ffcc00'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(-8,-8); ctx.lineTo(8,8); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(8,-8); ctx.lineTo(-8,8); ctx.stroke();
+    ctx.fillStyle='#ffcc00'; ctx.font='bold 7px sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('ĐƯỜNG SẮT',0,-12);
+    ctx.restore();
+  }
+}
+
+class Train{
+  constructor(crossing){
+    this.crossing=crossing;
+    this.x=-200; // start off-screen left
+    this.y=crossing.y-8;
+    this.speed=rand(200,350);
+    this.w=250; this.h=24;
+    this.carCount=randi(3,6);
+    this.active=true;
+    this.passed=false;
+    this.wagons=[];
+    for(let i=0;i<this.carCount;i++){
+      this.wagons.push({
+        color:['#8d6e63','#546e7a','#78909c','#455a64','#6d4c41'][i%5],
+        hasContainer:Math.random()<0.5,
+        containerColor:['#c62828','#1565c0','#2e7d32','#f57f17'][randi(0,3)]
+      });
+    }
+  }
+  update(dt){
+    this.x+=this.speed*dt;
+    if(this.x>W+300){
+      this.active=false;
+      this.crossing.gateTarget=0; // open gates
+      this.crossing.trainPassed=true;
+    }
+  }
+  draw(ctx){
+    ctx.save();
+    const trainW=this.w*this.carCount;
+    
+    for(let i=0;i<this.carCount;i++){
+      const wx=this.x+i*70;
+      if(wx>W+50||wx<-100) continue;
+      const w=this.wagons[i];
+      
+      // Wagon body
+      ctx.fillStyle=w.color;
+      ctx.beginPath(); roundRect(ctx,wx,this.y-10,62,20,3); ctx.fill();
+      
+      // Container on top
+      if(w.hasContainer){
+        ctx.fillStyle=w.containerColor;
+        ctx.beginPath(); roundRect(ctx,wx+2,this.y-18,58,10,2); ctx.fill();
+      }
+      
+      // Wheels
+      ctx.fillStyle='#222';
+      ctx.beginPath(); ctx.arc(wx+10,this.y+10,5,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(wx+50,this.y+10,5,0,Math.PI*2); ctx.fill();
+      
+      // Coupler
+      if(i<this.carCount-1){
+        ctx.fillStyle='#333';
+        ctx.fillRect(wx+62,this.y-3,8,6);
+      }
+      
+      // Headlights on first wagon
+      if(i===0){
+        ctx.fillStyle='#ffff88';
+        ctx.shadowColor='#ffff00'; ctx.shadowBlur=10;
+        ctx.beginPath(); ctx.arc(wx+62,this.y-4,3,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(wx+62,this.y+4,3,0,Math.PI*2); ctx.fill();
+        ctx.shadowBlur=0;
+      }
+    }
+    ctx.restore();
+  }
+}
+
+function updateRailways(dt,speed){
+  railwayCooldown-=dt;
+  
+  // Spawn new railway crossing
+  if(railwayCooldown<=0&&railwayGates.length===0&&Math.random()<0.003){
+    railwayGates.push(new RailwayCrossing(-80));
+    railwayCooldown=rand(25,50);
+  }
+  
+  // Update crossings
+  for(let i=railwayGates.length-1;i>=0;i--){
+    const g=railwayGates[i];
+    g.update(dt,speed);
+    
+    // Spawn train when gate is closing
+    if(g.trainTimer<=0&&!g.trainPassed&&trains.length===0){
+      trains.push(new Train(g));
+      SFX.trainHorn();
+    }
+    
+    if(!g.active) railwayGates.splice(i,1);
+  }
+  
+  // Update trains
+  for(let i=trains.length-1;i>=0;i--){
+    trains[i].update(dt);
+    if(!trains[i].active) trains.splice(i,1);
+  }
+}
+
+function drawRailways(){
+  for(const g of railwayGates) g.draw(ctx);
+  for(const t of trains) t.draw(ctx);
+}
+
+// ── Police Pursuit System ──
+class PolicePursuit{
+  constructor(){
+    this.active=true;
+    this.lane=randi(0,LANE_COUNT-1);
+    this.y=-100;
+    this.speed=0;
+    this.sirenPhase=0;
+    this.chaseTimer=0;
+    this.maxDuration=rand(8,15);
+    this.retro=false; // true = retro low-poly style
+  }
+  update(dt,currentSpeed){
+    this.sirenPhase+=dt*12;
+    this.chaseTimer+=dt;
+    
+    // Police car tries to catch up to player
+    const targetSpeed=currentSpeed*0.95;
+    this.speed+=(targetSpeed-this.speed)*dt*3;
+    this.y+=this.speed*dt*0.85;
+    
+    // Follow player lane (slowly)
+    const targetLane=playerLane;
+    const laneDiff=targetLane-this.lane;
+    if(Math.abs(laneDiff)>0.1){
+      this.lane+=Math.sign(laneDiff)*dt*0.8;
+    }
+    this.lane=clamp(this.lane,0,LANE_COUNT-1);
+    
+    // Chase expires
+    if(this.chaseTimer>this.maxDuration){
+      this.active=false;
+    }
+    
+    // Despawn if too far below player
+    if(this.y>playerY+400){
+      this.active=false;
+    }
+  }
+  draw(ctx){
+    const x=ROAD_L+this.lane*LANE_W+LANE_W/2;
+    const y=this.y;
+    
+    // Police car body
+    ctx.fillStyle='#1a237e';
+    ctx.beginPath();
+    ctx.moveTo(x-22,y-40);ctx.lineTo(x+22,y-40);
+    ctx.lineTo(x+25,y-10);ctx.lineTo(x+25,y+30);
+    ctx.lineTo(x+22,y+40);ctx.lineTo(x-22,y+40);
+    ctx.lineTo(x-25,y+30);ctx.lineTo(x-25,y-10);
+    ctx.closePath();ctx.fill();
+    
+    // White stripe
+    ctx.fillStyle='rgba(255,255,255,0.3)';
+    ctx.fillRect(x-25,y-5,50,10);
+    
+    // Siren lights (alternating red/blue)
+    const sirenOn=Math.sin(this.sirenPhase)>0;
+    const sirenOn2=Math.sin(this.sirenPhase+Math.PI)>0;
+    
+    // Red light
+    ctx.shadowColor=sirenOn?'#ff0000':'#660000';
+    ctx.shadowBlur=sirenOn?25:5;
+    ctx.fillStyle=sirenOn?'#ff0000':'#991111';
+    ctx.beginPath(); ctx.arc(x-8,y-38,4,0,Math.PI*2); ctx.fill();
+    
+    // Blue light
+    ctx.shadowColor=sirenOn2?'#0066ff':'#002266';
+    ctx.shadowBlur=sirenOn2?25:5;
+    ctx.fillStyle=sirenOn2?'#0066ff':'#113366';
+    ctx.beginPath(); ctx.arc(x+8,y-38,4,0,Math.PI*2); ctx.fill();
+    ctx.shadowBlur=0;
+    
+    // Headlights
+    ctx.fillStyle='#ffffcc';
+    ctx.beginPath(); ctx.ellipse(x-15,y-42,3,2,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(x+15,y-42,3,2,0,0,Math.PI*2); ctx.fill();
+    
+    // POLICE text
+    ctx.fillStyle='#fff';
+    ctx.font='bold 6px sans-serif';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('CẢNH SÁT',x,y);
+    
+    // Rear lights
+    ctx.fillStyle='#ff0000';
+    ctx.shadowColor='#ff0000'; ctx.shadowBlur=8;
+    ctx.fillRect(x-20,y+36,5,3);
+    ctx.fillRect(x+15,y+36,5,3);
+    ctx.shadowBlur=0;
+  }
+}
+
+function updatePolice(dt,currentSpeed){
+  // Trigger police chase based on wanted level
+  if(wantedLevel>0){
+    wantedTimer-=dt;
+    if(wantedTimer<=0){
+      wantedLevel=Math.max(0,wantedLevel-1);
+      wantedTimer=15;
+    }
+  }
+  
+  // Spawn police if wanted and no active chase
+  if(wantedLevel>=2&&!policeChase){
+    if(Math.random()<0.02*wantedLevel){
+      policeChase=new PolicePursuit();
+      SFX.siren();
+    }
+  }
+  
+  // Update active chase
+  if(policeChase){
+    policeChase.update(dt,currentSpeed);
+    if(!policeChase.active){
+      policeChase=null;
+      wantedTimer=10;
+    }
+  }
+}
+
+function drawPolice(){
+  if(policeChase) policeChase.draw(ctx);
+}
+
+// ── Wildlife Crossing System ──
+const WILDLIFE_TYPES=[
+  {name:'deer',color:'#8d6e63',w:16,h:12,speed:50},
+  {name:'dog',color:'#a1887f',w:10,h:8,speed:70},
+  {name:'rabbit',color:'#d7ccc8',w:6,h:5,speed:90},
+  {name:'fox',color:'#e65100',w:12,h:9,speed:60},
+];
+class WildlifeAnimal{
+  constructor(){
+    const type=WILDLIFE_TYPES[randi(0,WILDLIFE_TYPES.length-1)];
+    this.type=type.name;
+    this.color=type.color;
+    this.w=type.w; this.h=type.h;
+    this.animalSpeed=type.speed;
+    this.dir=Math.random()<0.5?1:-1;
+    this.x=this.dir>0?ROAD_L-20:ROAD_R+20;
+    this.y=-rand(30,100);
+    this.laneTarget=randi(0,LANE_COUNT-1);
+    this.active=true;
+    this.scared=false;
+    this.scareTimer=0;
+    this.legPhase=0;
+  }
+  update(dt,speed){
+    this.y+=speed*dt*0.5; // road scrolls, animal also walks
+    this.legPhase+=dt*10;
+    
+    // Move across road
+    if(!this.scared){
+      const targetX=ROAD_L+this.laneTarget*LANE_W+LANE_W/2;
+      const dx=targetX-this.x;
+      this.x+=Math.sign(dx)*this.animalSpeed*dt;
+      
+      // Check if player is close - scare!
+      const dist=Math.abs(this.x-playerX)+Math.abs(this.y-playerY);
+      if(dist<120){
+        this.scared=true;
+        this.scareTimer=1.5;
+        this.dir=this.x>playerX?1:-1; // run away from player
+      }
+    }else{
+      this.x+=this.dir*this.animalSpeed*2*dt;
+      this.scareTimer-=dt;
+      if(this.scareTimer<=0) this.active=false;
+    }
+    
+    if(this.y>H+40||this.y<-80) this.active=false;
+    if(this.x<-60||this.x>W+60) this.active=false;
+  }
+  draw(ctx){
+    ctx.save();
+    ctx.translate(this.x,this.y);
+    if(this.dir<0) ctx.scale(-1,1);
+    
+    const legOff=Math.sin(this.legPhase)*2;
+    
+    if(this.type==='deer'){
+      // Body
+      ctx.fillStyle=this.color;
+      ctx.beginPath(); ctx.ellipse(0,0,this.w/2,this.h/3,0,0,Math.PI*2); ctx.fill();
+      // Legs
+      ctx.fillStyle='#6d4c41';
+      ctx.fillRect(-4,this.h/3,2,6+legOff);
+      ctx.fillRect(2,this.h/3,2,6-legOff);
+      // Head
+      ctx.fillStyle=this.color;
+      ctx.beginPath(); ctx.ellipse(this.w/3,-3,4,3,0,0,Math.PI*2); ctx.fill();
+      // Antlers
+      ctx.strokeStyle='#5d4037'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(this.w/3,-5); ctx.lineTo(this.w/3+3,-10); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(this.w/3,-5); ctx.lineTo(this.w/3-2,-9); ctx.stroke();
+    }else if(this.type==='dog'){
+      ctx.fillStyle=this.color;
+      ctx.beginPath(); ctx.ellipse(0,0,this.w/2,this.h/3,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#795548';
+      ctx.fillRect(-3,this.h/3,2,5+legOff);
+      ctx.fillRect(1,this.h/3,2,5-legOff);
+      ctx.fillStyle=this.color;
+      ctx.beginPath(); ctx.ellipse(this.w/3,-2,3,2.5,0,0,Math.PI*2); ctx.fill();
+      // Tail
+      ctx.strokeStyle=this.color; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(-this.w/3,0); ctx.lineTo(-this.w/3-3,-4+legOff); ctx.stroke();
+    }else if(this.type==='rabbit'){
+      ctx.fillStyle=this.color;
+      ctx.beginPath(); ctx.ellipse(0,0,this.w/2,this.h/3,0,0,Math.PI*2); ctx.fill();
+      ctx.fillRect(-2,this.h/3,1.5,4+legOff);
+      ctx.fillRect(0.5,this.h/3,1.5,4-legOff);
+      ctx.beginPath(); ctx.ellipse(this.w/3,-1,2.5,2,0,0,Math.PI*2); ctx.fill();
+      // Ears
+      ctx.fillRect(this.w/3,-5,1.5,5);
+      ctx.fillRect(this.w/3+2,-4,1.5,4);
+    }else{ // fox
+      ctx.fillStyle=this.color;
+      ctx.beginPath(); ctx.ellipse(0,0,this.w/2,this.h/3,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#bf360c';
+      ctx.fillRect(-3,this.h/3,2,5+legOff);
+      ctx.fillRect(1,this.h/3,2,5-legOff);
+      ctx.fillStyle=this.color;
+      ctx.beginPath(); ctx.ellipse(this.w/3,-2,3,2.5,0,0,Math.PI*2); ctx.fill();
+      // Fluffy tail
+      ctx.fillStyle='#e65100';
+      ctx.beginPath(); ctx.arc(-this.w/3-2,-1,4,0,Math.PI*2); ctx.fill();
+    }
+    ctx.restore();
+  }
+}
+
+function spawnWildlife(){
+  if(wildlifeAnimals.length>=3) return;
+  const theme=getCurrentTheme();
+  // Wildlife only in rural/desert themes
+  if(theme.themeHue<200&&theme.themeHue!==35) return;
+  if(Math.random()<0.005){
+    wildlifeAnimals.push(new WildlifeAnimal());
+  }
+}
+
+function updateWildlife(dt,speed){
+  for(let i=wildlifeAnimals.length-1;i>=0;i--){
+    wildlifeAnimals[i].update(dt,speed);
+    if(!wildlifeAnimals[i].active) wildlifeAnimals.splice(i,1);
+  }
+}
+
+function drawWildlife(){
+  for(const w of wildlifeAnimals) w.draw(ctx);
+}
+
+// ── Traffic Light System ──
+class TrafficLight{
+  constructor(y){
+    this.y=y;
+    this.green=true; // true = green for player direction
+    this.timer=rand(4,8);
+    this.phases=['green','yellow','red'];
+    this.phaseIdx=0;
+    this.active=true;
+    this.x_left=ROAD_L-10;
+    this.x_right=ROAD_R+10;
+  }
+  update(dt,speed){
+    this.y+=speed*dt;
+    if(this.y>H+40) this.active=false;
+    
+    this.timer-=dt;
+    if(this.timer<=0){
+      this.phaseIdx=(this.phaseIdx+1)%3;
+      this.timer=this.phaseIdx===0?rand(4,8):this.phaseIdx===1?1.5:rand(3,6);
+      this.green=this.phaseIdx===0;
+    }
+  }
+  draw(ctx){
+    if(this.y<-20||this.y>H+20) return;
+    
+    const currentPhase=this.phases[this.phaseIdx];
+    
+    for(const x of [this.x_left,this.x_right]){
+      // Pole
+      ctx.fillStyle='#424242';
+      ctx.fillRect(x-1.5,this.y-25,3,28);
+      
+      // Housing
+      ctx.fillStyle='#212121';
+      ctx.beginPath(); roundRect(ctx,x-5,this.y-28,10,20,3); ctx.fill();
+      
+      // Red
+      ctx.fillStyle=currentPhase==='red'?'#ff1744':'#4a0000';
+      if(currentPhase==='red'){ctx.shadowColor='#ff0000';ctx.shadowBlur=8}
+      ctx.beginPath(); ctx.arc(x,this.y-24,2.5,0,Math.PI*2); ctx.fill();
+      
+      // Yellow
+      ctx.fillStyle=currentPhase==='yellow'?'#ffea00':'#4a4000';
+      if(currentPhase==='yellow'){ctx.shadowColor='#ffea00';ctx.shadowBlur=8}
+      ctx.beginPath(); ctx.arc(x,this.y-20,2.5,0,Math.PI*2); ctx.fill();
+      
+      // Green
+      ctx.fillStyle=currentPhase==='green'?'#00e676':'#003300';
+      if(currentPhase==='green'){ctx.shadowColor='#00ff00';ctx.shadowBlur=8}
+      ctx.beginPath(); ctx.arc(x,this.y-16,2.5,0,Math.PI*2); ctx.fill();
+      
+      ctx.shadowBlur=0;
+    }
+  }
+}
+
+function updateTrafficLights(dt,speed){
+  // Spawn traffic lights periodically
+  if(trafficLights.length<3&&Math.random()<0.002){
+    trafficLights.push(new TrafficLight(-50));
+  }
+  
+  for(let i=trafficLights.length-1;i>=0;i--){
+    trafficLights[i].update(dt,speed);
+    if(!trafficLights[i].active) trafficLights.splice(i,1);
+  }
+}
+
+function drawTrafficLights(){
+  for(const tl of trafficLights) tl.draw(ctx);
+}
+
+// ── Helicopter System ──
+class Helicopter{
+  constructor(){
+    this.x=rand(50,W-50);
+    this.y=rand(-80,-20);
+    this.speedX=rand(-30,30);
+    this.speedY=rand(10,25);
+    this.rotorPhase=0;
+    this.active=true;
+    this.searchLight= Math.random()<0.4;
+    this.lightAngle=0;
+  }
+  update(dt){
+    this.rotorPhase+=dt*30;
+    this.x+=this.speedX*dt;
+    this.y+=this.speedY*dt;
+    if(this.searchLight) this.lightAngle+=dt*1.5;
+    if(this.y>H+60) this.active=false;
+    if(this.x<-100||this.x>W+100) this.active=false;
+  }
+  draw(ctx){
+    ctx.save();
+    ctx.globalAlpha=0.5; // distant feel
+    const x=this.x,y=this.y;
+    
+    // Shadow on ground (far below)
+    ctx.fillStyle='rgba(0,0,0,0.08)';
+    ctx.beginPath(); ctx.ellipse(x,y+200,25,8,0,0,Math.PI*2); ctx.fill();
+    
+    // Body
+    ctx.fillStyle='#455a64';
+    ctx.beginPath(); ctx.ellipse(x,y,12,6,0,0,Math.PI*2); ctx.fill();
+    // Cockpit
+    ctx.fillStyle='#80cbc4';
+    ctx.beginPath(); ctx.ellipse(x+8,y-1,5,4,0.3,0,Math.PI*2); ctx.fill();
+    // Tail boom
+    ctx.fillStyle='#546e7a';
+    ctx.fillRect(x-18,y-1,10,2);
+    // Tail rotor
+    ctx.fillStyle='#78909c';
+    ctx.beginPath(); ctx.ellipse(x-20,y,1.5,5,0,0,Math.PI*2); ctx.fill();
+    
+    // Main rotor
+    ctx.strokeStyle='rgba(150,150,160,0.4)';
+    ctx.lineWidth=1.5;
+    const rotorLen=22;
+    const ra=this.rotorPhase;
+    ctx.beginPath();
+    ctx.moveTo(x+Math.cos(ra)*rotorLen,y-4+Math.sin(ra)*2);
+    ctx.lineTo(x-Math.cos(ra)*rotorLen,y-4-Math.sin(ra)*2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x+Math.cos(ra+Math.PI/2)*rotorLen,y-4+Math.sin(ra+Math.PI/2)*2);
+    ctx.lineTo(x-Math.cos(ra+Math.PI/2)*rotorLen,y-4-Math.sin(ra+Math.PI/2)*2);
+    ctx.stroke();
+    
+    // Rotor hub
+    ctx.fillStyle='#90a4ae';
+    ctx.beginPath(); ctx.arc(x,y-4,2,0,Math.PI*2); ctx.fill();
+    
+    // Search light
+    if(this.searchLight){
+      const lx=x+Math.sin(this.lightAngle)*40;
+      const ly=y+180+Math.cos(this.lightAngle)*20;
+      ctx.globalAlpha=0.15;
+      ctx.fillStyle='#ffff88';
+      ctx.beginPath();
+      ctx.moveTo(x,y+5);
+      ctx.lineTo(lx-15,ly);
+      ctx.lineTo(lx+15,ly);
+      ctx.closePath(); ctx.fill();
+      // Spotlight dot
+      ctx.globalAlpha=0.25;
+      ctx.beginPath(); ctx.arc(lx,ly,8,0,Math.PI*2); ctx.fill();
+    }
+    
+    ctx.restore();
+  }
+}
+
+function updateHelicopters(dt){
+  if(helicopters.length<2&&Math.random()<0.003){
+    helicopters.push(new Helicopter());
+  }
+  for(let i=helicopters.length-1;i>=0;i--){
+    helicopters[i].update(dt);
+    if(!helicopters[i].active) helicopters.splice(i,1);
+  }
+}
+
+function drawHelicopters(){
+  for(const h of helicopters) h.draw(ctx);
+}
+
+// ── Accident System ──
+class AccidentSite{
+  constructor(y){
+    this.y=y;
+    this.lane=randi(0,LANE_COUNT-1);
+    this.active=true;
+    this.timer=0;
+    this.duration=rand(6,12);
+    this.smokePhase=0;
+    // Damaged cars at accident
+    this.cars=[];
+    const count=randi(1,3);
+    for(let i=0;i<count;i++){
+      this.cars.push({
+        x:ROAD_L+(this.lane+rand(-0.5,0.5))*LANE_W+LANE_W/2,
+        offset:rand(-15,15),
+        angle:rand(-0.3,0.3),
+        color:['#c62828','#1565c0','#2e7d32','#f57f17'][randi(0,3)],
+        damaged:Math.random()<0.5
+      });
+    }
+  }
+  update(dt,speed){
+    this.y+=speed*dt;
+    this.timer+=dt;
+    this.smokePhase+=dt*3;
+    if(this.timer>this.duration||this.y>H+100) this.active=false;
+  }
+  draw(ctx){
+    if(this.y<-40||this.y>H+40) return;
+    
+    // Caution tape / cones
+    const coneCount=4;
+    for(let i=0;i<coneCount;i++){
+      const cx=ROAD_L+(this.lane-0.5)*LANE_W+i*LANE_W/(coneCount-1);
+      const cy=this.y;
+      // Cone
+      ctx.fillStyle='#ff6600';
+      ctx.beginPath();
+      ctx.moveTo(cx-4,cy+8);ctx.lineTo(cx+4,cy+8);ctx.lineTo(cx,cy-4);
+      ctx.closePath();ctx.fill();
+      ctx.fillStyle='#fff';
+      ctx.fillRect(cx-2,cy,4,2);
+    }
+    
+    // Damaged cars
+    for(const car of this.cars){
+      ctx.save();
+      ctx.translate(car.x+car.offset,this.y);
+      ctx.rotate(car.angle);
+      
+      // Car body (crashed)
+      ctx.fillStyle=car.color;
+      ctx.beginPath();
+      ctx.rect(-18,-12,36,24);
+      ctx.fill();
+      
+      // Damage marks
+      if(car.damaged){
+        ctx.fillStyle='rgba(0,0,0,0.3)';
+        ctx.fillRect(-15,-8,8,6);
+        ctx.fillStyle='#333';
+        ctx.fillRect(-16,-10,3,10); // broken window
+      }
+      
+      ctx.restore();
+    }
+    
+    // Smoke rising
+    ctx.globalAlpha=0.3;
+    for(let i=0;i<4;i++){
+      const sx=this.cars[0]?.x||this.lane*LANE_W+ROAD_L;
+      const sy=this.y-10-i*8+Math.sin(this.smokePhase+i)*3;
+      const sr=5+i*3+Math.sin(this.smokePhase*0.5+i)*2;
+      ctx.fillStyle=`rgba(80,80,90,${0.15-i*0.03})`;
+      ctx.beginPath(); ctx.arc(sx+rand(-5,5),sy,sr,0,Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha=1;
+  }
+}
+
+function spawnAccident(){
+  if(accidentSites.length>=2) return;
+  if(Math.random()<0.004){
+    accidentSites.push(new AccidentSite(-60));
+  }
+}
+
+function updateAccidents(dt,speed){
+  for(let i=accidentSites.length-1;i>=0;i--){
+    accidentSites[i].update(dt,speed);
+    if(!accidentSites[i].active) accidentSites.splice(i,1);
+  }
+}
+
+function drawAccidents(){
+  for(const a of accidentSites) a.draw(ctx);
+}
+
+// ── Weather-Reactive Traffic ──
+function updateWeatherReactive(){
+  const theme=getCurrentTheme();
+  // Adjust wind based on rain
+  if(theme.hasRain){
+    weatherIntensity=lerp(weatherIntensity,1,0.02);
+    windDirection=Math.sin(gameTime*0.3)*20;
+  }else{
+    weatherIntensity=lerp(weatherIntensity,0,0.01);
+    windDirection=0;
+  }
+  // Apply weather to traffic behavior
+  for(const c of trafficCars){
+    if(weatherIntensity>0.5){
+      // Cars drive slower and more cautiously in rain
+      c.speedMult*=0.98;
+      c.switchChance*=0.8;
+      c.cautious=Math.min(0.9,c.cautious+0.01);
+    }
   }
 }
 
@@ -1450,6 +2452,8 @@ const SFX={
   combo(cnt){for(let i=0;i<cnt&&i<5;i++)setTimeout(()=>playBeep(440+i*220,0.08,'sine',0.025),i*60)},
   levelUp(){playBeep(440,0.08,'sine',0.03);setTimeout(()=>playBeep(550,0.08,'sine',0.03),80);setTimeout(()=>playBeep(660,0.12,'sine',0.03),160)},
   skid(){playTireScreech()},
+  siren(){playBeep(600,0.08,'sine',0.015);setTimeout(()=>playBeep(800,0.08,'sine',0.015),80)},
+  trainHorn(){playBeep(150,0.4,'sawtooth',0.03);setTimeout(()=>playBeep(120,0.5,'sawtooth',0.025),100)},
 };
 
 // ══════════════════════════════════════════════════════════════
@@ -1900,12 +2904,12 @@ function drawObstacles(){
       ctx.fill();
       ctx.shadowBlur=0;
 
-      // Chữ STOP
+      // Chữ DỪNG
       ctx.fillStyle='#fff';
       ctx.font='bold 11px sans-serif';
       ctx.textAlign='center'; ctx.textBaseline='middle';
       ctx.shadowColor='#000'; ctx.shadowBlur=4;
-      ctx.fillText('STOP',cx,cy+bobY);
+      ctx.fillText('DỪNG',cx,cy+bobY);
       ctx.shadowBlur=0;
     }
 
@@ -2555,9 +3559,32 @@ function drawHUD(){
     ctx.fillStyle=`rgba(255,100,50,${diffAlpha})`;
     ctx.font='9px "Segoe UI",system-ui,sans-serif';
     ctx.textAlign='left';
-    const diffLabel=adaptDifficulty<0.5?'NORMAL':adaptDifficulty<0.7?'KHÓ':'ÁC MỘNG';
+    const diffLabel=adaptDifficulty<0.5?'BÌNH THƯỜNG':adaptDifficulty<0.7?'KHÓ':'ÁC MỘNG';
     ctx.shadowColor='rgba(255,100,50,0.2)'; ctx.shadowBlur=4;
     ctx.fillText('\u26A0 '+diffLabel,14,88);
+    ctx.shadowBlur=0;
+  }
+  
+  // ── Wanted Level Display ──
+  if(wantedLevel>0){
+    const wAlpha=0.6+Math.sin(gameTime*6)*0.2;
+    ctx.fillStyle=`rgba(255,0,0,${wAlpha})`;
+    ctx.font='bold 10px "Segoe UI",system-ui,sans-serif';
+    ctx.textAlign='left';
+    ctx.shadowColor='rgba(255,0,0,0.4)'; ctx.shadowBlur=8;
+    const stars='★'.repeat(wantedLevel)+'☆'.repeat(3-wantedLevel);
+    ctx.fillText('TRUY NÃ '+stars,14,100);
+    ctx.shadowBlur=0;
+  }
+  
+  // ── Police Chase Warning ──
+  if(policeChase&&policeChase.active){
+    const pAlpha=0.5+Math.sin(gameTime*8)*0.3;
+    ctx.fillStyle=`rgba(255,50,50,${pAlpha})`;
+    ctx.font='bold 11px "Segoe UI",system-ui,sans-serif';
+    ctx.textAlign='center';
+    ctx.shadowColor='rgba(255,0,0,0.5)'; ctx.shadowBlur=10;
+    ctx.fillText('\u{1F6A8} CẢNH SÁT ĐUỔI \u{1F6A8}',W/2,108);
     ctx.shadowBlur=0;
   }
 
@@ -2671,8 +3698,36 @@ function updateGame(dt){
     }
   }
 
+  // ── Railway gate collision (check BEFORE speed ramp) ──
+  railwayBlocked=false;
+  {
+    const pr={x:playerX-PLAYER_W/2,y:playerY-PLAYER_H/2,w:PLAYER_W,h:PLAYER_H};
+    for(const g of railwayGates){
+      if(g.gateTarget>0.5&&!g.trainPassed){
+        const gateRect={x:ROAD_L-5,y:g.y-60,w:ROAD_R-ROAD_L+10,h:120};
+        if(rectOverlap(pr,gateRect)){
+          railwayBlocked=true;
+          if(playerY>g.y-70) playerY=g.y-70;
+        }
+      }
+    }
+  }
+  // Visual feedback when blocked (with cooldown)
+  if(railwayBlocked){
+    railwayBlockMsgTimer-=dt;
+    if(railwayBlockMsgTimer<=0){
+      spawnFloatingText(playerX,playerY-65,'⚠️ ĐỢI TÀU!','#ff4444',22);
+      triggerShake(2);
+      railwayBlockMsgTimer=1.5;
+    }
+  }else{
+    railwayBlockMsgTimer=0;
+  }
+
   // ── Speed Ramp ──
-  speed=Math.min(MAX_SPEED,BASE_SPEED+gameTime*0.55);
+  if(!railwayBlocked){
+    speed=Math.min(MAX_SPEED,BASE_SPEED+gameTime*0.55);
+  }
 
   // ── Level từ XP tích lũy ──
   const newLevel=getLevelFromXp(xp);
@@ -2703,7 +3758,7 @@ function updateGame(dt){
   }else{
     nitro=Math.min(NITRO_MAX,nitro+NITRO_REFILL*dt*nitroRefillMult);
   }
-  const currentSpeed=speed*(nitroActive?1.7:1);
+  const currentSpeed=railwayBlocked?0:speed*(nitroActive?1.7:1);
   const spd=currentSpeed*dt;
 
   // ── Road Scroll ──
@@ -2814,13 +3869,15 @@ function updateGame(dt){
   }
 
   // ── Update Traffic ──
+  // Traffic uses base speed (keeps moving even when player blocked at railway)
+  const trafficSpeed=railwayBlocked?speed*0.3:currentSpeed;
   for(let i=trafficCars.length-1;i>=0;i--){
     const c=trafficCars[i];
     // Move car based on its own speed
-    c.y+=currentSpeed*dt*c.speedMult*0.85;
+    c.y+=trafficSpeed*dt*c.speedMult*0.85;
 
     // AI lane-changing logic
-    updateTrafficAI(c,dt,currentSpeed);
+    updateTrafficAI(c,dt,trafficSpeed);
 
     // Smooth lane movement
     const targetX=c.laneX;
@@ -2890,6 +3947,8 @@ function updateGame(dt){
         }else if(o.type==='construction'){
           // Construction: damage + slow
           lives--;
+          // Reckless driving increases wanted level
+          if(Math.random()<0.3) wantedLevel=Math.min(3,wantedLevel+1);
           if(lives<=0){
             screen='over';endScore=score;
             if(score>highScore) highScore=score;
@@ -2946,9 +4005,69 @@ function updateGame(dt){
   // ── Collision with traffic ──
   if(invincibleTimer<=0){
     const pr={x:playerX-PLAYER_W/2,y:playerY-PLAYER_H/2,w:PLAYER_W,h:PLAYER_H};
+    
+    // Train collision (instant game over)
+    for(const t of trains){
+      if(t.active){
+        const trainVisualW=(t.carCount-1)*70+62;
+        const trainRect={x:t.x-10,y:t.y-t.h/2-5,w:trainVisualW+20,h:t.h+10};
+        if(rectOverlap(pr,trainRect)){
+          lives=0;
+          screen='over'; endScore=score;
+          if(score>highScore) highScore=score;
+          totalCoins+=score;
+          saveData();
+          spawnParticles(playerX,playerY,80,'#ff2200',400,8,1);
+          spawnSparks(playerX,playerY,30,'#ffaa00');
+          triggerShake(25);
+          SFX.crash();
+          document.getElementById('touchCtrls').classList.remove('active');
+          stopEngineSound();stopBGM();
+          break;
+        }
+      }
+    }
+    
+    // Accident site collision (damage)
+    for(const a of accidentSites){
+      if(a.active&&invincibleTimer<=0){
+        for(const car of a.cars){
+          const carRect={x:car.x+car.offset-16,y:a.y-10,w:32,h:20};
+          if(rectOverlap(pr,carRect)){
+            lives--;
+            invincibleTimer=1.5;
+            speed=Math.max(BASE_SPEED,speed*0.4);
+            combo=0;
+            spawnFloatingText(playerX,playerY-65,'TAI NẠN!','#ff4400',20);
+            spawnParticles(playerX,playerY,25,'#ff6600',200,5,0.6);
+            triggerShake(12); SFX.crash();
+            if(lives<=0){
+              screen='over'; endScore=score;
+              if(score>highScore) highScore=score;
+              totalCoins+=score;
+              saveData();
+              spawnParticles(playerX,playerY,60,'#ff2200',300,6,0.8);
+              document.getElementById('touchCtrls').classList.remove('active');
+              stopEngineSound();stopBGM();
+              break;
+            }
+            break;
+          }
+        }
+      }
+    }
+    
     for(const c of trafficCars){
       if(rectOverlap(pr,c.rect)){
         lives--; invincibleTimer=2+bonusInvincible; hitFlash=0;
+        
+        // Wanted level increase for hitting emergency vehicles
+        if(c.typeKey==='ambulance'||c.typeKey==='police'){
+          wantedLevel=Math.min(3,wantedLevel+1);
+          wantedTimer=20;
+          spawnFloatingText(playerX,playerY-80,'TRUY NÃ! ★'.repeat(wantedLevel),'#ff4444',18);
+        }
+        
         spawnParticles(playerX,playerY,35,c.color,200,5,0.6);
         spawnParticles(playerX,playerY,25,'#ff4400',250,4,0.5);
         triggerShake(14); SFX.crash();
@@ -3071,6 +4190,25 @@ function updateGame(dt){
 
   // ── Enhanced Shake ──
   updateShake(dt);
+  
+  // ── Living Traffic Ecosystem Updates ──
+  updatePedestrians(dt);
+  updateScenery(dt,spd);
+  updateBillboards(dt,spd);
+  updateRailways(dt,spd);
+  updateTrafficLights(dt,spd);
+  updateHelicopters(dt);
+  updateAccidents(dt,spd);
+  updateWildlife(dt,spd);
+  updatePolice(dt,currentSpeed);
+  updateWeatherReactive();
+  
+  // Spawn new ecosystem elements
+  if(Math.random()<0.15) spawnPedestrians();
+  if(Math.random()<0.08) spawnScenery();
+  if(Math.random()<0.04) spawnBillboards();
+  spawnAccident();
+  spawnWildlife();
 
   // ── Engine Audio ──
   if(audioStarted&&engineOsc){
@@ -3151,12 +4289,56 @@ function renderGame(){
   // Obstacles (behind traffic but on road)
   drawObstacles();
 
+  // Accident sites
+  drawAccidents();
+  
+  // Traffic lights
+  drawTrafficLights();
+
   // Traffic cars (sorted by y for depth)
   const sortedTraffic=[...trafficCars].sort((a,b)=>a.y-b.y);
   for(const c of sortedTraffic){
     const typeInfo=TRAFFIC_TYPES[c.typeKey]||TRAFFIC_TYPES.normal;
     drawCar(c.x,c.y,c.w,c.h,c.color,typeInfo.accent,false,false,c.typeKey);
+    
+    // Special rendering for new vehicle types
+    if(c.typeKey==='ambulance'||c.typeKey==='police'){
+      // Emergency lights
+      const sirenOn=Math.sin(gameTime*10)>0;
+      const sirenOn2=Math.sin(gameTime*10+Math.PI)>0;
+      ctx.save();
+      // Red light
+      ctx.shadowColor=sirenOn?'#ff0000':'#660000';
+      ctx.shadowBlur=sirenOn?20:4;
+      ctx.fillStyle=sirenOn?'#ff0000':'#991111';
+      ctx.beginPath(); ctx.arc(c.x-8,c.y-c.h*0.4,3,0,Math.PI*2); ctx.fill();
+      // Blue light
+      ctx.shadowColor=sirenOn2?'#0066ff':'#002266';
+      ctx.shadowBlur=sirenOn2?20:4;
+      ctx.fillStyle=sirenOn2?'#0066ff':'#113366';
+      ctx.beginPath(); ctx.arc(c.x+8,c.y-c.h*0.4,3,0,Math.PI*2); ctx.fill();
+      ctx.shadowBlur=0;
+      ctx.restore();
+    }
+    if(c.typeKey==='motorcycle'){
+      // Motorcycle rider silhouette
+      ctx.fillStyle='rgba(0,0,0,0.4)';
+      ctx.beginPath(); ctx.arc(c.x,c.y-2,4,0,Math.PI*2); ctx.fill();
+      // Helmet
+      ctx.fillStyle='#333';
+      ctx.beginPath(); ctx.arc(c.x,c.y-5,3,0,Math.PI*2); ctx.fill();
+    }
+    if(c.typeKey==='bus'){
+      // Bus windows
+      ctx.fillStyle='rgba(180,220,255,0.25)';
+      for(let wy=0;wy<4;wy++){
+        ctx.fillRect(c.x-c.w*0.3,c.y-c.h*0.35+wy*8,c.w*0.6,4);
+      }
+    }
   }
+
+  // Railway crossings and trains (in front of traffic for visibility)
+  drawRailways();
 
   // ── Đèn pha player (dynamic headlight beam) ──
   const hlIntensity=Math.max(0,(1-theme.ambientLight)*0.9+speed/MAX_SPEED*0.2);
@@ -3242,14 +4424,46 @@ function renderGame(){
   drawCar(playerX,playerY+pBob,PLAYER_W,PLAYER_H,CAR_COLORS[selectedCar],CAR_ACCENTS[selectedCar],true,flash);
   ctx.restore();
 
+  // Railway blocked warning overlay
+  if(railwayBlocked){
+    const warnPulse=0.3+Math.sin(gameTime*8)*0.15;
+    ctx.fillStyle=`rgba(255,50,0,${warnPulse})`;
+    ctx.fillRect(0,0,W,H);
+    // Warning stripes at player
+    ctx.strokeStyle=`rgba(255,200,0,${warnPulse+0.2})`;
+    ctx.lineWidth=3;
+    const stripeY=playerY-PLAYER_H/2-20;
+    ctx.setLineDash([12,8]);
+    ctx.beginPath(); ctx.moveTo(ROAD_L,stripeY); ctx.lineTo(ROAD_R,stripeY); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
   // Rain (on top of everything on road)
   drawRain();
+  
+  // Pedestrians (on sidewalks)
+  drawPedestrians();
+  
+  // Roadside scenery
+  drawScenery();
+  
+  // Billboards
+  drawBillboards();
+  
+  // Wildlife
+  drawWildlife();
 
   // Fog overlay (dùng màu từ theme)
   if(theme.fogDensity>0){
     ctx.fillStyle=theme.fogColor;
     ctx.fillRect(0,0,W,H);
   }
+  
+  // Helicopters (above fog, in sky)
+  drawHelicopters();
+  
+  // Police pursuit (on top of everything)
+  drawPolice();
 
   // Dark overlay dựa trên ambientLight (tối cho ban đêm)
   const darkAmount=Math.max(0,1-theme.ambientLight)*0.85;
@@ -3296,13 +4510,13 @@ function renderGame(){
     ctx.font='bold 34px "Segoe UI",system-ui,sans-serif';
     ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.shadowColor=ctx.fillStyle; ctx.shadowBlur=30;
-    ctx.fillText(combo+'x COMBO!',0,0);
+    ctx.fillText(combo+'x LIÊN HOÀN!',0,0);
     // Subtitle for high combos
     if(combo>=5){
       ctx.fillStyle='#ffd700';
       ctx.font='bold 14px "Segoe UI",system-ui,sans-serif';
       ctx.shadowColor='rgba(255,215,0,0.3)'; ctx.shadowBlur=12;
-      ctx.fillText('\u26A1 INSANE \u26A1',0,24);
+      ctx.fillText('\u26A1 KINH HOÀNG \u26A1',0,24);
     }
     ctx.shadowBlur=0; ctx.globalAlpha=1;
     ctx.restore();
@@ -3450,7 +4664,7 @@ function drawTitleScreen(){
   ctx.fillStyle='rgba(255,255,255,0.4)';
   ctx.font='13px "Segoe UI",system-ui,sans-serif';
   ctx.textAlign='center';
-  ctx.fillText('V2.2 — Premium Visual + Arcade HUD',W/2,200);
+  ctx.fillText('V3.0 — Hệ Sinh Thái Giao Thông Sống',W/2,200);
   ctx.shadowBlur=0;
 
   ctx.shadowColor='rgba(0,0,0,0.6)'; ctx.shadowBlur=8;
@@ -3676,7 +4890,7 @@ function drawGameOverScreen(){
   // Stats với icon
   ctx.fillStyle='rgba(255,255,255,0.2)';
   ctx.font='12px "Segoe UI",system-ui,sans-serif';
-  ctx.fillText('\u26A1 Suýt: '+nearMissStreak+'x  \u00B7  \u{1F300} Combo: '+combo+'x  \u00B7  \u{1F3C6} '+Math.round(gameTime)+'s',W/2,360);
+  ctx.fillText('\u26A1 Suýt: '+nearMissStreak+'x  \u00B7  \u{1F300} Liên hoàn: '+combo+'x  \u00B7  \u{1F3C6} '+Math.round(gameTime)+'s',W/2,360);
 
   // Celebration particles for high score
   if(isNewHighScore){
@@ -4119,8 +5333,8 @@ function drawGarageScreen() {
                           unlockCelebrationType === 'epic' ? '#d400ff' : '#00e5ff';
       celText.style.color = rarityColor;
       let label = 'MỞ KHOÁ!';
-      if (unlockCelebrationType === 'legendary') label = '🔥 LEGENDARY!';
-      else if (unlockCelebrationType === 'epic') label = '⚡ EPIC!';
+      if (unlockCelebrationType === 'legendary') label = '🔥 HUYỀN THOẠI!';
+      else if (unlockCelebrationType === 'epic') label = '⚡ KỲ BÍ!';
       celText.textContent = label;
       setTimeout(() => { if (celEl) celEl.style.display = 'none'; }, 1200);
     }
@@ -4295,6 +5509,13 @@ function startGame(){
   oilSlide=0; oilDuration=0; oilAngle=0; oilTargetLane=-1;
   adaptDifficulty=0; difficultyTimer=0;
   gameStartTime=0; gameModeTimer=0;
+  // Reset living traffic ecosystem
+  pedestrians=[]; billboards=[]; sceneryItems=[];
+  railwayGates=[]; trains=[]; helicopters=[];
+  trafficLights=[]; policeChase=null; wantedLevel=0; wantedTimer=0;
+  accidentSites=[]; wildlifeAnimals=[];
+  weatherIntensity=0; windDirection=0;
+  railwayCooldown=15; railwayBlocked=false; lastSceneryY=0; lastPedestrianY=0; lastBillboardY=0;
   // Theme: force theme if mode specifies, else random
   if(mode.forceTheme){
     currentThemeIdx=THEME_KEYS.indexOf(mode.forceTheme);
@@ -4372,14 +5593,14 @@ const CUSTOMIZATION_ITEMS = {
     { id: 'midnight_gold', name: 'Vàng Gold', rarity: 'epic', price: 700, val: '#ffd700' },
     { id: 'matte_black', name: 'Đen Matte', rarity: 'legendary', price: 1200, val: '#111113' },
     { id: 'silver_chrome', name: 'Chrome Bạc', rarity: 'legendary', price: 1500, val: '#e5e5e7' },
-    { id: 'neon_pink', name: 'Cyber Pink', rarity: 'legendary', price: 1800, val: '#ff007f' }
+    { id: 'neon_pink', name: 'Hồng Cyber', rarity: 'legendary', price: 1800, val: '#ff007f' }
   ],
   decal: [
     { id: 'none', name: 'Không Tem', rarity: 'common', price: 0 },
     { id: 'stripes', name: 'Sọc Đua Đôi', rarity: 'common', price: 200 },
     { id: 'flames', name: 'Ngọn Lửa', rarity: 'rare', price: 500 },
     { id: 'stars', name: 'Ngôi Sao Tốc Độ', rarity: 'epic', price: 900 },
-    { id: 'cyber', name: 'Cyber Grid', rarity: 'legendary', price: 1500 }
+    { id: 'cyber', name: 'Lưới Cyber', rarity: 'legendary', price: 1500 }
   ],
   wheel: [
     { id: 'default', name: 'Mâm Mặc Định', rarity: 'common', price: 0 },
@@ -4400,7 +5621,7 @@ const CUSTOMIZATION_ITEMS = {
     { id: 'blue', name: 'Xanh Băng', rarity: 'rare', price: 400 },
     { id: 'red', name: 'Đỏ Rực', rarity: 'rare', price: 450 },
     { id: 'lime', name: 'Xanh Toxic', rarity: 'epic', price: 800 },
-    { id: 'rgb', name: 'Pulsing RGB', rarity: 'legendary', price: 2000 }
+    { id: 'rgb', name: 'RGB Nhấp Nháy', rarity: 'legendary', price: 2000 }
   ],
   nitro: [
     { id: 'default', name: 'Lửa Mặc Định', rarity: 'common', price: 0 },
@@ -4500,7 +5721,7 @@ function renderGarageTab(tabName) {
         <div class="item-info">
           <span class="item-name">${CAR_NAMES[i]}</span>
           <span class="item-rarity rarity-${i === 4 ? 'legendary' : i >= 3 ? 'epic' : i >= 1 ? 'rare' : 'common'}">
-            ${i === 4 ? 'Legendary' : i >= 3 ? 'Epic' : i >= 1 ? 'Rare' : 'Common'}
+            ${i === 4 ? 'Huyền Thoại' : i >= 3 ? 'Kỳ Bí' : i >= 1 ? 'Hiếm' : 'Phổ Thông'}
           </span>
         </div>
         ${statusHtml}
