@@ -46,342 +46,325 @@ canvas#c{display:block;image-rendering:auto;flex-shrink:0;margin:auto}
   #touchCtrls{display:none}
 }
 
-/* ── Garage UI Overlay CSS ── */
+/* ── PREMIUM SHOWROOM OVERLAY CSS ── */
+@keyframes showroomPulse { 0%,100%{opacity:0.6} 50%{opacity:1} }
+@keyframes doorSlide { 0%{transform:translateY(0)} 50%{transform:translateY(-3px)} 100%{transform:translateY(0)} }
+@keyframes glowRotate { 0%{filter:hue-rotate(0deg)} 100%{filter:hue-rotate(360deg)} }
+@keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+@keyframes floatUp { 0%{transform:translateY(0);opacity:0} 20%{opacity:1} 100%{transform:translateY(-30px);opacity:0} }
+
 #garageUI {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  position: absolute; top:0; left:0; width:100%; height:100%;
   z-index: 20;
-  display: flex;
-  flex-direction: column;
-  background: rgba(8, 8, 20, 0.78);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  color: #fff;
-  padding: 1.2em;
-  box-sizing: border-box;
-  border-radius: 16px;
-  border: 1px solid rgba(0, 200, 255, 0.25);
-  box-shadow: 0 0 35px rgba(0, 0, 0, 0.85);
-  pointer-events: auto;
+  display: flex; flex-direction: column;
+  color: #fff; pointer-events: auto; overflow: hidden;
+  background: transparent;
 }
-.garage-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-bottom: 0.6em;
-  border-bottom: 1px solid rgba(0, 200, 255, 0.25);
-  margin-bottom: 0.8em;
+/* Showroom top bar — glass premium */
+.showroom-header {
+  position: absolute; top:0; left:0; right:0;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.5em 1em 0.4em;
+  background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 70%, transparent 100%);
+  z-index: 22;
 }
-.garage-title {
-  font-size: 1.35em;
-  font-weight: 800;
-  letter-spacing: 1px;
-  text-shadow: 0 0 10px rgba(0, 200, 255, 0.5);
-  color: #00ccff;
-}
-.garage-stats {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 2px;
-}
-.garage-coins {
-  font-size: 1.15em;
-  font-weight: 700;
-  color: #ffd700;
-  text-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
-}
-.garage-xp {
-  font-size: 0.75em;
-  color: rgba(200, 255, 220, 0.7);
-}
-.garage-main {
-  flex: 1;
-  display: flex;
-  gap: 0.8em;
-  min-height: 0;
-}
-.garage-sidebar {
-  width: 7.8em;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4em;
-  overflow-y: auto;
-  padding-right: 4px;
-}
-.garage-sidebar::-webkit-scrollbar {
-  width: 3px;
-}
-.garage-sidebar::-webkit-scrollbar-thumb {
-  background: rgba(0, 200, 255, 0.2);
-  border-radius: 2px;
-}
-.sidebar-tab {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  color: rgba(255, 255, 255, 0.65);
-  padding: 0.6em 0.5em;
-  font-size: 0.78em;
-  font-weight: 700;
-  text-align: left;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-.sidebar-tab:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
-  border-color: rgba(0, 200, 255, 0.2);
-}
-.sidebar-tab.active {
-  background: linear-gradient(135deg, rgba(0, 200, 255, 0.15), rgba(100, 0, 255, 0.15));
-  border-color: rgba(0, 200, 255, 0.5);
-  color: #00e5ff;
-  box-shadow: 0 0 8px rgba(0, 200, 255, 0.15);
-}
-.garage-content {
-  flex: 1;
-  background: rgba(5, 5, 15, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  padding: 0.8em;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5em;
-  min-height: 0;
-}
-.garage-content::-webkit-scrollbar {
-  width: 4px;
-}
-.garage-content::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 2px;
-}
-.item-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.6em 0.7em;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 8px;
-  transition: all 0.15s;
-  cursor: pointer;
-}
-.item-card:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.12);
-}
-.item-card.equipped {
-  background: rgba(0, 200, 255, 0.08);
-  border-color: rgba(0, 200, 255, 0.4);
-}
-.item-info {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-.item-name {
-  font-weight: 700;
-  font-size: 0.85em;
-}
-.item-rarity {
-  font-size: 0.65em;
-  font-weight: 800;
+.showroom-title {
+  font-size: 1.1em; font-weight: 800; letter-spacing: 2px;
+  background: linear-gradient(90deg, #00ccff, #aa66ff, #00ccff);
+  background-size: 200% auto;
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  animation: shimmer 3s linear infinite;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
-.item-status {
-  display: flex;
-  align-items: center;
-  gap: 0.5em;
+.showroom-title-icon { -webkit-text-fill-color: initial; margin-right: 4px; }
+.showroom-stats {
+  display: flex; align-items: center; gap: 0.8em;
 }
-.item-price {
-  font-weight: 700;
-  color: #ffd700;
-  font-size: 0.8em;
+.showroom-coins {
+  font-size: 1em; font-weight: 700; color: #ffd700;
+  text-shadow: 0 0 12px rgba(255,215,0,0.4);
+  background: rgba(0,0,0,0.4); padding: 0.15em 0.7em;
+  border-radius: 20px; border: 1px solid rgba(255,215,0,0.2);
 }
-.item-btn {
-  background: rgba(255, 255, 255, 0.08);
-  border: none;
-  border-radius: 5px;
+.showroom-coins::before { content:'$ '; }
+.showroom-xp {
+  font-size: 0.7em; padding: 0.15em 0.5em;
+  background: rgba(0,200,255,0.12); border-radius: 12px;
+  border: 1px solid rgba(0,200,255,0.2); color: rgba(200,255,220,0.8);
+}
+/* Bottom panel — glass floating control panel */
+.showroom-panel {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(0deg, rgba(5,5,20,0.92) 0%, rgba(5,5,20,0.7) 80%, transparent 100%);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(0,200,255,0.12);
+  padding: 0.5em 0.6em 0.7em;
+  z-index: 22;
+  display: flex; flex-direction: column; gap: 0.3em;
+  max-height: 48%;
+  transition: max-height 0.3s ease;
+}
+.showroom-panel.collapsed { max-height: 52px; }
+
+/* Tab navigation — scrollable horizontal pills */
+.showroom-tabs {
+  display: flex; gap: 0.35em; overflow-x: auto;
+  padding: 0.15em 0; flex-shrink: 0;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.showroom-tabs::-webkit-scrollbar { display: none; }
+.showroom-tab {
+  flex-shrink: 0; padding: 0.35em 0.7em;
+  border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.55);
+  font-size: 0.72em; font-weight: 700;
+  cursor: pointer; transition: all 0.25s ease;
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+}
+.showroom-tab:hover {
+  background: rgba(255,255,255,0.08);
   color: #fff;
-  padding: 0.4em 0.8em;
-  font-weight: 700;
-  font-size: 0.7em;
-  cursor: pointer;
-  transition: all 0.15s;
+  border-color: rgba(0,200,255,0.3);
 }
-.item-btn:hover {
-  background: rgba(255, 255, 255, 0.16);
+.showroom-tab.active {
+  background: linear-gradient(135deg, rgba(0,200,255,0.2), rgba(150,0,255,0.15));
+  border-color: rgba(0,200,255,0.5);
+  color: #00e5ff;
+  box-shadow: 0 0 12px rgba(0,200,255,0.15), inset 0 0 12px rgba(0,200,255,0.05);
 }
+/* Rarity glow tab accent */
+.showroom-tab.rarity-rare-tab.active { border-color: #00e5ff; box-shadow: 0 0 12px rgba(0,229,255,0.25); }
+.showroom-tab.rarity-epic-tab.active { border-color: #d400ff; box-shadow: 0 0 12px rgba(212,0,255,0.25); }
+.showroom-tab.rarity-legendary-tab.active { border-color: #ffd700; box-shadow: 0 0 12px rgba(255,215,0,0.25); }
+
+/* Items list — scrollable cards */
+.showroom-items {
+  flex: 1; overflow-y: auto; display: flex; flex-direction: column;
+  gap: 0.3em; padding: 0.1em 0.2em 0.2em;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,200,255,0.15) transparent;
+}
+.showroom-items::-webkit-scrollbar { width: 3px; }
+.showroom-items::-webkit-scrollbar-track { background: transparent; }
+.showroom-items::-webkit-scrollbar-thumb { background: rgba(0,200,255,0.2); border-radius: 3px; }
+
+/* Premium item card */
+.item-card {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.5em 0.6em;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+  cursor: pointer; position: relative; overflow: hidden;
+}
+.item-card::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.02), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.5s;
+}
+.item-card:hover::before { transform: translateX(100%); }
+.item-card:hover {
+  background: rgba(255,255,255,0.05);
+  border-color: rgba(255,255,255,0.15);
+  transform: translateX(3px);
+}
+.item-card:active { transform: scale(0.98); }
+.item-card.equipped {
+  background: rgba(0,200,255,0.06);
+  border-color: rgba(0,200,255,0.35);
+  box-shadow: 0 0 12px rgba(0,200,255,0.08);
+}
+/* Rarity border glow */
+.item-card.rarity-border-rare { border-color: rgba(0,229,255,0.2); box-shadow: inset 0 0 15px rgba(0,229,255,0.03); }
+.item-card.rarity-border-epic { border-color: rgba(212,0,255,0.2); box-shadow: inset 0 0 15px rgba(212,0,255,0.03); }
+.item-card.rarity-border-legendary {
+  border-color: rgba(255,215,0,0.3);
+  box-shadow: inset 0 0 20px rgba(255,215,0,0.05), 0 0 15px rgba(255,215,0,0.05);
+  animation: showroomPulse 2s ease-in-out infinite;
+}
+
+.item-info { display: flex; flex-direction: column; gap: 1px; }
+.item-name { font-weight: 700; font-size: 0.82em; }
+.item-rarity { font-size: 0.6em; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+.item-status { display: flex; align-items: center; gap: 0.4em; }
+.item-price { font-weight: 700; color: #ffd700; font-size: 0.75em; text-shadow: 0 0 6px rgba(255,215,0,0.2); }
+
+.item-btn {
+  border: none; border-radius: 6px; color: #fff;
+  padding: 0.35em 0.7em; font-weight: 700; font-size: 0.65em;
+  cursor: pointer; transition: all 0.15s ease;
+  position: relative; overflow: hidden;
+}
+.item-btn::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  transform: translateX(-100%);
+}
+.item-btn:hover::after { transform: translateX(100%); transition: transform 0.4s; }
+.item-btn:hover { transform: scale(1.04); filter: brightness(1.15); }
+.item-btn:active { transform: scale(0.95); }
 .item-btn.btn-unlock {
-  background: linear-gradient(135deg, #ffd700, #ffaa00);
-  color: #000;
-}
-.item-btn.btn-unlock:hover {
-  transform: scale(1.03);
+  background: linear-gradient(135deg, #ffd700, #ff8800);
+  color: #000; font-weight: 800;
+  box-shadow: 0 0 10px rgba(255,215,0,0.2);
 }
 .item-btn.btn-equip {
-  background: linear-gradient(135deg, #00c6ff, #0072ff);
+  background: linear-gradient(135deg, #00c6ff, #7a00ff);
+  box-shadow: 0 0 8px rgba(0,198,255,0.15);
 }
-.item-btn.disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.3);
+.item-btn.disabled { opacity: 0.3; cursor: not-allowed; background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.2); box-shadow: none; }
+.item-btn.disabled:hover { transform: none; filter: none; }
+
+/* Rarity text colors with animated glow */
+.rarity-common { color: #b0bec5; }
+.rarity-rare { color: #00e5ff; text-shadow: 0 0 8px rgba(0,229,255,0.3); }
+.rarity-epic { color: #d400ff; text-shadow: 0 0 8px rgba(212,0,255,0.3); }
+.rarity-legendary {
+  color: #ffd700;
+  text-shadow: 0 0 10px rgba(255,215,0,0.4);
+  animation: showroomPulse 2s ease-in-out infinite;
 }
-.plate-input-container {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6em;
-  padding: 0.2em;
-}
+
+/* Plate customization */
+.plate-input-container { display: flex; flex-direction: column; gap: 0.5em; padding: 0.1em; }
 .plate-textbox {
-  background: rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(0, 200, 255, 0.3);
-  border-radius: 6px;
-  color: #fff;
-  padding: 0.6em 0.8em;
-  font-size: 1.15em;
-  font-weight: 800;
-  text-align: center;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  width: 100%;
-  box-sizing: border-box;
+  background: rgba(0,0,0,0.5); border: 1px solid rgba(0,200,255,0.25);
+  border-radius: 8px; color: #fff;
+  padding: 0.5em 0.7em; font-size: 1.1em; font-weight: 800;
+  text-align: center; letter-spacing: 2px; text-transform: uppercase;
+  width: 100%; box-sizing: border-box;
 }
-.plate-textbox:focus {
-  border-color: #00e5ff;
-  outline: none;
-}
-.plate-styles-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.4em;
-  margin-top: 0.4em;
-}
+.plate-textbox:focus { border-color: #00e5ff; outline: none; box-shadow: 0 0 12px rgba(0,229,255,0.15); }
+.plate-styles-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.35em; margin-top: 0.3em; }
 .plate-style-card {
-  padding: 0.6em;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 6px;
-  text-align: center;
-  cursor: pointer;
-  background: rgba(255, 255, 255, 0.01);
-  transition: all 0.15s;
+  padding: 0.5em; border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px; text-align: center; cursor: pointer;
+  background: rgba(255,255,255,0.01); transition: all 0.2s;
 }
-.plate-style-card:hover {
-  background: rgba(255, 255, 255, 0.03);
-}
+.plate-style-card:hover { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.2); transform: scale(1.03); }
+.plate-style-card:active { transform: scale(0.95); }
 .plate-style-card.selected {
-  border-color: #00ccff;
-  background: rgba(0, 200, 255, 0.06);
+  border-color: #00ccff; background: rgba(0,200,255,0.08);
+  box-shadow: 0 0 15px rgba(0,200,255,0.08);
 }
-.plate-preview-badge {
-  display: inline-block;
-  padding: 2px 6px;
-  font-weight: 800;
-  font-size: 0.72em;
-  border-radius: 3px;
-  margin-bottom: 4px;
-}
-.loadout-slots {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5em;
-  padding: 0.2em;
-}
+.plate-preview-badge { display: inline-block; padding: 2px 6px; font-weight: 800; font-size: 0.7em; border-radius: 3px; margin-bottom: 3px; }
+
+/* Loadout cards */
+.loadout-slots { display: flex; flex-direction: column; gap: 0.4em; padding: 0.1em; }
 .loadout-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: rgba(255, 255, 255, 0.01);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 8px;
-  padding: 0.6em 0.8em;
-}
-.loadout-name {
-  font-weight: 700;
-  font-size: 0.85em;
-}
-.loadout-desc {
-  font-size: 0.68em;
-  color: rgba(255, 255, 255, 0.4);
-}
-.loadout-actions {
-  display: flex;
-  gap: 4px;
-}
-.garage-footer {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  margin-top: 0.8em;
-  padding-top: 0.8em;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-.garage-btn-back {
-  background: rgba(20, 20, 30, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 8px;
-  color: #fff;
-  padding: 0.5em 1em;
-  font-weight: 700;
-  font-size: 0.8em;
-  cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px; padding: 0.5em 0.7em;
   transition: all 0.2s;
 }
-.garage-btn-back:hover {
-  background: rgba(255, 50, 50, 0.15);
-  border-color: rgba(255, 50, 50, 0.4);
-  transform: translateY(-2px);
+.loadout-card:hover { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.12); }
+.loadout-name { font-weight: 700; font-size: 0.82em; }
+.loadout-desc { font-size: 0.65em; color: rgba(255,255,255,0.35); }
+.loadout-actions { display: flex; gap: 4px; }
+
+/* Showroom action buttons */
+.showroom-actions {
+  display: flex; gap: 0.4em; align-items: center;
+  padding: 0.15em 0;
 }
-.rarity-common { color: #b0bec5; }
-.rarity-rare { color: #00e5ff; text-shadow: 0 0 5px rgba(0, 229, 255, 0.3); }
-.rarity-epic { color: #d400ff; text-shadow: 0 0 5px rgba(212, 0, 255, 0.3); }
-.rarity-legendary { color: #ffd700; text-shadow: 0 0 5px rgba(255, 215, 0, 0.4); }
+.showroom-btn {
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px; background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.7); padding: 0.35em 0.8em;
+  font-size: 0.72em; font-weight: 700; cursor: pointer;
+  transition: all 0.2s; backdrop-filter: blur(4px);
+  white-space: nowrap;
+}
+.showroom-btn:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.25); color: #fff; }
+.showroom-btn:active { transform: scale(0.96); }
+.showroom-btn.btn-primary {
+  background: linear-gradient(135deg, rgba(0,200,255,0.25), rgba(100,0,255,0.2));
+  border-color: rgba(0,200,255,0.35);
+  color: #00e5ff;
+}
+.showroom-btn.btn-danger {
+  background: rgba(255,50,50,0.12);
+  border-color: rgba(255,50,50,0.25);
+  color: rgba(255,80,80,0.8);
+}
+.showroom-btn.btn-danger:hover { background: rgba(255,50,50,0.2); border-color: rgba(255,50,50,0.4); color: #ff6666; }
+
+/* Color dot for paint preview */
+.color-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); margin-left: 4px; vertical-align: middle; }
+.color-dot-lg { width: 16px; height: 16px; }
+
+/* Unlock celebration overlay */
+#unlockCelebration {
+  position: absolute; inset: 0; z-index: 25;
+  pointer-events: none; display: none;
+}
+.celebration-text {
+  position: absolute; top: 35%; left: 50%; transform: translate(-50%, -50%);
+  font-size: 1.8em; font-weight: 900;
+  text-align: center;
+  animation: floatUp 1.2s ease-out forwards;
+  text-shadow: 0 0 30px currentColor;
+}
+
+/* Legendary item card special glow */
+.item-card.legendary-glow {
+  animation: legendaryGlow 1.5s ease-in-out infinite;
+}
+@keyframes legendaryGlow {
+  0%,100% { box-shadow: 0 0 8px rgba(255,215,0,0.15), inset 0 0 15px rgba(255,215,0,0.03); }
+  50% { box-shadow: 0 0 20px rgba(255,215,0,0.25), inset 0 0 25px rgba(255,215,0,0.05); }
+}
 </style>
 </head>
 <body>
 <div id="gameWrap">
   <canvas id="c"></canvas>
 
-  <!-- ── Garage Overlay UI ── -->
+  <!-- ── PREMIUM SHOWROOM OVERLAY ── -->
   <div id="garageUI" style="display:none;">
-    <div class="garage-header">
-      <div class="garage-title">🔧 GARAGE</div>
-      <div class="garage-stats">
-        <span class="garage-coins" id="garageCoinsText">$ 0</span>
-        <span class="garage-xp" id="garageXpText">Cấp 1</span>
+    <!-- Top bar -->
+    <div class="showroom-header">
+      <div class="showroom-title"><span class="showroom-title-icon">★</span> SHOWROOM</div>
+      <div class="showroom-stats">
+        <span class="showroom-xp" id="garageXpText">Cấp 1</span>
+        <span class="showroom-coins" id="garageCoinsText">0</span>
       </div>
     </div>
-    
-    <div class="garage-main">
-      <!-- Left Panel: Tabs -->
-      <div class="garage-sidebar">
-        <button class="sidebar-tab active" data-tab="car">🚗 Mẫu xe</button>
-        <button class="sidebar-tab" data-tab="paint">🎨 Màu sơn</button>
-        <button class="sidebar-tab" data-tab="decal">✨ Tem xe</button>
-        <button class="sidebar-tab" data-tab="wheel">⚙️ Bánh xe</button>
-        <button class="sidebar-tab" data-tab="spoiler">🏁 Cánh gió</button>
-        <button class="sidebar-tab" data-tab="underglow">💡 Neon gầm</button>
-        <button class="sidebar-tab" data-tab="nitro">🔥 Lửa Nitro</button>
-        <button class="sidebar-tab" data-tab="plate">💳 Biển số</button>
-        <button class="sidebar-tab" data-tab="loadout">💾 Loadouts</button>
+
+    <!-- Unlock celebration overlay -->
+    <div id="unlockCelebration"><div class="celebration-text" id="celebrationText"></div></div>
+
+    <!-- Bottom floating panel -->
+    <div class="showroom-panel" id="showroomPanel">
+      <!-- Tab pills -->
+      <div class="showroom-tabs" id="showroomTabs">
+        <button class="showroom-tab active" data-tab="car">🚗 Mẫu xe</button>
+        <button class="showroom-tab" data-tab="paint">🎨 Màu sơn</button>
+        <button class="showroom-tab" data-tab="decal">✨ Tem xe</button>
+        <button class="showroom-tab" data-tab="wheel">⚙️ Bánh xe</button>
+        <button class="showroom-tab" data-tab="spoiler">🏁 Cánh gió</button>
+        <button class="showroom-tab" data-tab="underglow">💡 Neon gầm</button>
+        <button class="showroom-tab" data-tab="nitro">🔥 Lửa Nitro</button>
+        <button class="showroom-tab" data-tab="plate">💳 Biển số</button>
+        <button class="showroom-tab" data-tab="loadout">💾 Loadouts</button>
       </div>
       
-      <!-- Right Panel: Items list -->
-      <div class="garage-content" id="garageItemsList">
-        <!-- Dynamic items will be generated here -->
+      <!-- Items list -->
+      <div class="showroom-items" id="garageItemsList"></div>
+
+      <!-- Action bar -->
+      <div class="showroom-actions">
+        <button class="showroom-btn btn-danger" id="garageBackBtn">✕ ĐÓNG</button>
+        <span style="flex:1;"></span>
+        <span id="selectedCarName" style="font-size:0.7em;font-weight:700;color:rgba(255,255,255,0.5);"></span>
+        <button class="showroom-btn btn-primary" id="garageRotateBtn" style="display:none;">⟳ XOAY</button>
       </div>
-    </div>
-    
-    <div class="garage-footer">
-      <button class="garage-btn-back" id="garageBackBtn">← QUAY LẠI</button>
     </div>
   </div>
 
@@ -3731,114 +3714,445 @@ function drawGameOverScreen(){
   ctx.fillText('Chạm hoặc nhấn ENTER để chơi lại',W/2,H-40);
 }
 
-function drawGarageScreen(){
-  ctx.textBaseline='alphabetic';
-  const uiAlpha=Math.min(1,uiTransAlpha+0.02);
-  uiTransAlpha=uiAlpha;
-  
-  drawBackground();
-  
-  // Lớp phủ tối nhẹ để làm nổi bật chiếc xe preview
-  ctx.fillStyle='rgba(0,0,0,0.55)';
-  ctx.fillRect(0,0,W,H);
+// ── SHOWROOM STATE ──
+let showroomRotX = 0;       // rotation angle for 3D-style car display
+let showroomTargetRotX = 0;
+let showroomZoom = 1;
+let showroomTargetZoom = 1;
+let showroomCamY = 0;
+let showroomTargetCamY = 0;
+let showroomCeilPulse = 0;
+let showroomLightning = 0;  // lightning flash timer
+let showroomDoorAnim = 0;   // garage door animation
+let showroomIdleParticles = [];
+const SHOWROOM_ROT_SPEED = 0.5;
+let showroomDragStartX = 0;
+let showroomIsDragging = false;
+let unlockCelebrationTimer = 0;
+let unlockCelebrationType = '';
+let showroomLastRarity = '';
 
-  // Bục trưng bày phát sáng (Showroom stage platform)
+function drawShowroomBackground() {
+  const theme = getCurrentTheme();
+  const w = W, h = H, cx = w / 2;
+
+  // ── Dark showroom background ──
+  const grad = ctx.createRadialGradient(cx, h * 0.35, 0, cx, h * 0.35, h * 0.9);
+  grad.addColorStop(0, '#0d0d24');
+  grad.addColorStop(0.4, '#08081a');
+  grad.addColorStop(0.7, '#050510');
+  grad.addColorStop(1, '#020208');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, w, h);
+
+  // ── Spotlight cones from top ──
+  const spotAlpha = 0.04 + Math.sin(showroomCeilPulse * 2) * 0.01 + 0.01;
+  
+  // Left spotlight (blueish)
   ctx.save();
-  ctx.shadowColor = '#00f5ff';
-  ctx.shadowBlur = 20;
-  ctx.fillStyle = 'rgba(0, 245, 255, 0.08)';
-  ctx.strokeStyle = 'rgba(0, 245, 255, 0.35)';
-  ctx.lineWidth = 1.5;
+  const sg1 = ctx.createRadialGradient(cx - 75, -20, 10, cx - 75, h * 0.7, h * 1.1);
+  sg1.addColorStop(0, `rgba(0, 180, 255, ${spotAlpha * 1.5})`);
+  sg1.addColorStop(0.3, `rgba(0, 120, 255, ${spotAlpha * 0.6})`);
+  sg1.addColorStop(1, 'rgba(0, 50, 200, 0)');
+  ctx.fillStyle = sg1;
   ctx.beginPath();
-  ctx.ellipse(200, 320 + PLAYER_H * 1.35 * 0.5 - 6, 50, 14, 0, 0, Math.PI * 2);
+  ctx.moveTo(cx - 130, -5);
+  ctx.lineTo(cx - 20, -5);
+  ctx.lineTo(cx + 60, h * 1.05);
+  ctx.lineTo(cx - 200, h * 1.05);
+  ctx.closePath();
   ctx.fill();
-  ctx.stroke();
   ctx.restore();
 
-  // Preview car bobbing animation
-  const pBob = Math.sin(gameTime * 3.5) * 2;
-  const previewY = 320 + pBob;
-
+  // Right spotlight (purple)
   ctx.save();
-  // Scale preview car up to 1.35x
-  ctx.translate(200, previewY);
-  ctx.scale(1.35, 1.35);
-  ctx.translate(-200, -previewY);
-
-  // Customization preview color
-  let cust = previewCustomizations || carCustomizations[selectedCar];
-  let carColor = CAR_COLORS[selectedCar];
-  if (cust && cust.paint !== 'default') {
-    carColor = cust.paint;
-  }
-  let carAccent = CAR_ACCENTS[selectedCar];
-
-  // Preview car shadow
-  ctx.fillStyle='rgba(0,0,0,0.45)';
+  const sg2 = ctx.createRadialGradient(cx + 75, -20, 10, cx + 75, h * 0.7, h * 1.1);
+  sg2.addColorStop(0, `rgba(150, 0, 255, ${spotAlpha})`);
+  sg2.addColorStop(0.3, `rgba(100, 0, 200, ${spotAlpha * 0.5})`);
+  sg2.addColorStop(1, 'rgba(50, 0, 150, 0)');
+  ctx.fillStyle = sg2;
   ctx.beginPath();
-  ctx.ellipse(200+3, previewY+5, PLAYER_W*0.52, PLAYER_H*0.52, 0, 0, Math.PI*2);
+  ctx.moveTo(cx - 60, -5);
+  ctx.lineTo(cx + 130, -5);
+  ctx.lineTo(cx + 200, h * 1.05);
+  ctx.lineTo(cx - 60, h * 1.05);
+  ctx.closePath();
   ctx.fill();
-
-  // Underglow neon preview
-  if (cust && cust.underglow !== 'none') {
-    let ugColor = null;
-    if (cust.underglow === 'blue') ugColor = 'rgba(0, 200, 255, 0.45)';
-    else if (cust.underglow === 'red') ugColor = 'rgba(255, 30, 30, 0.45)';
-    else if (cust.underglow === 'lime') ugColor = 'rgba(57, 255, 20, 0.45)';
-    else if (cust.underglow === 'rgb') {
-      let hue = (gameTime * 150) % 360;
-      ugColor = `hsla(${hue}, 100%, 50%, 0.45)`;
-    }
-    if (ugColor) {
-      ctx.save();
-      ctx.shadowColor = ugColor.replace('0.45', '1.0');
-      ctx.shadowBlur = 25;
-      ctx.fillStyle = ugColor;
-      ctx.beginPath();
-      ctx.ellipse(200, previewY + 10, PLAYER_W * 0.65, PLAYER_H * 0.45, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    }
-  }
-
-  // Draw player car as preview
-  drawCar(200, previewY, PLAYER_W, PLAYER_H, CAR_COLORS[selectedCar], CAR_ACCENTS[selectedCar], true, false);
-
   ctx.restore();
 
-  // Engine exhaust smoke
-  if (Math.random() < 0.15) {
-    const smokeX = 200 + rand(-10, 10);
-    const smokeY = previewY + PLAYER_H * 1.35 * 0.5;
-    particles.push(new Particle(
-      smokeX, smokeY,
-      rand(-4, 4), rand(20, 45),
-      rand(0.4, 0.8), 'rgba(200, 200, 210, 0.1)', rand(3, 6)
-    ));
+  // ── Ceiling grid lines ──
+  ctx.strokeStyle = 'rgba(0, 200, 255, 0.03)';
+  ctx.lineWidth = 1;
+  for (let i = -6; i <= 6; i++) {
+    const lx = cx + i * 45 + Math.sin(showroomCeilPulse * 0.5 + i) * 2;
+    ctx.beginPath();
+    ctx.moveTo(lx, -2);
+    ctx.lineTo(lx - i * 3, h * 0.2);
+    ctx.stroke();
   }
 
-  // Exhaust particles update and draw
-  for(let i=particles.length-1;i>=0;i--){
-    const p=particles[i];
-    p.y += p.vy * 0.3 * 0.016; 
-    p.x += p.vx * 0.3 * 0.016;
-    p.life -= 0.016;
-    if(p.life <= 0) particles.splice(i,1);
-    else {
-      ctx.fillStyle = p.color;
-      ctx.globalAlpha = p.life / p.maxLife;
+  // ── Floor reflection plane ──
+  const floorY = h * 0.82;
+  const fg = ctx.createLinearGradient(0, floorY, 0, h);
+  fg.addColorStop(0, 'rgba(20, 25, 50, 0.85)');
+  fg.addColorStop(0.3, 'rgba(10, 15, 35, 0.9)');
+  fg.addColorStop(1, 'rgba(2, 2, 10, 1)');
+  ctx.fillStyle = fg;
+  ctx.fillRect(0, floorY, w, h - floorY);
+
+  // ── Glossy floor reflection lines ──
+  ctx.fillStyle = 'rgba(0, 200, 255, 0.02)';
+  for (let i = 0; i < 20; i++) {
+    const rx = cx - 170 + i * 18 + Math.sin(showroomCeilPulse + i * 0.7) * 5;
+    ctx.fillRect(rx, floorY + 10, 1, h - floorY - 15);
+  }
+  // Horizontal reflection lines
+  ctx.fillStyle = 'rgba(0, 200, 255, 0.015)';
+  for (let y = floorY + 5; y < h; y += 14) {
+    const ly = y + Math.sin(showroomCeilPulse + y * 0.05) * 2;
+    ctx.fillRect(cx - 150, ly, 300, 1);
+  }
+
+  // ── Garage Doors (animated) ──
+  const doorCount = 3;
+  const doorW = 85;
+  const doorH = floorY * 0.55;
+  const doorStartX = cx - (doorCount * doorW + (doorCount - 1) * 8) / 2;
+  const doorTopY = 18;
+
+  // Door open/close animation based on showroomDoorAnim
+  const doorOpenAmt = 0.25 + Math.sin(showroomDoorAnim * 0.3) * 0.08 + 0.08;
+
+  for (let i = 0; i < doorCount; i++) {
+    const dx = doorStartX + i * (doorW + 8);
+    const openH = doorH * doorOpenAmt;
+    const doorY = doorTopY + (doorH - openH);
+
+    // Door panel background (dark)
+    ctx.fillStyle = 'rgba(15, 15, 30, 0.9)';
+    ctx.fillRect(dx, doorY, doorW, openH);
+
+    // Door border (neon trim)
+    ctx.strokeStyle = `rgba(0, 200, 255, ${0.08 + Math.sin(showroomCeilPulse + i * 2) * 0.03 + 0.03})`;
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(dx, doorY, doorW, openH);
+
+    // Door panel lines
+    ctx.strokeStyle = 'rgba(0, 200, 255, 0.04)';
+    ctx.lineWidth = 0.5;
+    for (let p = doorY + 12; p < doorY + openH - 8; p += 14) {
       ctx.beginPath();
-      ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
-      ctx.fill();
+      ctx.moveTo(dx + 6, p);
+      ctx.lineTo(dx + doorW - 6, p);
+      ctx.stroke();
     }
+
+    // Door handle
+    ctx.fillStyle = 'rgba(150, 200, 255, 0.1)';
+    ctx.fillRect(dx + doorW / 2 - 8, doorY + openH * 0.45, 16, 4);
+
+    // Door top light strip
+    ctx.fillStyle = `rgba(0, 200, 255, ${0.04 + Math.sin(showroomCeilPulse * 2 + i * 1.5) * 0.02 + 0.02})`;
+    ctx.fillRect(dx, doorY, doorW, 2);
+  }
+
+  // ── Ambient floating particles ──
+  for (let i = showroomIdleParticles.length - 1; i >= 0; i--) {
+    const p = showroomIdleParticles[i];
+    p.x += p.vx * 0.016;
+    p.y += p.vy * 0.016;
+    p.life -= 0.008;
+    p.size *= 0.998;
+    if (p.life <= 0 || p.size < 0.3) {
+      showroomIdleParticles.splice(i, 1);
+      continue;
+    }
+    ctx.fillStyle = p.color;
+    ctx.globalAlpha = p.life * 0.4;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fill();
   }
   ctx.globalAlpha = 1;
 
-  // Slowly progress gameTime to animate static screen
+  // Spawn ambient particles
+  if (Math.random() < 0.15 && showroomIdleParticles.length < 25) {
+    showroomIdleParticles.push({
+      x: rand(20, W - 20),
+      y: rand(20, h * 0.7),
+      vx: rand(-3, 3),
+      vy: rand(-6, -1),
+      size: rand(1, 2.5),
+      life: rand(0.8, 2),
+      color: Math.random() < 0.5 ? 'rgba(0, 200, 255, 0.3)' : 'rgba(150, 100, 255, 0.2)'
+    });
+  }
+
+  // ── Cinematic light flare (moving) ──
+  const flareX = cx + Math.sin(showroomCeilPulse * 0.7) * 120;
+  const flareY = 60 + Math.cos(showroomCeilPulse * 0.5) * 30;
+  const flareG = ctx.createRadialGradient(flareX, flareY, 0, flareX, flareY, 40);
+  flareG.addColorStop(0, 'rgba(200, 220, 255, 0.04)');
+  flareG.addColorStop(0.5, 'rgba(100, 150, 255, 0.02)');
+  flareG.addColorStop(1, 'transparent');
+  ctx.fillStyle = flareG;
+  ctx.beginPath();
+  ctx.arc(flareX, flareY, 40, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Lens flare streak
+  ctx.save();
+  ctx.translate(flareX, flareY);
+  ctx.rotate(0.3);
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.015)';
+  ctx.fillRect(-60, -1, 120, 2);
+  ctx.restore();
+}
+
+function drawGarageScreen() {
+  const uiAlpha = Math.min(1, uiTransAlpha + 0.02);
+  uiTransAlpha = uiAlpha;
+  const cust = previewCustomizations || carCustomizations[selectedCar];
+  const cx = W / 2;
+
+  // ── Draw showroom environment ──
+  drawShowroomBackground();
+
+  // ── Car Preview with 3D-style rotation ──
+  // Smooth rotation
+  const rotDiff = showroomTargetRotX - showroomRotX;
+  if (Math.abs(rotDiff) > 0.001) showroomRotX += rotDiff * 0.08;
+  const rotAngle = showroomRotX;
+
+  // Smooth zoom
+  const zoomDiff = showroomTargetZoom - showroomZoom;
+  if (Math.abs(zoomDiff) > 0.001) showroomZoom += zoomDiff * 0.06;
+
+  // Car position with smooth cam
+  const camDiff = showroomTargetCamY - showroomCamY;
+  if (Math.abs(camDiff) > 0.1) showroomCamY += camDiff * 0.05;
+
+  // Bob animation
+  const pBob = Math.sin(gameTime * 1.5 + showroomRotX * 0.5) * 2;
+  const carScale = 1.4 * showroomZoom;
+  const previewY = 300 + pBob + showroomCamY;
+  const floorY = H * 0.82;
+  const reflectionScale = 0.7;
+
+  // Determine color
+  let carColor = CAR_COLORS[selectedCar];
+  if (cust && cust.paint !== 'default') carColor = cust.paint;
+  let carAccent = CAR_ACCENTS[selectedCar];
+
+  // ── 3D-style rotation rendering ──
+  // We simulate 3D rotation by:
+  // 1. Horizontally compressing width based on cos(angle)
+  // 2. Showing side details via sin(angle)
+  // 3. Adding perspective shift
+  
+  const rotCompress = Math.abs(Math.cos(rotAngle)); // 1 at front, 0.2 at side
+  const rotSide = Math.sin(rotAngle);               // 0 at front, ±1 at side
+  const visualW = PLAYER_W * (0.4 + rotCompress * 0.6);
+  const visualH = PLAYER_H;
+
+  ctx.save();
+  ctx.translate(cx, previewY);
+  ctx.scale(carScale, carScale);
+  ctx.translate(-cx, -previewY);
+
+  // ── Stage Glow Platform ──
+  const stageY = previewY + visualH * 0.5 + 5;
+  // Outer glow ring
+  const stageGlow = ctx.createRadialGradient(cx, stageY, 0, cx, stageY, 85);
+  stageGlow.addColorStop(0, 'rgba(0, 200, 255, 0.06)');
+  stageGlow.addColorStop(0.5, 'rgba(0, 150, 255, 0.03)');
+  stageGlow.addColorStop(1, 'rgba(0, 50, 150, 0)');
+  ctx.fillStyle = stageGlow;
+  ctx.beginPath();
+  ctx.ellipse(cx, stageY + 5, 100, 16, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Ring border
+  ctx.strokeStyle = `rgba(0, 200, 255, ${0.15 + Math.sin(gameTime * 2) * 0.05})`;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.ellipse(cx, stageY, 85, 12, 0, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // ── Floor reflection ──
+  const reflectY = previewY + visualH * 0.9;
+  const reflectH = visualH * 0.4;
+  ctx.save();
+  ctx.globalAlpha = 0.08 + Math.abs(rotCompress) * 0.04;
+  ctx.scale(1, -0.5);
+  ctx.translate(0, -reflectY * 2);
+
+  // Draw simplified reflection car
+  const refW = visualW * 0.7;
+  ctx.fillStyle = carColor;
+  ctx.globalAlpha = 0.06;
+  ctx.beginPath();
+  ctx.ellipse(cx, reflectY, refW * 0.45, reflectH * 0.25, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+  ctx.globalAlpha = 1;
+
+  // ── Draw preview car with rotation compression ──
+  ctx.save();
+
+  // Apply 3D-style perspective transform
+  ctx.translate(cx, previewY);
+  // Scale width based on rotation angle for 3D effect
+  ctx.scale(0.4 + rotCompress * 0.6, 1);
+  ctx.translate(-cx, -previewY);
+
+  // Shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.35)';
+  ctx.beginPath();
+  ctx.ellipse(cx + 3, previewY + visualH * 0.52 + 3, visualW * 0.5, visualH * 0.08, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Rarity glow ring under car
+  let rarityGlowColor = 'rgba(0, 200, 255, 0.15)';
+  const currentTab = currentGarageTab;
+  const items = CUSTOMIZATION_ITEMS[currentTab];
+  if (items && cust) {
+    const currentItemId = cust[currentTab];
+    if (currentItemId) {
+      for (const item of items) {
+        if (item.id === currentItemId || (currentTab === 'paint' && item.val === currentItemId)) {
+          if (item.rarity === 'legendary') rarityGlowColor = 'rgba(255, 215, 0, 0.25)';
+          else if (item.rarity === 'epic') rarityGlowColor = 'rgba(212, 0, 255, 0.2)';
+          else if (item.rarity === 'rare') rarityGlowColor = 'rgba(0, 229, 255, 0.18)';
+          break;
+        }
+      }
+    }
+  }
+  // Legendary glow pulsing
+  const glowPulse = 0.7 + Math.sin(gameTime * 2.5) * 0.3;
+  ctx.shadowColor = rarityGlowColor.replace(/[\d.]+\)$/, glowPulse * 0.5 + ')');
+  ctx.shadowBlur = 25 * glowPulse;
+
+  // Underglow
+  if (cust && cust.underglow !== 'none') {
+    let ugColor = null;
+    if (cust.underglow === 'blue') ugColor = `rgba(0, 200, 255, ${0.3 * glowPulse})`;
+    else if (cust.underglow === 'red') ugColor = `rgba(255, 30, 30, ${0.3 * glowPulse})`;
+    else if (cust.underglow === 'lime') ugColor = `rgba(57, 255, 20, ${0.3 * glowPulse})`;
+    else if (cust.underglow === 'rgb') {
+      const hue = (gameTime * 150) % 360;
+      ugColor = `hsla(${hue}, 100%, 50%, ${0.3 * glowPulse})`;
+    }
+    if (ugColor) {
+      ctx.shadowColor = ugColor.replace(/[\d.]+\)$/, '0.6)');
+      ctx.shadowBlur = 30 * glowPulse;
+      ctx.fillStyle = ugColor;
+      ctx.beginPath();
+      ctx.ellipse(cx, previewY + 8, visualW * 0.6, visualH * 0.3, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  ctx.shadowBlur = 0;
+
+  // Draw actual car (apply rot side info for detail)
+  drawCar(cx, previewY, visualW, visualH, carColor, carAccent, true, false);
+  ctx.restore(); // end rotation transform
+
+  // ── Rim light highlight (on side based on rotation) ──
+  if (rotSide !== 0) {
+    const rimX = cx + Math.sign(rotSide) * visualW * 0.55 * (0.4 + rotCompress * 0.6);
+    const rimG = ctx.createLinearGradient(rimX, previewY - 30, rimX + Math.sign(rotSide) * 30, previewY + 30);
+    rimG.addColorStop(0, `rgba(200, 220, 255, ${Math.abs(rotSide) * 0.04})`);
+    rimG.addColorStop(1, 'transparent');
+    ctx.fillStyle = rimG;
+    ctx.fillRect(Math.min(rimX, rimX + Math.sign(rotSide) * 30), previewY - 40, Math.abs(30), 80);
+  }
+
+  ctx.restore(); // end car scale
+
+  // ── Exhaust particles with rotation influence ──
+  if (Math.random() < 0.12) {
+    const exX = cx + Math.sin(rotAngle) * 15;
+    const exY = previewY + visualH * 0.45 * carScale;
+    showroomIdleParticles.push({
+      x: exX, y: exY,
+      vx: rand(-5, 5) + rotSide * 3,
+      vy: rand(15, 35),
+      size: rand(2, 5),
+      life: rand(0.5, 1),
+      color: 'rgba(200, 200, 210, 0.08)'
+    });
+  }
+
+  // ── Unlock celebration effect ──
+  if (unlockCelebrationTimer > 0) {
+    unlockCelebrationTimer -= 0.016;
+    const intensity = Math.min(1, unlockCelebrationTimer / 1.5);
+    
+    // Burst particles
+    for (let i = 0; i < 2; i++) {
+      const a = rand(0, Math.PI * 2);
+      const sp = rand(60, 200) * intensity;
+      showroomIdleParticles.push({
+        x: cx + rand(-20, 20),
+        y: previewY,
+        vx: Math.cos(a) * sp,
+        vy: Math.sin(a) * sp - 50,
+        size: rand(2, 5),
+        life: rand(0.3, 0.8) * intensity,
+        color: unlockCelebrationType === 'legendary' ? '#ffd700' : 
+               unlockCelebrationType === 'epic' ? '#d400ff' : '#00e5ff'
+      });
+    }
+
+    // Flash overlay
+    ctx.fillStyle = `rgba(255, 255, 255, ${intensity * 0.06})`;
+    ctx.fillRect(0, 0, W, H);
+
+    // Text via DOM
+    const celEl = document.getElementById('unlockCelebration');
+    const celText = document.getElementById('celebrationText');
+    if (celEl && celText) {
+      celEl.style.display = 'block';
+      const rarityColor = unlockCelebrationType === 'legendary' ? '#ffd700' :
+                          unlockCelebrationType === 'epic' ? '#d400ff' : '#00e5ff';
+      celText.style.color = rarityColor;
+      let label = 'MỞ KHOÁ!';
+      if (unlockCelebrationType === 'legendary') label = '🔥 LEGENDARY!';
+      else if (unlockCelebrationType === 'epic') label = '⚡ EPIC!';
+      celText.textContent = label;
+      setTimeout(() => { if (celEl) celEl.style.display = 'none'; }, 1200);
+    }
+  }
+
+  // ── Update selected car name ──
+  const nameEl = document.getElementById('selectedCarName');
+  if (nameEl) {
+    let nameStr = CAR_NAMES[selectedCar];
+    if (currentGarageTab !== 'car' && cust) {
+      const items = CUSTOMIZATION_ITEMS[currentGarageTab];
+      if (items) {
+        const currentId = cust[currentGarageTab];
+        for (const item of items) {
+          if (item.id === currentId || (currentGarageTab === 'paint' && item.val === currentId)) {
+            nameStr = item.name;
+            break;
+          }
+        }
+      }
+    }
+    nameEl.textContent = '★ ' + nameStr;
+  }
+
+  // ── Showroom ambient pulse ──
+  showroomCeilPulse += 0.016;
+  showroomDoorAnim += 0.016;
   gameTime += 0.016;
 }
 
-let garageButtons=[];
+// Garage now uses DOM event listeners + canvas drag-to-rotate
+// No canvas button array needed
 let modeButtons=[];
 
 // ── Pause Screen ───────────────────────────────────────────
@@ -3960,22 +4274,8 @@ function handleTap(mx,my){
     if(mx>=W/2-125&&mx<=W/2+125&&my>=370&&my<=424){SFX.click();startGame()}
     else if(mx>=W/2-85&&mx<=W/2+85&&my>=442&&my<=484){SFX.click();transitionTo('title')}
   }else if(screen==='garage'){
-    for(const b of garageButtons){
-      if(mx>=b.x&&mx<=b.x+b.w&&my>=b.y&&my<=b.y+b.h){
-        if(b.type==='back'){SFX.click();transitionTo('title');return}
-        if(b.type==='car'){
-          const i=b.index;
-          if(unlockedCars.has(i)){
-            if(selectedCar!==i){selectedCar=i;saveData();SFX.select()}
-          }else if(totalCoins>=CAR_COSTS[i]){
-            totalCoins-=CAR_COSTS[i];
-            unlockedCars.add(i);selectedCar=i;
-            saveData();SFX.coin();
-          }else{SFX.click()}
-          return;
-        }
-      }
-    }
+    // Garage uses DOM event listeners + canvas drag-to-rotate
+    // No tap actions needed on canvas — drag only
   }
 }
 
@@ -4122,19 +4422,47 @@ let currentGarageTab = 'car';
 
 function showGarageUI() {
   document.getElementById('garageUI').style.display = 'flex';
-  document.getElementById('garageCoinsText').innerText = '$ ' + totalCoins;
-  document.getElementById('garageXpText').innerText = 'Cấp ' + level + ' (' + xp + ' XP)';
+  document.getElementById('garageCoinsText').innerText = totalCoins;
+  document.getElementById('garageXpText').innerText = 'Cấp ' + level;
+  // Reset showroom state
+  showroomRotX = 0;
+  showroomTargetRotX = 0;
+  showroomZoom = 1;
+  showroomTargetZoom = 1;
+  showroomCamY = 0;
+  showroomTargetCamY = 0;
+  showroomIdleParticles = [];
   renderGarageTab(currentGarageTab);
 }
 
 function hideGarageUI() {
   document.getElementById('garageUI').style.display = 'none';
+  showroomIdleParticles = [];
+}
+
+function triggerUnlockCelebration(rarity) {
+  unlockCelebrationTimer = 2;
+  unlockCelebrationType = rarity;
+  // Play sound
+  if (rarity === 'legendary') {
+    playBeep(660, 0.08, 'sine', 0.04);
+    setTimeout(() => playBeep(880, 0.08, 'sine', 0.04), 100);
+    setTimeout(() => playBeep(1100, 0.12, 'sine', 0.04), 200);
+    setTimeout(() => playBeep(1320, 0.2, 'sine', 0.05), 300);
+  } else if (rarity === 'epic') {
+    playBeep(550, 0.08, 'sine', 0.03);
+    setTimeout(() => playBeep(660, 0.08, 'sine', 0.03), 80);
+    setTimeout(() => playBeep(880, 0.12, 'sine', 0.03), 160);
+  } else {
+    playBeep(440, 0.06, 'sine', 0.025);
+    setTimeout(() => playBeep(660, 0.08, 'sine', 0.025), 70);
+  }
 }
 
 function renderGarageTab(tabName) {
   currentGarageTab = tabName;
   
-  const tabs = document.querySelectorAll('.sidebar-tab');
+  const tabs = document.querySelectorAll('.showroom-tab');
   tabs.forEach(t => {
     t.classList.toggle('active', t.getAttribute('data-tab') === tabName);
   });
@@ -4545,8 +4873,11 @@ window.buyCarInGarage = function(idx) {
     previewCustomizations = { ...carCustomizations[selectedCar] };
     saveData();
     SFX.coin();
-    document.getElementById('garageCoinsText').innerText = '$ ' + totalCoins;
+    document.getElementById('garageCoinsText').innerText = totalCoins;
     renderGarageTab('car');
+    // Celebration
+    const rarity = idx === 4 ? 'legendary' : idx >= 3 ? 'epic' : 'rare';
+    triggerUnlockCelebration(rarity);
   }
 };
 
@@ -4578,8 +4909,14 @@ window.buyCosmetic = function(type, itemId, price, optionalVal) {
     
     saveData();
     SFX.coin();
-    document.getElementById('garageCoinsText').innerText = '$ ' + totalCoins;
+    document.getElementById('garageCoinsText').innerText = totalCoins;
     renderGarageTab(type);
+    // Trigger celebration based on rarity
+    const itemData = CUSTOMIZATION_ITEMS[type === 'paint' ? 'paint' : type === 'decal' ? 'decal' : type === 'wheel' ? 'wheel' : type === 'spoiler' ? 'spoiler' : type === 'underglow' ? 'underglow' : type === 'nitro' ? 'nitro' : null];
+    if (itemData) {
+      const found = itemData.find(i => i.id === itemId);
+      if (found) triggerUnlockCelebration(found.rarity || 'common');
+    }
   } else {
     SFX.click();
   }
@@ -4610,7 +4947,7 @@ window.buyPlateStyle = function(itemId, price, bg, text) {
     
     saveData();
     SFX.coin();
-    document.getElementById('garageCoinsText').innerText = '$ ' + totalCoins;
+    document.getElementById('garageCoinsText').innerText = totalCoins;
     renderGarageTab('plate');
   } else {
     SFX.click();
@@ -4656,14 +4993,72 @@ function setupGarageEventListeners() {
     transitionTo('title');
   });
   
-  const sidebarButtons = document.querySelectorAll('.sidebar-tab');
-  sidebarButtons.forEach(btn => {
+  // Tab switching with showroom animation
+  const tabButtons = document.querySelectorAll('.showroom-tab');
+  tabButtons.forEach(btn => {
     btn.addEventListener('click', (e) => {
-      const tab = e.target.getAttribute('data-tab');
+      const tab = e.currentTarget.getAttribute('data-tab');
       SFX.click();
       renderGarageTab(tab);
     });
   });
+  
+  // ── Drag-to-rotate showroom car ──
+  let isDragging = false;
+  let dragStartX = 0;
+  let dragStartRot = 0;
+  
+  canvas.addEventListener('mousedown', (e) => {
+    if (screen !== 'garage') return;
+    const rect = canvas.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+    const my = (e.clientY - rect.top) * (canvas.height / rect.height);
+    // Only start drag if touching upper area (car preview zone)
+    if (my < H * 0.55) {
+      isDragging = true;
+      dragStartX = mx;
+      dragStartRot = showroomTargetRotX;
+      e.preventDefault();
+    }
+  });
+  
+  canvas.addEventListener('mousemove', (e) => {
+    if (!isDragging || screen !== 'garage') return;
+    const rect = canvas.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+    const dx = (mx - dragStartX) / W;
+    showroomTargetRotX = Math.max(-Math.PI * 0.45, Math.min(Math.PI * 0.45, dragStartRot - dx * Math.PI));
+  });
+  
+  canvas.addEventListener('mouseup', () => { isDragging = false; });
+  canvas.addEventListener('mouseleave', () => { isDragging = false; });
+  
+  // Touch events for mobile
+  canvas.addEventListener('touchstart', (e) => {
+    if (screen !== 'garage') return;
+    const touch = e.touches[0];
+    const rect = canvas.getBoundingClientRect();
+    const mx = (touch.clientX - rect.left) * (canvas.width / rect.width);
+    const my = (touch.clientY - rect.top) * (canvas.height / rect.height);
+    if (my < H * 0.55) {
+      isDragging = true;
+      dragStartX = mx;
+      dragStartRot = showroomTargetRotX;
+      e.preventDefault();
+    }
+  }, { passive: false });
+  
+  canvas.addEventListener('touchmove', (e) => {
+    if (!isDragging || screen !== 'garage') return;
+    const touch = e.touches[0];
+    const rect = canvas.getBoundingClientRect();
+    const mx = (touch.clientX - rect.left) * (canvas.width / rect.width);
+    const dx = (mx - dragStartX) / W;
+    showroomTargetRotX = Math.max(-Math.PI * 0.45, Math.min(Math.PI * 0.45, dragStartRot - dx * Math.PI));
+    e.preventDefault();
+  }, { passive: false });
+  
+  canvas.addEventListener('touchend', () => { isDragging = false; });
 }
 
 // ══════════════════════════════════════════════════════════════
