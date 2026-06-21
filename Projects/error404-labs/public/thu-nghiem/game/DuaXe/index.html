@@ -45,11 +45,346 @@ canvas#c{display:block;image-rendering:auto;flex-shrink:0;margin:auto}
 @media(min-width:768px){
   #touchCtrls{display:none}
 }
+
+/* ── Garage UI Overlay CSS ── */
+#garageUI {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  background: rgba(8, 8, 20, 0.78);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #fff;
+  padding: 1.2em;
+  box-sizing: border-box;
+  border-radius: 16px;
+  border: 1px solid rgba(0, 200, 255, 0.25);
+  box-shadow: 0 0 35px rgba(0, 0, 0, 0.85);
+  pointer-events: auto;
+}
+.garage-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.6em;
+  border-bottom: 1px solid rgba(0, 200, 255, 0.25);
+  margin-bottom: 0.8em;
+}
+.garage-title {
+  font-size: 1.35em;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-shadow: 0 0 10px rgba(0, 200, 255, 0.5);
+  color: #00ccff;
+}
+.garage-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+.garage-coins {
+  font-size: 1.15em;
+  font-weight: 700;
+  color: #ffd700;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+}
+.garage-xp {
+  font-size: 0.75em;
+  color: rgba(200, 255, 220, 0.7);
+}
+.garage-main {
+  flex: 1;
+  display: flex;
+  gap: 0.8em;
+  min-height: 0;
+}
+.garage-sidebar {
+  width: 7.8em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4em;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.garage-sidebar::-webkit-scrollbar {
+  width: 3px;
+}
+.garage-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(0, 200, 255, 0.2);
+  border-radius: 2px;
+}
+.sidebar-tab {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.65);
+  padding: 0.6em 0.5em;
+  font-size: 0.78em;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.sidebar-tab:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border-color: rgba(0, 200, 255, 0.2);
+}
+.sidebar-tab.active {
+  background: linear-gradient(135deg, rgba(0, 200, 255, 0.15), rgba(100, 0, 255, 0.15));
+  border-color: rgba(0, 200, 255, 0.5);
+  color: #00e5ff;
+  box-shadow: 0 0 8px rgba(0, 200, 255, 0.15);
+}
+.garage-content {
+  flex: 1;
+  background: rgba(5, 5, 15, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 0.8em;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  min-height: 0;
+}
+.garage-content::-webkit-scrollbar {
+  width: 4px;
+}
+.garage-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+}
+.item-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6em 0.7em;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  transition: all 0.15s;
+  cursor: pointer;
+}
+.item-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+.item-card.equipped {
+  background: rgba(0, 200, 255, 0.08);
+  border-color: rgba(0, 200, 255, 0.4);
+}
+.item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.item-name {
+  font-weight: 700;
+  font-size: 0.85em;
+}
+.item-rarity {
+  font-size: 0.65em;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.item-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+.item-price {
+  font-weight: 700;
+  color: #ffd700;
+  font-size: 0.8em;
+}
+.item-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  border-radius: 5px;
+  color: #fff;
+  padding: 0.4em 0.8em;
+  font-weight: 700;
+  font-size: 0.7em;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.item-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+.item-btn.btn-unlock {
+  background: linear-gradient(135deg, #ffd700, #ffaa00);
+  color: #000;
+}
+.item-btn.btn-unlock:hover {
+  transform: scale(1.03);
+}
+.item-btn.btn-equip {
+  background: linear-gradient(135deg, #00c6ff, #0072ff);
+}
+.item-btn.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.3);
+}
+.plate-input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6em;
+  padding: 0.2em;
+}
+.plate-textbox {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(0, 200, 255, 0.3);
+  border-radius: 6px;
+  color: #fff;
+  padding: 0.6em 0.8em;
+  font-size: 1.15em;
+  font-weight: 800;
+  text-align: center;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  width: 100%;
+  box-sizing: border-box;
+}
+.plate-textbox:focus {
+  border-color: #00e5ff;
+  outline: none;
+}
+.plate-styles-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.4em;
+  margin-top: 0.4em;
+}
+.plate-style-card {
+  padding: 0.6em;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  text-align: center;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.01);
+  transition: all 0.15s;
+}
+.plate-style-card:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+.plate-style-card.selected {
+  border-color: #00ccff;
+  background: rgba(0, 200, 255, 0.06);
+}
+.plate-preview-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  font-weight: 800;
+  font-size: 0.72em;
+  border-radius: 3px;
+  margin-bottom: 4px;
+}
+.loadout-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  padding: 0.2em;
+}
+.loadout-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 0.6em 0.8em;
+}
+.loadout-name {
+  font-weight: 700;
+  font-size: 0.85em;
+}
+.loadout-desc {
+  font-size: 0.68em;
+  color: rgba(255, 255, 255, 0.4);
+}
+.loadout-actions {
+  display: flex;
+  gap: 4px;
+}
+.garage-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 0.8em;
+  padding-top: 0.8em;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+.garage-btn-back {
+  background: rgba(20, 20, 30, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: #fff;
+  padding: 0.5em 1em;
+  font-weight: 700;
+  font-size: 0.8em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.garage-btn-back:hover {
+  background: rgba(255, 50, 50, 0.15);
+  border-color: rgba(255, 50, 50, 0.4);
+  transform: translateY(-2px);
+}
+.rarity-common { color: #b0bec5; }
+.rarity-rare { color: #00e5ff; text-shadow: 0 0 5px rgba(0, 229, 255, 0.3); }
+.rarity-epic { color: #d400ff; text-shadow: 0 0 5px rgba(212, 0, 255, 0.3); }
+.rarity-legendary { color: #ffd700; text-shadow: 0 0 5px rgba(255, 215, 0, 0.4); }
 </style>
 </head>
 <body>
 <div id="gameWrap">
   <canvas id="c"></canvas>
+
+  <!-- ── Garage Overlay UI ── -->
+  <div id="garageUI" style="display:none;">
+    <div class="garage-header">
+      <div class="garage-title">🔧 GARAGE</div>
+      <div class="garage-stats">
+        <span class="garage-coins" id="garageCoinsText">$ 0</span>
+        <span class="garage-xp" id="garageXpText">Cấp 1</span>
+      </div>
+    </div>
+    
+    <div class="garage-main">
+      <!-- Left Panel: Tabs -->
+      <div class="garage-sidebar">
+        <button class="sidebar-tab active" data-tab="car">🚗 Mẫu xe</button>
+        <button class="sidebar-tab" data-tab="paint">🎨 Màu sơn</button>
+        <button class="sidebar-tab" data-tab="decal">✨ Tem xe</button>
+        <button class="sidebar-tab" data-tab="wheel">🛞 Bánh xe</button>
+        <button class="sidebar-tab" data-tab="spoiler">🏁 Cánh gió</button>
+        <button class="sidebar-tab" data-tab="underglow">💡 Neon gầm</button>
+        <button class="sidebar-tab" data-tab="nitro">🔥 Lửa Nitro</button>
+        <button class="sidebar-tab" data-tab="plate">💳 Biển số</button>
+        <button class="sidebar-tab" data-tab="loadout">💾 Loadouts</button>
+      </div>
+      
+      <!-- Right Panel: Items list -->
+      <div class="garage-content" id="garageItemsList">
+        <!-- Dynamic items will be generated here -->
+      </div>
+    </div>
+    
+    <div class="garage-footer">
+      <button class="garage-btn-back" id="garageBackBtn">← QUAY LẠI</button>
+    </div>
+  </div>
+
   <div id="touchCtrls">
     <button class="tz tz-left" id="tzL">◀</button>
     <div id="tzWrap">
@@ -76,8 +411,18 @@ function fitCanvas(){
   const wrapH=wrap.clientHeight;
   if(wrapW===0||wrapH===0) return;
   const scale=Math.min(wrapW/W, wrapH/H);
-  canvas.style.width=Math.round(W*scale)+'px';
-  canvas.style.height=Math.round(H*scale)+'px';
+  const wPx = Math.round(W*scale);
+  const hPx = Math.round(H*scale);
+  canvas.style.width=wPx+'px';
+  canvas.style.height=hPx+'px';
+  
+  const garageUI = document.getElementById('garageUI');
+  if(garageUI) {
+    garageUI.style.width = wPx + 'px';
+    garageUI.style.height = hPx + 'px';
+    // Base font size is 14px, scaled alongside scale factor
+    garageUI.style.fontSize = (14 * scale) + 'px';
+  }
 }
 // ResizeObserver theo dõi kích thước wrap chính xác hơn resize event
 const ro=new ResizeObserver(()=>fitCanvas());
@@ -170,7 +515,16 @@ function applyLevelPerks(lvl){
 function saveData(){
   try{localStorage.setItem('turborush2',JSON.stringify({
     hs:highScore, coins:totalCoins, unlocks:[...unlockedCars], sel:selectedCar,
-    xp:xp, lvl:level
+    xp:xp, lvl:level,
+    customizations: carCustomizations,
+    uPaints: [...unlockedPaints],
+    uDecals: [...unlockedDecals],
+    uWheels: [...unlockedWheels],
+    uSpoilers: [...unlockedSpoilers],
+    uUnderglows: [...unlockedUnderglows],
+    uNitros: [...unlockedNitros],
+    uPlates: [...unlockedPlates],
+    loadouts: savedLoadouts
   }))}catch(e){}
 }
 function loadData(){
@@ -183,6 +537,16 @@ function loadData(){
       selectedCar=d.sel||0;
       xp=d.xp||0;
       level=d.lvl||getLevelFromXp(xp);
+      
+      if(d.customizations) carCustomizations = d.customizations;
+      if(d.uPaints) unlockedPaints = new Set(d.uPaints);
+      if(d.uDecals) unlockedDecals = new Set(d.uDecals);
+      if(d.uWheels) unlockedWheels = new Set(d.uWheels);
+      if(d.uSpoilers) unlockedSpoilers = new Set(d.uSpoilers);
+      if(d.uUnderglows) unlockedUnderglows = new Set(d.uUnderglows);
+      if(d.uNitros) unlockedNitros = new Set(d.uNitros);
+      if(d.uPlates) unlockedPlates = new Set(d.uPlates);
+      if(d.loadouts) savedLoadouts = d.loadouts;
     }
   }catch(e){}
 }
@@ -406,6 +770,24 @@ const CAR_COSTS=[0,800,2000,4000,7000];
 const CAR_NAMES=['Sonic Xanh','Lửa Đỏ','Bóng Tối','Vương Miện Vàng','Cyber Neon'];
 const CAR_COLORS=['#2a7fff','#ff3344','#222244','#ffcc00','#00e5ff'];
 const CAR_ACCENTS=['#0055cc','#cc1122','#8844ff','#ffaa00','#ff00ff'];
+
+// ── CUSTOMIZATION VARIABLES ──
+let carCustomizations = {
+  0: { paint: 'default', decal: 'none', wheel: 'default', spoiler: 'none', underglow: 'none', nitro: 'default', plate: 'SONIC', plateBg: '#ffffff', plateText: '#000000' },
+  1: { paint: 'default', decal: 'none', wheel: 'default', spoiler: 'none', underglow: 'none', nitro: 'default', plate: 'FIRE', plateBg: '#ffffff', plateText: '#000000' },
+  2: { paint: 'default', decal: 'none', wheel: 'default', spoiler: 'none', underglow: 'none', nitro: 'default', plate: 'SHADOW', plateBg: '#ffffff', plateText: '#000000' },
+  3: { paint: 'default', decal: 'none', wheel: 'default', spoiler: 'none', underglow: 'none', nitro: 'default', plate: 'CROWN', plateBg: '#ffffff', plateText: '#000000' },
+  4: { paint: 'default', decal: 'none', wheel: 'default', spoiler: 'none', underglow: 'none', nitro: 'default', plate: 'CYBER', plateBg: '#ffffff', plateText: '#000000' }
+};
+let unlockedPaints = new Set(['default']);
+let unlockedDecals = new Set(['none']);
+let unlockedWheels = new Set(['default']);
+let unlockedSpoilers = new Set(['none']);
+let unlockedUnderglows = new Set(['none']);
+let unlockedNitros = new Set(['default']);
+let unlockedPlates = new Set(['white']);
+let savedLoadouts = [null, null, null];
+let previewCustomizations = null;
 
 // ── Classes ────────────────────────────────────────────────
 class TrafficCar{
@@ -1549,16 +1931,49 @@ function drawObstacles(){
 }
 
 // ── Car Drawer (đẹp như asset free) ──────────────────────────
+function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
+  let rot = Math.PI / 2 * 3;
+  let x = cx;
+  let y = cy;
+  let step = Math.PI / spikes;
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - outerRadius);
+  for (let i = 0; i < spikes; i++) {
+    x = cx + Math.cos(rot) * outerRadius;
+    y = cy + Math.sin(rot) * outerRadius;
+    ctx.lineTo(x, y);
+    rot += step;
+    x = cx + Math.cos(rot) * innerRadius;
+    y = cy + Math.sin(rot) * innerRadius;
+    ctx.lineTo(x, y);
+    rot += step;
+  }
+  ctx.lineTo(cx, cy - outerRadius);
+  ctx.closePath();
+  ctx.fill();
+}
+
 function drawCar(x,y,w,h,color,accent,isPlayer,flash,typeKey){
   x=Math.round(x); y=Math.round(y);
   const r=Math.min(w,h)*0.1;
   const frontY=y-h*0.48;  // đầu xe (hướng lên)
   const rearY=y+h*0.48;   // đuôi xe
 
+  // Get customization configurations
+  let cust = null;
+  let carColor = color;
+  let carAccent = accent;
+  if (isPlayer) {
+    cust = (screen === 'garage') ? (previewCustomizations || carCustomizations[selectedCar]) : carCustomizations[selectedCar];
+    if (cust && cust.paint !== 'default') {
+      carColor = cust.paint;
+    }
+  }
+
   // Player glow
   if(isPlayer){
     const g=ctx.createRadialGradient(x,y,0,x,y,85);
-    g.addColorStop(0,color+'60'); g.addColorStop(1,'transparent');
+    g.addColorStop(0,carColor+'60'); g.addColorStop(1,'transparent');
     ctx.fillStyle=g; ctx.fillRect(x-85,y-85,170,170);
   }
 
@@ -1571,9 +1986,31 @@ function drawCar(x,y,w,h,color,accent,isPlayer,flash,typeKey){
   ctx.ellipse(x+4,y+6,w*0.52,h*0.52,0,0,0,Math.PI*2);
   ctx.fill();
 
+  // ── Neon Underglow ──
+  if (isPlayer && cust && cust.underglow !== 'none') {
+    let ugColor = null;
+    if (cust.underglow === 'blue') ugColor = 'rgba(0, 200, 255, 0.4)';
+    else if (cust.underglow === 'red') ugColor = 'rgba(255, 30, 30, 0.4)';
+    else if (cust.underglow === 'lime') ugColor = 'rgba(57, 255, 20, 0.4)';
+    else if (cust.underglow === 'rgb') {
+      let hue = (gameTime * 200) % 360;
+      ugColor = `hsla(${hue}, 100%, 50%, 0.4)`;
+    }
+    if (ugColor) {
+      ctx.save();
+      ctx.shadowColor = ugColor.replace('0.4', '1.0');
+      ctx.shadowBlur = 25;
+      ctx.fillStyle = ugColor;
+      ctx.beginPath();
+      ctx.ellipse(x, y + h * 0.1, w * 0.62, h * 0.46, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
   // ── Body xe thể thao ──
-  ctx.shadowColor=isPlayer?color+'80':'transparent'; ctx.shadowBlur=isPlayer?18:0;
-  ctx.fillStyle=color;
+  ctx.shadowColor=isPlayer?carColor+'80':'transparent'; ctx.shadowBlur=isPlayer?18:0;
+  ctx.fillStyle=carColor;
   ctx.beginPath();
   const bw=w*0.38, bh=h*0.42;
   const noseW=w*0.28;
@@ -1608,16 +2045,50 @@ function drawCar(x,y,w,h,color,accent,isPlayer,flash,typeKey){
   ctx.bezierCurveTo(x+bw,frontY+bh*0.5, x+bw+2,frontY+bh*0.15, x+noseW,frontY+2);
   ctx.closePath(); ctx.fill();
 
-  // ── Racing stripe ──
-  if(isPlayer){
-    ctx.fillStyle='rgba(255,255,255,0.18)';
-    ctx.fillRect(x-w*0.06,frontY+3,w*0.12,h*0.5);
-    ctx.fillStyle='rgba(255,255,255,0.08)';
-    ctx.fillRect(x-w*0.035,frontY+3,w*0.07,h*0.5);
-    // Side stripe
-    ctx.fillStyle='rgba(255,255,255,0.1)';
-    ctx.fillRect(x-bw+2,frontY+bh*0.7,3,h*0.35);
-    ctx.fillRect(x+bw-5,frontY+bh*0.7,3,h*0.35);
+  // ── Decals ──
+  if(isPlayer && cust){
+    const decal = cust.decal;
+    if(decal === 'stripes'){
+      ctx.fillStyle='rgba(255,255,255,0.22)';
+      ctx.fillRect(x-w*0.07,frontY+3,w*0.14,h*0.9);
+      ctx.fillStyle='rgba(255,255,255,0.12)';
+      ctx.fillRect(x-w*0.035,frontY+3,w*0.07,h*0.9);
+    } else if(decal === 'flames'){
+      ctx.fillStyle = 'rgba(255, 85, 0, 0.35)';
+      // Trái
+      ctx.beginPath();
+      ctx.moveTo(x - bw + 2, y - 10);
+      ctx.lineTo(x - bw + 7, y + 5);
+      ctx.lineTo(x - w*0.12, y + 12);
+      ctx.lineTo(x - bw + 4, y + 20);
+      ctx.closePath(); ctx.fill();
+      // Phải
+      ctx.beginPath();
+      ctx.moveTo(x + bw - 2, y - 10);
+      ctx.lineTo(x + bw - 7, y + 5);
+      ctx.lineTo(x + w*0.12, y + 12);
+      ctx.lineTo(x + bw - 4, y + 20);
+      ctx.closePath(); ctx.fill();
+    } else if(decal === 'stars'){
+      ctx.fillStyle = 'rgba(255, 215, 0, 0.45)';
+      drawStar(ctx, x, y - 18, 5, 7, 3);
+      drawStar(ctx, x - bw*0.5, y + 12, 5, 4, 1.8);
+      drawStar(ctx, x + bw*0.5, y + 12, 5, 4, 1.8);
+    } else if(decal === 'cyber'){
+      ctx.strokeStyle = 'rgba(0, 255, 240, 0.45)';
+      ctx.lineWidth = 1;
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(x - bw, y - bh, bw*2, bh*2);
+      ctx.clip();
+      for (let offset = -40; offset < 40; offset += 8) {
+        ctx.beginPath();
+        ctx.moveTo(x - bw, y + offset);
+        ctx.lineTo(x + bw, y + offset + 8);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
   }
 
   // ── Kính lái ──
@@ -1655,12 +2126,12 @@ function drawCar(x,y,w,h,color,accent,isPlayer,flash,typeKey){
   ctx.fillStyle=isPlayer?`rgb(${220+Math.floor(Math.sin(gameTime*5)*35)},${220+Math.floor(Math.sin(gameTime*5)*30)},${200})`:'#eeeedd';
   ctx.beginPath(); ctx.ellipse(x-w*0.28,frontY+2,4,2.5,0,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.ellipse(x+w*0.28,frontY+2,4,2.5,0,0,Math.PI*2); ctx.fill();
-  // LED DRL (Daytime Running Lights) — dải sáng ban ngày
+  // LED DRL (Daytime Running Lights)
   const drlBright=isPlayer?0.2+Math.sin(gameTime*4)*0.08:0.15;
   ctx.fillStyle=`rgba(255,255,200,${drlBright})`;
   ctx.fillRect(x-w*0.24,frontY-12,3,12);
   ctx.fillRect(x+w*0.21,frontY-12,3,12);
-  // Đèn xi-nhan trái/phải (khi chuyển làn)
+  // Đèn xi-nhan
   if(isPlayer&&Math.abs(playerSway)>2){
     const turnFlash=Math.sin(gameTime*12)>0;
     const turnSide=playerSway>0?'right':'left';
@@ -1691,7 +2162,6 @@ function drawCar(x,y,w,h,color,accent,isPlayer,flash,typeKey){
     ctx.beginPath(); ctx.arc(x-w*0.25,rearY-4,8,0,Math.PI*2); ctx.fill();
     ctx.beginPath(); ctx.arc(x+w*0.25,rearY-4,8,0,Math.PI*2); ctx.fill();
   }
-  // Brake light cho traffic
   if(!isPlayer){
     const tc=trafficCars.find(c=>c.x===x&&c.y===y);
     if(tc&&tc.brakeLight){
@@ -1699,7 +2169,6 @@ function drawCar(x,y,w,h,color,accent,isPlayer,flash,typeKey){
       ctx.fillStyle='#ff2200';
       ctx.fillRect(x-w*0.28,rearY-6,6,6);
       ctx.fillRect(x+w*0.22,rearY-6,6,6);
-      // Brake glow
       ctx.fillStyle='rgba(255,0,0,0.12)';
       ctx.beginPath(); ctx.arc(x-w*0.25,rearY-4,12,0,Math.PI*2); ctx.fill();
       ctx.beginPath(); ctx.arc(x+w*0.25,rearY-4,12,0,Math.PI*2); ctx.fill();
@@ -1712,29 +2181,124 @@ function drawCar(x,y,w,h,color,accent,isPlayer,flash,typeKey){
   const wPosX=x-w*0.47, wPosX2=x+w*0.47;
   const wPosY1=frontY+bh*0.55, wPosY2=rearY-bh*0.55;
 
-  // Wheel arches (lốp)
+  // Wheel arches
   ctx.fillStyle='#111';
   ctx.beginPath(); ctx.ellipse(wPosX,wPosY1,wheelW,wheelH,0,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.ellipse(wPosX2,wPosY1,wheelW,wheelH,0,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.ellipse(wPosX,wPosY2,wheelW,wheelH,0,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.ellipse(wPosX2,wPosY2,wheelW,wheelH,0,0,Math.PI*2); ctx.fill();
 
-  // Rims (mâm xe)
-  ctx.fillStyle='#777';
+  // Custom wheels customization
+  let rimColor = '#777';
+  let hubColor = '#aaa';
+  let isNeonWheel = false;
+  let isClassicWheel = false;
+  let isSportsWheel = false;
+
+  if (isPlayer && cust) {
+    const wheel = cust.wheel;
+    if (wheel === 'classic') {
+      rimColor = '#999';
+      hubColor = '#444';
+      isClassicWheel = true;
+    } else if (wheel === 'sports') {
+      rimColor = '#bbbbcc';
+      hubColor = '#d43f00';
+      isSportsWheel = true;
+    } else if (wheel === 'neon') {
+      rimColor = '#00f5ff';
+      hubColor = '#fff';
+      isNeonWheel = true;
+    } else if (wheel === 'gold') {
+      rimColor = '#ffd700';
+      hubColor = '#ffaa00';
+    }
+  }
+
+  // Rims
+  ctx.fillStyle=rimColor;
   ctx.beginPath(); ctx.ellipse(wPosX,wPosY1,wheelW-2,wheelH-3,0,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.ellipse(wPosX2,wPosY1,wheelW-2,wheelH-3,0,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.ellipse(wPosX,wPosY2,wheelW-2,wheelH-3,0,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.ellipse(wPosX2,wPosY2,wheelW-2,wheelH-3,0,0,Math.PI*2); ctx.fill();
-  // Center hub
-  ctx.fillStyle='#aaa';
+
+  // Chấu mâm
+  if (isClassicWheel) {
+    ctx.strokeStyle = '#222'; ctx.lineWidth = 0.5;
+    for (let angle = 0; angle < Math.PI * 2; angle += Math.PI / 3) {
+      const dx = Math.cos(angle) * (wheelW - 2);
+      const dy = Math.sin(angle) * (wheelH - 3);
+      ctx.beginPath();
+      ctx.moveTo(wPosX, wPosY1); ctx.lineTo(wPosX + dx, wPosY1 + dy);
+      ctx.moveTo(wPosX2, wPosY1); ctx.lineTo(wPosX2 + dx, wPosY1 + dy);
+      ctx.moveTo(wPosX, wPosY2); ctx.lineTo(wPosX + dx, wPosY2 + dy);
+      ctx.moveTo(wPosX2, wPosY2); ctx.lineTo(wPosX2 + dx, wPosY2 + dy);
+      ctx.stroke();
+    }
+  } else if (isSportsWheel) {
+    ctx.fillStyle = '#111';
+    for (let angle = 0; angle < Math.PI * 2; angle += Math.PI * 2 / 5) {
+      const dx = Math.cos(angle) * (wheelW - 2);
+      const dy = Math.sin(angle) * (wheelH - 3);
+      ctx.beginPath();
+      ctx.arc(wPosX + dx * 0.5, wPosY1 + dy * 0.5, 0.8, 0, Math.PI * 2);
+      ctx.arc(wPosX2 + dx * 0.5, wPosY1 + dy * 0.5, 0.8, 0, Math.PI * 2);
+      ctx.arc(wPosX + dx * 0.5, wPosY2 + dy * 0.5, 0.8, 0, Math.PI * 2);
+      ctx.arc(wPosX2 + dx * 0.5, wPosY2 + dy * 0.5, 0.8, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // Hubs
+  ctx.fillStyle=hubColor;
   const hubR=2.5;
   ctx.beginPath(); ctx.arc(wPosX,wPosY1,hubR,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.arc(wPosX2,wPosY1,hubR,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.arc(wPosX,wPosY2,hubR,0,Math.PI*2); ctx.fill();
   ctx.beginPath(); ctx.arc(wPosX2,wPosY2,hubR,0,Math.PI*2); ctx.fill();
 
+  if (isNeonWheel) {
+    ctx.save();
+    ctx.shadowColor = '#00f5ff'; ctx.shadowBlur = 8;
+    ctx.fillStyle = 'rgba(0, 245, 255, 0.4)';
+    ctx.beginPath(); ctx.arc(wPosX,wPosY1,hubR+1,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(wPosX2,wPosY1,hubR+1,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(wPosX,wPosY2,hubR+1,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(wPosX2,wPosY2,hubR+1,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+
   // ── Spoiler ──
-  if(isPlayer){
+  if(isPlayer && cust){
+    const spoiler = cust.spoiler;
+    if(spoiler === 'low'){
+      ctx.fillStyle='rgba(0,0,0,0.5)';
+      ctx.fillRect(x-w*0.35,rearY-2,w*0.7,3);
+    } else if(spoiler === 'sport'){
+      ctx.fillStyle='rgba(0,0,0,0.6)';
+      ctx.fillRect(x-w*0.38,rearY-5,w*0.76,3);
+      ctx.fillStyle=carColor;
+      ctx.fillRect(x-w*0.25,rearY-5,3,3);
+      ctx.fillRect(x+w*0.25-3,rearY-5,3,3);
+    } else if(spoiler === 'gt'){
+      ctx.fillStyle='rgba(15,15,15,0.85)';
+      ctx.fillRect(x-w*0.44,rearY-7,w*0.88,4);
+      ctx.fillStyle='rgba(255,50,0,0.8)';
+      ctx.fillRect(x-w*0.44,rearY-9,2,7);
+      ctx.fillRect(x+w*0.44-2,rearY-9,2,7);
+      ctx.fillStyle='#333';
+      ctx.fillRect(x-w*0.22,rearY-7,3,5);
+      ctx.fillRect(x+w*0.22-3,rearY-7,3,5);
+    } else if(spoiler === 'carbon'){
+      ctx.fillStyle='#111';
+      ctx.fillRect(x-w*0.42,rearY-8,w*0.84,3);
+      ctx.fillStyle='#222';
+      ctx.fillRect(x-w*0.38,rearY-5,w*0.76,2);
+      ctx.fillStyle='#555';
+      ctx.fillRect(x-w*0.2,rearY-8,3,6);
+      ctx.fillRect(x+w*0.2-3,rearY-8,3,6);
+    }
+  } else if (isPlayer) {
     ctx.fillStyle='rgba(0,0,0,0.35)';
     ctx.fillRect(x-w*0.38,rearY-3,w*0.76,3);
     ctx.fillStyle='rgba(255,255,255,0.1)';
@@ -1744,45 +2308,69 @@ function drawCar(x,y,w,h,color,accent,isPlayer,flash,typeKey){
   // ── Nitro (ngọn lửa đa lớp) ──
   if(isPlayer&&nitroActive){
     const nTime=gameTime*20;
-    // Lớp 1: Lửa xanh trong (core nhiệt độ cao)
-    ctx.shadowColor='#00ccff'; ctx.shadowBlur=40;
+    let coreColor = '#00ddff';
+    let middleColor = '#ff8800';
+    let sparkColor = '#ffcc00';
+    let coreGlow = '#00ccff';
+    let midGlow = '#ff6600';
+    let smokeColor = 'rgba(180, 180, 200, 0.06)';
+
+    if (cust) {
+      const nitroCol = cust.nitro;
+      if (nitroCol === 'red') {
+        coreColor = '#ff0033'; middleColor = '#ff5500'; sparkColor = '#ffcc00';
+        coreGlow = '#ff0000'; midGlow = '#ff3300';
+      } else if (nitroCol === 'purple') {
+        coreColor = '#a800ff'; middleColor = '#ff00ee'; sparkColor = '#00ffff';
+        coreGlow = '#8800ff'; midGlow = '#ff00cc';
+      } else if (nitroCol === 'green') {
+        coreColor = '#39ff14'; middleColor = '#00ff88'; sparkColor = '#ffff00';
+        coreGlow = '#00ff00'; midGlow = '#00ffaa';
+      } else if (nitroCol === 'gold') {
+        coreColor = '#ffd700'; middleColor = '#ffaa00'; sparkColor = '#ffffff';
+        coreGlow = '#ffd700'; midGlow = '#ffaa00';
+      }
+    }
+
+    // Lớp 1: Lửa trong
+    ctx.shadowColor=coreGlow; ctx.shadowBlur=40;
     for(let i=0;i<4;i++){
       const fx=x+(i-1.5)*10+Math.sin(nTime+i*2)*3;
       const fy=rearY+rand(2,8);
       const len=rand(18,35);
-      ctx.fillStyle='#00ddff';
+      ctx.fillStyle=coreColor;
       ctx.beginPath();
       ctx.moveTo(fx-2,fy);
       ctx.quadraticCurveTo(fx-1,fy+len*0.6,fx,fy+len);
       ctx.quadraticCurveTo(fx+1,fy+len*0.6,fx+2,fy);
       ctx.fill();
     }
-    // Lớp 2: Lửa cam (giữa)
-    ctx.shadowColor='#ff6600'; ctx.shadowBlur=35;
+    // Lớp 2: Lửa giữa
+    ctx.shadowColor=midGlow; ctx.shadowBlur=35;
     for(let i=0;i<5;i++){
       const fx=x+(i-2)*9+Math.sin(nTime+10+i*3)*4;
       const fy=rearY+rand(3,12);
       const len=rand(14,28);
-      ctx.fillStyle='#ff8800';
+      ctx.fillStyle=middleColor;
       ctx.beginPath();
       ctx.moveTo(fx-3,fy);
       ctx.lineTo(fx,fy+len);
       ctx.lineTo(fx+3,fy);
       ctx.fill();
     }
-    // Lớp 3: Tia lửa (sparks từ ống xả)
+    // Lớp 3: Tia lửa
     ctx.shadowBlur=25;
-    ctx.shadowColor='#ffcc00';
+    ctx.shadowColor=sparkColor;
     for(let i=0;i<3;i++){
       const fx=x+(i-1)*12+Math.sin(nTime+20+i*5)*5;
       const fy=rearY+rand(5,15);
-      ctx.fillStyle=i%2?'#ffff44':'#ff4400';
+      ctx.fillStyle=i%2?sparkColor:'#ff4400';
       const sz=rand(2,5);
       ctx.beginPath(); ctx.arc(fx,fy,sz,0,Math.PI*2); ctx.fill();
     }
     // Lớp 4: Khói xả
     ctx.shadowBlur=0;
-    ctx.fillStyle='rgba(180,180,200,0.06)';
+    ctx.fillStyle=smokeColor;
     for(let i=0;i<3;i++){
       const fx=x+(i-1)*15+Math.sin(nTime+30+i*7)*3;
       const fy=rearY+rand(8,20);
@@ -1790,6 +2378,31 @@ function drawCar(x,y,w,h,color,accent,isPlayer,flash,typeKey){
     }
     ctx.shadowBlur=0;
   }
+
+  // ── License Plate ──
+  if (isPlayer && cust) {
+    const pText = cust.plate || 'TURBO';
+    const pBg = cust.plateBg || '#ffffff';
+    const pTextColor = cust.plateText || '#000000';
+    ctx.save();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = pBg;
+    const pW = 16;
+    const pH = 6;
+    const pX = x - pW / 2;
+    const pY = rearY - 3;
+    ctx.fillRect(pX, pY, pW, pH);
+    ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+    ctx.lineWidth = 0.5;
+    ctx.strokeRect(pX, pY, pW, pH);
+    ctx.fillStyle = pTextColor;
+    ctx.font = 'bold 4.5px "Segoe UI",monospace,sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(pText.toUpperCase(), x, pY + pH / 2 + 0.3);
+    ctx.restore();
+  }
+
   ctx.globalAlpha=1;
 }
 
@@ -2791,11 +3404,22 @@ function renderGame(){
 // ── UI Transition helper ─────────────────────────────────
 function transitionTo(screenTarget){
   if(screen===screenTarget) return;
+
+  if (screen === 'garage') {
+    hideGarageUI();
+  }
+
   uiTransScreen=screen;
   uiTransAlpha=0;
   uiTransTimer=0.15;
   screen=screenTarget;
   if(screenTarget!=='game'){stopEngineSound();stopBGM()}
+
+  if (screenTarget === 'garage') {
+    previewCustomizations = { ...carCustomizations[selectedCar] };
+    showGarageUI();
+  }
+
   // Audio feedback
   if(screenTarget==='title'||screenTarget==='garage') SFX.uiClose();
   else SFX.uiOpen();
@@ -3111,92 +3735,107 @@ function drawGarageScreen(){
   ctx.textBaseline='alphabetic';
   const uiAlpha=Math.min(1,uiTransAlpha+0.02);
   uiTransAlpha=uiAlpha;
+  
   drawBackground();
-  ctx.fillStyle=`rgba(0,0,0,${0.7*(1-uiAlpha*0.1)})`;
+  
+  // Lớp phủ tối nhẹ để làm nổi bật chiếc xe preview
+  ctx.fillStyle='rgba(0,0,0,0.55)';
   ctx.fillRect(0,0,W,H);
 
-  ctx.textBaseline='middle';
-  ctx.fillStyle='#fff';
-  ctx.font='bold 30px "Segoe UI",system-ui,sans-serif';
-  ctx.textAlign='center';
-  ctx.fillText('\uD83D\uDD27 GARAGE',W/2,38);
+  // Bục trưng bày phát sáng (Showroom stage platform)
+  ctx.save();
+  ctx.shadowColor = '#00f5ff';
+  ctx.shadowBlur = 20;
+  ctx.fillStyle = 'rgba(0, 245, 255, 0.08)';
+  ctx.strokeStyle = 'rgba(0, 245, 255, 0.35)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.ellipse(200, 320 + PLAYER_H * 1.35 * 0.5 - 6, 50, 14, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.restore();
 
-  ctx.fillStyle='#ffd700'; ctx.font='bold 18px "Segoe UI",system-ui,sans-serif';
-  ctx.textAlign='right';
-  ctx.fillText('$ '+totalCoins,W-14,38);
+  // Preview car bobbing animation
+  const pBob = Math.sin(gameTime * 3.5) * 2;
+  const previewY = 320 + pBob;
 
-  ctx.fillStyle='rgba(255,255,255,0.3)';
-  ctx.font='13px "Segoe UI",system-ui,sans-serif';
-  ctx.textAlign='center';
-  ctx.fillText('Chọn hoặc mở khoá xe',W/2,64);
+  ctx.save();
+  // Scale preview car up to 1.35x
+  ctx.translate(200, previewY);
+  ctx.scale(1.35, 1.35);
+  ctx.translate(-200, -previewY);
 
-  const cols=3, cellW=140, cellH=150, gap=10;
-  const gridW=cols*cellW+(cols-1)*gap;
-  const sx=(W-gridW)/2, sy=88;
+  // Customization preview color
+  let cust = previewCustomizations || carCustomizations[selectedCar];
+  let carColor = CAR_COLORS[selectedCar];
+  if (cust && cust.paint !== 'default') {
+    carColor = cust.paint;
+  }
+  let carAccent = CAR_ACCENTS[selectedCar];
 
-  for(let i=0;i<5;i++){
-    const col=i%cols, row=Math.floor(i/cols);
-    const cx=Math.round(sx+col*(cellW+gap)+cellW/2);
-    const cy=Math.round(sy+row*(cellH+gap)+cellH/2);
+  // Preview car shadow
+  ctx.fillStyle='rgba(0,0,0,0.45)';
+  ctx.beginPath();
+  ctx.ellipse(200+3, previewY+5, PLAYER_W*0.52, PLAYER_H*0.52, 0, 0, Math.PI*2);
+  ctx.fill();
 
-    const isUnlocked=unlockedCars.has(i);
-    const isSelected=selectedCar===i;
-    const canBuy=!isUnlocked&&totalCoins>=CAR_COSTS[i];
-
-    if(isSelected){
-      ctx.shadowColor='rgba(0,200,255,0.3)';
-      ctx.shadowBlur=24;
+  // Underglow neon preview
+  if (cust && cust.underglow !== 'none') {
+    let ugColor = null;
+    if (cust.underglow === 'blue') ugColor = 'rgba(0, 200, 255, 0.45)';
+    else if (cust.underglow === 'red') ugColor = 'rgba(255, 30, 30, 0.45)';
+    else if (cust.underglow === 'lime') ugColor = 'rgba(57, 255, 20, 0.45)';
+    else if (cust.underglow === 'rgb') {
+      let hue = (gameTime * 150) % 360;
+      ugColor = `hsla(${hue}, 100%, 50%, 0.45)`;
     }
-    ctx.fillStyle=isSelected?'rgba(0,200,255,0.12)':isUnlocked?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.4)';
-    ctx.strokeStyle=isSelected?'#00ccff':isUnlocked?'rgba(255,255,255,0.18)':'rgba(255,255,255,0.07)';
-    ctx.lineWidth=isSelected?2:1;
-    ctx.beginPath(); roundRect(ctx,cx-cellW/2,cy-cellH/2,cellW,cellH,14); ctx.fill(); ctx.stroke();
-    ctx.shadowBlur=0;
-
-    drawCar(cx,cy-10,34,52,CAR_COLORS[i],CAR_ACCENTS[i],false,false);
-
-    ctx.textBaseline='middle';
-    ctx.textAlign='center';
-    ctx.fillStyle=isUnlocked?'#fff':'rgba(255,255,255,0.35)';
-    ctx.font='12px "Segoe UI",system-ui,sans-serif';
-    ctx.fillText(CAR_NAMES[i],cx,cy+34);
-
-    if(isSelected){
-      ctx.fillStyle='#00ccff'; ctx.font='bold 11px "Segoe UI",system-ui,sans-serif';
-      ctx.fillText('\u2713 ĐÃ CHỌN',cx,cy+50);
-    }else if(isUnlocked){
-      ctx.fillStyle='rgba(255,255,255,0.35)'; ctx.font='11px "Segoe UI",system-ui,sans-serif';
-      ctx.fillText('ĐÃ SỞ HỮU',cx,cy+50);
-    }else{
-      ctx.fillStyle=canBuy?'#ffd700':'rgba(255,255,255,0.2)';
-      ctx.font='bold 11px "Segoe UI",system-ui,sans-serif';
-      ctx.fillText('$ '+CAR_COSTS[i],cx,cy+50);
-      if(!canBuy){
-        ctx.fillStyle='rgba(255,255,255,0.15)'; ctx.font='10px "Segoe UI",system-ui,sans-serif';
-        ctx.fillText('KHOÁ',cx,cy+64);
-      }
+    if (ugColor) {
+      ctx.save();
+      ctx.shadowColor = ugColor.replace('0.45', '1.0');
+      ctx.shadowBlur = 25;
+      ctx.fillStyle = ugColor;
+      ctx.beginPath();
+      ctx.ellipse(200, previewY + 10, PLAYER_W * 0.65, PLAYER_H * 0.45, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
     }
   }
 
-  const bw=180,bh=46,bx=(W-bw)/2,by=408;
-  ctx.shadowColor='rgba(0,0,0,0.3)'; ctx.shadowBlur=12;
-  ctx.fillStyle='rgba(255,255,255,0.07)';
-  ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=2;
-  ctx.beginPath(); roundRect(ctx,bx,by,bw,bh,14); ctx.fill(); ctx.stroke();
-  ctx.shadowBlur=0;
-  ctx.textBaseline='middle';
-  ctx.fillStyle='rgba(255,255,255,0.65)';
-  ctx.font='16px "Segoe UI",system-ui,sans-serif';
-  ctx.textAlign='center';
-  ctx.fillText('\u2190 QUAY LẠI',W/2,by+bh/2);
+  // Draw player car as preview
+  drawCar(200, previewY, PLAYER_W, PLAYER_H, CAR_COLORS[selectedCar], CAR_ACCENTS[selectedCar], true, false);
 
-  garageButtons=[{type:'back',x:bx,y:by,w:bw,h:bh}];
-  for(let i=0;i<5;i++){
-    const col=i%cols,row=Math.floor(i/cols);
-    const cx=Math.round(sx+col*(cellW+gap)+cellW/2);
-    const cy=Math.round(sy+row*(cellH+gap)+cellH/2);
-    garageButtons.push({type:'car',index:i,x:cx-cellW/2,y:cy-cellH/2,w:cellW,h:cellH});
+  ctx.restore();
+
+  // Engine exhaust smoke
+  if (Math.random() < 0.15) {
+    const smokeX = 200 + rand(-10, 10);
+    const smokeY = previewY + PLAYER_H * 1.35 * 0.5;
+    particles.push(new Particle(
+      smokeX, smokeY,
+      rand(-4, 4), rand(20, 45),
+      rand(0.4, 0.8), 'rgba(200, 200, 210, 0.1)', rand(3, 6)
+    ));
   }
+
+  // Exhaust particles update and draw
+  for(let i=particles.length-1;i>=0;i--){
+    const p=particles[i];
+    p.y += p.vy * 0.3 * 0.016; 
+    p.x += p.vx * 0.3 * 0.016;
+    p.life -= 0.016;
+    if(p.life <= 0) particles.splice(i,1);
+    else {
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = p.life / p.maxLife;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+      ctx.fill();
+    }
+  }
+  ctx.globalAlpha = 1;
+
+  // Slowly progress gameTime to animate static screen
+  gameTime += 0.016;
 }
 
 let garageButtons=[];
@@ -3423,6 +4062,610 @@ function gameLoop(time){
   requestAnimationFrame(gameLoop);
 }
 
+// ── Garage Customization Items Data & Logic ──────────────────
+const CUSTOMIZATION_ITEMS = {
+  paint: [
+    { id: 'default', name: 'Sơn Mặc Định', rarity: 'common', price: 0, val: 'default' },
+    { id: 'candy_red', name: 'Đỏ Candy', rarity: 'rare', price: 300, val: '#ff0044' },
+    { id: 'acid_green', name: 'Xanh Acid', rarity: 'rare', price: 350, val: '#39ff14' },
+    { id: 'royal_purple', name: 'Tím Hoàng Gia', rarity: 'epic', price: 600, val: '#7a00ff' },
+    { id: 'midnight_gold', name: 'Vàng Gold', rarity: 'epic', price: 700, val: '#ffd700' },
+    { id: 'matte_black', name: 'Đen Matte', rarity: 'legendary', price: 1200, val: '#111113' },
+    { id: 'silver_chrome', name: 'Chrome Bạc', rarity: 'legendary', price: 1500, val: '#e5e5e7' },
+    { id: 'neon_pink', name: 'Cyber Pink', rarity: 'legendary', price: 1800, val: '#ff007f' }
+  ],
+  decal: [
+    { id: 'none', name: 'Không Tem', rarity: 'common', price: 0 },
+    { id: 'stripes', name: 'Sọc Đua Đôi', rarity: 'common', price: 200 },
+    { id: 'flames', name: 'Ngọn Lửa', rarity: 'rare', price: 500 },
+    { id: 'stars', name: 'Ngôi Sao Tốc Độ', rarity: 'epic', price: 900 },
+    { id: 'cyber', name: 'Cyber Grid', rarity: 'legendary', price: 1500 }
+  ],
+  wheel: [
+    { id: 'default', name: 'Mâm Mặc Định', rarity: 'common', price: 0 },
+    { id: 'classic', name: 'Mâm Cổ Điển', rarity: 'common', price: 250 },
+    { id: 'sports', name: 'Mâm Thể Thao', rarity: 'rare', price: 600 },
+    { id: 'neon', name: 'Mâm Neon', rarity: 'epic', price: 1000 },
+    { id: 'gold', name: 'Mâm Vàng 24K', rarity: 'legendary', price: 1800 }
+  ],
+  spoiler: [
+    { id: 'none', name: 'Không Cánh Gió', rarity: 'common', price: 0 },
+    { id: 'low', name: 'Ducktail Nhỏ', rarity: 'common', price: 200 },
+    { id: 'sport', name: 'Cánh Thể Thao', rarity: 'rare', price: 500 },
+    { id: 'gt', name: 'Cánh Đua GT', rarity: 'epic', price: 1000 },
+    { id: 'carbon', name: 'Cánh Carbon', rarity: 'legendary', price: 2000 }
+  ],
+  underglow: [
+    { id: 'none', name: 'Không Neon', rarity: 'common', price: 0 },
+    { id: 'blue', name: 'Xanh Băng', rarity: 'rare', price: 400 },
+    { id: 'red', name: 'Đỏ Rực', rarity: 'rare', price: 450 },
+    { id: 'lime', name: 'Xanh Toxic', rarity: 'epic', price: 800 },
+    { id: 'rgb', name: 'Pulsing RGB', rarity: 'legendary', price: 2000 }
+  ],
+  nitro: [
+    { id: 'default', name: 'Lửa Mặc Định', rarity: 'common', price: 0 },
+    { id: 'red', name: 'Hỏa Ngục Đỏ', rarity: 'rare', price: 500 },
+    { id: 'purple', name: 'Plasma Tím', rarity: 'epic', price: 900 },
+    { id: 'green', name: 'Acid Xanh Lá', rarity: 'epic', price: 950 },
+    { id: 'gold', name: 'Tinh Vân Vàng', rarity: 'legendary', price: 2200 }
+  ],
+  plate: [
+    { id: 'white', name: 'Biển Trắng', rarity: 'common', price: 0, bg: '#ffffff', text: '#000000' },
+    { id: 'yellow', name: 'Biển Vàng', rarity: 'common', price: 150, bg: '#ffd700', text: '#000000' },
+    { id: 'red', name: 'Biển Đỏ', rarity: 'rare', price: 400, bg: '#ff3344', text: '#ffffff' },
+    { id: 'blue', name: 'Biển Xanh', rarity: 'epic', price: 600, bg: '#0066ff', text: '#ffffff' },
+    { id: 'neon', name: 'Biển Underground', rarity: 'legendary', price: 1000, bg: '#111113', text: '#39ff14' }
+  ]
+};
+
+let currentGarageTab = 'car';
+
+function showGarageUI() {
+  document.getElementById('garageUI').style.display = 'flex';
+  document.getElementById('garageCoinsText').innerText = '$ ' + totalCoins;
+  document.getElementById('garageXpText').innerText = 'Cấp ' + level + ' (' + xp + ' XP)';
+  renderGarageTab(currentGarageTab);
+}
+
+function hideGarageUI() {
+  document.getElementById('garageUI').style.display = 'none';
+}
+
+function renderGarageTab(tabName) {
+  currentGarageTab = tabName;
+  
+  const tabs = document.querySelectorAll('.sidebar-tab');
+  tabs.forEach(t => {
+    t.classList.toggle('active', t.getAttribute('data-tab') === tabName);
+  });
+  
+  const container = document.getElementById('garageItemsList');
+  container.innerHTML = '';
+  
+  const cust = previewCustomizations || carCustomizations[selectedCar];
+  
+  if (tabName === 'car') {
+    for (let i = 0; i < 5; i++) {
+      const isUnlocked = unlockedCars.has(i);
+      const isSelected = selectedCar === i;
+      const price = CAR_COSTS[i];
+      const canBuy = !isUnlocked && totalCoins >= price;
+      
+      const card = document.createElement('div');
+      card.className = `item-card ${isSelected ? 'equipped' : ''}`;
+      
+      let statusHtml = '';
+      if (isSelected) {
+        statusHtml = `<span class="rarity-legendary" style="font-weight: 800; font-size: 0.8rem;">✓ ĐANG DÙNG</span>`;
+      } else if (isUnlocked) {
+        statusHtml = `<button class="item-btn btn-equip" onclick="selectCarInGarage(${i})">CHỌN</button>`;
+      } else {
+        statusHtml = `
+          <div class="item-status">
+            <span class="item-price">$ ${price}</span>
+            <button class="item-btn btn-unlock ${canBuy ? '' : 'disabled'}" ${canBuy ? '' : 'disabled'} onclick="buyCarInGarage(${i})">MỞ KHOÁ</button>
+          </div>
+        `;
+      }
+      
+      card.innerHTML = `
+        <div class="item-info">
+          <span class="item-name">${CAR_NAMES[i]}</span>
+          <span class="item-rarity rarity-${i === 4 ? 'legendary' : i >= 3 ? 'epic' : i >= 1 ? 'rare' : 'common'}">
+            ${i === 4 ? 'Legendary' : i >= 3 ? 'Epic' : i >= 1 ? 'Rare' : 'Common'}
+          </span>
+        </div>
+        ${statusHtml}
+      `;
+      container.appendChild(card);
+    }
+  }
+  else if (tabName === 'paint') {
+    const paints = CUSTOMIZATION_ITEMS.paint;
+    paints.forEach(p => {
+      const isUnlocked = unlockedPaints.has(p.id);
+      const isEquipped = cust.paint === p.val;
+      const canBuy = !isUnlocked && totalCoins >= p.price;
+      
+      const card = document.createElement('div');
+      card.className = `item-card ${isEquipped ? 'equipped' : ''}`;
+      
+      let statusHtml = '';
+      if (isEquipped) {
+        statusHtml = `<span class="rarity-legendary" style="font-weight: 800; font-size: 0.8rem;">✓ ĐANG DÙNG</span>`;
+      } else if (isUnlocked) {
+        statusHtml = `<button class="item-btn btn-equip" onclick="equipCosmetic('paint', '${p.val}')">SỬ DỤNG</button>`;
+      } else {
+        statusHtml = `
+          <div class="item-status">
+            <span class="item-price">$ ${p.price}</span>
+            <button class="item-btn btn-unlock ${canBuy ? '' : 'disabled'}" ${canBuy ? '' : 'disabled'} onclick="buyCosmetic('paint', '${p.id}', ${p.price}, '${p.val}')">MỞ KHOÁ</button>
+          </div>
+        `;
+      }
+      
+      const dotHtml = p.val === 'default' ? 
+        `<span style="font-size: 0.75rem; color: #aaa;">(Mặc định)</span>` : 
+        `<span style="display:inline-block; width: 12px; height: 12px; border-radius: 50%; background: ${p.val}; border: 1px solid #fff; margin-left: 6px; vertical-align: middle;"></span>`;
+      
+      card.innerHTML = `
+        <div class="item-info">
+          <span class="item-name" style="display:flex; align-items:center; gap:4px;">${p.name} ${dotHtml}</span>
+          <span class="item-rarity rarity-${p.rarity}">${p.rarity}</span>
+        </div>
+        ${statusHtml}
+      `;
+      container.appendChild(card);
+    });
+  }
+  else if (tabName === 'decal') {
+    const decals = CUSTOMIZATION_ITEMS.decal;
+    decals.forEach(d => {
+      const isUnlocked = unlockedDecals.has(d.id);
+      const isEquipped = cust.decal === d.id;
+      const canBuy = !isUnlocked && totalCoins >= d.price;
+      
+      const card = document.createElement('div');
+      card.className = `item-card ${isEquipped ? 'equipped' : ''}`;
+      
+      let statusHtml = '';
+      if (isEquipped) {
+        statusHtml = `<span class="rarity-legendary" style="font-weight: 800; font-size: 0.8rem;">✓ ĐANG DÙNG</span>`;
+      } else if (isUnlocked) {
+        statusHtml = `<button class="item-btn btn-equip" onclick="equipCosmetic('decal', '${d.id}')">SỬ DỤNG</button>`;
+      } else {
+        statusHtml = `
+          <div class="item-status">
+            <span class="item-price">$ ${d.price}</span>
+            <button class="item-btn btn-unlock ${canBuy ? '' : 'disabled'}" ${canBuy ? '' : 'disabled'} onclick="buyCosmetic('decal', '${d.id}', ${d.price})">MỞ KHOÁ</button>
+          </div>
+        `;
+      }
+      
+      card.innerHTML = `
+        <div class="item-info">
+          <span class="item-name">${d.name}</span>
+          <span class="item-rarity rarity-${d.rarity}">${d.rarity}</span>
+        </div>
+        ${statusHtml}
+      `;
+      container.appendChild(card);
+    });
+  }
+  else if (tabName === 'wheel') {
+    const wheels = CUSTOMIZATION_ITEMS.wheel;
+    wheels.forEach(w => {
+      const isUnlocked = unlockedWheels.has(w.id);
+      const isEquipped = cust.wheel === w.id;
+      const canBuy = !isUnlocked && totalCoins >= w.price;
+      
+      const card = document.createElement('div');
+      card.className = `item-card ${isEquipped ? 'equipped' : ''}`;
+      
+      let statusHtml = '';
+      if (isEquipped) {
+        statusHtml = `<span class="rarity-legendary" style="font-weight: 800; font-size: 0.8rem;">✓ ĐANG DÙNG</span>`;
+      } else if (isUnlocked) {
+        statusHtml = `<button class="item-btn btn-equip" onclick="equipCosmetic('wheel', '${w.id}')">SỬ DỤNG</button>`;
+      } else {
+        statusHtml = `
+          <div class="item-status">
+            <span class="item-price">$ ${w.price}</span>
+            <button class="item-btn btn-unlock ${canBuy ? '' : 'disabled'}" ${canBuy ? '' : 'disabled'} onclick="buyCosmetic('wheel', '${w.id}', ${w.price})">MỞ KHOÁ</button>
+          </div>
+        `;
+      }
+      
+      card.innerHTML = `
+        <div class="item-info">
+          <span class="item-name">${w.name}</span>
+          <span class="item-rarity rarity-${w.rarity}">${w.rarity}</span>
+        </div>
+        ${statusHtml}
+      `;
+      container.appendChild(card);
+    });
+  }
+  else if (tabName === 'spoiler') {
+    const spoilers = CUSTOMIZATION_ITEMS.spoiler;
+    spoilers.forEach(s => {
+      const isUnlocked = unlockedSpoilers.has(s.id);
+      const isEquipped = cust.spoiler === s.id;
+      const canBuy = !isUnlocked && totalCoins >= s.price;
+      
+      const card = document.createElement('div');
+      card.className = `item-card ${isEquipped ? 'equipped' : ''}`;
+      
+      let statusHtml = '';
+      if (isEquipped) {
+        statusHtml = `<span class="rarity-legendary" style="font-weight: 800; font-size: 0.8rem;">✓ ĐANG DÙNG</span>`;
+      } else if (isUnlocked) {
+        statusHtml = `<button class="item-btn btn-equip" onclick="equipCosmetic('spoiler', '${s.id}')">SỬ DỤNG</button>`;
+      } else {
+        statusHtml = `
+          <div class="item-status">
+            <span class="item-price">$ ${s.price}</span>
+            <button class="item-btn btn-unlock ${canBuy ? '' : 'disabled'}" ${canBuy ? '' : 'disabled'} onclick="buyCosmetic('spoiler', '${s.id}', ${s.price})">MỞ KHOÁ</button>
+          </div>
+        `;
+      }
+      
+      card.innerHTML = `
+        <div class="item-info">
+          <span class="item-name">${s.name}</span>
+          <span class="item-rarity rarity-${s.rarity}">${s.rarity}</span>
+        </div>
+        ${statusHtml}
+      `;
+      container.appendChild(card);
+    });
+  }
+  else if (tabName === 'underglow') {
+    const underglows = CUSTOMIZATION_ITEMS.underglow;
+    underglows.forEach(u => {
+      const isUnlocked = unlockedUnderglows.has(u.id);
+      const isEquipped = cust.underglow === u.id;
+      const canBuy = !isUnlocked && totalCoins >= u.price;
+      
+      const card = document.createElement('div');
+      card.className = `item-card ${isEquipped ? 'equipped' : ''}`;
+      
+      let statusHtml = '';
+      if (isEquipped) {
+        statusHtml = `<span class="rarity-legendary" style="font-weight: 800; font-size: 0.8rem;">✓ ĐANG DÙNG</span>`;
+      } else if (isUnlocked) {
+        statusHtml = `<button class="item-btn btn-equip" onclick="equipCosmetic('underglow', '${u.id}')">SỬ DỤNG</button>`;
+      } else {
+        statusHtml = `
+          <div class="item-status">
+            <span class="item-price">$ ${u.price}</span>
+            <button class="item-btn btn-unlock ${canBuy ? '' : 'disabled'}" ${canBuy ? '' : 'disabled'} onclick="buyCosmetic('underglow', '${u.id}', ${u.price})">MỞ KHOÁ</button>
+          </div>
+        `;
+      }
+      
+      card.innerHTML = `
+        <div class="item-info">
+          <span class="item-name">${u.name}</span>
+          <span class="item-rarity rarity-${u.rarity}">${u.rarity}</span>
+        </div>
+        ${statusHtml}
+      `;
+      container.appendChild(card);
+    });
+  }
+  else if (tabName === 'nitro') {
+    const nitros = CUSTOMIZATION_ITEMS.nitro;
+    nitros.forEach(n => {
+      const isUnlocked = unlockedNitros.has(n.id);
+      const isEquipped = cust.nitro === n.id;
+      const canBuy = !isUnlocked && totalCoins >= n.price;
+      
+      const card = document.createElement('div');
+      card.className = `item-card ${isEquipped ? 'equipped' : ''}`;
+      
+      let statusHtml = '';
+      if (isEquipped) {
+        statusHtml = `<span class="rarity-legendary" style="font-weight: 800; font-size: 0.8rem;">✓ ĐANG DÙNG</span>`;
+      } else if (isUnlocked) {
+        statusHtml = `<button class="item-btn btn-equip" onclick="equipCosmetic('nitro', '${n.id}')">SỬ DỤNG</button>`;
+      } else {
+        statusHtml = `
+          <div class="item-status">
+            <span class="item-price">$ ${n.price}</span>
+            <button class="item-btn btn-unlock ${canBuy ? '' : 'disabled'}" ${canBuy ? '' : 'disabled'} onclick="buyCosmetic('nitro', '${n.id}', ${n.price})">MỞ KHOÁ</button>
+          </div>
+        `;
+      }
+      
+      card.innerHTML = `
+        <div class="item-info">
+          <span class="item-name">${n.name}</span>
+          <span class="item-rarity rarity-${n.rarity}">${n.rarity}</span>
+        </div>
+        ${statusHtml}
+      `;
+      container.appendChild(card);
+    });
+  }
+  else if (tabName === 'plate') {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'plate-input-container';
+    
+    const textLabel = document.createElement('span');
+    textLabel.style.fontSize = '0.85em';
+    textLabel.style.color = 'rgba(255,255,255,0.7)';
+    textLabel.innerText = 'Nhập chữ biển số (Tối đa 8 ký tự):';
+    wrapper.appendChild(textLabel);
+    
+    const textBox = document.createElement('input');
+    textBox.type = 'text';
+    textBox.className = 'plate-textbox';
+    textBox.maxLength = 8;
+    textBox.value = cust.plate || '';
+    textBox.placeholder = 'BIỂN SỐ';
+    textBox.addEventListener('input', (e) => {
+      const cleanVal = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+      textBox.value = cleanVal;
+      previewCustomizations.plate = cleanVal;
+      carCustomizations[selectedCar].plate = cleanVal;
+      saveData();
+    });
+    wrapper.appendChild(textBox);
+    
+    const styleLabel = document.createElement('span');
+    styleLabel.style.fontSize = '0.85em';
+    styleLabel.style.color = 'rgba(255,255,255,0.7)';
+    styleLabel.style.marginTop = '10px';
+    styleLabel.innerText = 'Chọn kiểu biển số:';
+    wrapper.appendChild(styleLabel);
+    
+    const grid = document.createElement('div');
+    grid.className = 'plate-styles-grid';
+    
+    const plates = CUSTOMIZATION_ITEMS.plate;
+    plates.forEach(p => {
+      const isUnlocked = unlockedPlates.has(p.id);
+      const isSelected = cust.plateBg === p.bg && cust.plateText === p.text;
+      const canBuy = !isUnlocked && totalCoins >= p.price;
+      
+      const card = document.createElement('div');
+      card.className = `plate-style-card ${isSelected ? 'selected' : ''}`;
+      
+      const badge = document.createElement('div');
+      badge.className = 'plate-preview-badge';
+      badge.style.backgroundColor = p.bg;
+      badge.style.color = p.text;
+      badge.style.border = `1px solid ${p.text === '#ffffff' ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.15)'}`;
+      badge.innerText = cust.plate || 'TURBO';
+      
+      let priceHtml = '';
+      if (isSelected) {
+        priceHtml = `<span style="font-size:0.75em; color:#00e5ff; font-weight:800;">ĐANG DÙNG</span>`;
+      } else if (isUnlocked) {
+        priceHtml = `<button class="item-btn btn-equip" style="padding:4px 8px; font-size:0.7em;" onclick="equipPlateStyle('${p.bg}', '${p.text}')">CHỌN</button>`;
+      } else {
+        priceHtml = `
+          <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+            <span style="font-size:0.75em; color:#ffd700; font-weight:700;">$ ${p.price}</span>
+            <button class="item-btn btn-unlock ${canBuy ? '' : 'disabled'}" ${canBuy ? '' : 'disabled'} style="padding:4px 8px; font-size:0.7em;" onclick="buyPlateStyle('${p.id}', ${p.price}, '${p.bg}', '${p.text}')">MỞ KHOÁ</button>
+          </div>
+        `;
+      }
+      
+      card.appendChild(badge);
+      
+      const label = document.createElement('div');
+      label.style.fontSize = '0.75em';
+      label.style.fontWeight = '700';
+      label.className = `rarity-${p.rarity}`;
+      label.innerText = p.name;
+      card.appendChild(label);
+      
+      const priceContainer = document.createElement('div');
+      priceContainer.style.marginTop = '6px';
+      priceContainer.innerHTML = priceHtml;
+      card.appendChild(priceContainer);
+      
+      grid.appendChild(card);
+    });
+    
+    wrapper.appendChild(grid);
+    container.appendChild(wrapper);
+  }
+  else if (tabName === 'loadout') {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'loadout-slots';
+    
+    for (let i = 0; i < 3; i++) {
+      const loadout = savedLoadouts[i];
+      const card = document.createElement('div');
+      card.className = 'loadout-card';
+      
+      let infoHtml = '';
+      let actionsHtml = '';
+      
+      if (loadout) {
+        const dateStr = loadout.date || 'Không rõ ngày';
+        infoHtml = `
+          <div class="item-info">
+            <span class="loadout-name">Slot ${i + 1} — ${loadout.carName}</span>
+            <span class="loadout-desc">Đã lưu: ${dateStr}</span>
+          </div>
+        `;
+        actionsHtml = `
+          <div class="loadout-actions">
+            <button class="item-btn btn-equip" style="padding:6px 10px;" onclick="loadLoadout(${i})">TẢI</button>
+            <button class="item-btn" style="padding:6px 10px; background:rgba(255,50,50,0.2); border:1px solid rgba(255,50,50,0.4);" onclick="saveLoadout(${i})">GHI ĐÈ</button>
+          </div>
+        `;
+      } else {
+        infoHtml = `
+          <div class="item-info">
+            <span class="loadout-name" style="color:rgba(255,255,255,0.4)">Slot ${i + 1} [TRỐNG]</span>
+            <span class="loadout-desc">Chưa lưu cấu hình nào</span>
+          </div>
+        `;
+        actionsHtml = `
+          <div class="loadout-actions">
+            <button class="item-btn btn-unlock" style="padding:6px 12px; background:linear-gradient(135deg, #00c6ff, #0072ff); color:#fff;" onclick="saveLoadout(${i})">LƯU CẤU HÌNH</button>
+          </div>
+        `;
+      }
+      
+      card.innerHTML = infoHtml;
+      
+      const actContainer = document.createElement('div');
+      actContainer.innerHTML = actionsHtml;
+      card.appendChild(actContainer.firstElementChild);
+      
+      wrapper.appendChild(card);
+    }
+    
+    container.appendChild(wrapper);
+  }
+}
+
+window.selectCarInGarage = function(idx) {
+  if (unlockedCars.has(idx)) {
+    selectedCar = idx;
+    previewCustomizations = { ...carCustomizations[selectedCar] };
+    saveData();
+    SFX.select();
+    renderGarageTab('car');
+  }
+};
+
+window.buyCarInGarage = function(idx) {
+  const price = CAR_COSTS[idx];
+  if (!unlockedCars.has(idx) && totalCoins >= price) {
+    totalCoins -= price;
+    unlockedCars.add(idx);
+    selectedCar = idx;
+    previewCustomizations = { ...carCustomizations[selectedCar] };
+    saveData();
+    SFX.coin();
+    document.getElementById('garageCoinsText').innerText = '$ ' + totalCoins;
+    renderGarageTab('car');
+  }
+};
+
+window.equipCosmetic = function(type, val) {
+  if (!previewCustomizations) {
+    previewCustomizations = { ...carCustomizations[selectedCar] };
+  }
+  previewCustomizations[type] = val;
+  carCustomizations[selectedCar][type] = val;
+  saveData();
+  SFX.select();
+  renderGarageTab(type);
+};
+
+window.buyCosmetic = function(type, itemId, price, optionalVal) {
+  if (totalCoins >= price) {
+    totalCoins -= price;
+    
+    if (type === 'paint') unlockedPaints.add(itemId);
+    else if (type === 'decal') unlockedDecals.add(itemId);
+    else if (type === 'wheel') unlockedWheels.add(itemId);
+    else if (type === 'spoiler') unlockedSpoilers.add(itemId);
+    else if (type === 'underglow') unlockedUnderglows.add(itemId);
+    else if (type === 'nitro') unlockedNitros.add(itemId);
+    
+    const targetVal = optionalVal !== undefined ? optionalVal : itemId;
+    previewCustomizations[type] = targetVal;
+    carCustomizations[selectedCar][type] = targetVal;
+    
+    saveData();
+    SFX.coin();
+    document.getElementById('garageCoinsText').innerText = '$ ' + totalCoins;
+    renderGarageTab(type);
+  } else {
+    SFX.click();
+  }
+};
+
+window.equipPlateStyle = function(bg, text) {
+  if (!previewCustomizations) {
+    previewCustomizations = { ...carCustomizations[selectedCar] };
+  }
+  previewCustomizations.plateBg = bg;
+  previewCustomizations.plateText = text;
+  carCustomizations[selectedCar].plateBg = bg;
+  carCustomizations[selectedCar].plateText = text;
+  saveData();
+  SFX.select();
+  renderGarageTab('plate');
+};
+
+window.buyPlateStyle = function(itemId, price, bg, text) {
+  if (totalCoins >= price) {
+    totalCoins -= price;
+    unlockedPlates.add(itemId);
+    
+    previewCustomizations.plateBg = bg;
+    previewCustomizations.plateText = text;
+    carCustomizations[selectedCar].plateBg = bg;
+    carCustomizations[selectedCar].plateText = text;
+    
+    saveData();
+    SFX.coin();
+    document.getElementById('garageCoinsText').innerText = '$ ' + totalCoins;
+    renderGarageTab('plate');
+  } else {
+    SFX.click();
+  }
+};
+
+window.saveLoadout = function(slotIdx) {
+  const currentConfig = { ...carCustomizations[selectedCar] };
+  const d = new Date();
+  const dateStr = d.toLocaleDateString('vi-VN') + ' ' + d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+  
+  savedLoadouts[slotIdx] = {
+    carIndex: selectedCar,
+    carName: CAR_NAMES[selectedCar],
+    config: currentConfig,
+    date: dateStr
+  };
+  
+  saveData();
+  SFX.coin();
+  spawnFloatingText(W/2, 180, 'ĐÃ LƯU CẤU HÌNH!', '#00ffaa', 18);
+  renderGarageTab('loadout');
+};
+
+window.loadLoadout = function(slotIdx) {
+  const loadout = savedLoadouts[slotIdx];
+  if (loadout) {
+    selectedCar = loadout.carIndex;
+    carCustomizations[selectedCar] = { ...loadout.config };
+    previewCustomizations = { ...loadout.config };
+    
+    saveData();
+    SFX.select();
+    spawnFloatingText(W/2, 180, 'ĐÃ TẢI CẤU HÌNH!', '#00e5ff', 18);
+    renderGarageTab('loadout');
+  }
+};
+
+function setupGarageEventListeners() {
+  document.getElementById('garageBackBtn').addEventListener('click', () => {
+    SFX.click();
+    hideGarageUI();
+    transitionTo('title');
+  });
+  
+  const sidebarButtons = document.querySelectorAll('.sidebar-tab');
+  sidebarButtons.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const tab = e.target.getAttribute('data-tab');
+      SFX.click();
+      renderGarageTab(tab);
+    });
+  });
+}
+
 // ══════════════════════════════════════════════════════════════
 // ── INIT ──────────────────────────────────────────────────
 // ══════════════════════════════════════════════════════════════
@@ -3430,6 +4673,7 @@ function gameLoop(time){
 loadData();
 initRain();
 initDust();
+setupGarageEventListeners();
 requestAnimationFrame(gameLoop);
 
 console.log('\u{1F3C1} Turbo Rush 2 — Game Đua Xe Arcade!');

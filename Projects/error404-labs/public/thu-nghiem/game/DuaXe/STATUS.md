@@ -1,8 +1,22 @@
-# 🏁 Turbo Rush 2 — Arcade Racing Game (V2.3)
+# 🏁 Turbo Rush 2 — Arcade Racing Game (V2.4)
 
-## Status: ✅ Complete (2026-06-20) — V2.3: XP Progression & Level Perks
+## Status: ✅ Complete (2026-06-21) — V2.4: Garage Customization & Shop System
 
-Complete XP-based level system với 10 cấp, mỗi cấp mở khóa perk tăng sức mạnh tích lũy.
+Hệ thống độ xe (Garage Customization) toàn diện với các nâng cấp ngoại thất (sơn, decal, mâm bánh, cánh gió, neon gầm, lửa nitro, biển số cá nhân) mua bằng xu tích lũy và lưu trữ loadouts, hoàn toàn là cosmetic để giữ công bằng cho game.
+
+## Phiên bản 2.4 — Garage Customization & Shop System
+
+| Tính năng | Mô tả |
+|-----------|-------|
+| 🎨 **Sơn xe đa dạng** | 8 màu sắc phân chia theo độ hiếm (Common, Rare, Epic, Legendary) mở khóa bằng xu |
+| ✨ **Tem xe đua độc đáo** | Thiết kế decal Sọc dọc thể thao, Ngọn lửa hông, Ngôi sao vàng tốc độ, Lưới ma trận Cyber Grid |
+| 🛞 **Mâm xe thể thao & Neon** | Các kiểu mâm Cổ điển nan hoa, Hợp kim thể thao 5 chấu, Đĩa sáng Neon phát quang, Mâm Vàng 24K |
+| 🏁 **Cánh gió khí động học** | 4 thiết kế đuôi vịt nhỏ (Low profile), Cánh thể thao, Cánh đua GT cỡ lớn, Carbon Active 2 tầng |
+| 💡 **Đèn Neon Underglow** | Hiệu ứng phát sáng dưới gầm xe: Xanh băng, Đỏ rực, Xanh Toxic, Vòng màu RGB biến đổi |
+| 🔥 **Màu lửa xả Nitro** | Hạt lửa xả đa lớp đổi màu: Mặc định (Cyan/Orange), Hỏa ngục đỏ, Plasma tím, Acid xanh lá, Tinh vân vàng |
+| 💳 **Biển số cá nhân hoá** | Nhập văn bản tùy ý (tối đa 8 ký tự) + 5 kiểu màu biển (Trắng, Vàng taxi, Đỏ ngoại giao, Xanh công vụ, Đen Underground) |
+| 💾 **Saveable Loadouts** | 3 Slots lưu trữ và tải nhanh cấu hình xe tùy biến đã chọn |
+| 🔍 **Chế độ Preview Stage** | Chiếc xe preview được scale 1.35x đặt trên bục trưng bày (Showroom platform) phát sáng, có nhấp nhô động và khói xả nhè nhẹ |
 
 ## Phiên bản 2.3 — XP & Level Perk System
 
@@ -78,6 +92,7 @@ Complete XP-based level system với 10 cấp, mỗi cấp mở khóa perk tăng
 ## Saved Data (localStorage key: `turborush2`)
 
 - High score, total coins, unlocked cars, selected car, **xp**, **level**
+- **customizations** (cấu hình xe tùy biến), **uPaints** (màu sơn đã mở khóa), **uDecals**, **uWheels**, **uSpoilers**, **uUnderglows**, **uNitros**, **uPlates**, **loadouts** (3 khe cấu hình đã lưu)
 
 ## Perk Chart
 
