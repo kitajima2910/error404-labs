@@ -1,5 +1,10 @@
 export const DATA_DEMO = [
     {
+        name: 'Trượt Tuyết 2D',
+        link: '/thu-nghiem/game/TruotTuyet2D/index.html',
+        image: '/thu-nghiem/game/TruotTuyet2D/TruotTuyet2D.avif',
+    },
+    {
         name: 'Đua Xe 2D',
         link: '/thu-nghiem/game/DuaXe/index.html',
         image: '/thu-nghiem/game/DuaXe/DuaXe.avif',
