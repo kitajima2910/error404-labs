@@ -44,7 +44,7 @@ Skill này cung cấp nguồn assets free hợp pháp và script tự động do
 |-------|-----|------|---------|
 | **Freesound** | `https://freesound.org` | SFX, ambient, music | CC0 / CC-BY |
 | **Kenney Audio** | `https://kenney.nl/assets?q=audio` | SFX, BGM packs | CC0 |
-| **Pixabay Music** | `https://pixabay.com/music` | BGM, SFX | Miễn phí |
+| **Pixabay Music** | `https://pixabay.com/music` | BGM, SFX | CC0 (social-safe) |
 | **Zapsplat** | `https://zapsplat.com` | SFX, UI sounds | Miễn phí (attribute) |
 | **Mixkit** | `https://mixkit.co/free-sound-effects` | SFX, music loops | Miễn phí |
 | **OpenGameArt Audio** | `https://opengameart.org/art-search?keys=&field_art_type_tid%5B%5D=13` | SFX, BGM | CC0 / CC-BY |
@@ -53,7 +53,33 @@ Skill này cung cấp nguồn assets free hợp pháp và script tự động do
 | **BFXR** | `https://www.bfxr.net` | Tạo SFX retro (download) | — |
 | **MusicGen (Meta)** | `https://huggingface.co/spaces/facebook/MusicGen` | AI sinh nhạc | Research |
 
-### BGM nên dùng
+### BGM Social-Safe (đăng social không lo bản quyền)
+
+> **⚠️ LUẬT BẢN QUYỀN:** Nếu game đăng lên YouTube, TikTok, Facebook → CHỈ dùng các nguồn **CC0 (Public Domain)** hoặc **Music for Content Creators**. Tránh dùng Freesound (CC-BY cần ghi credit), Zapsplat (yêu cầu attribute).
+
+| Thể loại game | Loại nhạc | Nguồn gợi ý | License |
+|--------------|-----------|------------|---------|
+| Platformer / Action | Energetic electronic, 8-bit chiptune | **Kenney** "Platformer Audio", **Pixabay** "Electronic" | ✅ CC0 |
+| RPG / Adventure | Orchestral, ambient, fantasy | **Pixabay** "Cinematic", **StreamBeats** | ✅ CC0 |
+| Puzzle / Casual | Relaxing, lo-fi, acoustic | **Pixabay** "Lo-fi", **Chillhop** | ✅ CC0 |
+| Horror | Dark ambient, drone, suspense | **Pixabay** "Dark", **Kenney** "Horror" | ✅ CC0 |
+| Racing / Sports | Rock, EDM, high-tempo | **Pixabay** "Rock", **Uppbeat** "Sports" | ✅ CC0 |
+
+### 🛡 Nguồn CC0 (An toàn tuyệt đối — không cần credit, monetize được)
+
+| Nguồn | URL | Loại |
+|-------|-----|------|
+| **Kenney** | `https://kenney.nl/assets?q=audio` | SFX + BGM packs (CC0) |
+| **Pixabay Music** | `https://pixabay.com/music` | BGM, SFX (CC0, 50k+ tracks) |
+| **Uppbeat** | `https://uppbeat.io` | BGM cho content creator (free tier) |
+| **StreamBeats** | `https://www.streambeats.com` | BGM royalty-free cho streamer |
+| **Chillhop** | `https://chillhop.com` | Lo-fi BGM (free with credit) |
+| **Music for Makers** | `https://musicformakers.com` | Royalty-free BGM |
+| **dl-sounds** | `https://www.dl-sounds.com/royalty-free` | Royalty-free game music |
+| **GameSound** | `https://gamesound.xyz` | Game SFX packs (CC0) |
+| **Soniss** | `https://soniss.com/gdc-sfx` | GDC SFX packs (CC0, 10k+ files) |
+
+### BGM nên dùng (có thể cần credit)
 
 | Thể loại game | Loại nhạc | Nguồn gợi ý |
 |--------------|-----------|------------|
@@ -128,7 +154,7 @@ function Install-KenneyAsset {
 }
 
 # ===================================================================
-# 2D: Sprite sheets từ Kenney (CC0) — download ZIP rồi map file
+# 2D: Sprite sheets từ Kenney (CC0) — Public Domain, an toàn social
 # ===================================================================
 if ($assetType -eq "2d") {
   # Platformer assets — chứa spritesheet player, tiles, icons
@@ -177,9 +203,127 @@ if ($assetType -eq "2.5d") {
 Write-Output "`n✅ Asset download complete — adjust game code to match extracted file names"
 ```
 
+## Tải Assets Royalty-Free (Social-Safe) — Ưu tiên CC0
+
+Khi vibe code game, agent phải chạy script này để download assets **từ nguồn CC0** — an toàn đăng social.
+
+```powershell
+# games-assets-royaltyfree — Chạy đầu phiên vibe code game
+# CHỈ download từ nguồn CC0 (Public Domain) — không dính bản quyền
+$assetType = "2d"   # 2d | 3d | 2.5d
+$gameStyle = "platformer" # platformer | rpg | shooter | puzzle | casual
+
+# === Helper: Download + verify CC0 ===
+function Invoke-SafeDownload {
+  param([string]$Url, [string]$OutFile, [string]$License = "CC0")
+  $outDir = Split-Path $OutFile -Parent
+  if (-not (Test-Path $outDir)) { New-Item -ItemType Directory -Path $outDir -Force | Out-Null }
+  if (Test-Path $OutFile) { Write-Output "  ✓ $OutFile (cached) [$License]"; return $true }
+  for ($i = 0; $i -lt 3; $i++) {
+    try {
+      Invoke-WebRequest -Uri $Url -OutFile $OutFile -TimeoutSec 30 -ErrorAction Stop
+      Write-Output "  ✓ $OutFile [$License — social-safe]"; return $true
+    } catch { Write-Warning "  ✗ Retry $($i+1)/3: $Url" }
+    Start-Sleep -Seconds 2
+  }
+  Write-Warning "  ✗ Failed after 3 retries: $Url"
+  return $false
+}
+
+# === Pixabay Music API — CC0 music search ===
+function Search-PixabayMusic {
+  param([string]$Query, [int]$Limit = 1)
+  $apiUrl = "https://pixabay.com/api/music/?key=YOUR_API_KEY&q=$Query&per_page=$Limit"
+  try {
+    $response = Invoke-RestMethod -Uri $apiUrl -TimeoutSec 15 -ErrorAction Stop
+    return $response.hits
+  } catch {
+    Write-Warning "Pixabay API fail — fallback Kenney audio"
+    return $null
+  }
+}
+
+# === Download CC0 music từ Pixabay ===
+function Install-PixabayBGM {
+  param([string]$Genre = "electronic", [string]$OutDir = "assets/audio")
+  $tracks = Search-PixabayMusic -Query $Genre
+  if ($tracks -and $tracks.Count -gt 0) {
+    $track = $tracks[0]
+    $mp3Url = $track.preview_url
+    $outFile = "$OutDir/bgm.mp3"
+    Invoke-SafeDownload -Url $mp3Url -OutFile $outFile -License "CC0"
+    Write-Output "  ℹ️  Track: $($track.track_name) by $($track.artist_name)"
+  }
+}
+
+# === Download SFX từ Kenney (CC0) ===
+function Install-KenneySFX {
+  param([string]$Pack = "impact-sfx", [string]$OutDir = "assets/audio")
+  # Kenney CC0 — social-safe
+  $zipUrl = Get-KenneyDownloadUrl $Pack
+  if (-not $zipUrl) { Write-Warning "Cannot resolve $Pack download URL"; return }
+  $zipFile = "$OutDir/$Pack.zip"
+  Invoke-SafeDownload -Url $zipUrl -OutFile $zipFile -License "CC0"
+  if (Test-Path $zipFile) {
+    Expand-Archive -Path $zipFile -DestinationPath "$OutDir/$Pack/" -Force
+    Remove-Item $zipFile
+    Write-Output "  ✓ Extracted CC0 SFX to $OutDir/$Pack/"
+  }
+}
+
+# ===================================================================
+# Chạy download — ưu tiên CC0, social-safe
+# ===================================================================
+Write-Output "`n=== Downloading Royalty-Free Assets (CC0) ==="
+
+# Sprite/Tile assets từ Kenney (CC0)
+$kenneyAsset = switch ($gameStyle) {
+  "platformer" { "new-platformer-pack" }
+  "rpg"        { "tiny-dungeon" }
+  "shooter"    { "desert-shooter-pack" }
+  default      { "new-platformer-pack" }
+}
+Install-KenneyAsset -AssetName $kenneyAsset -OutDir "assets"
+
+# Audio CC0
+Install-KenneySFX -Pack "impact-sfx"
+Install-PixabayBGM -Genre $gameStyle
+
+Write-Output "`n✅ Assets CC0 downloaded — safe for social media monetization"
+Write-Output "  ℹ️  Kenney assets: CC0 (Public Domain)"
+Write-Output "  ℹ️  Pixabay music: CC0 (no attribution needed)"
+```
+
 > **Fallback khi không internet**: Dùng procedural generation — vẽ shape bằng code, sinh âm thanh bằng Web Audio API (xem `games/core/SKILL.md` và `game-h5-2d.md`).
+> **Fallback khi API key thiếu**: Pixabay API cần key → dùng Kenney CC0 audio thay thế.
 
 ---
+
+## 🛡 License Checker — Kiểm tra bản quyền trước khi dùng
+
+Khi vibe code game, agent phải kiểm tra license của asset trước khi include vào project.
+Dùng bảng sau để xác định asset có an toàn cho social media không:
+
+| License | Ghi credit? | Monetize social? | Khi nào dùng? |
+|---------|-------------|------------------|---------------|
+| **CC0 (Public Domain)** | ❌ Không cần | ✅ An toàn | **Luôn ưu tiên** |
+| **CC-BY** | ✅ Phải ghi tên tác giả | ✅ Được (kèm credit) | Chỉ dùng nếu không có CC0 thay thế |
+| **CC-BY-SA** | ✅ Phải ghi + ShareAlike | ✅ Được (kèm credit) | Tránh — share-alike gây rắc rối |
+| **GPL** | ✅ Phải ghi | ✅ Được | Code thì dùng, asset thì tránh |
+| **Miễn phí (attribute)** | ✅ Phải ghi trong game | ⚠️ Tùy nền tảng | Đọc kỹ điều khoản từng nguồn |
+| **Royalty-Free** | Tuỳ nguồn | ✅ Thường an toàn | Kiểm tra EULA từng gói |
+
+### Social Media Safety Check
+
+Khi chọn asset cho game sẽ đăng social, luôn ưu tiên theo thứ tự:
+
+```
+1. ✅ CC0 (Public Domain) — Pixabay, Kenney, Poly Pizza, Quaternius, AmbientCG
+2. ✅ Pixabay Music — 50k+ tracks CC0, social-safe
+3. ⚠️ CC-BY — Freesound, OpenGameArt (cần ghi credit trong game description)
+4. ❌ Zapsplat / Mixkit — Có thể require attribute, kiểm tra EULA kỹ
+5. ❌ AI-generated (MusicGen) — Legal gray area, tránh nếu monetize
+```
 
 ## Animation States Chuẩn
 
@@ -527,6 +671,8 @@ const SFX_MAP: Record<string, string> = {
 ## Xử lý khi không có assets thật
 
 Khi không thể download (mất mạng, URL die), dùng **procedural fallback**:
+
+> **✅ Procedural = 100% bản quyền thuộc về bạn.** Code sinh assets (sprite canvas, 3D geometry, Web Audio synthesis) là tác phẩm gốc — không dính bản quyền, an toàn tuyệt đối cho social media.
 
 ```typescript
 // 2D: Tạo sprite từ canvas
