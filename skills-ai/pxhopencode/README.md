@@ -130,17 +130,21 @@ cp -r ../pxhopencode .opencode
 
 ## Cách dùng
 
-**Cách 1 — Prompt trực tiếp (khuyên dùng):** Gõ tiếng Việt thoải mái. `pxh-pm` tự động gọi `pxh-prompt-optimizer` dịch sang Anh → hiển thị bản dịch → optimize → plan → execute → giải thích kết quả bằng tiếng Việt.
+**Cách 1 — Prompt trực tiếp (khuyên dùng):** Gõ tiếng Việt thoải mái. Hệ thống tự động hoàn toàn không cần chọn workflow thủ công.
 
 ```
 Bạn: "Làm web bán hàng React Stripe"
   → 🇬🇧 Build e-commerce React + Stripe (kiểm tra bản dịch)
-  → Optimize → Plan → Architect → Code → Test → Build
+  → Planner auto-detect domain=web, effort=medium
+  → Tự động scale pipeline: Architect → Code → Review → Test → Build
   → ✅ Giải thích bằng tiếng Việt
+
+Bạn: "Thêm nút dark mode"
+  → Small task → skip Architect, Code → Build luôn
 ```
 
 **Cách 2 — Lệnh workflow (gõ `/` trong TUI):**
-- `/optimize` — **MỚI:** Prompt Optimization pipeline đầy đủ
+- `/optimize` — **MỚI:** Auto pipeline: translate → detect → scale → execute → giải thích VN
 - `/vibe` — Full AI Company
 - `/web`, `/game`, `/ai` — Theo lĩnh vực
 - `/debug` — Sửa lỗi

@@ -89,29 +89,25 @@ Tầng 4 (Hạ tầng)      pxh-save-history   → Tầng 2 (trạng thái/phụ
     └── tools-*/           # CLI, Automation, Codegen, Extensions, Packaging
 ```
 
-## 📋 Luồng thực thi đầy đủ
+## 📋 Luồng thực thi đầy đủ (tự động hoàn toàn)
 
 ```
 Người dùng nhập prompt (có thể tiếng Việt)
   │
   ▼ [Tầng 1+ — Prompt Optimization]
   pxh-prompt-optimizer: translate → rewrite → gap analysis → bổ sung requirement
-  │ Prompt đã optimize
-  ▼ [Tầng 2 — Planning]
-  pxh-planner: break thành tasks → tạo Task contracts
-  │ Plan + Tasks
+  │ Hiển thị 🇬🇧 English translation cho user kiểm tra
+  ▼ [Tầng 2 — Auto Planning]
+  pxh-planner: auto-detect domain + workflow + effort
+  │ Scale pipeline: Small (Expert→Build) / Medium (Arch→Code→Review→Test→Build) / Large (+Meeting)
   ▼ [Tầng 2 — Điều phối]
-  pxh-pm: xác thực plan → route tasks
-  │ Việc {giai_đoạn: "thiết_kế|code|sửa_lỗi|kiểm_thử|rà_soát|xây_dựng"}
+  pxh-pm: đọc tasks[] từ plan → route tuần tự → enforce policy
+  │ Việc {theo plan}
   ▼ [Tầng 3 — Nhân công]
-  8 nhân công thực thi công việc → trả về Result contract
-  │ Kết quả + Sự kiện{phản_ánh}
+  8 nhân công thực thi → trả về Result
+  │ Kết quả
   ▼ [Tầng 4 — Hạ tầng]
-  pxh-save-history: lưu trạng thái, ghi log, checkpoint
-  │ Trạng thái (khi phục hồi) / Xác nhận
-  ▼ [Tầng 2 — Điều phối]
-  pxh-pm: đánh giá → giai đoạn tiếp theo hay hoàn tất?
-  │ Phản hồi
+  pxh-save-history: lưu trạng thái, checkpoint
   ▼ [Tầng 1 — Giao diện]
   Giải thích kết quả bằng tiếng Việt → người dùng
 ```
