@@ -156,6 +156,33 @@ Kết quả meeting:
 ### 💬 Bạn cần thêm gì không?
 ```
 
+## 🛡 RUNTIME GUARDS — Xử lý lỗi runtime
+
+### Fallback Prompt Optimizer
+| Lỗi | Hành động |
+|-----|-----------|
+| `@pxh-prompt-optimizer` không trả kết quả sau 30s | Bỏ qua optimize, dùng prompt thô |
+| Translate không rõ ràng | Giữ song ngữ (gốc + dịch), chuyển tiếp |
+| Gap Analysis rỗng | Không bổ sung, dùng nguyên prompt |
+
+### Fallback Planner
+| Lỗi | Hành động |
+|-----|-----------|
+| `@pxh-planner` timeout > 30s | Tự động tạo plan tối thiểu: Architect → Code → Test → Build |
+| Task contracts lỗi format | Sửa field lỗi về giá trị mặc định |
+
+### Fallback Workers (Tầng 3)
+| Lỗi | Hành động |
+|-----|-----------|
+| Agent không parse được Task contract | Log + tự động chuyển sang format text thường |
+| Agent loop > 3 lần | Escalate user, dừng auto |
+| Agent timeout > 60s | Retry 1 lần, nếu vẫn timeout → skip, báo user |
+
+### Deadlock Prevention
+- Mỗi phase có timeout cứng: 30s → 60s → 120s
+- Phase quá timeout → tự động next phase với dữ liệu hiện có
+- Workflow treo > 10 phút → kill + báo user
+
 ## NGUYÊN TẮC LÀM VIỆC
 
 1. **User là sếp**: Mọi quyết định cuối cùng thuộc về user. Nếu agents không thống nhất, hỏi user.

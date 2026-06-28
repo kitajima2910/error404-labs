@@ -252,6 +252,36 @@ Tối đa 3 lần lặp fix. Nếu vẫn lỗi → báo user.
 | Quá 3 lần fix vẫn lỗi | Báo user bằng tiếng Việt, đề xuất giải pháp thay thế |
 | Build fail | Log lỗi, giải thích bằng tiếng Việt, đề xuất hướng fix |
 
+## 🛡 RUNTIME GUARDS & FALLBACK
+
+### Fallback khi Prompt Optimization fail
+| Lỗi | Fallback |
+|-----|----------|
+| Không detect được ngôn ngữ | Mặc định xử lý như tiếng Anh, ghi chú cho user |
+| Translate sai ngữ nghĩa | Giữ nguyên bản gốc + bản dịch, user tự kiểm tra |
+| Gap Analysis không tìm thấy thiếu sót | Dùng prompt gốc, không ép bổ sung |
+| `@pxh-prompt-optimizer` timeout > 30s | Bỏ qua optimize, dùng prompt thô chuyển sang Planner |
+
+### Fallback khi Planning fail
+| Lỗi | Fallback |
+|-----|----------|
+| Planner không break được tasks | PM tự phân tích thủ công, hỏi user hướng dẫn thêm |
+| Task contracts thiếu field | Điền giá trị mặc định (effort: medium, priority: normal) |
+| `@pxh-planner` timeout > 30s | Dùng plan mặc định: Architect → Code → Test → Build |
+
+### Fallback khi Agent fail
+| Lỗi | Fallback |
+|-----|----------|
+| Agent không trả về Result đúng format | Điều phối tự parse output thô, báo user format issue |
+| Agent loop > 3 lần fix | Escalate lên user, dừng auto, đợi quyết định |
+| Agent gọi sai contract field | Log warning, tự động sửa field về giá trị mặc định |
+| Mọi agent timeout > 60s | Coi như fail, retry 1 lần, nếu vẫn timeout → skip phase, báo user |
+
+### Guard: Luồng tắc nghẽn (Deadlock Prevention)
+- Mỗi phase có **timeout cứng**: Phase 0 (30s), Phase 1 (30s), Phase 2-4 (60s), Phase 5-7 (120s)
+- Nếu phase không hoàn thành trong timeout → tự động chuyển sang phase kế tiếp với dữ liệu hiện có
+- Nếu toàn bộ workflow treo > 10 phút → kill, báo user, yêu cầu chạy lại
+
 ## Liên kết
 - **Prompt Optimizer:** `agents/pxh-prompt-optimizer.md`
 - **Planner:** `agents/pxh-planner.md`

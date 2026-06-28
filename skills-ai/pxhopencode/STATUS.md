@@ -26,9 +26,9 @@ Tầng 4 (Hạ tầng)      pxh-save-history   → Tầng 2 (trạng thái/phụ
 
 | Thành phần | Agents | Runtime | Workflows | Skills | Contracts | Policies | Cấu hình |
 |-----------|--------|---------|-----------|--------|-----------|----------|---------|
-| **agents/** (9 files) | — | ✅ Thẻ layer + tham chiếu | ✅ Liên kết giai đoạn | ✅ Tham chiếu skill | ✅ Tham chiếu contract | ✅ Tham chiếu policy | ✅ opencode.json |
+| **agents/** (11 files) | — | ✅ Thẻ layer + tham chiếu | ✅ Liên kết giai đoạn | ✅ Tham chiếu skill | ✅ Tham chiếu contract | ✅ Tham chiếu policy | ✅ opencode.json |
 | **runtime/** (9 files) | ✅ Agents chủ quản | — | ✅ Luồng thực thi | — | ✅ Sơ đồ đầy đủ | ✅ Tham chiếu thi hành | ✅ instructions |
-| **workflows/** (7 files) | ✅ Tham chiếu agent | ✅ Luồng layer | — | ✅ Tham chiếu skill | ✅ Tham chiếu contract | ✅ Tham chiếu policy | ✅ Lệnh |
+| **workflows/** (8 files) | ✅ Tham chiếu agent | ✅ Luồng layer | — | ✅ Tham chiếu skill | ✅ Tham chiếu contract | ✅ Tham chiếu policy | ✅ Lệnh |
 | **skills/** (4 lĩnh vực) | ✅ Agent sử dụng | ✅ Ngữ cảnh layer | ✅ Được gọi bởi | — | ✅ Tham chiếu contract | — | ✅ skills.paths |
 | **contracts/** (1 file) | ✅ Người gửi/nhận | ✅ Hướng layer | ✅ Luồng theo giai đoạn | — | — | ✅ Tương tác policy | — |
 | **policies/** (3 files) | ✅ Agent bị ảnh hưởng | ✅ Tầng thi hành | — | — | ✅ Tham chiếu contract | — | — |
@@ -42,6 +42,7 @@ Tầng 4 (Hạ tầng)      pxh-save-history   → Tầng 2 (trạng thái/phụ
 ├── opencode.json          # TRUNG TÂM — agents, lệnh, đường dẫn skills, instructions
 ├── STATUS.md              # BẢNG ĐIỀU KHIỂN — trạng thái dự án theo thời gian thực
 ├── README.md              # Tổng quan
+├── ENTERPRISE.md          # Hướng dẫn doanh nghiệp
 ├── .gitignore             # Luật bỏ qua
 │
 ├── agents/                # 11 agents, mỗi agent có thẻ runtime layer
@@ -128,4 +129,6 @@ Người dùng nhập prompt (có thể tiếng Việt)
 - [x] Đường dẫn tương đối — không còn `pxhopencode/` cứng
 - [x] Đường dẫn skills dự phòng: `["skills", ".opencode/skills"]`
 - [x] MCP Playwright: `@playwright/mcp@latest`
+- [x] ENTERPRISE.md hướng dẫn triển khai doanh nghiệp
+- [x] Runtime guards cho mọi fallback scenario (Prompt Optimizer, Planner, Workers, Deadlock)
 - [x] README hướng dẫn copy vào `.opencode/`
