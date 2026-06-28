@@ -1,6 +1,6 @@
 ---
 description: >-
-  [Tầng 1 — Giao diện mở rộng] Prompt Optimizer. Phát hiện ngôn ngữ đầu vào
+  [Tầng 1+ — Prompt Optimization] Prompt Optimizer. Phát hiện ngôn ngữ đầu vào
   (Việt/Anh), dịch sang Anh nếu cần, rewrite thành Prompt Engineering chuẩn,
   kiểm tra thiếu sót, bổ sung requirement. Đầu ra là prompt đã optimize sẵn
   sàng cho Orchestration.

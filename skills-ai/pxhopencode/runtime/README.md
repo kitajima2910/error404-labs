@@ -1,4 +1,4 @@
-# Enterprise AI Runtime — Kiến trúc 4 Tầng
+# Enterprise AI Runtime — Kiến trúc 4+ Tầng
 
 Kiến trúc điều phối phân tầng, lấy cảm hứng từ Microsoft Agent Mode. Tách biệt điều phối khỏi thực thi, mỗi tầng một trách nhiệm duy nhất, giao tiếp qua contract cấu trúc.
 
@@ -8,8 +8,8 @@ Kiến trúc điều phối phân tầng, lấy cảm hứng từ Microsoft Agen
 runtime/
 ├── README.md                 # File này — tổng quan + cấu trúc thư mục
 ├── layers/
-│   ├── 01-interface.md       # Tầng 1: Đầu vào, xác thực, trình bày
-│   ├── 02-orchestration.md   # Tầng 2: Điều khiển luồng, routing, theo dõi trạng thái
+│   ├── 01-interface.md       # Tầng 1: Đầu vào, xác thực, Prompt Optimization, trình bày
+│   ├── 02-orchestration.md   # Tầng 2: Điều khiển luồng, routing, planning, theo dõi trạng thái
 │   ├── 03-worker.md          # Tầng 3: Thực thi (thiết kế, code, test, build)
 │   └── 04-infrastructure.md  # Tầng 4: Lưu trữ, ghi log, giám sát
 ├── contracts/
@@ -24,8 +24,9 @@ runtime/
 
 | Tầng | Tên | Trách nhiệm | Agent chủ quản |
 |------|-----|-------------|----------------|
-| 1 | Giao diện | Nhận và xác thực đầu vào, định dạng đầu ra cho user | `pxh-help`, user prompt |
-| 2 | Điều phối | Route tasks, quản lý luồng thực thi, theo dõi trạng thái, thi hành chính sách | `pxh-pm` |
+| 1+ | Prompt Optimization | Phát hiện ngôn ngữ (Việt/Anh), dịch sang Anh, rewrite Prompt Engineering, Gap Analysis, bổ sung requirement | `pxh-prompt-optimizer` |
+| 1 | Giao diện | Nhận và xác thực đầu vào, định dạng đầu ra cho user (luôn bằng tiếng Việt) | `pxh-help`, user prompt |
+| 2 | Điều phối | Route tasks, planning, quản lý luồng thực thi, theo dõi trạng thái, thi hành chính sách | `pxh-pm`, `pxh-planner` |
 | 3 | Nhân công | Thực thi công việc domain (lên kế hoạch, code, fix, test, review, build) | `pxh-architect`, `pxh-expert`, `pxh-fix-bugs`, `pxh-qa`, `pxh-review-code`, `pxh-devops` |
 | 4 | Hạ tầng | Lưu trạng thái, ghi quyết định, lưu trữ artifact | `pxh-save-history` |
 
@@ -39,58 +40,69 @@ runtime/
 ## Thứ tự thực thi
 
 ```
-User Prompt
+User Prompt (có thể tiếng Việt)
     │
     ▼
-┌─────────────────────────────┐
-│  Tầng 1: GIAO DIỆN           │  Xác thực đầu vào, tạo Request contract
-│  pxh-help / user prompt      │
-└──────────┬──────────────────┘
+┌─────────────────────────────────────┐
+│  Tầng 1+: PROMPT OPTIMIZATION        │  Translate + Rewrite + Gap Analysis
+│  pxh-prompt-optimizer                │  Hiển thị bản dịch tiếng Anh cho user
+└──────────┬──────────────────────────┘
+           │ Optimized Prompt
+           ▼
+┌─────────────────────────────────────┐
+│  Tầng 1: GIAO DIỆN                   │  Xác thực đầu vào, tạo Request contract
+│  pxh-help / user prompt              │
+└──────────┬──────────────────────────┘
            │ Request
            ▼
-┌─────────────────────────────┐
-│  Tầng 2: ĐIỀU PHỐI           │  Phân tích, lên kế hoạch, route đến workers
-│  pxh-pm                      │  Theo dõi trạng thái, thi hành chính sách
-└──────────┬──────────────────┘
+┌─────────────────────────────────────┐
+│  Tầng 2: ĐIỀU PHỐI                   │  Phân tích, lên kế hoạch, route đến workers
+│  pxh-planner → pxh-pm                │  Theo dõi trạng thái, thi hành chính sách
+└──────────┬──────────────────────────┘
            │ Task
            ▼
-┌─────────────────────────────┐
-│  Tầng 3: NHÂN CÔNG           │  Thực thi (design → code → test → review → build)
-│  architect / expert / qa     │
-│  fix-bugs / review / devops  │
-└──────────┬──────────────────┘
+┌─────────────────────────────────────┐
+│  Tầng 3: NHÂN CÔNG                   │  Thực thi (design → code → test → review → build)
+│  architect / expert / qa             │
+│  fix-bugs / review / devops          │
+└──────────┬──────────────────────────┘
            │ Result + Artifacts
            ▼
-┌─────────────────────────────┐
-│  Tầng 4: HẠ TẦNG             │  Lưu kết quả, ghi quyết định
-│  pxh-save-history            │  Cập nhật .opencode/STATUS.md
-└──────────┬──────────────────┘
+┌─────────────────────────────────────┐
+│  Tầng 4: HẠ TẦNG                     │  Lưu kết quả, ghi quyết định
+│  pxh-save-history                    │  Cập nhật .opencode/STATUS.md
+└──────────┬──────────────────────────┘
            │ Confirmed
            ▼
-┌─────────────────────────────┐
-│  Tầng 2: ĐIỀU PHỐI           │  Đánh giá bước tiếp theo (xong? thử lại? task mới?)
-│  pxh-pm                      │
-└──────────┬──────────────────┘
+┌─────────────────────────────────────┐
+│  Tầng 2: ĐIỀU PHỐI                   │  Đánh giá bước tiếp theo (xong? thử lại? task mới?)
+│  pxh-pm                              │
+└──────────┬──────────────────────────┘
            │ Response
            ▼
-┌─────────────────────────────┐
-│  Tầng 1: GIAO DIỆN           │  Định dạng và trình bày cho user
-└─────────────────────────────┘
+┌─────────────────────────────────────┐
+│  Tầng 1: GIAO DIỆN                   │  Giải thích kết quả bằng tiếng Việt
+└─────────────────────────────────────┘
 ```
 
 ## Trách nhiệm Agent
+
+### Tầng 1+ — Prompt Optimization (pxh-prompt-optimizer)
+- Phát hiện ngôn ngữ đầu vào (Việt/Anh)
+- Dịch tiếng Việt → tiếng Anh chính xác, giữ nguyên ý định
+- Rewrite thành Prompt Engineering chuẩn (Role, Context, Task, Requirements, Constraints, Output Format)
+- Gap Analysis: kiểm tra thiếu TARGET, tech stack, ràng buộc, audience
+- Bổ sung requirement suy luận từ ngữ cảnh
+- Hiển thị bản dịch tiếng Anh cho user kiểm tra trước khi execute
+- Không bao giờ thực thi code hay thay đổi file
 
 ### Tầng 1 — Giao diện
 - **User / System Prompt**: Cung cấp đầu vào thô, chỉ định phạm vi TARGET
 - **pxh-help**: Hướng dẫn user chọn workflow, chuyển ý định thành request cấu trúc
 
-### Tầng 2 — Điều phối (pxh-pm)
-- Nhận Request từ Giao diện, xác thực tính đầy đủ
-- Route task đến Worker agents phù hợp
-- Theo dõi trạng thái thực thi (phase hiện tại, trạng thái, blocker)
-- Thi hành chính sách thử lại/phục hồi/phản ánh
-- Quyết định hành động tiếp theo: tiếp tục / thử lại / leo thang / kết thúc
-- Không bao giờ thực thi công việc domain
+### Tầng 2 — Điều phối
+- **pxh-planner**: Nhận prompt đã optimize, phân tích, break thành tasks nhỏ, tạo Task contracts, sắp xếp thứ tự ưu tiên
+- **pxh-pm**: Nhận Request từ Giao diện, xác thực tính đầy đủ, route task đến Worker agents, theo dõi trạng thái, thi hành chính sách thử lại/phục hồi/phản ánh, quyết định hành động tiếp theo. Không bao giờ thực thi công việc domain.
 
 ### Tầng 3 — Nhân công
 - **pxh-architect (Người thiết kế)**: Thiết kế kiến trúc, tech stack, schema, API
@@ -129,6 +141,7 @@ Tất cả chính sách được định nghĩa chi tiết tại `runtime/polici
 | Thử lại | Chỉ lỗi tạm thời (timeout, rate limit) | Tầng 2 — Điều phối | `policies/retry.md` |
 | Phục hồi | Lỗi mọi tầng, dựa trên checkpoint | Tầng 2 — Điều phối | `policies/recovery.md` |
 | Phản ánh | Sau task, sau phase, sau workflow, sự cố | Mọi tầng → Tầng 4 lưu | `policies/reflection.md` |
+| Runtime Guards | Fallback timeout (30s-120s), deadlock prevention | Tầng 2 — Điều phối | `workflows/optimized.workflow.md` |
 
 **Thi hành chính sách:**
 - Tầng 2 (Điều phối) là người thi hành duy nhất — quyết định thử lại, đường phục hồi, và khi nào phản ánh.
@@ -140,24 +153,27 @@ Tất cả chính sách được định nghĩa chi tiết tại `runtime/polici
 ### Điều kiện từng tầng
 | Tầng | Tiêu chí |
 |------|----------|
+| 1+ Prompt Optimization | Có thể phát hiện ngôn ngữ, dịch Việt→Anh, rewrite Prompt Engineering, Gap Analysis |
 | 1 Giao diện | Có thể nhận `Request`, xác thực, chuyển tiếp đến Điều phối |
-| 2 Điều phối | Có thể route tasks, thi hành chính sách, theo dõi trạng thái, quyết định bước tiếp |
+| 2 Điều phối | Có thể plan tasks, route tasks, thi hành chính sách, theo dõi trạng thái, quyết định bước tiếp |
 | 3 Nhân công | Mỗi agent có thể nhận `Task`, thực thi, trả về `Result` |
 | 4 Hạ tầng | Có thể lưu sự kiện, trạng thái, phản ánh; cung cấp trạng thái cho phục hồi |
 
 ### Điều kiện tích hợp
-- [ ] Cả 4 tầng hoạt động và kết nối qua contracts
+- [ ] Cả 5 tầng (1+ → 4) hoạt động và kết nối qua contracts
 - [ ] Contracts được định nghĩa, phiên bản hóa, và xác thực tại biên giới tầng
-- [ ] Điều phối route đến mọi Worker agent
+- [ ] Điều phối route đến mọi Worker agent (gồm Prompt Optimizer và Planner)
 - [ ] Chính sách thử lại được thi hành (lỗi tạm thời thử lại, lỗi vĩnh viễn leo thang)
+- [ ] Runtime Guards hoạt động (fallback timeout, deadlock prevention)
 - [ ] Luồng phục hồi hoạt động (checkpoint → phát hiện → phục hồi)
 - [ ] Phản ánh sinh output ở cả 4 mức kích hoạt
 - [ ] .opencode/STATUS.md được cập nhật tại mọi chuyển tiếp tầng
 - [ ] Thêm Worker agent mới không cần thay đổi tầng khác (chỉ cập nhật bảng routing Điều phối)
 
 ### Điều kiện Runtime
-- [ ] Workflow company đầy đủ thực thi qua cả 4 tầng
+- [ ] Workflow optimized/company đầy đủ thực thi qua cả 5 tầng
 - [ ] Mỗi tầng giao tiếp CHỈ qua contracts
 - [ ] Lỗi ở bất kỳ tầng nào không làm sập tầng khác
 - [ ] Thử lại cạn kiệt được leo thang đúng đến user
 - [ ] Workflow hoàn tất với mọi artifact được lưu và phản ánh
+- [ ] Prompt tiếng Việt được dịch đúng, hiển thị cho user kiểm tra

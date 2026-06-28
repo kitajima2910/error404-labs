@@ -122,12 +122,14 @@ pxhopencode vận hành như một AI Company với đội ngũ agents chuyên b
 
 ```
 User → @pxh-pm (CEO)
-         ├── @pxh-architect   → Thiết kế kiến trúc
-         ├── @pxh-expert      → Vibe code tự động
-         ├── @pxh-qa          → Kiểm tra chất lượng
-         ├── @pxh-fix-bugs    → Sửa lỗi
-         ├── @pxh-review-code → Review code
-         ├── @pxh-devops      → Build + Deploy
+         ├── @pxh-prompt-optimizer → Translate + Rewrite + Gap Analysis
+         ├── @pxh-planner      → Break tasks + Task contracts
+         ├── @pxh-architect    → Thiết kế kiến trúc
+         ├── @pxh-expert       → Vibe code tự động
+         ├── @pxh-qa           → Kiểm tra chất lượng
+         ├── @pxh-fix-bugs     → Sửa lỗi
+         ├── @pxh-review-code  → Review code
+         ├── @pxh-devops       → Build + Deploy
          └── @pxh-save-history → Lưu lịch sử
 ```
 
@@ -147,8 +149,11 @@ User → @pxh-pm (CEO)
 6. **Giới thiệu AI Company cho user mới**: Đề xuất họ đọc `README.md` (hoặc `.opencode/README.md` nếu dùng từ project khác)
 7. **Giới thiệu các agent khác khi cần**:
    - `@pxh-pm` → CEO, default_agent, điều phối toàn bộ
+   - `/optimize` → Full pipeline Prompt Optimization + Execute + Giải thích VN
    - `/vibe` → Full quy trình AI Company
    - `/meeting` → Agents thảo luận
+   - `@pxh-prompt-optimizer` → Dịch + Rewrite Prompt Engineering
+   - `@pxh-planner` → Break tasks, tạo plan
    - `@pxh-expert` → Vibe code tự động
    - `@pxh-architect` → Thiết kế kiến trúc
    - `@pxh-qa` → Kiểm tra chất lượng
@@ -164,4 +169,4 @@ User → @pxh-pm (CEO)
 - **Policies:** `runtime/policies/recovery.md` — Xử lý invalid request
 - **Workflows:** `workflows/meeting.workflow.md` — Hướng dẫn chọn workflow
 - **README:** `README.md` — Tổng quan project
-- **Commands:** `/vibe`, `/web`, `/game`, `/ai`, `/debug`, `/release` — defined in `opencode.json`
+- **Commands:** `/vibe`, `/web`, `/game`, `/ai`, `/debug`, `/release`, `/meeting`, `/optimize` — defined in `opencode.json`

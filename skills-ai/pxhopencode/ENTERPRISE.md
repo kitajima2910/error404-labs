@@ -14,21 +14,33 @@ cp -r pxhopencode .opencode
 
 ```
 User (Vietnamese)
-  → pxh-prompt-optimizer (translate + rewrite + gap analysis)
-  → pxh-planner (break into tasks)
-  → pxh-architect → pxh-expert → pxh-review-code → pxh-qa
+  │
+  ▼ [Tầng 1+ — Prompt Optimization]
+  pxh-prompt-optimizer
+  • Phát hiện tiếng Việt → dịch sang Anh
+  • Hiển thị 🇬🇧 English translation cho user kiểm tra
+  • Rewrite thành Prompt Engineering chuẩn
+  • Gap Analysis → Bổ sung requirement
+  │
+  ▼ [Tầng 2 — Planning]
+  pxh-planner: break thành tasks, tạo Task contracts
+  │
+  ▼ [Tầng 3 — Execute]
+  pxh-architect → pxh-expert → pxh-review-code → pxh-qa
   → pxh-fix-bugs (if needed) → pxh-devops
-  → Giải thích kết quả bằng tiếng Việt
+  │
+  ▼ [Tầng 1 — Output]
+  Giải thích kết quả bằng tiếng Việt
 ```
 
 ## 11 Agents Overview
 
 | Agent | Layer | Role | Gọi bằng |
 |-------|-------|------|----------|
-| `pxh-prompt-optimizer` | Tầng 1+ | Translate + Rewrite Prompt Engineering | tự động |
+| `pxh-prompt-optimizer` | Tầng 1+ | Translate + Rewrite Prompt Engineering + Gap Analysis | tự động |
 | `pxh-help` | Tầng 1 | Hướng dẫn, chọn workflow | `@pxh-help` |
-| `pxh-planner` | Tầng 2 | Break tasks, tạo plan | tự động |
 | `pxh-pm` | Tầng 2 | CEO, điều phối toàn bộ | `default_agent` |
+| `pxh-planner` | Tầng 2 | Break tasks, tạo Task contracts | tự động |
 | `pxh-architect` | Tầng 3 | Thiết kế kiến trúc | `@pxh-architect` |
 | `pxh-expert` | Tầng 3 | Vibe code tự động | `@pxh-expert` |
 | `pxh-qa` | Tầng 3 | Kiểm thử | `@pxh-qa` |
@@ -50,14 +62,21 @@ User (Vietnamese)
 | `/meeting <chủ đề>` | Agents thảo luận |
 | `/release` | Build pipeline |
 
-## Prompt Optimization (Tính năng mới)
+## Prompt Optimization (Tính năng chính)
 
 ### Input: Tiếng Việt → Output: Prompt Engineering chuẩn
 
 ```markdown
 User: "Làm web bán hàng có giỏ hàng thanh toán Stripe"
 
-→ pxh-prompt-optimizer dịch + rewrite:
+→ pxh-prompt-optimizer phát hiện tiếng Việt → dịch:
+
+🇬🇧 English translation:
+Build an e-commerce website with shopping cart and Stripe payment
+
+(Nếu user OK hoặc không phản hồi → tiếp tục)
+
+→ Rewrite thành Prompt Engineering:
 
 ## Role
 You are a senior full-stack developer specializing in e-commerce.
@@ -66,7 +85,8 @@ You are a senior full-stack developer specializing in e-commerce.
 Building an e-commerce web app with React frontend and Node.js backend.
 
 ## Task
-Build a complete e-commerce platform with product listing, shopping cart, and Stripe payment integration.
+Build a complete e-commerce platform with product listing, shopping cart,
+and Stripe payment integration.
 
 ## Requirements
 - Product CRUD with images and categories
@@ -100,6 +120,8 @@ Mọi code phải qua 3 gates trước khi build:
 | Scenario | Fallback |
 |----------|----------|
 | Translate fail | Dùng prompt gốc, báo user |
+| Prompt Optimizer timeout > 30s | Bỏ qua optimize, dùng prompt thô |
+| Planner timeout > 30s | Dùng plan mặc định: Architect → Code → Test → Build |
 | Agent timeout > 60s | Retry 1 lần, skip nếu vẫn timeout |
 | Fix loop > 3 lần | Escalate user |
 | Workflow treo > 10 phút | Kill + báo user chạy lại |
@@ -109,6 +131,7 @@ Mọi code phải qua 3 gates trước khi build:
 - **Retry**: Exponential backoff 1s→2s→4s, max 3, jitter ±25%
 - **Recovery**: Checkpoint trước mỗi phase transition
 - **Reflection**: 4 levels (Task, Phase, Workflow, Incident)
+- **Runtime Guards**: Fallback timeout mỗi phase (30s-120s), deadlock prevention
 
 ## File Structure
 
@@ -119,15 +142,28 @@ Mọi code phải qua 3 gates trước khi build:
 ├── README.md             # Tổng quan
 ├── STATUS.md             # Dashboard real-time
 ├── agents/               # 11 agents
-│   ├── pxh-prompt-optimizer.md  [MỚI]
-│   ├── pxh-pm.md
-│   ├── pxh-help.md
-│   ├── pxh-planner.md          [MỚI]
-│   └── ...
+│   ├── pxh-prompt-optimizer.md  [Tầng 1+ — Prompt Optimization]
+│   ├── pxh-pm.md              [Tầng 2 — Điều phối]
+│   ├── pxh-help.md            [Tầng 1 — Giao diện]
+│   ├── pxh-planner.md         [Tầng 2 — Planning]
+│   ├── pxh-architect.md       [Tầng 3 — Kiến trúc sư]
+│   ├── pxh-expert.md          [Tầng 3 — Lập trình]
+│   ├── pxh-fix-bugs.md        [Tầng 3 — Sửa lỗi]
+│   ├── pxh-qa.md              [Tầng 3 — Kiểm thử]
+│   ├── pxh-review-code.md     [Tầng 3 — Rà soát]
+│   ├── pxh-devops.md          [Tầng 3 — Xây dựng]
+│   └── pxh-save-history.md    [Tầng 4 — Hạ tầng]
 ├── workflows/            # 8 workflows
-│   ├── optimized.workflow.md   [MỚI]
-│   └── ...
-├── runtime/              # 4 tầng runtime
+│   ├── optimized.workflow.md   [Prompt Optimization pipeline]
+│   ├── company.workflow.md     [AI Company master]
+│   ├── meeting.workflow.md
+│   ├── web.workflow.md
+│   ├── game.workflow.md
+│   ├── ai.workflow.md
+│   ├── debug.workflow.md
+│   └── release.workflow.md
+├── runtime/              # 4+ tầng runtime
+│   ├── README.md
 │   ├── layers/
 │   ├── contracts/
 │   └── policies/
