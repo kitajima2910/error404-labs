@@ -6,8 +6,8 @@
 |--------|---------|
 | Giai đoạn | PHÁT HÀNH ✅ SẴN SÀNG COPY VÀO .opencode/ |
 | Mô hình | AI Company — 4-Tầng Enterprise AI Runtime |
-| Agents | 9 chuyên biệt (Tầng 1-4) |
-| Workflows | 7 theo lĩnh vực |
+| Agents | 11 chuyên biệt (Tầng 1-4, gồm Prompt Optimizer & Planner) |
+| Workflows | 8 theo lĩnh vực |
 | Skills | 4 lĩnh vực (web, game, AI, công cụ) |
 | Contracts | 6 cấu trúc (Yêu cầu, Việc, Kết quả, Phản hồi, Sự kiện, Trạng thái) |
 | Policies | 3 (Thử lại, Phục hồi, Phản ánh) |
@@ -15,9 +15,10 @@
 ## 🏛 Kiến trúc 4 Tầng Runtime
 
 ```
+Tầng 1+ (Prompt Opt.) pxh-prompt-optimizer → Tầng 1 (Giao diện)
 Tầng 1 (Giao diện)    pxh-help           ←/→ Tầng 2 (Điều phối)
-Tầng 2 (Điều phối)    pxh-pm             ←/→ Tầng 3 (Nhân công)
-Tầng 3 (Nhân công)    6 agents           → Tầng 4 (Hạ tầng)
+Tầng 2 (Điều phối)    pxh-pm + pxh-planner ←/→ Tầng 3 (Nhân công)
+Tầng 3 (Nhân công)    8 agents           → Tầng 4 (Hạ tầng)
 Tầng 4 (Hạ tầng)      pxh-save-history   → Tầng 2 (trạng thái/phục hồi)
 ```
 
@@ -43,9 +44,11 @@ Tầng 4 (Hạ tầng)      pxh-save-history   → Tầng 2 (trạng thái/phụ
 ├── README.md              # Tổng quan
 ├── .gitignore             # Luật bỏ qua
 │
-├── agents/                # 9 agents, mỗi agent có thẻ runtime layer
+├── agents/                # 11 agents, mỗi agent có thẻ runtime layer
+│   ├── pxh-prompt-optimizer.md [Tầng 1+ — Prompt Optimization]
 │   ├── pxh-pm.md          [Tầng 2 — Điều phối]
 │   ├── pxh-help.md        [Tầng 1 — Giao diện]
+│   ├── pxh-planner.md     [Tầng 2 — Điều phối / Planning]
 │   ├── pxh-architect.md   [Tầng 3 — Nhân công / Kiến trúc sư]
 │   ├── pxh-expert.md      [Tầng 3 — Nhân công / Lập trình]
 │   ├── pxh-fix-bugs.md    [Tầng 3 — Nhân công / Sửa lỗi]
@@ -68,7 +71,8 @@ Tầng 4 (Hạ tầng)      pxh-save-history   → Tầng 2 (trạng thái/phụ
 │       ├── recovery.md    # Phục hồi: checkpoint-based, theo layer
 │       └── reflection.md  # Phản ánh: 4 mức độ kích hoạt
 │
-├── workflows/             # 7 workflow templates
+├── workflows/             # 8 workflow templates
+│   ├── optimized.workflow.md # Prompt Optimization → Planning → Execute → Giải thích VN
 │   ├── company.workflow.md # Master — 11 bước với chú thích layer
 │   ├── meeting.workflow.md # Agents thảo luận và quyết định
 │   ├── web.workflow.md    # Phát triển web app
@@ -87,16 +91,19 @@ Tầng 4 (Hạ tầng)      pxh-save-history   → Tầng 2 (trạng thái/phụ
 ## 📋 Luồng thực thi đầy đủ
 
 ```
-Người dùng nhập prompt
+Người dùng nhập prompt (có thể tiếng Việt)
   │
-  ▼ [Tầng 1 — Giao diện]
-  pxh-help / user: xác thực đầu vào → tạo Request contract
-  │ Yêu cầu
+  ▼ [Tầng 1+ — Prompt Optimization]
+  pxh-prompt-optimizer: translate → rewrite → gap analysis → bổ sung requirement
+  │ Prompt đã optimize
+  ▼ [Tầng 2 — Planning]
+  pxh-planner: break thành tasks → tạo Task contracts
+  │ Plan + Tasks
   ▼ [Tầng 2 — Điều phối]
-  pxh-pm: phân tích → họp (nếu cần) → lên kế hoạch → điều phối
+  pxh-pm: xác thực plan → route tasks
   │ Việc {giai_đoạn: "thiết_kế|code|sửa_lỗi|kiểm_thử|rà_soát|xây_dựng"}
   ▼ [Tầng 3 — Nhân công]
-  6 nhân công thực thi công việc → trả về Result contract
+  8 nhân công thực thi công việc → trả về Result contract
   │ Kết quả + Sự kiện{phản_ánh}
   ▼ [Tầng 4 — Hạ tầng]
   pxh-save-history: lưu trạng thái, ghi log, checkpoint
@@ -105,16 +112,16 @@ Người dùng nhập prompt
   pxh-pm: đánh giá → giai đoạn tiếp theo hay hoàn tất?
   │ Phản hồi
   ▼ [Tầng 1 — Giao diện]
-  Định dạng đầu ra → người dùng
+  Giải thích kết quả bằng tiếng Việt → người dùng
 ```
 
 ## ✅ Điều kiện hoàn thành
 
-- [x] 9 agents được định nghĩa với thẻ layer + tham chiếu chéo
-- [x] Runtime 4 layer được thiết kế (Giao diện, Điều phối, Nhân công, Hạ tầng)
+- [x] 11 agents được định nghĩa với thẻ layer + tham chiếu chéo (gồm Prompt Optimizer & Planner)
+- [x] Runtime 4 layer được thiết kế (Giao diện + Prompt Optimization, Điều phối, Nhân công, Hạ tầng)
 - [x] 6 contracts giao tiếp được định nghĩa (Yêu cầu, Việc, Kết quả, Phản hồi, Sự kiện, Trạng thái)
 - [x] 3 policies được định nghĩa (Thử lại, Phục hồi, Phản ánh)
-- [x] 7 workflows được chú thích luồng layer
+- [x] 8 workflows được chú thích luồng layer (thêm optimized.workflow)
 - [x] 4 lĩnh vực skill được liên kết với runtime layers
 - [x] opencode.json tham chiếu tất cả thành phần
 - [x] Mọi file đều có tham chiếu chéo đến file liên quan
