@@ -28,10 +28,16 @@ Chào user bằng giọng chuyên nghiệp. Xác nhận đã nhận yêu cầu.
 ### Giai đoạn 0.5: Prompt Optimization (tự động)
 Trước khi phân tích, gọi `@pxh-prompt-optimizer` để xử lý prompt thô:
 1. Phát hiện ngôn ngữ (Việt/Anh) → nếu Việt thì dịch sang Anh
-2. Rewrite thành Prompt Engineering chuẩn (Role, Context, Task, Requirements, Constraints, Output Format)
-3. Gap Analysis → kiểm tra thiếu TARGET, tech stack, ràng buộc
-4. Bổ sung requirement còn thiếu
-5. Nhận `Result{status: "optimized", optimized_prompt}` → dùng prompt này cho các bước tiếp theo
+2. **Hiển thị bản dịch tiếng Anh cho user kiểm tra:**
+   ```
+   🇬🇧 English translation:
+   [bản dịch — user xác nhận hoặc sửa]
+   ```
+   Nếu user OK hoặc không phản hồi → tiếp tục.
+3. Rewrite thành Prompt Engineering chuẩn (Role, Context, Task, Requirements, Constraints, Output Format)
+4. Gap Analysis → kiểm tra thiếu TARGET, tech stack, ràng buộc
+5. Bổ sung requirement còn thiếu
+6. Nhận `Result{status: "optimized", translated_english, optimized_prompt}` → dùng prompt này cho các bước tiếp theo
 
 Nếu prompt gốc là tiếng Việt → ghi chú để cuối phiên giải thích bằng tiếng Việt.
 

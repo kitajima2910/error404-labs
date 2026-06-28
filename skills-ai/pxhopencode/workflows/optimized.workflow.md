@@ -100,7 +100,13 @@ Khi user gửi prompt (có thể tiếng Việt):
 2. Phát hiện ngôn ngữ:
    - Nếu tiếng Việt → dịch sang tiếng Anh chính xác
    - Nếu tiếng Anh → giữ nguyên
-3. Rewrite theo cấu trúc Prompt Engineering:
+3. **Hiển thị bản dịch tiếng Anh cho user kiểm tra:**
+   ```
+   🇬🇧 English translation:
+   [bản dịch — user xác nhận trước khi tiếp tục]
+   ```
+   Nếu user không phản hồi → mặc định OK.
+4. Rewrite theo cấu trúc Prompt Engineering:
    ```markdown
    ## Role
    [vai trò]
@@ -120,9 +126,9 @@ Khi user gửi prompt (có thể tiếng Việt):
    ## Output Format
    [định dạng đầu ra]
    ```
-4. Gap Analysis: kiểm tra thiếu TARGET, tech stack, ràng buộc, audience
-5. Bổ sung requirement suy luận từ ngữ cảnh
-6. Trả về `Result{status: "optimized", optimized_prompt}`
+5. Gap Analysis: kiểm tra thiếu TARGET, tech stack, ràng buộc, audience
+6. Bổ sung requirement suy luận từ ngữ cảnh
+7. Trả về `Result{status: "optimized", translated_english, optimized_prompt}`
 
 ### Phase 1: Planning
 

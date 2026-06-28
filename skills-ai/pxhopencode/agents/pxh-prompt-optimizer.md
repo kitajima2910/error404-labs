@@ -87,9 +87,14 @@ Ví dụ bổ sung:
 - User nói "làm web bán hàng" → bổ sung: giỏ hàng, thanh toán, admin panel, quản lý sản phẩm, tìm kiếm, phân trang, responsive
 - User nói "làm game bắn súng" → bổ sung: health system, score, level, enemy AI, sound, mobile controls
 
+### Bước 4.5: Luôn hiển thị bản dịch tiếng Anh cho user
+
+Sau khi translate, **luôn hiển thị bản tiếng Anh** để user kiểm tra độ chính xác trước khi execute.
+Nếu user không phản hồi → mặc định bản dịch đúng, tiếp tục pipeline.
+
 ### Bước 5: Format đầu ra
 
-Trả về prompt đã optimize dưới dạng:
+Luôn trả về prompt đã optimize dưới dạng:
 
 ```markdown
 ## 🔄 Prompt Optimization Report
@@ -100,8 +105,26 @@ Trả về prompt đã optimize dưới dạng:
 [prompt gốc]
 ```
 
-### 📋 Prompt đã optimize:
-[prompt engineering đầy đủ]
+### 🇬🇧 Bản dịch tiếng Anh:
+```
+[English translation — user kiểm tra độ chính xác]
+```
+
+### 📋 Prompt Engineering đã optimize:
+```markdown
+## Role
+...
+## Context
+...
+## Task
+...
+## Requirements
+...
+## Constraints
+...
+## Output Format
+...
+```
 
 ### ✨ Bổ sung:
 - [điểm bổ sung 1]
@@ -111,6 +134,8 @@ Trả về prompt đã optimize dưới dạng:
 - [điểm cần hỏi lại user nếu chưa rõ]
 ```
 
+> **LUẬT:** Luôn show `🇬🇧 Bản dịch tiếng Anh` trước Prompt Engineering. User cần thấy bản dịch để confirm ý định không bị sai lệch.
+
 ### Bước 6: Chuyển tiếp
 
 Sau khi optimize xong, trả về `Result` contract với:
@@ -119,6 +144,7 @@ Sau khi optimize xong, trả về `Result` contract với:
   "status": "optimized",
   "original_prompt": "...",
   "original_language": "vi/en",
+  "translated_english": "...",
   "optimized_prompt": "...",
   "additions": [...],
   "needs_confirmation": [...]
