@@ -62,6 +62,20 @@ const testCases: TestCase[] = await sql`
     ORDER BY order_index ASC
 `
 
+// Fetch tất cả lessons trong course để biết bài trước/sau
+const allLessons: { id: string; slug: string; title: string; order_index: number; chapter_order: number }[] = await sql`
+    SELECT l.id, l.slug, l.title, l.order_index, ch.order_index AS chapter_order
+    FROM error404labs.py_lessons l
+    JOIN error404labs.py_chapters ch ON ch.id = l.chapter_id
+    JOIN error404labs.py_courses c ON c.id = ch.course_id
+    WHERE c.slug = ${courseSlug} AND l.published = true
+    ORDER BY ch.order_index ASC, l.order_index ASC
+`
+
+const currentIdx = allLessons.findIndex(l => l.slug === lessonSlug)
+const prevLesson = currentIdx > 0 ? allLessons[currentIdx - 1] : null
+const nextLesson = currentIdx >= 0 && currentIdx < allLessons.length - 1 ? allLessons[currentIdx + 1] : null
+
 // Render markdown → HTML trên server
 const contentHtml = marked.parse(lesson.content_markdown || '')
 
@@ -78,12 +92,16 @@ const typeColor: Record<string, string> = {
 const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình', hard: 'Khó' }
 
 // Serialize dữ liệu cho client (dùng JSON để giữ newline)
-const testCasesJson = JSON.stringify(testCases)
-const lessonIdJson = JSON.stringify(lesson.id)
-const starterCodeJson = JSON.stringify(lesson.starter_code || '# Viết code Python của bạn ở đây\n')
-const xpReward = lesson.xp_reward
-const comparisonMode = lesson.comparison_mode
-const floatEpsilon = lesson.float_epsilon
+    const testCasesJson = JSON.stringify(testCases)
+    const lessonIdJson = JSON.stringify(lesson.id)
+    const starterCodeJson = JSON.stringify(lesson.starter_code || '# Viết code Python của bạn ở đây\n')
+    const xpReward = lesson.xp_reward
+    const comparisonMode = lesson.comparison_mode
+    const floatEpsilon = lesson.float_epsilon
+    const isTheory = lesson.lesson_type === 'theory'
+    const hasTests = testCases.length > 0
+    const prevLessonJson = JSON.stringify(prevLesson)
+    const nextLessonJson = JSON.stringify(nextLesson)
 ---
 
 <MainLayout title={`${lesson.title} | Python | ${TC_TITLE}`}>
@@ -104,6 +122,21 @@ const floatEpsilon = lesson.float_epsilon
                 <span class="text-xs text-slate-400 font-medium truncate hidden md:inline">{lesson.course_title}</span>
                 <span class="text-xs text-slate-300 hidden md:inline">/</span>
                 <h1 class="font-bold text-slate-800 text-sm truncate">{lesson.title}</h1>
+            </div>
+
+            <!-- Nav bài trước/sau -->
+            <div class="hidden md:flex items-center gap-1 shrink-0" id="lessonNav">
+                {prevLesson && (
+                    <a href={`/hoc-python/hoc/${courseSlug}/${prevLesson.slug}`}
+                       class="text-xs font-medium text-slate-400 hover:text-[#3776AB] px-2 py-1.5 rounded-lg hover:bg-blue-50 transition-colors"
+                       title={prevLesson.title}>← Bài trước</a>
+                )}
+                {nextLesson && (
+                    <a href={`/hoc-python/hoc/${courseSlug}/${nextLesson.slug}`}
+                       id="nextLessonLink"
+                       class="text-xs font-medium text-slate-400 hover:text-[#3776AB] px-2 py-1.5 rounded-lg hover:bg-blue-50 transition-colors"
+                       title={nextLesson.title}>Bài tiếp →</a>
+                )}
             </div>
 
             <div class="flex items-center gap-2 shrink-0">
@@ -205,7 +238,7 @@ const floatEpsilon = lesson.float_epsilon
                     </button>
                     <button
                         id="submitBtn"
-                        class="text-xs font-bold text-white bg-[#3776AB] hover:bg-[#2B5E8A] px-4 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
+                        class:list={['text-xs font-bold text-white bg-[#3776AB] hover:bg-[#2B5E8A] px-4 py-1.5 rounded-lg transition-colors flex items-center gap-1.5', !hasTests && 'hidden']}
                     >
                         📤 Nộp bài
                     </button>
@@ -259,6 +292,10 @@ const floatEpsilon = lesson.float_epsilon
         data-comparison-mode={comparisonMode}
         data-float-epsilon={floatEpsilon}
         data-xp-reward={xpReward}
+        data-is-theory={isTheory ? 'true' : 'false'}
+        data-has-tests={hasTests ? 'true' : 'false'}
+        data-prev-lesson={prevLessonJson}
+        data-next-lesson={nextLessonJson}
     ></div>
 </MainLayout>
 
@@ -273,6 +310,8 @@ const floatEpsilon = lesson.float_epsilon
     const testCases = JSON.parse(lessonData?.dataset.testCases || '[]')
     const lessonId = JSON.parse(lessonData?.dataset.lessonId || '""')
     const courseSlug = lessonData?.dataset.courseSlug || ''
+    const prevLesson = JSON.parse(lessonData?.dataset.prevLesson || 'null')
+    const nextLesson = JSON.parse(lessonData?.dataset.nextLesson || 'null')
     const cmContainer = document.getElementById('cm-editor')
     const consoleEl = document.getElementById('tab-console')
     const testResultsEl = document.getElementById('tab-test-results')
@@ -415,9 +454,7 @@ _out.getvalue()
 
         if (testCases.length === 0) {
             clearConsole()
-            appendConsole('⚠️ Bài học này không có test case. Hoàn thành!', 'success')
-            switchTab('test-results')
-            showTestResults([], 0, 0)
+            appendConsole('📖 Bài lý thuyết — đọc nội dung và thử chạy code mẫu!', 'info')
             return
         }
 
@@ -547,10 +584,11 @@ _out.getvalue()
             return
         }
 
+        const allPassed = total > 0 && passed === total
         let html = `
             <div class="mb-3 flex items-center gap-2 text-sm font-bold">
-                <span class="${passed === total ? 'text-green-400' : 'text-yellow-400'}">
-                    ${passed === total ? '✅' : '⚠️'}
+                <span class="${allPassed ? 'text-green-400' : total > 0 ? 'text-yellow-400' : 'text-slate-400'}">
+                    ${allPassed ? '✅' : total > 0 ? '⚠️' : '—'}
                 </span>
                 <span class="text-slate-200">${passed}/${total}</span>
                 <span class="text-slate-400 font-normal">test case đúng</span>
@@ -585,6 +623,29 @@ _out.getvalue()
                 `
             }
         })
+
+        // Next lesson button khi hoàn thành
+        if (allPassed && nextLesson) {
+            html += `
+                <div class="mt-5 pt-4 border-t border-[#313244]">
+                    <a href="/hoc-python/hoc/${courseSlug}/${nextLesson.slug}"
+                       class="inline-flex items-center gap-2 text-sm font-bold text-white bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 px-5 py-2.5 rounded-xl transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]">
+                        🎉 Bài tiếp theo: ${nextLesson.title}
+                        <span>→</span>
+                    </a>
+                </div>
+            `
+        } else if (allPassed && !nextLesson) {
+            html += `
+                <div class="mt-5 pt-4 border-t border-[#313244]">
+                    <div class="text-sm text-green-400 font-semibold">🎉 Chúc mừng! Bạn đã hoàn thành khóa học!</div>
+                    <a href="/hoc-python/khoa-hoc/${courseSlug}"
+                       class="mt-2 inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-white transition-colors">
+                        ← Về trang khóa học
+                    </a>
+                </div>
+            `
+        }
 
         testResultsEl.innerHTML = html
     }
@@ -635,10 +696,15 @@ _out.getvalue()
         // Init Pyodide (background)
         initPyodide()
 
+        // Theory lesson: hướng dẫn
+        if (lessonData?.dataset.isTheory === 'true') {
+            appendConsole('📖 Đây là bài học lý thuyết. Đọc nội dung bên trái và thử chạy code mẫu bằng nút "▶ Chạy"!', 'info')
+        }
+
         // Run button
         runBtn?.addEventListener('click', runCode)
 
-        // Submit button
+        // Submit button (chỉ hiện khi có test case)
         submitBtn?.addEventListener('click', submitCode)
 
         // Reset button
