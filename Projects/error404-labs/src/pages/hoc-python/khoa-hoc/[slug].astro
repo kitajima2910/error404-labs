@@ -261,3 +261,9 @@ const totalXP = chapters.reduce((sum, ch) => sum + ch.lessons.reduce((s, l) => s
         </div>
     </section>
 </MainLayout>
+
+<script>
+    if (!localStorage.getItem('auth_token')) {
+        window.location.href = '/?login=true'
+    }
+</script>

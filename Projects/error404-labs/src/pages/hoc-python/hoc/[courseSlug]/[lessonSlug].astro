@@ -299,6 +299,7 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
     ></div>
 </MainLayout>
 
+<script>if(!localStorage.getItem('auth_token')){window.location.href='/?login=true'}</script>
 <script>
     // ─────────────────────────────────────────────────────────────────────
     // Client-side logic: CodeMirror 6 + Pyodide + Run/Submit
@@ -549,9 +550,13 @@ _out.getvalue()
 
         // Gửi lên server để xác thực và lưu kết quả
         try {
+            const token = localStorage.getItem('auth_token')
             const res = await fetch('/api/hoc-python/submit', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                },
                 body: JSON.stringify({
                     lessonId,
                     sourceCode: code,
@@ -565,8 +570,13 @@ _out.getvalue()
             if (data.error) {
                 appendConsole('⚠️ ' + data.error, 'error')
             }
+            // Token expired/invalid → đá về login
+            if (res.status === 401 && data.error === 'Unauthorized') {
+                localStorage.removeItem('auth_token')
+                window.location.href = '/?login=true'
+            }
         } catch {
-            // API chưa có — bỏ qua
+            // Network error — bỏ qua
         }
     }
 

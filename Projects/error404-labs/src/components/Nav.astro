@@ -737,6 +737,19 @@ const isPost = pathname.startsWith('/bai-viet/')
             window.history.replaceState({}, document.title, window.location.pathname)
         }
 
+        // Tự động mở modal login khi redirect từ trang cần auth (hoc-python...)
+        if (window.location.search.includes('login=true')) {
+            setTimeout(() => {
+                const loginModal = document.querySelector('#loginModal')
+                if (loginModal) {
+                    loginModal.classList.remove('hidden')
+                    loginModal.classList.add('flex')
+                    document.body.classList.add('overflow-hidden')
+                }
+            }, 600)
+            window.history.replaceState({}, document.title, window.location.pathname)
+        }
+
         // Xác định token từ localStorage
         const authToken = localStorage.getItem('auth_token')
 
