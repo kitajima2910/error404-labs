@@ -125,15 +125,59 @@ const floatEpsilon = lesson.float_epsilon
 
     <!-- Split screen -->
     <div id="workspace" class="flex flex-col md:flex-row" style="height: calc(100vh - 168px);">
-        <!-- LEFT: Lesson content -->
-        <div class="w-full md:w-[40%] overflow-y-auto border-r border-slate-200 bg-white lesson-content-panel">
-            <div class="p-6">
-                <h2 class="text-xl font-black text-slate-800 mb-2">{lesson.title}</h2>
-                {lesson.description && (
-                    <p class="text-slate-500 text-sm mb-6 leading-relaxed">{lesson.description}</p>
-                )}
+        <!-- LEFT: Lesson content — nâng cấp giao diện -->
+        <div class="w-full md:w-[40%] overflow-y-auto bg-gradient-to-b from-slate-50 to-white lesson-content-panel">
+            <!-- Accent bar -->
+            <div class="h-1.5 bg-gradient-to-r from-[#3776AB] via-[#2B5E8A] to-[#FFD43B]"></div>
 
-                <div class="prose prose-sm max-w-none prose-headings:font-black prose-headings:text-slate-800 prose-a:text-[#3776AB] prose-code:bg-slate-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-pre:bg-slate-900 prose-pre:text-slate-100 prose-pre:rounded-xl prose-pre:p-4 prose-img:rounded-xl">
+            <!-- Lesson header card -->
+            <div class="p-5 pb-0">
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 mb-4">
+                    <div class="flex items-start justify-between gap-3 mb-3">
+                        <h2 class="text-xl font-black text-slate-800 leading-tight flex-1">{lesson.title}</h2>
+                        <span class="shrink-0 bg-gradient-to-br from-[#3776AB] to-[#2B5E8A] text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm">
+                            Python 3
+                        </span>
+                    </div>
+
+                    {lesson.description && (
+                        <p class="text-slate-500 text-sm leading-relaxed">{lesson.description}</p>
+                    )}
+
+                    <!-- Meta badges -->
+                    <div class="flex flex-wrap items-center gap-2 mt-4 pt-3 border-t border-slate-100">
+                        <span class={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${lesson.lesson_type === 'theory' ? 'bg-blue-50 text-blue-600 border-blue-200' : lesson.lesson_type === 'practice' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : lesson.lesson_type === 'quiz' ? 'bg-purple-50 text-purple-600 border-purple-200' : 'bg-orange-50 text-orange-600 border-orange-200'}`}>
+                            {lesson.lesson_type === 'theory' ? '📖 Lý thuyết' : lesson.lesson_type === 'practice' ? '⌨️ Thực hành' : lesson.lesson_type === 'quiz' ? '❓ Quiz' : '📦 Dự án'}
+                        </span>
+                        <span class="text-[10px] font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200 flex items-center gap-1">
+                            {lesson.difficulty === 'easy' ? '⭐ Dễ' : lesson.difficulty === 'medium' ? '⭐⭐ Trung bình' : '⭐⭐⭐ Khó'}
+                        </span>
+                        <span class="text-[10px] font-bold text-yellow-600 bg-yellow-50 px-2.5 py-1 rounded-full border border-yellow-200 flex items-center gap-1">
+                            🏆 +{lesson.xp_reward} XP
+                        </span>
+                        <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full border border-slate-200 flex items-center gap-1">
+                            ⏱ {lesson.estimated_minutes} phút
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lesson content với styling đẹp -->
+            <div class="px-5 pb-8">
+                <div class="prose prose-sm max-w-none
+                    prose-headings:font-black prose-headings:text-slate-800 prose-headings:tracking-tight
+                    prose-h2:text-lg prose-h2:border-b prose-h2:border-slate-100 prose-h2:pb-2 prose-h2:mb-4
+                    prose-h3:text-base prose-h3:text-slate-700
+                    prose-p:text-slate-600 prose-p:leading-relaxed prose-p:my-2
+                    prose-strong:text-slate-800 prose-strong:font-bold
+                    prose-a:text-[#3776AB] prose-a:font-medium prose-a:no-underline hover:prose-a:underline
+                    prose-code:text-[#3776AB] prose-code:bg-[#3776AB]/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:text-[13px] prose-code:font-mono prose-code:font-semibold
+                    prose-pre:bg-[#1e1e2e] prose-pre:text-[#cdd6f4] prose-pre:rounded-xl prose-pre:p-4 prose-pre:border prose-pre:border-[#313244] prose-pre:shadow-lg
+                    prose-pre:my-4
+                    prose-ul:my-2 prose-li:text-slate-600 prose-li:marker:text-[#3776AB]
+                    prose-img:rounded-xl prose-img:shadow-md
+                    prose-blockquote:border-l-[3px] prose-blockquote:border-[#3776AB] prose-blockquote:bg-[#3776AB]/5 prose-blockquote:py-2 prose-blockquote:px-4 prose-blockquote:rounded-r-lg prose-blockquote:not-italic prose-blockquote:text-slate-600
+                    prose-hr:border-slate-100">
                     <div set:html={contentHtml} />
                 </div>
             </div>
@@ -632,12 +676,108 @@ _out.getvalue()
         overflow-x: auto;
     }
     .prose pre code {
-        background: transparent;
-        padding: 0;
+        background: transparent !important;
+        padding: 0 !important;
+        color: inherit !important;
     }
     .prose img {
         max-width: 100%;
         border-radius: 0.75rem;
+    }
+
+    /* Code block language label */
+    .prose pre {
+        position: relative;
+    }
+    .prose pre::before {
+        content: '▼ Python';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        padding: 6px 16px;
+        font-size: 11px;
+        font-weight: 700;
+        color: #6c7086;
+        background: #181825;
+        border-bottom: 1px solid #313244;
+        border-radius: 12px 12px 0 0;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+    .prose pre {
+        padding-top: 42px !important;
+    }
+
+    /* Callout box styling cho markdown */
+    .prose blockquote p:first-child {
+        margin-top: 0;
+    }
+    .prose blockquote p:last-child {
+        margin-bottom: 0;
+    }
+
+    /* Smooth heading anchors */
+    .prose h2, .prose h3 {
+        scroll-margin-top: 20px;
+    }
+
+    /* List styling đẹp hơn */
+    .prose ul {
+        list-style-type: none;
+        padding-left: 0;
+    }
+    .prose ul li {
+        position: relative;
+        padding-left: 1.5rem;
+        margin-bottom: 0.25rem;
+    }
+    .prose ul li::before {
+        content: '▸';
+        position: absolute;
+        left: 0;
+        color: #3776AB;
+        font-weight: bold;
+    }
+    .prose ol li {
+        margin-bottom: 0.25rem;
+    }
+    .prose ol li::marker {
+        color: #3776AB;
+        font-weight: bold;
+    }
+
+    /* Inline code trong prose */
+    .prose p code, .prose li code, .prose h2 code, .prose h3 code {
+        font-size: 13px !important;
+    }
+
+    /* Table styling nếu có */
+    .prose table {
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+    }
+    .prose table th {
+        background: #f1f5f9;
+        font-weight: 700;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #475569;
+        padding: 10px 14px;
+        border-bottom: 2px solid #e2e8f0;
+    }
+    .prose table td {
+        padding: 8px 14px;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 13px;
+    }
+    .prose table tr:last-child td {
+        border-bottom: none;
     }
 
     /* CodeMirror container fill */
