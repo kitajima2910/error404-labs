@@ -1,12 +1,33 @@
 # STATUS
 
 ## Current Task
-- Click thumbnail zoom ảnh, bỏ nút Đổi ảnh inline trong bảng CRUD Prompts
-
-## Current Focus
--
+- Đã hoàn thành MVP Python Learning Platform
 
 ## Completed
+- ✅ **Migration 013**: Tạo 7 bảng database (py_courses, py_chapters, py_lessons, py_test_cases, py_submissions, py_lesson_progress, py_profiles)
+- ✅ **Migration 014**: Seed data khóa "Python Cơ Bản" — 3 chapters, 10 lessons, 27 test cases
+- ✅ **Menu**: Thêm "Học Python" vào navData, fix lỗi Nav icon component undefined
+- ✅ **Pages**: Landing `/hoc-python`, Course catalog `/hoc-python/khoa-hoc`, Course detail `/hoc-python/khoa-hoc/:slug`, Interactive workspace `/hoc-python/hoc/:courseSlug/:lessonSlug`
+- ✅ **API**: POST `/api/hoc-python/submit` — chấm điểm + award XP + streak; GET `/api/hoc-python/progress` — lấy progress
+- ✅ **CodeMirror 6 + Pyodide**: Interactive Python editor workspace, run code, submit + auto-grading
+- ✅ **Lib files**: db.ts (Neon queries), pyodideRunner.ts (client-side Python WASM), grading.ts (output comparison), progress.ts (lesson unlock), gamification.ts (XP/streak)
+- ✅ **Code execution**: Python 3 chạy hoàn toàn trong browser (Pyodide WASM), không cần server-side Python runtime
+
+## Current Focus
+- Chạy migration 014_seed_python_course.sql trên Neon console (nếu chưa chạy)
+
+## Completed
+- 4 trang Astro 5 cho Python learning platform
+  - `/hoc-python` — Landing page: hero, features grid với 4 card
+  - `/hoc-python/khoa-hoc` — Course catalog SSR từ Neon DB, responsive grid 1/2/3 cột
+  - `/hoc-python/khoa-hoc/[slug]` — Course detail SSR: accordion chapters, lesson list với badges
+  - `/hoc-python/hoc/[courseSlug]/[lessonSlug]` — Interactive workspace: CodeMirror 6 + Pyodide, Run/Submit, test results tab
+- Seed data + API routes cho Python learning platform
+  - Thêm nav item "Học Python" trong navData.js
+  - API `POST /api/hoc-python/submit` — nhận submission, chấm điểm, award XP, update streak
+  - API `GET /api/hoc-python/progress` — lấy progress user theo courseSlug
+  - Migration `014_seed_python_course.sql` — 3 chapters, 10 lessons, 27 test cases
+  - Grading utility `src/utils/python-grading.ts` — normalizeOutput + compareOutputs
 - Đổi format Copy Prompt template thành form mới (6 RULE + TARGET, bỏ ACTION)
 - Fix toggle attendance: click entire cell, POST cả checkin/checkout, không còn DELETE 404
 - POST handler checkout: return 200 (deleted: true/false) thay vì 404
@@ -44,6 +65,10 @@
   - Stats cập nhật đúng với attendance_map key mới
 
 ## Modified Files
+- src/pages/hoc-python/index.astro (new) — landing page
+- src/pages/hoc-python/khoa-hoc.astro (new) — course catalog SSR
+- src/pages/hoc-python/khoa-hoc/[slug].astro (new) — course detail SSR
+- src/pages/hoc-python/hoc/[courseSlug]/[lessonSlug].astro (new) — interactive workspace
 - src/pages/game-roadmap.astro
 - src/pages/quan-ly.astro
 - src/pages/api/admin/attendance.ts
@@ -56,6 +81,11 @@
 - migrations/011_add_session_to_attendance.sql (new)
 - migrations/012_add_note_to_attendance.sql (new)
 - src/pages/api/admin/attendance.ts — GET trả notes_map, POST accept note + action 'note'
+- src/data/navData.js — thêm "Học Python"
+- src/pages/api/hoc-python/submit.ts (new) — POST submission + grading
+- src/pages/api/hoc-python/progress.ts (new) — GET progress
+- src/utils/python-grading.ts (new) — normalize output + compare
+- migrations/014_seed_python_course.sql (new) — course seed data
 
 ## Known Issues
 - (đã fix) Toggle checkout trước đây xoá không được do date comparison không khớp

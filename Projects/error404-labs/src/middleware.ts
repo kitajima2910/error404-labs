@@ -18,11 +18,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
     if (context.url.pathname !== '/api/render') {
         const csp = [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://cdnjs.cloudflare.com",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net",
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
             "img-src 'self' data: https: blob:",
             "font-src 'self' data: https://fonts.gstatic.com",
-            "connect-src 'self' ws: wss: https://*.google-analytics.com https://*.analytics.google.com",
+            "connect-src 'self' ws: wss: https://*.google-analytics.com https://*.analytics.google.com https://cdn.jsdelivr.net",
+            "worker-src 'self' blob: https://cdn.jsdelivr.net",
             "frame-src 'self' blob: https://www.youtube.com https://youtube.com",
             "object-src 'none'",
             "base-uri 'self'"

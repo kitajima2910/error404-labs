@@ -49,7 +49,9 @@ const isPost = pathname.startsWith('/bai-viet/')
                 <div class="hidden lg:flex items-center">
                     <ul class="flex">
                         {
-                            navData.map((item) => (
+                            navData.map((item) => {
+                                const iconComp = onIcons(item.name)
+                                return (
                                 <li class="ml-2">
                                     <Link
                                         text={item.name}
@@ -59,14 +61,12 @@ const isPost = pathname.startsWith('/bai-viet/')
                                         borderVisible={true}
                                         data-navLink
                                         classes="text-xs xl:text-sm px-3 xl:px-4 h-[38px] xl:h-[42px] flex items-center justify-center"
-                                        icon={{
-                                            component: onIcons(item.name)?.component,
-                                            side: 'left',
-                                        }}
+                                        {...(iconComp ? { icon: { component: iconComp.component, side: 'left' as const } } : {})}
                                         target={item.name === 'RSS' ? '_blank' : '_self'}
                                     />
                                 </li>
-                    ))
+                                )
+                            })
                 }
             </ul>
         </div>
@@ -294,7 +294,9 @@ const isPost = pathname.startsWith('/bai-viet/')
         <div class="space-y-1 px-4 py-4">
             <ul class="flex flex-col">
                 {
-                    navData.map((item) => (
+                    navData.map((item) => {
+                        const iconComp = onIcons(item.name)
+                        return (
                         <li class="mr-5">
                             <Link
                                 text={item.name}
@@ -303,14 +305,12 @@ const isPost = pathname.startsWith('/bai-viet/')
                                 isFilled={false}
                                 borderVisible={!true}
                                 data-navLink
-                                icon={{
-                                    component: onIcons(item.name)?.component,
-                                    side: 'left',
-                                }}
+                                {...(iconComp ? { icon: { component: iconComp.component, side: 'left' as const } } : {})}
                                 target={item.name === 'RSS' ? '_blank' : '_self'}
                             />
                         </li>
-                    ))
+                        )
+                    })
                 }
             </ul>
         </div>

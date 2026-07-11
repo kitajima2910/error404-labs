@@ -1,0 +1,673 @@
+---
+import MainLayout from '../../../../layouts/MainLayout.astro'
+import { TC_TITLE } from '../../../../common/TextConst'
+import { marked } from 'marked'
+
+// ── Neon DB ───────────────────────────────────────────────────────────
+const { neon } = await import('@neondatabase/serverless')
+const sql = neon(import.meta.env.DATABASE_URL)
+
+const { courseSlug, lessonSlug } = Astro.params
+
+interface Lesson {
+    id: string
+    title: string
+    slug: string
+    description: string
+    lesson_type: 'theory' | 'practice' | 'quiz' | 'project'
+    content_markdown: string
+    starter_code: string
+    difficulty: 'easy' | 'medium' | 'hard'
+    xp_reward: number
+    estimated_minutes: number
+    comparison_mode: 'exact' | 'float' | 'custom'
+    float_epsilon: number
+    time_limit_ms: number
+    course_title: string
+    course_slug: string
+}
+
+interface TestCase {
+    id: string
+    stdin: string
+    expected_output: string
+    is_hidden: boolean
+    order_index: number
+}
+
+// Fetch lesson
+const [lesson]: (Lesson | undefined)[] = await sql`
+    SELECT
+        l.id, l.title, l.slug, l.description, l.lesson_type,
+        l.content_markdown, l.starter_code, l.difficulty,
+        l.xp_reward, l.estimated_minutes, l.comparison_mode,
+        l.float_epsilon, l.time_limit_ms,
+        c.title AS course_title, c.slug AS course_slug
+    FROM error404labs.py_lessons l
+    JOIN error404labs.py_chapters ch ON ch.id = l.chapter_id
+    JOIN error404labs.py_courses c ON c.id = ch.course_id
+    WHERE l.slug = ${lessonSlug} AND c.slug = ${courseSlug} AND l.published = true
+    LIMIT 1
+`
+
+if (!lesson) {
+    return Astro.redirect('/404', 404)
+}
+
+// Fetch test cases
+const testCases: TestCase[] = await sql`
+    SELECT id, stdin, expected_output, is_hidden, order_index
+    FROM error404labs.py_test_cases
+    WHERE lesson_id = ${lesson.id}
+    ORDER BY order_index ASC
+`
+
+// Render markdown → HTML trên server
+const contentHtml = marked.parse(lesson.content_markdown || '')
+
+// Badge helpers
+const typeLabel: Record<string, string> = {
+    theory: 'Lý thuyết', practice: 'Thực hành', quiz: 'Quiz', project: 'Dự án',
+}
+const typeColor: Record<string, string> = {
+    theory: 'bg-blue-100 text-blue-700 border-blue-200',
+    practice: 'bg-green-100 text-green-700 border-green-200',
+    quiz: 'bg-purple-100 text-purple-700 border-purple-200',
+    project: 'bg-orange-100 text-orange-700 border-orange-200',
+}
+const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình', hard: 'Khó' }
+
+// Serialize dữ liệu cho client (dùng JSON để giữ newline)
+const testCasesJson = JSON.stringify(testCases)
+const lessonIdJson = JSON.stringify(lesson.id)
+const starterCodeJson = JSON.stringify(lesson.starter_code || '# Viết code Python của bạn ở đây\n')
+const xpReward = lesson.xp_reward
+const comparisonMode = lesson.comparison_mode
+const floatEpsilon = lesson.float_epsilon
+---
+
+<MainLayout title={`${lesson.title} | Python | ${TC_TITLE}`}>
+    <!-- Top bar -->
+    <div class="sticky top-26 z-50 bg-white border-b border-slate-200 shadow-sm">
+        <div class="max-w-full mx-auto px-4 py-3 flex items-center gap-3">
+            <a
+                href={`/hoc-python/khoa-hoc/${courseSlug}`}
+                class="flex items-center gap-1.5 text-slate-500 hover:text-[#3776AB] font-medium text-sm transition-colors shrink-0"
+            >
+                <span>←</span>
+                <span class="hidden sm:inline">Quay lại</span>
+            </a>
+
+            <div class="w-px h-6 bg-slate-200 shrink-0"></div>
+
+            <div class="flex-1 min-w-0 flex items-center gap-2">
+                <span class="text-xs text-slate-400 font-medium truncate hidden md:inline">{lesson.course_title}</span>
+                <span class="text-xs text-slate-300 hidden md:inline">/</span>
+                <h1 class="font-bold text-slate-800 text-sm truncate">{lesson.title}</h1>
+            </div>
+
+            <div class="flex items-center gap-2 shrink-0">
+                <span class={`text-[10px] font-bold px-2 py-1 rounded-full border ${typeColor[lesson.lesson_type] || typeColor.practice}`}>
+                    {typeLabel[lesson.lesson_type] || 'Thực hành'}
+                </span>
+                <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded-full">
+                    {diffLabel[lesson.difficulty] || 'Dễ'}
+                </span>
+                <span class="text-[10px] font-bold text-yellow-600 bg-yellow-50 px-2 py-1 rounded-full flex items-center gap-1">
+                    ⭐ +{lesson.xp_reward}
+                </span>
+                <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded-full hidden sm:flex items-center gap-1">
+                    ⏱ {lesson.estimated_minutes}p
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Split screen -->
+    <div id="workspace" class="flex flex-col md:flex-row" style="height: calc(100vh - 168px);">
+        <!-- LEFT: Lesson content -->
+        <div class="w-full md:w-[40%] overflow-y-auto border-r border-slate-200 bg-white lesson-content-panel">
+            <div class="p-6">
+                <h2 class="text-xl font-black text-slate-800 mb-2">{lesson.title}</h2>
+                {lesson.description && (
+                    <p class="text-slate-500 text-sm mb-6 leading-relaxed">{lesson.description}</p>
+                )}
+
+                <div class="prose prose-sm max-w-none prose-headings:font-black prose-headings:text-slate-800 prose-a:text-[#3776AB] prose-code:bg-slate-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-pre:bg-slate-900 prose-pre:text-slate-100 prose-pre:rounded-xl prose-pre:p-4 prose-img:rounded-xl">
+                    <div set:html={contentHtml} />
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Editor + Console -->
+        <div class="flex-1 flex flex-col bg-[#1e1e2e] min-w-0">
+            <!-- Toolbar -->
+            <div class="flex items-center justify-between px-4 py-2 bg-[#181825] border-b border-[#313244] shrink-0">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-slate-500 font-mono font-bold">main.py</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button
+                        id="resetBtn"
+                        class="text-xs text-slate-400 hover:text-white bg-[#313244] hover:bg-[#45475a] px-3 py-1.5 rounded-lg font-medium transition-colors"
+                    >
+                        ↺ Reset
+                    </button>
+                    <button
+                        id="runBtn"
+                        class="text-xs font-bold text-[#1e1e2e] bg-[#a6e3a1] hover:bg-[#94e2d5] px-4 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
+                    >
+                        ▶ Chạy
+                    </button>
+                    <button
+                        id="submitBtn"
+                        class="text-xs font-bold text-white bg-[#3776AB] hover:bg-[#2B5E8A] px-4 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
+                    >
+                        📤 Nộp bài
+                    </button>
+                </div>
+            </div>
+
+            <!-- CodeMirror container -->
+            <div id="cm-editor" class="flex-1 overflow-hidden"></div>
+
+            <!-- Loading overlay cho Pyodide -->
+            <div id="pyodide-loading" class="absolute inset-0 bg-[#1e1e2e]/90 flex items-center justify-center z-10 hidden">
+                <div class="text-center">
+                    <div class="animate-spin rounded-full h-10 w-10 border-3 border-[#3776AB] border-t-transparent mx-auto mb-4"></div>
+                    <p class="text-slate-400 text-sm font-medium">Đang tải Python runtime...</p>
+                    <p class="text-slate-600 text-xs mt-1">Lần đầu có thể mất vài giây</p>
+                </div>
+            </div>
+
+            <!-- Bottom: Console + Test Results tabs -->
+            <div class="shrink-0 border-t border-[#313244] bg-[#1e1e2e]" style="height: 200px;">
+                <!-- Tab bar -->
+                <div class="flex items-center gap-0 px-2 bg-[#181825] border-b border-[#313244]">
+                    <button class="result-tab active px-4 py-2 text-xs font-bold text-[#a6e3a1] border-b-2 border-[#a6e3a1] bg-transparent transition-colors" data-tab="console">
+                        ► Console
+                    </button>
+                    <button class="result-tab px-4 py-2 text-xs font-bold text-slate-500 border-b-2 border-transparent hover:text-slate-300 bg-transparent transition-colors" data-tab="test-results">
+                        ✓ Test Results
+                    </button>
+                </div>
+
+                <!-- Console output -->
+                <div id="tab-console" class="result-pane active p-3 overflow-y-auto font-mono text-sm leading-relaxed" style="height: calc(200px - 36px);">
+                    <div class="text-slate-500 italic">Nhấn "▶ Chạy" để thực thi code Python...</div>
+                </div>
+
+                <!-- Test results -->
+                <div id="tab-test-results" class="result-pane p-3 overflow-y-auto font-mono text-sm leading-relaxed hidden" style="height: calc(200px - 36px);">
+                    <div class="text-slate-500 italic">Nhấn "📤 Nộp bài" để chạy test case...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data attributes cho JS -->
+    <div
+        id="lesson-data"
+        data-starter-code={starterCodeJson}
+        data-test-cases={testCasesJson}
+        data-lesson-id={lessonIdJson}
+        data-course-slug={courseSlug}
+        data-comparison-mode={comparisonMode}
+        data-float-epsilon={floatEpsilon}
+        data-xp-reward={xpReward}
+    ></div>
+</MainLayout>
+
+<script>
+    // ─────────────────────────────────────────────────────────────────────
+    // Client-side logic: CodeMirror 6 + Pyodide + Run/Submit
+    // ─────────────────────────────────────────────────────────────────────
+
+    // DOM refs — dùng JSON.parse để giữ nguyên newlines
+    const lessonData = document.getElementById('lesson-data')
+    const starterCode = JSON.parse(lessonData?.dataset.starterCode || '"# Viết code Python của bạn ở đây\\n"')
+    const testCases = JSON.parse(lessonData?.dataset.testCases || '[]')
+    const lessonId = JSON.parse(lessonData?.dataset.lessonId || '""')
+    const courseSlug = lessonData?.dataset.courseSlug || ''
+    const cmContainer = document.getElementById('cm-editor')
+    const consoleEl = document.getElementById('tab-console')
+    const testResultsEl = document.getElementById('tab-test-results')
+    const loadingEl = document.getElementById('pyodide-loading')
+    const runBtn = document.getElementById('runBtn')
+    const submitBtn = document.getElementById('submitBtn')
+    const resetBtn = document.getElementById('resetBtn')
+
+    // State
+    let editorView = null
+    let pyodide = null
+
+    // ── CodeMirror 6 ──────────────────────────────────────────────────
+    async function initEditor() {
+        const { EditorView, basicSetup } = await import('codemirror')
+        const { EditorState } = await import('@codemirror/state')
+        const { python } = await import('@codemirror/lang-python')
+        const { oneDark } = await import('@codemirror/theme-one-dark')
+
+        const state = EditorState.create({
+            doc: starterCode,
+            extensions: [
+                basicSetup,
+                python(),
+                oneDark,
+                EditorView.theme({
+                    '&': { height: '100%' },
+                    '.cm-scroller': { overflow: 'auto' },
+                }),
+            ],
+        })
+
+        if (cmContainer) {
+            cmContainer.innerHTML = ''
+            editorView = new EditorView({ state, parent: cmContainer })
+        }
+    }
+
+    // ── Pyodide ────────────────────────────────────────────────────────
+    async function initPyodide() {
+        if (loadingEl) loadingEl.classList.remove('hidden')
+
+        try {
+            // Tải Pyodide từ CDN
+            const script = document.createElement('script')
+            script.src = 'https://cdn.jsdelivr.net/npm/pyodide@314.0.2/pyodide.js'
+
+            await new Promise((resolve, reject) => {
+                script.onload = resolve
+                script.onerror = () => reject(new Error('Không thể tải Pyodide từ CDN'))
+                document.head.appendChild(script)
+            })
+
+            // Khởi tạo Pyodide
+            pyodide = await globalThis.loadPyodide({
+                indexURL: 'https://cdn.jsdelivr.net/npm/pyodide@314.0.2/',
+            })
+
+            if (loadingEl) loadingEl.classList.add('hidden')
+            appendConsole('✅ Python runtime đã sẵn sàng! (Python ' + pyodide.version + ')')
+            return true
+        } catch (err) {
+            if (loadingEl) loadingEl.classList.add('hidden')
+            appendConsole('❌ Lỗi tải Pyodide: ' + err.message)
+            console.error('Pyodide init error:', err)
+            return false
+        }
+    }
+
+    // ── Console helpers ──────────────────────────────────────────────
+    function appendConsole(text, type = 'info') {
+        if (!consoleEl) return
+        const line = document.createElement('div')
+        line.className = 'py-0.5 ' + (
+            type === 'error' ? 'text-red-400' :
+            type === 'success' ? 'text-green-400' :
+            type === 'output' ? 'text-slate-100' :
+            'text-slate-400'
+        )
+        line.textContent = text
+        consoleEl.appendChild(line)
+        consoleEl.scrollTop = consoleEl.scrollHeight
+    }
+
+    function clearConsole() {
+        if (consoleEl) consoleEl.innerHTML = ''
+    }
+
+    // ── Run code ───────────────────────────────────────────────────────
+    async function runCode() {
+        if (!pyodide || !editorView) {
+            appendConsole('⚠️ Python runtime chưa sẵn sàng. Vui lòng đợi...', 'error')
+            if (!pyodide) await initPyodide()
+            if (!pyodide) return
+        }
+
+        const code = editorView.state.doc.toString()
+        clearConsole()
+        appendConsole('▶ Đang chạy...')
+
+        try {
+            // Chạy code và capture stdout
+            const result = await pyodide.runPythonAsync(`
+import sys
+from io import StringIO
+
+_out = StringIO()
+sys.stdout = _out
+
+try:
+    _ = 0
+${code.split('\n').map(line => '    ' + line).join('\n')}
+except Exception:
+    import traceback
+    traceback.print_exc()
+
+sys.stdout = sys.__stdout__
+_out.getvalue()
+            `)
+
+            const output = (result || '').trim()
+            if (output) {
+                output.split('\n').forEach(line => appendConsole(line, 'output'))
+            } else {
+                appendConsole('✅ Code chạy thành công (không có output)', 'success')
+            }
+        } catch (err) {
+            appendConsole('❌ Lỗi: ' + (err.message || String(err)), 'error')
+        }
+    }
+
+    // ── Submit (chạy test cases) ─────────────────────────────────────
+    async function submitCode() {
+        if (!pyodide || !editorView) {
+            appendConsole('⚠️ Python runtime chưa sẵn sàng.', 'error')
+            return
+        }
+
+        const code = editorView.state.doc.toString()
+
+        if (testCases.length === 0) {
+            clearConsole()
+            appendConsole('⚠️ Bài học này không có test case. Hoàn thành!', 'success')
+            switchTab('test-results')
+            showTestResults([], 0, 0)
+            return
+        }
+
+        clearConsole()
+        appendConsole('📤 Đang nộp bài và chạy test cases...')
+
+        // Hiện tab test results
+        switchTab('test-results')
+        showTestResults([], 0, testCases.length, true)
+
+        let passed = 0
+        const results = []
+        const outputs = [] // raw stdout cho mỗi test case
+
+        for (let i = 0; i < testCases.length; i++) {
+            const tc = testCases[i]
+            const testLabel = tc.is_hidden ? `Test #${i + 1}` : `Test: ${tc.stdin || '(empty input)'}`
+
+            try {
+                // Chạy code với stdin và capture stdout
+                const output = await pyodide.runPythonAsync(`
+import sys
+from io import StringIO
+
+sys.stdin = StringIO(${JSON.stringify(tc.stdin)})
+
+_out = StringIO()
+sys.stdout = _out
+
+try:
+    _ = 0
+${code.split('\n').map(line => '    ' + line).join('\n')}
+except Exception:
+    import traceback
+    traceback.print_exc()
+
+sys.stdout = sys.__stdout__
+_out.getvalue()
+                `)
+
+                const actualOutput = (output || '').trim()
+                const expected = tc.expected_output.trim()
+                outputs.push(actualOutput)
+
+                // So sánh output
+                const isFloat = lessonData?.dataset.comparisonMode === 'float'
+                const epsilon = parseFloat(lessonData?.dataset.floatEpsilon || '0.001')
+
+                let match = false
+                if (isFloat) {
+                    const a = parseFloat(actualOutput)
+                    const b = parseFloat(expected)
+                    match = !isNaN(a) && !isNaN(b) && Math.abs(a - b) < epsilon
+                } else {
+                    match = actualOutput === expected
+                }
+
+                if (match) {
+                    passed++
+                    results.push({ index: i, passed: true, label: testLabel })
+                } else {
+                    results.push({
+                        index: i,
+                        passed: false,
+                        label: testLabel,
+                        expected: tc.is_hidden ? '***' : expected,
+                        actual: tc.is_hidden ? '***' : actualOutput,
+                    })
+                }
+            } catch (err) {
+                outputs.push('')
+                results.push({
+                    index: i,
+                    passed: false,
+                    label: testLabel,
+                    error: err.message || String(err),
+                })
+            }
+
+            // Cập nhật progress
+            showTestResults(results, passed, testCases.length)
+        }
+
+        // Hoàn thành
+        showTestResults(results, passed, testCases.length)
+
+        if (passed === testCases.length) {
+            appendConsole(`🎉 Hoàn thành bài học! +${lessonData?.dataset?.xpReward || 10} XP`, 'success')
+        } else {
+            appendConsole(`📊 Kết quả: ${passed}/${testCases.length} test case đúng`, 'info')
+        }
+
+        // Gửi lên server để xác thực và lưu kết quả
+        try {
+            const res = await fetch('/api/hoc-python/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    lessonId,
+                    sourceCode: code,
+                    outputs,
+                }),
+            })
+            const data = await res.json()
+            if (data.xpAwarded > 0) {
+                appendConsole(`🏆 Đã nhận +${data.xpAwarded} XP!`, 'success')
+            }
+            if (data.error) {
+                appendConsole('⚠️ ' + data.error, 'error')
+            }
+        } catch {
+            // API chưa có — bỏ qua
+        }
+    }
+
+    // ── Test results UI ──────────────────────────────────────────────
+    function showTestResults(results, passed, total, loading = false) {
+        if (!testResultsEl) return
+
+        if (loading) {
+            testResultsEl.innerHTML = `
+                <div class="text-slate-400 text-center py-4">
+                    <div class="animate-spin rounded-full h-6 w-6 border-2 border-[#3776AB] border-t-transparent mx-auto mb-2"></div>
+                    Đang chạy test cases...
+                </div>
+            `
+            return
+        }
+
+        let html = `
+            <div class="mb-3 flex items-center gap-2 text-sm font-bold">
+                <span class="${passed === total ? 'text-green-400' : 'text-yellow-400'}">
+                    ${passed === total ? '✅' : '⚠️'}
+                </span>
+                <span class="text-slate-200">${passed}/${total}</span>
+                <span class="text-slate-400 font-normal">test case đúng</span>
+            </div>
+        `
+
+        if (results.length === 0) {
+            html += `<div class="text-slate-500 italic">Không có test case nào.</div>`
+        }
+
+        results.forEach((r) => {
+            if (r.passed) {
+                html += `
+                    <div class="flex items-center gap-2 py-1.5 text-green-400">
+                        <span>✓</span>
+                        <span>${r.label}</span>
+                    </div>
+                `
+            } else {
+                html += `
+                    <div class="py-1.5">
+                        <div class="flex items-center gap-2 text-red-400">
+                            <span>✗</span>
+                            <span>${r.label}</span>
+                        </div>
+                        <div class="ml-5 text-xs space-y-0.5 mt-1">
+                            ${r.error ? `<div class="text-red-400">Lỗi: ${r.error}</div>` : ''}
+                            ${r.expected !== undefined ? `<div class="text-slate-400">Kỳ vọng: <span class="text-slate-200">${r.expected}</span></div>` : ''}
+                            ${r.actual !== undefined ? `<div class="text-slate-400">Nhận được: <span class="text-yellow-300">${r.actual}</span></div>` : ''}
+                        </div>
+                    </div>
+                `
+            }
+        })
+
+        testResultsEl.innerHTML = html
+    }
+
+    // ── Tab switching ────────────────────────────────────────────────
+    function switchTab(tabId) {
+        document.querySelectorAll('.result-tab').forEach(t => {
+            t.classList.remove('active', 'text-[#a6e3a1]', 'border-[#a6e3a1]')
+            t.classList.add('text-slate-500', 'border-transparent')
+        })
+        document.querySelectorAll('.result-pane').forEach(p => p.classList.add('hidden'))
+
+        const tabBtn = document.querySelector(`.result-tab[data-tab="${tabId}"]`)
+        if (tabBtn) {
+            tabBtn.classList.remove('text-slate-500', 'border-transparent')
+            tabBtn.classList.add('text-[#a6e3a1]', 'border-[#a6e3a1]')
+        }
+
+        const pane = document.getElementById('tab-' + tabId)
+        if (pane) pane.classList.remove('hidden')
+    }
+
+    // ── Reset code ────────────────────────────────────────────────────
+    function resetCode() {
+        if (editorView) {
+            editorView.dispatch({
+                changes: {
+                    from: 0,
+                    to: editorView.state.doc.length,
+                    insert: starterCode,
+                },
+            })
+        }
+    }
+
+    // ── Event Listeners ──────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', async function () {
+        // Tab switching
+        document.querySelectorAll('.result-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                switchTab(tab.dataset.tab)
+            })
+        })
+
+        // Init editor
+        await initEditor()
+
+        // Init Pyodide (background)
+        initPyodide()
+
+        // Run button
+        runBtn?.addEventListener('click', runCode)
+
+        // Submit button
+        submitBtn?.addEventListener('click', submitCode)
+
+        // Reset button
+        resetBtn?.addEventListener('click', resetCode)
+
+        // Keyboard shortcut: Ctrl+Enter để chạy
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault()
+                runCode()
+            }
+        })
+    })
+</script>
+
+<style is:global>
+    /* Lesson content panel styles */
+    .lesson-content-panel {
+        scrollbar-width: thin;
+        scrollbar-color: #cbd5e1 transparent;
+    }
+    .lesson-content-panel::-webkit-scrollbar {
+        width: 6px;
+    }
+    .lesson-content-panel::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .lesson-content-panel::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+
+    /* Prose overrides for lesson content */
+    .prose pre {
+        overflow-x: auto;
+    }
+    .prose pre code {
+        background: transparent;
+        padding: 0;
+    }
+    .prose img {
+        max-width: 100%;
+        border-radius: 0.75rem;
+    }
+
+    /* CodeMirror container fill */
+    .cm-editor {
+        height: 100%;
+    }
+    .cm-editor .cm-scroller {
+        font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace !important;
+        font-size: 14px !important;
+    }
+
+    /* Result pane scrollbar */
+    .result-pane {
+        scrollbar-width: thin;
+        scrollbar-color: #45475a transparent;
+    }
+    .result-pane::-webkit-scrollbar {
+        width: 5px;
+    }
+    .result-pane::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .result-pane::-webkit-scrollbar-thumb {
+        background: #45475a;
+        border-radius: 10px;
+    }
+
+    /* Tab active state */
+    .result-tab.active {
+        color: #a6e3a1 !important;
+        border-bottom-color: #a6e3a1 !important;
+    }
+</style>

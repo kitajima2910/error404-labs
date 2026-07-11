@@ -1,0 +1,99 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro'
+import { TC_TITLE } from '../../common/TextConst'
+---
+
+<MainLayout title={`Học Python 3 | ${TC_TITLE}`}>
+    <section class="min-h-screen bg-gradient-to-b from-slate-50 to-white relative overflow-hidden">
+        <!-- Decorative blobs -->
+        <div class="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden z-0">
+            <div class="absolute -top-[15%] -right-[10%] w-[45%] h-[45%] bg-[#3776AB]/5 rounded-full blur-[120px]"></div>
+            <div class="absolute -bottom-[15%] -left-[10%] w-[45%] h-[45%] bg-[#FFD43B]/10 rounded-full blur-[120px]"></div>
+        </div>
+
+        <div class="relative z-10 max-w-6xl mx-auto px-4 pt-16 md:pt-24 pb-16">
+            <!-- Hero -->
+            <div class="text-center mb-16">
+                <div class="inline-flex items-center gap-2 bg-[#3776AB]/10 text-[#3776AB] font-black text-xs md:text-sm px-4 py-2 rounded-full mb-6 uppercase tracking-wider">
+                    <span class="w-2 h-2 rounded-full bg-[#3776AB] animate-pulse"></span>
+                    Python 3 - Tin học trẻ
+                </div>
+
+                <h1 class="text-4xl md:text-5xl lg:text-7xl font-black text-slate-800 tracking-tight leading-tight mb-6">
+                    Học <span class="text-[#3776AB]">Python 3</span><br />
+                    <span class="text-[#FFD43B] drop-shadow-sm">Luyện thi</span> Tin học trẻ
+                </h1>
+
+                <p class="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto mb-8 leading-relaxed font-medium">
+                    Khóa học Python Cơ Bản từ A-Z, luyện thi <strong>Tin học trẻ Bảng B (THCS)</strong> &amp;
+                    <strong>Bảng C (THPT)</strong>. Học qua dự án thực tế, chấm điểm tự động.
+                </p>
+
+                <a
+                    href="/hoc-python/khoa-hoc"
+                    class="inline-flex items-center gap-3 bg-gradient-to-r from-[#3776AB] to-[#2B5E8A] hover:from-[#2B5E8A] hover:to-[#1E4D73] text-white font-black text-lg px-8 py-4 rounded-2xl shadow-[0_8px_30px_rgba(55,118,171,0.35)] hover:shadow-[0_8px_40px_rgba(55,118,171,0.5)] hover:-translate-y-1 transition-all duration-300"
+                >
+                    Bắt đầu học ngay
+                    <span class="text-2xl">→</span>
+                </a>
+            </div>
+
+            <!-- Features Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
+                <!-- Card 1 -->
+                <div class="group bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                    <div class="w-14 h-14 bg-[#3776AB]/10 rounded-xl flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform duration-300">
+                        📚
+                    </div>
+                    <h3 class="font-black text-slate-800 text-lg mb-2">Học theo chương</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">
+                        Lộ trình bài bản từ cơ bản đến nâng cao, chia theo chương và bài học cụ thể.
+                    </p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="group bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                    <div class="w-14 h-14 bg-[#FFD43B]/10 rounded-xl flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform duration-300">
+                        💻
+                    </div>
+                    <h3 class="font-black text-slate-800 text-lg mb-2">Code trực tiếp</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">
+                        Viết và chạy Python ngay trên trình duyệt với CodeMirror 6 + Pyodide.
+                    </p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="group bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                    <div class="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform duration-300">
+                        ✅
+                    </div>
+                    <h3 class="font-black text-slate-800 text-lg mb-2">Chấm điểm tự động</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">
+                        Hệ thống test case tự động chấm bài, phản hồi kết quả tức thì.
+                    </p>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="group bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                    <div class="w-14 h-14 bg-purple-100 rounded-xl flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform duration-300">
+                        📊
+                    </div>
+                    <h3 class="font-black text-slate-800 text-lg mb-2">Theo dõi tiến độ</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">
+                        Lưu lịch sử học tập, điểm XP, và tiến trình từng bài học.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Bottom CTA -->
+            <div class="text-center mt-16">
+                <p class="text-slate-400 text-sm font-medium mb-4">Bắt đầu hành trình Python của bạn ngay hôm nay</p>
+                <div class="flex items-center justify-center gap-2 text-slate-300 text-xs">
+                    <span class="w-20 h-px bg-slate-200"></span>
+                    <span>Error404-Labs</span>
+                    <span class="w-20 h-px bg-slate-200"></span>
+                </div>
+            </div>
+        </div>
+    </section>
+</MainLayout>

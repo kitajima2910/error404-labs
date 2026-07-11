@@ -19,6 +19,10 @@ const navData = [
         name: 'HTML5 Editor',
         path: '/html5-editor',
     },
+    {
+        name: 'Học Python',
+        path: '/hoc-python',
+    },
 ]
 
 export default navData

@@ -1,0 +1,136 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro'
+import { TC_TITLE } from '../../common/TextConst'
+
+// ── Neon DB ───────────────────────────────────────────────────────────
+const { neon } = await import('@neondatabase/serverless')
+const sql = neon(import.meta.env.DATABASE_URL)
+
+interface Course {
+    id: string
+    title: string
+    slug: string
+    description: string
+    thumbnail_url: string
+    difficulty: 'beginner' | 'intermediate' | 'advanced'
+    published: boolean
+    total_chapters: number
+    total_lessons: number
+}
+
+const courses: Course[] = await sql`
+    SELECT
+        c.id,
+        c.title,
+        c.slug,
+        c.description,
+        c.thumbnail_url,
+        c.difficulty,
+        c.published,
+        (SELECT COUNT(*) FROM error404labs.py_chapters ch WHERE ch.course_id = c.id)::int AS total_chapters,
+        (SELECT COUNT(*) FROM error404labs.py_chapters ch
+            JOIN error404labs.py_lessons l ON l.chapter_id = ch.id
+            WHERE ch.course_id = c.id)::int AS total_lessons
+    FROM error404labs.py_courses c
+    WHERE c.published = true
+    ORDER BY c.created_at ASC
+`
+
+const diffLabel: Record<string, string> = {
+    beginner: 'Cơ bản',
+    intermediate: 'Trung cấp',
+    advanced: 'Nâng cao',
+}
+
+const diffColor: Record<string, string> = {
+    beginner: 'bg-green-100 text-green-700 border-green-200',
+    intermediate: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+    advanced: 'bg-red-100 text-red-700 border-red-200',
+}
+---
+
+<MainLayout title={`Khóa học Python | ${TC_TITLE}`}>
+    <section class="min-h-screen bg-gradient-to-b from-slate-50 to-white relative overflow-hidden">
+        <!-- Decorative -->
+        <div class="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden z-0">
+            <div class="absolute -top-[20%] -right-[10%] w-[50%] h-[50%] bg-[#3776AB]/5 rounded-full blur-[120px]"></div>
+            <div class="absolute -bottom-[20%] -left-[10%] w-[50%] h-[50%] bg-[#FFD43B]/8 rounded-full blur-[120px]"></div>
+        </div>
+
+        <div class="relative z-10 max-w-6xl mx-auto px-4 py-12 md:py-16">
+            <!-- Header -->
+            <div class="text-center mb-12">
+                <div class="inline-flex items-center gap-2 bg-[#3776AB]/10 text-[#3776AB] font-black text-xs md:text-sm px-4 py-2 rounded-full mb-4 uppercase tracking-wider">
+                    📖 Danh sách khóa học
+                </div>
+                <h1 class="text-3xl md:text-5xl font-black text-slate-800 tracking-tight">
+                    Khóa học <span class="text-[#3776AB]">Python</span>
+                </h1>
+                <p class="text-slate-500 mt-3 text-base md:text-lg max-w-2xl mx-auto">
+                    Chọn khóa học phù hợp và bắt đầu hành trình chinh phục Python 3.
+                </p>
+            </div>
+
+            <!-- Empty state -->
+            {courses.length === 0 && (
+                <div class="text-center py-20">
+                    <div class="text-6xl mb-4">📭</div>
+                    <h2 class="text-2xl font-bold text-slate-400">Chưa có khóa học nào</h2>
+                    <p class="text-slate-300 mt-2">Các khóa học Python đang được xây dựng. Quay lại sau nhé!</p>
+                </div>
+            )}
+
+            <!-- Course Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {courses.map((course) => (
+                    <a
+                        href={`/hoc-python/khoa-hoc/${course.slug}`}
+                        class="group bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col"
+                    >
+                        <!-- Thumbnail placeholder -->
+                        <div class="aspect-video bg-gradient-to-br from-[#3776AB]/20 to-[#FFD43B]/20 flex items-center justify-center overflow-hidden">
+                            {course.thumbnail_url
+                                ? <img src={course.thumbnail_url} alt={course.title} class="w-full h-full object-cover" />
+                                : (
+                                    <div class="text-6xl opacity-40 group-hover:scale-110 transition-transform duration-500">
+                                        🐍
+                                    </div>
+                                )
+                            }
+                        </div>
+
+                        <div class="p-5 flex flex-col flex-1">
+                            <div class="flex items-center gap-2 mb-3">
+                                <span
+                                    class={`text-xs font-bold px-2.5 py-1 rounded-full border ${diffColor[course.difficulty] || diffColor.beginner}`}
+                                >
+                                    {diffLabel[course.difficulty] || 'Cơ bản'}
+                                </span>
+                                <span class="text-xs text-slate-400 font-medium">
+                                    {course.total_lessons} bài học
+                                </span>
+                            </div>
+
+                            <h3 class="font-black text-slate-800 text-lg mb-2 group-hover:text-[#3776AB] transition-colors">
+                                {course.title}
+                            </h3>
+
+                            <p class="text-slate-500 text-sm leading-relaxed line-clamp-2 flex-1">
+                                {course.description || 'Không có mô tả'}
+                            </p>
+
+                            <div class="flex items-center gap-4 mt-4 pt-4 border-t border-slate-100 text-xs text-slate-400 font-medium">
+                                <span class="flex items-center gap-1">
+                                    <span>📂</span> {course.total_chapters} chương
+                                </span>
+                                <span class="flex items-center gap-1">
+                                    <span>📝</span> {course.total_lessons} bài
+                                </span>
+                            </div>
+                        </div>
+                    </a>
+                ))}
+            </div>
+        </div>
+    </section>
+</MainLayout>

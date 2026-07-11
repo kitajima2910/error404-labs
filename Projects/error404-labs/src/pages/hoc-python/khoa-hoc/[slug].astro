@@ -1,0 +1,263 @@
+---
+import MainLayout from '../../../layouts/MainLayout.astro'
+import { TC_TITLE } from '../../../common/TextConst'
+
+// ── Neon DB ───────────────────────────────────────────────────────────
+const { neon } = await import('@neondatabase/serverless')
+const sql = neon(import.meta.env.DATABASE_URL)
+
+const { slug } = Astro.params
+
+interface Course {
+    id: string
+    title: string
+    slug: string
+    description: string
+    difficulty: 'beginner' | 'intermediate' | 'advanced'
+}
+
+interface Chapter {
+    id: string
+    title: string
+    description: string
+    order_index: number
+    lessons: Lesson[]
+}
+
+interface Lesson {
+    id: string
+    title: string
+    slug: string
+    lesson_type: 'theory' | 'practice' | 'quiz' | 'project'
+    difficulty: 'easy' | 'medium' | 'hard'
+    xp_reward: number
+    estimated_minutes: number
+    order_index: number
+    published: boolean
+}
+
+// Fetch course
+const [course]: (Course | undefined)[] = await sql`
+    SELECT id, title, slug, description, difficulty
+    FROM error404labs.py_courses
+    WHERE slug = ${slug} AND published = true
+    LIMIT 1
+`
+
+if (!course) {
+    return Astro.redirect('/404', 404)
+}
+
+// Fetch chapters + lessons
+const chapters: Chapter[] = await sql`
+    SELECT
+        ch.id,
+        ch.title,
+        ch.description,
+        ch.order_index,
+        COALESCE(
+            json_agg(
+                json_build_object(
+                    'id', l.id,
+                    'title', l.title,
+                    'slug', l.slug,
+                    'lesson_type', l.lesson_type,
+                    'difficulty', l.difficulty,
+                    'xp_reward', l.xp_reward,
+                    'estimated_minutes', l.estimated_minutes,
+                    'order_index', l.order_index,
+                    'published', l.published
+                )
+                ORDER BY l.order_index ASC
+            ) FILTER (WHERE l.id IS NOT NULL),
+            '[]'::json
+        ) AS lessons
+    FROM error404labs.py_chapters ch
+    LEFT JOIN error404labs.py_lessons l ON l.chapter_id = ch.id AND l.published = true
+    WHERE ch.course_id = ${course.id}
+    GROUP BY ch.id, ch.title, ch.description, ch.order_index
+    ORDER BY ch.order_index ASC
+`
+
+const diffLabel: Record<string, string> = {
+    beginner: 'Cơ bản',
+    intermediate: 'Trung cấp',
+    advanced: 'Nâng cao',
+}
+
+const diffColor: Record<string, string> = {
+    beginner: 'bg-green-100 text-green-700 border-green-200',
+    intermediate: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+    advanced: 'bg-red-100 text-red-700 border-red-200',
+}
+
+const typeLabel: Record<string, string> = {
+    theory: 'Lý thuyết',
+    practice: 'Thực hành',
+    quiz: 'Quiz',
+    project: 'Dự án',
+}
+
+const typeColor: Record<string, string> = {
+    theory: 'bg-blue-100 text-blue-700',
+    practice: 'bg-green-100 text-green-700',
+    quiz: 'bg-purple-100 text-purple-700',
+    project: 'bg-orange-100 text-orange-700',
+}
+
+const diffLessonLabel: Record<string, string> = {
+    easy: 'Dễ',
+    medium: 'Trung bình',
+    hard: 'Khó',
+}
+
+const diffLessonColor: Record<string, string> = {
+    easy: 'text-green-600',
+    medium: 'text-yellow-600',
+    hard: 'text-red-600',
+}
+
+const totalLessons = chapters.reduce((sum, ch) => sum + ch.lessons.length, 0)
+const totalXP = chapters.reduce((sum, ch) => sum + ch.lessons.reduce((s, l) => s + l.xp_reward, 0), 0)
+---
+
+<MainLayout title={`${course.title} | ${TC_TITLE}`}>
+    <section class="min-h-screen bg-gradient-to-b from-slate-50 to-white relative overflow-hidden">
+        <!-- Decorative -->
+        <div class="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden z-0">
+            <div class="absolute -top-[15%] -right-[10%] w-[40%] h-[40%] bg-[#3776AB]/5 rounded-full blur-[120px]"></div>
+            <div class="absolute -bottom-[15%] -left-[10%] w-[40%] h-[40%] bg-[#FFD43B]/8 rounded-full blur-[120px]"></div>
+        </div>
+
+        <div class="relative z-10 max-w-4xl mx-auto px-4 py-12 md:py-16">
+            <!-- Course Header -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 md:p-8 mb-8">
+                <div class="flex items-center gap-3 mb-4 flex-wrap">
+                    <span
+                        class={`text-xs font-bold px-3 py-1.5 rounded-full border ${diffColor[course.difficulty] || diffColor.beginner}`}
+                    >
+                        {diffLabel[course.difficulty] || 'Cơ bản'}
+                    </span>
+                    <span class="text-xs text-slate-400 font-medium bg-slate-100 px-3 py-1.5 rounded-full">
+                        {totalLessons} bài học
+                    </span>
+                    <span class="text-xs text-slate-400 font-medium bg-slate-100 px-3 py-1.5 rounded-full">
+                        +{totalXP} XP
+                    </span>
+                </div>
+
+                <h1 class="text-2xl md:text-4xl font-black text-slate-800 tracking-tight mb-4">
+                    {course.title}
+                </h1>
+
+                <p class="text-slate-500 text-base md:text-lg leading-relaxed">
+                    {course.description || 'Không có mô tả'}
+                </p>
+            </div>
+
+            <!-- Progress Summary -->
+            <div class="bg-gradient-to-r from-[#3776AB]/5 to-[#FFD43B]/5 rounded-2xl border border-slate-200 p-5 mb-8 flex items-center justify-between flex-wrap gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2 text-sm text-slate-600 font-medium">
+                        <span class="text-lg">📂</span>
+                        <span><strong class="text-slate-800">{chapters.length}</strong> chương</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-slate-600 font-medium">
+                        <span class="text-lg">📝</span>
+                        <span><strong class="text-slate-800">{totalLessons}</strong> bài học</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-slate-600 font-medium">
+                        <span class="text-lg">⭐</span>
+                        <span><strong class="text-slate-800">{totalXP}</strong> XP</span>
+                    </div>
+                </div>
+                {chapters.length > 0 && (
+                    <a
+                        href={`/hoc-python/hoc/${course.slug}/${chapters[0].lessons[0]?.slug || ''}`}
+                        class="inline-flex items-center gap-2 bg-[#3776AB] text-white font-bold text-sm px-5 py-2.5 rounded-xl hover:bg-[#2B5E8A] transition-colors shadow-md"
+                    >
+                        Bắt đầu học →
+                    </a>
+                )}
+            </div>
+
+            <!-- Chapter List -->
+            <div class="space-y-4">
+                {chapters.map((chapter, idx) => (
+                    <details
+                        class="group bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden [&[open]]:shadow-md transition-shadow duration-300"
+                        open={idx === 0}
+                    >
+                        <summary class="flex items-center justify-between p-5 cursor-pointer hover:bg-slate-50 transition-colors list-none">
+                            <div class="flex items-center gap-3">
+                                <span class="w-8 h-8 bg-[#3776AB]/10 rounded-lg flex items-center justify-center text-[#3776AB] font-black text-sm shrink-0">
+                                    {idx + 1}
+                                </span>
+                                <div>
+                                    <h3 class="font-bold text-slate-800 text-base">{chapter.title}</h3>
+                                    {chapter.description && (
+                                        <p class="text-slate-400 text-xs mt-0.5 line-clamp-1">{chapter.description}</p>
+                                    )}
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3 text-xs text-slate-400 font-medium shrink-0">
+                                <span>{chapter.lessons.length} bài</span>
+                                <span class="text-lg transition-transform duration-300 group-open:rotate-180">▾</span>
+                            </div>
+                        </summary>
+
+                        <div class="border-t border-slate-100">
+                            {chapter.lessons.length === 0 && (
+                                <p class="p-5 text-sm text-slate-400 text-center">Chưa có bài học nào trong chương này.</p>
+                            )}
+
+                            {chapter.lessons.map((lesson) => (
+                                <a
+                                    href={`/hoc-python/hoc/${course.slug}/${lesson.slug}`}
+                                    class="flex items-center gap-4 px-5 py-4 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-b-0 group/lesson"
+                                >
+                                    {/* Status icon */}
+                                    <span class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-xs shrink-0 group-hover/lesson:bg-[#3776AB]/10 group-hover/lesson:text-[#3776AB] transition-colors">
+                                        {lesson.lesson_type === 'theory' ? '📖' : lesson.lesson_type === 'practice' ? '💻' : lesson.lesson_type === 'quiz' ? '❓' : '🚀'}
+                                    </span>
+
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="font-semibold text-slate-700 text-sm group-hover/lesson:text-[#3776AB] transition-colors truncate">
+                                            {lesson.title}
+                                        </h4>
+                                        <div class="flex items-center gap-2 mt-1 flex-wrap">
+                                            <span class={`text-[10px] font-bold px-2 py-0.5 rounded-full ${typeColor[lesson.lesson_type] || typeColor.practice}`}>
+                                                {typeLabel[lesson.lesson_type] || 'Thực hành'}
+                                            </span>
+                                            <span class={`text-[10px] font-semibold ${diffLessonColor[lesson.difficulty] || diffLessonColor.easy}`}>
+                                                {diffLessonLabel[lesson.difficulty] || 'Dễ'}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center gap-3 text-xs text-slate-400 font-medium shrink-0">
+                                        <span class="flex items-center gap-1">
+                                            <span>⭐</span> +{lesson.xp_reward}
+                                        </span>
+                                        <span class="flex items-center gap-1">
+                                            <span>⏱</span> {lesson.estimated_minutes}p
+                                        </span>
+                                        <span class="text-[#3776AB] group-hover/lesson:translate-x-1 transition-transform">→</span>
+                                    </div>
+                                </a>
+                            ))}
+                        </div>
+                    </details>
+                ))}
+            </div>
+
+            {chapters.length === 0 && (
+                <div class="text-center py-20">
+                    <div class="text-6xl mb-4">📭</div>
+                    <h2 class="text-2xl font-bold text-slate-400">Chương trình đang được xây dựng</h2>
+                    <p class="text-slate-300 mt-2">Nội dung khóa học sẽ sớm được cập nhật.</p>
+                </div>
+            )}
+        </div>
+    </section>
+</MainLayout>
