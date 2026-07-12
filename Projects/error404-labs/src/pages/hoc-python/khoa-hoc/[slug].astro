@@ -122,6 +122,7 @@ const totalXP = chapters.reduce((sum, ch) => sum + ch.lessons.reduce((s, l) => s
 ---
 
 <MainLayout title={`${course.title} | ${TC_TITLE}`}>
+    <div id="auth-cloak" style="display:none">
     <section class="min-h-screen bg-gradient-to-b from-slate-50 to-white relative overflow-hidden">
         <!-- Decorative -->
         <div class="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden z-0">
@@ -260,10 +261,15 @@ const totalXP = chapters.reduce((sum, ch) => sum + ch.lessons.reduce((s, l) => s
             )}
         </div>
     </section>
+    </div>
 </MainLayout>
 
-<script>
-    if (!localStorage.getItem('auth_token')) {
-        window.location.href = '/?login=true'
-    }
+<script is:inline>
+    (function () {
+        if (localStorage.getItem('auth_token')) {
+            document.getElementById('auth-cloak').style.display = ''
+        } else {
+            window.location.href = '/hoc-python/khoa-hoc?login=true'
+        }
+    })()
 </script>

@@ -85,7 +85,7 @@ const diffColor: Record<string, string> = {
                 {courses.map((course) => (
                     <a
                         href={`/hoc-python/khoa-hoc/${course.slug}`}
-                        class="group bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col"
+                        class="course-card-link group bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col"
                     >
                         <!-- Thumbnail placeholder -->
                         <div class="aspect-video bg-gradient-to-br from-[#3776AB]/20 to-[#FFD43B]/20 flex items-center justify-center overflow-hidden">
@@ -134,4 +134,23 @@ const diffColor: Record<string, string> = {
         </div>
     </section>
 </MainLayout>
+
+<script>
+    document.querySelectorAll('.course-card-link').forEach((link) => {
+        link.addEventListener('click', (e) => {
+            if (!localStorage.getItem('auth_token')) {
+                e.preventDefault()
+                const loginModal = document.getElementById('loginModal')
+                if (loginModal) {
+                    loginModal.classList.remove('hidden')
+                    loginModal.classList.add('flex')
+                    document.body.classList.add('overflow-hidden')
+                } else {
+                    // Fallback: redirect với flag login
+                    window.location.href = '/hoc-python/khoa-hoc?login=true'
+                }
+            }
+        })
+    })
+</script>
 
