@@ -9,6 +9,7 @@
 - ✅ **Menu**: Thêm "Học Python" vào navData, fix lỗi Nav icon component undefined
 - ✅ **Icon Python**: Thêm IconPython.astro + gắn vào menu Học Python
 - ✅ **Public course catalog**: Gỡ yêu cầu login khỏi `/hoc-python/khoa-hoc`
+- ✅ **Enrollment system**: API `/api/hoc-python/enrollment` (GET) + `/api/hoc-python/enroll` (POST) — đăng ký khoá học miễn phí, phân biệt guest/chưa ĐK/đã ĐK
 - ✅ **Pages**: Landing `/hoc-python`, Course catalog `/hoc-python/khoa-hoc`, Course detail `/hoc-python/khoa-hoc/:slug`, Interactive workspace `/hoc-python/hoc/:courseSlug/:lessonSlug`
 - ✅ **API**: POST `/api/hoc-python/submit` — chấm điểm + award XP + streak; GET `/api/hoc-python/progress` — lấy progress
 - ✅ **CodeMirror 6 + Pyodide**: Interactive Python editor workspace, run code, submit + auto-grading

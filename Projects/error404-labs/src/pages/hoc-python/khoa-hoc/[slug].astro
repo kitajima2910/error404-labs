@@ -175,6 +175,7 @@ const totalXP = chapters.reduce((sum, ch) => sum + ch.lessons.reduce((s, l) => s
                     <a
                         id="ctaBtn"
                         href="#"
+                        data-course-slug={course.slug}
                         data-auth-href={`/hoc-python/hoc/${course.slug}/${chapters[0].lessons[0]?.slug || ''}`}
                         class="inline-flex items-center gap-2 bg-[#3776AB] text-white font-bold text-sm px-5 py-2.5 rounded-xl hover:bg-[#2B5E8A] transition-colors shadow-md"
                     >
@@ -266,26 +267,81 @@ const totalXP = chapters.reduce((sum, ch) => sum + ch.lessons.reduce((s, l) => s
 
 <script is:inline>
     (function () {
+        var courseSlug = document.getElementById('ctaBtn')?.getAttribute('data-course-slug') || ''
+
+        function setGuestMode(btn) {
+            btn.textContent = 'Đăng ký miễn phí'
+            btn.onclick = function (e) {
+                e.preventDefault()
+                var m = document.getElementById('loginModal')
+                if (m) { m.classList.remove('hidden'); m.classList.add('flex'); document.body.classList.add('overflow-hidden') }
+            }
+        }
+
+        function setEnrolledMode(btn) {
+            btn.textContent = 'Bắt đầu học →'
+            btn.href = btn.getAttribute('data-auth-href') || btn.href
+            btn.onclick = null
+        }
+
+        function setNotEnrolledMode(btn, token) {
+            var self = function (e) {
+                e.preventDefault()
+                btn.textContent = 'Đang đăng ký...'
+                btn.onclick = null
+                fetch('/api/hoc-python/enroll', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                    body: JSON.stringify({ courseSlug: courseSlug }),
+                })
+                .then(function (r) { return r.json() })
+                .then(function (data) {
+                    if (data.success) {
+                        setEnrolledMode(btn)
+                        // Chỉ đổi button, không tự động chuyển trang
+                    } else {
+                        btn.textContent = 'Đăng ký miễn phí'
+                        btn.onclick = self
+                    }
+                })
+                .catch(function () {
+                    btn.textContent = 'Đăng ký miễn phí'
+                    btn.onclick = self
+                })
+            }
+            btn.textContent = 'Đăng ký miễn phí'
+            btn.onclick = self
+        }
+
+        function checkEnrollmentAndUpdate(btn, token) {
+            fetch('/api/hoc-python/enrollment?courseSlug=' + encodeURIComponent(courseSlug), {
+                headers: { 'Authorization': 'Bearer ' + token }
+            })
+            .then(function (r) { return r.json() })
+            .then(function (data) {
+                if (data.enrolled) setEnrolledMode(btn)
+                else setNotEnrolledMode(btn, token)
+            })
+            .catch(function () { setEnrolledMode(btn) })
+        }
+
         function updateCta() {
             var btn = document.getElementById('ctaBtn')
             if (!btn) return
-            if (localStorage.getItem('auth_token')) {
-                btn.textContent = 'Bắt đầu học →'
-                btn.href = btn.getAttribute('data-auth-href') || btn.href
-                btn.onclick = null
+            var token = localStorage.getItem('auth_token')
+            if (token) {
+                checkEnrollmentAndUpdate(btn, token)
             } else {
-                btn.textContent = 'Đăng ký miễn phí'
-                btn.onclick = function (e) {
-                    e.preventDefault()
-                    var m = document.getElementById('loginModal')
-                    if (m) { m.classList.remove('hidden'); m.classList.add('flex'); document.body.classList.add('overflow-hidden') }
-                }
+                setGuestMode(btn)
             }
         }
 
         updateCta()
         window.addEventListener('user-login', updateCta)
-        window.addEventListener('user-logout', updateCta)
+        window.addEventListener('user-logout', function () {
+            var btn = document.getElementById('ctaBtn')
+            if (btn) setGuestMode(btn)
+        })
 
         // Lesson links
         document.addEventListener('click', function (e) {
