@@ -7,6 +7,7 @@
 - ✅ **Migration 013**: Tạo 7 bảng database (py_courses, py_chapters, py_lessons, py_test_cases, py_submissions, py_lesson_progress, py_profiles)
 - ✅ **Migration 014**: Seed data khóa "Python Cơ Bản" — 3 chapters, 10 lessons, 27 test cases
 - ✅ **Menu**: Thêm "Học Python" vào navData, fix lỗi Nav icon component undefined
+- ✅ **Icon Python**: Thêm IconPython.astro + gắn vào menu Học Python
 - ✅ **Pages**: Landing `/hoc-python`, Course catalog `/hoc-python/khoa-hoc`, Course detail `/hoc-python/khoa-hoc/:slug`, Interactive workspace `/hoc-python/hoc/:courseSlug/:lessonSlug`
 - ✅ **API**: POST `/api/hoc-python/submit` — chấm điểm + award XP + streak; GET `/api/hoc-python/progress` — lấy progress
 - ✅ **CodeMirror 6 + Pyodide**: Interactive Python editor workspace, run code, submit + auto-grading
