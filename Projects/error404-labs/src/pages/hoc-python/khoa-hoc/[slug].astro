@@ -122,7 +122,6 @@ const totalXP = chapters.reduce((sum, ch) => sum + ch.lessons.reduce((s, l) => s
 ---
 
 <MainLayout title={`${course.title} | ${TC_TITLE}`}>
-    <div id="auth-cloak" style="display:none">
     <section class="min-h-screen bg-gradient-to-b from-slate-50 to-white relative overflow-hidden">
         <!-- Decorative -->
         <div class="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden z-0">
@@ -174,10 +173,12 @@ const totalXP = chapters.reduce((sum, ch) => sum + ch.lessons.reduce((s, l) => s
                 </div>
                 {chapters.length > 0 && (
                     <a
-                        href={`/hoc-python/hoc/${course.slug}/${chapters[0].lessons[0]?.slug || ''}`}
+                        id="ctaBtn"
+                        href="#"
+                        data-auth-href={`/hoc-python/hoc/${course.slug}/${chapters[0].lessons[0]?.slug || ''}`}
                         class="inline-flex items-center gap-2 bg-[#3776AB] text-white font-bold text-sm px-5 py-2.5 rounded-xl hover:bg-[#2B5E8A] transition-colors shadow-md"
                     >
-                        Bắt đầu học →
+                        Đăng ký miễn phí
                     </a>
                 )}
             </div>
@@ -261,15 +262,51 @@ const totalXP = chapters.reduce((sum, ch) => sum + ch.lessons.reduce((s, l) => s
             )}
         </div>
     </section>
-    </div>
 </MainLayout>
 
 <script is:inline>
     (function () {
-        if (localStorage.getItem('auth_token')) {
-            document.getElementById('auth-cloak').style.display = ''
-        } else {
-            window.location.href = '/hoc-python/khoa-hoc?login=true'
+        function updateCta() {
+            var btn = document.getElementById('ctaBtn')
+            if (!btn) return
+            if (localStorage.getItem('auth_token')) {
+                btn.textContent = 'Bắt đầu học →'
+                btn.href = btn.getAttribute('data-auth-href') || btn.href
+                btn.onclick = null
+            } else {
+                btn.textContent = 'Đăng ký miễn phí'
+                btn.onclick = function (e) {
+                    e.preventDefault()
+                    var m = document.getElementById('loginModal')
+                    if (m) { m.classList.remove('hidden'); m.classList.add('flex'); document.body.classList.add('overflow-hidden') }
+                }
+            }
         }
+
+        updateCta()
+        window.addEventListener('user-login', updateCta)
+        window.addEventListener('user-logout', updateCta)
+
+        // Lesson links
+        document.addEventListener('click', function (e) {
+            var link = e.target.closest('a[href*="/hoc-python/hoc/"]')
+            if (link && !localStorage.getItem('auth_token')) {
+                e.preventDefault()
+                var toast = document.getElementById('toastNotification')
+                var msg = document.getElementById('toastMessage')
+                var title = document.getElementById('toastTitle')
+                var icon = document.getElementById('toastIcon')
+                if (toast && msg && title && icon) {
+                    var p = icon.querySelector('path')
+                    toast.className = toast.className.replace(/border-\w+-\d+/g, '') + ' border-amber-500'
+                    icon.className = 'text-amber-500'
+                    if (p) p.setAttribute('d', 'M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z')
+                    title.textContent = 'Cần đăng ký!'
+                    msg.textContent = 'Vui lòng đăng ký miễn phí để học bài này.'
+                    toast.classList.remove('translate-x-full', 'opacity-0')
+                    setTimeout(function () { toast.classList.add('translate-x-full', 'opacity-0') }, 3000)
+                }
+            }
+        })
     })()
 </script>
