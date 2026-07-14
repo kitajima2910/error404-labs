@@ -1,28 +1,8 @@
 import { neon } from '@neondatabase/serverless'
 import type { APIRoute } from 'astro'
-import jwt from 'jsonwebtoken'
+import verifyAuth from '../../utils/auth'
 
 export const prerender = false
-
-const verifyAuth = async (request: Request) => {
-    const authHeader = request.headers.get('Authorization')
-    const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null
-    if (!token) return null
-    try {
-        const jwtSecret = import.meta.env.JWT_SECRET
-        const dbUrl = import.meta.env.DATABASE_URL
-        if (!jwtSecret || !dbUrl) return null
-        const decoded = jwt.verify(token, jwtSecret) as { id: number; member: string; sessionToken: string }
-        const sql = neon(dbUrl)
-        const user = (await sql`
-            SELECT id, logined, session_token, session_fingerprint, status
-            FROM error404labs.members WHERE id = ${decoded.id}
-        `)[0]
-        const fingerprint = request.headers.get('user-agent') || 'unknown'
-        if (!user || user.logined !== 1 || user.status !== 'active' || user.session_token !== decoded.sessionToken || user.session_fingerprint !== fingerprint) return null
-        return decoded
-    } catch { return null }
-}
 
 export const POST: APIRoute = async ({ request }) => {
     const origin = request.headers.get('origin')

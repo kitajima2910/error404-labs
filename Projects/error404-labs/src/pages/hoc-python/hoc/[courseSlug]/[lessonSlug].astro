@@ -94,7 +94,7 @@ const prevLesson = currentIdx > 0 ? allLessons[currentIdx - 1] : null
 const nextLesson = currentIdx >= 0 && currentIdx < allLessons.length - 1 ? allLessons[currentIdx + 1] : null
 
 // Render markdown → HTML trên server
-const contentHtml = marked.parse(lesson.content_markdown || '')
+const contentHtml = await marked.parse(lesson.content_markdown || '')
 
 // Badge helpers
 const typeLabel: Record<string, string> = {
@@ -241,7 +241,7 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
                             <h3 class="text-white font-black text-sm flex items-center gap-2">
                                 <span>📝</span> Kiểm tra nhanh
                             </h3>
-                            <p class="text-blue-200 text-xs mt-0.5">Trả lời đúng {quizQuestions.length}/{quizQuestions.length} để hoàn thành bài học</p>
+                            <p id="quiz-header-title" class="text-blue-200 text-xs mt-0.5">📝 Đây là bài tự kiểm tra — nhấn "Nộp bài" để hoàn thành</p>
                         </div>
                         <div class="p-5 space-y-6" id="quiz-container">
                             {quizQuestions.map((q, qi) => (
@@ -389,6 +389,39 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
     let pyodide = null
     let lessonCompleted = false
 
+    // ── Helper: normalize output (match server-side) ────────────────
+    function normalizeOutput(str) {
+        return (str || '')
+            .replace(/\r\n/g, '\n')
+            .split('\n')
+            .map(line => line.replace(/\s+$/, ''))
+            .join('\n')
+            .trim()
+            .replace(/\n{3,}/g, '\n\n')
+    }
+
+    function compareClientOutputs(actual, expected, mode, epsilon) {
+        var normActual = normalizeOutput(actual)
+        var normExpected = normalizeOutput(expected)
+        if (mode === 'float') {
+            var a = parseFloat(normActual)
+            var b = parseFloat(normExpected)
+            return !isNaN(a) && !isNaN(b) && Math.abs(a - b) < (epsilon || 0.001)
+        }
+        if (mode === 'contains') {
+            return normActual.indexOf(normExpected) !== -1
+        }
+        return normActual === normExpected
+    }
+
+    // ── Helper: HTML-escape ──────────────────────────────────────────
+    function escapeHtml(str) {
+        if (typeof str !== 'string') return str
+        var div = document.createElement('div')
+        div.textContent = str
+        return div.innerHTML
+    }
+
     // ── Completion tracking ──────────────────────────────────────────
     function markLessonCompleted() {
         lessonCompleted = true
@@ -481,34 +514,41 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
     }
 
     // ── Pyodide ────────────────────────────────────────────────────────
+    var pyodideInitPromise = null
     async function initPyodide() {
+        if (pyodide) return true
+        if (pyodideInitPromise) return pyodideInitPromise
         if (loadingEl) loadingEl.classList.remove('hidden')
 
-        try {
-            // Tải Pyodide từ CDN
-            const script = document.createElement('script')
-            script.src = 'https://cdn.jsdelivr.net/npm/pyodide@314.0.2/pyodide.js'
+        pyodideInitPromise = (async function () {
+            try {
+                // Tải Pyodide từ CDN
+                const script = document.createElement('script')
+                script.src = 'https://cdn.jsdelivr.net/npm/pyodide@0.27.3/pyodide.js'
 
-            await new Promise((resolve, reject) => {
-                script.onload = resolve
-                script.onerror = () => reject(new Error('Không thể tải Pyodide từ CDN'))
-                document.head.appendChild(script)
-            })
+                await new Promise(function (resolve, reject) {
+                    script.onload = resolve
+                    script.onerror = function () { reject(new Error('Không thể tải Pyodide từ CDN')) }
+                    document.head.appendChild(script)
+                })
 
-            // Khởi tạo Pyodide
-            pyodide = await globalThis.loadPyodide({
-                indexURL: 'https://cdn.jsdelivr.net/npm/pyodide@314.0.2/',
-            })
+                // Khởi tạo Pyodide
+                pyodide = await globalThis.loadPyodide({
+                    indexURL: 'https://cdn.jsdelivr.net/npm/pyodide@0.27.3/',
+                })
 
-            if (loadingEl) loadingEl.classList.add('hidden')
-            appendConsole('✅ Python runtime đã sẵn sàng! (Python ' + pyodide.version + ')')
-            return true
-        } catch (err) {
-            if (loadingEl) loadingEl.classList.add('hidden')
-            appendConsole('❌ Lỗi tải Pyodide: ' + err.message)
-            console.error('Pyodide init error:', err)
-            return false
-        }
+                if (loadingEl) loadingEl.classList.add('hidden')
+                appendConsole('✅ Python runtime đã sẵn sàng! (Python ' + pyodide.version + ')')
+                return true
+            } catch (err) {
+                if (loadingEl) loadingEl.classList.add('hidden')
+                appendConsole('❌ Lỗi tải Pyodide: ' + err.message)
+                console.error('Pyodide init error:', err)
+                pyodideInitPromise = null  // allow retry
+                return false
+            }
+        }())
+        return pyodideInitPromise
     }
 
     // ── Console helpers ──────────────────────────────────────────────
@@ -651,18 +691,10 @@ _out.getvalue()
                 const expected = tc.expected_output.trim()
                 outputs.push(actualOutput)
 
-                // So sánh output
-                const isFloat = lessonData?.dataset.comparisonMode === 'float'
+                // So sánh output (dùng normalizeOutput đồng bộ với server)
+                const compMode = lessonData?.dataset.comparisonMode || 'exact'
                 const epsilon = parseFloat(lessonData?.dataset.floatEpsilon || '0.001')
-
-                let match = false
-                if (isFloat) {
-                    const a = parseFloat(actualOutput)
-                    const b = parseFloat(expected)
-                    match = !isNaN(a) && !isNaN(b) && Math.abs(a - b) < epsilon
-                } else {
-                    match = actualOutput === expected
-                }
+                const match = compareClientOutputs(actualOutput, expected, compMode, epsilon)
 
                 if (match) {
                     passed++
@@ -777,9 +809,9 @@ _out.getvalue()
                             <span>${r.label}</span>
                         </div>
                         <div class="ml-5 text-xs space-y-0.5 mt-1">
-                            ${r.error ? `<div class="text-red-400">Lỗi: ${r.error}</div>` : ''}
-                            ${r.expected !== undefined ? `<div class="text-slate-400">Kỳ vọng: <span class="text-slate-200">${r.expected}</span></div>` : ''}
-                            ${r.actual !== undefined ? `<div class="text-slate-400">Nhận được: <span class="text-yellow-300">${r.actual}</span></div>` : ''}
+                            ${r.error ? `<div class="text-red-400">Lỗi: ${escapeHtml(r.error)}</div>` : ''}
+                            ${r.expected !== undefined ? `<div class="text-slate-400">Kỳ vọng: <span class="text-slate-200">${escapeHtml(r.expected)}</span></div>` : ''}
+                            ${r.actual !== undefined ? `<div class="text-slate-400">Nhận được: <span class="text-yellow-300">${escapeHtml(r.actual)}</span></div>` : ''}
                         </div>
                     </div>
                 `
@@ -897,60 +929,72 @@ _out.getvalue()
             quizContainer?.querySelectorAll('.quiz-question').forEach((qEl) => {
                 const qIndex = parseInt(qEl.dataset.qindex || '0')
                 const correctIdx = parseInt(qEl.dataset.correct || '0')
-                let answered = false
-                const feedbackEl = qEl.querySelector('.quiz-feedback') as HTMLElement
+                let answeredCorrectly = false
+                /** @type {HTMLElement} */
+                var feedbackEl = qEl.querySelector('.quiz-feedback')
 
                 qEl.querySelectorAll('input[type="radio"]').forEach((radio) => {
-                    radio.addEventListener('change', () => {
-                        if (answered) return
-                        answered = true
+                    radio.addEventListener('change', function () {
+                        if (answeredCorrectly) return
 
-                        const selectedIdx = parseInt((radio as HTMLInputElement).value)
-                        const isCorrect = selectedIdx === correctIdx
+                        var selectedIdx = parseInt(this.value)
+                        var isCorrect = selectedIdx === correctIdx
 
-                        // Highlight selected option
-                        qEl.querySelectorAll('.quiz-option').forEach((optEl) => {
-                            const optIdx = parseInt((optEl as HTMLElement).dataset.optindex || '0')
-                            const lbl = optEl as HTMLLabelElement
-                            if (optIdx === correctIdx) {
-                                lbl.className = 'quiz-option flex items-start gap-3 p-3 rounded-xl border-2 border-emerald-400 bg-emerald-50'
-                                const input = lbl.querySelector('input')
-                                if (input) input.checked = true
-                            } else if (optIdx === selectedIdx && !isCorrect) {
-                                lbl.className = 'quiz-option flex items-start gap-3 p-3 rounded-xl border-2 border-red-300 bg-red-50'
-                            } else {
-                                lbl.className = 'quiz-option flex items-start gap-3 p-3 rounded-xl border border-slate-100 bg-slate-50/50 opacity-60'
-                            }
-                            const input = lbl.querySelector('input')
-                            if (input) input.disabled = true
+                        // Reset all option styles
+                        qEl.querySelectorAll('.quiz-option').forEach(function (optEl) {
+                            optEl.className = 'quiz-option flex items-start gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer transition-all duration-150 hover:border-[#3776AB]/40 hover:bg-blue-50/30'
+                            /** @type {HTMLInputElement|null} */ (optEl.querySelector('input')).disabled = false
                         })
+
+                        if (isCorrect) {
+                            answeredCorrectly = true
+                            // Highlight correct
+                            qEl.querySelectorAll('.quiz-option').forEach(function (optEl) {
+                                /** @type {HTMLElement} */ (optEl).dataset.optindex
+                                var lbl = /** @type {HTMLLabelElement} */ (optEl)
+                                var optIdx = parseInt(lbl.dataset.optindex || '0')
+                                if (optIdx === correctIdx) {
+                                    lbl.className = 'quiz-option flex items-start gap-3 p-3 rounded-xl border-2 border-emerald-400 bg-emerald-50'
+                                } else {
+                                    lbl.className = 'quiz-option flex items-start gap-3 p-3 rounded-xl border border-slate-100 bg-slate-50/50 opacity-60'
+                                }
+                                /** @type {HTMLInputElement} */ (lbl.querySelector('input')).disabled = true
+                            })
+                            correctCount++
+                        } else {
+                            // Wrong answer: highlight selected in red, but allow retry
+                            qEl.querySelectorAll('.quiz-option').forEach(function (optEl) {
+                                var optIdx = parseInt(/** @type {HTMLElement} */ (optEl).dataset.optindex || '0')
+                                if (optIdx === selectedIdx) {
+                                    /** @type {HTMLLabelElement} */ (optEl).className = 'quiz-option flex items-start gap-3 p-3 rounded-xl border-2 border-red-300 bg-red-50'
+                                }
+                            })
+                        }
 
                         // Show feedback
                         if (feedbackEl) {
-                            const q = quizQuestions[qIndex]
+                            var q = quizQuestions[qIndex]
                             if (isCorrect) {
                                 feedbackEl.className = 'quiz-feedback ml-8 mt-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 bg-emerald-50 border border-emerald-200 text-emerald-700'
-                                feedbackEl.innerHTML = `✅ <strong>Đúng!</strong> ${q.explanation}`
-                                correctCount++
+                                feedbackEl.innerHTML = '✅ <strong>Đúng!</strong> ' + escapeHtml(q.explanation)
                             } else {
                                 feedbackEl.className = 'quiz-feedback ml-8 mt-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 bg-red-50 border border-red-200 text-red-700'
-                                feedbackEl.innerHTML = `❌ <strong>Sai!</strong> Đáp án đúng là <strong>${q.options[correctIdx]}</strong>. ${q.explanation}`
+                                feedbackEl.innerHTML = '❌ <strong>Sai!</strong> Đáp án đúng là <strong>' + escapeHtml(q.options[correctIdx]) + '</strong>. ' + escapeHtml(q.explanation)
                             }
                             feedbackEl.classList.remove('hidden')
                         }
 
                         // Update progress
-                        const headerEl = quizSection?.querySelector('.bg-gradient-to-r')
+                        var headerEl = document.getElementById('quiz-header-title')
                         if (headerEl) {
-                            const pEl = headerEl.querySelector('p')
-                            if (pEl) {
-                                const remaining = totalQuestions - correctCount
-                                if (remaining === 0) {
-                                    pEl.textContent = `🎉 Hoàn thành! Bạn đã trả lời đúng ${correctCount}/${totalQuestions} câu.`
-                                    pEl.className = 'text-emerald-200 text-xs mt-0.5'
-                                } else {
-                                    pEl.textContent = `✅ Đã đúng ${correctCount}/${totalQuestions} — còn ${remaining} câu chưa trả lời đúng`
-                                }
+                            var remaining = totalQuestions - correctCount
+                            if (remaining === 0) {
+                                headerEl.textContent = '🎉 Hoàn thành! Bạn đã trả lời đúng ' + correctCount + '/' + totalQuestions + ' câu.'
+                                headerEl.className = 'text-emerald-200 text-xs mt-0.5'
+                            } else if (correctCount > 0) {
+                                headerEl.textContent = '✅ Đã đúng ' + correctCount + '/' + totalQuestions + ' — còn ' + remaining + ' câu'
+                            } else {
+                                headerEl.textContent = '📝 Đây là bài tự kiểm tra — nhấn "Nộp bài" để hoàn thành'
                             }
                         }
                     })

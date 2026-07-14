@@ -119,6 +119,7 @@ const diffLessonColor: Record<string, string> = {
 
 const totalLessons = chapters.reduce((sum, ch) => sum + ch.lessons.length, 0)
 const totalXP = chapters.reduce((sum, ch) => sum + ch.lessons.reduce((s, l) => s + l.xp_reward, 0), 0)
+const firstLessonSlug = chapters[0]?.lessons?.[0]?.slug ?? null
 ---
 
 <MainLayout title={`${course.title} | ${TC_TITLE}`}>
@@ -171,12 +172,12 @@ const totalXP = chapters.reduce((sum, ch) => sum + ch.lessons.reduce((s, l) => s
                         <span><strong class="text-slate-800">{totalXP}</strong> XP</span>
                     </div>
                 </div>
-                {chapters.length > 0 && (
+                {chapters.length > 0 && firstLessonSlug && (
                     <a
                         id="ctaBtn"
                         href="#"
                         data-course-slug={course.slug}
-                        data-auth-href={`/hoc-python/hoc/${course.slug}/${chapters[0].lessons[0]?.slug || ''}`}
+                        data-auth-href={`/hoc-python/hoc/${course.slug}/${firstLessonSlug}`}
                         class="inline-flex items-center gap-2 bg-[#3776AB] text-white font-bold text-sm px-5 py-2.5 rounded-xl hover:bg-[#2B5E8A] transition-colors shadow-md"
                     >
                         Đăng ký miễn phí
@@ -240,10 +241,10 @@ const totalXP = chapters.reduce((sum, ch) => sum + ch.lessons.reduce((s, l) => s
 
                                     <div class="flex items-center gap-3 text-xs text-slate-400 font-medium shrink-0">
                                         <span class="flex items-center gap-1">
-                                            <span>⭐</span> +{lesson.xp_reward}
+                                            <span>⭐</span>         +{lesson.xp_reward ?? 0}
                                         </span>
                                         <span class="flex items-center gap-1">
-                                            <span>⏱</span> {lesson.estimated_minutes}p
+                                            <span>⏱</span> {lesson.estimated_minutes ?? '?'}p
                                         </span>
                                         <span class="text-[#3776AB] group-hover/lesson:translate-x-1 transition-transform">→</span>
                                     </div>
@@ -360,12 +361,23 @@ const totalXP = chapters.reduce((sum, ch) => sum + ch.lessons.reduce((s, l) => s
             fetch('/api/hoc-python/enrollment?courseSlug=' + encodeURIComponent(courseSlug), {
                 headers: { 'Authorization': 'Bearer ' + token }
             })
-            .then(function (r) { return r.json() })
+            .then(function (r) {
+                if (r.status === 401) {
+                    localStorage.removeItem('auth_token')
+                    setGuestMode(btn)
+                    return null
+                }
+                return r.json()
+            })
             .then(function (data) {
+                if (data === null) return
                 if (data.enrolled) setContinueMode(btn, token)
                 else setNotEnrolledMode(btn, token)
             })
-            .catch(function () { setEnrolledStatic(btn) })
+            .catch(function () {
+                localStorage.removeItem('auth_token')
+                setGuestMode(btn)
+            })
         }
 
         function updateCta() {

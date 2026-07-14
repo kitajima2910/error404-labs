@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS error404labs.py_lessons (
     difficulty TEXT DEFAULT 'easy' NOT NULL CHECK (difficulty IN ('easy', 'medium', 'hard')),
     xp_reward INTEGER DEFAULT 10 NOT NULL,
     estimated_minutes INTEGER DEFAULT 10,
-    comparison_mode TEXT DEFAULT 'exact' NOT NULL CHECK (comparison_mode IN ('exact', 'float', 'custom')),
+    comparison_mode TEXT DEFAULT 'exact' NOT NULL CHECK (comparison_mode IN ('exact', 'float', 'custom', 'contains')),
     float_epsilon NUMERIC DEFAULT 0.001,
     time_limit_ms INTEGER DEFAULT 10000,
     order_index INTEGER NOT NULL,

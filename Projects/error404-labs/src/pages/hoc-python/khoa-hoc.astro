@@ -29,7 +29,7 @@ const courses: Course[] = await sql`
         c.published,
         (SELECT COUNT(*) FROM error404labs.py_chapters ch WHERE ch.course_id = c.id)::int AS total_chapters,
         (SELECT COUNT(*) FROM error404labs.py_chapters ch
-            JOIN error404labs.py_lessons l ON l.chapter_id = ch.id
+            JOIN error404labs.py_lessons l ON l.chapter_id = ch.id AND l.published = true
             WHERE ch.course_id = c.id)::int AS total_lessons
     FROM error404labs.py_courses c
     WHERE c.published = true

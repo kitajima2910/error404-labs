@@ -1,53 +1,9 @@
 import { neon } from '@neondatabase/serverless'
 import type { APIRoute } from 'astro'
-import jwt from 'jsonwebtoken'
 import { compareOutputs } from '../../../utils/python-grading'
+import verifyAuth from '../../utils/auth'
 
 export const prerender = false
-
-// Helper: xác thực user qua JWT + session check
-const verifyAuth = async (request: Request) => {
-    const authHeader = request.headers.get('Authorization')
-    const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null
-    if (!token) return null
-
-    try {
-        const jwtSecret = import.meta.env.JWT_SECRET
-        const dbUrl = import.meta.env.DATABASE_URL
-        if (!jwtSecret || !dbUrl) return null
-
-        const decoded = jwt.verify(token, jwtSecret) as {
-            id: number
-            member: string
-            sessionToken: string
-        }
-
-        const sql = neon(dbUrl)
-        const user = (
-            await sql`
-                SELECT id, logined, session_token, session_fingerprint, status
-                FROM error404labs.members
-                WHERE id = ${decoded.id}
-            `
-        )[0]
-
-        const fingerprint = request.headers.get('user-agent') || 'unknown'
-
-        if (
-            !user ||
-            user.logined !== 1 ||
-            user.status !== 'active' ||
-            user.session_token !== decoded.sessionToken ||
-            user.session_fingerprint !== fingerprint
-        ) {
-            return null
-        }
-
-        return decoded
-    } catch {
-        return null
-    }
-}
 
 export const POST: APIRoute = async ({ request }) => {
     // CSRF Protection
@@ -134,47 +90,58 @@ export const POST: APIRoute = async ({ request }) => {
                 INSERT INTO error404labs.py_lesson_progress (user_id, lesson_id, status, first_started_at, completed_at, best_submission_id)
                 VALUES (${user.id}, ${lessonId}, 'completed', NOW(), NOW(), ${sub.id})
                 ON CONFLICT (user_id, lesson_id)
-                DO UPDATE SET status = 'completed', completed_at = NOW(), best_submission_id = ${sub.id}, updated_at = NOW()
+                DO UPDATE SET status = 'completed', completed_at = COALESCE(py_lesson_progress.completed_at, NOW()), best_submission_id = ${sub.id}, updated_at = NOW()
             `
 
-            // Award XP
-            const today = new Date().toISOString().split('T')[0]
-            const profile = (
-                await sql`
-                    SELECT id, current_streak, longest_streak, last_learning_date
-                    FROM error404labs.py_profiles
-                    WHERE id = ${user.id}
-                `
-            )[0]
+            // Kiểm tra đã hoàn thành trước đó (tránh XP duplication)
+            const existingProgress = await sql`
+                SELECT status FROM error404labs.py_lesson_progress
+                WHERE user_id = ${user.id} AND lesson_id = ${lessonId}
+            `
+            const alreadyCompleted = existingProgress[0]?.status === 'completed'
 
-            if (profile) {
-                let newStreak = profile.current_streak
-                const lastDate = profile.last_learning_date
-                    ? new Date(profile.last_learning_date).toISOString().split('T')[0]
-                    : null
+            // Award XP (chỉ nếu chưa completed trước đó)
+            let xpAwarded = 0
+            if (!alreadyCompleted) {
+                xpAwarded = lesson.xp_reward
 
-                if (lastDate && lastDate !== today) {
-                    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
-                    newStreak = lastDate === yesterday ? newStreak + 1 : 1
-                } else if (!lastDate) {
-                    newStreak = 1
+                const today = new Date().toISOString().split('T')[0]
+                const profile = (
+                    await sql`
+                        SELECT id, current_streak, longest_streak, last_learning_date
+                        FROM error404labs.py_profiles
+                        WHERE id = ${user.id}
+                    `
+                )[0]
+
+                let newStreak = 1
+                let longestStreak = 1
+
+                if (profile) {
+                    newStreak = profile.current_streak
+                    const lastDate = profile.last_learning_date
+                        ? new Date(profile.last_learning_date).toISOString().split('T')[0]
+                        : null
+
+                    if (lastDate && lastDate !== today) {
+                        const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
+                        newStreak = lastDate === yesterday ? newStreak + 1 : 1
+                    } else if (!lastDate) {
+                        newStreak = 1
+                    }
+
+                    longestStreak = Math.max(newStreak, profile.longest_streak)
                 }
 
-                const longestStreak = Math.max(newStreak, profile.longest_streak)
-
-                await sql`
-                    UPDATE error404labs.py_profiles
-                    SET total_xp = total_xp + ${lesson.xp_reward},
-                        current_streak = ${newStreak},
-                        longest_streak = ${longestStreak},
-                        last_learning_date = ${today},
-                        updated_at = NOW()
-                    WHERE id = ${user.id}
-                `
-            } else {
                 await sql`
                     INSERT INTO error404labs.py_profiles (id, total_xp, current_streak, longest_streak, last_learning_date)
-                    VALUES (${user.id}, ${lesson.xp_reward}, 1, 1, ${today})
+                    VALUES (${user.id}, ${xpAwarded}, ${newStreak}, ${longestStreak}, ${today})
+                    ON CONFLICT (id) DO UPDATE SET
+                        total_xp = error404labs.py_profiles.total_xp + ${xpAwarded},
+                        current_streak = ${newStreak},
+                        longest_streak = GREATEST(error404labs.py_profiles.longest_streak, ${longestStreak}),
+                        last_learning_date = ${today},
+                        updated_at = NOW()
                 `
             }
 
@@ -184,7 +151,7 @@ export const POST: APIRoute = async ({ request }) => {
                     passed: true,
                     passedTests: 0,
                     totalTests: 0,
-                    xpAwarded: lesson.xp_reward,
+                    xpAwarded,
                     results: [],
                 }),
                 {
@@ -248,7 +215,7 @@ export const POST: APIRoute = async ({ request }) => {
 
         const allPassed = passedCount === testCases.length
         const status = allPassed ? 'passed' : 'failed'
-        const xpAwarded = allPassed ? lesson.xp_reward : 0
+        let xpAwarded = allPassed ? lesson.xp_reward : 0
 
         // Lưu submission
         const submission = (
@@ -270,47 +237,57 @@ export const POST: APIRoute = async ({ request }) => {
                 INSERT INTO error404labs.py_lesson_progress (user_id, lesson_id, status, first_started_at, completed_at, best_submission_id)
                 VALUES (${user.id}, ${lessonId}, 'completed', NOW(), NOW(), ${submission.id})
                 ON CONFLICT (user_id, lesson_id)
-                DO UPDATE SET status = 'completed', completed_at = NOW(), best_submission_id = ${submission.id}, updated_at = NOW()
+                DO UPDATE SET status = 'completed', completed_at = COALESCE(py_lesson_progress.completed_at, NOW()), best_submission_id = ${submission.id}, updated_at = NOW()
             `
 
-            const today = new Date().toISOString().split('T')[0]
-            const profile = (
-                await sql`
-                    SELECT id, current_streak, longest_streak, last_learning_date
-                    FROM error404labs.py_profiles
-                    WHERE id = ${user.id}
-                `
-            )[0]
+            // Kiểm tra đã hoàn thành trước đó (tránh XP duplication)
+            const existingProgress = await sql`
+                SELECT status FROM error404labs.py_lesson_progress
+                WHERE user_id = ${user.id} AND lesson_id = ${lessonId}
+            `
+            const alreadyCompleted = existingProgress[0]?.status === 'completed'
 
-            if (profile) {
-                let newStreak = profile.current_streak
-                const lastDate = profile.last_learning_date
-                    ? new Date(profile.last_learning_date).toISOString().split('T')[0]
-                    : null
+            if (!alreadyCompleted) {
+                const today = new Date().toISOString().split('T')[0]
+                const profile = (
+                    await sql`
+                        SELECT id, current_streak, longest_streak, last_learning_date
+                        FROM error404labs.py_profiles
+                        WHERE id = ${user.id}
+                    `
+                )[0]
 
-                if (lastDate && lastDate !== today) {
-                    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
-                    newStreak = lastDate === yesterday ? newStreak + 1 : 1
-                } else if (!lastDate) {
-                    newStreak = 1
+                let newStreak = 1
+                let longestStreak = 1
+
+                if (profile) {
+                    newStreak = profile.current_streak
+                    const lastDate = profile.last_learning_date
+                        ? new Date(profile.last_learning_date).toISOString().split('T')[0]
+                        : null
+
+                    if (lastDate && lastDate !== today) {
+                        const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
+                        newStreak = lastDate === yesterday ? newStreak + 1 : 1
+                    } else if (!lastDate) {
+                        newStreak = 1
+                    }
+
+                    longestStreak = Math.max(newStreak, profile.longest_streak)
                 }
 
-                const longestStreak = Math.max(newStreak, profile.longest_streak)
-
-                await sql`
-                    UPDATE error404labs.py_profiles
-                    SET total_xp = total_xp + ${xpAwarded},
-                        current_streak = ${newStreak},
-                        longest_streak = ${longestStreak},
-                        last_learning_date = ${today},
-                        updated_at = NOW()
-                    WHERE id = ${user.id}
-                `
-            } else {
                 await sql`
                     INSERT INTO error404labs.py_profiles (id, total_xp, current_streak, longest_streak, last_learning_date)
-                    VALUES (${user.id}, ${xpAwarded}, 1, 1, ${today})
+                    VALUES (${user.id}, ${xpAwarded}, ${newStreak}, ${longestStreak}, ${today})
+                    ON CONFLICT (id) DO UPDATE SET
+                        total_xp = error404labs.py_profiles.total_xp + ${xpAwarded},
+                        current_streak = ${newStreak},
+                        longest_streak = GREATEST(error404labs.py_profiles.longest_streak, ${longestStreak}),
+                        last_learning_date = ${today},
+                        updated_at = NOW()
                 `
+            } else {
+                xpAwarded = 0
             }
         } else {
             // Nếu failed: vẫn update progress nhưng không award XP

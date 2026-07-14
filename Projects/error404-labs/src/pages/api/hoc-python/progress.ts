@@ -1,29 +1,31 @@
 import { neon } from '@neondatabase/serverless'
 import type { APIRoute } from 'astro'
+import { verifyAuth } from '../../../utils/auth'
 
 export const prerender = false
 
-export const GET: APIRoute = async ({ url }) => {
+export const GET: APIRoute = async ({ url, cookies }) => {
     try {
-        const courseSlug = url.searchParams.get('courseSlug')
-        const userIdParam = url.searchParams.get('userId')
+        // Xác thực JWT
+        const authResult = await verifyAuth(cookies)
+        if (!authResult.authenticated) {
+            return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+                status: 401,
+                headers: { 'Content-Type': 'application/json' },
+            })
+        }
+        const userId = authResult.user.id
 
-        if (!courseSlug || !userIdParam) {
+        const courseSlug = url.searchParams.get('courseSlug')
+
+        if (!courseSlug) {
             return new Response(
-                JSON.stringify({ error: 'Thiếu tham số courseSlug và userId' }),
+                JSON.stringify({ error: 'Thiếu tham số courseSlug' }),
                 {
                     status: 400,
                     headers: { 'Content-Type': 'application/json' },
                 },
             )
-        }
-
-        const userId = parseInt(userIdParam, 10)
-        if (isNaN(userId)) {
-            return new Response(JSON.stringify({ error: 'userId phải là số' }), {
-                status: 400,
-                headers: { 'Content-Type': 'application/json' },
-            })
         }
 
         const dbUrl = import.meta.env.DATABASE_URL
@@ -63,6 +65,7 @@ export const GET: APIRoute = async ({ url }) => {
             LEFT JOIN error404labs.py_lesson_progress p
                 ON p.lesson_id = l.id AND p.user_id = ${userId}
             WHERE ch.course_id = ${course.id}
+            AND l.published = true
             ORDER BY ch.order_index ASC, l.order_index ASC
         `
 

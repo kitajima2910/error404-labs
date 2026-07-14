@@ -28,7 +28,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         const clientIp = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
             || request.headers.get('x-real-ip')
             || 'unknown';
-        const rateCheck = checkRateLimit(clientIp, 5, 60_000);
+        const rateCheck = await checkRateLimit(clientIp, 5, 60_000);
         if (!rateCheck.allowed) {
             return new Response(JSON.stringify({
                 error: `Quá nhiều lần thử. Vui lòng đợi ${rateCheck.retryAfterSec} giây.`

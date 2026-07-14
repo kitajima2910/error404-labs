@@ -1560,8 +1560,8 @@ VALUES ('00000000-0000-0000-0000-00000000C076', '00000000-0000-0000-0000-0000000
 INSERT INTO error404labs.py_test_cases (id, lesson_id, stdin, expected_output, is_hidden, order_index)
 VALUES ('00000000-0000-0000-0000-00000000C077', '00000000-0000-0000-0000-00000000B030', E'6
 1 4 2 5 3 6
-7', E'2', false, 2);
+7', E'3', false, 2);
 INSERT INTO error404labs.py_test_cases (id, lesson_id, stdin, expected_output, is_hidden, order_index)
 VALUES ('00000000-0000-0000-0000-00000000C078', '00000000-0000-0000-0000-00000000B030', E'5
 1 2 3 4 5
-9', E'2', true, 3);
+9', E'1', true, 3);
