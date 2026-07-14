@@ -370,6 +370,8 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
     const lessonData = document.getElementById('lesson-data')
     const starterCode = JSON.parse(lessonData?.dataset.starterCode || '"# Viết code Python của bạn ở đây\\n"')
     const testCases = JSON.parse(lessonData?.dataset.testCases || '[]')
+    const publicTests = testCases.filter(function (tc) { return !tc.is_hidden })
+    const hiddenTests = testCases.filter(function (tc) { return tc.is_hidden })
     const lessonId = JSON.parse(lessonData?.dataset.lessonId || '""')
     const courseSlug = lessonData?.dataset.courseSlug || ''
     const prevLesson = JSON.parse(lessonData?.dataset.prevLesson || 'null')
@@ -570,7 +572,7 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
         if (consoleEl) consoleEl.innerHTML = ''
     }
 
-    // ── Run code ───────────────────────────────────────────────────────
+    // ── Run code — chạy public test cases ────────────────────────────
     async function runCode() {
         if (!pyodide || !editorView) {
             appendConsole('⚠️ Python runtime chưa sẵn sàng. Vui lòng đợi...', 'error')
@@ -579,12 +581,13 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
         }
 
         const code = editorView.state.doc.toString()
-        clearConsole()
-        appendConsole('▶ Đang chạy...')
 
-        try {
-            // Chạy code và capture stdout
-            const result = await pyodide.runPythonAsync(`
+        // Nếu không có public test → chạy code đơn thuần (theory lesson)
+        if (publicTests.length === 0) {
+            clearConsole()
+            appendConsole('▶ Đang chạy...')
+            try {
+                const result = await pyodide.runPythonAsync(`
 import sys
 from io import StringIO
 
@@ -600,16 +603,85 @@ except Exception:
 
 sys.stdout = sys.__stdout__
 _out.getvalue()
-            `)
-
-            const output = (result || '').trim()
-            if (output) {
-                output.split('\n').forEach(line => appendConsole(line, 'output'))
-            } else {
-                appendConsole('✅ Code chạy thành công (không có output)', 'success')
+                `)
+                const output = (result || '').trim()
+                if (output) {
+                    output.split('\n').forEach(line => appendConsole(line, 'output'))
+                } else {
+                    appendConsole('✅ Code chạy thành công (không có output)', 'success')
+                }
+            } catch (err) {
+                appendConsole('❌ Lỗi: ' + (err.message || String(err)), 'error')
             }
-        } catch (err) {
-            appendConsole('❌ Lỗi: ' + (err.message || String(err)), 'error')
+            return
+        }
+
+        // Có public test → chạy từng test case và hiển thị kết quả
+        clearConsole()
+        appendConsole('▶ Đang chạy ' + publicTests.length + ' test cases...')
+        switchTab('test-results')
+        showTestResults([], 0, publicTests.length, true)
+
+        var passed = 0
+        var results = []
+
+        for (var i = 0; i < publicTests.length; i++) {
+            var tc = publicTests[i]
+            var testLabel = 'Test: ' + (tc.stdin || '(empty input)')
+
+            try {
+                var output = await pyodide.runPythonAsync(`
+import sys
+from io import StringIO
+
+sys.stdin = StringIO(${JSON.stringify(tc.stdin)})
+
+_out = StringIO()
+sys.stdout = _out
+
+try:
+    _ = 0
+${code.split('\n').map(line => '    ' + line).join('\n')}
+except Exception:
+    import traceback
+    traceback.print_exc()
+
+sys.stdout = sys.__stdout__
+_out.getvalue()
+                `)
+
+                var actualOutput = (output || '').trim()
+                var expected = tc.expected_output.trim()
+
+                var compMode = lessonData?.dataset.comparisonMode || 'exact'
+                var epsilon = parseFloat(lessonData?.dataset.floatEpsilon || '0.001')
+                var match = compareClientOutputs(actualOutput, expected, compMode, epsilon)
+
+                if (match) {
+                    passed++
+                    results.push({ index: i, passed: true, label: testLabel })
+                } else {
+                    results.push({
+                        index: i, passed: false, label: testLabel,
+                        expected: expected, actual: actualOutput,
+                    })
+                }
+            } catch (err) {
+                results.push({
+                    index: i, passed: false, label: testLabel,
+                    error: err.message || String(err),
+                })
+            }
+
+            showTestResults(results, passed, publicTests.length)
+        }
+
+        showTestResults(results, passed, publicTests.length)
+
+        if (passed === publicTests.length) {
+            appendConsole('✅ ' + passed + '/' + publicTests.length + ' test case đúng! Hãy nhấn "Nộp bài" để chạy ẩn test.', 'success')
+        } else {
+            appendConsole('📊 ' + passed + '/' + publicTests.length + ' test case đúng — sửa code rồi chạy lại.', 'info')
         }
     }
 
@@ -671,11 +743,13 @@ _out.getvalue()
         }
 
         clearConsole()
-        appendConsole('📤 Đang nộp bài và chạy test cases...')
+        var totalTests = testCases.length
+        var hiddenCount = hiddenTests.length
+        appendConsole('📤 Đang nộp bài và chạy ' + totalTests + ' test cases (trong đó ' + hiddenCount + ' ẩn)...')
 
         // Hiện tab test results
         switchTab('test-results')
-        showTestResults([], 0, testCases.length, true)
+        showTestResults([], 0, totalTests, true)
 
         let passed = 0
         const results = []
@@ -746,7 +820,7 @@ _out.getvalue()
         showTestResults(results, passed, testCases.length)
 
         if (passed === testCases.length) {
-            appendConsole('🎉 Hoàn thành bài học! +' + (lessonData?.dataset?.xpReward || 10) + ' XP', 'success')
+            appendConsole('🎉 Hoàn thành ' + passed + '/' + testCases.length + ' test case (gồm ' + hiddenTests.length + ' ẩn)!', 'success')
             markLessonCompleted()
         } else {
             appendConsole('📊 Kết quả: ' + passed + '/' + testCases.length + ' test case đúng', 'info')
