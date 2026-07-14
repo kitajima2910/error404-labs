@@ -1,6 +1,7 @@
 import { neon } from '@neondatabase/serverless'
 import type { APIRoute } from 'astro'
 import { verifyAuth } from '../../../utils/auth'
+import { calculateLevel, getLevelBadge } from '../../../utils/level'
 
 export const prerender = false
 
@@ -52,12 +53,42 @@ export const GET: APIRoute = async ({ url, request }) => {
             })
         }
 
-        // Lấy tất cả lessons trong course kèm progress của user
+        // Lấy user level
+        const profile = (
+            await sql`
+                SELECT total_xp, current_streak
+                FROM error404labs.py_profiles
+                WHERE id = ${userId}
+            `
+        )[0]
+
+        const totalXp = profile?.total_xp ?? 0
+        const currentStreak = profile?.current_streak ?? 0
+        const levelInfo = calculateLevel(totalXp)
+        const userLevel = levelInfo.level
+        const badge = getLevelBadge(userLevel)
+
+        // Lấy chapters có min_level
+        const chapters = await sql`
+            SELECT id, order_index, min_level
+            FROM error404labs.py_chapters
+            WHERE course_id = ${course.id}
+            ORDER BY order_index ASC
+        `
+
+        // Map chapter_id → min_level
+        const chapterMinLevel: Record<string, number> = {}
+        for (const ch of chapters as any[]) {
+            chapterMinLevel[ch.id] = ch.min_level ?? 0
+        }
+
+        // Lấy tất cả lessons trong course kèm progress + chapter min_level
         const lessons = await sql`
             SELECT
                 l.slug,
                 l.order_index,
                 l.lesson_type,
+                ch.id AS chapter_id,
                 ch.order_index AS chapter_order,
                 COALESCE(p.status, 'locked') AS status
             FROM error404labs.py_lessons l
@@ -71,14 +102,22 @@ export const GET: APIRoute = async ({ url, request }) => {
 
         // Build progress map: { [lessonSlug]: status }
         const progress: Record<string, string> = {}
-        let previousCompleted = true // Lesson đầu tiên luôn unlocked
+        let previousCompleted = true
 
         for (let i = 0; i < lessons.length; i++) {
             const lesson = lessons[i]
             const dbStatus = lesson.status
+            const chapterId = lesson.chapter_id
+            const minLevel = chapterMinLevel[chapterId] ?? 0
+
+            // Gating: chapter yêu cầu level > user level → locked
+            if (minLevel > userLevel) {
+                progress[lesson.slug] = 'level_locked'
+                previousCompleted = false
+                continue
+            }
 
             // Logic locking: lesson bị locked nếu lesson trước chưa completed
-            // Trừ khi đã có status từ DB
             if (dbStatus === 'locked' && !previousCompleted && i > 0) {
                 progress[lesson.slug] = 'locked'
             } else {
@@ -89,26 +128,16 @@ export const GET: APIRoute = async ({ url, request }) => {
             if (progress[lesson.slug] === 'completed') {
                 previousCompleted = true
             } else if (i === 0) {
-                // Lesson đầu tiên luôn unlocked
                 previousCompleted = true
             } else {
                 previousCompleted = false
             }
         }
 
-        // Lesson đầu tiên luôn là unlocked (in_progress hoặc locked -> in_progress)
+        // Lesson đầu tiên luôn unlocked (nếu không bị level lock)
         if (lessons.length > 0 && progress[lessons[0].slug] === 'locked') {
             progress[lessons[0].slug] = 'in_progress'
         }
-
-        // Lấy profile XP và streak
-        const profile = (
-            await sql`
-                SELECT total_xp, current_streak
-                FROM error404labs.py_profiles
-                WHERE id = ${userId}
-            `
-        )[0]
 
         return new Response(
             JSON.stringify({
@@ -117,8 +146,16 @@ export const GET: APIRoute = async ({ url, request }) => {
                     title: course.title,
                 },
                 progress,
-                totalXp: profile?.total_xp || 0,
-                streak: profile?.current_streak || 0,
+                level: {
+                    level: userLevel,
+                    badge: {
+                        icon: badge.icon,
+                        color: badge.color,
+                        title: badge.title,
+                    },
+                },
+                totalXp,
+                streak: currentStreak,
             }),
             {
                 status: 200,

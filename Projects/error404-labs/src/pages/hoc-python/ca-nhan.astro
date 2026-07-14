@@ -1,0 +1,223 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro'
+import { TC_TITLE } from '../../common/TextConst'
+---
+
+<MainLayout title={`Cá nhân | Học Python | ${TC_TITLE}`}>
+    <section class="min-h-screen bg-gradient-to-b from-slate-50 to-white relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden z-0">
+            <div class="absolute -top-[15%] -right-[10%] w-[40%] h-[40%] bg-[#3776AB]/5 rounded-full blur-[120px]"></div>
+            <div class="absolute -bottom-[15%] -left-[10%] w-[40%] h-[40%] bg-[#FFD43B]/8 rounded-full blur-[120px]"></div>
+        </div>
+
+        <div class="relative z-10 max-w-4xl mx-auto px-4 py-12 md:py-16">
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-8 flex-wrap gap-4">
+                <div>
+                    <div class="inline-flex items-center gap-2 bg-[#3776AB]/10 text-[#3776AB] font-black text-xs md:text-sm px-4 py-2 rounded-full mb-4 uppercase tracking-wider">
+                        👤 Hồ sơ cá nhân
+                    </div>
+                    <h1 class="text-3xl md:text-4xl font-black text-slate-800 tracking-tight">
+                        Thành tích <span class="text-[#3776AB]">học tập</span>
+                    </h1>
+                </div>
+                <a href="/hoc-python/bang-xep-hang"
+                    class="inline-flex items-center gap-2 bg-white border border-slate-200 text-slate-600 font-bold text-sm px-4 py-2.5 rounded-xl hover:border-[#3776AB] hover:text-[#3776AB] transition-colors shadow-sm">
+                    🏆 Bảng xếp hạng
+                </a>
+            </div>
+
+            <!-- Profile not loaded state -->
+            <div id="profileLoading" class="text-center py-20">
+                <div class="text-4xl mb-4 animate-pulse">⏳</div>
+                <p class="text-slate-400">Đang tải thông tin...</p>
+            </div>
+
+            <!-- Profile content (hidden until loaded) -->
+            <div id="profileContent" class="hidden space-y-8">
+                <!-- Level Card -->
+                <div id="levelCard" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 md:p-8 flex flex-col md:flex-row items-center gap-6">
+                    <div id="badgeIcon" class="w-24 h-24 rounded-2xl bg-gradient-to-br flex items-center justify-center text-5xl shadow-lg shrink-0">
+                    </div>
+                    <div class="flex-1 text-center md:text-left">
+                        <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Cấp độ</p>
+                        <h2 class="text-3xl font-black text-slate-800 mb-1">
+                            Level <span id="levelNumber"></span>
+                        </h2>
+                        <p id="badgeTitle" class="text-slate-500 font-medium"></p>
+                        <div class="mt-4">
+                            <div class="flex justify-between text-sm text-slate-500 mb-1.5">
+                                <span id="xpCurrent" class="font-semibold text-slate-700"></span>
+                                <span id="xpNext"></span>
+                            </div>
+                            <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+                                <div id="xpBar" class="h-full bg-gradient-to-r from-[#3776AB] to-[#2B5E8A] rounded-full transition-all duration-500" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-white rounded-xl border border-slate-200 p-5 text-center">
+                        <div class="text-2xl mb-1">📝</div>
+                        <div id="lessonsCompleted" class="text-2xl font-black text-slate-800">0</div>
+                        <p class="text-xs text-slate-400 font-medium mt-1">Bài đã học</p>
+                    </div>
+                    <div class="bg-white rounded-xl border border-slate-200 p-5 text-center">
+                        <div class="text-2xl mb-1">💯</div>
+                        <div class="text-2xl font-black text-slate-800">
+                            <span id="xpTotal">0</span>
+                        </div>
+                        <p class="text-xs text-slate-400 font-medium mt-1">Tổng XP</p>
+                    </div>
+                    <div class="bg-white rounded-xl border border-slate-200 p-5 text-center">
+                        <div id="streakIcon" class="text-2xl mb-1">🔥</div>
+                        <div id="streakCount" class="text-2xl font-black text-slate-800">0</div>
+                        <p class="text-xs text-slate-400 font-medium mt-1">Streak hiện tại</p>
+                    </div>
+                    <div class="bg-white rounded-xl border border-slate-200 p-5 text-center">
+                        <div class="text-2xl mb-1">🏆</div>
+                        <div id="achievementCount" class="text-2xl font-black text-slate-800">0</div>
+                        <p class="text-xs text-slate-400 font-medium mt-1">Huy hiệu</p>
+                    </div>
+                </div>
+
+                <!-- Achievements -->
+                <div>
+                    <h2 class="text-xl font-black text-slate-800 mb-4 flex items-center gap-2">
+                        🏅 Huy hiệu
+                    </h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="achievementsGrid">
+                        <!-- Filled by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Not logged in state -->
+            <div id="loginPrompt" class="hidden text-center py-20">
+                <div class="text-6xl mb-4">🔒</div>
+                <h2 class="text-2xl font-bold text-slate-400 mb-2">Cần đăng nhập</h2>
+                <p class="text-slate-300 mb-6">Vui lòng đăng nhập để xem thành tích học tập của bạn.</p>
+                <button onclick="showLoginModal()"
+                    class="inline-flex items-center gap-2 bg-[#3776AB] text-white font-bold px-6 py-3 rounded-xl hover:bg-[#2B5E8A] transition-colors shadow-md">
+                    Đăng nhập
+                </button>
+            </div>
+        </div>
+    </section>
+</MainLayout>
+
+<script is:inline>
+(function () {
+    var container = document.getElementById('profileContent')
+    var loading = document.getElementById('profileLoading')
+    var loginPrompt = document.getElementById('loginPrompt')
+
+    function showLoginModal() {
+        var m = document.getElementById('loginModal')
+        if (m) { m.classList.remove('hidden'); m.classList.add('flex'); document.body.classList.add('overflow-hidden') }
+    }
+
+    var token = localStorage.getItem('auth_token')
+    if (!token) {
+        loading.classList.add('hidden')
+        loginPrompt.classList.remove('hidden')
+        return
+    }
+
+    fetch('/api/hoc-python/profile', {
+        headers: { 'Authorization': 'Bearer ' + token }
+    })
+    .then(function (r) {
+        if (r.status === 401) {
+            localStorage.removeItem('auth_token')
+            loading.classList.add('hidden')
+            loginPrompt.classList.remove('hidden')
+            return null
+        }
+        return r.json()
+    })
+    .then(function (data) {
+        if (!data) return
+        loading.classList.add('hidden')
+        container.classList.remove('hidden')
+
+        // Level + XP
+        var badgeIcon = document.getElementById('badgeIcon')
+        badgeIcon.className = badgeIcon.className + ' bg-gradient-to-br ' + (data.badge.color || 'from-slate-400 to-slate-500')
+        badgeIcon.textContent = data.badge.icon || '🥚'
+
+        document.getElementById('levelNumber').textContent = data.level
+        document.getElementById('badgeTitle').textContent = data.badge.title || ''
+
+        document.getElementById('xpCurrent').textContent =
+            data.xp.currentLevelXp.toLocaleString() + ' XP (hiện tại)'
+        document.getElementById('xpNext').textContent =
+            data.xp.xpForNextLevel.toLocaleString() + ' XP (tiếp theo)'
+        document.getElementById('xpBar').style.width = (data.xp.progress * 100) + '%'
+        document.getElementById('xpTotal').textContent = data.xp.total.toLocaleString()
+
+        // Lessons
+        document.getElementById('lessonsCompleted').textContent =
+            data.lessons.completed + '/' + data.lessons.total
+
+        // Streak
+        document.getElementById('streakCount').textContent = data.streak.current
+        var streakIcon = document.getElementById('streakIcon')
+        if (data.streak.current >= 30) streakIcon.textContent = '💪'
+        else if (data.streak.current >= 7) streakIcon.textContent = '🔥'
+        else streakIcon.textContent = '✨'
+
+        // Achievements
+        var grid = document.getElementById('achievementsGrid')
+        var earned = data.achievements.filter(function (a) { return a.earned })
+        document.getElementById('achievementCount').textContent = earned.length + '/' + data.achievements.length
+
+        data.achievements.forEach(function (ach) {
+            var card = document.createElement('div')
+            card.className = 'bg-white rounded-xl border ' +
+                (ach.earned ? 'border-slate-200' : 'border-slate-100 bg-slate-50/50') +
+                ' p-4 flex items-start gap-4 transition-all hover:shadow-md'
+
+            var iconDiv = document.createElement('div')
+            iconDiv.className = 'w-12 h-12 rounded-xl ' +
+                (ach.earned ? 'bg-[#FFD43B]/20' : 'bg-slate-100') +
+                ' flex items-center justify-center text-2xl shrink-0'
+            iconDiv.textContent = ach.earned ? ach.icon : '🔒'
+
+            var info = document.createElement('div')
+            info.className = 'flex-1 min-w-0'
+
+            var title = document.createElement('h4')
+            title.className = 'font-bold text-sm ' + (ach.earned ? 'text-slate-800' : 'text-slate-400')
+            title.textContent = ach.title
+
+            var desc = document.createElement('p')
+            desc.className = 'text-xs ' + (ach.earned ? 'text-slate-500' : 'text-slate-300') + ' mt-0.5'
+            desc.textContent = ach.description
+
+            info.appendChild(title)
+            info.appendChild(desc)
+
+            if (ach.earned && ach.earnedAt) {
+                var date = document.createElement('p')
+                date.className = 'text-[10px] text-slate-400 mt-1'
+                date.textContent = 'Đạt được: ' + new Date(ach.earnedAt).toLocaleDateString('vi-VN')
+                info.appendChild(date)
+            }
+
+            card.appendChild(iconDiv)
+            card.appendChild(info)
+            grid.appendChild(card)
+        })
+    })
+    .catch(function () {
+        loading.innerHTML = '<div class="text-4xl mb-4">❌</div><p class="text-slate-400">Không thể tải thông tin.</p>'
+    })
+
+    // Listen for login/logout events
+    window.addEventListener('user-login', function () { location.reload() })
+    window.addEventListener('user-logout', function () { location.reload() })
+})()
+</script>

@@ -1,0 +1,266 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro'
+import { TC_TITLE } from '../../common/TextConst'
+---
+
+<MainLayout title={`Bảng xếp hạng | Học Python | ${TC_TITLE}`}>
+    <section class="min-h-screen bg-gradient-to-b from-slate-50 to-white relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden z-0">
+            <div class="absolute -top-[15%] -right-[10%] w-[40%] h-[40%] bg-[#3776AB]/5 rounded-full blur-[120px]"></div>
+            <div class="absolute -bottom-[15%] -left-[10%] w-[40%] h-[40%] bg-[#FFD43B]/8 rounded-full blur-[120px]"></div>
+        </div>
+
+        <div class="relative z-10 max-w-4xl mx-auto px-4 py-12 md:py-16">
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-8 flex-wrap gap-4">
+                <div>
+                    <div class="inline-flex items-center gap-2 bg-[#3776AB]/10 text-[#3776AB] font-black text-xs md:text-sm px-4 py-2 rounded-full mb-4 uppercase tracking-wider">
+                        🏆 Bảng xếp hạng
+                    </div>
+                    <h1 class="text-3xl md:text-4xl font-black text-slate-800 tracking-tight">
+                        Tuần này
+                    </h1>
+                    <p class="text-slate-500 text-sm mt-1">Top học viên tích cực nhất trong 7 ngày qua</p>
+                </div>
+                <a href="/hoc-python/ca-nhan"
+                    class="inline-flex items-center gap-2 bg-white border border-slate-200 text-slate-600 font-bold text-sm px-4 py-2.5 rounded-xl hover:border-[#3776AB] hover:text-[#3776AB] transition-colors shadow-sm">
+                    👤 Cá nhân
+                </a>
+            </div>
+
+            <!-- Loading -->
+            <div id="loadingState" class="text-center py-20">
+                <div class="text-4xl mb-4 animate-pulse">⏳</div>
+                <p class="text-slate-400">Đang tải bảng xếp hạng...</p>
+            </div>
+
+            <!-- Empty state -->
+            <div id="emptyState" class="hidden text-center py-20">
+                <div class="text-6xl mb-4">📭</div>
+                <h2 class="text-2xl font-bold text-slate-400">Chưa có dữ liệu tuần này</h2>
+                <p class="text-slate-300 mt-2">Hãy là người đầu tiên hoàn thành bài học trong tuần này!</p>
+            </div>
+
+            <!-- Leaderboard table -->
+            <div id="leaderboardContent" class="hidden space-y-6">
+                <!-- My rank banner -->
+                <div id="myRankBanner" class="hidden bg-gradient-to-r from-[#3776AB]/10 to-[#FFD43B]/10 rounded-xl border border-[#3776AB]/20 p-4 flex items-center gap-3">
+                    <span class="text-2xl">🎯</span>
+                    <div>
+                        <p class="text-sm font-semibold text-slate-700">Bạn đang đứng <span id="myRankNumber" class="text-[#3776AB]"></span></p>
+                        <p class="text-xs text-slate-500">Cố gắng học thêm để leo hạng nhé!</p>
+                    </div>
+                </div>
+
+                <!-- Top 3 podium -->
+                <div id="podium" class="flex items-end justify-center gap-4 mb-8">
+                    <!-- Filled by JS -->
+                </div>
+
+                <!-- Rest of the rankings -->
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div id="rankingList" class="divide-y divide-slate-100">
+                        <!-- Filled by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Login prompt (if not logged in) -->
+            <div id="loginPrompt" class="hidden text-center py-20">
+                <div class="text-6xl mb-4">🔒</div>
+                <h2 class="text-2xl font-bold text-slate-400 mb-2">Cần đăng nhập để xem thứ hạng của bạn</h2>
+                <p class="text-slate-300">Bảng xếp hạng vẫn hiển thị công khai bên dưới.</p>
+            </div>
+        </div>
+    </section>
+</MainLayout>
+
+<script is:inline>
+(function () {
+    var loading = document.getElementById('loadingState')
+    var emptyState = document.getElementById('emptyState')
+    var content = document.getElementById('leaderboardContent')
+    var loginPrompt = document.getElementById('loginPrompt')
+    var myRankBanner = document.getElementById('myRankBanner')
+
+    function setPodium(top3) {
+        var podium = document.getElementById('podium')
+        podium.innerHTML = ''
+
+        if (top3.length === 0) return
+
+        // Order: 2nd (left), 1st (center, tallest), 3rd (right)
+        var order = [1, 0, 2] // positions for 2nd, 1st, 3rd
+        var heights = ['h-28', 'h-36', 'h-24']
+        var medals = ['🥈', '🥇', '🥉']
+        var ranks = [2, 1, 3]
+        var colors = [
+            'from-slate-200 to-slate-300',
+            'from-yellow-300 to-amber-400',
+            'from-orange-200 to-orange-300',
+        ]
+
+        for (var i = 0; i < Math.min(top3.length, 3); i++) {
+            var idx = order[i]
+            if (idx >= top3.length) continue
+            var entry = top3[idx]
+            var col = document.createElement('div')
+            col.className = 'flex flex-col items-center gap-2 w-28'
+
+            var badgeDiv = document.createElement('div')
+            badgeDiv.className = 'w-10 h-10 rounded-full bg-gradient-to-br ' + entry.badge.color + ' flex items-center justify-center text-lg shadow-md'
+            badgeDiv.textContent = entry.badge.icon || '🥚'
+
+            var name = document.createElement('p')
+            name.className = 'font-bold text-xs text-slate-700 text-center truncate w-full'
+            name.textContent = entry.member
+
+            var xp = document.createElement('p')
+            xp.className = 'text-[10px] text-slate-500 font-medium'
+            xp.textContent = '+' + entry.weekXp + ' XP'
+
+            var bar = document.createElement('div')
+            bar.className = 'w-16 ' + heights[i] + ' rounded-t-lg bg-gradient-to-t ' + colors[i] + ' flex items-start justify-center pt-3 shadow-sm'
+            bar.textContent = medals[i]
+
+            col.appendChild(bar)
+            col.appendChild(badgeDiv)
+            col.appendChild(name)
+            col.appendChild(xp)
+            podium.appendChild(col)
+        }
+    }
+
+    var token = localStorage.getItem('auth_token')
+
+    fetch('/api/hoc-python/leaderboard', {
+        headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+    })
+    .then(function (r) { return r.json() })
+    .then(function (data) {
+        loading.classList.add('hidden')
+
+        if (!data.leaderboard || data.leaderboard.length === 0) {
+            emptyState.classList.remove('hidden')
+            return
+        }
+
+        content.classList.remove('hidden')
+
+        var list = data.leaderboard
+
+        // My rank
+        if (data.myRank !== null && data.myRank !== undefined) {
+            myRankBanner.classList.remove('hidden')
+            document.getElementById('myRankNumber').textContent = '#' + data.myRank
+        }
+
+        // Top 3
+        setPodium(list.slice(0, 3))
+
+        // Ranking list (from 4th onwards, or all if < 4)
+        var startFrom = Math.min(list.length, 3)
+        var rankingList = document.getElementById('rankingList')
+        rankingList.innerHTML = ''
+
+        for (var i = startFrom; i < list.length; i++) {
+            var entry = list[i]
+            var row = document.createElement('div')
+            row.className = 'flex items-center gap-4 px-5 py-4 hover:bg-slate-50 transition-colors'
+
+            // Rank number
+            var rankNum = document.createElement('div')
+            rankNum.className = 'w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-sm font-black text-slate-500 shrink-0'
+            rankNum.textContent = '#' + entry.rank
+
+            // Badge
+            var badgeDiv = document.createElement('div')
+            badgeDiv.className = 'w-9 h-9 rounded-full bg-gradient-to-br ' + entry.badge.color + ' flex items-center justify-center text-base shrink-0 shadow-sm'
+            badgeDiv.textContent = entry.badge.icon || '🥚'
+
+            // Name + info
+            var info = document.createElement('div')
+            info.className = 'flex-1 min-w-0'
+
+            var name = document.createElement('p')
+            name.className = 'font-bold text-sm text-slate-700 truncate'
+            name.textContent = entry.member
+
+            var detail = document.createElement('p')
+            detail.className = 'text-xs text-slate-400'
+            detail.textContent = 'Level ' + entry.level + ' · ' + entry.badge.title + ' · ' + entry.streak + '🔥'
+
+            info.appendChild(name)
+            info.appendChild(detail)
+
+            // XP
+            var xp = document.createElement('div')
+            xp.className = 'text-right shrink-0'
+            var weekXp = document.createElement('p')
+            weekXp.className = 'font-black text-sm text-[#3776AB]'
+            weekXp.textContent = '+' + entry.weekXp
+            var totalXp = document.createElement('p')
+            totalXp.className = 'text-[10px] text-slate-400'
+            totalXp.textContent = entry.totalXp + ' XP'
+
+            xp.appendChild(weekXp)
+            xp.appendChild(totalXp)
+
+            row.appendChild(rankNum)
+            row.appendChild(badgeDiv)
+            row.appendChild(info)
+            row.appendChild(xp)
+            rankingList.appendChild(row)
+        }
+
+        if (data.leaderboard.length <= 3) {
+            // Show everyone in the list
+            var rankingList2 = document.getElementById('rankingList')
+            for (var i = 0; i < data.leaderboard.length; i++) {
+                var entry = data.leaderboard[i]
+                var row = document.createElement('div')
+                row.className = 'flex items-center gap-4 px-5 py-4 hover:bg-slate-50 transition-colors'
+
+                var rankNum = document.createElement('div')
+                rankNum.className = 'w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-sm font-black text-slate-500 shrink-0'
+                rankNum.textContent = '#' + entry.rank
+
+                var badgeDiv = document.createElement('div')
+                badgeDiv.className = 'w-9 h-9 rounded-full bg-gradient-to-br ' + entry.badge.color + ' flex items-center justify-center text-base shrink-0 shadow-sm'
+                badgeDiv.textContent = entry.badge.icon || '🥚'
+
+                var info = document.createElement('div')
+                info.className = 'flex-1 min-w-0'
+                var name = document.createElement('p')
+                name.className = 'font-bold text-sm text-slate-700 truncate'
+                name.textContent = entry.member
+                var detail = document.createElement('p')
+                detail.className = 'text-xs text-slate-400'
+                detail.textContent = 'Level ' + entry.level + ' · ' + entry.badge.title
+                info.appendChild(name)
+                info.appendChild(detail)
+
+                var xp = document.createElement('div')
+                xp.className = 'text-right shrink-0'
+                var weekXp = document.createElement('p')
+                weekXp.className = 'font-black text-sm text-[#3776AB]'
+                weekXp.textContent = '+' + entry.weekXp
+                var totalXp = document.createElement('p')
+                totalXp.className = 'text-[10px] text-slate-400'
+                totalXp.textContent = entry.totalXp + ' XP'
+                xp.appendChild(weekXp)
+                xp.appendChild(totalXp)
+
+                row.appendChild(rankNum)
+                row.appendChild(badgeDiv)
+                row.appendChild(info)
+                row.appendChild(xp)
+                rankingList2.appendChild(row)
+            }
+        }
+    })
+    .catch(function () {
+        loading.innerHTML = '<div class="text-4xl mb-4">❌</div><p class="text-slate-400">Không thể tải bảng xếp hạng.</p>'
+    })
+})()
+</script>

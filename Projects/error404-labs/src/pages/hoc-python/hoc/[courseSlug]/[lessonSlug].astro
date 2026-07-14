@@ -640,6 +640,9 @@ _out.getvalue()
                 const data = await res.json()
                 if (data.passed !== false) {
                     appendConsole('✅ Đã đánh dấu bài học là hoàn thành! +' + (data.xpAwarded || 0) + ' XP', 'success')
+                    if (data.newAchievements && data.newAchievements.length > 0) {
+                        appendConsole('🏅 Mở khoá thành tích: ' + data.newAchievements.join(', '), 'success')
+                    }
                     markLessonCompleted()
                 } else {
                     appendConsole('⚠️ ' + (data.error || 'Lỗi không xác định'), 'error')
@@ -750,6 +753,9 @@ _out.getvalue()
             const data = await res.json()
             if (data.xpAwarded > 0) {
                 appendConsole(`🏆 Đã nhận +${data.xpAwarded} XP!`, 'success')
+            }
+            if (data.newAchievements && data.newAchievements.length > 0) {
+                appendConsole('🏅 Mở khoá thành tích: ' + data.newAchievements.join(', '), 'success')
             }
             if (data.error) {
                 appendConsole('⚠️ ' + data.error, 'error')

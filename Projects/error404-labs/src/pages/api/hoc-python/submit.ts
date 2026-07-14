@@ -2,6 +2,7 @@ import { neon } from '@neondatabase/serverless'
 import type { APIRoute } from 'astro'
 import { compareOutputs } from '../../../utils/python-grading'
 import { verifyAuth } from '../../../utils/auth'
+import { checkAchievements } from '../../../utils/achievements'
 
 export const prerender = false
 
@@ -145,6 +146,9 @@ export const POST: APIRoute = async ({ request }) => {
                 `
             }
 
+            // Check achievements
+            const newAchievements = xpAwarded > 0 ? await checkAchievements(user.id, sql) : []
+
             return new Response(
                 JSON.stringify({
                     submissionId: sub.id,
@@ -152,6 +156,7 @@ export const POST: APIRoute = async ({ request }) => {
                     passedTests: 0,
                     totalTests: 0,
                     xpAwarded,
+                    newAchievements,
                     results: [],
                 }),
                 {
@@ -299,6 +304,9 @@ export const POST: APIRoute = async ({ request }) => {
             `
         }
 
+        // Check achievements
+        const newAchievements = xpAwarded > 0 ? await checkAchievements(user.id, sql) : []
+
         return new Response(
             JSON.stringify({
                 submissionId: submission.id,
@@ -306,6 +314,7 @@ export const POST: APIRoute = async ({ request }) => {
                 passedTests: passedCount,
                 totalTests: testCases.length,
                 xpAwarded,
+                newAchievements,
                 results,
             }),
             {
