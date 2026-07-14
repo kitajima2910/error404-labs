@@ -4,17 +4,17 @@ import { verifyAuth } from '../../../utils/auth'
 
 export const prerender = false
 
-export const GET: APIRoute = async ({ url, cookies }) => {
+export const GET: APIRoute = async ({ url, request }) => {
     try {
         // Xác thực JWT
-        const authResult = await verifyAuth(cookies)
-        if (!authResult.authenticated) {
+        const user = await verifyAuth(request)
+        if (!user) {
             return new Response(JSON.stringify({ error: 'Unauthorized' }), {
                 status: 401,
                 headers: { 'Content-Type': 'application/json' },
             })
         }
-        const userId = authResult.user.id
+        const userId = user.id
 
         const courseSlug = url.searchParams.get('courseSlug')
 
