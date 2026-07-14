@@ -121,10 +121,14 @@ import { TC_TITLE } from '../../common/TextConst'
     var loading = document.getElementById('profileLoading')
     var loginPrompt = document.getElementById('loginPrompt')
 
-    function showLoginModal() {
+    window.showLoginModal = function () {
         var m = document.getElementById('loginModal')
         if (m) { m.classList.remove('hidden'); m.classList.add('flex'); document.body.classList.add('overflow-hidden') }
     }
+
+    // Luôn lắng nghe login/logout — kể cả khi chưa có token
+    window.addEventListener('user-login', function () { location.reload() })
+    window.addEventListener('user-logout', function () { location.reload() })
 
     var token = localStorage.getItem('auth_token')
     if (!token) {
@@ -223,8 +227,5 @@ import { TC_TITLE } from '../../common/TextConst'
         loading.innerHTML = '<div class="text-4xl mb-4">❌</div><p class="text-slate-400">Không thể tải thông tin.</p>'
     })
 
-    // Listen for login/logout events
-    window.addEventListener('user-login', function () { location.reload() })
-    window.addEventListener('user-logout', function () { location.reload() })
 })()
 </script>
