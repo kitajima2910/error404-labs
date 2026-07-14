@@ -238,9 +238,16 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
                     </button>
                     <button
                         id="submitBtn"
-                        class:list={['text-xs font-bold text-white bg-[#3776AB] hover:bg-[#2B5E8A] px-4 py-1.5 rounded-lg transition-colors flex items-center gap-1.5', !hasTests && 'hidden']}
+                        class:list={['text-xs font-bold text-white bg-[#3776AB] hover:bg-[#2B5E8A] px-4 py-1.5 rounded-lg transition-colors flex items-center gap-1.5']}
                     >
                         📤 Nộp bài
+                    </button>
+                    <button
+                        id="nextLessonBtn"
+                        class:list={['text-xs font-bold px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5', nextLesson ? 'text-white bg-[#585b70] hover:bg-[#6c7086]' : 'hidden']}
+                        data-next-slug={nextLesson?.slug || ''}
+                    >
+                        → Bài tiếp
                     </button>
                 </div>
             </div>
@@ -320,10 +327,77 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
     const runBtn = document.getElementById('runBtn')
     const submitBtn = document.getElementById('submitBtn')
     const resetBtn = document.getElementById('resetBtn')
+    const nextLessonBtn = document.getElementById('nextLessonBtn')
 
     // State
     let editorView = null
     let pyodide = null
+    let lessonCompleted = false
+
+    // ── Completion tracking ──────────────────────────────────────────
+    function markLessonCompleted() {
+        lessonCompleted = true
+        try {
+            var completed = JSON.parse(localStorage.getItem('py_completed') || '{}')
+            completed[lessonId] = true
+            localStorage.setItem('py_completed', JSON.stringify(completed))
+        } catch {}
+        updateNextButtonState()
+    }
+
+    function isLessonCompleted() {
+        if (lessonCompleted) return true
+        try {
+            var completed = JSON.parse(localStorage.getItem('py_completed') || '{}')
+            if (completed[lessonId]) { lessonCompleted = true; return true }
+        } catch {}
+        return false
+    }
+
+    function updateNextButtonState() {
+        if (!nextLessonBtn || !nextLesson) return
+        if (isLessonCompleted()) {
+            nextLessonBtn.className = 'text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
+            nextLessonBtn.innerHTML = '🎉 Bài tiếp →'
+        } else {
+            nextLessonBtn.className = 'text-xs font-bold text-white bg-[#585b70] hover:bg-[#6c7086] px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5'
+            nextLessonBtn.innerHTML = '→ Bài tiếp'
+        }
+    }
+
+    // ── Skip Warning Modal ───────────────────────────────────────────
+    function showSkipWarning() {
+        var overlay = document.createElement('div')
+        overlay.id = 'skipModal'
+        overlay.className = 'fixed inset-0 bg-black/60 z-50 flex items-center justify-center'
+        overlay.innerHTML = '<div class="bg-[#1e1e2e] border border-[#313244] rounded-2xl p-6 max-w-sm mx-4 shadow-2xl">' +
+            '<div class="text-amber-400 text-3xl mb-3">⚠️</div>' +
+            '<h3 class="text-white font-bold text-lg mb-2">Chưa hoàn thành!</h3>' +
+            '<p class="text-slate-400 text-sm mb-5">Bạn chưa hoàn thành bài học này. ' +
+            'Có thể bạn sẽ bỏ lỡ kiến thức quan trọng nếu bỏ qua. Vẫn muốn tiếp tục?</p>' +
+            '<div class="flex gap-3 justify-end">' +
+            '<button class="skip-cancel text-sm font-medium text-slate-400 hover:text-white px-4 py-2 rounded-lg bg-[#313244] hover:bg-[#45475a] transition-colors">Ở lại</button>' +
+            '<button class="skip-confirm text-sm font-bold text-white bg-amber-600 hover:bg-amber-500 px-4 py-2 rounded-lg transition-colors">Bỏ qua</button>' +
+            '</div></div>'
+        document.body.appendChild(overlay)
+
+        overlay.querySelector('.skip-cancel').addEventListener('click', function () { overlay.remove() })
+        overlay.querySelector('.skip-confirm').addEventListener('click', function () {
+            if (nextLesson) window.location.href = '/hoc-python/hoc/' + courseSlug + '/' + nextLesson.slug
+        })
+        overlay.addEventListener('click', function (e) {
+            if (e.target === overlay) overlay.remove()
+        })
+    }
+
+    function goToNextLesson() {
+        if (!nextLesson) return
+        if (isLessonCompleted()) {
+            window.location.href = '/hoc-python/hoc/' + courseSlug + '/' + nextLesson.slug
+        } else {
+            showSkipWarning()
+        }
+    }
 
     // ── CodeMirror 6 ──────────────────────────────────────────────────
     async function initEditor() {
@@ -453,9 +527,31 @@ _out.getvalue()
 
         const code = editorView.state.doc.toString()
 
+        // Bài lý thuyết: gọi API để đánh dấu hoàn thành
         if (testCases.length === 0) {
             clearConsole()
-            appendConsole('📖 Bài lý thuyết — đọc nội dung và thử chạy code mẫu!', 'info')
+            appendConsole('📤 Đang đánh dấu bài học...')
+            try {
+                const token = localStorage.getItem('auth_token')
+                if (!token) {
+                    appendConsole('⚠️ Vui lòng đăng nhập để lưu tiến độ.', 'error')
+                    return
+                }
+                const res = await fetch('/api/hoc-python/submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                    body: JSON.stringify({ lessonId: lessonId, sourceCode: code, outputs: [] }),
+                })
+                const data = await res.json()
+                if (data.passed !== false) {
+                    appendConsole('✅ Đã đánh dấu bài học là hoàn thành! +' + (data.xpAwarded || 0) + ' XP', 'success')
+                    markLessonCompleted()
+                } else {
+                    appendConsole('⚠️ ' + (data.error || 'Lỗi không xác định'), 'error')
+                }
+            } catch (err) {
+                appendConsole('❌ Lỗi kết nối: ' + err.message, 'error')
+            }
             return
         }
 
@@ -543,9 +639,10 @@ _out.getvalue()
         showTestResults(results, passed, testCases.length)
 
         if (passed === testCases.length) {
-            appendConsole(`🎉 Hoàn thành bài học! +${lessonData?.dataset?.xpReward || 10} XP`, 'success')
+            appendConsole('🎉 Hoàn thành bài học! +' + (lessonData?.dataset?.xpReward || 10) + ' XP', 'success')
+            markLessonCompleted()
         } else {
-            appendConsole(`📊 Kết quả: ${passed}/${testCases.length} test case đúng`, 'info')
+            appendConsole('📊 Kết quả: ' + passed + '/' + testCases.length + ' test case đúng', 'info')
         }
 
         // Gửi lên server để xác thực và lưu kết quả
@@ -634,18 +731,8 @@ _out.getvalue()
             }
         })
 
-        // Next lesson button khi hoàn thành
-        if (allPassed && nextLesson) {
-            html += `
-                <div class="mt-5 pt-4 border-t border-[#313244]">
-                    <a href="/hoc-python/hoc/${courseSlug}/${nextLesson.slug}"
-                       class="inline-flex items-center gap-2 text-sm font-bold text-white bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 px-5 py-2.5 rounded-xl transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]">
-                        🎉 Bài tiếp theo: ${nextLesson.title}
-                        <span>→</span>
-                    </a>
-                </div>
-            `
-        } else if (allPassed && !nextLesson) {
+        // Hoàn thành khóa học (không còn bài tiếp theo)
+        if (allPassed && !nextLesson) {
             html += `
                 <div class="mt-5 pt-4 border-t border-[#313244]">
                     <div class="text-sm text-green-400 font-semibold">🎉 Chúc mừng! Bạn đã hoàn thành khóa học!</div>
@@ -719,6 +806,23 @@ _out.getvalue()
 
         // Reset button
         resetBtn?.addEventListener('click', resetCode)
+
+        // Next lesson button
+        nextLessonBtn?.addEventListener('click', goToNextLesson)
+
+        // Top bar "Bài tiếp →" link: kiểm tra completion trước khi điều hướng
+        var nextLink = document.getElementById('nextLessonLink')
+        if (nextLink) {
+            nextLink.addEventListener('click', function (e) {
+                if (!isLessonCompleted()) {
+                    e.preventDefault()
+                    showSkipWarning()
+                }
+            })
+        }
+
+        // Khôi phục trạng thái nút từ localStorage
+        updateNextButtonState()
 
         // Keyboard shortcut: Ctrl+Enter để chạy
         document.addEventListener('keydown', (e) => {

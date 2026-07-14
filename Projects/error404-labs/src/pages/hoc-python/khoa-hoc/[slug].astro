@@ -269,8 +269,17 @@ const totalXP = chapters.reduce((sum, ch) => sum + ch.lessons.reduce((s, l) => s
     (function () {
         var courseSlug = document.getElementById('ctaBtn')?.getAttribute('data-course-slug') || ''
 
+        function getUserIdFromToken() {
+            try {
+                var payload = JSON.parse(atob(localStorage.getItem('auth_token').split('.')[1]))
+                return payload.id
+            } catch { return null }
+        }
+
         function setGuestMode(btn) {
             btn.textContent = 'Đăng ký miễn phí'
+            btn.className = btn.className.replace(/cursor-default/g, '') + ' cursor-pointer'
+            btn.href = '#'
             btn.onclick = function (e) {
                 e.preventDefault()
                 var m = document.getElementById('loginModal')
@@ -278,10 +287,45 @@ const totalXP = chapters.reduce((sum, ch) => sum + ch.lessons.reduce((s, l) => s
             }
         }
 
-        function setEnrolledMode(btn) {
-            btn.textContent = 'Bắt đầu học →'
-            btn.href = btn.getAttribute('data-auth-href') || btn.href
-            btn.onclick = null
+        function setContinueMode(btn, token) {
+            // Fetch progress để tìm bài chưa hoàn thành đầu tiên
+            var userId = getUserIdFromToken()
+            if (!userId) { setEnrolledStatic(btn); return }
+
+            fetch('/api/hoc-python/progress?courseSlug=' + encodeURIComponent(courseSlug) + '&userId=' + userId, {
+                headers: { 'Authorization': 'Bearer ' + token }
+            })
+            .then(function (r) { return r.json() })
+            .then(function (data) {
+                if (data.progress) {
+                    var lessons = Object.entries(data.progress)
+                    var firstIncomplete = lessons.find(function (e) { return e[1] !== 'completed' })
+                    if (firstIncomplete) {
+                        btn.textContent = 'Tiếp tục học →'
+                        btn.href = '/hoc-python/hoc/' + courseSlug + '/' + firstIncomplete[0]
+                        btn.onclick = null
+                    } else {
+                        setCompletedMode(btn)
+                    }
+                } else {
+                    setEnrolledStatic(btn)
+                }
+            })
+            .catch(function () { setEnrolledStatic(btn) })
+        }
+
+        function setCompletedMode(btn) {
+            btn.textContent = '✅ Hoàn thành'
+            btn.className = btn.className.replace(/cursor-pointer/g, '') + ' cursor-default'
+            btn.href = '#'
+            btn.onclick = function (e) { e.preventDefault() }
+        }
+
+        function setEnrolledStatic(btn) {
+            btn.textContent = 'Đã đăng ký ✓'
+            btn.className = btn.className.replace(/cursor-pointer/g, '') + ' cursor-default bg-green-600 hover:bg-green-600'
+            btn.href = '#'
+            btn.onclick = function (e) { e.preventDefault() }
         }
 
         function setNotEnrolledMode(btn, token) {
@@ -297,8 +341,7 @@ const totalXP = chapters.reduce((sum, ch) => sum + ch.lessons.reduce((s, l) => s
                 .then(function (r) { return r.json() })
                 .then(function (data) {
                     if (data.success) {
-                        setEnrolledMode(btn)
-                        // Chỉ đổi button, không tự động chuyển trang
+                        setContinueMode(btn, token)
                     } else {
                         btn.textContent = 'Đăng ký miễn phí'
                         btn.onclick = self
@@ -319,10 +362,10 @@ const totalXP = chapters.reduce((sum, ch) => sum + ch.lessons.reduce((s, l) => s
             })
             .then(function (r) { return r.json() })
             .then(function (data) {
-                if (data.enrolled) setEnrolledMode(btn)
+                if (data.enrolled) setContinueMode(btn, token)
                 else setNotEnrolledMode(btn, token)
             })
-            .catch(function () { setEnrolledMode(btn) })
+            .catch(function () { setEnrolledStatic(btn) })
         }
 
         function updateCta() {

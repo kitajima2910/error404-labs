@@ -98,3 +98,33 @@
 - Restart `pnpm dev` và test toàn bộ: điểm danh sáng/chiều, ghi chú ngày, học phí, thêm member mới → dropdown cập nhật, member inactive không hiện
 - Test sidebar toggle trên desktop
 - Test cột Gameplay & Mechanics + Ảnh + upload ImageKit trong CRUD Prompts
+
+## UX Redesign — Luồng học Python
+### Vấn đề
+- Button "Bắt đầu học" tại course detail dư thừa (click vào từng bài được rồi)
+- Bài lý thuyết không có nút "Bài tiếp theo" và không thể đánh dấu hoàn thành
+- Không có cơ chế skip warning nếu chưa hoàn thành bài
+
+### Giải pháp (đã triển khai)
+1. **Course detail** (`khoa-hoc/[slug].astro`):
+   - Bỏ "Bắt đầu học" → thay bằng "Tiếp tục học →" dẫn đến bài chưa hoàn thành đầu tiên
+   - Fetch progress API để tìm bài đang dở
+   - Nếu hoàn thành hết → "✅ Hoàn thành" (disabled)
+   - Fallback: "Đã đăng ký ✓" nếu API lỗi
+
+2. **Lesson workspace** (`hoc/[courseSlug]/[lessonSlug].astro`):
+   - Thêm nút "→ Bài tiếp" trong toolbar (gần nút Run/Submit) — luôn hiển thị
+   - Nếu bài đã hoàn thành → nút xanh "🎉 Bài tiếp →"
+   - Nếu chưa hoàn thành → click nút hiện modal warning ⚠️ "Bạn chưa hoàn thành bài học này..."
+   - Modal có 2 nút: "Ở lại" (dismiss) và "Bỏ qua" (skip)
+   - Top bar "Bài tiếp →" cũng kiểm tra completion trước khi điều hướng
+   - `localStorage` key `py_completed` cache trạng thái hoàn thành
+
+3. **Bài lý thuyết**:
+   - Submit button luôn hiển thị (không ẩn với theory)
+   - Click "Nộp bài" — gọi API → đánh dấu hoàn thành + nhận XP
+   - Xoá early return trong `submitCode` cho theory lessons
+
+4. **Test Results pane**:
+   - Xoá nút "Bài tiếp theo" khỏi test results (vì đã có trong toolbar)
+   - Giữ message "Hoàn thành khóa học" nếu là bài cuối
