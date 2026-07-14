@@ -1,6 +1,6 @@
 import { neon } from '@neondatabase/serverless'
 import type { APIRoute } from 'astro'
-import verifyAuth from '../../utils/auth'
+import { verifyAuth } from '../../../utils/auth'
 
 export const prerender = false
 
