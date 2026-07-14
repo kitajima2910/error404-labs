@@ -35,6 +35,15 @@ interface TestCase {
     order_index: number
 }
 
+interface QuizQuestion {
+    id: string
+    question_text: string
+    options: string[]
+    correct_index: number
+    explanation: string
+    order_index: number
+}
+
 // Fetch lesson
 const [lesson]: (Lesson | undefined)[] = await sql`
     SELECT
@@ -61,6 +70,14 @@ const testCases: TestCase[] = await sql`
     WHERE lesson_id = ${lesson.id}
     ORDER BY order_index ASC
 `
+
+// Fetch quiz questions (chỉ cho theory lessons)
+const quizQuestions: QuizQuestion[] = lesson.lesson_type === 'theory' ? await sql`
+    SELECT id, question_text, options, correct_index, explanation, order_index
+    FROM error404labs.py_quiz_questions
+    WHERE lesson_id = ${lesson.id}
+    ORDER BY order_index ASC
+` : []
 
 // Fetch tất cả lessons trong course để biết bài trước/sau
 const allLessons: { id: string; slug: string; title: string; order_index: number; chapter_order: number }[] = await sql`
@@ -102,6 +119,7 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
     const hasTests = testCases.length > 0
     const prevLessonJson = JSON.stringify(prevLesson)
     const nextLessonJson = JSON.stringify(nextLesson)
+    const quizQuestionsJson = JSON.stringify(quizQuestions)
 ---
 
 <MainLayout title={`${lesson.title} | Python | ${TC_TITLE}`}>
@@ -214,6 +232,41 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
                     <div set:html={contentHtml} />
                 </div>
             </div>
+
+            <!-- Quiz questions (chỉ cho theory) -->
+            {quizQuestions.length > 0 && (
+                <div id="quiz-section" class="px-5 pb-8">
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="bg-gradient-to-r from-[#3776AB] to-[#2B5E8A] px-5 py-3">
+                            <h3 class="text-white font-black text-sm flex items-center gap-2">
+                                <span>📝</span> Kiểm tra nhanh
+                            </h3>
+                            <p class="text-blue-200 text-xs mt-0.5">Trả lời đúng {quizQuestions.length}/{quizQuestions.length} để hoàn thành bài học</p>
+                        </div>
+                        <div class="p-5 space-y-6" id="quiz-container">
+                            {quizQuestions.map((q, qi) => (
+                                <div class="quiz-question" data-qindex={qi} data-correct={q.correct_index}>
+                                    <p class="text-sm font-bold text-slate-800 mb-3 flex items-start gap-2">
+                                        <span class="shrink-0 w-6 h-6 rounded-full bg-[#3776AB]/10 text-[#3776AB] text-xs font-bold flex items-center justify-center mt-0.5">
+                                            {qi + 1}
+                                        </span>
+                                        <span>{q.question_text}</span>
+                                    </p>
+                                    <div class="space-y-2 ml-8">
+                                        {q.options.map((opt, oi) => (
+                                            <label class="quiz-option flex items-start gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer transition-all duration-150 hover:border-[#3776AB]/40 hover:bg-blue-50/30" data-optindex={oi}>
+                                                <input type="radio" name={`quiz-q-${qi}`} value={oi} class="mt-0.5 accent-[#3776AB] shrink-0" />
+                                                <span class="text-sm text-slate-700 leading-relaxed">{opt}</span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                    <div class="quiz-feedback hidden ml-8 mt-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200"></div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
 
         <!-- RIGHT: Editor + Console -->
@@ -303,6 +356,7 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
         data-has-tests={hasTests ? 'true' : 'false'}
         data-prev-lesson={prevLessonJson}
         data-next-lesson={nextLessonJson}
+        data-quiz-questions={quizQuestionsJson}
     ></div>
 </MainLayout>
 
@@ -320,6 +374,7 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
     const courseSlug = lessonData?.dataset.courseSlug || ''
     const prevLesson = JSON.parse(lessonData?.dataset.prevLesson || 'null')
     const nextLesson = JSON.parse(lessonData?.dataset.nextLesson || 'null')
+    const quizQuestions = JSON.parse(lessonData?.dataset.quizQuestions || '[]')
     const cmContainer = document.getElementById('cm-editor')
     const consoleEl = document.getElementById('tab-console')
     const testResultsEl = document.getElementById('tab-test-results')
@@ -831,6 +886,77 @@ _out.getvalue()
                 runCode()
             }
         })
+
+        // ── Quiz interaction ──────────────────────────────────────────
+        if (quizQuestions.length > 0) {
+            let correctCount = 0
+            const totalQuestions = quizQuestions.length
+            const quizContainer = document.getElementById('quiz-container')
+            const quizSection = document.getElementById('quiz-section')
+
+            quizContainer?.querySelectorAll('.quiz-question').forEach((qEl) => {
+                const qIndex = parseInt(qEl.dataset.qindex || '0')
+                const correctIdx = parseInt(qEl.dataset.correct || '0')
+                let answered = false
+                const feedbackEl = qEl.querySelector('.quiz-feedback') as HTMLElement
+
+                qEl.querySelectorAll('input[type="radio"]').forEach((radio) => {
+                    radio.addEventListener('change', () => {
+                        if (answered) return
+                        answered = true
+
+                        const selectedIdx = parseInt((radio as HTMLInputElement).value)
+                        const isCorrect = selectedIdx === correctIdx
+
+                        // Highlight selected option
+                        qEl.querySelectorAll('.quiz-option').forEach((optEl) => {
+                            const optIdx = parseInt((optEl as HTMLElement).dataset.optindex || '0')
+                            const lbl = optEl as HTMLLabelElement
+                            if (optIdx === correctIdx) {
+                                lbl.className = 'quiz-option flex items-start gap-3 p-3 rounded-xl border-2 border-emerald-400 bg-emerald-50'
+                                const input = lbl.querySelector('input')
+                                if (input) input.checked = true
+                            } else if (optIdx === selectedIdx && !isCorrect) {
+                                lbl.className = 'quiz-option flex items-start gap-3 p-3 rounded-xl border-2 border-red-300 bg-red-50'
+                            } else {
+                                lbl.className = 'quiz-option flex items-start gap-3 p-3 rounded-xl border border-slate-100 bg-slate-50/50 opacity-60'
+                            }
+                            const input = lbl.querySelector('input')
+                            if (input) input.disabled = true
+                        })
+
+                        // Show feedback
+                        if (feedbackEl) {
+                            const q = quizQuestions[qIndex]
+                            if (isCorrect) {
+                                feedbackEl.className = 'quiz-feedback ml-8 mt-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 bg-emerald-50 border border-emerald-200 text-emerald-700'
+                                feedbackEl.innerHTML = `✅ <strong>Đúng!</strong> ${q.explanation}`
+                                correctCount++
+                            } else {
+                                feedbackEl.className = 'quiz-feedback ml-8 mt-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 bg-red-50 border border-red-200 text-red-700'
+                                feedbackEl.innerHTML = `❌ <strong>Sai!</strong> Đáp án đúng là <strong>${q.options[correctIdx]}</strong>. ${q.explanation}`
+                            }
+                            feedbackEl.classList.remove('hidden')
+                        }
+
+                        // Update progress
+                        const headerEl = quizSection?.querySelector('.bg-gradient-to-r')
+                        if (headerEl) {
+                            const pEl = headerEl.querySelector('p')
+                            if (pEl) {
+                                const remaining = totalQuestions - correctCount
+                                if (remaining === 0) {
+                                    pEl.textContent = `🎉 Hoàn thành! Bạn đã trả lời đúng ${correctCount}/${totalQuestions} câu.`
+                                    pEl.className = 'text-emerald-200 text-xs mt-0.5'
+                                } else {
+                                    pEl.textContent = `✅ Đã đúng ${correctCount}/${totalQuestions} — còn ${remaining} câu chưa trả lời đúng`
+                                }
+                            }
+                        }
+                    })
+                })
+            })
+        }
     })
 </script>
 
@@ -989,5 +1115,13 @@ _out.getvalue()
     .result-tab.active {
         color: #a6e3a1 !important;
         border-bottom-color: #a6e3a1 !important;
+    }
+
+    /* Quiz option cursor */
+    .quiz-option {
+        cursor: pointer;
+    }
+    .quiz-option input[type="radio"] {
+        cursor: pointer;
     }
 </style>

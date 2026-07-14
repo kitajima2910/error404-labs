@@ -1,11 +1,13 @@
 # STATUS
 
 ## Current Task
-- Đã hoàn thành MVP Python Learning Platform
+- Kiểm tra giao diện quiz trắc nghiệm trên bài theory
 
 ## Completed
 - ✅ **Migration 013**: Tạo 7 bảng database (py_courses, py_chapters, py_lessons, py_test_cases, py_submissions, py_lesson_progress, py_profiles)
 - ✅ **Migration 014**: Seed data khóa "Python Cơ Bản" — 3 chapters, 10 lessons, 27 test cases
+- ✅ **Migration 016**: Tạo bảng `py_quiz_questions` + seed 18 câu trắc nghiệm cho 6 bài theory (2 khóa)
+- ✅ **Quiz trắc nghiệm sau bài lý thuyết**: hiển thị 3 câu MCQ ở cuối LEFT panel, chọn đáp án → feedback đúng/sai + giải thích, progress "Đã đúng X/3"
 - ✅ **Menu**: Thêm "Học Python" vào navData, fix lỗi Nav icon component undefined
 - ✅ **Icon Python**: Thêm IconPython.astro + gắn vào menu Học Python
 - ✅ **Public course catalog**: Gỡ yêu cầu login khỏi `/hoc-python/khoa-hoc`
@@ -89,6 +91,7 @@
 - src/pages/api/hoc-python/progress.ts (new) — GET progress
 - src/utils/python-grading.ts (new) — normalize output + compare
 - migrations/014_seed_python_course.sql (new) — course seed data
+- migrations/016_seed_quiz_questions.sql (new) — quiz questions table + 18 questions seed
 
 ## Known Issues
 - (đã fix) Toggle checkout trước đây xoá không được do date comparison không khớp
@@ -98,6 +101,8 @@
 - Restart `pnpm dev` và test toàn bộ: điểm danh sáng/chiều, ghi chú ngày, học phí, thêm member mới → dropdown cập nhật, member inactive không hiện
 - Test sidebar toggle trên desktop
 - Test cột Gameplay & Mechanics + Ảnh + upload ImageKit trong CRUD Prompts
+- Kiểm tra hiển thị quiz trên các bài theory (vd `/hoc-python/hoc/python-co-ban/xin-chao-python`)
+- Refresh pagefind index sau build (`pnpm build`)
 
 ## UX Redesign — Luồng học Python
 ### Vấn đề
