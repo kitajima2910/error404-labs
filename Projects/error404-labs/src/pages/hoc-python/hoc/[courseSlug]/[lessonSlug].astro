@@ -640,6 +640,23 @@ _out.getvalue()
                 const data = await res.json()
                 if (data.passed !== false) {
                     appendConsole('✅ Đã đánh dấu bài học là hoàn thành! +' + (data.xpAwarded || 0) + ' XP', 'success')
+
+                    // Đếm số câu trắc nghiệm đúng qua radio input checked
+                    var quizCorrect = 0
+                    var quizTotal = quizQuestions.length
+                    if (quizTotal > 0) {
+                        document.querySelectorAll('.quiz-question').forEach(function (qEl) {
+                            var correctIdx = parseInt(qEl.dataset.correct || '0')
+                            var correctRadio = qEl.querySelector('input[type="radio"][value="' + correctIdx + '"]')
+                            if (correctRadio && correctRadio.checked) quizCorrect++
+                        })
+                        if (quizCorrect === quizTotal) {
+                            appendConsole('🎯 Trắc nghiệm: ' + quizCorrect + '/' + quizTotal + ' — xuất sắc!', 'success')
+                        } else {
+                            appendConsole('📊 Trắc nghiệm: ' + quizCorrect + '/' + quizTotal + ' câu đúng', 'info')
+                        }
+                    }
+
                     if (data.newAchievements && data.newAchievements.length > 0) {
                         appendConsole('🏅 Mở khoá thành tích: ' + data.newAchievements.join(', '), 'success')
                     }

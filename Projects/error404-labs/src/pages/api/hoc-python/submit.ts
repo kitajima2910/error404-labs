@@ -77,6 +77,13 @@ export const POST: APIRoute = async ({ request }) => {
 
         // Theory lessons không có test case
         if (lesson.lesson_type === 'theory') {
+            // Kiểm tra đã hoàn thành trước đó (tránh XP duplication) — phải làm TRƯỚC upsert
+            const existingProgress = await sql`
+                SELECT status FROM error404labs.py_lesson_progress
+                WHERE user_id = ${user.id} AND lesson_id = ${lessonId}
+            `
+            const alreadyCompleted = existingProgress[0]?.status === 'completed'
+
             // Lưu submission và đánh dấu completed ngay
             const sub = (
                 await sql`
@@ -93,13 +100,6 @@ export const POST: APIRoute = async ({ request }) => {
                 ON CONFLICT (user_id, lesson_id)
                 DO UPDATE SET status = 'completed', completed_at = COALESCE(py_lesson_progress.completed_at, NOW()), best_submission_id = ${sub.id}, updated_at = NOW()
             `
-
-            // Kiểm tra đã hoàn thành trước đó (tránh XP duplication)
-            const existingProgress = await sql`
-                SELECT status FROM error404labs.py_lesson_progress
-                WHERE user_id = ${user.id} AND lesson_id = ${lessonId}
-            `
-            const alreadyCompleted = existingProgress[0]?.status === 'completed'
 
             // Award XP (chỉ nếu chưa completed trước đó)
             let xpAwarded = 0
@@ -238,19 +238,19 @@ export const POST: APIRoute = async ({ request }) => {
 
         // Nếu passed: update progress + award XP + streak
         if (allPassed) {
+            // Kiểm tra đã hoàn thành trước đó (tránh XP duplication) — phải làm TRƯỚC upsert
+            const existingProgress = await sql`
+                SELECT status FROM error404labs.py_lesson_progress
+                WHERE user_id = ${user.id} AND lesson_id = ${lessonId}
+            `
+            const alreadyCompleted = existingProgress[0]?.status === 'completed'
+
             await sql`
                 INSERT INTO error404labs.py_lesson_progress (user_id, lesson_id, status, first_started_at, completed_at, best_submission_id)
                 VALUES (${user.id}, ${lessonId}, 'completed', NOW(), NOW(), ${submission.id})
                 ON CONFLICT (user_id, lesson_id)
                 DO UPDATE SET status = 'completed', completed_at = COALESCE(py_lesson_progress.completed_at, NOW()), best_submission_id = ${submission.id}, updated_at = NOW()
             `
-
-            // Kiểm tra đã hoàn thành trước đó (tránh XP duplication)
-            const existingProgress = await sql`
-                SELECT status FROM error404labs.py_lesson_progress
-                WHERE user_id = ${user.id} AND lesson_id = ${lessonId}
-            `
-            const alreadyCompleted = existingProgress[0]?.status === 'completed'
 
             if (!alreadyCompleted) {
                 const today = new Date().toISOString().split('T')[0]

@@ -242,10 +242,11 @@ const firstLessonSlug = chapters[0]?.lessons?.[0]?.slug ?? null
                             {chapter.lessons.map((lesson) => (
                                 <a
                                     href={`/hoc-python/hoc/${course.slug}/${lesson.slug}`}
+                                    data-lesson-slug={lesson.slug}
                                     class="flex items-center gap-4 px-5 py-4 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-b-0 group/lesson"
                                 >
                                     {/* Status icon */}
-                                    <span class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-xs shrink-0 group-hover/lesson:bg-[#3776AB]/10 group-hover/lesson:text-[#3776AB] transition-colors">
+                                    <span class="lesson-icon w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-xs shrink-0 group-hover/lesson:bg-[#3776AB]/10 group-hover/lesson:text-[#3776AB] transition-colors">
                                         {lesson.lesson_type === 'theory' ? '📖' : lesson.lesson_type === 'practice' ? '💻' : lesson.lesson_type === 'quiz' ? '❓' : '🚀'}
                                     </span>
 
@@ -416,11 +417,36 @@ const firstLessonSlug = chapters[0]?.lessons?.[0]?.slug ?? null
         }
 
         updateCta()
-        window.addEventListener('user-login', updateCta)
-        window.addEventListener('user-logout', function () {
-            var btn = document.getElementById('ctaBtn')
-            if (btn) setGuestMode(btn)
-        })
+
+        // ── Cập nhật trạng thái bài học ──────────────────────────────
+        function updateLessonStatus() {
+            var token = localStorage.getItem('auth_token')
+            if (!token) return
+            fetch('/api/hoc-python/progress?courseSlug=' + encodeURIComponent(courseSlug), {
+                headers: { 'Authorization': 'Bearer ' + token }
+            })
+            .then(function (r) { return r.json() })
+            .then(function (data) {
+                if (!data.progress) return
+                document.querySelectorAll('a[data-lesson-slug]').forEach(function (link) {
+                    var slug = link.getAttribute('data-lesson-slug')
+                    var status = data.progress[slug]
+                    if (status === 'completed') {
+                        var icon = link.querySelector('.lesson-icon')
+                        if (icon) {
+                            icon.textContent = '✅'
+                            icon.className = 'lesson-icon w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center text-xs shrink-0'
+                        }
+                        link.classList.add('bg-emerald-50/40')
+                    }
+                })
+            })
+            .catch(function () {})
+        }
+
+        updateLessonStatus()
+        window.addEventListener('user-login', function () { updateCta(); updateLessonStatus() })
+        window.addEventListener('user-logout', function () { location.reload() })
 
         // Lesson links
         document.addEventListener('click', function (e) {

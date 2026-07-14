@@ -1,7 +1,7 @@
 # STATUS
 
 ## Current Task
-- Fix remaining lesson page issues từ comprehensive review (CDN, XSS, normalizeOutput, quiz, race)
+- (none)
 
 ## Completed
 ### Platform Review & Fixes (batch)
@@ -29,6 +29,11 @@
 - ✅ **Quiz NOT auto-submit**: Không auto-pass khi quiz đúng — "Nộp bài" vẫn là hành động duy nhất (đã đúng)
 - ✅ **marked.parse await**: Đã có `await` (đã đúng)
 - ✅ **SQL error handling**: submit.ts + progress.ts đã có `console.error` + user message (đã đúng)
+
+### Fix XP, Quiz & Course page progress
+- ✅ **submit.ts**: Fix `alreadyCompleted` check cho cả theory + practice — chuyển lên TRƯỚC upsert progress (tránh always 0 XP)
+- ✅ **Lesson page**: Thêm quiz summary console sau khi nộp bài theory — hiển thị `x/y câu đúng`
+- ✅ **Course detail page**: Hiển thị trạng thái hoàn thành bài học — icon ✅ xanh cho bài đã làm, nền xanh nhạt
 
 ### Trước đó
 - ✅ **Migration 013**: 7 bảng database (py_courses, py_chapters, py_lessons, py_test_cases, py_submissions, py_lesson_progress, py_profiles)
