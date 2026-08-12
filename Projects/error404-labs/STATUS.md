@@ -4,6 +4,14 @@
 - (none)
 
 ## Completed
+### Ẩn danh sách game và căn giữa Prompt Template — game-roadmap
+- ✅ Ẩn khu vực “Tất cả Game Prompt” nhưng giữ các phần tử trong DOM để JavaScript hiện tại không phát sinh lỗi.
+- ✅ Chuyển “Mẹo Prompt cho Game” từ sidebar thành card nội dung chính căn giữa, responsive với chiều rộng tối đa phù hợp.
+- ✅ Làm mới nền trang, header, typography, khoảng cách và nút “Sử dụng Template”.
+- **File đã sửa**: `src/pages/game-roadmap.astro`, `STATUS.md`.
+- **Kết quả kiểm tra**: `git diff --check` đạt; xác nhận các DOM ID mà JavaScript đang dùng vẫn tồn tại và card mới có layout căn giữa responsive.
+- **Vấn đề còn lại**: Build chưa thể chạy qua bước tối ưu dependency vì file cache `node_modules/.vite/deps/@codemirror_lang-python.js.map` đang bị process khác khóa (`EPERM`).
+
 ### Cải thiện giao diện RULE — game-roadmap
 - ✅ Mở rộng sidebar “Mẹo Prompt cho Game” theo breakpoint `xl/2xl`, giữ nguyên chiều rộng cũ ở màn hình laptop.
 - ✅ Chuyển nút Copy sang header riêng, không còn đè lên nội dung RULE.

@@ -1121,12 +1121,10 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
         })
     </script>
     <div
-        class="flex flex-col min-h-screen lg:h-screen bg-[#f8f9fa] font-sans overflow-visible lg:overflow-hidden text-slate-800"
+        class="flex min-h-screen flex-col bg-gradient-to-br from-slate-50 via-indigo-50/40 to-white font-sans text-slate-800"
     >
-        <div class="flex flex-col lg:flex-row flex-1 overflow-visible lg:overflow-hidden relative">
-            <div
-                class="order-1 lg:order-none flex-1 overflow-visible lg:overflow-y-auto min-w-0 custom-scrollbar relative z-0"
-            >
+        <div class="relative flex-1 overflow-y-auto custom-scrollbar">
+            <div class="hidden">
                 <div class="px-5 py-6 sm:p-6 lg:p-8 max-w-6xl mx-auto space-y-6 lg:space-y-8 pb-12">
                     {/* Grid header */}
                     <div class="flex items-center justify-between pt-4">
@@ -1162,28 +1160,37 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
                 </div>
             </div>
             <aside
-                class="order-last w-full lg:w-[360px] xl:w-[440px] 2xl:w-[480px] bg-white border-l border-gray-200 flex flex-col shrink-0 overflow-visible lg:overflow-y-auto shadow-[-4px_0_15px_-4px_rgba(0,0,0,0.05)] z-0 relative custom-scrollbar"
+                class="relative z-0 mx-auto flex w-full max-w-3xl flex-col px-4 py-8 sm:px-6 sm:py-10 lg:py-12"
             >
                 {/* Mẹo Prompt cho Game Card */}
-                <div class="p-4 xl:p-6">
+                <div>
                     <div
-                        class="bg-white rounded-3xl border-[1.5px] border-indigo-100 shadow-[0_4px_20px_-4px_rgba(99,102,241,0.15)] overflow-hidden"
+                        class="overflow-hidden rounded-[2rem] border border-indigo-100 bg-white shadow-[0_24px_70px_-24px_rgba(79,70,229,0.3)]"
                     >
-                        <div class="bg-indigo-50/70 p-5 border-b border-indigo-100 flex items-center gap-4">
+                        <div
+                            class="flex items-center gap-5 border-b border-indigo-100 bg-gradient-to-r from-indigo-50 via-white to-violet-50 p-6 sm:p-8"
+                        >
                             <div
-                                class="w-12 h-12 bg-white shadow-sm text-indigo-600 rounded-2xl flex items-center justify-center shrink-0 border border-indigo-100"
+                                class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-indigo-100 bg-white text-xl text-indigo-600 shadow-md shadow-indigo-200/60"
                             >
                                 <i class="fa fa-magic" aria-hidden="true"></i>
                             </div>
-                            <h2 class="text-xl font-extrabold text-slate-800">Mẹo Prompt cho Game</h2>
+                            <div>
+                                <h2 class="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
+                                    Mẹo Prompt cho Game
+                                </h2>
+                                <p class="mt-1 text-sm leading-6 text-slate-500">
+                                    Template giúp AI xử lý yêu cầu đúng phạm vi và an toàn hơn.
+                                </p>
+                            </div>
                         </div>
-                        <div class="p-4 xl:p-5">
-                            <div class="text-xs font-bold text-slate-800 mb-3 uppercase tracking-wider">
+                        <div class="p-5 sm:p-8">
+                            <div class="mb-4 text-xs font-bold uppercase tracking-[0.16em] text-indigo-600">
                                 Prompt Template
                             </div>
                             <div class="group">
                                 <div
-                                    class="bg-gradient-to-br from-[#111c32] to-[#0b1220] border border-slate-700/60 rounded-2xl p-4 xl:p-5 font-mono text-[12px] xl:text-[13px] shadow-xl shadow-slate-950/25"
+                                    class="rounded-2xl border border-slate-700/60 bg-gradient-to-br from-[#111c32] to-[#0b1220] p-5 font-mono text-[13px] shadow-xl shadow-slate-950/25 sm:p-6 sm:text-sm"
                                 >
                                     <div
                                         class="mb-4 flex items-center justify-between gap-4 border-b border-slate-700/60 pb-3"
@@ -1264,7 +1271,7 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
                             </div>
                             <button
                                 id="btn-use-template"
-                                class="w-full mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-5 rounded-2xl shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 transition-colors"
+                                class="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-5 py-4 font-bold text-white shadow-lg shadow-indigo-500/25 transition-all hover:-translate-y-0.5 hover:bg-indigo-700 hover:shadow-xl hover:shadow-indigo-500/30"
                             >
                                 <i class="fa fa-magic" aria-hidden="true"></i> Sử dụng Template
                             </button>
