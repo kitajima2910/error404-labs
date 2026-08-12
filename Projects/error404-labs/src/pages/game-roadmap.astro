@@ -858,7 +858,7 @@ const monthSvgs = [
 
             if (copyBtn) {
                 copyBtn.addEventListener('click', async () => {
-                    const text = `RULE:\n\n- Đọc STATUS.md nếu tồn tại.\n- Không rewrite project.\n- Chỉ tác động trong TARGET.\n- Ưu tiên thay đổi tối thiểu.\n- Giữ nguyên code đang hoạt động.\n- Verify TARGET.\n- Cập nhật STATUS.md.\n\nTARGET:\n...`
+                    const text = `RULE:\n\n- Đọc STATUS.md nếu tồn tại trước khi bắt đầu.\n- Phân tích nguyên nhân gốc trước khi chỉnh sửa.\n- Không rewrite toàn bộ project.\n- Chỉ sửa file và chức năng nằm trong TARGET.\n- Ưu tiên patch nhỏ nhất có thể.\n- Giữ nguyên code, kiến trúc và hành vi đang hoạt động.\n- Không refactor hoặc nâng cấp dependency nếu TARGET không yêu cầu.\n- Không tự ý xóa file hoặc thực hiện thay đổi phá vỡ tương thích.\n- Kiểm tra các thay đổi hiện có và không ghi đè công việc của người dùng.\n- Sau khi sửa, chạy kiểm tra phù hợp với TARGET.\n- Nếu không thể verify, phải nói rõ lý do.\n- Cập nhật STATUS.md gồm:\n  - Đã thay đổi gì\n  - File đã sửa\n  - Kết quả kiểm tra\n  - Vấn đề còn lại, nếu có\n\nTARGET:\n\n[Mô tả chính xác lỗi hoặc tính năng cần xử lý]`
                     try {
                         await navigator.clipboard.writeText(text)
                         if (window.showToast) window.showToast('Đã copy Prompt Template thành công!', 'success')
@@ -877,7 +877,7 @@ const monthSvgs = [
 
             if (modalCopyBtn && modalTargetInput) {
                 modalCopyBtn.addEventListener('click', async () => {
-                    const text = `RULE:\n\n- Đọc STATUS.md nếu tồn tại.\n- Không rewrite project.\n- Chỉ tác động trong TARGET.\n- Ưu tiên thay đổi tối thiểu.\n- Giữ nguyên code đang hoạt động.\n- Verify TARGET.\n- Cập nhật STATUS.md.\n\nTARGET:\n${modalTargetInput.value || '...'}`
+                    const text = `RULE:\n\n- Đọc STATUS.md nếu tồn tại trước khi bắt đầu.\n- Phân tích nguyên nhân gốc trước khi chỉnh sửa.\n- Không rewrite toàn bộ project.\n- Chỉ sửa file và chức năng nằm trong TARGET.\n- Ưu tiên patch nhỏ nhất có thể.\n- Giữ nguyên code, kiến trúc và hành vi đang hoạt động.\n- Không refactor hoặc nâng cấp dependency nếu TARGET không yêu cầu.\n- Không tự ý xóa file hoặc thực hiện thay đổi phá vỡ tương thích.\n- Kiểm tra các thay đổi hiện có và không ghi đè công việc của người dùng.\n- Sau khi sửa, chạy kiểm tra phù hợp với TARGET.\n- Nếu không thể verify, phải nói rõ lý do.\n- Cập nhật STATUS.md gồm:\n  - Đã thay đổi gì\n  - File đã sửa\n  - Kết quả kiểm tra\n  - Vấn đề còn lại, nếu có\n\nTARGET:\n\n${modalTargetInput.value || '[Mô tả chính xác lỗi hoặc tính năng cần xử lý]'}`
                     try {
                         await navigator.clipboard.writeText(text)
                         if (window.showToast) window.showToast('Đã tạo và copy prompt thành công!', 'success')
@@ -1187,16 +1187,27 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
                                 >
                                     <span class="text-emerald-400 font-bold">RULE:</span>
                                     <div class="text-slate-400 ml-2 mb-3 leading-relaxed">
-                                        - Đọc STATUS.md nếu tồn tại.<br />
-                                        - Không rewrite project.<br />
-                                        - Chỉ tác động trong TARGET.<br />
-                                        - Ưu tiên thay đổi tối thiểu.<br />
-                                        - Giữ nguyên code đang hoạt động.<br />
-                                        - Verify TARGET.<br />
-                                        - Cập nhật STATUS.md.
+                                        - Đọc STATUS.md nếu tồn tại trước khi bắt đầu.<br />
+                                        - Phân tích nguyên nhân gốc trước khi chỉnh sửa.<br />
+                                        - Không rewrite toàn bộ project.<br />
+                                        - Chỉ sửa file và chức năng nằm trong TARGET.<br />
+                                        - Ưu tiên patch nhỏ nhất có thể.<br />
+                                        - Giữ nguyên code, kiến trúc và hành vi đang hoạt động.<br />
+                                        - Không refactor hoặc nâng cấp dependency nếu TARGET không yêu cầu.<br />
+                                        - Không tự ý xóa file hoặc thực hiện thay đổi phá vỡ tương thích.<br />
+                                        - Kiểm tra các thay đổi hiện có và không ghi đè công việc của người dùng.<br />
+                                        - Sau khi sửa, chạy kiểm tra phù hợp với TARGET.<br />
+                                        - Nếu không thể verify, phải nói rõ lý do.<br />
+                                        - Cập nhật STATUS.md gồm:<br />
+                                        &nbsp;&nbsp;- Đã thay đổi gì<br />
+                                        &nbsp;&nbsp;- File đã sửa<br />
+                                        &nbsp;&nbsp;- Kết quả kiểm tra<br />
+                                        &nbsp;&nbsp;- Vấn đề còn lại, nếu có
                                     </div>
                                     <span class="text-sky-400 font-bold">TARGET:</span>
-                                    <div class="text-slate-400 ml-2 leading-relaxed">...</div>
+                                    <div class="text-slate-400 ml-2 leading-relaxed">
+                                        [Mô tả chính xác lỗi hoặc tính năng cần xử lý]
+                                    </div>
                                     <button
                                         id="copy-template-btn"
                                         class="absolute top-3 right-3 text-xs text-slate-400 hover:text-emerald-400 transition-all duration-200 bg-slate-800/80 hover:bg-slate-700/80 backdrop-blur-sm px-2.5 py-1.5 rounded-lg border border-slate-700/50 hover:border-emerald-500/30 flex items-center gap-1.5 font-medium"

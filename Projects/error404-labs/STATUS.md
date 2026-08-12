@@ -4,6 +4,13 @@
 - (none)
 
 ## Completed
+### Cập nhật Prompt Template — game-roadmap
+- ✅ Thay RULE cũ bằng RULE mới trong popup "Sử dụng Prompt Template" và chức năng copy prompt.
+- ✅ Đồng bộ phần preview Prompt Template trên giao diện.
+- **File đã sửa**: `src/pages/game-roadmap.astro`, `STATUS.md`.
+- **Kết quả kiểm tra**: `git diff --check` đạt; tìm kiếm xác nhận rule cũ đã được loại bỏ và rule mới có đủ ở 3 vị trí.
+- **Vấn đề còn lại**: Không thể chạy Astro build/sync do file cache `node_modules/.vite/deps/@codemirror_lang-python.js` đang bị process khác khóa (`EPERM`); project không cài binary `prettier` để chạy format check riêng.
+
 ### Platform Review & Fixes (batch)
 - ✅ **Review toàn bộ Python platform**: DB schema + seed, lesson page, API endpoints, course pages — tìm 4 critical, 4 major, 12 minor
 - ✅ **DB fixes**: Sửa expected output C077 (`'2'`→`'3'`), C078 (`'2'`→`'1'`) trong Neon + migration file
