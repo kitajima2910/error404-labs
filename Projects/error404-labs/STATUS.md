@@ -4,6 +4,14 @@
 - (none)
 
 ## Completed
+### Cải thiện giao diện RULE — game-roadmap
+- ✅ Mở rộng sidebar “Mẹo Prompt cho Game” theo breakpoint `xl/2xl`, giữ nguyên chiều rộng cũ ở màn hình laptop.
+- ✅ Chuyển nút Copy sang header riêng, không còn đè lên nội dung RULE.
+- ✅ Trình bày RULE thành danh sách có bullet, khoảng cách và phân cấp rõ ràng; làm nổi bật khu vực TARGET.
+- **File đã sửa**: `src/pages/game-roadmap.astro`, `STATUS.md`.
+- **Kết quả kiểm tra**: `git diff --check` đạt; xác nhận `copy-template-btn` chỉ có một phần tử giao diện và JavaScript vẫn trỏ đúng ID.
+- **Vấn đề còn lại**: Không thể build/kiểm tra trực quan vì không có dev server local và Vite không thể xóa file cache `node_modules/.vite/deps/@codemirror_lang-python.js` đang bị process khác khóa (`EPERM`).
+
 ### Cập nhật Prompt Template — game-roadmap
 - ✅ Thay RULE cũ bằng RULE mới trong popup "Sử dụng Prompt Template" và chức năng copy prompt.
 - ✅ Đồng bộ phần preview Prompt Template trên giao diện.
