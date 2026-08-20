@@ -1,7 +1,9 @@
 # STATUS
 
 ## Current Task
-- **Git fix** — Resolved merge conflict, pushed to origin. Branch up to date.
+- **hoc-python Redesign** — Lesson page upgrade: editor optimization, split pane resize, test result UI, mobile responsive, "Nang Cao" course seed
+- **Full Project Review v2** — Deep security + code review. 25 API endpoints, 5 utils, 4 lib modules, middleware reviewed. 2026-08-20.
+- **Tổng findings: 6 CRITICAL, 13 HIGH, 14 MEDIUM, 10 LOW + 15 hoc-python findings**
 
 ## QA Verification (2026-08-20)
 | # | Finding | File:Line | Status |
@@ -9,21 +11,53 @@
 | 1 | `Math.random()` session token | `login.ts:148` | **CONFIRMED** — `Math.random().toString(36)` không secure |
 | 2 | JWT localStorage | `login.ts:170` | **CONFIRMED** — token trả trong body, client lưu localStorage |
 | 3 | Rate limiter fail-open | `rateLimit.ts:43-46` | **CONFIRMED** — catch block trả `allowed: true` |
-| 4 | `targetMemberId` undefined | `page-store/[username].ts:196` | **CONFIRMED** —从未 declared, POST throw ReferenceError |
-| 5 | `promptFiles` undefined | `get-prompt.ts:249` | **CONFIRMED** —从未 declared, prompt system broken |
-| 6 | XSS render.ts | `render.ts:15` | **CONFIRMED** — user HTML/CSS/JS concat thẳng, không sanitization |
+| 4 | `targetMemberId` undefined | `page-store/[username].ts:196` | **FIXED** — `targetMemberId` → `decoded.id` |
+| 5 | `promptFiles` undefined | `get-prompt.ts:249` | **FIXED** — restore `import.meta.glob` cho prompt .txt files |
+| 6 | XSS render.ts | `render.ts:15` | **FIXED** — thêm `prerender=false`, origin check (CSRF), CSP header, size limit |
 
 ## Completed
+### hoc-python Redesign (2026-08-20)
+- ✅ **Pyodide singleton cache** — `window.__pyodide` global avoids reload on SPA navigation
+- ✅ **CodeMirror singleton cache** — `window.__cmModules` global caches EditorView, python, oneDark modules. Parallel import via `Promise.all`
+- ✅ **Split pane resize** — Draggable divider between lesson panel and editor. Mouse + touch support
+- ✅ **Console resize** — Draggable divider between editor and console panel. Min 100px, max 500px
+- ✅ **Test result UI enhanced** — Diff view chi tiet, animated fadeUp, test tab label shows live pass count
+- ✅ **Custom input modal** — Button "Input tuy chinh" khi lesson khong co test cases
+- ✅ **Mobile sidebar toggle** — Floating button toggle giua lesson content va editor tren mobile
+- ✅ **runPythonWithStdin()** — Extract helper, loai bo code trung lap
+- ✅ **Migration 019** — Seed "Python Nâng Cao" (4 chapters, 7 lessons, 18 test cases)
+- ✅ **Fix diff view** — `split('\\n')` → `split('\n')` trong `[lessonSlug].astro:906-907` — diff view hien gio tach dong dung
+- ✅ **Fix null safety quiz** — Thêm null check cho `optEl.querySelector('input')` tại line 1174 — tranh TypeError
+- ✅ **Vietnamese content** — Rewrite migration 019: content co dau tieng Viet, starter code Decorators la skeleton khong co solution, them 2 test cases cho Decorators
+- **File modified**: `[lessonSlug].astro` (1432 lines), `migrations/019_seed_python_nang_cao.sql` (rewrite)
+- **Vấn đề còn lại**: Migration 019 chưa apply Neon DB; chưa tach components; Pyodide Web Worker chua implement; khong co test suite
+
+### Fix `marked` module missing (2026-08-20)
+- ✅ `marked@18.0.6` đã có trong `package.json` + `pnpm-lock.yaml` nhưng thiếu trong `node_modules/`
+- ✅ `pnpm install` đã resolve — `node_modules/marked/package.json` exists
+- ✅ Astro build compile thành công — `[lessonSlug].astro` import `marked` không lỗi
+- **File đã sửa**: Không — chỉ dependency install
+- **Kết quả kiểm tra**: Build pass Astro compilation. Vercel bundling step fail do Windows symlink EPERM (pre-existing, không liên quan)
+- **Vấn đề còn lại**: Vercel adapter EPERM trên Windows (symlink) — cần build trên CI/Linux
+
 ### QA Verify CRITICAL findings (2026-08-20)
 - ✅ Verify 6 CRITICAL findings từ Full Project Review
 - ✅ Tất cả 6 đều **CONFIRMED** — 2 functional bug (#4, #5), 4 security issues (#1-3, #6)
 - ✅ STATUS.md updated, findings evidence recorded
 
-### Full Project Review (2026-08-20)
-- Scope: Security audit, code quality, dependencies, database, architecture
-- Files reviewed: 18 API endpoints, 5 utils, 5 lib modules, middleware, migrations, package.json
-- **Tổng findings: 6 CRITICAL, 9 HIGH, 10+ MEDIUM, 10+ LOW**
-- Chi tiết xem bên dưới
+### Fix 3 CRITICAL functional bugs (2026-08-20)
+- ✅ **C4**: `targetMemberId` → `decoded.id` trong `page-store POST` — page store POST hoạt động lại
+- ✅ **C5**: Restore `import.meta.glob` cho prompt .txt files — prompt content system hoạt động lại
+- ✅ **C6**: render.ts — thêm `prerender=false`, origin check (CSRF), CSP header, size limit 100KB
+- **File đã sửa**: `src/pages/api/user/page-store/[username].ts`, `src/pages/api/get-prompt.ts`, `src/pages/api/render.ts`
+- **Kết quả kiểm tra**: `npx tsc --noEmit` — 3 errors pre-existing (pyodide module, neon type), không regressions
+- **Vấn đề còn lại**: 3 CRITICAL security (session token, JWT localStorage, rate limiter fail-open) chưa fix
+
+### Full Project Review (2026-08-20) — Updated v2
+- Scope: Deep security audit + code review, all API endpoints
+- Files reviewed: 25 API endpoints, 5 utils, 4 lib modules, middleware, migrations, package.json
+- **Tổng findings: 6 CRITICAL, 13 HIGH, 14 MEDIUM, 10 LOW + 15 hoc-python findings**
+- Chi tiết xem section "Full Review Findings" ở đầu file
 ### Ẩn danh sách game và căn giữa Prompt Template — game-roadmap
 - ✅ Ẩn khu vực “Tất cả Game Prompt” nhưng giữ các phần tử trong DOM để JavaScript hiện tại không phát sinh lỗi.
 - ✅ Chuyển “Mẹo Prompt cho Game” từ sidebar thành card nội dung chính căn giữa, responsive với chiều rộng tối đa phù hợp.
@@ -86,72 +120,106 @@
 - ✅ **Enrollment system**: API GET + POST, public course catalog
 - ✅ **UX Redesign**: Course detail "Tiếp tục học →", skip warning modal, "Nộp bài" cho theory
 
-## Full Review Findings (2026-08-20)
+## Full Review Findings (2026-08-20) — v2
 
 ### CRITICAL (6)
 1. **Session token dùng `Math.random()`** — `src/pages/api/login.ts:148` — Không cryptographically secure, attacker có thể predict/forged session token. Fix: `crypto.randomUUID()` hoặc `crypto.randomBytes(32).toString('hex')`
 2. **JWT lưu localStorage** — `src/pages/api/login.ts:170-188` — Bị XSS trích xuất dễ dàng. Fix: HttpOnly + Secure + SameSite=Strict cookie
 3. **Rate limiter fail-open khi DB down** — `src/utils/rateLimit.ts:43-46` — DB error → cho phép tất cả requests, attacker có thể brute-force login. Fix: fail closed hoặc in-memory fallback
-4. **`targetMemberId` undefined** — `src/pages/api/user/page-store/[username].ts:196` — POST handler sẽ throw ReferenceError mỗi request. Chức năng tạo page hoàn toàn broken
-5. **`promptFiles` undefined** — `src/pages/api/get-prompt.ts:249-250` — Variable never declared/initialized. Prompt content system hoàn toàn broken
-6. **XSS trong render.ts** — `src/pages/api/render.ts:15` — User-supplied HTML/CSS/JS được concat thẳng vào response, không sanitization. Reflected XSS vector
+4. **`targetMemberId` undefined** — `src/pages/api/user/page-store/[username].ts:196` — **FIXED** — `targetMemberId` → `decoded.id`
+5. **`promptFiles` undefined** — `src/pages/api/get-prompt.ts:249-250` — **FIXED** — restore `import.meta.glob` cho prompt .txt files
+6. **XSS trong render.ts** — `src/pages/api/render.ts:15` — **FIXED** — thêm `prerender=false`, origin check (CSRF), CSP header, size limit
 
-### HIGH (9)
+### HIGH (13)
 1. **CSP cho phép 'unsafe-inline' + 'unsafe-eval'** — `src/middleware.ts:21` — Hiệu quả vô hiệu hóa XSS protection từ CSP. Combined với JWT trong localStorage (#CRITICAL-2), một XSS = full account compromise
-2. **Không có CSRF protection trên admin mutation endpoints** — `src/pages/api/admin/members.ts` — POST/PUT/DELETE không validate origin
-3. **Không có CSRF trên user upload-avatar** — `src/pages/api/user/upload-avatar.ts`
+2. **Không có CSRF protection trên admin mutation endpoints** — `src/pages/api/admin/members.ts`, `prompt-access.ts`, `lessons.ts`, `payments.ts`, `attendance.ts`, `date-notes.ts`, `roadmap-games.ts`, `expected-sessions.ts`, `upload-image.ts` — ALL POST/PUT/DELETE không validate origin. Confirmed 10 endpoints affected (v不仅仅是 members.ts)
+3. **Không có CSRF trên user upload-avatar** — `src/pages/api/user/upload-avatar.ts` — Không origin check
 4. **Logout CSRF bypassable** — `src/pages/api/logout.ts:18` — Origin check bị skip khi origin là null (same-origin requests, curl)
 5. **SQL interpolation pattern fragile** — `src/utils/rateLimit.ts:39` — `INTERVAL '${windowSec} seconds'` — hiện tại safe nhưng pattern nguy hiểm
 6. **Super admin hardcoded username** — `src/pages/api/admin/members.ts:163,201,303` — `admin.member !== 'pxh2910'`. Nên dùng role field
 7. **User-Agent fingerprint trivially spoofable** — `src/utils/auth.ts:35` — JWT stolen + fake fingerprint = bypass session check
 8. **Heartbeat point farming unlimited** — `src/pages/api/user/heartbeat.ts:71-72` — Bot có thể earn ~14,400 points/ngày. Thiếu daily cap
-9. **render.ts không auth, không CSRF, không rate-limit** — Open proxy cho arbitrary HTML rendering
+9. **render.ts không auth** — Origin check có nhưng không check JWT. Bất kỳ same-origin request nào cũng render được HTML/CSS/JS arbitrary
+10. **Path traversal get-game-prompt** — `src/pages/api/get-game-prompt.ts:69` — `gameName` từ query param → `join()` with `..` có thể escape directory. Fix: validate `/^[a-zA-Z0-9_-]+$/`
+11. **hoc-python: Submit API trusts client outputs** — `submit.ts:44,199-202` — `outputs` array từ client dùng cho grading + XP. Student có thể fake
+12. **get-game-prompt.ts: No session verification** — Lines 28-41: Chỉ check JWT, không check `logined`, `session_token`, `session_fingerprint` từ DB — session invalidated vẫn access được content
+13. **checkAdmin không check `status`** — `prompt-access.ts:17-40` và `get-prompt.ts:23-41` — SELECT query không có field `status`, conditional check thiếu `dbUser.status !== 'active'`. Banned admin vẫn access admin endpoints
 
-### MEDIUM (10)
+### MEDIUM (14)
 1. **Pyodide version mismatch** — Lesson page CDN: `0.27.3`, `pyodideRunner.ts` CDN: `v0.25.0`, `package.json`: `^314.0.2`. Ba version khác nhau
-2. **3 duplicate streak implementations** — `gamification.ts`, `db.ts`, `submit.ts` (×2) — Logic giống nhau nhưng khác biệt subtle
-3. **4 duplicate `normalizeOutput` implementations** — `grading.ts`, `python-grading.ts`, lesson page client-side — Kết quả grading khác nhau giữa server/client
+2. **4 duplicate streak implementations** — `gamification.ts:calculateStreak()`, `db.ts:updateStreak()`, `submit.ts` (×2 lines 118-146 và 265-293) — Logic giống nhau nhưng `Date.now()-86400000` DST edge case trong submit.ts
+3. **4 duplicate `normalizeOutput` implementations** — `grading.ts:35`, `python-grading.ts:7`, lesson page client-side — Kết quả grading có thể khác nhau giữa server/client
 4. **Dead code trong db.ts** — `saveSubmission()`, `awardXp()`, `updateStreak()`, `updateProgress()` — Không được import ở đâu
 5. **N+1 query trong `getCourseBySlug`** — `src/lib/python-course/db.ts:137-146` — Mỗi chapter 1 query riêng
-6. **`checkAdmin` inconsistency** — `prompt-access.ts` và `get-prompt.ts` không check `status` — Banned admin vẫn access được
-7. **SQL string interpolation bugs** — `payments.ts:108` và `attendance.ts:212-213` — `'CURRENT_DATE'`/`'CURRENT_TIME'` truyền as string thay vì SQL keyword
-8. **Response format inconsistency** — Thiếu `Content-Type: application/json` trong `payments.ts`, `lessons.ts`. HTTP 200 cho access denied trong `get-game-prompt.ts`
-9. **Client-trusted grading** — `submit.ts:44,199-202` — `outputs` array từ client được trust cho XP/achievement grading. Dễ bị game
-10. **checkAdmin duplicated 8 lần** với implementations khác nhau — Nên refactor thành shared utility
+6. **SQL string interpolation bugs** — `payments.ts:108,116` và `attendance.ts:212-213,227` — `'CURRENT_DATE'`/`'CURRENT_TIME'` truyền as parameterized string thay vì SQL keyword — sẽ fail nếu giá trị default được dùng
+7. **Response format inconsistency** — Thiếu `Content-Type: application/json` trong `payments.ts:70,111,120`, `lessons.ts:139,162,184,202`. HTTP 200 cho access denied trong `get-game-prompt.ts:62`
+8. **Client-trusted grading** — `submit.ts:44,199-202` — `outputs` array từ client được trust cho XP/achievement grading. Dễ bị game
+9. **checkAdmin duplicated ~10 lần** — `admin/members.ts`, `prompt-access.ts`, `lessons.ts`, `payments.ts`, `attendance.ts`, `date-notes.ts`, `roadmap-games.ts`, `expected-sessions.ts`, `upload-image.ts` — implementations khác nhau, nên refactor thành shared utility
+10. **hoc-python: Monolith 1,433 dòng** — `[lessonSlug].astro]` chứa server fetch + HTML + client JS + CSS. Nên tách components
+11. **hoc-python: Pyodide main thread** — `runPythonWithStdin()` block UI 1-3s mỗi lần run. Nên dùng Web Worker
+12. **Module-scope `sql = neon()`** — 9 admin files tạo `sql` tại module scope. Nếu `DATABASE_URL` missing → query fail tại runtime thay vì fail-fast
+13. **leaderboard.ts: No rate limiting** — GET public endpoint, bot có thể spam để gây load DB
+14. **enrollment.ts: CSRF on GET** — GET handler có origin check — không cần CSRF cho GET (read-only)
 
-### LOW (8)
+### LOW (10)
 1. JWT expiry 7 ngày — Khung thời gian quá dài nếu token bị leak
-2. Không có input length validation trong admin endpoints
-3. `verify.ts` trả HTTP 200 cho JWT verification failure
-4. DST edge case trong streak calculation (`Date.now() - 86400000`)
+2. Không có input length validation trong admin endpoints (username, password, display_name không giới hạn độ dài)
+3. `verify.ts` trả HTTP 200 cho JWT verification failure + server error — monitoring khó phát hiện
+4. DST edge case trong streak calculation — `submit.ts` dùng `Date.now() - 86400000` thay vì calendar day
 5. `TextConst.ts` — File thừa, chỉ có 1 constant, không được import
-6. `gamification.ts` functions never called — Dead code
+6. `gamification.ts` functions `calculateXp()`, `calculateStreak()` never imported — Dead code
 7. Không có `.env.example` — Khó cho developers mới
 8. Migration numbering conflict: 2 file `004_*`, 2 file `013_*`
+9. `payments.ts:108` — `paid_at = ${(paid_at || 'CURRENT_DATE')}::date` — nếu `paid_at` undefined, parameterized string `'CURRENT_DATE'` sẽ fail `::date` cast
+10. `attendance.ts:212-213` — `${dateStr}::date` và `${timeStr}::time` có thể nhận giá trị `'CURRENT_DATE'`/`'CURRENT_TIME'` strings thay vì SQL keywords
+
+## hoc-python Review Findings (2026-08-20)
+- Scope: 6 pages + 6 APIs + 4 migrations + 4 utils
+- **B1 (FIXED)**: `split('\\n')` → `split('\n')` trong diff view
+- **B2 (FIXED)**: Null safety quiz handler
+- **B3 (HIGH)**: Decorators hidden test vô dụng — truyền stdin `E'1\n2'` nhưng bài không đọc stdin
+- **B4 (MEDIUM)**: Starter code có solution sẵn — students chỉ cần thay `pass`
+- **B5 (MEDIUM)**: Monolith 1,433 dòng — nên tách components
+- **B6 (MEDIUM)**: Pyodide main thread — block UI 1-3s mỗi lần run
+- **B7 (LOW)**: `pre::before` hardcode "Python"
+- **B8 (LOW)**: Landing page quá đơn giản
+- **C1 (MEDIUM)**: Migration 019 chưa apply lên Neon DB
+- **C2 (MEDIUM)**: Submit API trusts client outputs
+- **C3 (LOW)**: Streak logic duplicated trong submit.ts
+- **C4 (LOW)**: ca-nhan.astro breadcrumb hardcode về "Cơ bản"
+- **C5 (LOW)**: bang-xep-hang.astro duplicate rendering
+- **P1 (MEDIUM)**: CodeMirror thiếu autocomplete
+- **P2-P4 (LOW)**: Skeleton loading, split pane state persist, console resize selector brittle
 
 ## Modified Files (gần đây)
-- `src/pages/hoc-python/hoc/[courseSlug]/[lessonSlug].astro` — 7+ fixes
+- `src/pages/hoc-python/hoc/[courseSlug]/[lessonSlug].astro` — 7+ fixes + redesign (Pyodide cache, split pane, test UI, mobile, custom input)
+- `migrations/019_seed_python_nang_cao.sql` — NEW: seed "Python Nang Cao" (rewrite: Vietnamese content, fixed starter code, added test cases)
 - `src/pages/api/hoc-python/submit.ts` — XP protection, race condition
 - `src/pages/api/hoc-python/progress.ts` — JWT auth
 - `src/utils/auth.ts` — shared verifyAuth (mới)
 - `src/utils/rateLimit.ts` — DB-based (sửa)
 - `migrations/016_seed_quiz_questions.sql` — quiz questions
 - `migrations/017_add_rate_limits.sql` — rate_limits table
+- `src/pages/api/user/page-store/[username].ts` — CRITICAL fix: `targetMemberId` → `decoded.id`
+- `src/pages/api/get-prompt.ts` — CRITICAL fix: restore `import.meta.glob` cho prompt files
+- `src/pages/api/render.ts` — CRITICAL fix: add origin check, size limit, CSP header, prerender=false
 
 ## Known Issues
-- 6 CRITICAL: session token Math.random(), JWT localStorage, rate limiter fail-open, undefined targetMemberId (page-store POST broken), undefined promptFiles (get-prompt broken), XSS render.ts
-- 9 HIGH: CSP unsafe-inline/eval, no CSRF on admin/user endpoints, logout CSRF bypass, super admin hardcoded, heartbeat farming, render.ts no auth
+- 3 CRITICAL security: session token Math.random(), JWT localStorage, rate limiter fail-open
+- 13 HIGH: CSP unsafe-inline/eval, CSRF on ALL admin endpoints (10 files), no CSRF upload-avatar, logout CSRF bypass, super admin hardcoded, heartbeat farming, render.ts no auth, get-game-prompt no session check, checkAdmin missing status check
 - Pyodide version mismatch: 3 different versions across lesson page, pyodideRunner.ts, package.json
 - Client-trusted grading: outputs array từ client dùng cho XP/achievement
 - Dead code: 4 functions trong db.ts, gamification.ts functions, TextConst.ts
-- Code duplication: streak logic ×4, normalizeOutput ×4, checkAdmin ×8
+- Code duplication: streak logic ×4, normalizeOutput ×4, checkAdmin ×10
+- **hoc-python**: B3 hidden test vô dụng (Decorators), B4 starter code có solution sẵn, C1 migration 019 chưa apply Neon DB
+- SQL bugs: payments.ts/attendance.ts `'CURRENT_DATE'`/`'CURRENT_TIME'` as parameterized strings
 
-## Next Step (QA Verified)
-- **Priority 1 — Fix CRITICAL functional bugs**: targetMemberId (page-store POST), promptFiles (get-prompt)
-- **Priority 2 — Fix CRITICAL security**: render.ts XSS (no auth, no CSRF, no sanitization)
-- **Priority 3 — Security hardening**: Session token → crypto, JWT → HttpOnly cookie, rate limiter fail-closed
-- **Priority 4 — Code consolidation**: Unique normalizeOutput/compareOutputs, unique streak logic, wire up or delete dead code in db.ts
-- **Priority 5 — Consistency**: checkAdmin shared utility, Content-Type headers, HTTP status codes
+## Next Step (Review v2)
+- **Priority 1 — Fix CRITICAL security**: Session token → crypto, JWT → HttpOnly cookie, rate limiter fail-closed
+- **Priority 2 — Fix HIGH security**: CSRF on all admin endpoints (add origin check), render.ts auth, get-game-prompt session check
+- **Priority 3 — Security hardening**: checkAdmin shared utility (with status check), path traversal get-game-prompt, daily cap heartbeat
+- **Priority 4 — Code consolidation**: Unified normalizeOutput/compareOutputs, streak logic, wire up or delete dead code
+- **Priority 5 — Quality**: Content-Type headers, HTTP status codes, SQL string bugs, input length validation
 - Unify Pyodide version across all 3 locations
 - Tạo `.env.example`
-- Add daily cap cho heartbeat points
+- **hoc-python**: Apply migration 019 lên Neon DB, fix B3 (hidden test vô dụng), fix B4 (starter code có solution sẵn)

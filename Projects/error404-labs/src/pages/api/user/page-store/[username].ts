@@ -193,7 +193,7 @@ export const POST: APIRoute = async ({ request, params }) => {
 
         const result = await sql`
             INSERT INTO error404labs.page_store (member_id, url, title, thumbnail_url, display_mode, is_public)
-            VALUES (${targetMemberId}, ${url}, ${title}, ${thumbnailUrl || null}, ${mode}, ${publicStatus})
+            VALUES (${decoded.id}, ${url}, ${title}, ${thumbnailUrl || null}, ${mode}, ${publicStatus})
             RETURNING id, url, title, thumbnail_url, display_mode, is_public, created_at
         `
 
