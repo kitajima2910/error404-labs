@@ -14,3 +14,8 @@
 - audit_scope: full_project
 - top_risk: CRITICAL #4 (targetMemberId undefined) + CRITICAL #5 (promptFiles undefined) = 2 broken features
 - security_hotspot: render.ts (XSS + open proxy)
+
+## devops
+- mcp_neon: not_connected_in_session -> config_fixed (opencode.json) -> need_restart
+- mcp_config_location: .pxhvibe/mcp.json (Claude shape) wrong; opencode reads opencode.json only
+- db_fallback: @neondatabase/serverless v1.0.2 select 1 = OK

@@ -1,6 +1,7 @@
 # STATUS
 
 ## Current Task
+- **MCP Neon check (2026-08-20)** — Root cause: cấu hình MCP nằm ở `.pxhvibe/mcp.json` — file opencode KHÔNG đọc (opencode đọc `mcp` từ `opencode.json` project/global). Global `~/.config/opencode/opencode.json` chỉ có `$schema`, không có `mcp`. **FIX (FIX phase)**: tạo `opencode.json` project với server `neon` (remote, mirror từ `.pxhvibe/mcp.json`) — JSON valid. MCP sẽ được nạp từ session mới sau khi **restart opencode**. **BUILD phase verified (2026-08-20)**: `opencode.json` tồn tại + shape đúng; DB fallback query `select 1` = `{ok:1, ts}`; session này vẫn KHÔNG có tool `mcp__neon__*` → MCP chưa connect cho tới khi restart.
 - **Workflow Debug hoàn tất (2026-08-20)** — Full Project Review v2 -> FIX 3 bug -> QA PASS -> REVIEW PASS -> PERSIST done. Xem `Completed > FIX phase`.
 - **hoc-python Redesign** — Lesson page upgrade: editor optimization, split pane resize, test result UI, mobile responsive, "Nang Cao" course seed
 - **Tổng findings: 6 CRITICAL, 13 HIGH, 14 MEDIUM, 10 LOW + 15 hoc-python findings**
@@ -16,6 +17,19 @@
 | 6 | XSS render.ts | `render.ts:15` | **FIXED** — thêm `prerender=false`, origin check (CSRF), CSP header, size limit |
 
 ## Completed
+### MCP Neon connect (2026-08-20) — PERSIST done
+- ✅ Event chain persisted: `.memory/mcp-neon-fix.md` (task_result: root cause config sai vị trí, fix opencode.json, verification, remaining), `.memory/timeline.md` (ANALYZE→ARCHITECT→CODE→TEST→FIX→REVIEW→BUILD→PERSIST all pass), `.memory/reflections.md` (stats devops).
+- ✅ `runtime-state.json` — workflow `company` → `completed`, PERSIST pass (JSON valid).
+- ⚠️ Kết nối MCP Neon thật vẫn chưa verify được trong session này — cần **restart opencode** để nạp tool `mcp__neon__*`.
+- Lưu ý: `persist.mjs` không tồn tại trong môi trường — ghi trực tiếp `.memory/` theo pattern append-only.
+
+### MCP Neon connect (2026-08-20) — FIX phase
+- ✅ Root cause: `.pxhvibe/mcp.json` không được opencode đọc — opencode chỉ đọc `mcp` từ `opencode.json` (project/global). Global `~/.config/opencode/opencode.json` thiếu `mcp` block.
+- ✅ Fix: tạo `opencode.json` project với `mcp.neon` (remote `https://mcp.neon.tech/mcp`, `enabled: true`). JSON valid (verified bằng node).
+- ✅ **BUILD verified (2026-08-20)**: config exists + parse OK (`mcp.neon` = `{type:remote, url, enabled:true}`); DB fallback chạy script thật trả `DB OK: [{"ok":1,"ts":"2026-08-20T16:52:27Z"}]`.
+- ⚠️ MCP chưa nạp trong session này (không có tool `mcp__neon__*` — chỉ bash/filesystem/web/skill). Cần **restart opencode** để nạp MCP (config chỉ load 1 lần khi start).
+- Fallback query DB qua `@neondatabase/serverless` vẫn hoạt động — không block.
+
 ### PERSIST (2026-08-20)
 - ✅ Event chain persisted: `.memory/fix-findings.md` (task_result, 3 fixes + verification + remaining), `.memory/timeline.md` (ANALYZE→FIX→TEST→REVIEW→PERSIST all pass), `.memory/reflections.md` (stats update)
 - ✅ `runtime-state.json` — workflow `debug` status `completed`, PERSIST pass
@@ -205,6 +219,7 @@
 - **P2-P4 (LOW)**: Skeleton loading, split pane state persist, console resize selector brittle
 
 ## Modified Files (gần đây)
+- `opencode.json` — NEW: `mcp.neon` remote server để opencode nạp MCP Neon từ session mới (2026-08-20)
 - `src/pages/hoc-python/hoc/[courseSlug]/[lessonSlug].astro` — **FIX hidden test leak**: strip expected_output hidden, submit chấm qua server (2026-08-20)
 - `src/utils/achievements.ts` — **FIX TS**: `NeonQueryFunction<false, false>` signature (2026-08-20)
 - `src/pages/hoc-python/khoa-hoc/[slug].astro` — **FIX**: xóa userId param thừa + getUserIdFromToken dead code (2026-08-20)
