@@ -109,7 +109,13 @@ const typeColor: Record<string, string> = {
 const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình', hard: 'Khó' }
 
 // Serialize dữ liệu cho client (dùng JSON để giữ newline)
-    const testCasesJson = JSON.stringify(testCases)
+// Hidden test: chỉ gửi stdin để client chạy, KHÔNG gửi expected_output — tránh lộ đáp án hidden
+    const clientTestCases = testCases.map((tc) =>
+        tc.is_hidden
+            ? { id: tc.id, stdin: tc.stdin, is_hidden: true, order_index: tc.order_index }
+            : tc,
+    )
+    const testCasesJson = JSON.stringify(clientTestCases)
     const lessonIdJson = JSON.stringify(lesson.id)
     const starterCodeJson = JSON.stringify(lesson.starter_code || '# Viết code Python của bạn ở đây\n')
     const xpReward = lesson.xp_reward
@@ -792,27 +798,28 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
 
         for (var i = 0; i < testCases.length; i++) {
             var tc = testCases[i]
-            var testLabel = tc.is_hidden ? 'Test #' + (i + 1) : 'Test: ' + (tc.stdin || '(empty input)')
+            var testLabel = tc.is_hidden ? 'Test #' + (i + 1) + ' (ẩn)' : 'Test: ' + (tc.stdin || '(empty input)')
 
             try {
                 var output = await runPythonWithStdin(code, tc.stdin)
                 var actualOutput = (output || '').trim()
-                var expected = tc.expected_output.trim()
                 outputs.push(actualOutput)
 
-                var compMode = lessonData?.dataset.comparisonMode || 'exact'
-                var epsilon = parseFloat(lessonData?.dataset.floatEpsilon || '0.001')
-                var match = compareClientOutputs(actualOutput, expected, compMode, epsilon)
-
-                if (match) {
-                    passed++
-                    results.push({ index: i, passed: true, label: testLabel })
+                if (tc.is_hidden) {
+                    // Hidden test: chỉ chạy để lấy output, KHÔNG chấm trên client (không có đáp án) — server chấm
+                    results.push({ index: i, pending: true, label: testLabel })
                 } else {
-                    results.push({
-                        index: i, passed: false, label: testLabel,
-                        expected: tc.is_hidden ? '***' : expected,
-                        actual: tc.is_hidden ? '***' : actualOutput,
-                    })
+                    var expected = tc.expected_output.trim()
+                    var compMode = lessonData?.dataset.comparisonMode || 'exact'
+                    var epsilon = parseFloat(lessonData?.dataset.floatEpsilon || '0.001')
+                    var match = compareClientOutputs(actualOutput, expected, compMode, epsilon)
+
+                    if (match) {
+                        passed++
+                        results.push({ index: i, passed: true, label: testLabel })
+                    } else {
+                        results.push({ index: i, passed: false, label: testLabel, expected: expected, actual: actualOutput })
+                    }
                 }
             } catch (err) {
                 outputs.push('')
@@ -821,17 +828,10 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
             showTestResults(results, passed, testCases.length)
         }
 
-        showTestResults(results, passed, testCases.length)
-
-        if (passed === testCases.length) {
-            appendConsole('🎉 Hoàn thành ' + passed + '/' + testCases.length + ' test case (gồm ' + hiddenTests.length + ' ẩn)!', 'success')
-            markLessonCompleted()
-        } else {
-            appendConsole('📊 Kết quả: ' + passed + '/' + testCases.length + ' test case đúng', 'info')
-        }
-
+        // Gửi output lên server để chấm (kể cả hidden tests) — kết quả chính thức từ server
+        var token = localStorage.getItem('auth_token')
+        var data = null
         try {
-            var token = localStorage.getItem('auth_token')
             var res = await fetch('/api/hoc-python/submit', {
                 method: 'POST',
                 headers: {
@@ -840,16 +840,46 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
                 },
                 body: JSON.stringify({ lessonId: lessonId, sourceCode: code, outputs: outputs }),
             })
-            var data = await res.json()
+            data = await res.json()
+
+            if (res.status === 401 && data.error === 'Unauthorized') {
+                localStorage.removeItem('auth_token')
+                window.location.href = '/?login=true'
+                return
+            }
+        } catch (err) {
+            appendConsole('❌ Lỗi kết nối: ' + (err.message || String(err)), 'error')
+        }
+
+        if (data && Array.isArray(data.results)) {
+            // Hiển thị kết quả chính thức — hidden test không lộ expected/actual
+            var serverResults = data.results.map(function (r, idx) {
+                var tc = testCases[idx]
+                var label = tc ? (tc.is_hidden ? 'Test #' + (idx + 1) + ' (ẩn)' : 'Test: ' + (tc.stdin || '(empty input)')) : 'Test #' + (idx + 1)
+                var obj = { index: idx, passed: !!r.passed, label: label }
+                if (r.error) obj.error = r.error
+                if (!tc || !tc.is_hidden) {
+                    if (r.expected !== undefined) obj.expected = r.expected
+                    if (r.actual !== undefined) obj.actual = r.actual
+                }
+                return obj
+            })
+            var serverPassed = serverResults.filter(function (r) { return r.passed }).length
+            showTestResults(serverResults, serverPassed, testCases.length)
+
+            if (data.passed) {
+                appendConsole('🎉 Hoàn thành ' + serverPassed + '/' + testCases.length + ' test case (gồm ' + hiddenCount + ' ẩn)!', 'success')
+                markLessonCompleted()
+            } else {
+                appendConsole('📊 Kết quả: ' + serverPassed + '/' + testCases.length + ' test case đúng', 'info')
+            }
             if (data.xpAwarded > 0) appendConsole('🏆 Đã nhận +' + data.xpAwarded + ' XP!', 'success')
             if (data.newAchievements && data.newAchievements.length > 0)
                 appendConsole('🏅 Mở khoá thành tích: ' + data.newAchievements.join(', '), 'success')
             if (data.error) appendConsole('⚠️ ' + data.error, 'error')
-            if (res.status === 401 && data.error === 'Unauthorized') {
-                localStorage.removeItem('auth_token')
-                window.location.href = '/?login=true'
-            }
-        } catch {}
+        } else if (data && data.error) {
+            appendConsole('⚠️ ' + data.error, 'error')
+        }
     }
 
     // ── Test results UI (enhanced with diff view) ───────────────────
@@ -879,6 +909,12 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
         }
 
         results.forEach(function (r, idx) {
+            if (r.pending) {
+                html += '<div class="flex items-center gap-2 py-1.5 text-slate-400">' +
+                    '<span class="shrink-0 w-5 h-5 rounded-full bg-slate-500/10 flex items-center justify-center text-xs">⏳</span>' +
+                    '<span class="text-xs">' + escapeHtml(r.label) + ' — đang chờ kết quả server</span></div>'
+                return
+            }
             if (r.passed) {
                 html += '<div class="flex items-center gap-2 py-1.5 text-green-400">' +
                     '<span class="shrink-0 w-5 h-5 rounded-full bg-green-500/10 flex items-center justify-center text-xs">✓</span>' +

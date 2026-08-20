@@ -1,8 +1,8 @@
 # STATUS
 
 ## Current Task
+- **Workflow Debug hoàn tất (2026-08-20)** — Full Project Review v2 -> FIX 3 bug -> QA PASS -> REVIEW PASS -> PERSIST done. Xem `Completed > FIX phase`.
 - **hoc-python Redesign** — Lesson page upgrade: editor optimization, split pane resize, test result UI, mobile responsive, "Nang Cao" course seed
-- **Full Project Review v2** — Deep security + code review. 25 API endpoints, 5 utils, 4 lib modules, middleware reviewed. 2026-08-20.
 - **Tổng findings: 6 CRITICAL, 13 HIGH, 14 MEDIUM, 10 LOW + 15 hoc-python findings**
 
 ## QA Verification (2026-08-20)
@@ -16,6 +16,19 @@
 | 6 | XSS render.ts | `render.ts:15` | **FIXED** — thêm `prerender=false`, origin check (CSRF), CSP header, size limit |
 
 ## Completed
+### PERSIST (2026-08-20)
+- ✅ Event chain persisted: `.memory/fix-findings.md` (task_result, 3 fixes + verification + remaining), `.memory/timeline.md` (ANALYZE→FIX→TEST→REVIEW→PERSIST all pass), `.memory/reflections.md` (stats update)
+- ✅ `runtime-state.json` — workflow `debug` status `completed`, PERSIST pass
+- Lưu ý: `persist.mjs` không tồn tại trong môi trường — ghi trực tiếp `.memory/` theo pattern append-only
+
+### FIX phase — Hidden test leak + TS errors (2026-08-20)
+- ✅ **B9 (FIXED, HIGH)**: Hidden test leak — `[lessonSlug].astro` serialize toàn bộ `expected_output` (kể cả hidden) vào `data-test-cases` → đáp án hidden lộ trong page source. Giờ hidden test chỉ gửi `stdin` + `is_hidden`, KHÔNG gửi `expected_output`. Client chạy hidden test lấy output, **không chấm trên client** (pending ⏳), kết quả chính thức từ server response `data.results`. `markLessonCompleted` chỉ khi server xác nhận `passed`.
+- ✅ **TS errors (FIXED)**: `achievements.ts` signature `ReturnType<typeof neon>` → `NeonQueryFunction<false, false>` — fix 3 lỗi tsc: `submit.ts:150,308` + `achievements.ts:11` (destructure iteration error)
+- ✅ **Cleanup (LOW)**: `khoa-hoc/[slug].astro` — xóa `userId` query param thừa (progress.ts đã chuyển sang JWT auth) + xóa `getUserIdFromToken()` dead code
+- **File đã sửa**: `src/pages/hoc-python/hoc/[courseSlug]/[lessonSlug].astro`, `src/utils/achievements.ts`, `src/pages/hoc-python/khoa-hoc/[slug].astro`
+- **Kết quả kiểm tra**: `npx tsc --noEmit` — hết lỗi trong `src/`; `npx astro build` — compile toàn bộ pages OK (fail chỉ ở bước Vercel adapter symlink EPERM trên Windows — pre-existing)
+- **Vấn đề còn lại**: Model chấm điểm vẫn client-trusted (client gửi `outputs`, server chấm lại — server không có Python runtime). Hidden test ẩn được đáp án nhưng vẫn cần stdin để chạy Pyodide. `ui/ui-game-roadmap` TS errors pre-existing (React SPA riêng, nên exclude khỏi tsconfig site)
+
 ### hoc-python Redesign (2026-08-20)
 - ✅ **Pyodide singleton cache** — `window.__pyodide` global avoids reload on SPA navigation
 - ✅ **CodeMirror singleton cache** — `window.__cmModules` global caches EditorView, python, oneDark modules. Parallel import via `Promise.all`
@@ -192,6 +205,9 @@
 - **P2-P4 (LOW)**: Skeleton loading, split pane state persist, console resize selector brittle
 
 ## Modified Files (gần đây)
+- `src/pages/hoc-python/hoc/[courseSlug]/[lessonSlug].astro` — **FIX hidden test leak**: strip expected_output hidden, submit chấm qua server (2026-08-20)
+- `src/utils/achievements.ts` — **FIX TS**: `NeonQueryFunction<false, false>` signature (2026-08-20)
+- `src/pages/hoc-python/khoa-hoc/[slug].astro` — **FIX**: xóa userId param thừa + getUserIdFromToken dead code (2026-08-20)
 - `src/pages/hoc-python/hoc/[courseSlug]/[lessonSlug].astro` — 7+ fixes + redesign (Pyodide cache, split pane, test UI, mobile, custom input)
 - `migrations/019_seed_python_nang_cao.sql` — NEW: seed "Python Nang Cao" (rewrite: Vietnamese content, fixed starter code, added test cases)
 - `src/pages/api/hoc-python/submit.ts` — XP protection, race condition
@@ -208,11 +224,12 @@
 - 3 CRITICAL security: session token Math.random(), JWT localStorage, rate limiter fail-open
 - 13 HIGH: CSP unsafe-inline/eval, CSRF on ALL admin endpoints (10 files), no CSRF upload-avatar, logout CSRF bypass, super admin hardcoded, heartbeat farming, render.ts no auth, get-game-prompt no session check, checkAdmin missing status check
 - Pyodide version mismatch: 3 different versions across lesson page, pyodideRunner.ts, package.json
-- Client-trusted grading: outputs array từ client dùng cho XP/achievement
+- Client-trusted grading: outputs array từ client dùng cho XP/achievement (hidden test đã ẩn đáp án nhưng stdin vẫn cần cho Pyodide)
 - Dead code: 4 functions trong db.ts, gamification.ts functions, TextConst.ts
 - Code duplication: streak logic ×4, normalizeOutput ×4, checkAdmin ×10
 - **hoc-python**: B3 hidden test vô dụng (Decorators), B4 starter code có solution sẵn, C1 migration 019 chưa apply Neon DB
 - SQL bugs: payments.ts/attendance.ts `'CURRENT_DATE'`/`'CURRENT_TIME'` as parameterized strings
+- `ui/ui-game-roadmap` (React SPA riêng): TS errors pre-existing — tsconfig site `include: **/*` kéo nhầm, nên exclude
 
 ## Next Step (Review v2)
 - **Priority 1 — Fix CRITICAL security**: Session token → crypto, JWT → HttpOnly cookie, rate limiter fail-closed
@@ -222,4 +239,5 @@
 - **Priority 5 — Quality**: Content-Type headers, HTTP status codes, SQL string bugs, input length validation
 - Unify Pyodide version across all 3 locations
 - Tạo `.env.example`
+- Exclude `ui/ui-game-roadmap` khỏi tsconfig site hoặc cấu hình riêng
 - **hoc-python**: Apply migration 019 lên Neon DB, fix B3 (hidden test vô dụng), fix B4 (starter code có solution sẵn)

@@ -1,10 +1,10 @@
-import { neon } from '@neondatabase/serverless'
+import type { NeonQueryFunction } from '@neondatabase/serverless'
 
 /**
  * Kiểm tra và unlock achievements cho user sau khi hoàn thành bài học.
  * Gọi sau khi đã award XP + update streak.
  */
-export async function checkAchievements(userId: number, sql: ReturnType<typeof neon>): Promise<string[]> {
+export async function checkAchievements(userId: number, sql: NeonQueryFunction<false, false>): Promise<string[]> {
     const unlocked: string[] = []
 
     // Lấy profile + tổng số bài đã hoàn thành
