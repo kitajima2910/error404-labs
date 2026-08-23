@@ -8,6 +8,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     response.headers.set('X-Frame-Options', 'SAMEORIGIN');
     response.headers.set('X-XSS-Protection', '1; mode=block');
     response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+    response.headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
     response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
     response.headers.set(
         'Strict-Transport-Security',
@@ -18,13 +19,13 @@ export const onRequest = defineMiddleware(async (context, next) => {
     if (context.url.pathname !== '/api/render') {
         const csp = [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net",
-            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://accounts.google.com/gsi/client",
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://accounts.google.com/gsi/style",
             "img-src 'self' data: https: blob:",
             "font-src 'self' data: https://fonts.gstatic.com",
-            "connect-src 'self' ws: wss: https://*.google-analytics.com https://*.analytics.google.com https://cdn.jsdelivr.net",
+            "connect-src 'self' ws: wss: https://*.google-analytics.com https://*.analytics.google.com https://cdn.jsdelivr.net https://accounts.google.com/gsi/",
             "worker-src 'self' blob: https://cdn.jsdelivr.net",
-            "frame-src 'self' blob: https://www.youtube.com https://youtube.com",
+            "frame-src 'self' blob: https://www.youtube.com https://youtube.com https://accounts.google.com/gsi/",
             "object-src 'none'",
             "base-uri 'self'"
         ].join('; ');

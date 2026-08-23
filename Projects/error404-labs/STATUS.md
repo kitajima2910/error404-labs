@@ -20,6 +20,31 @@
 
 ## Completed
 
+### Kiểm tra sau đăng nhập Google
+
+- ✅ Xác nhận tài khoản Google đã được tạo trong Neon và có avatar từ `lh3.googleusercontent.com`.
+- ✅ Thêm `Cross-Origin-Opener-Policy: same-origin-allow-popups` để popup Google giao tiếp với cửa sổ chính.
+- ✅ Avatar Google dùng `referrerpolicy="no-referrer"` và tự fallback về ảnh mặc định nếu nguồn ngoài không tải được.
+- **File đã sửa**: `src/middleware.ts`, `src/components/Nav.astro`, `STATUS.md`.
+- **Kết quả kiểm tra**: truy vấn Neon xác nhận Google user + avatar tồn tại; `git diff --check` đạt; header COOP khớp yêu cầu popup của Google Identity Services.
+- **Vấn đề còn lại**: Google Console vẫn báo origin hiện tại chưa được allow; cần thêm chính xác origin đang chạy vào Authorized JavaScript origins. Chưa kiểm tra trực quan local do Astro cache `.astro/types.d.ts` từng bị khóa `EPERM`.
+
+### Áp dụng migration Google Login trên Neon
+
+- ✅ Chạy tuần tự 3 câu lệnh trong `migrations/019_add_google_login.sql` bằng Neon driver hiện có của project (`neonctl` chưa được cài).
+- ✅ Bảng `error404labs.members` đã có hai cột nullable `google_sub`, `email` và hai unique index tương ứng.
+- **File đã sửa**: `STATUS.md`; database Neon production được bổ sung schema Google Login.
+- **Kết quả kiểm tra**: truy vấn `information_schema.columns` trả đủ `email`, `google_sub`; `pg_indexes` trả đủ `members_email_unique`, `members_google_sub_unique`.
+- **Vấn đề còn lại**: Chưa thể tự hoàn tất đăng nhập bằng tài khoản Google của người dùng; cần thử lại trên giao diện để xác nhận toàn bộ callback và tạo thành viên thực tế.
+
+### Sửa nút đăng nhập Google không hiển thị
+
+- ✅ Xác định CSP chặn script, stylesheet, iframe và kết nối của Google Identity Services nên modal chỉ hiện divider “hoặc”.
+- ✅ Bổ sung đúng các nguồn `accounts.google.com/gsi` vào `script-src`, `style-src`, `connect-src` và `frame-src`.
+- **File đã sửa**: `src/middleware.ts`, `STATUS.md`.
+- **Kết quả kiểm tra**: `PUBLIC_GOOGLE_CLIENT_ID` đã được Astro nhận và đúng định dạng; `git diff --check` đạt; các CSP source khớp hướng dẫn chính thức của Google Identity Services.
+- **Vấn đề còn lại**: Chưa kiểm tra trực quan local vì Astro dev server bị khóa file `.astro/types.d.ts` (`EPERM`); cần khởi động lại server hoặc deploy để header CSP mới có hiệu lực. Prettier check vẫn cảnh báo style có sẵn trong `src/middleware.ts`.
+
 ### MCP Neon connect (2026-08-20) — PERSIST done
 
 - ✅ Event chain persisted: `.memory/mcp-neon-fix.md` (task_result: root cause config sai vị trí, fix opencode.json, verification, remaining), `.memory/timeline.md` (ANALYZE→ARCHITECT→CODE→TEST→FIX→REVIEW→BUILD→PERSIST all pass), `.memory/reflections.md` (stats devops).

@@ -132,7 +132,13 @@ const googleClientId = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID
                                     <!-- Avatar Section (Member Only) -->
                                     <div id="avatarSection" class="hidden flex-col items-center gap-2 pb-3 border-b border-slate-50">
                                         <div class="w-20 h-20 rounded-full overflow-hidden ring-2 ring-indigo-500/30 shadow-md">
-                                            <img id="popoverAvatar" src="/avatar_v2.avif" alt="Avatar" class="w-full h-full object-cover" />
+                                            <img
+                                                id="popoverAvatar"
+                                                src="/avatar_v2.avif"
+                                                alt="Avatar"
+                                                referrerpolicy="no-referrer"
+                                                class="w-full h-full object-cover"
+                                            />
                                         </div>
                                         <label class="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-lg cursor-pointer transition-colors text-xs font-semibold">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -668,6 +674,12 @@ const googleClientId = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID
             const popoverName = document.getElementById('popoverName')
             const avatarSection = document.getElementById('avatarSection')
             const popoverAvatar = document.getElementById('popoverAvatar')
+            if (popoverAvatar) {
+                popoverAvatar.onerror = () => {
+                    popoverAvatar.onerror = null
+                    popoverAvatar.src = '/avatar_v2.avif'
+                }
+            }
 
             if (user) {
                 const shownName = displayName && displayName !== 'null' ? displayName : user
