@@ -29,6 +29,7 @@ const onIcons = (name: string) => {
 
 const pathname = Astro.url.pathname
 const isPost = pathname.startsWith('/bai-viet/')
+const googleClientId = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID
 ---
 
 <nav class="fixed top-0 left-0 w-full z-[60]
@@ -424,8 +425,27 @@ const isPost = pathname.startsWith('/bai-viet/')
                 >
             </div>
         </form>
+        {
+            googleClientId && (
+                <div class="mt-5">
+                    <div class="mb-4 flex items-center gap-3 text-xs text-gray-400">
+                        <span class="h-px flex-1 bg-gray-200" />
+                        <span>hoặc</span>
+                        <span class="h-px flex-1 bg-gray-200" />
+                    </div>
+                    <div id="googleLoginButton" class="flex justify-center" />
+                </div>
+            )
+        }
     </div>
 </div>
+
+{
+    googleClientId && (
+        <script id="googleIdentityScript" is:inline src="https://accounts.google.com/gsi/client" async defer></script>
+    )
+}
+{googleClientId && <meta id="googleClientId" content={googleClientId} />}
 
 <!-- Account Locked Modal -->
 <div id="accountLockedModal" class="fixed inset-0 z-[80] hidden items-center justify-center bg-black/50 backdrop-blur-sm">
@@ -916,6 +936,59 @@ const isPost = pathname.startsWith('/bai-viet/')
                 }
             }
         }
+
+        const saveLoginSession = (data) => {
+            localStorage.setItem('auth_token', data.token)
+            localStorage.setItem('user_session', data.user.member)
+            localStorage.setItem('user_displayName', data.user.display_name || data.user.member)
+            localStorage.setItem('user_roles', data.user.roles)
+            localStorage.setItem('user_points', data.user.points)
+            localStorage.setItem('user_join_date', data.user.created_at)
+            if (data.user.avatar_url) localStorage.setItem('user_avatar_url', data.user.avatar_url)
+            window.dispatchEvent(new Event('user-login'))
+        }
+
+        const initializeGoogleLogin = () => {
+            const clientId = document.getElementById('googleClientId')?.getAttribute('content')
+            const button = document.getElementById('googleLoginButton')
+            if (!clientId || !button || !window.google?.accounts?.id || button.hasChildNodes()) return
+
+            window.google.accounts.id.initialize({
+                client_id: clientId,
+                callback: async ({ credential }) => {
+                    try {
+                        const response = await fetch('/api/google-login', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ credential }),
+                        })
+                        const data = await response.json()
+                        if (!response.ok) {
+                            window.showToast(data.error || 'Đăng nhập Google thất bại!', 'error')
+                            return
+                        }
+
+                        saveLoginSession(data)
+                        window.showToast('Đăng nhập bằng Google thành công!', 'success')
+                        closeLogin()
+                        checkSession()
+                    } catch {
+                        window.showToast('Không thể kết nối với Google. Vui lòng thử lại.', 'error')
+                    }
+                },
+            })
+            window.google.accounts.id.renderButton(button, {
+                theme: 'outline',
+                size: 'large',
+                shape: 'rectangular',
+                text: 'signin_with',
+                width: 352,
+            })
+        }
+
+        window.initializeGoogleLogin = initializeGoogleLogin
+        document.getElementById('googleIdentityScript')?.addEventListener('load', initializeGoogleLogin)
+        initializeGoogleLogin()
 
         // Chặn click các trang cần login từ menu (như /tools)
         const protectedLinks = ['/cau-lenh-prompts-game'];

@@ -1,9 +1,26 @@
 # STATUS
 
 ## Current Task
-- (none)
+- Thêm đăng nhập bằng tài khoản Google thật.
 
 ## Completed
+### Kiểm tra cảnh báo hơn 10.000 thay đổi
+- ✅ Xác định nguyên nhân là cache `.pnpm-store` từng được pnpm tạo bên trong project, không phải thay đổi source code.
+- ✅ Xác nhận thư mục cache không còn tồn tại và rule `.pnpm-store/` trong `.gitignore` đang được Git áp dụng.
+- ✅ Git hiện chỉ báo 9 file thay đổi thuộc tính năng Google Login và tài liệu liên quan.
+- **File đã sửa**: `STATUS.md` (rule `.pnpm-store/` trong `.gitignore` là thay đổi đã có của người dùng và được giữ nguyên).
+- **Kết quả kiểm tra**: `git status --porcelain=v1 --untracked-files=all` trả về 9 mục; `git check-ignore -v .pnpm-store/v10` xác nhận ignore thành công; không tìm thấy thư mục `.pnpm-store` trong project.
+- **Vấn đề còn lại**: Nếu VS Code vẫn hiện 10k, cần Refresh Source Control hoặc Reload Window để xóa trạng thái cache giao diện.
+
+### Đăng nhập bằng Google
+- ✅ Thêm nút Google Identity Services vào modal đăng nhập hiện tại; đăng nhập mật khẩu cũ vẫn hoạt động.
+- ✅ Thêm API xác minh Google ID token ở server, tự tạo thành viên lần đầu và phát hành JWT/session nội bộ tương thích với các API hiện có.
+- ✅ Thêm migration ánh xạ tài khoản qua `google_sub` và email đã xác minh.
+- ✅ Bổ sung cấu hình mẫu `PUBLIC_GOOGLE_CLIENT_ID` và dependency chính thức `google-auth-library`.
+- **File đã sửa**: `.env.example`, `package.json`, `pnpm-lock.yaml`, `PROJECT.md`, `src/components/Nav.astro`, `src/pages/api/google-login.ts`, `migrations/019_add_google_login.sql`, `STATUS.md`.
+- **Kết quả kiểm tra**: `git diff --check` đạt; Prettier check cho API mới đạt. Astro check chưa chạy hoàn tất vì process khác/permission đang khóa file `.astro/content.d.ts` (`EPERM`).
+- **Vấn đề còn lại**: Cần chạy migration 019 trên Neon, tạo OAuth Client ID loại Web trong Google Cloud Console, khai báo authorized origins và đặt `PUBLIC_GOOGLE_CLIENT_ID` trên local/Vercel trước khi kiểm thử end-to-end.
+
 ### Ẩn danh sách game và căn giữa Prompt Template — game-roadmap
 - ✅ Ẩn khu vực “Tất cả Game Prompt” nhưng giữ các phần tử trong DOM để JavaScript hiện tại không phát sinh lỗi.
 - ✅ Chuyển “Mẹo Prompt cho Game” từ sidebar thành card nội dung chính căn giữa, responsive với chiều rộng tối đa phù hợp.
