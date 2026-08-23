@@ -16,7 +16,7 @@ const checkAdmin = async (request: Request) => {
 
         const dbUser = (
             await sql`
-            SELECT roles, logined, session_token, session_fingerprint 
+            SELECT roles, logined, session_token, session_fingerprint, status
             FROM error404labs.members 
             WHERE id = ${decoded.id}
         `
@@ -28,6 +28,7 @@ const checkAdmin = async (request: Request) => {
             !dbUser ||
             dbUser.logined !== 1 ||
             dbUser.roles !== 'admin' ||
+            dbUser.status !== 'active' ||
             dbUser.session_token !== decoded.sessionToken ||
             dbUser.session_fingerprint !== currentFingerprint
         ) {
@@ -50,7 +51,7 @@ const checkMember = async (request: Request) => {
 
         const dbUser = (
             await sql`
-            SELECT id, member, roles, logined, session_token, session_fingerprint 
+            SELECT id, member, roles, logined, session_token, session_fingerprint, status
             FROM error404labs.members 
             WHERE id = ${decoded.id}
         `
@@ -61,6 +62,7 @@ const checkMember = async (request: Request) => {
         if (
             !dbUser ||
             dbUser.logined !== 1 ||
+            dbUser.status !== 'active' ||
             dbUser.session_token !== decoded.sessionToken ||
             dbUser.session_fingerprint !== currentFingerprint
         ) {

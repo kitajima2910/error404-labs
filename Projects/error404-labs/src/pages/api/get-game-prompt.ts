@@ -35,14 +35,21 @@ export const GET: APIRoute = async ({ request, url }) => {
         const { neon } = await import('@neondatabase/serverless');
         const sql = neon(dbUrl);
         const user = (await sql`
-            SELECT prompt_access
+            SELECT prompt_access, logined, session_token, session_fingerprint, status
             FROM error404labs.members
             WHERE id = ${decoded.id}
         `)[0];
 
-        if (!user) {
-            return new Response(JSON.stringify({ error: 'User not found' }), {
-                status: 404,
+        const currentFingerprint = request.headers.get('user-agent') || 'unknown';
+        if (
+            !user ||
+            user.logined !== 1 ||
+            user.status !== 'active' ||
+            user.session_token !== decoded.sessionToken ||
+            user.session_fingerprint !== currentFingerprint
+        ) {
+            return new Response(JSON.stringify({ error: 'Session invalid or expired' }), {
+                status: 401,
                 headers: { 'Content-Type': 'application/json' }
             });
         }
@@ -51,6 +58,13 @@ export const GET: APIRoute = async ({ request, url }) => {
         const permissionId = url.searchParams.get('permissionId');
         if (!gameName || !permissionId) {
             return new Response(JSON.stringify({ error: 'Missing gameName or permissionId' }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
+        if (!/^[a-zA-Z0-9_-]+$/.test(gameName)) {
+            return new Response(JSON.stringify({ error: 'Tên game không hợp lệ' }), {
                 status: 400,
                 headers: { 'Content-Type': 'application/json' }
             });

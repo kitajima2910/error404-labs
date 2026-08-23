@@ -9,14 +9,15 @@ interface RateLimitResult {
 export async function checkRateLimit(
     ip: string,
     maxAttempts: number = 5,
-    windowMs: number = 60000
+    windowMs: number = 60000,
 ): Promise<RateLimitResult> {
     try {
         const dbUrl = import.meta.env.DATABASE_URL
-        if (!dbUrl) return { allowed: true, remaining: maxAttempts, retryAfterSec: 0 }
+        if (!dbUrl) return { allowed: false, remaining: 0, retryAfterSec: Math.ceil(windowMs / 1000) }
 
         const sql = neon(dbUrl)
         const windowSec = Math.ceil(windowMs / 1000)
+        const expiresAt = new Date(Date.now() + windowMs).toISOString()
 
         // Clean old entries
         await sql`DELETE FROM error404labs.rate_limits WHERE expires_at < NOW()`
@@ -36,12 +37,13 @@ export async function checkRateLimit(
         // Record attempt
         await sql`
             INSERT INTO error404labs.rate_limits (ip, attempted_at, expires_at)
-            VALUES (${ip}, NOW(), NOW() + INTERVAL '${windowSec} seconds')
+            VALUES (${ip}, NOW(), ${expiresAt})
         `
 
         return { allowed: true, remaining: maxAttempts - row.cnt - 1, retryAfterSec: 0 }
-    } catch {
-        // Fail open — allow request if rate limit DB errors
-        return { allowed: true, remaining: maxAttempts, retryAfterSec: 0 }
+    } catch (error) {
+        console.error('Rate limit error:', error)
+        // Fail closed để không vô hiệu hóa bảo vệ brute-force khi DB gặp sự cố
+        return { allowed: false, remaining: 0, retryAfterSec: Math.ceil(windowMs / 1000) }
     }
 }

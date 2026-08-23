@@ -11,14 +11,25 @@
 
 | #   | Finding                       | File:Line                      | Status                                                                          |
 | --- | ----------------------------- | ------------------------------ | ------------------------------------------------------------------------------- |
-| 1   | `Math.random()` session token | `login.ts:148`                 | **CONFIRMED** — `Math.random().toString(36)` không secure                       |
+| 1   | `Math.random()` session token | `login.ts:148`                 | **FIXED** — chuyển sang `randomBytes(32)`                                       |
 | 2   | JWT localStorage              | `login.ts:170`                 | **CONFIRMED** — token trả trong body, client lưu localStorage                   |
-| 3   | Rate limiter fail-open        | `rateLimit.ts:43-46`           | **CONFIRMED** — catch block trả `allowed: true`                                 |
+| 3   | Rate limiter fail-open        | `rateLimit.ts:43-46`           | **FIXED** — fail-closed và dùng timestamp parameter an toàn                     |
 | 4   | `targetMemberId` undefined    | `page-store/[username].ts:196` | **FIXED** — `targetMemberId` → `decoded.id`                                     |
 | 5   | `promptFiles` undefined       | `get-prompt.ts:249`            | **FIXED** — restore `import.meta.glob` cho prompt .txt files                    |
 | 6   | XSS render.ts                 | `render.ts:15`                 | **FIXED** — thêm `prerender=false`, origin check (CSRF), CSP header, size limit |
 
 ## Completed
+
+### Security hardening ưu tiên cao
+
+- ✅ Login mật khẩu tạo session token bằng `randomBytes(32)` thay cho `Math.random()`.
+- ✅ Rate limiter chuyển sang fail-closed; sửa query thời hạn để không đặt parameter trong chuỗi `INTERVAL`.
+- ✅ `get-game-prompt` xác minh session/status/fingerprint và chặn `gameName` chứa path traversal.
+- ✅ Upload avatar bắt buộc origin hợp lệ và dùng shared `verifyAuth` để kiểm tra session hiện tại.
+- ✅ Prompt access từ chối cả admin/member có trạng thái `inactive`.
+- **File đã sửa**: `src/pages/api/login.ts`, `src/utils/rateLimit.ts`, `src/pages/api/get-game-prompt.ts`, `src/pages/api/user/upload-avatar.ts`, `src/pages/api/admin/prompt-access.ts`, `STATUS.md`.
+- **Kết quả kiểm tra**: `git diff --check` đạt; Prettier check đạt cho các file style hiện tại; TypeScript không báo lỗi ở 5 file đã sửa.
+- **Vấn đề còn lại**: Full typecheck vẫn fail do project React độc lập `ui/ui-game-roadmap` thiếu dependency/type. JWT vẫn lưu trong `localStorage`, CSP còn `unsafe-inline/unsafe-eval`, heartbeat chưa có giới hạn điểm ngày và render endpoint chưa yêu cầu auth; cần xử lý theo giai đoạn riêng để tránh phá vỡ frontend.
 
 ### Kiểm tra sau đăng nhập Google
 
@@ -196,9 +207,9 @@
 
 ### CRITICAL (6)
 
-1. **Session token dùng `Math.random()`** — `src/pages/api/login.ts:148` — Không cryptographically secure, attacker có thể predict/forged session token. Fix: `crypto.randomUUID()` hoặc `crypto.randomBytes(32).toString('hex')`
+1. **Session token dùng `Math.random()`** — **FIXED** — `src/pages/api/login.ts` đã dùng `randomBytes(32).toString('hex')`.
 2. **JWT lưu localStorage** — `src/pages/api/login.ts:170-188` — Bị XSS trích xuất dễ dàng. Fix: HttpOnly + Secure + SameSite=Strict cookie
-3. **Rate limiter fail-open khi DB down** — `src/utils/rateLimit.ts:43-46` — DB error → cho phép tất cả requests, attacker có thể brute-force login. Fix: fail closed hoặc in-memory fallback
+3. **Rate limiter fail-open khi DB down** — **FIXED** — DB/config/query error hiện trả `allowed: false`; thời hạn dùng timestamp parameter.
 4. **`targetMemberId` undefined** — `src/pages/api/user/page-store/[username].ts:196` — **FIXED** — `targetMemberId` → `decoded.id`
 5. **`promptFiles` undefined** — `src/pages/api/get-prompt.ts:249-250` — **FIXED** — restore `import.meta.glob` cho prompt .txt files
 6. **XSS trong render.ts** — `src/pages/api/render.ts:15` — **FIXED** — thêm `prerender=false`, origin check (CSRF), CSP header, size limit
@@ -288,7 +299,7 @@
 
 ## Known Issues
 
-- 3 CRITICAL security: session token Math.random(), JWT localStorage, rate limiter fail-open
+- CRITICAL còn lại: JWT lưu trong localStorage kết hợp CSP `unsafe-inline/unsafe-eval`; session token và rate limiter đã được harden.
 - 13 HIGH: CSP unsafe-inline/eval, CSRF on ALL admin endpoints (10 files), no CSRF upload-avatar, logout CSRF bypass, super admin hardcoded, heartbeat farming, render.ts no auth, get-game-prompt no session check, checkAdmin missing status check
 - Pyodide version mismatch: 3 different versions across lesson page, pyodideRunner.ts, package.json
 - Client-trusted grading: outputs array từ client dùng cho XP/achievement (hidden test đã ẩn đáp án nhưng stdin vẫn cần cho Pyodide)
@@ -300,7 +311,7 @@
 
 ## Next Step (Review v2)
 
-- **Priority 1 — Fix CRITICAL security**: Session token → crypto, JWT → HttpOnly cookie, rate limiter fail-closed
+- **Priority 1 — Fix CRITICAL security còn lại**: JWT → HttpOnly cookie và siết CSP theo lộ trình tương thích frontend
 - **Priority 2 — Fix HIGH security**: CSRF on all admin endpoints (add origin check), render.ts auth, get-game-prompt session check
 - **Priority 3 — Security hardening**: checkAdmin shared utility (with status check), path traversal get-game-prompt, daily cap heartbeat
 - **Priority 4 — Code consolidation**: Unified normalizeOutput/compareOutputs, streak logic, wire up or delete dead code

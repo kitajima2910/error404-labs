@@ -1,39 +1,32 @@
 import type { APIRoute } from 'astro'
-import jwt from 'jsonwebtoken'
 import { neon } from '@neondatabase/serverless'
+import { verifyAuth } from '../../../utils/auth'
 
 export const prerender = false
 
 export const POST: APIRoute = async ({ request }) => {
     try {
-        // Verify authentication
-        const authHeader = request.headers.get('Authorization')
-        const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null
-
-        if (!token) {
-            return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 })
+        const origin = request.headers.get('origin')
+        const allowedOrigins = [
+            'https://www.error404-labs.info.vn',
+            'https://error404-labs.info.vn',
+            'http://localhost:4321',
+            'http://127.0.0.1:4321',
+        ]
+        if (!origin || !allowedOrigins.includes(origin)) {
+            return new Response(JSON.stringify({ error: 'Nguồn yêu cầu không hợp lệ' }), { status: 403 })
         }
 
         const dbUrl = import.meta.env.DATABASE_URL
-        const jwtSecret = import.meta.env.JWT_SECRET
         const privateKey = import.meta.env.IMAGEKIT_PRIVATE_KEY
         const urlEndpoint = import.meta.env.IMAGEKIT_URL_ENDPOINT
 
-        if (!dbUrl || !jwtSecret || !privateKey || !urlEndpoint) {
+        if (!dbUrl || !privateKey || !urlEndpoint) {
             return new Response(JSON.stringify({ error: 'Server configuration error' }), { status: 500 })
         }
 
-        // Decode JWT
-        const decoded = jwt.verify(token, jwtSecret) as {
-            id: number
-            member: string
-            roles: string
-        }
-
-        // Verify user is member or admin
-        if (decoded.roles !== 'member' && decoded.roles !== 'admin') {
-            return new Response(JSON.stringify({ error: 'Only members can upload avatars' }), { status: 403 })
-        }
+        const decoded = await verifyAuth(request)
+        if (!decoded) return new Response(JSON.stringify({ error: 'Phiên đăng nhập không hợp lệ' }), { status: 401 })
 
         // Get form data
         const formData = await request.formData()
@@ -97,7 +90,7 @@ export const POST: APIRoute = async ({ request }) => {
                 error: 'Upload failed',
                 details: import.meta.env.DEV ? error.message : undefined,
             }),
-            { status: 500 }
+            { status: 500 },
         )
     }
 }

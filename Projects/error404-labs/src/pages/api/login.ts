@@ -1,6 +1,7 @@
 import { neon } from '@neondatabase/serverless';
 import type { APIRoute } from 'astro';
 import bcrypt from 'bcryptjs';
+import { randomBytes } from 'node:crypto';
 import jwt from 'jsonwebtoken';
 import { checkRateLimit } from '../../utils/rateLimit';
 
@@ -145,7 +146,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         }
 
         // Cập nhật trạng thái logined và session identifiers
-        const sessionToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
+        const sessionToken = randomBytes(32).toString('hex');
         const fingerprint = request.headers.get('user-agent') || 'unknown';
 
         await sql`
