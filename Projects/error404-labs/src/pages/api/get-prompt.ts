@@ -7,6 +7,11 @@ export const prerender = false
 
 const sql = neon(import.meta.env.DATABASE_URL)
 
+const promptFiles: Record<string, string> = import.meta.glob('../../data/prompts/*.txt', {
+    as: 'raw',
+    eager: true,
+})
+
 const checkAdmin = async (request: Request) => {
     const authHeader = request.headers.get('Authorization')
     const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null

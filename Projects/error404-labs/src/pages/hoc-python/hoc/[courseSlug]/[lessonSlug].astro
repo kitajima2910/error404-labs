@@ -109,7 +109,13 @@ const typeColor: Record<string, string> = {
 const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình', hard: 'Khó' }
 
 // Serialize dữ liệu cho client (dùng JSON để giữ newline)
-    const testCasesJson = JSON.stringify(testCases)
+// Hidden test: chỉ gửi stdin để client chạy, KHÔNG gửi expected_output — tránh lộ đáp án hidden
+    const clientTestCases = testCases.map((tc) =>
+        tc.is_hidden
+            ? { id: tc.id, stdin: tc.stdin, is_hidden: true, order_index: tc.order_index }
+            : tc,
+    )
+    const testCasesJson = JSON.stringify(clientTestCases)
     const lessonIdJson = JSON.stringify(lesson.id)
     const starterCodeJson = JSON.stringify(lesson.starter_code || '# Viết code Python của bạn ở đây\n')
     const xpReward = lesson.xp_reward
@@ -174,10 +180,15 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
         </div>
     </div>
 
+    <!-- Mobile sidebar toggle -->
+    <button id="sidebarToggle" class="md:hidden fixed bottom-4 left-4 z-50 bg-[#3776AB] text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-xl font-bold hover:bg-[#2B5E8A] transition-colors active:scale-95">
+        📖
+    </button>
+
     <!-- Split screen -->
     <div id="workspace" class="flex flex-col md:flex-row" style="height: calc(100vh - 168px);">
         <!-- LEFT: Lesson content — nâng cấp giao diện -->
-        <div class="w-full md:w-[40%] overflow-y-auto bg-gradient-to-b from-slate-50 to-white lesson-content-panel">
+        <div id="lesson-panel" class="w-full md:w-[40%] overflow-y-auto bg-gradient-to-b from-slate-50 to-white lesson-content-panel transition-all duration-200">
             <!-- Accent bar -->
             <div class="h-1.5 bg-gradient-to-r from-[#3776AB] via-[#2B5E8A] to-[#FFD43B]"></div>
 
@@ -269,8 +280,14 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
             )}
         </div>
 
+        <!-- Split pane resize handle -->
+        <div id="split-handle" class="hidden md:flex w-[6px] bg-[#313244] hover:bg-[#3776AB] cursor-col-resize items-center justify-center group transition-colors duration-150 shrink-0 relative">
+            <div class="w-[2px] h-8 rounded-full bg-slate-500 group-hover:bg-white transition-colors"></div>
+            <div class="absolute inset-y-0 -left-1 -right-1"></div>
+        </div>
+
         <!-- RIGHT: Editor + Console -->
-        <div class="flex-1 flex flex-col bg-[#1e1e2e] min-w-0">
+        <div id="editor-panel" class="flex-1 flex flex-col bg-[#1e1e2e] min-w-0">
             <!-- Toolbar -->
             <div class="flex items-center justify-between px-4 py-2 bg-[#181825] border-b border-[#313244] shrink-0">
                 <div class="flex items-center gap-2">
@@ -318,26 +335,47 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
             </div>
 
             <!-- Bottom: Console + Test Results tabs -->
-            <div class="shrink-0 border-t border-[#313244] bg-[#1e1e2e]" style="height: 200px;">
+            <div id="console-panel" class="shrink-0 border-t border-[#313244] bg-[#1e1e2e]" style="height: 200px;">
+                <!-- Console resize handle -->
+                <div id="console-resize-handle" class="h-[5px] bg-[#313244] hover:bg-[#3776AB] cursor-row-resize group transition-colors flex items-center justify-center">
+                    <div class="w-8 h-[2px] rounded-full bg-slate-600 group-hover:bg-white transition-colors"></div>
+                </div>
                 <!-- Tab bar -->
-                <div class="flex items-center gap-0 px-2 bg-[#181825] border-b border-[#313244]">
-                    <button class="result-tab active px-4 py-2 text-xs font-bold text-[#a6e3a1] border-b-2 border-[#a6e3a1] bg-transparent transition-colors" data-tab="console">
-                        ► Console
-                    </button>
-                    <button class="result-tab px-4 py-2 text-xs font-bold text-slate-500 border-b-2 border-transparent hover:text-slate-300 bg-transparent transition-colors" data-tab="test-results">
-                        ✓ Test Results
+                <div class="flex items-center justify-between gap-0 px-2 bg-[#181825] border-b border-[#313244]">
+                    <div class="flex items-center gap-0">
+                        <button class="result-tab active px-4 py-2 text-xs font-bold text-[#a6e3a1] border-b-2 border-[#a6e3a1] bg-transparent transition-colors" data-tab="console">
+                            ► Console
+                        </button>
+                        <button class="result-tab px-4 py-2 text-xs font-bold text-slate-500 border-b-2 border-transparent hover:text-slate-300 bg-transparent transition-colors" data-tab="test-results">
+                            <span id="test-tab-label">✓ Kết quả</span>
+                        </button>
+                    </div>
+                    <button id="customInputBtn" class="text-[10px] text-slate-500 hover:text-slate-300 px-2 py-1 rounded hover:bg-[#313244] transition-colors font-medium hidden" title="Thử chạy với input tùy chỉnh">
+                        ⌨ Input tùy chỉnh
                     </button>
                 </div>
 
                 <!-- Console output -->
-                <div id="tab-console" class="result-pane active p-3 overflow-y-auto font-mono text-sm leading-relaxed" style="height: calc(200px - 36px);">
+                <div id="tab-console" class="result-pane active p-3 overflow-y-auto font-mono text-sm leading-relaxed" style="height: calc(200px - 56px);">
                     <div class="text-slate-500 italic">Nhấn "▶ Chạy" để thực thi code Python...</div>
                 </div>
 
                 <!-- Test results -->
-                <div id="tab-test-results" class="result-pane p-3 overflow-y-auto font-mono text-sm leading-relaxed hidden" style="height: calc(200px - 36px);">
+                <div id="tab-test-results" class="result-pane p-3 overflow-y-auto text-sm leading-relaxed hidden" style="height: calc(200px - 56px);">
                     <div class="text-slate-500 italic">Nhấn "📤 Nộp bài" để chạy test case...</div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom input overlay (hidden by default) -->
+    <div id="custom-input-overlay" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+        <div class="bg-[#1e1e2e] border border-[#313244] rounded-2xl p-6 max-w-md mx-4 shadow-2xl w-full">
+            <h3 class="text-white font-bold text-base mb-3">Thử chạy với input tùy chỉnh</h3>
+            <textarea id="custom-input-text" class="w-full bg-[#181825] border border-[#313244] rounded-xl px-4 py-3 text-slate-200 font-mono text-sm resize-none focus:outline-none focus:border-[#3776AB] transition-colors" rows="4" placeholder="Nhập dữ liệu đầu vào (stdin)..."></textarea>
+            <div class="flex justify-end gap-3 mt-4">
+                <button id="custom-input-cancel" class="text-sm font-medium text-slate-400 hover:text-white px-4 py-2 rounded-lg bg-[#313244] hover:bg-[#45475a] transition-colors">Hủy</button>
+                <button id="custom-input-run" class="text-sm font-bold text-[#1e1e2e] bg-[#a6e3a1] hover:bg-[#94e2d5] px-4 py-2 rounded-lg transition-colors">▶ Chạy</button>
             </div>
         </div>
     </div>
@@ -385,6 +423,7 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
     const submitBtn = document.getElementById('submitBtn')
     const resetBtn = document.getElementById('resetBtn')
     const nextLessonBtn = document.getElementById('nextLessonBtn')
+    const customInputBtn = document.getElementById('customInputBtn')
 
     // State
     let editorView = null
@@ -489,33 +528,51 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
         }
     }
 
-    // ── CodeMirror 6 ──────────────────────────────────────────────────
+    // ── CodeMirror 6 (singleton cache) ──────────────────────────────
     async function initEditor() {
-        const { EditorView, basicSetup } = await import('codemirror')
-        const { EditorState } = await import('@codemirror/state')
-        const { python } = await import('@codemirror/lang-python')
-        const { oneDark } = await import('@codemirror/theme-one-dark')
+        if (editorView) return
+        if (cmContainer) cmContainer.innerHTML = ''
 
-        const state = EditorState.create({
+        var cmModules
+        if (window.__cmModules) {
+            cmModules = window.__cmModules
+        } else {
+            var [cm, state, lang, theme] = await Promise.all([
+                import('codemirror'),
+                import('@codemirror/state'),
+                import('@codemirror/lang-python'),
+                import('@codemirror/theme-one-dark'),
+            ])
+            cmModules = {
+                EditorView: cm.EditorView,
+                basicSetup: cm.basicSetup,
+                EditorState: state.EditorState,
+                python: lang.python,
+                oneDark: theme.oneDark,
+            }
+            window.__cmModules = cmModules
+        }
+
+        var state = cmModules.EditorState.create({
             doc: starterCode,
             extensions: [
-                basicSetup,
-                python(),
-                oneDark,
-                EditorView.theme({
+                cmModules.basicSetup,
+                cmModules.python(),
+                cmModules.oneDark,
+                cmModules.EditorView.theme({
                     '&': { height: '100%' },
                     '.cm-scroller': { overflow: 'auto' },
                 }),
+                cmModules.EditorView.lineWrapping,
             ],
         })
 
         if (cmContainer) {
-            cmContainer.innerHTML = ''
-            editorView = new EditorView({ state, parent: cmContainer })
+            editorView = new cmModules.EditorView({ state, parent: cmContainer })
         }
     }
 
-    // ── Pyodide ────────────────────────────────────────────────────────
+    // ── Pyodide (singleton cache — avoid reload on SPA navigation) ──
     var pyodideInitPromise = null
     async function initPyodide() {
         if (pyodide) return true
@@ -524,21 +581,19 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
 
         pyodideInitPromise = (async function () {
             try {
-                // Tải Pyodide từ CDN
-                const script = document.createElement('script')
-                script.src = 'https://cdn.jsdelivr.net/npm/pyodide@0.27.3/pyodide.js'
-
-                await new Promise(function (resolve, reject) {
-                    script.onload = resolve
-                    script.onerror = function () { reject(new Error('Không thể tải Pyodide từ CDN')) }
-                    document.head.appendChild(script)
-                })
-
-                // Khởi tạo Pyodide
-                pyodide = await globalThis.loadPyodide({
-                    indexURL: 'https://cdn.jsdelivr.net/npm/pyodide@0.27.3/',
-                })
-
+                if (!window.__pyodide) {
+                    const script = document.createElement('script')
+                    script.src = 'https://cdn.jsdelivr.net/npm/pyodide@0.27.3/pyodide.js'
+                    await new Promise(function (resolve, reject) {
+                        script.onload = resolve
+                        script.onerror = function () { reject(new Error('Không thể tải Pyodide từ CDN')) }
+                        document.head.appendChild(script)
+                    })
+                    window.__pyodide = await globalThis.loadPyodide({
+                        indexURL: 'https://cdn.jsdelivr.net/npm/pyodide@0.27.3/',
+                    })
+                }
+                pyodide = window.__pyodide
                 if (loadingEl) loadingEl.classList.add('hidden')
                 appendConsole('✅ Python runtime đã sẵn sàng! (Python ' + pyodide.version + ')')
                 return true
@@ -546,7 +601,7 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
                 if (loadingEl) loadingEl.classList.add('hidden')
                 appendConsole('❌ Lỗi tải Pyodide: ' + err.message)
                 console.error('Pyodide init error:', err)
-                pyodideInitPromise = null  // allow retry
+                pyodideInitPromise = null
                 return false
             }
         }())
@@ -554,9 +609,9 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
     }
 
     // ── Console helpers ──────────────────────────────────────────────
-    function appendConsole(text, type = 'info') {
+    function appendConsole(text, type) {
         if (!consoleEl) return
-        const line = document.createElement('div')
+        var line = document.createElement('div')
         line.className = 'py-0.5 ' + (
             type === 'error' ? 'text-red-400' :
             type === 'success' ? 'text-green-400' :
@@ -572,6 +627,19 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
         if (consoleEl) consoleEl.innerHTML = ''
     }
 
+    // ── Run Python helper ───────────────────────────────────────────
+    async function runPythonWithStdin(code, stdin) {
+        return await pyodide.runPythonAsync(
+            'import sys\nfrom io import StringIO\n' +
+            'sys.stdin = StringIO(' + JSON.stringify(stdin || '') + ')\n' +
+            '_out = StringIO()\nsys.stdout = _out\n' +
+            'try:\n    _ = 0\n' +
+            code.split('\n').map(function (line) { return '    ' + line }).join('\n') + '\n' +
+            'except Exception:\n    import traceback\n    traceback.print_exc()\n' +
+            'sys.stdout = sys.__stdout__\n_out.getvalue()'
+        )
+    }
+
     // ── Run code — chạy public test cases ────────────────────────────
     async function runCode() {
         if (!pyodide || !editorView) {
@@ -580,33 +648,16 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
             if (!pyodide) return
         }
 
-        const code = editorView.state.doc.toString()
+        var code = editorView.state.doc.toString()
 
-        // Nếu không có public test → chạy code đơn thuần (theory lesson)
         if (publicTests.length === 0) {
             clearConsole()
             appendConsole('▶ Đang chạy...')
             try {
-                const result = await pyodide.runPythonAsync(`
-import sys
-from io import StringIO
-
-_out = StringIO()
-sys.stdout = _out
-
-try:
-    _ = 0
-${code.split('\n').map(line => '    ' + line).join('\n')}
-except Exception:
-    import traceback
-    traceback.print_exc()
-
-sys.stdout = sys.__stdout__
-_out.getvalue()
-                `)
-                const output = (result || '').trim()
+                var result = await runPythonWithStdin(code, '')
+                var output = (result || '').trim()
                 if (output) {
-                    output.split('\n').forEach(line => appendConsole(line, 'output'))
+                    output.split('\n').forEach(function (line) { appendConsole(line, 'output') })
                 } else {
                     appendConsole('✅ Code chạy thành công (không có output)', 'success')
                 }
@@ -616,7 +667,6 @@ _out.getvalue()
             return
         }
 
-        // Có public test → chạy từng test case và hiển thị kết quả
         clearConsole()
         appendConsole('▶ Đang chạy ' + publicTests.length + ' test cases...')
         switchTab('test-results')
@@ -630,29 +680,9 @@ _out.getvalue()
             var testLabel = 'Test: ' + (tc.stdin || '(empty input)')
 
             try {
-                var output = await pyodide.runPythonAsync(`
-import sys
-from io import StringIO
-
-sys.stdin = StringIO(${JSON.stringify(tc.stdin)})
-
-_out = StringIO()
-sys.stdout = _out
-
-try:
-    _ = 0
-${code.split('\n').map(line => '    ' + line).join('\n')}
-except Exception:
-    import traceback
-    traceback.print_exc()
-
-sys.stdout = sys.__stdout__
-_out.getvalue()
-                `)
-
+                var output = await runPythonWithStdin(code, tc.stdin)
                 var actualOutput = (output || '').trim()
                 var expected = tc.expected_output.trim()
-
                 var compMode = lessonData?.dataset.comparisonMode || 'exact'
                 var epsilon = parseFloat(lessonData?.dataset.floatEpsilon || '0.001')
                 var match = compareClientOutputs(actualOutput, expected, compMode, epsilon)
@@ -661,18 +691,11 @@ _out.getvalue()
                     passed++
                     results.push({ index: i, passed: true, label: testLabel })
                 } else {
-                    results.push({
-                        index: i, passed: false, label: testLabel,
-                        expected: expected, actual: actualOutput,
-                    })
+                    results.push({ index: i, passed: false, label: testLabel, expected: expected, actual: actualOutput })
                 }
             } catch (err) {
-                results.push({
-                    index: i, passed: false, label: testLabel,
-                    error: err.message || String(err),
-                })
+                results.push({ index: i, passed: false, label: testLabel, error: err.message || String(err) })
             }
-
             showTestResults(results, passed, publicTests.length)
         }
 
@@ -685,6 +708,29 @@ _out.getvalue()
         }
     }
 
+    // ── Run with custom input ───────────────────────────────────────
+    async function runWithCustomInput(stdin) {
+        if (!pyodide || !editorView) {
+            appendConsole('⚠️ Python runtime chưa sẵn sàng.', 'error')
+            return
+        }
+        var code = editorView.state.doc.toString()
+        clearConsole()
+        appendConsole('▶ Đang chạy với input tùy chỉnh...')
+        switchTab('console')
+        try {
+            var result = await runPythonWithStdin(code, stdin)
+            var output = (result || '').trim()
+            if (output) {
+                output.split('\n').forEach(function (line) { appendConsole(line, 'output') })
+            } else {
+                appendConsole('✅ Code chạy thành công (không có output)', 'success')
+            }
+        } catch (err) {
+            appendConsole('❌ Lỗi: ' + (err.message || String(err)), 'error')
+        }
+    }
+
     // ── Submit (chạy test cases) ─────────────────────────────────────
     async function submitCode() {
         if (!pyodide || !editorView) {
@@ -692,28 +738,25 @@ _out.getvalue()
             return
         }
 
-        const code = editorView.state.doc.toString()
+        var code = editorView.state.doc.toString()
 
-        // Bài lý thuyết: gọi API để đánh dấu hoàn thành
         if (testCases.length === 0) {
             clearConsole()
             appendConsole('📤 Đang đánh dấu bài học...')
             try {
-                const token = localStorage.getItem('auth_token')
+                var token = localStorage.getItem('auth_token')
                 if (!token) {
                     appendConsole('⚠️ Vui lòng đăng nhập để lưu tiến độ.', 'error')
                     return
                 }
-                const res = await fetch('/api/hoc-python/submit', {
+                var res = await fetch('/api/hoc-python/submit', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
                     body: JSON.stringify({ lessonId: lessonId, sourceCode: code, outputs: [] }),
                 })
-                const data = await res.json()
+                var data = await res.json()
                 if (data.passed !== false) {
                     appendConsole('✅ Đã đánh dấu bài học là hoàn thành! +' + (data.xpAwarded || 0) + ' XP', 'success')
-
-                    // Đếm số câu trắc nghiệm đúng qua radio input checked
                     var quizCorrect = 0
                     var quizTotal = quizQuestions.length
                     if (quizTotal > 0) {
@@ -728,7 +771,6 @@ _out.getvalue()
                             appendConsole('📊 Trắc nghiệm: ' + quizCorrect + '/' + quizTotal + ' câu đúng', 'info')
                         }
                     }
-
                     if (data.newAchievements && data.newAchievements.length > 0) {
                         appendConsole('🏅 Mở khoá thành tích: ' + data.newAchievements.join(', '), 'success')
                     }
@@ -747,185 +789,186 @@ _out.getvalue()
         var hiddenCount = hiddenTests.length
         appendConsole('📤 Đang nộp bài và chạy ' + totalTests + ' test cases (trong đó ' + hiddenCount + ' ẩn)...')
 
-        // Hiện tab test results
         switchTab('test-results')
         showTestResults([], 0, totalTests, true)
 
-        let passed = 0
-        const results = []
-        const outputs = [] // raw stdout cho mỗi test case
+        var passed = 0
+        var results = []
+        var outputs = []
 
-        for (let i = 0; i < testCases.length; i++) {
-            const tc = testCases[i]
-            const testLabel = tc.is_hidden ? `Test #${i + 1}` : `Test: ${tc.stdin || '(empty input)'}`
+        for (var i = 0; i < testCases.length; i++) {
+            var tc = testCases[i]
+            var testLabel = tc.is_hidden ? 'Test #' + (i + 1) + ' (ẩn)' : 'Test: ' + (tc.stdin || '(empty input)')
 
             try {
-                // Chạy code với stdin và capture stdout
-                const output = await pyodide.runPythonAsync(`
-import sys
-from io import StringIO
-
-sys.stdin = StringIO(${JSON.stringify(tc.stdin)})
-
-_out = StringIO()
-sys.stdout = _out
-
-try:
-    _ = 0
-${code.split('\n').map(line => '    ' + line).join('\n')}
-except Exception:
-    import traceback
-    traceback.print_exc()
-
-sys.stdout = sys.__stdout__
-_out.getvalue()
-                `)
-
-                const actualOutput = (output || '').trim()
-                const expected = tc.expected_output.trim()
+                var output = await runPythonWithStdin(code, tc.stdin)
+                var actualOutput = (output || '').trim()
                 outputs.push(actualOutput)
 
-                // So sánh output (dùng normalizeOutput đồng bộ với server)
-                const compMode = lessonData?.dataset.comparisonMode || 'exact'
-                const epsilon = parseFloat(lessonData?.dataset.floatEpsilon || '0.001')
-                const match = compareClientOutputs(actualOutput, expected, compMode, epsilon)
-
-                if (match) {
-                    passed++
-                    results.push({ index: i, passed: true, label: testLabel })
+                if (tc.is_hidden) {
+                    // Hidden test: chỉ chạy để lấy output, KHÔNG chấm trên client (không có đáp án) — server chấm
+                    results.push({ index: i, pending: true, label: testLabel })
                 } else {
-                    results.push({
-                        index: i,
-                        passed: false,
-                        label: testLabel,
-                        expected: tc.is_hidden ? '***' : expected,
-                        actual: tc.is_hidden ? '***' : actualOutput,
-                    })
+                    var expected = tc.expected_output.trim()
+                    var compMode = lessonData?.dataset.comparisonMode || 'exact'
+                    var epsilon = parseFloat(lessonData?.dataset.floatEpsilon || '0.001')
+                    var match = compareClientOutputs(actualOutput, expected, compMode, epsilon)
+
+                    if (match) {
+                        passed++
+                        results.push({ index: i, passed: true, label: testLabel })
+                    } else {
+                        results.push({ index: i, passed: false, label: testLabel, expected: expected, actual: actualOutput })
+                    }
                 }
             } catch (err) {
                 outputs.push('')
-                results.push({
-                    index: i,
-                    passed: false,
-                    label: testLabel,
-                    error: err.message || String(err),
-                })
+                results.push({ index: i, passed: false, label: testLabel, error: err.message || String(err) })
             }
-
-            // Cập nhật progress
             showTestResults(results, passed, testCases.length)
         }
 
-        // Hoàn thành
-        showTestResults(results, passed, testCases.length)
-
-        if (passed === testCases.length) {
-            appendConsole('🎉 Hoàn thành ' + passed + '/' + testCases.length + ' test case (gồm ' + hiddenTests.length + ' ẩn)!', 'success')
-            markLessonCompleted()
-        } else {
-            appendConsole('📊 Kết quả: ' + passed + '/' + testCases.length + ' test case đúng', 'info')
-        }
-
-        // Gửi lên server để xác thực và lưu kết quả
+        // Gửi output lên server để chấm (kể cả hidden tests) — kết quả chính thức từ server
+        var token = localStorage.getItem('auth_token')
+        var data = null
         try {
-            const token = localStorage.getItem('auth_token')
-            const res = await fetch('/api/hoc-python/submit', {
+            var res = await fetch('/api/hoc-python/submit', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                    ...(token ? { Authorization: 'Bearer ' + token } : {}),
                 },
-                body: JSON.stringify({
-                    lessonId,
-                    sourceCode: code,
-                    outputs,
-                }),
+                body: JSON.stringify({ lessonId: lessonId, sourceCode: code, outputs: outputs }),
             })
-            const data = await res.json()
-            if (data.xpAwarded > 0) {
-                appendConsole(`🏆 Đã nhận +${data.xpAwarded} XP!`, 'success')
-            }
-            if (data.newAchievements && data.newAchievements.length > 0) {
-                appendConsole('🏅 Mở khoá thành tích: ' + data.newAchievements.join(', '), 'success')
-            }
-            if (data.error) {
-                appendConsole('⚠️ ' + data.error, 'error')
-            }
-            // Token expired/invalid → đá về login
+            data = await res.json()
+
             if (res.status === 401 && data.error === 'Unauthorized') {
                 localStorage.removeItem('auth_token')
                 window.location.href = '/?login=true'
+                return
             }
-        } catch {
-            // Network error — bỏ qua
+        } catch (err) {
+            appendConsole('❌ Lỗi kết nối: ' + (err.message || String(err)), 'error')
+        }
+
+        if (data && Array.isArray(data.results)) {
+            // Hiển thị kết quả chính thức — hidden test không lộ expected/actual
+            var serverResults = data.results.map(function (r, idx) {
+                var tc = testCases[idx]
+                var label = tc ? (tc.is_hidden ? 'Test #' + (idx + 1) + ' (ẩn)' : 'Test: ' + (tc.stdin || '(empty input)')) : 'Test #' + (idx + 1)
+                var obj = { index: idx, passed: !!r.passed, label: label }
+                if (r.error) obj.error = r.error
+                if (!tc || !tc.is_hidden) {
+                    if (r.expected !== undefined) obj.expected = r.expected
+                    if (r.actual !== undefined) obj.actual = r.actual
+                }
+                return obj
+            })
+            var serverPassed = serverResults.filter(function (r) { return r.passed }).length
+            showTestResults(serverResults, serverPassed, testCases.length)
+
+            if (data.passed) {
+                appendConsole('🎉 Hoàn thành ' + serverPassed + '/' + testCases.length + ' test case (gồm ' + hiddenCount + ' ẩn)!', 'success')
+                markLessonCompleted()
+            } else {
+                appendConsole('📊 Kết quả: ' + serverPassed + '/' + testCases.length + ' test case đúng', 'info')
+            }
+            if (data.xpAwarded > 0) appendConsole('🏆 Đã nhận +' + data.xpAwarded + ' XP!', 'success')
+            if (data.newAchievements && data.newAchievements.length > 0)
+                appendConsole('🏅 Mở khoá thành tích: ' + data.newAchievements.join(', '), 'success')
+            if (data.error) appendConsole('⚠️ ' + data.error, 'error')
+        } else if (data && data.error) {
+            appendConsole('⚠️ ' + data.error, 'error')
         }
     }
 
-    // ── Test results UI ──────────────────────────────────────────────
-    function showTestResults(results, passed, total, loading = false) {
+    // ── Test results UI (enhanced with diff view) ───────────────────
+    function showTestResults(results, passed, total, loading) {
         if (!testResultsEl) return
 
+        var label = document.getElementById('test-tab-label')
+        if (label) label.textContent = '✓ ' + passed + '/' + total
+
         if (loading) {
-            testResultsEl.innerHTML = `
-                <div class="text-slate-400 text-center py-4">
-                    <div class="animate-spin rounded-full h-6 w-6 border-2 border-[#3776AB] border-t-transparent mx-auto mb-2"></div>
-                    Đang chạy test cases...
-                </div>
-            `
+            testResultsEl.innerHTML =
+                '<div class="text-slate-400 text-center py-4">' +
+                '<div class="animate-spin rounded-full h-6 w-6 border-2 border-[#3776AB] border-t-transparent mx-auto mb-2"></div>' +
+                'Đang chạy test cases...</div>'
             return
         }
 
-        const allPassed = total > 0 && passed === total
-        let html = `
-            <div class="mb-3 flex items-center gap-2 text-sm font-bold">
-                <span class="${allPassed ? 'text-green-400' : total > 0 ? 'text-yellow-400' : 'text-slate-400'}">
-                    ${allPassed ? '✅' : total > 0 ? '⚠️' : '—'}
-                </span>
-                <span class="text-slate-200">${passed}/${total}</span>
-                <span class="text-slate-400 font-normal">test case đúng</span>
-            </div>
-        `
+        var allPassed = total > 0 && passed === total
+        var html = '<div class="mb-3 flex items-center gap-2 text-sm font-bold">' +
+            '<span class="' + (allPassed ? 'text-green-400' : total > 0 ? 'text-yellow-400' : 'text-slate-400') + '">' +
+            (allPassed ? '✅' : total > 0 ? '⚠️' : '—') + '</span>' +
+            '<span class="text-slate-200">' + passed + '/' + total + '</span>' +
+            '<span class="text-slate-400 font-normal">test case đúng</span></div>'
 
         if (results.length === 0) {
-            html += `<div class="text-slate-500 italic">Không có test case nào.</div>`
+            html += '<div class="text-slate-500 italic">Không có test case nào.</div>'
         }
 
-        results.forEach((r) => {
+        results.forEach(function (r, idx) {
+            if (r.pending) {
+                html += '<div class="flex items-center gap-2 py-1.5 text-slate-400">' +
+                    '<span class="shrink-0 w-5 h-5 rounded-full bg-slate-500/10 flex items-center justify-center text-xs">⏳</span>' +
+                    '<span class="text-xs">' + escapeHtml(r.label) + ' — đang chờ kết quả server</span></div>'
+                return
+            }
             if (r.passed) {
-                html += `
-                    <div class="flex items-center gap-2 py-1.5 text-green-400">
-                        <span>✓</span>
-                        <span>${r.label}</span>
-                    </div>
-                `
+                html += '<div class="flex items-center gap-2 py-1.5 text-green-400">' +
+                    '<span class="shrink-0 w-5 h-5 rounded-full bg-green-500/10 flex items-center justify-center text-xs">✓</span>' +
+                    '<span class="text-xs">' + escapeHtml(r.label) + '</span></div>'
             } else {
-                html += `
-                    <div class="py-1.5">
-                        <div class="flex items-center gap-2 text-red-400">
-                            <span>✗</span>
-                            <span>${r.label}</span>
-                        </div>
-                        <div class="ml-5 text-xs space-y-0.5 mt-1">
-                            ${r.error ? `<div class="text-red-400">Lỗi: ${escapeHtml(r.error)}</div>` : ''}
-                            ${r.expected !== undefined ? `<div class="text-slate-400">Kỳ vọng: <span class="text-slate-200">${escapeHtml(r.expected)}</span></div>` : ''}
-                            ${r.actual !== undefined ? `<div class="text-slate-400">Nhận được: <span class="text-yellow-300">${escapeHtml(r.actual)}</span></div>` : ''}
-                        </div>
-                    </div>
-                `
+                html += '<div class="py-1.5 border-b border-[#313244] last:border-b-0">' +
+                    '<div class="flex items-center gap-2 text-red-400">' +
+                    '<span class="shrink-0 w-5 h-5 rounded-full bg-red-500/10 flex items-center justify-center text-xs">✗</span>' +
+                    '<span class="text-xs font-medium">' + escapeHtml(r.label) + '</span></div>' +
+                    '<div class="ml-7 text-xs space-y-1 mt-1.5">'
+
+                if (r.error) {
+                    html += '<div class="text-red-400 bg-red-500/5 px-2 py-1 rounded font-mono text-[11px]">Lỗi: ' + escapeHtml(r.error) + '</div>'
+                }
+                if (r.expected !== undefined) {
+                    html += '<div class="flex items-start gap-2"><span class="text-slate-500 shrink-0 mt-0.5">Kỳ vọng:</span>' +
+                        '<span class="text-slate-200 bg-slate-800/50 px-2 py-0.5 rounded font-mono text-[11px] whitespace-pre-wrap">' + escapeHtml(r.expected) + '</span></div>'
+                }
+                if (r.actual !== undefined) {
+                    html += '<div class="flex items-start gap-2"><span class="text-slate-500 shrink-0 mt-0.5">Nhận được:</span>' +
+                        '<span class="text-yellow-300 bg-yellow-500/5 px-2 py-0.5 rounded font-mono text-[11px] whitespace-pre-wrap">' + escapeHtml(r.actual) + '</span></div>'
+                }
+
+                if (r.expected !== undefined && r.actual !== undefined && !r.error) {
+                    var linesExpected = r.expected.split('\n')
+                    var linesActual = r.actual.split('\n')
+                    var diffHtml = ''
+                    var maxLines = Math.max(linesExpected.length, linesActual.length)
+                    for (var d = 0; d < Math.min(maxLines, 5); d++) {
+                        var eLine = linesExpected[d] || ''
+                        var aLine = linesActual[d] || ''
+                        if (eLine !== aLine) {
+                            diffHtml += '<div class="flex gap-2">' +
+                                '<span class="text-red-400/70">- ' + escapeHtml(eLine || '(trống)') + '</span></div>' +
+                                '<div class="flex gap-2">' +
+                                '<span class="text-green-400/70">+ ' + escapeHtml(aLine || '(trống)') + '</span></div>'
+                        } else {
+                            diffHtml += '<div class="text-slate-600">  ' + escapeHtml(eLine) + '</div>'
+                        }
+                    }
+                    if (diffHtml) {
+                        html += '<details class="mt-1"><summary class="text-slate-500 hover:text-slate-300 cursor-pointer text-[11px]">Xem diff chi tiết</summary>' +
+                            '<pre class="bg-[#11111b] rounded-lg p-2 mt-1 text-[11px] font-mono leading-relaxed border border-[#313244]">' + diffHtml + '</pre></details>'
+                    }
+                }
+
+                html += '</div></div>'
             }
         })
 
-        // Hoàn thành khóa học (không còn bài tiếp theo)
         if (allPassed && !nextLesson) {
-            html += `
-                <div class="mt-5 pt-4 border-t border-[#313244]">
-                    <div class="text-sm text-green-400 font-semibold">🎉 Chúc mừng! Bạn đã hoàn thành khóa học!</div>
-                    <a href="/hoc-python/khoa-hoc/${courseSlug}"
-                       class="mt-2 inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-white transition-colors">
-                        ← Về trang khóa học
-                    </a>
-                </div>
-            `
+            html += '<div class="mt-5 pt-4 border-t border-[#313244]">' +
+                '<div class="text-sm text-green-400 font-semibold">🎉 Chúc mừng! Bạn đã hoàn thành khóa học!</div>' +
+                '<a href="/hoc-python/khoa-hoc/' + courseSlug + '" class="mt-2 inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-white transition-colors">← Về trang khóa học</a></div>'
         }
 
         testResultsEl.innerHTML = html
@@ -933,121 +976,244 @@ _out.getvalue()
 
     // ── Tab switching ────────────────────────────────────────────────
     function switchTab(tabId) {
-        document.querySelectorAll('.result-tab').forEach(t => {
+        document.querySelectorAll('.result-tab').forEach(function (t) {
             t.classList.remove('active', 'text-[#a6e3a1]', 'border-[#a6e3a1]')
             t.classList.add('text-slate-500', 'border-transparent')
         })
-        document.querySelectorAll('.result-pane').forEach(p => p.classList.add('hidden'))
+        document.querySelectorAll('.result-pane').forEach(function (p) { p.classList.add('hidden') })
 
-        const tabBtn = document.querySelector(`.result-tab[data-tab="${tabId}"]`)
+        var tabBtn = document.querySelector('.result-tab[data-tab="' + tabId + '"]')
         if (tabBtn) {
             tabBtn.classList.remove('text-slate-500', 'border-transparent')
             tabBtn.classList.add('text-[#a6e3a1]', 'border-[#a6e3a1]')
         }
 
-        const pane = document.getElementById('tab-' + tabId)
+        var pane = document.getElementById('tab-' + tabId)
         if (pane) pane.classList.remove('hidden')
     }
 
     // ── Reset code ────────────────────────────────────────────────────
     function resetCode() {
         if (editorView) {
-            editorView.dispatch({
-                changes: {
-                    from: 0,
-                    to: editorView.state.doc.length,
-                    insert: starterCode,
-                },
-            })
+            editorView.dispatch({ changes: { from: 0, to: editorView.state.doc.length, insert: starterCode } })
         }
+    }
+
+    // ── Split Pane Resize ────────────────────────────────────────────
+    function initSplitPane() {
+        var handle = document.getElementById('split-handle')
+        var lessonPanel = document.getElementById('lesson-panel')
+        var editorPanel = document.getElementById('editor-panel')
+        var workspace = document.getElementById('workspace')
+        if (!handle || !lessonPanel || !editorPanel || !workspace) return
+
+        var dragging = false
+        var startX = 0
+        var startWidth = 0
+
+        handle.addEventListener('mousedown', function (e) {
+            e.preventDefault()
+            dragging = true
+            startX = e.clientX
+            startWidth = lessonPanel.getBoundingClientRect().width
+            document.body.style.cursor = 'col-resize'
+            document.body.style.userSelect = 'none'
+        })
+
+        document.addEventListener('mousemove', function (e) {
+            if (!dragging) return
+            var dx = e.clientX - startX
+            var totalWidth = workspace.getBoundingClientRect().width
+            var newWidth = Math.max(280, Math.min(totalWidth - 300, startWidth + dx))
+            var pct = (newWidth / totalWidth * 100).toFixed(1)
+            lessonPanel.style.width = pct + '%'
+            lessonPanel.style.flexShrink = '0'
+            editorPanel.style.flex = '1'
+        })
+
+        document.addEventListener('mouseup', function () {
+            if (dragging) {
+                dragging = false
+                document.body.style.cursor = ''
+                document.body.style.userSelect = ''
+            }
+        })
+
+        // Touch support
+        handle.addEventListener('touchstart', function (e) {
+            dragging = true
+            startX = e.touches[0].clientX
+            startWidth = lessonPanel.getBoundingClientRect().width
+        }, { passive: true })
+
+        document.addEventListener('touchmove', function (e) {
+            if (!dragging) return
+            var dx = e.touches[0].clientX - startX
+            var totalWidth = workspace.getBoundingClientRect().width
+            var newWidth = Math.max(280, Math.min(totalWidth - 300, startWidth + dx))
+            var pct = (newWidth / totalWidth * 100).toFixed(1)
+            lessonPanel.style.width = pct + '%'
+            lessonPanel.style.flexShrink = '0'
+            editorPanel.style.flex = '1'
+        }, { passive: true })
+
+        document.addEventListener('touchend', function () { dragging = false })
+    }
+
+    // ── Console Resize ──────────────────────────────────────────────
+    function initConsoleResize() {
+        var handle = document.getElementById('console-resize-handle')
+        var consolePanel = document.getElementById('console-panel')
+        if (!handle || !consolePanel) return
+
+        var dragging = false
+        var startY = 0
+        var startHeight = 0
+
+        handle.addEventListener('mousedown', function (e) {
+            e.preventDefault()
+            dragging = true
+            startY = e.clientY
+            startHeight = consolePanel.getBoundingClientRect().height
+            document.body.style.cursor = 'row-resize'
+            document.body.style.userSelect = 'none'
+        })
+
+        document.addEventListener('mousemove', function (e) {
+            if (!dragging) return
+            var dy = startY - e.clientY
+            var newHeight = Math.max(100, Math.min(500, startHeight + dy))
+            consolePanel.style.height = newHeight + 'px'
+            var panes = consolePanel.querySelectorAll('.result-pane')
+            var tabHeight = consolePanel.querySelector('.bg-\\[\\#181825\\]')
+            var reserved = tabHeight ? tabHeight.getBoundingClientRect().height + 5 : 56
+            panes.forEach(function (p) { p.style.height = 'calc(' + newHeight + 'px - ' + reserved + 'px)' })
+        })
+
+        document.addEventListener('mouseup', function () {
+            if (dragging) {
+                dragging = false
+                document.body.style.cursor = ''
+                document.body.style.userSelect = ''
+            }
+        })
+    }
+
+    // ── Mobile sidebar toggle ───────────────────────────────────────
+    function initMobileSidebar() {
+        var toggle = document.getElementById('sidebarToggle')
+        var lessonPanel = document.getElementById('lesson-panel')
+        var editorPanel = document.getElementById('editor-panel')
+        if (!toggle || !lessonPanel || !editorPanel) return
+
+        var showingLesson = true
+
+        toggle.addEventListener('click', function () {
+            showingLesson = !showingLesson
+            if (showingLesson) {
+                lessonPanel.style.display = ''
+                editorPanel.style.height = ''
+                toggle.textContent = '💻'
+            } else {
+                lessonPanel.style.display = 'none'
+                editorPanel.style.height = '100%'
+                toggle.textContent = '📖'
+            }
+        })
+    }
+
+    // ── Custom Input Modal ──────────────────────────────────────────
+    function initCustomInput() {
+        var overlay = document.getElementById('custom-input-overlay')
+        var cancelBtn = document.getElementById('custom-input-cancel')
+        var runBtnCustom = document.getElementById('custom-input-run')
+        var inputField = document.getElementById('custom-input-text')
+
+        if (!overlay || !cancelBtn || !runBtnCustom || !inputField) return
+
+        if (publicTests.length === 0 && customInputBtn) {
+            customInputBtn.classList.remove('hidden')
+        }
+
+        customInputBtn?.addEventListener('click', function () {
+            overlay.classList.remove('hidden')
+            inputField.focus()
+        })
+
+        cancelBtn.addEventListener('click', function () { overlay.classList.add('hidden') })
+        overlay.addEventListener('click', function (e) {
+            if (e.target === overlay) overlay.classList.add('hidden')
+        })
+        runBtnCustom.addEventListener('click', function () {
+            overlay.classList.add('hidden')
+            runWithCustomInput(inputField.value)
+        })
     }
 
     // ── Event Listeners ──────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', async function () {
-        // Tab switching
-        document.querySelectorAll('.result-tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                switchTab(tab.dataset.tab)
-            })
+        document.querySelectorAll('.result-tab').forEach(function (tab) {
+            tab.addEventListener('click', function () { switchTab(tab.dataset.tab) })
         })
 
-        // Init editor
         await initEditor()
-
-        // Init Pyodide (background)
         initPyodide()
+        initSplitPane()
+        initConsoleResize()
+        initMobileSidebar()
+        initCustomInput()
 
-        // Theory lesson: hướng dẫn
         if (lessonData?.dataset.isTheory === 'true') {
             appendConsole('📖 Đây là bài học lý thuyết. Đọc nội dung bên trái và thử chạy code mẫu bằng nút "▶ Chạy"!', 'info')
         }
 
-        // Run button
         runBtn?.addEventListener('click', runCode)
-
-        // Submit button (chỉ hiện khi có test case)
         submitBtn?.addEventListener('click', submitCode)
-
-        // Reset button
         resetBtn?.addEventListener('click', resetCode)
-
-        // Next lesson button
         nextLessonBtn?.addEventListener('click', goToNextLesson)
 
-        // Top bar "Bài tiếp →" link: kiểm tra completion trước khi điều hướng
         var nextLink = document.getElementById('nextLessonLink')
         if (nextLink) {
             nextLink.addEventListener('click', function (e) {
-                if (!isLessonCompleted()) {
-                    e.preventDefault()
-                    showSkipWarning()
-                }
+                if (!isLessonCompleted()) { e.preventDefault(); showSkipWarning() }
             })
         }
 
-        // Khôi phục trạng thái nút từ localStorage
         updateNextButtonState()
 
-        // Keyboard shortcut: Ctrl+Enter để chạy
-        document.addEventListener('keydown', (e) => {
-            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                e.preventDefault()
-                runCode()
-            }
+        document.addEventListener('keydown', function (e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); runCode() }
         })
 
         // ── Quiz interaction ──────────────────────────────────────────
         if (quizQuestions.length > 0) {
-            let correctCount = 0
-            const totalQuestions = quizQuestions.length
-            const quizContainer = document.getElementById('quiz-container')
-            const quizSection = document.getElementById('quiz-section')
+            var correctCount = 0
+            var totalQuestions = quizQuestions.length
+            var quizContainer = document.getElementById('quiz-container')
 
-            quizContainer?.querySelectorAll('.quiz-question').forEach((qEl) => {
-                const qIndex = parseInt(qEl.dataset.qindex || '0')
-                const correctIdx = parseInt(qEl.dataset.correct || '0')
-                let answeredCorrectly = false
+            quizContainer?.querySelectorAll('.quiz-question').forEach(function (qEl) {
+                var qIndex = parseInt(qEl.dataset.qindex || '0')
+                var correctIdx = parseInt(qEl.dataset.correct || '0')
+                var answeredCorrectly = false
                 /** @type {HTMLElement} */
                 var feedbackEl = qEl.querySelector('.quiz-feedback')
 
-                qEl.querySelectorAll('input[type="radio"]').forEach((radio) => {
+                qEl.querySelectorAll('input[type="radio"]').forEach(function (radio) {
                     radio.addEventListener('change', function () {
                         if (answeredCorrectly) return
 
                         var selectedIdx = parseInt(this.value)
                         var isCorrect = selectedIdx === correctIdx
 
-                        // Reset all option styles
                         qEl.querySelectorAll('.quiz-option').forEach(function (optEl) {
                             optEl.className = 'quiz-option flex items-start gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer transition-all duration-150 hover:border-[#3776AB]/40 hover:bg-blue-50/30'
-                            /** @type {HTMLInputElement|null} */ (optEl.querySelector('input')).disabled = false
+                            var radioInput = /** @type {HTMLInputElement|null} */ (optEl.querySelector('input'))
+                            if (radioInput) radioInput.disabled = false
                         })
 
                         if (isCorrect) {
                             answeredCorrectly = true
-                            // Highlight correct
                             qEl.querySelectorAll('.quiz-option').forEach(function (optEl) {
-                                /** @type {HTMLElement} */ (optEl).dataset.optindex
                                 var lbl = /** @type {HTMLLabelElement} */ (optEl)
                                 var optIdx = parseInt(lbl.dataset.optindex || '0')
                                 if (optIdx === correctIdx) {
@@ -1059,7 +1225,6 @@ _out.getvalue()
                             })
                             correctCount++
                         } else {
-                            // Wrong answer: highlight selected in red, but allow retry
                             qEl.querySelectorAll('.quiz-option').forEach(function (optEl) {
                                 var optIdx = parseInt(/** @type {HTMLElement} */ (optEl).dataset.optindex || '0')
                                 if (optIdx === selectedIdx) {
@@ -1068,7 +1233,6 @@ _out.getvalue()
                             })
                         }
 
-                        // Show feedback
                         if (feedbackEl) {
                             var q = quizQuestions[qIndex]
                             if (isCorrect) {
@@ -1081,7 +1245,6 @@ _out.getvalue()
                             feedbackEl.classList.remove('hidden')
                         }
 
-                        // Update progress
                         var headerEl = document.getElementById('quiz-header-title')
                         if (headerEl) {
                             var remaining = totalQuestions - correctCount
@@ -1169,7 +1332,7 @@ _out.getvalue()
         scroll-margin-top: 20px;
     }
 
-    /* List styling đẹp hơn */
+    /* List styling */
     .prose ul {
         list-style-type: none;
         padding-left: 0;
@@ -1199,7 +1362,7 @@ _out.getvalue()
         font-size: 13px !important;
     }
 
-    /* Table styling nếu có */
+    /* Table styling */
     .prose table {
         border-collapse: separate;
         border-spacing: 0;
@@ -1264,5 +1427,43 @@ _out.getvalue()
     }
     .quiz-option input[type="radio"] {
         cursor: pointer;
+    }
+
+    /* Split pane handle animations */
+    #split-handle:hover,
+    #console-resize-handle:hover {
+        transform: scale(1);
+    }
+
+    /* Mobile sidebar overlay */
+    @media (max-width: 767px) {
+        #lesson-panel:not(.max-md\:hidden) {
+            animation: slideIn 0.2s ease-out;
+        }
+    }
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateX(-20px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    /* Test result transitions */
+    #tab-test-results > div {
+        animation: fadeUp 0.15s ease-out;
+    }
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(4px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Details/summary for diff */
+    #tab-test-results details summary {
+        list-style: none;
+        cursor: pointer;
+    }
+    #tab-test-results details summary::before {
+        content: '▸ ';
+    }
+    #tab-test-results details[open] summary::before {
+        content: '▾ ';
     }
 </style>

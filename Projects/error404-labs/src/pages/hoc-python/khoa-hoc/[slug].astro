@@ -295,13 +295,6 @@ const firstLessonSlug = chapters[0]?.lessons?.[0]?.slug ?? null
     (function () {
         var courseSlug = document.getElementById('ctaBtn')?.getAttribute('data-course-slug') || ''
 
-        function getUserIdFromToken() {
-            try {
-                var payload = JSON.parse(atob(localStorage.getItem('auth_token').split('.')[1]))
-                return payload.id
-            } catch { return null }
-        }
-
         function setGuestMode(btn) {
             btn.textContent = 'Đăng ký miễn phí'
             btn.className = btn.className.replace(/cursor-default/g, '') + ' cursor-pointer'
@@ -315,10 +308,7 @@ const firstLessonSlug = chapters[0]?.lessons?.[0]?.slug ?? null
 
         function setContinueMode(btn, token) {
             // Fetch progress để tìm bài chưa hoàn thành đầu tiên
-            var userId = getUserIdFromToken()
-            if (!userId) { setEnrolledStatic(btn); return }
-
-            fetch('/api/hoc-python/progress?courseSlug=' + encodeURIComponent(courseSlug) + '&userId=' + userId, {
+            fetch('/api/hoc-python/progress?courseSlug=' + encodeURIComponent(courseSlug), {
                 headers: { 'Authorization': 'Bearer ' + token }
             })
             .then(function (r) { return r.json() })
