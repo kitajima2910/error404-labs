@@ -858,7 +858,7 @@ const monthSvgs = [
 
             if (copyBtn) {
                 copyBtn.addEventListener('click', async () => {
-                    const text = `RULE:\n\n- Đọc STATUS.md nếu tồn tại trước khi bắt đầu.\n- Phân tích nguyên nhân gốc trước khi chỉnh sửa.\n- Không rewrite toàn bộ project.\n- Chỉ sửa file và chức năng nằm trong TARGET.\n- Ưu tiên patch nhỏ nhất có thể.\n- Giữ nguyên code, kiến trúc và hành vi đang hoạt động.\n- Không refactor hoặc nâng cấp dependency nếu TARGET không yêu cầu.\n- Không tự ý xóa file hoặc thực hiện thay đổi phá vỡ tương thích.\n- Kiểm tra các thay đổi hiện có và không ghi đè công việc của người dùng.\n- Sau khi sửa, chạy kiểm tra phù hợp với TARGET.\n- Nếu không thể verify, phải nói rõ lý do.\n- Cập nhật STATUS.md gồm:\n  - Đã thay đổi gì\n  - File đã sửa\n  - Kết quả kiểm tra\n  - Vấn đề còn lại, nếu có\n\nTARGET:\n\n[Mô tả chính xác lỗi hoặc tính năng cần xử lý]`
+                    const text = `RULE:\n\n- Tiếng Việt 100%.\n- Đọc PXH_HMC.md trước khi làm.\n- Đọc history, memory và context liên quan đến TARGET.\n- Không hỏi lại thông tin đã có trong context.\n- Không giả định project ở trạng thái ban đầu.\n- Ưu tiên source code hiện tại làm nguồn sự thật.\n- Xác định nguyên nhân gốc trước khi sửa.\n- Chỉ sửa trong TARGET.\n- Không rewrite hoặc refactor ngoài TARGET.\n- Ưu tiên patch nhỏ nhất.\n- Giữ nguyên kiến trúc và behavior đang hoạt động.\n- Không ghi đè thay đổi hiện có của người dùng.\n- Sau khi sửa phải verify TARGET.\n- Nếu không verify được, nói rõ lý do.\n- Cập nhật PXH_HMC.md sau khi hoàn thành.\n- Không tự ý mở rộng phạm vi task.\n\nTARGET:\n\n[Mô tả chính xác lỗi hoặc tính năng cần xử lý]`
                     try {
                         await navigator.clipboard.writeText(text)
                         if (window.showToast) window.showToast('Đã copy Prompt Template thành công!', 'success')
@@ -877,7 +877,7 @@ const monthSvgs = [
 
             if (modalCopyBtn && modalTargetInput) {
                 modalCopyBtn.addEventListener('click', async () => {
-                    const text = `RULE:\n\n- Đọc STATUS.md nếu tồn tại trước khi bắt đầu.\n- Phân tích nguyên nhân gốc trước khi chỉnh sửa.\n- Không rewrite toàn bộ project.\n- Chỉ sửa file và chức năng nằm trong TARGET.\n- Ưu tiên patch nhỏ nhất có thể.\n- Giữ nguyên code, kiến trúc và hành vi đang hoạt động.\n- Không refactor hoặc nâng cấp dependency nếu TARGET không yêu cầu.\n- Không tự ý xóa file hoặc thực hiện thay đổi phá vỡ tương thích.\n- Kiểm tra các thay đổi hiện có và không ghi đè công việc của người dùng.\n- Sau khi sửa, chạy kiểm tra phù hợp với TARGET.\n- Nếu không thể verify, phải nói rõ lý do.\n- Cập nhật STATUS.md gồm:\n  - Đã thay đổi gì\n  - File đã sửa\n  - Kết quả kiểm tra\n  - Vấn đề còn lại, nếu có\n\nTARGET:\n\n${modalTargetInput.value || '[Mô tả chính xác lỗi hoặc tính năng cần xử lý]'}`
+                    const text = `RULE:\n\n- Tiếng Việt 100%.\n- Đọc PXH_HMC.md trước khi làm.\n- Đọc history, memory và context liên quan đến TARGET.\n- Không hỏi lại thông tin đã có trong context.\n- Không giả định project ở trạng thái ban đầu.\n- Ưu tiên source code hiện tại làm nguồn sự thật.\n- Xác định nguyên nhân gốc trước khi sửa.\n- Chỉ sửa trong TARGET.\n- Không rewrite hoặc refactor ngoài TARGET.\n- Ưu tiên patch nhỏ nhất.\n- Giữ nguyên kiến trúc và behavior đang hoạt động.\n- Không ghi đè thay đổi hiện có của người dùng.\n- Sau khi sửa phải verify TARGET.\n- Nếu không verify được, nói rõ lý do.\n- Cập nhật PXH_HMC.md sau khi hoàn thành.\n- Không tự ý mở rộng phạm vi task.\n\nTARGET:\n\n${modalTargetInput.value || '[Mô tả chính xác lỗi hoặc tính năng cần xử lý]'}`
                     try {
                         await navigator.clipboard.writeText(text)
                         if (window.showToast) window.showToast('Đã tạo và copy prompt thành công!', 'success')
@@ -1206,59 +1206,67 @@ Thông tin bài học: Cấp độ ${month}, Tuần ${week}, thể loại ${genr
                                     <ul class="space-y-2 text-slate-300 leading-5">
                                         <li class="flex gap-2">
                                             <span class="text-indigo-400 select-none">–</span>
-                                            <span>Đọc STATUS.md nếu tồn tại trước khi bắt đầu.</span>
+                                            <span>Tiếng Việt 100%.</span>
                                         </li>
                                         <li class="flex gap-2">
                                             <span class="text-indigo-400 select-none">–</span>
-                                            <span>Phân tích nguyên nhân gốc trước khi chỉnh sửa.</span>
+                                            <span>Đọc PXH_HMC.md trước khi làm.</span>
                                         </li>
                                         <li class="flex gap-2">
                                             <span class="text-indigo-400 select-none">–</span>
-                                            <span>Không rewrite toàn bộ project.</span>
+                                            <span>Đọc history, memory và context liên quan đến TARGET.</span>
                                         </li>
                                         <li class="flex gap-2">
                                             <span class="text-indigo-400 select-none">–</span>
-                                            <span>Chỉ sửa file và chức năng nằm trong TARGET.</span>
+                                            <span>Không hỏi lại thông tin đã có trong context.</span>
                                         </li>
                                         <li class="flex gap-2">
                                             <span class="text-indigo-400 select-none">–</span>
-                                            <span>Ưu tiên patch nhỏ nhất có thể.</span>
+                                            <span>Không giả định project ở trạng thái ban đầu.</span>
                                         </li>
                                         <li class="flex gap-2">
                                             <span class="text-indigo-400 select-none">–</span>
-                                            <span>Giữ nguyên code, kiến trúc và hành vi đang hoạt động.</span>
+                                            <span>Ưu tiên source code hiện tại làm nguồn sự thật.</span>
                                         </li>
                                         <li class="flex gap-2">
                                             <span class="text-indigo-400 select-none">–</span>
-                                            <span>Không refactor hoặc nâng cấp dependency nếu TARGET không yêu cầu.</span>
+                                            <span>Xác định nguyên nhân gốc trước khi sửa.</span>
                                         </li>
                                         <li class="flex gap-2">
                                             <span class="text-indigo-400 select-none">–</span>
-                                            <span>Không tự ý xóa file hoặc thực hiện thay đổi phá vỡ tương thích.</span>
+                                            <span>Chỉ sửa trong TARGET.</span>
                                         </li>
                                         <li class="flex gap-2">
                                             <span class="text-indigo-400 select-none">–</span>
-                                            <span>Kiểm tra các thay đổi hiện có và không ghi đè công việc của người dùng.</span>
+                                            <span>Không rewrite hoặc refactor ngoài TARGET.</span>
                                         </li>
                                         <li class="flex gap-2">
                                             <span class="text-indigo-400 select-none">–</span>
-                                            <span>Sau khi sửa, chạy kiểm tra phù hợp với TARGET.</span>
+                                            <span>Ưu tiên patch nhỏ nhất.</span>
                                         </li>
                                         <li class="flex gap-2">
                                             <span class="text-indigo-400 select-none">–</span>
-                                            <span>Nếu không thể verify, phải nói rõ lý do.</span>
+                                            <span>Giữ nguyên kiến trúc và behavior đang hoạt động.</span>
                                         </li>
                                         <li class="flex gap-2">
                                             <span class="text-indigo-400 select-none">–</span>
-                                            <div>
-                                                <span>Cập nhật STATUS.md gồm:</span>
-                                                <ul class="mt-2 space-y-1.5 pl-3 text-slate-400">
-                                                    <li>• Đã thay đổi gì</li>
-                                                    <li>• File đã sửa</li>
-                                                    <li>• Kết quả kiểm tra</li>
-                                                    <li>• Vấn đề còn lại, nếu có</li>
-                                                </ul>
-                                            </div>
+                                            <span>Không ghi đè thay đổi hiện có của người dùng.</span>
+                                        </li>
+                                        <li class="flex gap-2">
+                                            <span class="text-indigo-400 select-none">–</span>
+                                            <span>Sau khi sửa phải verify TARGET.</span>
+                                        </li>
+                                        <li class="flex gap-2">
+                                            <span class="text-indigo-400 select-none">–</span>
+                                            <span>Nếu không verify được, nói rõ lý do.</span>
+                                        </li>
+                                        <li class="flex gap-2">
+                                            <span class="text-indigo-400 select-none">–</span>
+                                            <span>Cập nhật PXH_HMC.md sau khi hoàn thành.</span>
+                                        </li>
+                                        <li class="flex gap-2">
+                                            <span class="text-indigo-400 select-none">–</span>
+                                            <span>Không tự ý mở rộng phạm vi task.</span>
                                         </li>
                                     </ul>
                                     <div class="mt-5 border-t border-slate-700/60 pt-4">

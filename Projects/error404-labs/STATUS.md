@@ -160,6 +160,14 @@
 - **Kết quả kiểm tra**: `git diff --check` đạt; tìm kiếm xác nhận rule cũ đã được loại bỏ và rule mới có đủ ở 3 vị trí.
 - **Vấn đề còn lại**: Không thể chạy Astro build/sync do file cache `node_modules/.vite/deps/@codemirror_lang-python.js` đang bị process khác khóa (`EPERM`); project không cài binary `prettier` để chạy format check riêng.
 
+### Thay RULE Prompt Template mới — game-roadmap (2026-09-02)
+
+- ✅ Thay toàn bộ RULE cũ (STATUS.md-based) bằng RULE mới (PXH_HMC.md-based) tại 3 vị trí: sidebar HTML display, copyBtn JavaScript handler, modalCopyBtn JavaScript handler.
+- ✅ RULE mới 16 dòng: Tiếng Việt 100%, PXH_HMC.md, history/memory/context, không hỏi lại, source code = truth, root cause, chỉ sửa trong TARGET, patch nhỏ nhất, giữ behavior, verify TARGET, cập nhật PXH_HMC.md, không mở rộng phạm vi.
+- **File đã sửa**: `src/pages/game-roadmap.astro`.
+- **Kết quả kiểm tra**: grep xác nhận 0 lần xuất hiện RULE cũ (`Đọc STATUS.md`), 3 lần xuất hiện RULE mới (`Không tự ý mở rộng phạm vi task` = 3, `Đọc PXH_HMC.md` = 3), `TARGET` placeholder vẫn đúng ở cả 3 vị trí.
+- **Vấn đề còn lại**: Không thể chạy Astro build để verify do file cache EPERM (pre-existing).
+
 ### Platform Review & Fixes (batch)
 
 - ✅ **Review toàn bộ Python platform**: DB schema + seed, lesson page, API endpoints, course pages — tìm 4 critical, 4 major, 12 minor
@@ -281,6 +289,7 @@
 
 ## Modified Files (gần đây)
 
+- `src/pages/game-roadmap.astro` — **UPDATE RULE**: Thay RULE Prompt Template mới (PXH_HMC.md-based) tại 3 vị trí: sidebar HTML, copyBtn JS, modalCopyBtn JS (2026-09-02)
 - `opencode.json` — NEW: `mcp.neon` remote server để opencode nạp MCP Neon từ session mới (2026-08-20)
 - `src/pages/hoc-python/hoc/[courseSlug]/[lessonSlug].astro` — **FIX hidden test leak**: strip expected_output hidden, submit chấm qua server (2026-08-20)
 - `src/utils/achievements.ts` — **FIX TS**: `NeonQueryFunction<false, false>` signature (2026-08-20)
