@@ -580,10 +580,10 @@ const quizQuestionsJson = JSON.stringify(quizQuestions)
     </div>
 
     <!-- ── Drawer: Danh sách bài học ──────────────────────────────── -->
-    <div id="lessonDrawerBackdrop" class="hidden fixed inset-0 top-26 z-[55] bg-slate-900/40 backdrop-blur-[1px]"></div>
+    <div id="lessonDrawerBackdrop" class="hidden fixed inset-0 top-[var(--nav-h)] z-[55] bg-slate-900/40 backdrop-blur-[1px]"></div>
     <aside
         id="lessonDrawer"
-        class="fixed top-26 bottom-0 left-0 z-[56] w-[340px] max-w-[88vw] bg-white shadow-2xl border-r border-slate-200 flex flex-col -translate-x-full transition-transform duration-300 invisible"
+        class="fixed top-[var(--nav-h)] bottom-0 left-0 z-[56] w-[340px] max-w-[88vw] bg-white shadow-2xl border-r border-slate-200 flex flex-col -translate-x-full transition-transform duration-300 invisible"
         aria-label="Danh sách bài học"
     >
         <div class="px-5 py-4 border-b border-slate-100 shrink-0">
@@ -2213,7 +2213,7 @@ const quizQuestionsJson = JSON.stringify(quizQuestions)
 <style is:global>
     /* ── Khung IDE: chiếm trọn màn hình dưới thanh điều hướng ───── */
     #py-ide {
-        height: calc(100dvh - 6.5rem);
+        height: calc(100dvh - var(--nav-h));
         min-height: 560px;
     }
 

@@ -2,216 +2,570 @@
 import MainLayout from '../../layouts/MainLayout.astro'
 import PyNav from '../../components/python/PyNav.astro'
 import { TC_TITLE } from '../../common/TextConst'
+
+// Khung xương bục vinh danh: hạng 2 – hạng 1 – hạng 3
+const podiumSkeleton = [
+    { avatar: 'w-14 h-14 sm:w-16 sm:h-16', pedestal: 'h-24 sm:h-28' },
+    { avatar: 'w-16 h-16 sm:w-20 sm:h-20', pedestal: 'h-32 sm:h-40' },
+    { avatar: 'w-14 h-14 sm:w-16 sm:h-16', pedestal: 'h-20 sm:h-24' },
+]
+
+const rules = [
+    'XP tuần là tổng XP của các bài học bạn hoàn thành trong 7 ngày gần nhất.',
+    'Bảng xếp hạng cập nhật liên tục và hiển thị tối đa 30 học viên.',
+    'Mẹo: học đều mỗi ngày để giữ chuỗi 🔥 và tích XP đều đặn.',
+]
 ---
 
-<MainLayout title={`Bảng xếp hạng | Học Python | ${TC_TITLE}`}>
+<MainLayout
+    title={`Bảng xếp hạng | Học Python | ${TC_TITLE}`}
+    description="Bảng xếp hạng tuần của các bạn học Python trên Error404 Labs: hoàn thành bài học, tích XP và leo top mỗi tuần."
+>
     <PyNav active="leaderboard" />
-    <section class="min-h-screen bg-gradient-to-b from-slate-50 to-white relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden z-0">
-            <div class="absolute -top-[15%] -right-[10%] w-[40%] h-[40%] bg-[#3776AB]/5 rounded-full blur-[120px]"></div>
-            <div class="absolute -bottom-[15%] -left-[10%] w-[40%] h-[40%] bg-[#FFD43B]/8 rounded-full blur-[120px]"></div>
+
+    <!-- ── HERO + BỤC VINH DANH ─────────────────────────────────────── -->
+    <section class="relative overflow-hidden bg-[#0B1E33] text-white">
+        <div class="absolute inset-0 bg-grid-dark opacity-60 pointer-events-none"></div>
+        <div
+            class="absolute -top-32 -left-24 w-[460px] h-[460px] rounded-full bg-[#3776AB]/35 blur-[130px] pointer-events-none"
+        >
+        </div>
+        <div
+            class="absolute -bottom-40 right-0 w-[420px] h-[420px] rounded-full bg-[#FFD43B]/15 blur-[130px] pointer-events-none"
+        >
         </div>
 
-        <div class="relative z-10 max-w-4xl mx-auto px-4 py-12 md:py-16">
-            <!-- Breadcrumb -->
-            <a href="/hoc-python/khoa-hoc/python-co-ban"
-                class="inline-flex items-center gap-2 text-slate-400 hover:text-[#3776AB] font-medium text-sm mb-6 transition-colors group">
-                <span class="group-hover:-translate-x-1 transition-transform">←</span>
-                <span>Quay lại khoá học</span>
-            </a>
+        <div class="relative max-w-7xl mx-auto px-4 pt-10 md:pt-14">
+            <nav class="flex items-center gap-2 text-xs md:text-sm text-slate-400 mb-6" aria-label="Breadcrumb">
+                <a href="/hoc-python" class="hover:text-white transition-colors no-underline">Học Python</a>
+                <span aria-hidden="true">/</span>
+                <span class="text-slate-200" aria-current="page">Bảng xếp hạng</span>
+            </nav>
 
-            <!-- Header -->
-            <div class="flex items-center justify-between mb-8 flex-wrap gap-4">
-                <div>
-                    <div class="inline-flex items-center gap-2 bg-[#3776AB]/10 text-[#3776AB] font-black text-xs md:text-sm px-4 py-2 rounded-full mb-4 uppercase tracking-wider">
-                        🏆 Bảng xếp hạng
-                    </div>
-                    <h1 class="text-3xl md:text-4xl font-black text-slate-800 tracking-tight">
-                        Tuần này
-                    </h1>
-                    <p class="text-slate-500 text-sm mt-1">Top học viên tích cực nhất trong 7 ngày qua</p>
-                </div>
-                <a href="/hoc-python/ca-nhan"
-                    class="inline-flex items-center gap-2 bg-white border border-slate-200 text-slate-600 font-bold text-sm px-4 py-2.5 rounded-xl hover:border-[#3776AB] hover:text-[#3776AB] transition-colors shadow-sm">
-                    👤 Cá nhân
-                </a>
-            </div>
-
-            <!-- Loading -->
-            <div id="loadingState" class="text-center py-20">
-                <div class="text-4xl mb-4 animate-pulse">⏳</div>
-                <p class="text-slate-400">Đang tải bảng xếp hạng...</p>
-            </div>
-
-            <!-- Empty state -->
-            <div id="emptyState" class="hidden text-center py-20">
-                <div class="text-6xl mb-4">📭</div>
-                <h2 class="text-2xl font-bold text-slate-400">Chưa có dữ liệu tuần này</h2>
-                <p class="text-slate-300 mt-2">Hãy là người đầu tiên hoàn thành bài học trong tuần này!</p>
-            </div>
-
-            <!-- Leaderboard table -->
-            <div id="leaderboardContent" class="hidden space-y-6">
-                <!-- My rank banner -->
-                <div id="myRankBanner" class="hidden bg-gradient-to-r from-[#3776AB]/10 to-[#FFD43B]/10 rounded-xl border border-[#3776AB]/20 p-4 flex items-center gap-3">
-                    <span class="text-2xl">🎯</span>
-                    <div>
-                        <p class="text-sm font-semibold text-slate-700">Bạn đang đứng <span id="myRankNumber" class="text-[#3776AB]"></span></p>
-                        <p class="text-xs text-slate-500">Cố gắng học thêm để leo hạng nhé!</p>
-                    </div>
-                </div>
-
-                <!-- Top 3 podium -->
-                <div id="podium" class="flex items-end justify-center gap-4 mb-8">
-                    <!-- Filled by JS -->
-                </div>
-
-                <!-- Rest of the rankings -->
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div id="rankingList" class="divide-y divide-slate-100">
-                        <!-- Filled by JS -->
+            <div class="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,32rem)] lg:gap-12 items-end">
+                <div class="pb-10 lg:pb-16">
+                    <p
+                        class="inline-flex items-center gap-2 bg-white/10 border border-white/15 text-[#FFD43B] text-xs font-bold px-3 py-1.5 rounded-full mb-5 uppercase tracking-wider"
+                    >
+                        <span class="w-1.5 h-1.5 rounded-full bg-[#FFD43B] animate-pulse"></span>
+                        Đua top mỗi tuần
+                    </p>
+                    <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight mb-3">Bảng xếp hạng tuần</h1>
+                    <p class="text-slate-300 text-base md:text-lg max-w-2xl leading-relaxed mb-7">
+                        Xếp hạng theo điểm XP kiếm được trong 7 ngày gần nhất. Hoàn thành bài học Python để tích XP và
+                        ghi tên mình lên bảng!
+                    </p>
+                    <div class="flex flex-wrap gap-3 text-sm">
+                        <span
+                            class="inline-flex items-center gap-2 rounded-xl bg-white/[0.06] border border-white/10 px-3.5 py-2 text-slate-200"
+                        >
+                            <svg
+                                class="w-4 h-4 text-[#FFD43B]"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    fill-rule="evenodd"
+                                    d="M5.75 2a.75.75 0 0 1 .75.75V4h7V2.75a.75.75 0 0 1 1.5 0V4h.25A2.75 2.75 0 0 1 18 6.75v8.5A2.75 2.75 0 0 1 15.25 18H4.75A2.75 2.75 0 0 1 2 15.25v-8.5A2.75 2.75 0 0 1 4.75 4H5V2.75A.75.75 0 0 1 5.75 2Zm-1 5.5c-.69 0-1.25.56-1.25 1.25v6.5c0 .69.56 1.25 1.25 1.25h10.5c.69 0 1.25-.56 1.25-1.25v-6.5c0-.69-.56-1.25-1.25-1.25H4.75Z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            <span id="weekRange">7 ngày gần nhất</span>
+                        </span>
+                        <span
+                            class="inline-flex items-center gap-2 rounded-xl bg-white/[0.06] border border-white/10 px-3.5 py-2 text-slate-200"
+                        >
+                            <svg
+                                class="w-4 h-4 text-[#FFD43B]"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    d="M7 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM14.5 9a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM1.615 16.428a1.224 1.224 0 0 1-.569-1.175 6.002 6.002 0 0 1 11.908 0c.058.467-.172.92-.57 1.174A9.953 9.953 0 0 1 7 18a9.953 9.953 0 0 1-5.385-1.572ZM14.5 16h-.106c.07-.297.088-.611.048-.933a7.47 7.47 0 0 0-1.588-3.755 4.502 4.502 0 0 1 5.874 2.636.818.818 0 0 1-.36.98A7.465 7.465 0 0 1 14.5 16Z"
+                                ></path>
+                            </svg>
+                            <span id="participantCount">Đang cập nhật…</span>
+                        </span>
                     </div>
                 </div>
+
+                <!-- Bục vinh danh top 3 -->
+                <div id="podiumWrap">
+                    <div
+                        id="podium"
+                        class="grid grid-cols-3 items-end gap-2 sm:gap-4 max-w-md mx-auto lg:mr-0"
+                        role="list"
+                        aria-label="Top 3 tuần này"
+                    >
+                        {
+                            podiumSkeleton.map((s) => (
+                                <div class="flex flex-col items-center min-w-0 animate-pulse" aria-hidden="true">
+                                    <div class:list={['rounded-full bg-white/10 mb-3', s.avatar]} />
+                                    <div class="h-3 w-16 max-w-full rounded bg-white/10" />
+                                    <div class="mt-2 h-4 w-14 max-w-full rounded-full bg-white/10" />
+                                    <div class:list={['mt-3 w-full rounded-t-2xl bg-white/[0.08]', s.pedestal]} />
+                                </div>
+                            ))
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── DANH SÁCH ────────────────────────────────────────────────── -->
+    <section class="bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4 py-10 md:py-14">
+            <!-- Đang tải -->
+            <div id="loadingState" role="status" aria-live="polite">
+                <span class="sr-only">Đang tải bảng xếp hạng...</span>
+                <div class="card overflow-hidden lg:max-w-[calc(100%-24rem)]" aria-hidden="true">
+                    <div class="px-5 py-4 border-b border-slate-100">
+                        <div class="h-5 w-48 max-w-full rounded bg-slate-200 animate-pulse"></div>
+                    </div>
+                    {
+                        Array.from({ length: 5 }).map(() => (
+                            <div class="flex items-center gap-3 sm:gap-4 px-4 sm:px-5 py-4 border-b border-slate-100 last:border-0 animate-pulse">
+                                <div class="w-9 h-9 rounded-xl bg-slate-200 shrink-0" />
+                                <div class="w-10 h-10 rounded-full bg-slate-200 shrink-0" />
+                                <div class="flex-1 space-y-2">
+                                    <div class="h-3.5 w-1/2 rounded bg-slate-200" />
+                                    <div class="h-3 w-2/3 rounded bg-slate-100" />
+                                </div>
+                                <div class="h-4 w-14 rounded bg-slate-200 shrink-0" />
+                            </div>
+                        ))
+                    }
+                </div>
             </div>
 
-            <!-- Login prompt (if not logged in) -->
-            <div id="loginPrompt" class="hidden text-center py-20">
-                <div class="text-6xl mb-4">🔒</div>
-                <h2 class="text-2xl font-bold text-slate-400 mb-2">Cần đăng nhập để xem thứ hạng của bạn</h2>
-                <p class="text-slate-300">Bảng xếp hạng vẫn hiển thị công khai bên dưới.</p>
+            <!-- Bảng trống -->
+            <div id="emptyState" class="hidden">
+                <div class="card max-w-2xl mx-auto p-8 md:p-12 text-center">
+                    <span
+                        class="mx-auto w-16 h-16 rounded-2xl bg-[#FFD43B]/25 flex items-center justify-center text-3xl"
+                        aria-hidden="true">🏁</span
+                    >
+                    <h2 class="mt-5 text-xl md:text-2xl font-extrabold text-slate-900">
+                        Bảng xếp hạng tuần này còn trống
+                    </h2>
+                    <p class="mt-2 text-slate-600 leading-relaxed">
+                        Chưa có ai hoàn thành bài học trong 7 ngày qua. Hãy là người đầu tiên ghi tên lên bảng!
+                    </p>
+                    <a
+                        href="/hoc-python/khoa-hoc"
+                        class="btn mt-6 bg-[#3776AB] hover:bg-[#2B5E8A] text-white shadow-[0_10px_24px_-8px_rgba(55,118,171,0.6)] no-underline"
+                    >
+                        Học 1 bài để lên bảng
+                    </a>
+                </div>
+            </div>
+
+            <!-- Lỗi tải dữ liệu -->
+            <div id="errorState" class="hidden">
+                <div class="card max-w-2xl mx-auto p-8 md:p-12 text-center" role="alert">
+                    <span
+                        class="mx-auto w-14 h-14 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center"
+                    >
+                        <svg class="w-7 h-7" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path
+                                fill-rule="evenodd"
+                                d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495ZM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5Zm0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
+                                clip-rule="evenodd"></path>
+                        </svg>
+                    </span>
+                    <h2 class="mt-5 text-xl md:text-2xl font-extrabold text-slate-900">Không thể tải bảng xếp hạng</h2>
+                    <p class="mt-2 text-slate-600 leading-relaxed">
+                        Đã có lỗi khi tải dữ liệu. Hãy kiểm tra kết nối mạng rồi thử lại nhé.
+                    </p>
+                    <button
+                        type="button"
+                        id="rankRetry"
+                        class="btn mt-6 bg-[#3776AB] hover:bg-[#2B5E8A] text-white cursor-pointer"
+                    >
+                        Thử lại
+                    </button>
+                </div>
+            </div>
+
+            <!-- Nội dung bảng xếp hạng -->
+            <div id="leaderboardContent" class="hidden">
+                <div class="grid lg:grid-cols-[minmax(0,1fr)_22rem] gap-6 lg:gap-8 items-start">
+                    <div class="min-w-0 space-y-6">
+                        <!-- Hạng của tôi -->
+                        <div id="myRankBanner" class="hidden">
+                            <div
+                                class="card p-5 md:p-6 flex flex-wrap items-center gap-4 border-[#3776AB]/30 bg-gradient-to-r from-[#3776AB]/[0.08] to-[#FFD43B]/[0.15]"
+                            >
+                                <div
+                                    class="w-16 h-16 rounded-2xl bg-[#3776AB] text-white flex flex-col items-center justify-center shrink-0 shadow-[0_10px_24px_-10px_rgba(55,118,171,0.8)]"
+                                >
+                                    <span
+                                        class="text-[10px] font-bold uppercase tracking-wider text-white/75 leading-none"
+                                        >Hạng</span
+                                    >
+                                    <span id="myRankNumber" class="text-2xl font-extrabold leading-tight tabular-nums"
+                                    ></span>
+                                </div>
+                                <div class="flex-1 min-w-[11rem]">
+                                    <p id="myRankTitle" class="font-extrabold text-slate-900 text-lg leading-snug"></p>
+                                    <p class="mt-0.5 text-sm text-slate-600">
+                                        Học thêm bài mới để tích XP và leo hạng nhé!
+                                    </p>
+                                </div>
+                                <a
+                                    href="/hoc-python/khoa-hoc"
+                                    class="btn btn-sm bg-[#3776AB] hover:bg-[#2B5E8A] text-white no-underline"
+                                >
+                                    Học tiếp
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Mời tham gia (chưa đăng nhập hoặc chưa có XP tuần này) -->
+                        <div id="loginPrompt" class="hidden">
+                            <div class="relative overflow-hidden rounded-[1.25rem] bg-[#0B1E33] text-white p-6 md:p-7">
+                                <div
+                                    class="absolute -top-20 -right-10 w-64 h-64 rounded-full bg-[#3776AB]/45 blur-[80px] pointer-events-none"
+                                >
+                                </div>
+                                <div class="relative flex flex-col md:flex-row md:items-center gap-5">
+                                    <span
+                                        class="w-14 h-14 rounded-2xl bg-[#FFD43B] text-[#0B1E33] flex items-center justify-center shrink-0 shadow-[0_10px_24px_-8px_rgba(245,196,0,0.6)]"
+                                    >
+                                        <svg class="w-7 h-7" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                            <path
+                                                fill-rule="evenodd"
+                                                d="M11.983 1.907a.75.75 0 0 0-1.292-.657l-8.5 9.5A.75.75 0 0 0 2.75 12h6.572l-1.305 6.093a.75.75 0 0 0 1.292.657l8.5-9.5A.75.75 0 0 0 17.25 8h-6.572l1.305-6.093Z"
+                                                clip-rule="evenodd"></path>
+                                        </svg>
+                                    </span>
+                                    <div class="flex-1 min-w-0">
+                                        <h2 class="text-xl md:text-2xl font-extrabold tracking-tight">
+                                            Học 1 bài để lên bảng
+                                        </h2>
+                                        <p
+                                            id="joinText"
+                                            class="mt-1 text-slate-300 text-sm md:text-base leading-relaxed"
+                                        >
+                                            Hoàn thành bài học Python để tích XP và ghi tên mình lên bảng xếp hạng tuần.
+                                        </p>
+                                    </div>
+                                    <div class="flex flex-wrap gap-2 shrink-0">
+                                        <a href="/hoc-python/khoa-hoc" class="btn btn-sun no-underline">Vào học ngay</a>
+                                        <button
+                                            type="button"
+                                            id="joinLoginBtn"
+                                            class="hidden btn btn-ghost-light cursor-pointer"
+                                        >
+                                            Đăng nhập
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Danh sách từ hạng 4 -->
+                        <div class="card overflow-hidden">
+                            <div
+                                class="flex items-center justify-between gap-3 px-4 sm:px-5 py-4 border-b border-slate-100"
+                            >
+                                <h2 class="text-lg font-extrabold text-slate-900">Các hạng tiếp theo</h2>
+                                <span class="text-xs font-semibold text-slate-500">Từ hạng 4</span>
+                            </div>
+                            <ol id="rankingList" class="divide-y divide-slate-100">
+                                <!-- JS sẽ điền danh sách -->
+                            </ol>
+                        </div>
+                    </div>
+
+                    <!-- Luật chơi -->
+                    <aside class="space-y-6 lg:sticky lg:top-[calc(var(--nav-h)+4.5rem)]">
+                        <div class="card p-5 md:p-6">
+                            <h2 class="font-extrabold text-slate-900">Cách tính điểm</h2>
+                            <ul class="mt-4 space-y-3">
+                                {
+                                    rules.map((r) => (
+                                        <li class="flex items-start gap-3 text-sm text-slate-600 leading-relaxed">
+                                            <svg
+                                                class="w-5 h-5 text-[#3776AB] shrink-0"
+                                                viewBox="0 0 20 20"
+                                                fill="currentColor"
+                                                aria-hidden="true"
+                                            >
+                                                <path
+                                                    fill-rule="evenodd"
+                                                    d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z"
+                                                    clip-rule="evenodd"
+                                                />
+                                            </svg>
+                                            {r}
+                                        </li>
+                                    ))
+                                }
+                            </ul>
+                        </div>
+                        <a
+                            href="/hoc-python/ca-nhan"
+                            class="card card-hover p-5 md:p-6 flex items-center gap-4 no-underline group"
+                        >
+                            <span
+                                class="w-11 h-11 rounded-xl bg-[#3776AB]/10 text-[#3776AB] flex items-center justify-center shrink-0"
+                            >
+                                <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                    <path
+                                        d="M10 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM3.465 14.493a1.23 1.23 0 0 0 .41 1.412A9.957 9.957 0 0 0 10 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.408-1.41a7.002 7.002 0 0 0-13.074.003Z"
+                                    ></path>
+                                </svg>
+                            </span>
+                            <span class="flex-1 min-w-0">
+                                <span
+                                    class="block font-bold text-slate-900 group-hover:text-[#3776AB] transition-colors"
+                                    >Thành tích của bạn</span
+                                >
+                                <span class="block text-sm text-slate-500"
+                                    >Xem level, XP, chuỗi ngày học và huy hiệu</span
+                                >
+                            </span>
+                            <span class="text-slate-400 group-hover:text-[#3776AB] transition-colors" aria-hidden="true"
+                                >→</span
+                            >
+                        </a>
+                    </aside>
+                </div>
             </div>
         </div>
     </section>
 </MainLayout>
 
 <script is:inline>
-(function () {
-    var loading = document.getElementById('loadingState')
-    var emptyState = document.getElementById('emptyState')
-    var content = document.getElementById('leaderboardContent')
-    var loginPrompt = document.getElementById('loginPrompt')
-    var myRankBanner = document.getElementById('myRankBanner')
+    ;(function () {
+        var loading = document.getElementById('loadingState')
+        var emptyState = document.getElementById('emptyState')
+        var errorState = document.getElementById('errorState')
+        var content = document.getElementById('leaderboardContent')
+        var loginPrompt = document.getElementById('loginPrompt')
+        var myRankBanner = document.getElementById('myRankBanner')
+        var podiumWrap = document.getElementById('podiumWrap')
 
-    function setPodium(top3) {
-        var podium = document.getElementById('podium')
-        podium.innerHTML = ''
-
-        if (top3.length === 0) return
-
-        // Order: 2nd (left), 1st (center, tallest), 3rd (right)
-        var order = [1, 0, 2] // positions for 2nd, 1st, 3rd
-        var heights = ['h-28', 'h-36', 'h-24']
-        var medals = ['🥈', '🥇', '🥉']
-        var ranks = [2, 1, 3]
-        var colors = [
-            'from-slate-200 to-slate-300',
-            'from-yellow-300 to-amber-400',
-            'from-orange-200 to-orange-300',
-        ]
-
-        for (var i = 0; i < Math.min(top3.length, 3); i++) {
-            var idx = order[i]
-            if (idx >= top3.length) continue
-            var entry = top3[idx]
-            var col = document.createElement('div')
-            col.className = 'flex flex-col items-center gap-2 w-28'
-
-            var badgeDiv = document.createElement('div')
-            badgeDiv.className = 'w-10 h-10 rounded-full bg-gradient-to-br ' + entry.badge.color + ' flex items-center justify-center text-lg shadow-md'
-            badgeDiv.textContent = entry.badge.icon || '🥚'
-
-            var name = document.createElement('p')
-            name.className = 'font-bold text-xs text-slate-700 text-center truncate w-full'
-            name.textContent = entry.member
-
-            var xp = document.createElement('p')
-            xp.className = 'text-[10px] text-slate-500 font-medium'
-            xp.textContent = '+' + entry.weekXp + ' XP'
-
-            var bar = document.createElement('div')
-            bar.className = 'w-16 ' + heights[i] + ' rounded-t-lg bg-gradient-to-t ' + colors[i] + ' flex items-start justify-center pt-3 shadow-sm'
-            bar.textContent = medals[i]
-
-            col.appendChild(bar)
-            col.appendChild(badgeDiv)
-            col.appendChild(name)
-            col.appendChild(xp)
-            podium.appendChild(col)
-        }
-    }
-
-    var token = localStorage.getItem('auth_token')
-
-    fetch('/api/hoc-python/leaderboard', {
-        headers: token ? { 'Authorization': 'Bearer ' + token } : {}
-    })
-    .then(function (r) { return r.json() })
-    .then(function (data) {
-        loading.classList.add('hidden')
-
-        if (!data.leaderboard || data.leaderboard.length === 0) {
-            emptyState.classList.remove('hidden')
-            return
+        // Định dạng số kiểu Việt Nam (1.250)
+        function fmt(n) {
+            return Number(n || 0).toLocaleString('vi-VN')
         }
 
-        content.classList.remove('hidden')
-
-        var list = data.leaderboard
-
-        // My rank
-        if (data.myRank !== null && data.myRank !== undefined) {
-            myRankBanner.classList.remove('hidden')
-            document.getElementById('myRankNumber').textContent = '#' + data.myRank
+        // Ngày dạng dd/mm
+        function dayMonth(d) {
+            return ('0' + d.getDate()).slice(-2) + '/' + ('0' + (d.getMonth() + 1)).slice(-2)
         }
 
-        // Top 3
-        setPodium(list.slice(0, 3))
+        function isMe(entry, myRank) {
+            return !!entry && myRank !== null && myRank !== undefined && String(entry.rank) === String(myRank)
+        }
 
-        // Ranking list (from 4th onwards, or all if < 4)
-        var startFrom = Math.min(list.length, 3)
-        var rankingList = document.getElementById('rankingList')
-        rankingList.innerHTML = ''
+        function meChip() {
+            var chip = document.createElement('span')
+            chip.className = 'chip bg-[#FFD43B] text-[#0B1E33] shrink-0'
+            chip.textContent = 'Bạn'
+            return chip
+        }
 
-        for (var i = startFrom; i < list.length; i++) {
-            var entry = list[i]
-            var row = document.createElement('div')
-            row.className = 'flex items-center gap-4 px-5 py-4 hover:bg-slate-50 transition-colors'
+        // Bục vinh danh: luôn đủ 3 bục, chỗ chưa có người hiển thị "Còn trống"
+        function setPodium(top3, myRank) {
+            var podium = document.getElementById('podium')
+            podium.innerHTML = ''
 
-            // Rank number
+            // Thứ tự hiển thị: hạng 2 (trái), hạng 1 (giữa, cao nhất), hạng 3 (phải)
+            var order = [
+                1,
+                0,
+                2,
+            ]
+            var heights = [
+                'h-24 sm:h-28',
+                'h-32 sm:h-40',
+                'h-20 sm:h-24',
+            ]
+            var medals = [
+                '🥈',
+                '🥇',
+                '🥉',
+            ]
+            var ranks = [
+                2,
+                1,
+                3,
+            ]
+            var colors = [
+                'from-slate-400 to-slate-200 text-slate-700',
+                'from-[#F5C400] to-[#FFD43B] text-[#0B1E33]',
+                'from-orange-500 to-orange-300 text-orange-950',
+            ]
+            var rings = [
+                'ring-slate-300',
+                'ring-[#FFD43B]',
+                'ring-orange-300',
+            ]
+            var avatars = [
+                'w-14 h-14 sm:w-16 sm:h-16 text-2xl sm:text-3xl',
+                'w-16 h-16 sm:w-20 sm:h-20 text-3xl sm:text-4xl',
+                'w-14 h-14 sm:w-16 sm:h-16 text-2xl sm:text-3xl',
+            ]
+
+            for (var i = 0; i < 3; i++) {
+                var entry = top3[order[i]] || null
+                var col = document.createElement('div')
+                col.className = 'flex flex-col items-center min-w-0'
+                col.setAttribute('role', 'listitem')
+
+                // Ảnh đại diện = huy hiệu cấp độ
+                var avatarWrap = document.createElement('div')
+                avatarWrap.className = 'relative mb-3'
+                var avatar = document.createElement('div')
+                if (entry) {
+                    avatar.className =
+                        'rounded-full bg-gradient-to-br ' +
+                        ((entry.badge && entry.badge.color) || 'from-slate-400 to-slate-500') +
+                        ' ' +
+                        avatars[i] +
+                        ' ring-4 ' +
+                        rings[i] +
+                        ' flex items-center justify-center shadow-lg'
+                    avatar.textContent = (entry.badge && entry.badge.icon) || '🥚'
+                    var medal = document.createElement('span')
+                    medal.className = 'absolute -bottom-1.5 -right-1.5 text-xl sm:text-2xl drop-shadow'
+                    medal.setAttribute('aria-hidden', 'true')
+                    medal.textContent = medals[i]
+                    avatarWrap.appendChild(avatar)
+                    avatarWrap.appendChild(medal)
+                } else {
+                    avatar.className =
+                        'rounded-full ' +
+                        avatars[i] +
+                        ' border-2 border-dashed border-white/25 text-white/40 font-extrabold flex items-center justify-center'
+                    avatar.textContent = '?'
+                    avatarWrap.appendChild(avatar)
+                }
+
+                var name = document.createElement('p')
+                name.className =
+                    'w-full truncate text-center text-xs sm:text-sm font-bold ' +
+                    (entry ? 'text-white' : 'text-slate-400')
+                name.textContent = entry ? entry.member : 'Còn trống'
+                if (entry) name.title = entry.member
+
+                var xp = document.createElement('p')
+                if (entry) {
+                    xp.className = 'mt-1.5 chip bg-white/10 border-white/15 text-[#FFD43B] tabular-nums'
+                    xp.textContent = '+' + fmt(entry.weekXp) + ' XP'
+                } else {
+                    xp.className = 'mt-1.5 text-[11px] sm:text-xs font-semibold text-slate-300'
+                    xp.textContent = 'Chờ bạn!'
+                }
+
+                var pedestal = document.createElement('div')
+                pedestal.className =
+                    'mt-3 w-full rounded-t-2xl bg-gradient-to-t ' +
+                    colors[i] +
+                    ' ' +
+                    heights[i] +
+                    ' flex items-start justify-center pt-3 sm:pt-4 text-3xl sm:text-4xl font-extrabold shadow-[inset_0_2px_0_rgba(255,255,255,0.45)]' +
+                    (entry ? '' : ' opacity-30')
+                // Số hạng: hiển thị số cho mắt nhìn, đọc "Hạng N" cho trình đọc màn hình
+                var rankVisual = document.createElement('span')
+                rankVisual.setAttribute('aria-hidden', 'true')
+                rankVisual.textContent = ranks[i]
+                var rankSr = document.createElement('span')
+                rankSr.className = 'sr-only'
+                rankSr.textContent = 'Hạng ' + ranks[i]
+                pedestal.appendChild(rankVisual)
+                pedestal.appendChild(rankSr)
+
+                col.appendChild(avatarWrap)
+                col.appendChild(name)
+                col.appendChild(xp)
+                if (isMe(entry, myRank)) {
+                    var me = meChip()
+                    me.className += ' mt-1.5'
+                    col.appendChild(me)
+                }
+                col.appendChild(pedestal)
+                podium.appendChild(col)
+            }
+        }
+
+        // Một dòng trong danh sách (từ hạng 4)
+        function buildRow(entry, mine) {
+            var row = document.createElement('li')
+            row.className = mine
+                ? 'flex items-center gap-3 sm:gap-4 px-4 sm:px-5 py-3.5 bg-[#3776AB]/[0.07] shadow-[inset_4px_0_0_#3776AB]'
+                : 'flex items-center gap-3 sm:gap-4 px-4 sm:px-5 py-3.5 hover:bg-slate-50 transition-colors'
+
             var rankNum = document.createElement('div')
-            rankNum.className = 'w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-sm font-black text-slate-500 shrink-0'
-            rankNum.textContent = '#' + entry.rank
+            rankNum.className = mine
+                ? 'w-9 h-9 rounded-xl bg-[#3776AB] text-white flex items-center justify-center text-sm font-extrabold tabular-nums shrink-0'
+                : 'w-9 h-9 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center text-sm font-extrabold tabular-nums shrink-0'
+            rankNum.textContent = entry.rank
 
-            // Badge
             var badgeDiv = document.createElement('div')
-            badgeDiv.className = 'w-9 h-9 rounded-full bg-gradient-to-br ' + entry.badge.color + ' flex items-center justify-center text-base shrink-0 shadow-sm'
-            badgeDiv.textContent = entry.badge.icon || '🥚'
+            badgeDiv.className =
+                'w-10 h-10 rounded-full bg-gradient-to-br ' +
+                ((entry.badge && entry.badge.color) || 'from-slate-400 to-slate-500') +
+                ' flex items-center justify-center text-lg shrink-0 shadow-sm'
+            badgeDiv.textContent = (entry.badge && entry.badge.icon) || '🥚'
 
-            // Name + info
             var info = document.createElement('div')
             info.className = 'flex-1 min-w-0'
 
+            var nameRow = document.createElement('div')
+            nameRow.className = 'flex items-center gap-2 min-w-0'
             var name = document.createElement('p')
-            name.className = 'font-bold text-sm text-slate-700 truncate'
+            name.className = 'font-bold text-slate-900 truncate'
             name.textContent = entry.member
+            name.title = entry.member
+            nameRow.appendChild(name)
+            // Chip "Bạn": cạnh tên từ sm trở lên; dưới sm chuyển xuống dòng chi tiết để tên đủ chỗ
+            if (mine) {
+                var meWide = document.createElement('span')
+                meWide.className = 'hidden sm:inline-flex shrink-0'
+                meWide.appendChild(meChip())
+                nameRow.appendChild(meWide)
+            }
 
             var detail = document.createElement('p')
-            detail.className = 'text-xs text-slate-400'
-            detail.textContent = 'Level ' + entry.level + ' · ' + entry.badge.title + ' · ' + entry.streak + '🔥'
+            detail.className = 'text-xs text-slate-500 line-clamp-2'
+            if (mine) {
+                var meNarrow = document.createElement('span')
+                meNarrow.className = 'sm:hidden mr-1.5 align-middle'
+                var narrowChip = meChip()
+                narrowChip.className += ' py-0'
+                meNarrow.appendChild(narrowChip)
+                detail.appendChild(meNarrow)
+            }
+            var streak = Number(entry.streak) || 0
+            var detailText =
+                'Level ' +
+                entry.level +
+                ' · ' +
+                ((entry.badge && entry.badge.title) || '') +
+                (streak > 0 ? ' · 🔥 ' + fmt(streak) + ' ngày' : '')
+            detail.appendChild(document.createTextNode(detailText))
 
-            info.appendChild(name)
+            info.appendChild(nameRow)
             info.appendChild(detail)
 
-            // XP
             var xp = document.createElement('div')
             xp.className = 'text-right shrink-0'
             var weekXp = document.createElement('p')
-            weekXp.className = 'font-black text-sm text-[#3776AB]'
-            weekXp.textContent = '+' + entry.weekXp
+            weekXp.className = 'font-extrabold text-[#3776AB] tabular-nums whitespace-nowrap'
+            weekXp.textContent = '+' + fmt(entry.weekXp) + ' XP'
             var totalXp = document.createElement('p')
-            totalXp.className = 'text-[10px] text-slate-400'
-            totalXp.textContent = entry.totalXp + ' XP'
-
+            totalXp.className = 'hidden sm:block text-xs text-slate-500 tabular-nums whitespace-nowrap'
+            totalXp.textContent = 'Tổng ' + fmt(entry.totalXp)
+            var totalUnit = document.createElement('span')
+            totalUnit.className = 'hidden sm:inline'
+            totalUnit.textContent = ' XP'
+            totalXp.appendChild(totalUnit)
             xp.appendChild(weekXp)
             xp.appendChild(totalXp)
 
@@ -219,57 +573,124 @@ import { TC_TITLE } from '../../common/TextConst'
             row.appendChild(badgeDiv)
             row.appendChild(info)
             row.appendChild(xp)
-            rankingList.appendChild(row)
+            return row
         }
 
-        if (data.leaderboard.length <= 3) {
-            // Show everyone in the list
-            var rankingList2 = document.getElementById('rankingList')
-            for (var i = 0; i < data.leaderboard.length; i++) {
-                var entry = data.leaderboard[i]
-                var row = document.createElement('div')
-                row.className = 'flex items-center gap-4 px-5 py-4 hover:bg-slate-50 transition-colors'
+        // Dòng mời gọi khi chưa đủ người cho danh sách
+        function buildFiller(count, onBoard) {
+            var row = document.createElement('li')
+            row.className = 'px-5 py-10 text-center'
+            var title = document.createElement('p')
+            title.className = 'font-bold text-slate-900'
+            title.textContent = 'Mới có ' + count + ' bạn ghi tên lên bảng tuần này'
+            var text = document.createElement('p')
+            text.className = 'mt-1 text-sm text-slate-600'
+            text.textContent = onBoard
+                ? 'Rủ bạn bè cùng học Python để bảng xếp hạng thêm sôi động nhé!'
+                : 'Vị trí tiếp theo đang chờ bạn — hoàn thành bài học để có tên ở đây!'
+            var link = document.createElement('a')
+            link.href = '/hoc-python/khoa-hoc'
+            link.className =
+                'mt-4 inline-flex items-center gap-1 text-sm font-bold text-[#3776AB] hover:text-[#2B5E8A] no-underline'
+            link.textContent = 'Học 1 bài ngay →'
+            row.appendChild(title)
+            row.appendChild(text)
+            row.appendChild(link)
+            return row
+        }
 
-                var rankNum = document.createElement('div')
-                rankNum.className = 'w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-sm font-black text-slate-500 shrink-0'
-                rankNum.textContent = '#' + entry.rank
+        function setHeroMeta(data) {
+            var count = Number(data.totalParticipants)
+            if (isNaN(count)) count = (data.leaderboard || []).length
+            document.getElementById('participantCount').textContent =
+                count > 0 ? fmt(count) + ' học viên trên bảng' : 'Chưa có học viên'
 
-                var badgeDiv = document.createElement('div')
-                badgeDiv.className = 'w-9 h-9 rounded-full bg-gradient-to-br ' + entry.badge.color + ' flex items-center justify-center text-base shrink-0 shadow-sm'
-                badgeDiv.textContent = entry.badge.icon || '🥚'
-
-                var info = document.createElement('div')
-                info.className = 'flex-1 min-w-0'
-                var name = document.createElement('p')
-                name.className = 'font-bold text-sm text-slate-700 truncate'
-                name.textContent = entry.member
-                var detail = document.createElement('p')
-                detail.className = 'text-xs text-slate-400'
-                detail.textContent = 'Level ' + entry.level + ' · ' + entry.badge.title
-                info.appendChild(name)
-                info.appendChild(detail)
-
-                var xp = document.createElement('div')
-                xp.className = 'text-right shrink-0'
-                var weekXp = document.createElement('p')
-                weekXp.className = 'font-black text-sm text-[#3776AB]'
-                weekXp.textContent = '+' + entry.weekXp
-                var totalXp = document.createElement('p')
-                totalXp.className = 'text-[10px] text-slate-400'
-                totalXp.textContent = entry.totalXp + ' XP'
-                xp.appendChild(weekXp)
-                xp.appendChild(totalXp)
-
-                row.appendChild(rankNum)
-                row.appendChild(badgeDiv)
-                row.appendChild(info)
-                row.appendChild(xp)
-                rankingList2.appendChild(row)
+            if (data.weekStart) {
+                var start = new Date(data.weekStart)
+                if (!isNaN(start.getTime())) {
+                    document.getElementById('weekRange').textContent =
+                        dayMonth(start) + ' – ' + dayMonth(new Date()) + '/' + new Date().getFullYear()
+                }
             }
         }
-    })
-    .catch(function () {
-        loading.innerHTML = '<div class="text-4xl mb-4">❌</div><p class="text-slate-400">Không thể tải bảng xếp hạng.</p>'
-    })
-})()
+
+        function openLogin() {
+            var m = document.getElementById('loginModal')
+            if (m) {
+                m.classList.remove('hidden')
+                m.classList.add('flex')
+                document.body.classList.add('overflow-hidden')
+            }
+        }
+
+        document.getElementById('joinLoginBtn').addEventListener('click', openLogin)
+        document.getElementById('rankRetry').addEventListener('click', function () {
+            location.reload()
+        })
+
+        var token = localStorage.getItem('auth_token')
+
+        fetch('/api/hoc-python/leaderboard', {
+            headers: token ? { Authorization: 'Bearer ' + token } : {},
+        })
+            .then(function (r) {
+                if (!r.ok) throw new Error('HTTP ' + r.status)
+                return r.json()
+            })
+            .then(function (data) {
+                if (!data || data.error || !Array.isArray(data.leaderboard)) throw new Error('Dữ liệu không hợp lệ')
+                loading.classList.add('hidden')
+                setHeroMeta(data)
+
+                var list = data.leaderboard
+                var myRank = data.myRank
+
+                // Bảng trống
+                if (list.length === 0) {
+                    setPodium([], null)
+                    emptyState.classList.remove('hidden')
+                    return
+                }
+
+                // Top 3 lên bục
+                setPodium(list.slice(0, 3), myRank)
+
+                // Hạng của tôi hoặc lời mời tham gia
+                if (myRank !== null && myRank !== undefined) {
+                    var rankNo = Number(myRank)
+                    document.getElementById('myRankNumber').textContent = '#' + myRank
+                    document.getElementById('myRankTitle').textContent =
+                        rankNo === 1
+                            ? 'Bạn đang dẫn đầu tuần này! 🏆'
+                            : rankNo <= 3
+                              ? 'Bạn đang ở top 3 tuần này! 🎉'
+                              : 'Bạn đang đứng hạng ' + myRank + ' tuần này'
+                    myRankBanner.classList.remove('hidden')
+                } else {
+                    document.getElementById('joinText').textContent = token
+                        ? 'Tuần này chưa thấy tên bạn trên bảng. Hoàn thành bài học Python để tích XP và ghi tên mình nhé!'
+                        : 'Đăng nhập và hoàn thành bài học Python đầu tiên — tên bạn sẽ xuất hiện trên bảng xếp hạng tuần.'
+                    if (!token) document.getElementById('joinLoginBtn').classList.remove('hidden')
+                    loginPrompt.classList.remove('hidden')
+                }
+
+                // Danh sách từ hạng 4 (không lặp lại người trên bục)
+                var rankingList = document.getElementById('rankingList')
+                rankingList.innerHTML = ''
+                for (var i = 3; i < list.length; i++) {
+                    rankingList.appendChild(buildRow(list[i], isMe(list[i], myRank)))
+                }
+                if (list.length <= 3) {
+                    rankingList.appendChild(buildFiller(list.length, myRank !== null && myRank !== undefined))
+                }
+
+                content.classList.remove('hidden')
+            })
+            .catch(function () {
+                loading.classList.add('hidden')
+                podiumWrap.classList.add('hidden')
+                document.getElementById('participantCount').textContent = 'Chưa tải được'
+                errorState.classList.remove('hidden')
+            })
+    })()
 </script>

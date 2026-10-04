@@ -5,9 +5,7 @@ import { VIBE_PROMPTS } from '../data/vibe-tools/prompts.js'
 export const prerender = false
 
 // Serialize prompts to JSON for client-side use (content only, no server logic)
-const promptsJson = JSON.stringify(
-    VIBE_PROMPTS.map((p) => ({ id: p.id, toolName: p.toolName, content: p.content }))
-)
+const promptsJson = JSON.stringify(VIBE_PROMPTS.map((p) => ({ id: p.id, toolName: p.toolName, content: p.content })))
 
 const tools = [
     {
@@ -71,7 +69,7 @@ const tools = [
     {
         id: 9,
         name: 'Click Counter',
-        desc: 'Đếm số lần bạn click',
+        desc: 'Đếm số lần bạn bấm chuột',
         icon: '👆',
         bg: 'from-teal-400 to-green-500',
     },
@@ -107,7 +105,7 @@ const tools = [
     {
         id: 14,
         name: 'Text Trimmer',
-        desc: 'Xóa khoảng trắng thừa trong text',
+        desc: 'Xóa khoảng trắng thừa trong văn bản',
         icon: '✂️',
         bg: 'from-cyan-400 to-blue-500',
     },
@@ -240,14 +238,14 @@ const tools = [
     {
         id: 33,
         name: 'URL Encoder',
-        desc: 'Encode/decode URL an toàn',
+        desc: 'Mã hóa và giải mã đường dẫn URL an toàn',
         icon: '🔗',
         bg: 'from-cyan-400 to-blue-500',
     },
     {
         id: 34,
         name: 'JSON Formatter',
-        desc: 'Format và làm đẹp JSON',
+        desc: 'Sắp xếp và làm đẹp dữ liệu JSON',
         icon: '{ }',
         bg: 'from-amber-400 to-yellow-500',
         isText: true,
@@ -368,9 +366,89 @@ const tools = [
         bg: 'from-indigo-400 to-blue-600',
     },
 ]
+
+// Tên hiển thị tiếng Việt cho từng công cụ (giữ tools[].name gốc để tìm kiếm)
+const viLabels: Record<number, string> = {
+    1: 'Máy tính bỏ túi',
+    2: 'Số ngẫu nhiên',
+    3: 'Emoji ngẫu nhiên',
+    4: 'Bật/tắt chế độ tối',
+    5: 'Âm thanh nút bấm',
+    6: 'Xem trước văn bản',
+    7: 'Thanh chỉnh cỡ chữ',
+    8: 'Đổi màu nền',
+    9: 'Đếm lượt bấm',
+    10: 'Chọn giao diện',
+    11: 'Đếm ký tự',
+    12: 'Đếm từ',
+    13: 'Đổi chữ hoa/thường',
+    14: 'Cắt khoảng trắng',
+    15: 'Đảo ngược chữ',
+    16: 'Danh sách việc cần làm',
+    17: 'Giấy ghi chú',
+    18: 'Hẹn giờ đếm ngược',
+    19: 'Hẹn giờ Pomodoro',
+    20: 'Tạo mật khẩu',
+    21: 'Chọn màu',
+    22: 'Đổi đơn vị',
+    23: 'Ngày & giờ',
+    24: 'Đồng hồ bấm giờ',
+    25: 'Đồng hồ báo thức',
+    26: 'Tính tiền boa',
+    27: 'Tính chỉ số BMI',
+    28: 'Tính tuổi',
+    29: 'Tính tiền vay',
+    30: 'Quy đổi tiền tệ',
+    31: 'Tạo mã QR',
+    32: 'Mã hóa Base64',
+    33: 'Mã hóa URL',
+    34: 'Định dạng JSON',
+    35: 'Xem trước Markdown',
+    36: 'Thử biểu thức chính quy',
+    37: 'Tạo văn bản mẫu',
+    38: 'Tạo màu chuyển sắc',
+    39: 'Tạo đổ bóng CSS',
+    40: 'Chọn bo góc CSS',
+    41: 'Sân tập Flexbox',
+    42: 'Tạo lưới CSS Grid',
+    43: 'Tính tỉ lệ khung hình',
+    44: 'Đổi đơn vị pixel',
+    45: 'Kiểm tra tương phản màu',
+    46: 'Đo tốc độ gõ phím',
+    47: 'Tạo thẻ ghi nhớ',
+    48: 'Tạo câu đố trắc nghiệm',
+    49: 'Theo dõi thói quen',
+    50: 'Nhạc tập trung',
+}
+
+const ZALO_URL = 'https://zalo.me/0373306966'
+const PHONE_TEXT = '0373.306.966'
+const INITIAL_COUNT = tools.filter((tool) => tool.id <= 25).length
+
+const steps = [
+    {
+        title: 'Chọn ý tưởng công cụ',
+        desc: 'Tìm công cụ bạn thích: máy tính, đếm từ, hẹn giờ học…',
+    },
+    {
+        title: 'Sao chép prompt',
+        desc: 'Bấm “Xem prompt” rồi bấm “Sao chép prompt”.',
+    },
+    {
+        title: 'Dán vào AI để tạo công cụ',
+        desc: 'Dán vào ChatGPT, Claude hoặc Gemini — AI viết code HTML, CSS, JavaScript trong một file.',
+    },
+]
+
+const chatIcon =
+    'M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 0 1-.825-.242m9.345-8.334a2.126 2.126 0 0 0-.476-.095 48.64 48.64 0 0 0-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0 0 11.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155'
 ---
 
-<MainLayout title="50 Mini Tools Vibe | Error404-Labs" description="50 công cụ mini vibe giúp bạn học tập, làm việc và sáng tạo mỗi ngày!" searchable={false}>
+<MainLayout
+    title="50 công cụ mini Vibe | Error404-Labs"
+    description="50 công cụ mini vibe giúp bạn học tập, làm việc và sáng tạo mỗi ngày!"
+    searchable={false}
+>
     <script>
         async function checkAccess() {
             const token = localStorage.getItem('auth_token')
@@ -390,6 +468,10 @@ const tools = [
                     window.location.href = '/?auth=required'
                     return
                 }
+                // Xác thực xong — hiện nội dung, ẩn khung chờ
+                document.getElementById('vibe-guard')?.classList.remove('hidden')
+                document.getElementById('vibe-skeleton')?.classList.add('hidden')
+                window.dispatchEvent(new CustomEvent('vibe:auth-ok'))
             } catch (error) {
                 console.error('Access check failed:', error)
                 window.location.href = '/?auth=required'
@@ -397,173 +479,457 @@ const tools = [
         }
         checkAccess()
     </script>
-    <div class="min-h-screen" style="background: linear-gradient(135deg, #f0f4ff 0%, #fdf0ff 50%, #fff0f8 100%);">
 
-        <!-- Header -->
-        <div class="max-w-6xl mx-auto px-4 pt-8 pb-4">
-
-            <!-- Main Title -->
-            <div class="text-center mb-6">
-                <h1 class="text-4xl md:text-5xl font-extrabold mb-3 leading-tight">
-                    <span class="text-yellow-400">✦</span>
-                    <span class="text-gray-800"> 50 Mini Tools </span>
-                    <span style="background: linear-gradient(135deg, #7c3aed, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Vibe</span>
-                    <span class="text-yellow-400"> ✦</span>
-                </h1>
-                <p class="text-gray-500 text-base md:text-lg">Những công cụ nhỏ xinh giúp bạn học tập, làm việc và sáng tạo mỗi ngày!</p>
-            </div>
-
-            <!-- Search Bar -->
-            <div class="max-w-md mx-auto mb-8">
-                <div class="relative">
-                    <input
-                        type="text"
-                        id="toolSearch"
-                        placeholder="Tìm kiếm tool bạn cần..."
-                        class="w-full px-5 py-3 rounded-full border-2 border-purple-100 bg-white shadow-sm text-gray-700 placeholder-gray-400 outline-none focus:border-purple-300 transition-all text-sm"
-                    />
-                    <button class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-purple-500 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
-                        </svg>
-                    </button>
-                </div>
+    {/* Khung chờ trong lúc kiểm tra đăng nhập (tránh lộ nội dung trước khi chuyển hướng) */}
+    <div id="vibe-skeleton" aria-busy="true" aria-label="Đang tải thư viện prompt">
+        <div class="bg-navy-950">
+            <div class="container-site py-12 md:py-20 animate-pulse">
+                <div class="h-4 w-40 bg-white/10 rounded-full mb-6"></div>
+                <div class="h-7 w-56 bg-white/10 rounded-full mb-6"></div>
+                <div class="h-10 md:h-14 w-full max-w-xl bg-white/15 rounded-2xl mb-4"></div>
+                <div class="h-5 w-full max-w-2xl bg-white/10 rounded-xl mb-2"></div>
+                <div class="h-5 w-4/5 max-w-lg bg-white/10 rounded-xl"></div>
             </div>
         </div>
-
-        <!-- Tools Grid -->
-        <div class="max-w-6xl mx-auto px-4 pb-12">
-            <div id="toolsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
-                {tools.map((tool) => (
-                    <div
-                        class={`tool-card bg-white rounded-3xl p-5 shadow-sm border border-gray-100 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg cursor-pointer${tool.id > 25 ? ' extra-tool hidden' : ''}`}
-                        data-name={tool.name.toLowerCase()}
-                        data-desc={tool.desc.toLowerCase()}
-                    >
-                        <!-- Number badge -->
-                        <div class="self-start mb-3">
-                            <span class="text-xs font-bold text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full">
-                                {String(tool.id).padStart(2, '0')}
-                            </span>
+        <div class="container-site py-10">
+            <div class="h-11 w-full max-w-xl bg-slate-100 rounded-xl mb-8 animate-pulse"></div>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 animate-pulse">
+                {
+                    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(() => (
+                        <div class="rounded-2xl border border-slate-200 bg-white p-4 h-56">
+                            <div class="w-12 h-12 bg-slate-100 rounded-2xl mb-4" />
+                            <div class="h-4 w-2/3 bg-slate-200 rounded-lg mb-2" />
+                            <div class="h-3 w-full bg-slate-100 rounded-lg mb-1.5" />
+                            <div class="h-3 w-4/5 bg-slate-100 rounded-lg" />
                         </div>
-
-                        <!-- Icon -->
-                        <div class={`w-16 h-16 rounded-2xl bg-gradient-to-br ${tool.bg} flex items-center justify-center mb-3 shadow-md`}>
-                            {tool.isText ? (
-                                <span class="text-white font-extrabold text-xl">{tool.icon}</span>
-                            ) : (
-                                <span class="text-3xl">{tool.icon}</span>
-                            )}
-                        </div>
-
-                        <!-- Name & Desc -->
-                        <h3 class="font-bold text-gray-800 text-sm mb-1 leading-tight">{tool.name}</h3>
-                        <p class="text-gray-400 text-xs mb-4 leading-relaxed flex-1">{tool.desc}</p>
-
-                        <!-- Buttons -->
-                        <div class="w-full flex flex-col gap-2">
-                            <button
-                                class="w-full py-2 rounded-xl text-xs font-semibold transition-all duration-200 hover:opacity-90 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-1.5"
-                                style="background: #fff0f8; color: #ec4899; border: 1.5px solid #fce7f3;"
-                                onclick={`window.vibeViewPrompt(${tool.id})`}
-                            >
-                                <span>⊙</span>
-                                <span>Xem prompt</span>
-                            </button>
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            <!-- No results message -->
-            <div id="noResults" class="hidden text-center py-16">
-                <div class="text-5xl mb-4">🔍</div>
-                <p class="text-gray-500 text-lg font-medium">Không tìm thấy tool nào</p>
-                <p class="text-gray-400 text-sm mt-1">Thử tìm kiếm với từ khóa khác nhé!</p>
-            </div>
-
-            <!-- View All Button -->
-            <div class="flex justify-center mt-10">
-                <button
-                    class="px-8 py-3.5 rounded-full text-white font-bold text-sm shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105 active:scale-95 flex items-center gap-2"
-                    style="background: linear-gradient(135deg, #7c3aed, #ec4899);"
-                    id="viewAllBtn"
-                >
-                    <span>✦</span>
-                    <span>Xem tất cả 50 tools</span>
-                </button>
+                    ))
+                }
             </div>
         </div>
     </div>
 
-    <!-- ===== PROMPT MODAL ===== -->
+    {/* Nội dung chính (ẩn cho tới khi xác thực xong) */}
+    <div id="vibe-guard" class="hidden">
+        {/* ── HERO ── */}
+        <section class="relative overflow-hidden bg-navy-950 text-white">
+            <div class="absolute inset-0 bg-grid-dark opacity-60 pointer-events-none" aria-hidden="true"></div>
+            <div
+                class="absolute -top-40 -right-32 w-[520px] h-[520px] rounded-full bg-blue-600/30 blur-[130px] pointer-events-none"
+                aria-hidden="true"
+            >
+            </div>
+            <div
+                class="absolute -bottom-48 -left-24 w-[420px] h-[420px] rounded-full bg-sun-400/10 blur-[130px] pointer-events-none"
+                aria-hidden="true"
+            >
+            </div>
+
+            <div class="relative container-site py-12 md:py-20 grid lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+                <div class="lg:col-span-7">
+                    <nav aria-label="Breadcrumb" class="text-sm text-slate-400 mb-6">
+                        <a href="/" class="hover:text-white no-underline">Trang chủ</a>
+                        <span class="mx-2" aria-hidden="true">/</span>
+                        <span class="text-slate-200">Công cụ mini Vibe</span>
+                    </nav>
+
+                    <p
+                        class="inline-flex items-center gap-2 bg-white/10 border border-white/15 text-sun-400 text-xs font-bold px-3 py-1.5 rounded-full mb-6 uppercase tracking-wider"
+                    >
+                        <span class="w-1.5 h-1.5 rounded-full bg-sun-400"></span>
+                        Vibe coding · Dành cho thành viên
+                    </p>
+
+                    <h1
+                        class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight leading-[1.15] text-balance"
+                    >
+                        {tools.length} công cụ mini
+                        <span class="text-sun-400">tự làm cùng AI</span>
+                    </h1>
+
+                    <p class="mt-5 text-slate-300 text-base md:text-lg leading-relaxed max-w-2xl">
+                        Mỗi thẻ là một ý tưởng công cụ nhỏ giúp học tập và sáng tạo mỗi ngày, kèm sẵn prompt mẫu. Dán
+                        prompt vào AI là nhận được code HTML, CSS, JavaScript hoàn chỉnh — vừa có công cụ để dùng, vừa
+                        hiểu cách nó được làm ra.
+                    </p>
+
+                    <div class="mt-8 flex flex-col sm:flex-row sm:flex-wrap gap-3">
+                        <a href="#danh-sach" class="btn btn-sun btn-lg">
+                            Xem danh sách công cụ
+                            <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path
+                                    fill-rule="evenodd"
+                                    d="M10 3a.75.75 0 0 1 .75.75v10.638l3.96-4.158a.75.75 0 1 1 1.08 1.04l-5.25 5.5a.75.75 0 0 1-1.08 0l-5.25-5.5a.75.75 0 1 1 1.08-1.04l3.96 4.158V3.75A.75.75 0 0 1 10 3Z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                        </a>
+                        <a
+                            id="heroUnlockCta"
+                            href={ZALO_URL}
+                            target="_blank"
+                            rel="noopener"
+                            class="btn btn-ghost-light btn-lg"
+                        >
+                            <svg
+                                class="w-5 h-5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                                aria-hidden="true"
+                            >
+                                <path stroke-linecap="round" stroke-linejoin="round" d={chatIcon}></path>
+                            </svg>
+                            Mở khóa qua Zalo
+                        </a>
+                    </div>
+
+                    <ul class="mt-10 grid grid-cols-3 gap-3 max-w-lg">
+                        {
+                            [
+                                [String(tools.length), 'công cụ mini'],
+                                ['3 bước', 'là có công cụ'],
+                                ['1 file', 'HTML là chạy'],
+                            ].map(([num, label]) => (
+                                <li class="rounded-2xl bg-white/5 border border-white/10 px-3 py-3 sm:px-4">
+                                    <span class="block text-xl sm:text-2xl font-extrabold text-white leading-tight">
+                                        {num}
+                                    </span>
+                                    <span class="block text-xs sm:text-sm text-slate-300 mt-0.5">{label}</span>
+                                </li>
+                            ))
+                        }
+                    </ul>
+                </div>
+
+                {/* 3 bước sử dụng */}
+                <div class="lg:col-span-5">
+                    <div
+                        class="rounded-3xl bg-white/[0.06] border border-white/10 p-5 sm:p-7 shadow-[0_30px_80px_rgba(0,0,0,0.35)]"
+                    >
+                        <p class="text-sm font-extrabold uppercase tracking-wider text-sun-400">
+                            Cách dùng trong 3 bước
+                        </p>
+                        <ol class="mt-5 space-y-5">
+                            {
+                                steps.map((step, i) => (
+                                    <li class="flex gap-4">
+                                        <span class="w-10 h-10 shrink-0 rounded-xl bg-sun-400 text-navy-950 font-extrabold text-lg flex items-center justify-center">
+                                            {i + 1}
+                                        </span>
+                                        <div>
+                                            <p class="font-bold text-white text-base">{step.title}</p>
+                                            <p class="text-sm text-slate-300 leading-relaxed mt-0.5">{step.desc}</p>
+                                        </div>
+                                    </li>
+                                ))
+                            }
+                        </ol>
+                        <p
+                            class="mt-6 pt-5 border-t border-white/10 text-sm text-slate-300 leading-relaxed flex items-start gap-2"
+                        >
+                            <span aria-hidden="true">💡</span>
+                            <span>
+                                Mẹo: lưu code AI trả về thành file <strong class="text-white">.html</strong> rồi mở bằng trình
+                                duyệt là dùng được ngay.
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {/* ── Thanh tìm kiếm (dính dưới thanh điều hướng) ── */}
+        <div
+            id="danh-sach"
+            class="sticky top-[var(--nav-h)] z-40 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-[0_8px_24px_-18px_rgba(15,23,42,0.35)]"
+        >
+            <div class="container-site py-3 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                <div class="relative w-full max-w-xl">
+                    <svg
+                        class="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        aria-hidden="true"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"></path>
+                    </svg>
+                    <label for="toolSearch" class="sr-only">Tìm kiếm công cụ</label>
+                    <input
+                        type="search"
+                        id="toolSearch"
+                        autocomplete="off"
+                        placeholder="Tìm công cụ, ví dụ: BMI, đếm từ, màu…"
+                        class="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-300 bg-white text-[15px] text-slate-800 placeholder-slate-400 outline-none transition-all"
+                    />
+                </div>
+                <p id="toolCount" class="text-sm text-slate-600 shrink-0" aria-live="polite">
+                    Đang hiển thị <strong class="text-slate-900">{INITIAL_COUNT}/{tools.length}</strong> công cụ
+                </p>
+            </div>
+        </div>
+
+        {/* ── Danh sách công cụ ── */}
+        <div class="bg-slate-50">
+            <div class="container-site py-10 md:py-14 pb-20">
+                {/* Hướng dẫn mở khóa */}
+                <div
+                    id="unlockCta"
+                    class="card p-5 md:p-6 mb-10 md:mb-12 grid md:grid-cols-[auto_1fr_auto] gap-4 md:gap-6 md:items-center"
+                >
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0"
+                        aria-hidden="true"
+                    >
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"
+                            ></path>
+                        </svg>
+                    </div>
+                    <div class="min-w-0">
+                        <h2 id="unlockTitle" class="text-lg md:text-xl font-extrabold text-slate-900 tracking-tight">
+                            Mở khóa thêm prompt
+                        </h2>
+                        <p id="unlockDesc" class="mt-1 text-slate-600 leading-relaxed">
+                            Bạn đã mở khóa <strong id="unlockCount" class="text-slate-900">—</strong> prompt. Mỗi prompt được
+                            cấp quyền riêng cho từng thành viên —
+                            <strong class="text-slate-900">liên hệ Zalo {PHONE_TEXT} để được mở khóa</strong>.
+                        </p>
+                        <div
+                            class="mt-3 h-2 w-full max-w-md rounded-full bg-slate-100 overflow-hidden"
+                            aria-hidden="true"
+                        >
+                            <div id="unlockBar" class="h-full w-0 rounded-full bg-blue-600 transition-all duration-500">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="unlockAction">
+                        <a href={ZALO_URL} target="_blank" rel="noopener" class="btn btn-primary w-full md:w-auto">
+                            <svg
+                                class="w-5 h-5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                                aria-hidden="true"
+                            >
+                                <path stroke-linecap="round" stroke-linejoin="round" d={chatIcon}></path>
+                            </svg>
+                            Nhắn Zalo {PHONE_TEXT}
+                        </a>
+                    </div>
+                </div>
+
+                <div
+                    id="toolsGrid"
+                    class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4"
+                >
+                    {
+                        tools.map((tool) => (
+                            <div
+                                class={`tool-card group${tool.id > 25 ? ' extra-tool hidden' : ''}`}
+                                data-name={`${tool.name} ${viLabels[tool.id] || ''}`.toLowerCase()}
+                                data-label={viLabels[tool.id] || tool.name}
+                                data-desc={tool.desc.toLowerCase()}
+                                data-id={tool.id}
+                            >
+                                <div class="tool-card-inner h-full flex flex-col bg-white rounded-2xl border border-slate-200 p-3.5 sm:p-5">
+                                    {/* Biểu tượng + số thứ tự */}
+                                    <div class="flex items-start justify-between gap-2">
+                                        <div
+                                            class={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br ${tool.bg} flex items-center justify-center shadow-md`}
+                                            aria-hidden="true"
+                                        >
+                                            {tool.isText ? (
+                                                <span class="text-white font-extrabold text-lg sm:text-xl">
+                                                    {tool.icon}
+                                                </span>
+                                            ) : (
+                                                <span class="text-2xl sm:text-3xl">{tool.icon}</span>
+                                            )}
+                                        </div>
+                                        <span class="text-xs font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full">
+                                            #{String(tool.id).padStart(2, '0')}
+                                        </span>
+                                    </div>
+
+                                    {/* Tên & mô tả */}
+                                    <h3 class="mt-4 font-bold text-slate-900 text-[15px] leading-snug">
+                                        {viLabels[tool.id] || tool.name}
+                                    </h3>
+                                    <p class="mt-1 text-sm text-slate-600 leading-relaxed flex-1">{tool.desc}</p>
+
+                                    {/* Nút xem prompt (nhãn đổi theo trạng thái mở khóa) */}
+                                    <button
+                                        type="button"
+                                        class="tool-card-btn mt-4 w-full min-h-10 py-2 px-1.5 sm:px-3 rounded-xl text-xs sm:text-sm leading-tight font-bold border transition-colors"
+                                        onclick={`window.vibeViewPrompt(${tool.id})`}
+                                    >
+                                        <span class="label-open">Xem prompt</span>
+                                        <span class="label-locked">🔒 Chưa mở khóa</span>
+                                    </button>
+                                </div>
+                            </div>
+                        ))
+                    }
+                </div>
+
+                {/* Không có kết quả */}
+                <div id="noResults" class="hidden text-center py-16">
+                    <div
+                        class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-3xl"
+                        aria-hidden="true"
+                    >
+                        🔍
+                    </div>
+                    <p class="text-slate-900 text-lg font-bold">Không tìm thấy công cụ nào</p>
+                    <p class="text-slate-600 mt-1">Thử tìm kiếm với từ khóa khác nhé!</p>
+                </div>
+
+                {/* Nút xem tất cả */}
+                <div id="viewAllWrap" class="flex justify-center mt-10">
+                    <button class="btn btn-outline btn-lg shadow-sm" id="viewAllBtn">
+                        <span aria-hidden="true">
+                            <svg
+                                class="w-5 h-5 text-blue-600"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z"
+                                ></path>
+                            </svg>
+                        </span>
+                        <span>Xem tất cả {tools.length} công cụ</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {/* ===== PROMPT MODAL ===== */}
     <div
         id="promptModal"
-        class="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+        class="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4"
         style="display: none !important;"
         aria-modal="true"
         role="dialog"
         aria-labelledby="promptModalTitle"
     >
-        <!-- Backdrop -->
-        <div id="promptModalBackdrop" class="absolute inset-0" style="background: rgba(15, 10, 40, 0.65); backdrop-filter: blur(6px);"></div>
+        {/* Nền mờ */}
+        <div id="promptModalBackdrop" class="absolute inset-0 bg-navy-950/70 backdrop-blur-sm"></div>
 
-        <!-- Modal Panel -->
-        <div class="relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-3xl overflow-hidden shadow-2xl" style="background: #fff;">
-
-            <!-- Modal Header -->
-            <div class="flex items-center justify-between px-6 py-5 flex-shrink-0" style="background: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #ec4899 100%);">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center text-lg">⊙</div>
-                    <div>
-                        <p class="text-white/70 text-xs font-medium uppercase tracking-wider">Prompt AI</p>
-                        <h2 id="promptModalTitle" class="text-white font-bold text-base leading-tight"></h2>
+        {/* Khung modal (phải là phần tử con cuối để có hiệu ứng mở) */}
+        <div
+            class="relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-3xl overflow-hidden shadow-2xl bg-white"
+        >
+            {/* Đầu modal */}
+            <div
+                class="relative flex items-center justify-between gap-3 px-5 sm:px-6 py-4 sm:py-5 shrink-0 bg-navy-950"
+            >
+                <div
+                    class="absolute -top-16 -right-10 w-48 h-48 rounded-full bg-blue-600/30 blur-[60px] pointer-events-none"
+                    aria-hidden="true"
+                >
+                </div>
+                <div class="relative flex items-center gap-3 min-w-0">
+                    <div
+                        class="w-10 h-10 shrink-0 rounded-xl bg-sun-400 flex items-center justify-center text-xl"
+                        aria-hidden="true"
+                    >
+                        🛠️
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-sun-300 text-xs font-bold uppercase tracking-wider">Prompt AI · Công cụ mini</p>
+                        <h2 id="promptModalTitle" class="text-white font-extrabold text-lg leading-tight truncate"></h2>
                     </div>
                 </div>
                 <button
                     id="promptModalClose"
-                    class="w-9 h-9 rounded-xl bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition-colors"
+                    class="relative w-10 h-10 shrink-0 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
                     aria-label="Đóng"
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="w-5 h-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2.2"
+                        aria-hidden="true"
+                    >
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
             </div>
 
-            <!-- Modal Body -->
-            <div class="flex-1 overflow-y-auto px-6 py-5">
-                <!-- Tip banner -->
-                <div class="flex items-start gap-3 rounded-2xl p-4 mb-5" style="background: #fdf4ff; border: 1.5px solid #e9d5ff;">
-                    <span class="text-purple-500 text-lg flex-shrink-0 mt-0.5">💡</span>
-                    <p class="text-purple-700 text-xs leading-relaxed">
-                        Copy prompt này và dán vào <strong>ChatGPT, Claude, Gemini</strong> hoặc bất kỳ AI nào bạn đang dùng để tạo ra tool hoàn chỉnh!
+            {/* Nội dung */}
+            <div class="flex-1 overflow-y-auto px-5 sm:px-6 py-5">
+                {/* Mẹo sử dụng */}
+                <div class="flex items-start gap-3 rounded-2xl p-4 mb-5 bg-blue-50 border border-blue-100">
+                    <span class="text-base shrink-0 mt-0.5" aria-hidden="true">💡</span>
+                    <p class="text-blue-900 text-sm leading-relaxed">
+                        Sao chép prompt này và dán vào <strong>ChatGPT, Claude, Gemini</strong> hoặc bất kỳ AI nào bạn đang
+                        dùng để tạo ra công cụ hoàn chỉnh. Lưu thành file <strong>.html</strong> rồi mở bằng trình duyệt là
+                        dùng được!
                     </p>
                 </div>
 
-                <!-- Prompt content -->
+                {/* Prompt */}
                 <div class="relative">
                     <pre
                         id="promptContent"
-                        class="w-full rounded-2xl p-5 text-sm leading-relaxed whitespace-pre-wrap break-words font-mono overflow-x-auto"
-                        style="background: #f8f7ff; border: 1.5px solid #ede9fe; color: #3b0764; min-height: 120px;"
-                    ></pre>
+                        class="w-full rounded-2xl p-4 sm:p-5 text-[13px] sm:text-sm leading-relaxed whitespace-pre-wrap break-words font-sans overflow-x-auto bg-slate-50 border border-slate-200 text-slate-800 min-h-[120px]">
+                    </pre>
                 </div>
             </div>
 
-            <!-- Modal Footer -->
-            <div class="flex items-center justify-between gap-3 px-6 py-4 flex-shrink-0" style="border-top: 1.5px solid #f3f4f6;">
-                <p class="text-gray-400 text-xs">Dành riêng cho thành viên Vibe 💜</p>
+            {/* Chân modal */}
+            <div class="flex items-center justify-between gap-3 px-5 sm:px-6 py-4 shrink-0 border-t border-slate-100">
+                <p class="hidden sm:block text-slate-500 text-sm">Dành riêng cho thành viên Error404 Labs</p>
                 <button
                     id="promptCopyBtn"
-                    class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-semibold transition-all duration-200 hover:opacity-90 hover:scale-[1.02] active:scale-95"
-                    style="background: linear-gradient(135deg, #7c3aed, #ec4899);"
+                    class="ml-auto w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-white text-sm font-bold transition-all duration-200 hover:opacity-95 hover:-translate-y-px active:scale-95 shadow-[0_10px_24px_-8px_rgba(37,99,235,0.55)]"
+                    style="background: linear-gradient(135deg, #2563eb, #1d4ed8);"
                 >
-                    <svg id="copyIcon" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    <svg
+                        id="copyIcon"
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="w-4 h-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        aria-hidden="true"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                        ></path>
                     </svg>
-                    <svg id="checkIcon" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    <svg
+                        id="checkIcon"
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="w-4 h-4 hidden"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                        aria-hidden="true"
+                    >
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
                     </svg>
                     <span id="copyBtnText">Sao chép prompt</span>
                 </button>
@@ -571,48 +937,58 @@ const tools = [
         </div>
     </div>
 
-    <!-- ===== AUTH GATE MODAL ===== -->
+    {/* ===== AUTH GATE MODAL ===== */}
     <div
         id="authGateModal"
         class="fixed inset-0 z-[9999] flex items-center justify-center p-4"
         style="display: none !important;"
         aria-modal="true"
         role="dialog"
+        aria-labelledby="authGateTitle"
     >
-        <!-- Backdrop -->
-        <div id="authGateBackdrop" class="absolute inset-0" style="background: rgba(15, 10, 40, 0.65); backdrop-filter: blur(6px);"></div>
+        {/* Nền mờ */}
+        <div id="authGateBackdrop" class="absolute inset-0 bg-navy-950/70 backdrop-blur-sm"></div>
 
-        <!-- Panel -->
-        <div class="relative w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl text-center" style="background: #fff;">
-            <!-- Top gradient strip -->
-            <div class="h-2 w-full" style="background: linear-gradient(90deg, #7c3aed, #ec4899);"></div>
+        {/* Khung (phải là phần tử con cuối để có hiệu ứng mở) */}
+        <div class="relative w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl text-center bg-white">
+            <div class="h-1.5 w-full bg-gradient-to-r from-blue-600 to-sun-400"></div>
 
-            <div class="px-8 py-8">
-                <!-- Lock icon -->
-                <div class="w-16 h-16 rounded-2xl mx-auto mb-5 flex items-center justify-center text-3xl shadow-md" style="background: linear-gradient(135deg, #ede9fe, #fce7f3);">
+            <div class="px-6 sm:px-8 py-8">
+                <div
+                    class="w-16 h-16 rounded-2xl mx-auto mb-5 flex items-center justify-center text-3xl bg-amber-50 border border-amber-200"
+                    aria-hidden="true"
+                >
                     🔒
                 </div>
 
-                <h3 class="font-extrabold text-gray-800 text-xl mb-2" id="authGateTitle">Nội dung dành riêng</h3>
-                <p class="text-gray-500 text-sm leading-relaxed mb-6" id="authGateDesc">
-                    Vui lòng <strong class="text-purple-600">đăng nhập</strong> để xem prompt AI dành cho thành viên Vibe.
+                <h3 class="font-extrabold text-slate-900 text-xl mb-2" id="authGateTitle">Nội dung dành riêng</h3>
+                <p class="text-slate-600 leading-relaxed mb-6" id="authGateDesc">
+                    Vui lòng <strong class="text-blue-700">đăng nhập</strong> để xem prompt AI dành cho thành viên Vibe.
                 </p>
 
                 <div class="flex flex-col gap-3">
-                    <button
-                        id="authGateLoginBtn"
-                        class="w-full py-3 rounded-xl text-white font-bold text-sm transition-all duration-200 hover:opacity-90 hover:scale-[1.02] active:scale-95"
-                        style="background: linear-gradient(135deg, #7c3aed, #ec4899);"
+                    <button id="authGateLoginBtn" class="btn btn-primary w-full">Đăng nhập ngay</button>
+                    <a
+                        id="authGateZaloBtn"
+                        href={ZALO_URL}
+                        target="_blank"
+                        rel="noopener"
+                        class="btn btn-primary w-full"
+                        style="display: none;"
                     >
-                        Đăng nhập ngay
-                    </button>
-                    <button
-                        id="authGateCloseBtn"
-                        class="w-full py-3 rounded-xl text-gray-500 font-semibold text-sm transition-all duration-200 hover:bg-gray-50"
-                        style="border: 1.5px solid #e5e7eb;"
-                    >
-                        Để sau
-                    </button>
+                        <svg
+                            class="w-5 h-5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                            aria-hidden="true"
+                        >
+                            <path stroke-linecap="round" stroke-linejoin="round" d={chatIcon}></path>
+                        </svg>
+                        Nhắn Zalo {PHONE_TEXT}
+                    </a>
+                    <button id="authGateCloseBtn" class="btn btn-outline w-full">Để sau</button>
                 </div>
             </div>
         </div>
@@ -634,9 +1010,12 @@ const tools = [
         if (_accessCache !== null) return _accessCache
         try {
             const token = localStorage.getItem('auth_token')
-            if (!token) { _accessCache = []; return _accessCache }
+            if (!token) {
+                _accessCache = []
+                return _accessCache
+            }
             const res = await fetch('/api/admin/prompt-access?action=my-access', {
-                headers: { 'Authorization': `Bearer ${token}` }
+                headers: { Authorization: `Bearer ${token}` },
             })
             if (res.ok) {
                 const data = await res.json()
@@ -662,16 +1041,89 @@ const tools = [
     const searchInput = /** @type {HTMLInputElement} */ (document.getElementById('toolSearch'))
     const noResults = document.getElementById('noResults')
     const cards = /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll('.tool-card'))
+    const toolCount = document.getElementById('toolCount')
+    const viewAllWrap = document.getElementById('viewAllWrap')
+
+    /** Cập nhật dòng "Đang hiển thị x/y công cụ" theo số thẻ thực sự đang hiện */
+    const updateToolCount = (query = '') => {
+        const shown = Array.from(cards).filter(
+            (card) => card.style.display !== 'none' && !card.classList.contains('hidden'),
+        ).length
+        if (toolCount) {
+            toolCount.innerHTML = query
+                ? `Tìm thấy <strong class="text-slate-900">${shown}</strong> công cụ`
+                : `Đang hiển thị <strong class="text-slate-900">${shown}/${cards.length}</strong> công cụ`
+        }
+        return shown
+    }
+
+    // Bỏ dấu tiếng Việt để tìm "dem tu" vẫn ra "đếm từ"
+    const normalizeText = (s) =>
+        (s || '')
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/đ/g, 'd')
 
     searchInput?.addEventListener('input', () => {
-        const query = searchInput.value.toLowerCase().trim()
-        let visible = 0
+        const query = normalizeText(searchInput.value.trim())
         cards.forEach((card) => {
-            const match = (card.dataset.name || '').includes(query) || (card.dataset.desc || '').includes(query)
+            const match =
+                !query ||
+                normalizeText(card.dataset.name).includes(query) ||
+                normalizeText(card.dataset.desc).includes(query)
             card.style.display = match ? '' : 'none'
-            if (match) visible++
+            // Thẻ 26–50 (.extra-tool) bị ẩn bằng class 'hidden' khi danh sách thu gọn:
+            // đang tìm kiếm → bỏ 'hidden' để thẻ khớp hiện ra; xóa từ khóa → trả lại trạng thái thu gọn
+            if (card.classList.contains('extra-tool')) {
+                card.classList.toggle('hidden', query ? false : !allVisible)
+            }
         })
+        // Đếm theo trạng thái hiển thị thật (không chỉ theo kết quả khớp)
+        const visible = updateToolCount(query)
         noResults?.classList.toggle('hidden', visible > 0)
+        // Ẩn nút "Xem tất cả" khi đang tìm kiếm để tránh xung đột trạng thái thu gọn
+        if (viewAllWrap) viewAllWrap.style.display = query ? 'none' : ''
+        // Nếu đang cuộn sâu, đưa danh sách về đầu để thấy ngay kết quả
+        const bar = document.getElementById('danh-sach')
+        const hero = bar && bar.previousElementSibling
+        if (bar && hero) {
+            const navH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nav-h'), 10) || 0
+            const listTop = hero.getBoundingClientRect().bottom + window.scrollY - navH
+            if (window.scrollY > listTop) window.scrollTo({ top: listTop })
+        }
+    })
+
+    // ── Trạng thái mở khóa từng thẻ (chạy sau khi xác thực thành công) ────────
+    async function markAccess() {
+        await getMyAccess()
+        let unlocked = 0
+        cards.forEach((card) => {
+            const id = Number(card.dataset.id || 0)
+            if (!id) return
+            const ok = _isAdmin || (_accessCache || []).includes(`vibe_${id}`)
+            card.classList.toggle('is-locked', !ok)
+            card.classList.toggle('is-unlocked', ok)
+            if (ok) unlocked++
+        })
+        const total = cards.length
+        const countEl = document.getElementById('unlockCount')
+        const barEl = document.getElementById('unlockBar')
+        if (countEl) countEl.textContent = `${unlocked}/${total}`
+        if (barEl) barEl.style.width = total ? `${Math.round((unlocked / total) * 100)}%` : '0%'
+        if (total && unlocked >= total) {
+            const titleEl = document.getElementById('unlockTitle')
+            if (titleEl) titleEl.textContent = 'Bạn đã mở khóa toàn bộ prompt 🎉'
+            document.getElementById('unlockAction')?.classList.add('hidden')
+            // Đã mở hết → thay lời nhắc liên hệ Zalo bằng lời chúc, ẩn nút mở khóa ở hero
+            const descEl = document.getElementById('unlockDesc')
+            if (descEl) descEl.textContent = `Bạn đã có quyền xem cả ${total} prompt. Chọn một công cụ và bắt đầu thôi!`
+            const heroCta = document.getElementById('heroUnlockCta')
+            if (heroCta) heroCta.style.display = 'none'
+        }
+    }
+    window.addEventListener('vibe:auth-ok', () => {
+        markAccess()
     })
 
     // ── Use Tool ──────────────────────────────────────────────────────────────
@@ -694,12 +1146,23 @@ const tools = [
     const checkIcon = document.getElementById('checkIcon')
     const copyBtnText = document.getElementById('copyBtnText')
 
+    // Phần tử đã mở modal → trả focus lại khi đóng
+    let lastFocused = null
+    const restoreFocus = () => {
+        if (lastFocused && typeof lastFocused.focus === 'function' && document.contains(lastFocused)) {
+            lastFocused.focus()
+        }
+        lastFocused = null
+    }
+
     const openPromptModal = (id) => {
         const prompt = PROMPTS.find((p) => p.id === id)
         if (!prompt) return
-        if (promptModalTitle) promptModalTitle.textContent = prompt.toolName
+        const card = document.querySelector(`.tool-card[data-id="${id}"]`)
+        if (promptModalTitle) promptModalTitle.textContent = card?.dataset.label || prompt.toolName
         if (promptContent) promptContent.textContent = prompt.content
         if (promptModal) {
+            lastFocused = document.activeElement
             promptModal.style.removeProperty('display')
             promptModal.style.display = 'flex'
             // Reset copy button state
@@ -713,8 +1176,10 @@ const tools = [
 
     const closePromptModal = () => {
         if (promptModal) {
+            const wasOpen = promptModal.style.display !== 'none'
             promptModal.style.display = 'none'
             document.body.style.overflow = ''
+            if (wasOpen) restoreFocus()
         }
     }
 
@@ -722,7 +1187,7 @@ const tools = [
         if (copyIcon) copyIcon.classList.remove('hidden')
         if (checkIcon) checkIcon.classList.add('hidden')
         if (copyBtnText) copyBtnText.textContent = 'Sao chép prompt'
-        if (promptCopyBtn) promptCopyBtn.style.background = 'linear-gradient(135deg, #7c3aed, #ec4899)'
+        if (promptCopyBtn) promptCopyBtn.style.background = 'linear-gradient(135deg, #2563eb, #1d4ed8)'
     }
 
     promptModalClose?.addEventListener('click', closePromptModal)
@@ -751,6 +1216,30 @@ const tools = [
             closePromptModal()
             closeAuthGateModal()
         }
+        // Giữ focus bên trong modal đang mở khi bấm Tab
+        if (e.key === 'Tab') {
+            const openDialog = [
+                promptModal,
+                authGateModal,
+            ].find((m) => m && m.style.display !== 'none')
+            if (!openDialog) return
+            const focusables = Array.from(
+                openDialog.querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])'),
+            ).filter((el) => el.offsetParent !== null)
+            if (!focusables.length) return
+            const first = focusables[0]
+            const last = focusables[focusables.length - 1]
+            if (!openDialog.contains(document.activeElement)) {
+                e.preventDefault()
+                first.focus()
+            } else if (e.shiftKey && document.activeElement === first) {
+                e.preventDefault()
+                last.focus()
+            } else if (!e.shiftKey && document.activeElement === last) {
+                e.preventDefault()
+                first.focus()
+            }
+        }
     })
 
     // ── Auth Gate Modal ───────────────────────────────────────────────────────
@@ -758,6 +1247,7 @@ const tools = [
     const authGateBackdrop = document.getElementById('authGateBackdrop')
     const authGateLoginBtn = document.getElementById('authGateLoginBtn')
     const authGateCloseBtn = document.getElementById('authGateCloseBtn')
+    const authGateZaloBtn = document.getElementById('authGateZaloBtn')
 
     const openAuthGateModal = (mode = 'login') => {
         // Update text based on mode
@@ -766,14 +1256,21 @@ const tools = [
         const loginBtn = document.getElementById('authGateLoginBtn')
         if (mode === 'no-access') {
             if (title) title.textContent = 'Chưa có quyền truy cập'
-            if (desc) desc.innerHTML = 'Prompt này dành riêng cho thành viên được <strong class="text-purple-600">Admin cấp quyền</strong>. Hãy liên hệ Admin để được mở khóa.'
+            if (desc)
+                desc.innerHTML =
+                    'Prompt này dành riêng cho thành viên được <strong class="text-blue-700">Admin cấp quyền</strong>. Liên hệ Zalo <strong class="text-slate-900 whitespace-nowrap">0373.306.966</strong> để được mở khóa nhé!'
             if (loginBtn) loginBtn.style.display = 'none'
+            if (authGateZaloBtn) authGateZaloBtn.style.display = ''
         } else {
             if (title) title.textContent = 'Nội dung dành riêng'
-            if (desc) desc.innerHTML = 'Vui lòng <strong class="text-purple-600">đăng nhập</strong> để xem prompt AI dành cho thành viên Vibe.'
+            if (desc)
+                desc.innerHTML =
+                    'Vui lòng <strong class="text-blue-700">đăng nhập</strong> để xem prompt AI dành cho thành viên Vibe.'
             if (loginBtn) loginBtn.style.display = ''
+            if (authGateZaloBtn) authGateZaloBtn.style.display = 'none'
         }
         if (authGateModal) {
+            lastFocused = document.activeElement
             authGateModal.style.removeProperty('display')
             authGateModal.style.display = 'flex'
             document.body.style.overflow = 'hidden'
@@ -783,8 +1280,10 @@ const tools = [
 
     const closeAuthGateModal = () => {
         if (authGateModal) {
+            const wasOpen = authGateModal.style.display !== 'none'
             authGateModal.style.display = 'none'
             document.body.style.overflow = ''
+            if (wasOpen) restoreFocus()
         }
     }
 
@@ -831,20 +1330,75 @@ const tools = [
             if (btnLabel) btnLabel.textContent = 'Thu gọn danh sách'
         } else {
             extraCards.forEach((card) => card.classList.add('hidden'))
-            if (btnLabel) btnLabel.textContent = 'Xem tất cả 50 tools'
+            if (btnLabel) btnLabel.textContent = `Xem tất cả ${cards.length} công cụ`
         }
+        updateToolCount()
     })
 </script>
 
 <style>
-    /* Smooth card hover */
-    .tool-card {
-        will-change: transform;
+    /* Thẻ công cụ */
+    .tool-card-inner {
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        transition:
+            transform 0.25s ease,
+            box-shadow 0.25s ease,
+            border-color 0.25s ease;
+    }
+    .tool-card:hover .tool-card-inner {
+        transform: translateY(-3px);
+        border-color: rgba(37, 99, 235, 0.35);
+        box-shadow: 0 16px 32px -16px rgba(15, 23, 42, 0.22);
+    }
+
+    /* Nút xem prompt: mặc định (chưa biết quyền) → xanh nhạt */
+    .tool-card-btn {
+        background: #eff6ff;
+        border-color: #dbeafe;
+        color: #1d4ed8;
+    }
+    .tool-card-btn:hover {
+        background: #2563eb;
+        border-color: #2563eb;
+        color: #fff;
+    }
+    .tool-card-btn .label-locked {
+        display: none;
+    }
+    /* Đã mở khóa → nút xanh đậm */
+    .tool-card.is-unlocked .tool-card-btn {
+        background: #2563eb;
+        border-color: #2563eb;
+        color: #fff;
+    }
+    .tool-card.is-unlocked .tool-card-btn:hover {
+        background: #1d4ed8;
+    }
+    .tool-card.is-unlocked .tool-card-inner {
+        border-color: #a7f3d0;
+    }
+    /* Chưa mở khóa → nhãn vàng, rõ ràng là "khóa có chủ đích" */
+    .tool-card.is-locked .tool-card-btn {
+        background: #fffbeb;
+        border-color: #fde68a;
+        color: #92400e;
+    }
+    .tool-card.is-locked .tool-card-btn:hover {
+        background: #fef3c7;
+        border-color: #fcd34d;
+        color: #78350f;
+    }
+    .tool-card.is-locked .label-open {
+        display: none;
+    }
+    .tool-card.is-locked .label-locked {
+        display: inline;
     }
 
     /* Search input focus ring */
     #toolSearch:focus {
-        box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
     }
 
     /* Modal entrance animation */
@@ -873,7 +1427,7 @@ const tools = [
         background: transparent;
     }
     #promptContent::-webkit-scrollbar-thumb {
-        background: #c4b5fd;
+        background: #cbd5e1;
         border-radius: 99px;
     }
 </style>

@@ -4,8 +4,36 @@
 @source '../pages/**/*.astro';
 @source '../components/**/*.astro';
 @source '../layouts/**/*.astro';
+@source '../data/**/*.js';
+@source '../js/**/*.js';
+@source '../utils/**/*.ts';
 
-/* Defaults to weight 400 */
+/* ── Design tokens (dùng chung toàn site) ─────────────────────────── */
+@theme {
+    --font-sans: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', Consolas, ui-monospace, monospace;
+
+    /* Navy: nền hero / footer */
+    --color-navy-700: #1e3a5f;
+    --color-navy-800: #13304d;
+    --color-navy-900: #0f2740;
+    --color-navy-950: #0b1e33;
+
+    /* Vàng nhấn (CTA, điểm nhấn vui tươi) */
+    --color-sun-300: #ffe27a;
+    --color-sun-400: #ffd43b;
+    --color-sun-500: #f5c400;
+}
+
+/* Chiều cao thanh điều hướng cố định — mọi offset sticky/fixed dùng biến này */
+:root {
+    --nav-h: 64px;
+}
+@media (min-width: 1024px) {
+    :root {
+        --nav-h: 72px;
+    }
+}
 
 html,
 body {
@@ -13,15 +41,24 @@ body {
     height: 100%;
 }
 
+html {
+    scroll-padding-top: calc(var(--nav-h) + 16px);
+}
+
 body {
-    /* font-family: 'Montserrat'; */
-    font-family: 'Montserrat', sans-serif;
+    font-family: var(--font-sans);
     font-weight: 400;
     font-style: normal;
 }
 
-a[aria-current='page'] {
-    text-decoration: underline;
+/* Mặc định màu chữ/nền đặt trong layer base để utility (vd. bg-slate-50 ở /quan-ly) vẫn ghi đè được */
+@layer base {
+    body {
+        color: #1e293b;
+        background: #ffffff;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+    }
 }
 
 pre.astro-code.github-dark {
@@ -31,4 +68,185 @@ pre.astro-code.github-dark {
 
 summary {
     cursor: pointer;
+}
+
+::selection {
+    background: rgba(37, 99, 235, 0.18);
+}
+
+/* ── Thành phần dùng chung ───────────────────────────────────────── */
+@layer components {
+    /* Nút bấm */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.25rem;
+        border-radius: 0.875rem;
+        font-weight: 700;
+        font-size: 0.95rem;
+        line-height: 1.25;
+        border: 1px solid transparent;
+        text-decoration: none;
+        white-space: nowrap;
+        transition:
+            background-color 0.2s,
+            color 0.2s,
+            border-color 0.2s,
+            box-shadow 0.2s,
+            transform 0.2s;
+    }
+    .btn:active {
+        transform: scale(0.98);
+    }
+    .btn-sm {
+        padding: 0.5rem 0.9rem;
+        border-radius: 0.65rem;
+        font-size: 0.85rem;
+    }
+    .btn-lg {
+        padding: 0.95rem 1.6rem;
+        font-size: 1.05rem;
+    }
+    .btn-primary {
+        background: #2563eb;
+        color: #fff;
+        box-shadow: 0 10px 24px -8px rgba(37, 99, 235, 0.55);
+    }
+    .btn-primary:hover {
+        background: #1d4ed8;
+        transform: translateY(-1px);
+    }
+    .btn-sun {
+        background: #ffd43b;
+        color: #0b1e33;
+        box-shadow: 0 10px 24px -8px rgba(245, 196, 0, 0.6);
+    }
+    .btn-sun:hover {
+        background: #ffe27a;
+        transform: translateY(-1px);
+    }
+    .btn-outline {
+        background: #fff;
+        color: #334155;
+        border: 1px solid #e2e8f0;
+    }
+    .btn-outline:hover {
+        border-color: #3b82f6;
+        color: #1d4ed8;
+    }
+    .btn-ghost-light {
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        background: rgba(255, 255, 255, 0.04);
+    }
+    .btn-ghost-light:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.55);
+    }
+
+    /* Thẻ (card) */
+    .card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 1.25rem;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+    .card-hover {
+        transition:
+            box-shadow 0.3s,
+            transform 0.3s,
+            border-color 0.3s;
+    }
+    .card-hover:hover {
+        transform: translateY(-4px);
+        border-color: rgba(37, 99, 235, 0.25);
+        box-shadow: 0 20px 40px -16px rgba(15, 23, 42, 0.18);
+    }
+
+    /* Nhãn nhỏ */
+    .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.25rem 0.65rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        line-height: 1.2;
+        border: 1px solid transparent;
+        white-space: nowrap;
+    }
+
+    /* Tiêu đề nhỏ phía trên heading section */
+    .eyebrow {
+        display: inline-block;
+        font-size: 0.8rem;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #2563eb;
+    }
+
+    /* Khung nội dung chuẩn */
+    .container-site {
+        width: 100%;
+        max-width: 80rem;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    @media (min-width: 640px) {
+        .container-site {
+            padding-left: 1.5rem;
+            padding-right: 1.5rem;
+        }
+    }
+
+    /* Lưới chấm trang trí cho nền tối */
+    .bg-grid-dark {
+        background-image:
+            linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+        background-size: 40px 40px;
+        mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+    }
+    /* Lưới chấm cho nền sáng */
+    .bg-dots-light {
+        background-image: radial-gradient(rgba(37, 99, 235, 0.14) 1px, transparent 1px);
+        background-size: 22px 22px;
+    }
+}
+
+/* Viền focus rõ ràng khi điều hướng bằng bàn phím */
+:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+}
+
+/* Nút về đầu trang (public/pxh-ui.css, z-index 9999) không được nổi lên trên menu và modal */
+body.pxh .pxhBackToTop {
+    z-index: 50;
+}
+
+/* Viền focus màu vàng trên nền tối để vẫn nhìn rõ */
+.bg-navy-950 :focus-visible,
+.btn-sun:focus-visible,
+.btn-ghost-light:focus-visible {
+    outline-color: #ffd43b;
+}
+
+/* Giao diện ô tìm kiếm Pagefind theo màu thương hiệu */
+#search {
+    --pagefind-ui-font: inherit;
+    --pagefind-ui-primary: #2563eb;
+    --pagefind-ui-text: #0f172a;
+    --pagefind-ui-border: #e2e8f0;
+    --pagefind-ui-border-radius: 12px;
+    --pagefind-ui-tag: #eff6ff;
+}
+#search mark {
+    background: #fff3bf;
 }

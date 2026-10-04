@@ -6,9 +6,9 @@ export interface LevelInfo {
     level: number
     currentXp: number
     xpForNext: number
-    xpInLevel: number      // XP đã đạt được trong level hiện tại
+    xpInLevel: number // XP đã đạt được trong level hiện tại
     xpRequiredForLevel: number // Tổng XP cần để đạt level này
-    progress: number       // 0–1, tiến trình trong level
+    progress: number // 0–1, tiến trình trong level
 }
 
 /**
@@ -35,22 +35,22 @@ export function calculateLevel(totalXp: number): LevelInfo {
 
 /** Level badge config — màu sắc + icon theo level */
 export interface LevelBadge {
-    color: string       // Tailwind gradient classes
-    icon: string        // Emoji
-    title: string       // Danh hiệu
+    color: string // Tailwind gradient classes
+    icon: string // Emoji
+    title: string // Danh hiệu
 }
 
 export const LEVEL_BADGES: Record<number, LevelBadge> = {
-    1:  { color: 'from-slate-400 to-slate-500',        icon: '🥚', title: 'Python Beginner' },
-    2:  { color: 'from-green-400 to-emerald-500',      icon: '🐣', title: 'Python Coder' },
-    3:  { color: 'from-cyan-400 to-blue-500',          icon: '🐤', title: 'Python Developer' },
-    4:  { color: 'from-blue-500 to-indigo-600',        icon: '🐦', title: 'Python Programmer' },
-    5:  { color: 'from-indigo-500 to-purple-600',      icon: '🦅', title: 'Python Ninja' },
-    6:  { color: 'from-purple-500 to-pink-600',        icon: '🦉', title: 'Python Master' },
-    7:  { color: 'from-pink-500 to-rose-600',          icon: '🐉', title: 'Python Guru' },
-    8:  { color: 'from-rose-500 to-red-600',           icon: '🦄', title: 'Python Legend' },
-    9:  { color: 'from-amber-500 to-orange-600',       icon: '👑', title: 'Python King' },
-    10: { color: 'from-yellow-400 to-amber-500',       icon: '🌟', title: 'Python God' },
+    1: { color: 'from-slate-400 to-slate-500', icon: '🥚', title: 'Tập sự Python' },
+    2: { color: 'from-green-400 to-emerald-500', icon: '🐣', title: 'Học trò Python' },
+    3: { color: 'from-cyan-400 to-blue-500', icon: '🐤', title: 'Thợ code Python' },
+    4: { color: 'from-blue-500 to-indigo-600', icon: '🐦', title: 'Lập trình viên Python' },
+    5: { color: 'from-indigo-500 to-purple-600', icon: '🦅', title: 'Chiến binh Python' },
+    6: { color: 'from-purple-500 to-pink-600', icon: '🦉', title: 'Cao thủ Python' },
+    7: { color: 'from-pink-500 to-rose-600', icon: '🐉', title: 'Chuyên gia Python' },
+    8: { color: 'from-rose-500 to-red-600', icon: '🦄', title: 'Bậc thầy Python' },
+    9: { color: 'from-amber-500 to-orange-600', icon: '👑', title: 'Đại sư Python' },
+    10: { color: 'from-yellow-400 to-amber-500', icon: '🌟', title: 'Huyền thoại Python' },
 }
 
 export function getLevelBadge(level: number): LevelBadge {

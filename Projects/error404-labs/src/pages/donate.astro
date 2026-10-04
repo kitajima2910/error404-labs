@@ -1,17 +1,162 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro'
 import { TC_TITLE } from '../common/TextConst'
+import InfoIcon from '../components/info/InfoIcon.astro'
+
+// Ảnh QR thật (giữ nguyên thư mục public/thu-nghiem/web/Donate)
+const QR_SRC = '/thu-nghiem/web/Donate/beMoMo.avif'
+
+const steps = [
+    { icon: 'mobile', text: 'Mở ứng dụng MoMo, ngân hàng hoặc camera trên điện thoại.' },
+    { icon: 'qr', text: 'Quét mã QR (hoặc tải ảnh mã về máy rồi mở từ thư viện ảnh).' },
+    { icon: 'heart', text: 'Nhập số tiền tùy tâm và gửi lời nhắn nếu bạn muốn.' },
+] as const
 ---
 
-<MainLayout title={`Ủng hộ | ${TC_TITLE}`}>
-    <section class="h-[calc(100vh-168px)] flex flex-col justify-center items-center px-2 pt-0">
-        <iframe
-            src="/thu-nghiem/web/Donate/index.html"
-            frameborder="0"
-            width="100%"
-            height="100%"
-            allow="payment"
-            allowfullscreen
-            title="donate"></iframe>
+<MainLayout
+    title={`Ủng hộ | ${TC_TITLE}`}
+    description="Ủng hộ Error404 Labs bằng cách quét mã QR (MoMo, VietQR, Napas 247). Sự ủng hộ của bạn giúp mình có tinh thần rất lớn!"
+>
+    <section class="relative overflow-hidden bg-gradient-to-b from-rose-50 via-white to-white">
+        <div class="absolute inset-0 bg-dots-light opacity-60 pointer-events-none" aria-hidden="true"></div>
+        <div
+            class="absolute -top-32 -right-24 w-[460px] h-[460px] rounded-full bg-rose-300/30 blur-[120px] pointer-events-none"
+            aria-hidden="true"
+        >
+        </div>
+        <div
+            class="absolute -bottom-40 -left-24 w-[420px] h-[420px] rounded-full bg-sun-300/30 blur-[120px] pointer-events-none"
+            aria-hidden="true"
+        >
+        </div>
+
+        <div
+            class="relative container-site py-12 md:py-20 min-h-[calc(100dvh-var(--nav-h))] grid lg:grid-cols-2 gap-x-16 gap-y-10 lg:gap-y-0 content-center"
+        >
+            {/* Lời nhắn */}
+            <div class="text-center lg:text-left lg:col-start-1 lg:row-start-1 lg:self-end">
+                <nav aria-label="Breadcrumb" class="text-sm text-slate-500 mb-6">
+                    <a href="/" class="hover:text-slate-700 no-underline">Trang chủ</a>
+                    <span class="mx-2" aria-hidden="true">/</span>
+                    <span class="text-slate-600">Ủng hộ</span>
+                </nav>
+
+                <span
+                    class="inline-flex items-center gap-2 chip bg-rose-50 text-rose-600 border-rose-200 text-xs uppercase tracking-wider"
+                >
+                    <InfoIcon name="heart" class="w-4 h-4" strokeWidth={2} />
+                    Donate cho Error404 Labs
+                </span>
+
+                <h1 class="mt-5 text-3xl md:text-5xl font-extrabold tracking-tight text-slate-900">
+                    Ủng Hộ Mình Nhé 💖
+                </h1>
+                <p class="mt-4 text-lg md:text-xl text-slate-600 leading-relaxed max-w-xl mx-auto lg:mx-0">
+                    Sự ủng hộ của bạn giúp mình có tinh thần rất lớn!
+                </p>
+            </div>
+
+            {/* Thẻ mã QR */}
+            <div class="flex justify-center lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:self-center">
+                <figure
+                    class="relative w-full max-w-[380px] bg-white rounded-[2rem] border border-slate-200 shadow-[0_30px_70px_-20px_rgba(225,29,72,0.35)] p-4 sm:p-5"
+                >
+                    <div
+                        class="absolute -top-4 left-1/2 -translate-x-1/2 whitespace-nowrap bg-rose-500 text-white text-xs font-extrabold px-4 py-1.5 rounded-full shadow-lg"
+                    >
+                        💝 Quét để ủng hộ
+                    </div>
+                    <img
+                        id="donate-qr-img"
+                        src={QR_SRC}
+                        alt="Mã QR ủng hộ Phạm Xuân Hoài (MoMo, VietQR, Napas 247)"
+                        width="628"
+                        height="644"
+                        class="block w-full h-auto rounded-[1.5rem]"
+                    />
+                    <figcaption class="mt-4 text-center text-sm text-slate-500 leading-relaxed px-2">
+                        Quét mã bằng ứng dụng camera của bạn hoặc bất kỳ trình quét thanh toán nào để ủng hộ.
+                    </figcaption>
+                    <div class="mt-4 flex flex-wrap justify-center gap-2">
+                        <span class="chip bg-pink-50 text-pink-700 border-pink-200">MoMo</span>
+                        <span class="chip bg-red-50 text-red-700 border-red-200">VietQR</span>
+                        <span class="chip bg-blue-50 text-blue-700 border-blue-200">Napas 247</span>
+                    </div>
+                    <a
+                        id="donate-qr-download"
+                        href={QR_SRC}
+                        download="error404-labs-donate-qr.avif"
+                        class="btn btn-outline btn-sm w-full mt-4"
+                    >
+                        <InfoIcon name="download" class="w-4 h-4" strokeWidth={2} />
+                        Tải mã QR về máy
+                    </a>
+                </figure>
+            </div>
+
+            {/* Hướng dẫn + điều hướng */}
+            <div class="lg:col-start-1 lg:row-start-2 lg:self-start text-center lg:text-left">
+                <ol class="lg:mt-8 space-y-3 max-w-md mx-auto lg:mx-0 text-left">
+                    {
+                        steps.map((s, i) => (
+                            <li class="flex items-start gap-4 bg-white/80 backdrop-blur border border-slate-200 rounded-2xl p-4">
+                                <span class="w-10 h-10 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center shrink-0">
+                                    <InfoIcon name={s.icon} class="w-5 h-5" strokeWidth={2} />
+                                </span>
+                                <span class="text-sm md:text-base text-slate-600 leading-relaxed">
+                                    <span class="block text-xs font-bold uppercase tracking-wider text-slate-500">
+                                        Bước {i + 1}
+                                    </span>
+                                    {s.text}
+                                </span>
+                            </li>
+                        ))
+                    }
+                </ol>
+
+                <div class="mt-8 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+                    <a href="/" class="btn btn-outline">
+                        <InfoIcon name="home" class="w-5 h-5" strokeWidth={2} />
+                        Về trang chủ
+                    </a>
+                    <a href="/hoc-python" class="btn btn-primary">
+                        <InfoIcon name="code" class="w-5 h-5" strokeWidth={2} />
+                        Học Python miễn phí
+                    </a>
+                </div>
+            </div>
+        </div>
     </section>
 </MainLayout>
+
+<script>
+    // Nhiều app ngân hàng / MoMo và thư viện ảnh cũ không đọc được AVIF → khi tải về, chuyển mã QR sang PNG.
+    // Nếu trình duyệt không chuyển được thì vẫn tải file AVIF gốc như cũ.
+    const link = document.getElementById('donate-qr-download') as HTMLAnchorElement | null
+    const img = document.getElementById('donate-qr-img') as HTMLImageElement | null
+    link?.addEventListener('click', (e) => {
+        if (!img || !img.complete || !img.naturalWidth) return
+        try {
+            const pad = 24
+            const canvas = document.createElement('canvas')
+            canvas.width = img.naturalWidth + pad * 2
+            canvas.height = img.naturalHeight + pad * 2
+            const ctx = canvas.getContext('2d')
+            if (!ctx) return
+            ctx.fillStyle = '#ffffff'
+            ctx.fillRect(0, 0, canvas.width, canvas.height)
+            ctx.drawImage(img, pad, pad)
+            const pngUrl = canvas.toDataURL('image/png')
+            if (!pngUrl.startsWith('data:image/png')) return
+            e.preventDefault()
+            const a = document.createElement('a')
+            a.href = pngUrl
+            a.download = 'error404-labs-donate-qr.png'
+            document.body.appendChild(a)
+            a.click()
+            a.remove()
+        } catch (err) {
+            // Giữ hành vi mặc định (tải AVIF)
+        }
+    })
+</script>

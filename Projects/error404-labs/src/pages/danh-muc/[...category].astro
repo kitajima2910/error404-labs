@@ -1,16 +1,23 @@
 ---
 import type { GetStaticPaths } from 'astro'
-import { formatBlogPost, slugify } from '../../js/utils'
+import {
+    formatBlogPost,
+    slugify,
+    formatDate,
+    isCourseCategory,
+    readingTime,
+    countPostsByCategory,
+} from '../../js/utils'
 import MainLayout from '../../layouts/MainLayout.astro'
 import { TC_TITLE } from '../../common/TextConst'
 import PostCard from '../../components/PostCard.astro'
+import CategoryCloud from '../../components/CategoryCloud.astro'
+import { getCategoryMeta } from '../../data/categoryMeta'
 
 export const prerender = true
 
 export const getStaticPaths = (() => {
-    const posts = Object.values(
-        import.meta.glob<any>('../bai-viet/*.md', { eager: true }),
-    )
+    const posts = Object.values(import.meta.glob<any>('../bai-viet/*.md', { eager: true }))
 
     const categories = [
         ...new Set(posts.map((p) => p.frontmatter.category).flat()),
@@ -25,11 +32,7 @@ export const getStaticPaths = (() => {
 const { category } = Astro.params
 const { name, posts } = Astro.props
 
-const allPosts = posts.filter(
-    (post) =>
-        slugify(post.frontmatter.category.toLowerCase()) ===
-        category.toLowerCase(),
-)
+const allPosts = posts.filter((post) => slugify(post.frontmatter.category.toLowerCase()) === category.toLowerCase())
 
 const formattedPosts: any[] = formatBlogPost(allPosts, {
     limit: allPosts.length,
@@ -37,41 +40,473 @@ const formattedPosts: any[] = formatBlogPost(allPosts, {
     sortByDate: true,
 })
 
-const length = formattedPosts.length
+const meta = getCategoryMeta(name)
+// Danh mục KH_* là chuỗi bài học có thứ tự → trình bày dạng giáo trình
+const isCourse = isCourseCategory(name)
+
+// Thời gian đọc ước tính (tính trên module gốc vì formatBlogPost làm mất rawContent)
+const minutesByUrl: Record<string, number> = {}
+for (const post of allPosts) {
+    minutesByUrl[post.url] = readingTime(typeof post.rawContent === 'function' ? post.rawContent() : '')
+}
+const totalMinutes = formattedPosts.reduce((sum, post) => sum + (minutesByUrl[post.url] || 0), 0)
+
+// Chuỗi bài học: cũ nhất trước (Bài 1, 2, …). Danh mục thường: mới nhất trước.
+const lessons = [...formattedPosts].sort(
+    (a, b) =>
+        new Date(a.frontmatter.date).getTime() - new Date(b.frontmatter.date).getTime() || a.url.localeCompare(b.url),
+)
+const firstLesson = lessons[0]
+const newestPost = formattedPosts[0]
+const unit = isCourse ? 'bài học' : 'bài viết'
+// Chỉ chuỗi bài học mới có thẻ xem trước (bài 1); danh mục thường đã có nút "Đọc bài mới nhất" và lưới bài ngay bên dưới
+const featured = isCourse ? firstLesson : null
+
+// Các chủ đề khác để khám phá tiếp
+const rawAll = Object.values(import.meta.glob<any>('../bai-viet/*.md', { eager: true }))
+const otherCategories = countPostsByCategory(
+    formatBlogPost(rawAll, {
+        limit: rawAll.length,
+        filterOutDrafts: true,
+        sortByDate: true,
+    }),
+)
+    .filter((item) => item.name !== name)
+    .map((item) => ({
+        ...item,
+        meta: getCategoryMeta(item.name),
+        isCourse: isCourseCategory(item.name),
+        href: `/danh-muc/${slugify(item.name)}`,
+    }))
+
+const formatShortDate = (date: string) =>
+    new Date(date).toLocaleDateString('vi-VN', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+    })
 ---
 
-<MainLayout title=`${name} | ${TC_TITLE}`>
-    <section
-        class="my-5 mb-15 w-10/12 mx-auto"
-        aria-label=`Bài Viết Về ${name}`
-    >
-        <h1 class="text-5xl font-semibold mb-10 mt-10">
-            Bài Viết Về <span class="text-blue-700 wrap-break-word">{name}</span
-            >
-        </h1>
+<MainLayout title={`${meta.label} | ${TC_TITLE}`} description={`${meta.label}: ${meta.description}`}>
+    <!-- ── HERO ─────────────────────────────────────────────────────── -->
+    <section class="relative overflow-hidden bg-navy-950 text-white">
+        <div class="absolute inset-0 bg-grid-dark opacity-60 pointer-events-none" aria-hidden="true"></div>
         <div
-            class="custom-grid"
-            style={`max-width: ${length > 1 ? '100%' : '400px'}`}
+            class="absolute -top-40 -right-32 w-[520px] h-[520px] rounded-full bg-blue-600/30 blur-[130px] pointer-events-none"
+            aria-hidden="true"
         >
-            {
-                formattedPosts.map((post) => (
-                    <PostCard
-                        frontmatter={post.frontmatter}
-                        url={post.url}
-                        tagType="h2"
-                    />
-                ))
-            }
+        </div>
+
+        <div class="relative container-site py-10 md:py-16">
+            <nav
+                class="flex items-center gap-2 text-xs md:text-sm text-slate-400 mb-6 flex-wrap"
+                aria-label="Breadcrumb"
+                data-pagefind-ignore
+            >
+                <a href="/" class="hover:text-white transition-colors no-underline">Trang chủ</a>
+                <span aria-hidden="true">/</span>
+                <a href="/bai-viet" class="hover:text-white transition-colors no-underline">Bài viết</a>
+                <span aria-hidden="true">/</span>
+                <span class="text-slate-200" aria-current="page">{meta.label}</span>
+            </nav>
+
+            <div
+                class:list={[
+                    'grid grid-cols-1 gap-10 xl:gap-16 items-center',
+                    featured && 'lg:grid-cols-[minmax(0,1fr)_360px]',
+                ]}
+            >
+                <div class="min-w-0">
+                    <div class="flex items-center gap-4 md:gap-8">
+                        <div
+                            class={`shrink-0 w-16 h-16 md:w-24 md:h-24 rounded-2xl md:rounded-3xl border ${meta.chip} flex items-center justify-center text-3xl md:text-5xl shadow-2xl ring-1 ring-white/20`}
+                            aria-hidden="true"
+                        >
+                            {meta.icon}
+                        </div>
+                        <div class="min-w-0">
+                            <span
+                                class="inline-flex items-center gap-2 bg-white/10 border border-white/15 text-sun-400 text-xs font-bold px-3 py-1.5 rounded-full mb-3 uppercase tracking-wider"
+                            >
+                                <span class="w-1.5 h-1.5 rounded-full bg-sun-400" aria-hidden="true"></span>
+                                {isCourse ? 'Chuỗi bài học' : 'Chủ đề'}
+                            </span>
+                            <h1
+                                class="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight wrap-break-word"
+                            >
+                                {meta.label}
+                            </h1>
+                        </div>
+                    </div>
+
+                    <p class="text-slate-300 text-base md:text-lg leading-relaxed max-w-2xl mt-5">{meta.description}</p>
+
+                    <ul class="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-300" data-pagefind-ignore>
+                        <li class="flex items-center gap-2">
+                            <span class="text-lg leading-none" aria-hidden="true">📝</span>
+                            <span><strong class="text-white">{formattedPosts.length}</strong> {unit}</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <span class="text-lg leading-none" aria-hidden="true">⏱️</span>
+                            <span>Khoảng <strong class="text-white">{totalMinutes}</strong> phút đọc</span>
+                        </li>
+                        {
+                            newestPost && (
+                                <li class="flex items-center gap-2">
+                                    <span class="text-lg leading-none" aria-hidden="true">
+                                        🗓️
+                                    </span>
+                                    <span>
+                                        Cập nhật{' '}
+                                        <strong class="text-white">
+                                            {formatShortDate(newestPost.frontmatter.date)}
+                                        </strong>
+                                    </span>
+                                </li>
+                            )
+                        }
+                    </ul>
+
+                    <div class="mt-8 flex flex-wrap gap-3" data-pagefind-ignore>
+                        {
+                            isCourse && firstLesson && (
+                                <a href={firstLesson.url} class="btn btn-sun btn-lg w-full sm:w-auto">
+                                    Bắt đầu từ bài 1
+                                    <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                        <path
+                                            fill-rule="evenodd"
+                                            d="M3 10a.75.75 0 0 1 .75-.75h10.638L10.23 5.29a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.158-3.96H3.75A.75.75 0 0 1 3 10Z"
+                                            clip-rule="evenodd"
+                                        />
+                                    </svg>
+                                </a>
+                            )
+                        }
+                        {
+                            !isCourse && newestPost && (
+                                <a href={newestPost.url} class="btn btn-sun btn-lg w-full sm:w-auto">
+                                    Đọc bài mới nhất
+                                    <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                        <path
+                                            fill-rule="evenodd"
+                                            d="M3 10a.75.75 0 0 1 .75-.75h10.638L10.23 5.29a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.158-3.96H3.75A.75.75 0 0 1 3 10Z"
+                                            clip-rule="evenodd"
+                                        />
+                                    </svg>
+                                </a>
+                            )
+                        }
+                        <a href="/bai-viet" class="btn btn-ghost-light btn-lg w-full sm:w-auto">Tất cả bài viết</a>
+                    </div>
+                </div>
+
+                <!-- Thẻ xem trước: bài 1 của chuỗi bài học — chỉ màn hình rộng -->
+                {
+                    featured && (
+                        <a
+                            href={featured.url}
+                            class="hidden lg:block group rounded-3xl bg-white/[0.06] border border-white/10 p-3 hover:bg-white/[0.09] hover:border-white/20 transition-colors no-underline"
+                            data-pagefind-ignore
+                        >
+                            <span
+                                class={`relative block aspect-video rounded-2xl overflow-hidden bg-gradient-to-br ${meta.gradient}`}
+                            >
+                                {featured.frontmatter.image?.src && (
+                                    <img
+                                        src={featured.frontmatter.image.src}
+                                        alt=""
+                                        width="640"
+                                        height="360"
+                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                    />
+                                )}
+                                <span class="chip absolute top-3 left-3 bg-sun-400 text-navy-950 shadow-md">
+                                    Bài 1 · Mở đầu
+                                </span>
+                            </span>
+                            <span class="block p-3 pt-4">
+                                <span class="font-bold text-white leading-snug line-clamp-2 group-hover:text-sun-300 transition-colors">
+                                    {featured.frontmatter.title}
+                                </span>
+                                <span class="mt-1.5 text-sm text-slate-400 leading-relaxed line-clamp-2">
+                                    {featured.frontmatter.description}
+                                </span>
+                                <span class="mt-3 inline-flex items-center gap-1 text-sm font-bold text-sun-400">
+                                    Đọc ngay <span aria-hidden="true">→</span>
+                                </span>
+                            </span>
+                        </a>
+                    )
+                }
+            </div>
         </div>
     </section>
-</MainLayout>
 
-<style>
-    .custom-grid {
-        display: grid;
-        gap: 40px;
-        justify-content: center;
-        grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
-        width: 100%;
+    <!-- ── THANH CHỦ ĐỀ ─────────────────────────────────────────────── -->
+    <div
+        class="sticky top-[var(--nav-h)] z-40 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-[0_6px_16px_-12px_rgba(15,23,42,0.25)]"
+        data-pagefind-ignore
+    >
+        <nav class="container-site py-2.5" aria-label="Chủ đề bài viết">
+            <CategoryCloud scroll showAll showCount active={name} heading="" />
+        </nav>
+    </div>
+
+    {
+        isCourse ? (
+            /* ── GIÁO TRÌNH: danh sách bài đánh số ───────────────────── */
+            <section class="bg-slate-50" aria-labelledby="syllabus-heading">
+                <div class="container-site py-10 md:py-14 grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10 items-start">
+                    <div class="lg:col-span-2 min-w-0">
+                        <span class="eyebrow">Lộ trình</span>
+                        <h2
+                            id="syllabus-heading"
+                            class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mt-1"
+                        >
+                            Nội dung chuỗi bài học
+                        </h2>
+                        <p class="text-sm text-slate-500 mt-1 mb-6">
+                            {lessons.length} bài · đọc lần lượt từ bài 1 để học chắc từng bước
+                        </p>
+
+                        <ol class="relative space-y-3 before:absolute before:left-[19px] md:before:left-[23px] before:top-8 before:bottom-8 before:w-0.5 before:bg-slate-200 before:content-['']">
+                            {lessons.map((post, index) => (
+                                <li class="relative pl-14 md:pl-[4.5rem]">
+                                    <span
+                                        class:list={[
+                                            'absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-sm md:text-base font-extrabold ring-4 ring-slate-50',
+                                            index === 0
+                                                ? `bg-gradient-to-br ${meta.gradient} text-white shadow-lg`
+                                                : 'bg-white border-2 border-slate-200 text-slate-600',
+                                        ]}
+                                        aria-hidden="true"
+                                    >
+                                        {index + 1}
+                                    </span>
+                                    <a
+                                        href={post.url}
+                                        class="group flex items-center gap-4 p-3 md:p-4 bg-white rounded-2xl border border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-lg hover:-translate-y-0.5 transition-all no-underline"
+                                    >
+                                        {post.frontmatter.image?.src && (
+                                            <img
+                                                src={post.frontmatter.image.src}
+                                                alt=""
+                                                width="160"
+                                                height="90"
+                                                loading="lazy"
+                                                decoding="async"
+                                                class="hidden sm:block w-32 md:w-40 aspect-video shrink-0 rounded-xl object-cover bg-slate-100"
+                                            />
+                                        )}
+                                        <div class="flex-1 min-w-0">
+                                            <span class="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wide text-blue-600">
+                                                Bài {index + 1}
+                                                {index === 0 && (
+                                                    <span class="chip bg-sun-300/40 text-amber-800 border-sun-400/60 normal-case tracking-normal">
+                                                        Mở đầu
+                                                    </span>
+                                                )}
+                                            </span>
+                                            <h3 class="mt-1 text-base md:text-lg font-bold text-slate-900 leading-snug line-clamp-2 group-hover:text-blue-700 transition-colors">
+                                                {post.frontmatter.title}
+                                            </h3>
+                                            <p class="max-md:hidden mt-1 text-sm text-slate-500 line-clamp-1">
+                                                {post.frontmatter.description}
+                                            </p>
+                                            <span class="mt-1.5 flex items-center gap-x-3 gap-y-1 flex-wrap text-xs font-medium text-slate-400">
+                                                <time datetime={new Date(post.frontmatter.date).toISOString()}>
+                                                    {formatDate(post.frontmatter.date, 'vi-VN')}
+                                                </time>
+                                                <span aria-hidden="true">•</span>
+                                                <span>~{minutesByUrl[post.url] || 1} phút đọc</span>
+                                            </span>
+                                        </div>
+                                        <svg
+                                            class="w-5 h-5 shrink-0 text-slate-300 group-hover:text-blue-600 group-hover:translate-x-0.5 transition"
+                                            viewBox="0 0 20 20"
+                                            fill="currentColor"
+                                            aria-hidden="true"
+                                        >
+                                            <path
+                                                fill-rule="evenodd"
+                                                d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z"
+                                                clip-rule="evenodd"
+                                            />
+                                        </svg>
+                                    </a>
+                                </li>
+                            ))}
+                        </ol>
+                    </div>
+
+                    <aside
+                        class="space-y-4 lg:sticky lg:top-[calc(var(--nav-h)+5.5rem)]"
+                        aria-label="Thông tin chuỗi bài học"
+                        data-pagefind-ignore
+                    >
+                        <div class="card p-5 md:p-6 shadow-[0_20px_50px_-24px_rgba(15,23,42,0.25)]">
+                            <div class="flex items-center gap-3 mb-4">
+                                <span
+                                    class={`w-12 h-12 shrink-0 rounded-xl border ${meta.chip} flex items-center justify-center text-2xl shadow-md`}
+                                    aria-hidden="true"
+                                >
+                                    {meta.icon}
+                                </span>
+                                <div class="min-w-0">
+                                    <p class="text-xs font-bold uppercase tracking-wider text-slate-400">
+                                        Chuỗi bài học
+                                    </p>
+                                    <p class="text-lg font-extrabold text-slate-900 truncate">{meta.label}</p>
+                                </div>
+                            </div>
+                            <ul class="space-y-2.5 text-sm text-slate-600 mb-5">
+                                <li class="flex items-center gap-2.5">
+                                    <span aria-hidden="true">📚</span>
+                                    {lessons.length} bài học, đánh số theo thứ tự
+                                </li>
+                                <li class="flex items-center gap-2.5">
+                                    <span aria-hidden="true">⏱️</span>
+                                    Khoảng {totalMinutes} phút đọc
+                                </li>
+                                <li class="flex items-center gap-2.5">
+                                    <span aria-hidden="true">💻</span>
+                                    Có ví dụ code minh họa
+                                </li>
+                                <li class="flex items-center gap-2.5">
+                                    <span aria-hidden="true">🆓</span>
+                                    Đọc miễn phí, không cần đăng nhập
+                                </li>
+                            </ul>
+                            {firstLesson && (
+                                <a href={firstLesson.url} class="btn btn-primary w-full">
+                                    Bắt đầu từ bài 1<span aria-hidden="true">→</span>
+                                </a>
+                            )}
+                        </div>
+
+                        <div class="relative overflow-hidden rounded-[1.25rem] bg-navy-950 text-white p-5 md:p-6">
+                            <div
+                                class="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-blue-600/40 blur-3xl pointer-events-none"
+                                aria-hidden="true"
+                            />
+                            <p class="relative text-xs font-extrabold uppercase tracking-[0.12em] text-sun-400">
+                                Dành cho phụ huynh
+                            </p>
+                            <p class="relative mt-1 text-lg font-extrabold leading-snug">
+                                Muốn con được kèm học trực tiếp?
+                            </p>
+                            <ul class="relative mt-3 space-y-2 text-sm text-slate-300">
+                                <li class="flex gap-2">
+                                    <span aria-hidden="true">🏫</span>
+                                    <span>
+                                        <strong class="text-white">Offline:</strong> 3 - 5 học sinh / lớp (kèm sát)
+                                    </span>
+                                </li>
+                                <li class="flex gap-2">
+                                    <span aria-hidden="true">💻</span>
+                                    <span>
+                                        <strong class="text-white">Online:</strong> 1 kèm 1 trực tiếp (tương tác cao)
+                                    </span>
+                                </li>
+                            </ul>
+                            <div class="relative mt-5 flex flex-wrap gap-2">
+                                <a href="/khoa-hoc" class="btn btn-sun btn-sm">
+                                    Xem lớp học
+                                </a>
+                                <a
+                                    href="https://zalo.me/0373306966"
+                                    target="_blank"
+                                    rel="noopener"
+                                    class="btn btn-ghost-light btn-sm"
+                                >
+                                    💬 Tư vấn qua Zalo
+                                </a>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+            </section>
+        ) : (
+            /* ── DANH MỤC THƯỜNG: lưới bài viết mới nhất trước ─────────── */
+            <section class="bg-slate-50" aria-labelledby="posts-heading">
+                <div class="container-site py-10 md:py-14">
+                    <div class="flex flex-wrap items-end justify-between gap-x-6 gap-y-2 mb-6 md:mb-8">
+                        <div>
+                            <span class="eyebrow">Mới nhất trước</span>
+                            <h2
+                                id="posts-heading"
+                                class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mt-1"
+                            >
+                                Tất cả bài viết
+                            </h2>
+                        </div>
+                        <p class="text-sm text-slate-500" data-pagefind-ignore>
+                            <strong class="text-slate-800">{formattedPosts.length}</strong> bài viết về {meta.label}
+                        </p>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {formattedPosts.map((post) => (
+                            <PostCard frontmatter={post.frontmatter} url={post.url} tagType="h3" />
+                        ))}
+                    </div>
+                </div>
+            </section>
+        )
     }
-</style>
+
+    <!-- ── CHỦ ĐỀ KHÁC ──────────────────────────────────────────────── -->
+    {
+        otherCategories.length > 0 && (
+            <section
+                class="bg-white border-t border-slate-200"
+                aria-labelledby="more-topics-heading"
+                data-pagefind-ignore
+            >
+                <div class="container-site py-12 md:py-16">
+                    <span class="eyebrow">Khám phá thêm</span>
+                    <h2
+                        id="more-topics-heading"
+                        class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mt-1 mb-6 md:mb-8"
+                    >
+                        Chủ đề khác
+                    </h2>
+                    <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {otherCategories.map((item) => (
+                            <li>
+                                <a
+                                    href={item.href}
+                                    class="group card card-hover h-full flex gap-4 p-4 md:p-5 no-underline"
+                                >
+                                    <span
+                                        class={`w-12 h-12 shrink-0 rounded-xl border ${item.meta.chip} flex items-center justify-center text-2xl shadow-md`}
+                                        aria-hidden="true"
+                                    >
+                                        {item.meta.icon}
+                                    </span>
+                                    <span class="min-w-0 flex-1">
+                                        <span class="flex items-center gap-2 flex-wrap">
+                                            <span class="font-extrabold text-slate-900 group-hover:text-blue-700 transition-colors">
+                                                {item.meta.label}
+                                            </span>
+                                            {item.isCourse && (
+                                                <span class="chip bg-blue-50 text-blue-700 border-blue-200">
+                                                    Chuỗi bài học
+                                                </span>
+                                            )}
+                                        </span>
+                                        <span class="mt-1 text-sm text-slate-500 leading-relaxed line-clamp-2">
+                                            {item.meta.description}
+                                        </span>
+                                        <span class="block mt-2 text-xs font-bold text-slate-400">
+                                            {item.count} {item.isCourse ? 'bài học' : 'bài viết'}
+                                        </span>
+                                    </span>
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </section>
+        )
+    }
+</MainLayout>

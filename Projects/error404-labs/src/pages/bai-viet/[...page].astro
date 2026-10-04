@@ -3,16 +3,15 @@ import type { GetStaticPaths } from 'astro'
 import { TC_TITLE } from '../../common/TextConst'
 import MainLayout from '../../layouts/MainLayout.astro'
 import PostCard from '../../components/PostCard.astro'
-import { formatBlogPost } from '../../js/utils'
+import { formatBlogPost, countPostsByCategory, isCourseCategory, slugify } from '../../js/utils'
 import Pagination from '../../components/Pagination.astro'
 import CategoryCloud from '../../components/CategoryCloud.astro'
+import { getCategoryMeta } from '../../data/categoryMeta'
 
 export const prerender = true
 
 export const getStaticPaths = (({ paginate }) => {
-    const allPosts = Object.values(
-        import.meta.glob<any>('./*.md', { eager: true }),
-    )
+    const allPosts = Object.values(import.meta.glob<any>('./*.md', { eager: true }))
 
     const formattedPosts: any[] = formatBlogPost(allPosts, {
         limit: allPosts.length,
@@ -20,50 +19,283 @@ export const getStaticPaths = (({ paginate }) => {
         sortByDate: true,
     })
 
+    // 9 bài/trang → lưới 3 cột đầy đặn. URL giữ nguyên dạng /bai-viet, /bai-viet/2, …
     return paginate(formattedPosts, {
-        pageSize: 3,
+        pageSize: 9,
     })
 }) satisfies GetStaticPaths
 
 const { page } = Astro.props
 
-const length = page.data.length
+// Thống kê toàn bộ bài viết (tính từ dữ liệu thật)
+const rawPosts = Object.values(import.meta.glob<any>('./*.md', { eager: true }))
+const allPosts: any[] = formatBlogPost(rawPosts, {
+    limit: rawPosts.length,
+    filterOutDrafts: true,
+    sortByDate: true,
+})
+const categoryCounts = countPostsByCategory(allPosts)
 
-// console.log('page: ', page)
+// Chuỗi bài học có lộ trình (danh mục KH_*): nhiều bài nhất đứng trước
+const courseSeries = categoryCounts
+    .filter((item) => isCourseCategory(item.name))
+    .sort((a, b) => b.count - a.count)
+    .map((item) => ({
+        ...item,
+        meta: getCategoryMeta(item.name),
+        href: `/danh-muc/${slugify(item.name)}`,
+    }))
+
+const isFirstPage = page.currentPage === 1
+const from = page.start + 1
+const to = page.end + 1
 ---
 
-<MainLayout title=`Bài Viết | ${TC_TITLE}`>
-    <section class="pt-0 w-10/12 mx-auto" aria-label="Bài Viết Mới">
-        <h1 class="text-5xl font-semibold mb-10 mt-10">Bài Viết Mới</h1>
+<MainLayout
+    title={`Bài Viết | ${TC_TITLE}`}
+    description={`Thư viện ${page.total} bài viết lập trình dễ hiểu: HTML, CSS, C, C#, Java, cấu trúc dữ liệu & giải thuật — có ví dụ minh họa, dành cho học sinh và người mới bắt đầu.`}
+>
+    <!-- ── HERO ─────────────────────────────────────────────────────── -->
+    <section class="relative overflow-hidden bg-navy-950 text-white">
+        <div class="absolute inset-0 bg-grid-dark opacity-60 pointer-events-none" aria-hidden="true"></div>
         <div
-            class="custom-grid mb-10"
-            style={`max-width: ${length > 1 ? '100%' : '400px'}`}
+            class="absolute -top-40 -right-32 w-[520px] h-[520px] rounded-full bg-blue-600/30 blur-[130px] pointer-events-none"
+            aria-hidden="true"
         >
-            {
-                page.data.map((post) => (
-                    <PostCard
-                        frontmatter={post.frontmatter}
-                        url={post.url}
-                        tagType="h2"
-                    />
-                ))
-            }
         </div>
-        <div class="flex justify-center mb-5">
-            <Pagination prevURL={page.url.prev} nextURL={page.url.next} />
+        <div
+            class="absolute -bottom-48 -left-24 w-[380px] h-[380px] rounded-full bg-sun-400/10 blur-[130px] pointer-events-none"
+            aria-hidden="true"
+        >
         </div>
-        <aside aria-label="Danh Mục Bài Viết" class="flex justify-center mb-5">
-            <CategoryCloud showCount={true} styleLeft={false} />
-        </aside>
+
+        <div
+            class="relative container-site py-10 md:py-16 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_400px] gap-10 xl:gap-16 items-center"
+        >
+            <div class="min-w-0">
+                <nav
+                    class="flex items-center gap-2 text-xs md:text-sm text-slate-400 mb-5"
+                    aria-label="Breadcrumb"
+                    data-pagefind-ignore
+                >
+                    <a href="/" class="hover:text-white transition-colors no-underline">Trang chủ</a>
+                    <span aria-hidden="true">/</span>
+                    {
+                        isFirstPage ? (
+                            <span class="text-slate-200" aria-current="page">
+                                Bài viết
+                            </span>
+                        ) : (
+                            <>
+                                <a href="/bai-viet" class="hover:text-white transition-colors no-underline">
+                                    Bài viết
+                                </a>
+                                <span aria-hidden="true">/</span>
+                                <span class="text-slate-200" aria-current="page">
+                                    Trang {page.currentPage}
+                                </span>
+                            </>
+                        )
+                    }
+                </nav>
+
+                <span
+                    class="inline-flex items-center gap-2 bg-white/10 border border-white/15 text-sun-400 text-xs font-bold px-3 py-1.5 rounded-full mb-4 uppercase tracking-wider"
+                >
+                    <span class="w-1.5 h-1.5 rounded-full bg-sun-400" aria-hidden="true"></span>
+                    Thư viện bài học
+                </span>
+
+                <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight mb-4">Bài viết</h1>
+                <p class="text-slate-300 text-base md:text-lg leading-relaxed max-w-2xl mb-7">
+                    Bài học lập trình dễ hiểu, có ví dụ minh họa và bài tập thực hành — từ HTML, CSS đến C, C#, Java và
+                    giải thuật. Dành cho học sinh và người mới bắt đầu.
+                </p>
+
+                <!-- Ô tìm kiếm: mở hộp tìm kiếm Pagefind có sẵn trên thanh điều hướng -->
+                <button
+                    type="button"
+                    data-open-search
+                    class="group w-full max-w-xl flex items-center gap-3 h-14 pl-4 pr-2 rounded-2xl bg-white text-left text-slate-500 shadow-[0_20px_45px_-20px_rgba(0,0,0,0.6)] ring-1 ring-white/10 hover:ring-4 hover:ring-sun-400/40 transition cursor-pointer"
+                    aria-label="Tìm kiếm bài viết"
+                    data-pagefind-ignore
+                >
+                    <svg
+                        class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-blue-600"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke-width="2"
+                        stroke="currentColor"
+                        aria-hidden="true"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"></path>
+                    </svg>
+                    <span class="flex-1 min-w-0 truncate text-sm md:text-base">Tìm bài: mảng, struct, HTML, OOP…</span>
+                    <span class="btn btn-sm btn-primary shrink-0 pointer-events-none">Tìm kiếm</span>
+                </button>
+
+                <ul class="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-300" data-pagefind-ignore>
+                    <li class="flex items-center gap-2">
+                        <span class="text-lg leading-none" aria-hidden="true">📝</span>
+                        <span><strong class="text-white">{page.total}</strong> bài viết</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <span class="text-lg leading-none" aria-hidden="true">🗂️</span>
+                        <span><strong class="text-white">{categoryCounts.length}</strong> chủ đề</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <span class="text-lg leading-none" aria-hidden="true">🎯</span>
+                        <span><strong class="text-white">{courseSeries.length}</strong> chuỗi bài học có lộ trình</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Chuỗi bài học (màn hình rộng) -->
+            <aside
+                class="hidden lg:block rounded-3xl bg-white/[0.06] border border-white/10 backdrop-blur-sm p-6"
+                aria-label="Học theo lộ trình"
+                data-pagefind-ignore
+            >
+                <p class="text-xs font-extrabold uppercase tracking-[0.12em] text-sun-400 mb-1">Học theo lộ trình</p>
+                <p class="text-sm text-slate-400 mb-4">Chuỗi bài học đánh số, đọc lần lượt từ bài 1.</p>
+                <ul class="space-y-1">
+                    {
+                        courseSeries.map((series) => (
+                            <li>
+                                <a
+                                    href={series.href}
+                                    class="group flex items-center gap-3 p-2.5 -mx-2.5 rounded-2xl hover:bg-white/[0.07] transition-colors no-underline"
+                                >
+                                    <span
+                                        class={`w-11 h-11 shrink-0 rounded-xl border ${series.meta.chip} flex items-center justify-center text-xl shadow-lg`}
+                                        aria-hidden="true"
+                                    >
+                                        {series.meta.icon}
+                                    </span>
+                                    <span class="flex-1 min-w-0">
+                                        <span class="block font-bold text-white truncate">{series.meta.label}</span>
+                                        <span class="block text-xs text-slate-400">{series.count} bài học</span>
+                                    </span>
+                                    <svg
+                                        class="w-5 h-5 text-slate-500 group-hover:text-sun-400 group-hover:translate-x-0.5 transition"
+                                        viewBox="0 0 20 20"
+                                        fill="currentColor"
+                                        aria-hidden="true"
+                                    >
+                                        <path
+                                            fill-rule="evenodd"
+                                            d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z"
+                                            clip-rule="evenodd"
+                                        />
+                                    </svg>
+                                </a>
+                            </li>
+                        ))
+                    }
+                </ul>
+            </aside>
+        </div>
+    </section>
+
+    <!-- ── THANH CHỦ ĐỀ (dính dưới thanh điều hướng) ───────────────── -->
+    <div
+        class="sticky top-[var(--nav-h)] z-40 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-[0_6px_16px_-12px_rgba(15,23,42,0.25)]"
+        data-pagefind-ignore
+    >
+        <nav class="container-site py-2.5" aria-label="Chủ đề bài viết">
+            <CategoryCloud scroll showAll showCount active="all" heading="" />
+        </nav>
+    </div>
+
+    <!-- ── DANH SÁCH BÀI VIẾT ──────────────────────────────────────── -->
+    <section class="bg-slate-50" aria-labelledby="posts-heading">
+        <div class="container-site py-10 md:py-14">
+            <div class="flex flex-wrap items-end justify-between gap-x-6 gap-y-2 mb-6 md:mb-8">
+                <div>
+                    <span class="eyebrow">{isFirstPage ? 'Mới cập nhật' : `Trang ${page.currentPage}`}</span>
+                    <h2
+                        id="posts-heading"
+                        class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mt-1"
+                    >
+                        {isFirstPage ? 'Bài viết mới nhất' : 'Tất cả bài viết'}
+                    </h2>
+                </div>
+                <p class="text-sm text-slate-500" data-pagefind-ignore>
+                    Bài <strong class="text-slate-800">{from}–{to}</strong> trong {page.total} · Trang {
+                        page.currentPage
+                    }/{page.lastPage}
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {page.data.map((post) => <PostCard frontmatter={post.frontmatter} url={post.url} tagType="h3" />)}
+            </div>
+
+            <div class="mt-10 md:mt-14" data-pagefind-ignore>
+                <Pagination
+                    prevURL={page.url.prev}
+                    nextURL={page.url.next}
+                    currentPage={page.currentPage}
+                    lastPage={page.lastPage}
+                    baseUrl="/bai-viet"
+                />
+            </div>
+        </div>
+    </section>
+
+    <!-- ── CHUỖI BÀI HỌC (điện thoại / máy tính bảng) ──────────────── -->
+    <section class="lg:hidden bg-white border-t border-slate-200" aria-labelledby="series-heading" data-pagefind-ignore>
+        <div class="container-site py-10">
+            <span class="eyebrow">Học theo lộ trình</span>
+            <h2 id="series-heading" class="text-2xl font-extrabold text-slate-900 tracking-tight mt-1 mb-1">
+                Chuỗi bài học có đánh số
+            </h2>
+            <p class="text-sm text-slate-500 mb-5">Đọc lần lượt từ bài 1 để học chắc từng bước.</p>
+            <ul class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {
+                    courseSeries.map((series) => (
+                        <li>
+                            <a
+                                href={series.href}
+                                class="group card card-hover flex items-center gap-3 p-3.5 no-underline"
+                            >
+                                <span
+                                    class={`w-12 h-12 shrink-0 rounded-xl border ${series.meta.chip} flex items-center justify-center text-2xl shadow-md`}
+                                    aria-hidden="true"
+                                >
+                                    {series.meta.icon}
+                                </span>
+                                <span class="flex-1 min-w-0">
+                                    <span class="block font-bold text-slate-900 truncate">{series.meta.label}</span>
+                                    <span class="block text-xs text-slate-500">{series.count} bài học</span>
+                                </span>
+                                <svg
+                                    class="w-5 h-5 text-slate-300 group-hover:text-blue-600 transition-colors"
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        fill-rule="evenodd"
+                                        d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z"
+                                        clip-rule="evenodd"
+                                    />
+                                </svg>
+                            </a>
+                        </li>
+                    ))
+                }
+            </ul>
+        </div>
     </section>
 </MainLayout>
 
-<style>
-    .custom-grid {
-        display: grid;
-        gap: 40px;
-        justify-content: center;
-        grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
-        width: 100%;
-    }
-</style>
+<script>
+    // Nút tìm kiếm trong hero → mở hộp tìm kiếm có sẵn trên thanh điều hướng (#openModal)
+    document.querySelectorAll('[data-open-search]').forEach((button) => {
+        button.addEventListener('click', () => document.getElementById('openModal')?.click())
+    })
+</script>

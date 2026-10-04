@@ -1,10 +1,21 @@
 ---
+// Layout giới thiệu (hiện không còn trang nào dùng — /gioi-thieu-v2 đã chuyển sang .astro).
+// Giữ lại để tương thích: chiều cao tối thiểu thay vì cố định, nội dung nằm trong khung chuẩn.
 import { TC_TITLE } from '../common/TextConst'
 import MainLayout from './MainLayout.astro'
+
+interface Props {
+    title?: string
+    description?: string
+}
+
+const { title = `Giới thiệu | ${TC_TITLE}`, description } = Astro.props
 ---
 
-<MainLayout title=`Giới thiệu | ${TC_TITLE}`>
-    <section class="h-[calc(100vh-168px)] flex flex-col justify-center items-center px-2 pt-0">
-        <slot />
+<MainLayout title={title} description={description}>
+    <section class="min-h-[calc(100dvh-var(--nav-h))] flex flex-col justify-center py-12 md:py-20">
+        <div class="container-site flex flex-col items-center">
+            <slot />
+        </div>
     </section>
 </MainLayout>

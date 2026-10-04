@@ -4,56 +4,424 @@ import MainLayout from './MainLayout.astro'
 import PostHeader from '../components/PostHeader.astro'
 import CategoryCloud from '../components/CategoryCloud.astro'
 import RelatedPost from '../components/RelatedPost.astro'
-import { formatBlogPost } from '../js/utils'
+import PostCard from '../components/PostCard.astro'
+import PostToc from '../components/blog/PostToc.astro'
+import SeriesNav from '../components/blog/SeriesNav.astro'
+import LearnCta from '../components/blog/LearnCta.astro'
+import { readingTime } from '../js/utils'
 
-const { frontmatter } = Astro.props
+interface Heading {
+    depth: number
+    slug: string
+    text: string
+}
+
+interface Props {
+    frontmatter: {
+        title: string
+        description?: string
+        date: string
+        category: string
+        author: string
+        image?: { src: string; alt?: string }
+    }
+    headings?: Heading[]
+    url?: string
+    rawContent?: () => string
+}
+
+const { frontmatter, headings = [], url: currentUrl, rawContent } = Astro.props
 
 const { title, description, date, category, author, image } = frontmatter
 
-const allPosts = Object.values(
-    import.meta.glob<any>('../pages/bai-viet/*.md', { eager: true }),
-)
+// Thời gian đọc ước tính từ nội dung Markdown thô.
+// Bài mà nội dung chính là tài liệu PDF nhúng (<iframe src="….pdf">) → không đếm được → ẩn thời gian đọc.
+const rawText = typeof rawContent === 'function' ? rawContent() : null
+const embedsDocument = rawText ? /<iframe\b[^>]*\bsrc=["'][^"']*\.pdf/i.test(rawText) : false
+const minutes = rawText && !embedsDocument ? readingTime(rawText) : null
 
-const formattedPosts: any[] = formatBlogPost(allPosts, {
-    limit: allPosts.length,
-    filterOutDrafts: true,
-    sortByDate: false,
-})
+// ── Danh sách bài (bỏ bản nháp), chỉ giữ url + frontmatter ─────────────────
+const allPosts = Object.values(import.meta.glob<any>('../pages/bai-viet/*.md', { eager: true }))
+    .filter((post) => post?.frontmatter && !post.frontmatter.draft)
+    .map((post) => ({ url: post.url as string, frontmatter: post.frontmatter }))
 
-const relatedPosts = formattedPosts
-    .filter(
-        (post) =>
-            post.frontmatter.category.toLowerCase() ===
-                category.toLowerCase() && post.frontmatter.title !== title,
-    )
-    .slice(0, 3)
+const time = (post: any) => new Date(post.frontmatter.date).getTime()
+const byDateAsc = (a: any, b: any) => time(a) - time(b) || a.url.localeCompare(b.url)
+const byDateDesc = (a: any, b: any) => time(b) - time(a) || a.url.localeCompare(b.url)
+
+const categoryKey = String(category || '').toLowerCase()
+const isSameCategory = (post: any) => String(post.frontmatter.category || '').toLowerCase() === categoryKey
+
+// Chuỗi bài cùng danh mục theo ngày tăng dần → bài trước / bài tiếp theo
+const series = allPosts.filter(isSameCategory).sort(byDateAsc)
+let currentIndex = series.findIndex((post) => post.url === currentUrl)
+if (currentIndex < 0) currentIndex = series.findIndex((post) => post.frontmatter.title === title)
+const currentPostUrl = currentIndex >= 0 ? series[currentIndex].url : currentUrl
+const prevPost = currentIndex > 0 ? series[currentIndex - 1] : null
+const nextPost = currentIndex >= 0 && currentIndex < series.length - 1 ? series[currentIndex + 1] : null
+const seriesPosition = currentIndex + 1
+const seriesTotal = series.length
+// Chỉ danh mục khóa học (KH_*) là chuỗi bài có thứ tự học; danh mục khác là các bài độc lập xếp theo ngày
+const isCourse = /^kh_/i.test(String(category || ''))
+
+// Bài liên quan (cố định, không ngẫu nhiên): cùng danh mục, mới nhất trước, bỏ bài hiện tại
+const related = series
+    .filter((post) => post.url !== currentPostUrl && post.frontmatter.title !== title)
+    .sort(byDateDesc)
+// Cột phải: bỏ bài trước / bài sau (đã có thẻ riêng ở SeriesNav) để không lặp lại
+const sidebarRelated = related.filter((post) => post.url !== prevPost?.url && post.url !== nextPost?.url).slice(0, 4)
+
+// Lưới "Đọc tiếp": bài cùng danh mục chưa xuất hiện ở trên, thiếu thì bổ sung bài mới nhất của danh mục khác
+const shownUrls = new Set([
+    currentPostUrl,
+    ...sidebarRelated.map((post) => post.url),
+    prevPost?.url,
+    nextPost?.url,
+])
+const morePosts = related.filter((post) => !shownUrls.has(post.url)).slice(0, 3)
+if (morePosts.length < 3) {
+    const usedCategories = new Set<string>()
+    for (const post of [...allPosts].sort(byDateDesc)) {
+        if (morePosts.length >= 3) break
+        const postCategory = String(post.frontmatter.category || '')
+        if (isSameCategory(post) || usedCategories.has(postCategory) || shownUrls.has(post.url)) continue
+        usedCategories.add(postCategory)
+        morePosts.push(post)
+    }
+}
+
+// ── Mục lục: lấy 2 cấp tiêu đề cao nhất (h1–h3) có trong bài ──────────────
+const tocSource = headings.filter((heading) => heading.depth <= 3 && heading.slug && heading.text?.trim())
+const baseDepth = tocSource.length ? Math.min(...tocSource.map((heading) => heading.depth)) : 2
+// Tiêu đề đứng trước tiêu đề cấp cao nhất đầu tiên (vd. "## 📖 Tài liệu" trước "# 1. …") không có mục cha → coi là mục chính
+let seenBase = false
+const tocItems = tocSource
+    .filter((heading) => heading.depth <= baseDepth + 1)
+    .map((heading) => {
+        if (heading.depth === baseDepth) seenBase = true
+        return { slug: heading.slug, text: heading.text.trim(), level: seenBase ? heading.depth - baseDepth : 0 }
+    })
+const showToc = tocItems.length >= 2
 ---
 
 <MainLayout title=`${title} | ${TC_TITLE}` {description}>
-    <section class="pb-25 px-2 lg:w-10/12 lg:mx-auto">
-        <PostHeader
-            category={category}
-            title={title}
-            date={date}
-            author={author}
-            image={image}
-        />
-        <div class="lg:flex">
-            <div class="pb-5 lg:w-9/12">
-                <article class="markdown max-w-3xl mx-auto">
+    <PostHeader
+        category={category}
+        title={title}
+        date={date}
+        author={author}
+        image={image}
+        description={description}
+        minutes={minutes}
+        seriesLabel={isCourse && seriesPosition > 0 && seriesTotal > 1
+            ? `Bài ${seriesPosition} / ${seriesTotal}`
+            : undefined}
+    />
+
+    <div class="container-site pt-10 md:pt-14 pb-16 md:pb-24">
+        <div
+            class:list={[
+                'grid gap-y-14 lg:grid-cols-[minmax(0,1fr)_17rem] lg:gap-x-12',
+                showToc && 'xl:grid-cols-[12.5rem_minmax(0,1fr)_17rem] xl:gap-x-10',
+            ]}
+        >
+            {
+                showToc && (
+                    <aside class="hidden xl:block" data-pagefind-ignore>
+                        <div class="sticky top-[calc(var(--nav-h)+1.5rem)]">
+                            <PostToc items={tocItems} variant="sidebar" />
+                        </div>
+                    </aside>
+                )
+            }
+
+            <!-- Nội dung bài -->
+            <div class:list={['min-w-0 w-full max-w-3xl mx-auto lg:max-w-none', showToc && 'xl:col-start-2']}>
+                {
+                    showToc && (
+                        <div class="xl:hidden mb-10" data-pagefind-ignore>
+                            <PostToc items={tocItems} variant="collapsible" />
+                        </div>
+                    )
+                }
+
+                <article class="markdown">
                     <slot />
                 </article>
+
+                <SeriesNav
+                    category={category}
+                    position={seriesPosition}
+                    total={seriesTotal}
+                    prevPost={prevPost}
+                    nextPost={nextPost}
+                    isCourse={isCourse}
+                />
             </div>
-            <div
-                class="md:flex md:justify-between lg:flex-col lg:justify-start lg:w-3/12 lg:pl-5"
+
+            <!-- Cột phải (điện thoại: nằm dưới bài viết) -->
+            <aside
+                class:list={[
+                    'min-w-0 w-full max-w-3xl mx-auto lg:max-w-none flex flex-col gap-10',
+                    showToc && 'xl:col-start-3',
+                ]}
+                aria-label="Thông tin thêm"
+                data-pagefind-ignore
             >
-                <aside aria-label="Danh Mục Bài Viết" class="pb-3">
-                    <CategoryCloud showCount={!true} />
-                </aside>
-                <aside aria-label="Bài Viết Liên Quan">
-                    <RelatedPost {relatedPosts} />
-                </aside>
+                <RelatedPost relatedPosts={sidebarRelated} />
+                <div class="pt-8 border-t border-slate-200 lg:pt-0 lg:border-t-0">
+                    <CategoryCloud showCount={false} active={category} />
+                </div>
+                <div class="hidden lg:block lg:sticky lg:top-[calc(var(--nav-h)+1.5rem)]">
+                    <LearnCta />
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- Đọc tiếp + lời mời học -->
+    <section class="bg-slate-50 border-t border-slate-200/70" data-pagefind-ignore>
+        <div class="container-site py-14 md:py-20">
+            {
+                morePosts.length > 0 && (
+                    <>
+                        <div class="flex flex-wrap items-end justify-between gap-4 mb-8">
+                            <div>
+                                <span class="eyebrow">Đọc tiếp</span>
+                                <h2 class="mt-2 text-2xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+                                    Có thể bạn sẽ thích
+                                </h2>
+                            </div>
+                            <a href="/bai-viet" class="btn btn-outline btn-sm no-underline">
+                                Tất cả bài viết <span aria-hidden="true">→</span>
+                            </a>
+                        </div>
+                        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {morePosts.map((post, index) => (
+                                <div class:list={['h-full', index === 2 && 'sm:max-lg:hidden']}>
+                                    <PostCard frontmatter={post.frontmatter} url={post.url} tagType="h3" />
+                                </div>
+                            ))}
+                        </div>
+                    </>
+                )
+            }
+
+            <!-- Lời mời nhẹ nhàng -->
+            <div
+                class:list={[
+                    'relative overflow-hidden rounded-3xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-amber-50 p-6 sm:p-8 md:p-10',
+                    morePosts.length > 0 && 'mt-14',
+                ]}
+            >
+                <div class="absolute inset-0 bg-dots-light opacity-60 pointer-events-none" aria-hidden="true"></div>
+                <div class="relative grid gap-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
+                    <div>
+                        <span class="eyebrow">Học tiếp cùng Error404 Labs</span>
+                        <h2 class="mt-2 text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight">
+                            Muốn học có lộ trình và có người kèm sát?
+                        </h2>
+                        <p class="mt-2 text-slate-600 leading-relaxed max-w-2xl">
+                            Tham gia lớp Web & Game (offline 3 - 5 học sinh / lớp hoặc online 1 kèm 1), hoặc tự luyện
+                            Python miễn phí với bài tập chấm điểm tự động.
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <a href="/khoa-hoc" class="btn btn-primary no-underline">Xem lớp Web & Game</a>
+                        <a href="/hoc-python" class="btn btn-outline no-underline">Học Python miễn phí</a>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 </MainLayout>
+
+<script>
+    // ── Nút "Sao chép" + nhãn ngôn ngữ cho mỗi khối code (tăng cường dần, không bắt buộc) ──
+    const LANG_LABELS: Record<string, string> = {
+        c: 'C',
+        cpp: 'C++',
+        'c++': 'C++',
+        csharp: 'C#',
+        cs: 'C#',
+        java: 'Java',
+        html: 'HTML',
+        css: 'CSS',
+        js: 'JavaScript',
+        javascript: 'JavaScript',
+        ts: 'TypeScript',
+        typescript: 'TypeScript',
+        python: 'Python',
+        py: 'Python',
+        json: 'JSON',
+        sql: 'SQL',
+        bash: 'Terminal',
+        sh: 'Terminal',
+        shell: 'Terminal',
+    }
+
+    const COPY_ICON =
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75"/></svg>'
+    const DONE_ICON =
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>'
+
+    const copyText = async (text: string) => {
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(text)
+            return
+        }
+        // Dự phòng cho trình duyệt cũ / không phải HTTPS
+        const area = document.createElement('textarea')
+        area.value = text
+        area.setAttribute('readonly', '')
+        area.style.position = 'fixed'
+        area.style.opacity = '0'
+        document.body.appendChild(area)
+        area.select()
+        const ok = document.execCommand('copy')
+        area.remove()
+        if (!ok) throw new Error('copy failed')
+    }
+
+    // Biểu tượng và nhãn nằm trong 2 <span> cố định; nhãn là vùng aria-live để trình đọc màn hình báo kết quả
+    const setButton = (button: HTMLButtonElement, state: 'idle' | 'done' | 'error') => {
+        const label = state === 'done' ? 'Đã sao chép!' : state === 'error' ? 'Không sao chép được' : 'Sao chép'
+        button.dataset.state = state
+        let icon = button.querySelector<HTMLSpanElement>('[data-copy-icon]')
+        let text = button.querySelector<HTMLSpanElement>('[data-copy-label]')
+        if (!icon || !text) {
+            icon = document.createElement('span')
+            icon.className = 'code-frame__icon'
+            icon.dataset.copyIcon = ''
+            text = document.createElement('span')
+            text.dataset.copyLabel = ''
+            text.setAttribute('aria-live', 'polite')
+            button.replaceChildren(icon, text)
+        }
+        icon.innerHTML = state === 'done' ? DONE_ICON : COPY_ICON
+        text.textContent = label
+    }
+
+    document.querySelectorAll<HTMLPreElement>('.markdown pre').forEach((pre) => {
+        const parent = pre.parentElement
+        if (!parent || parent.classList.contains('code-frame')) return
+
+        const frame = document.createElement('div')
+        frame.className = 'code-frame'
+
+        const bar = document.createElement('div')
+        bar.className = 'code-frame__bar'
+
+        const dots = document.createElement('span')
+        dots.className = 'code-frame__dots'
+        dots.setAttribute('aria-hidden', 'true')
+        dots.innerHTML = '<span></span><span></span><span></span>'
+
+        const lang = (pre.dataset.language || '').toLowerCase()
+        const langLabel = document.createElement('span')
+        langLabel.className = 'code-frame__lang'
+        langLabel.textContent =
+            LANG_LABELS[lang] || (lang && lang !== 'plaintext' && lang !== 'text' ? lang.toUpperCase() : 'Code')
+
+        const button = document.createElement('button')
+        button.type = 'button'
+        button.className = 'code-frame__copy'
+        setButton(button, 'idle')
+
+        let timer: number | undefined
+        button.addEventListener('click', async () => {
+            const code = pre.querySelector('code') || pre
+            try {
+                await copyText((code.textContent || '').replace(/\n$/, ''))
+                setButton(button, 'done')
+            } catch {
+                setButton(button, 'error')
+            }
+            window.clearTimeout(timer)
+            timer = window.setTimeout(() => setButton(button, 'idle'), 2000)
+        })
+
+        bar.append(dots, langLabel, button)
+        parent.insertBefore(frame, pre)
+        frame.append(bar, pre)
+    })
+
+    // ── Mục lục: cuộn mượt + tô sáng mục đang đọc ─────────────────────────────
+    const tocLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]'))
+
+    if (tocLinks.length) {
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        const ids = Array.from(new Set(tocLinks.map((link) => link.dataset.tocLink || '')))
+        // Chỉ tìm tiêu đề trong bài viết: id như "code" có thể trùng phần tử khác (vd. ô nhập trong Nav)
+        const article = document.querySelector<HTMLElement>('article.markdown')
+        const findHeading = (id: string) =>
+            id && article ? article.querySelector<HTMLElement>(`[id="${CSS.escape(id)}"]`) : null
+        const targets = ids.map((id) => findHeading(id)).filter((element): element is HTMLElement => Boolean(element))
+
+        tocLinks.forEach((link) => {
+            link.addEventListener('click', (event) => {
+                const target = findHeading(link.dataset.tocLink || '')
+                if (!target) return
+                event.preventDefault()
+                // Đóng khối "Mục lục" thu gọn (nếu có) trước khi cuộn để vị trí không bị lệch
+                const details = link.closest<HTMLDetailsElement>('[data-toc-details]')
+                if (details) details.open = false
+                requestAnimationFrame(() => {
+                    target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' })
+                    history.replaceState(null, '', `#${encodeURIComponent(target.id)}`)
+                })
+            })
+        })
+
+        let activeId = ''
+        const setActive = (id: string) => {
+            if (id === activeId) return
+            activeId = id
+            tocLinks.forEach((link) => {
+                const isActive = link.dataset.tocLink === id
+                link.toggleAttribute('data-active', isActive)
+                if (isActive) link.setAttribute('aria-current', 'location')
+                else link.removeAttribute('aria-current')
+            })
+            // Giữ mục đang đọc trong tầm nhìn của mục lục dính (sticky)
+            const scrollers = document.querySelectorAll<HTMLElement>('[data-toc-scroll]')
+            if (!id) {
+                scrollers.forEach((box) => (box.scrollTop = 0))
+                return
+            }
+            const sidebarLink = tocLinks.find(
+                (link) => link.dataset.tocLink === id && link.closest('[data-toc-scroll]') && link.offsetParent,
+            )
+            const scroller = sidebarLink?.closest<HTMLElement>('[data-toc-scroll]')
+            if (sidebarLink && scroller && scroller.scrollHeight > scroller.clientHeight) {
+                const linkRect = sidebarLink.getBoundingClientRect()
+                const boxRect = scroller.getBoundingClientRect()
+                if (linkRect.top < boxRect.top || linkRect.bottom > boxRect.bottom) {
+                    scroller.scrollTop += linkRect.top - boxRect.top - boxRect.height / 3
+                }
+            }
+        }
+
+        let ticking = false
+        const update = () => {
+            ticking = false
+            const navHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--nav-h')) || 64
+            const line = navHeight + 120
+            let current = ''
+            for (const target of targets) {
+                if (target.getBoundingClientRect().top <= line) current = target.id
+                else break
+            }
+            setActive(current)
+        }
+        const requestUpdate = () => {
+            if (ticking) return
+            ticking = true
+            requestAnimationFrame(update)
+        }
+
+        window.addEventListener('scroll', requestUpdate, { passive: true })
+        window.addEventListener('resize', requestUpdate, { passive: true })
+        update()
+    }
+</script>

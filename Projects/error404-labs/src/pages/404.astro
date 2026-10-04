@@ -1,26 +1,132 @@
 ---
 import { TC_TITLE } from '../common/TextConst'
-import Link from '../components/Link.astro'
-import IconHome from '../icons/IconHome.astro'
 import MainLayout from '../layouts/MainLayout.astro'
+import InfoIcon from '../components/info/InfoIcon.astro'
+
+const suggestions = [
+    {
+        href: '/hoc-python',
+        title: 'Học Python',
+        desc: 'Code & chấm bài tự động, miễn phí',
+        icon: 'code',
+        tone: 'bg-sky-50 text-sky-600',
+    },
+    {
+        href: '/khoa-hoc',
+        title: 'Khóa học',
+        desc: 'Lớp Web & Game cho học sinh',
+        icon: 'academic',
+        tone: 'bg-amber-50 text-amber-600',
+    },
+    {
+        href: '/bai-viet',
+        title: 'Bài viết',
+        desc: 'Bài hướng dẫn lập trình dễ hiểu',
+        icon: 'book',
+        tone: 'bg-violet-50 text-violet-600',
+    },
+] as const
 ---
 
-<MainLayout title=`404 | ${TC_TITLE}`>
-    <section class="grid place-items-center text-center gap-3 h-[calc(100vh-64px)]">
-        <div>
-            <h1 class="text-3xl pb-3">🐣 Oops~ Trang này đang đi lạc mất rồi!</h1>
-            <p class="pb-3">Đừng lo, mình cùng quay về trang chủ nha 💛</p>
-            <Link
-                href="/"
-                text="Trang chủ"
-                style="primary"
-                isFilled={!true}
-                borderVisible
-                icon={{
-                    component: IconHome,
-                    side: 'left',
-                }}
-            />
+<MainLayout
+    title={`404 | ${TC_TITLE}`}
+    description="Không tìm thấy trang bạn cần. Quay về trang chủ hoặc tìm kiếm bài viết."
+>
+    <section
+        class="relative overflow-hidden bg-gradient-to-b from-blue-50/70 via-white to-white min-h-[calc(100dvh-var(--nav-h))] flex items-center"
+    >
+        <div class="absolute inset-0 bg-dots-light opacity-50 pointer-events-none" aria-hidden="true"></div>
+        <div
+            class="absolute -top-40 left-1/2 -translate-x-1/2 w-[640px] h-[420px] rounded-full bg-blue-400/20 blur-[120px] pointer-events-none"
+            aria-hidden="true"
+        >
+        </div>
+
+        <div class="relative container-site py-12 md:py-20 text-center">
+            {/* Số 404 vui nhộn: chú gà con thay cho số 0 */}
+            <div
+                class="flex items-center justify-center gap-2 sm:gap-4 select-none text-[6.5rem] sm:text-[9rem] md:text-[11rem] font-extrabold leading-none tracking-tighter"
+                aria-hidden="true"
+            >
+                <span class="bg-gradient-to-b from-blue-600 to-navy-800 bg-clip-text text-transparent">4</span>
+                <span
+                    class="relative w-[5.5rem] h-[5.5rem] sm:w-[7.5rem] sm:h-[7.5rem] md:w-36 md:h-36 rounded-full bg-sun-400 shadow-[0_20px_50px_-12px_rgba(245,196,0,0.7)] ring-8 ring-white flex items-center justify-center nf-bob"
+                >
+                    <span class="text-5xl sm:text-6xl md:text-7xl leading-none">🐣</span>
+                </span>
+                <span class="bg-gradient-to-b from-blue-600 to-navy-800 bg-clip-text text-transparent">4</span>
+            </div>
+
+            <h1 class="mt-8 text-2xl md:text-4xl font-extrabold tracking-tight text-slate-900 text-balance">
+                Oops~ Trang này đang đi lạc mất rồi!
+            </h1>
+            <p class="mt-3 text-base md:text-lg text-slate-500">Đừng lo, mình cùng quay về trang chủ nha&nbsp;💛</p>
+
+            <div class="mt-8 flex flex-col sm:flex-row justify-center gap-3 max-w-sm sm:max-w-none mx-auto">
+                <a href="/" class="btn btn-primary btn-lg">
+                    <InfoIcon name="home" class="w-5 h-5" strokeWidth={2} />
+                    Trang chủ
+                </a>
+                <button type="button" id="notFoundSearch" class="btn btn-outline btn-lg cursor-pointer">
+                    <InfoIcon name="search" class="w-5 h-5" strokeWidth={2} />
+                    Tìm kiếm
+                </button>
+            </div>
+
+            <div class="mt-12 md:mt-14 max-w-3xl mx-auto">
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Hoặc ghé thăm</p>
+                <ul class="mt-4 grid sm:grid-cols-3 gap-3 md:gap-4 text-left">
+                    {
+                        suggestions.map((s) => (
+                            <li>
+                                <a
+                                    href={s.href}
+                                    class="group card card-hover h-full flex items-center gap-4 p-4 no-underline"
+                                >
+                                    <span
+                                        class={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${s.tone}`}
+                                    >
+                                        <InfoIcon name={s.icon} class="w-6 h-6" />
+                                    </span>
+                                    <span class="min-w-0">
+                                        <span class="block font-extrabold text-slate-900 group-hover:text-blue-700 transition-colors">
+                                            {s.title}
+                                        </span>
+                                        <span class="block text-xs text-slate-500 leading-snug">{s.desc}</span>
+                                    </span>
+                                </a>
+                            </li>
+                        ))
+                    }
+                </ul>
+            </div>
         </div>
     </section>
 </MainLayout>
+
+<style>
+    .nf-bob {
+        animation: nf-bob 3s ease-in-out infinite;
+    }
+    @keyframes nf-bob {
+        0%,
+        100% {
+            transform: translateY(0) rotate(-4deg);
+        }
+        50% {
+            transform: translateY(-10px) rotate(4deg);
+        }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .nf-bob {
+            animation: none;
+        }
+    }
+</style>
+
+<script>
+    // Nút "Tìm kiếm" mở hộp tìm kiếm Pagefind sẵn có trên thanh điều hướng (#openModal)
+    document.getElementById('notFoundSearch')?.addEventListener('click', () => {
+        document.getElementById('openModal')?.click()
+    })
+</script>

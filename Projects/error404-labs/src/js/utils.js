@@ -46,3 +46,33 @@ export const formatBlogPost = (
         limit < postsClone.length ? limit : postsClone.length,
     )
 }
+
+// ── Hàm bổ sung (chỉ thêm mới, không thay đổi các hàm ở trên) ─────────────
+
+/** Danh mục dạng chuỗi bài học có lộ trình (key bắt đầu bằng 'KH_'). */
+export const isCourseCategory = (category) => String(category || '').startsWith('KH_')
+
+/**
+ * Đếm số bài theo danh mục → [{ name, count }].
+ * Giữ thứ tự xuất hiện đầu tiên trong `posts` (posts sắp mới nhất trước → danh mục có bài mới nhất đứng đầu).
+ */
+export const countPostsByCategory = (posts) => {
+    const counts = new Map()
+    for (const post of posts || []) {
+        const name = post?.frontmatter?.category
+        if (!name) continue
+        counts.set(name, (counts.get(name) || 0) + 1)
+    }
+    const result = []
+    counts.forEach((count, name) => result.push({ name, count }))
+    return result
+}
+
+/** Ước tính số phút đọc từ nội dung Markdown thô (≈ 200 từ/phút, tối thiểu 1 phút). */
+export const readingTime = (text, wordsPerMinute = 200) => {
+    const words = String(text || '')
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean).length
+    return Math.max(1, Math.round(words / wordsPerMinute))
+}

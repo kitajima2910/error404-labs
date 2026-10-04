@@ -1,64 +1,82 @@
 ---
 import { Image } from 'astro:assets'
 import { formatDate, slugify } from '../js/utils'
-import Link from './Link.astro'
-import IconRead from '../icons/IconRead.astro'
+import { getCategoryMeta } from '../data/categoryMeta'
 
-const { frontmatter, url, tagType } = Astro.props
+const { frontmatter, url, tagType = 'h3' } = Astro.props
 
 const Tag = tagType
 
 const { title, description, date, category, author, image } = frontmatter
+const meta = getCategoryMeta(category)
+// Chữ cái đầu của tên tác giả (vd: "Phạm Xuân Hoài" → "PH")
+const authorWords = String(author || '')
+    .trim()
+    .split(/\s+/)
+const authorInitials =
+    (authorWords[0]?.[0] || '') + (authorWords.length > 1 ? authorWords[authorWords.length - 1][0] : '')
 ---
 
-<!-- <pre>{JSON.stringify(frontmatter, null, 4)}</pre> -->
 <article
-    class="flex flex-col w-full h-full bg-[#FBFBFB] rounded-lg shadow-[1px_1px_1px_3px_rgba(0,0,0,0.06)]"
+    class="group relative flex flex-col w-full h-full bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-blue-200 transition-all duration-300"
 >
-    <div>
-        <div class="flex justify-between">
-            <Link
-                href={url}
-                text="Đọc Bài Viết"
-                style="primary"
-                isFilled={false}
-                borderVisible={false}
-                icon={{
-                    component: IconRead,
-                    side: 'left',
-                }}
-            />
-            <a href={`/danh-muc/${slugify(category)}`} class="block my-5 mx-5">
-                <span
-                    class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 inset-ring inset-ring-blue-700/10"
-                    >{category}</span
-                >
+    <!-- Ảnh bìa -->
+    <div class={`relative aspect-[16/9] overflow-hidden bg-gradient-to-br ${meta.gradient}`}>
+        {
+            image?.src && (
+                <Image
+                    src={image.src}
+                    alt={image.alt || title}
+                    width={960}
+                    height={540}
+                    loading="lazy"
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+            )
+        }
+    </div>
+
+    <div class="flex flex-col flex-1 p-5">
+        <div class="flex items-center gap-2 mb-3">
+            <a
+                href={`/danh-muc/${slugify(category)}`}
+                class={`chip relative z-10 hover:brightness-95 no-underline ${meta.chip}`}
+                title={`Xem danh mục ${meta.label}`}
+            >
+                <span aria-hidden="true">{meta.icon}</span>
+                {meta.label}
             </a>
+            <time datetime={new Date(date).toISOString()} class="text-xs font-medium text-slate-400">
+                {formatDate(date, 'vi-VN')}
+            </time>
         </div>
 
-        <a href={url} class="inline-block">
-            <Image
-                src={image.src}
-                alt={image.alt}
-                width={5000}
-                height={5000}
-                densities={[1, 1.5]}
-                quality={65}
-            />
-        </a>
-        <div class="p-5">
-            <div>
-                <Tag class="text-3xl/tight">
-                    <a href={url}>{title}</a>
-                </Tag>
-                <p class="my-5">
-                    bởi <a
-                        href={`/tac-gia/${slugify(author)}`}
-                        class="underline font-medium">{author}</a
-                    > - {formatDate(date, 'vi-VN')}
-                </p>
-            </div>
-            <p class="mb-3 line-clamp-3">{description}</p>
+        <Tag
+            class="text-lg font-bold leading-snug text-slate-900 line-clamp-2 group-hover:text-blue-700 transition-colors"
+        >
+            <a href={url} class="no-underline after:absolute after:inset-0 after:content-['']">{title}</a>
+        </Tag>
+
+        <p class="mt-2 text-sm text-slate-500 leading-relaxed line-clamp-3">{description}</p>
+
+        <div class="mt-auto pt-4 flex items-center justify-between gap-3">
+            <a
+                href={`/tac-gia/${slugify(author)}`}
+                class="relative z-10 inline-flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-blue-700 no-underline"
+            >
+                <span
+                    class="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-[10px] font-bold flex items-center justify-center"
+                    aria-hidden="true"
+                >
+                    {authorInitials}
+                </span>
+                {author}
+            </a>
+            <span
+                class="text-sm font-bold text-blue-600 inline-flex items-center gap-1 group-hover:gap-2 transition-all"
+            >
+                Đọc bài <span aria-hidden="true">→</span>
+            </span>
         </div>
     </div>
 </article>

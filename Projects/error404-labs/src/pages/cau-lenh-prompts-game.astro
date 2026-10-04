@@ -11,16 +11,16 @@ const filteredCategories = categories.filter(
 )
 
 const titleTranslate: Record<string, string> = {
-    '1. BASIC GAMES (EASIEST → ADD HOOK)': 'Trò Chơi Cơ Bản',
-    '2. REFLEX GAMES (FAST + SKILL)': 'Trò Chơi Phản Xạ',
-    '3. OBSTACLE (ENDLESS + CHAOS)': 'Vượt Chướng Ngại Vật',
-    '4. COLLECT (PROGRESSION LOOP)': 'Trò Chơi Thu Thập',
-    '5. 2D SHOOTING (ACTION CORE)': 'Bắn Súng 2D',
-    '6. PLATFORM (SKILL EXPRESSION)': 'Phiêu Lưu Nền Tảng',
-    '7. PUZZLE (BRAIN HOOK)': 'Trò Chơi Giải Đố',
-    '8. SIMPLE AI (SMART FEEL)': 'Trò Chơi AI',
-    '9. ADVANCED (SYSTEM DESIGN)': 'Hệ Thống Nâng Cao',
-    '10. PRO LEVEL (GẦN GAME THẬT)': 'Cấp Độ Pro',
+    '1. BASIC GAMES (EASIEST → ADD HOOK)': 'Trò chơi cơ bản',
+    '2. REFLEX GAMES (FAST + SKILL)': 'Trò chơi phản xạ',
+    '3. OBSTACLE (ENDLESS + CHAOS)': 'Vượt chướng ngại vật',
+    '4. COLLECT (PROGRESSION LOOP)': 'Trò chơi thu thập',
+    '5. 2D SHOOTING (ACTION CORE)': 'Bắn súng 2D',
+    '6. PLATFORM (SKILL EXPRESSION)': 'Phiêu lưu nền tảng',
+    '7. PUZZLE (BRAIN HOOK)': 'Trò chơi giải đố',
+    '8. SIMPLE AI (SMART FEEL)': 'Trò chơi AI',
+    '9. ADVANCED (SYSTEM DESIGN)': 'Hệ thống nâng cao',
+    '10. PRO LEVEL (GẦN GAME THẬT)': 'Cấp độ Pro',
 }
 
 const categoryColors: Record<string, string> = {
@@ -36,276 +36,571 @@ const categoryColors: Record<string, string> = {
     '10. PRO LEVEL (GẦN GAME THẬT)': '#1E293B',
 }
 
+// Mô tả ngắn tiếng Việt cho từng chủ đề (dịch từ phụ đề tiếng Anh trong dữ liệu)
+const categoryNotes: Record<string, string> = {
+    '1. BASIC GAMES (EASIEST → ADD HOOK)': 'Dễ nhất — game quen thuộc, thêm một điểm nhấn thú vị',
+    '2. REFLEX GAMES (FAST + SKILL)': 'Nhanh tay, nhanh mắt — rèn kỹ năng phản xạ',
+    '3. OBSTACLE (ENDLESS + CHAOS)': 'Chạy vô tận, né chướng ngại bất ngờ',
+    '4. COLLECT (PROGRESSION LOOP)': 'Thu thập vật phẩm, nâng cấp dần qua từng màn',
+    '5. 2D SHOOTING (ACTION CORE)': 'Hành động bắn súng trên màn hình 2D',
+    '6. PLATFORM (SKILL EXPRESSION)': 'Nhảy nền, leo trèo — thể hiện kỹ năng điều khiển',
+    '7. PUZZLE (BRAIN HOOK)': 'Giải đố kích thích tư duy',
+    '8. SIMPLE AI (SMART FEEL)': 'Đối thủ có AI đơn giản, cảm giác thông minh',
+    '9. ADVANCED (SYSTEM DESIGN)': 'Nâng cao — thiết kế nhiều hệ thống trong một game',
+    '10. PRO LEVEL (GẦN GAME THẬT)': 'Cấp độ Pro — gần với game thật',
+}
+
+// Nhãn ngắn cho thanh chọn chủ đề
+const shortLabels: Record<string, string> = {
+    '1. BASIC GAMES (EASIEST → ADD HOOK)': 'Cơ bản',
+    '2. REFLEX GAMES (FAST + SKILL)': 'Phản xạ',
+    '3. OBSTACLE (ENDLESS + CHAOS)': 'Chướng ngại',
+    '4. COLLECT (PROGRESSION LOOP)': 'Thu thập',
+    '5. 2D SHOOTING (ACTION CORE)': 'Bắn súng 2D',
+    '6. PLATFORM (SKILL EXPRESSION)': 'Nền tảng',
+    '7. PUZZLE (BRAIN HOOK)': 'Giải đố',
+    '8. SIMPLE AI (SMART FEEL)': 'Trò chơi AI',
+    '9. ADVANCED (SYSTEM DESIGN)': 'Nâng cao',
+    '10. PRO LEVEL (GẦN GAME THẬT)': 'Pro',
+}
+
+const totalGames = filteredCategories.reduce((sum, cat) => sum + cat.items.length, 0)
+
+const ZALO_URL = 'https://zalo.me/0373306966'
+const PHONE_TEXT = '0373.306.966'
+
+const steps = [
+    {
+        title: 'Chọn ý tưởng game',
+        desc: 'Lướt 10 chủ đề từ dễ đến Pro, chọn game bạn muốn làm.',
+    },
+    {
+        title: 'Sao chép prompt',
+        desc: 'Bấm vào thẻ game rồi bấm “Sao chép prompt”.',
+    },
+    {
+        title: 'Dán vào AI để tạo game',
+        desc: 'Dán vào ChatGPT, Claude hoặc Gemini — AI viết code game HTML5 trong một file.',
+    },
+]
+
+const chatIcon =
+    'M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 0 1-.825-.242m9.345-8.334a2.126 2.126 0 0 0-.476-.095 48.64 48.64 0 0 0-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0 0 11.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155'
+
 // Serialize prompts for client-side use
 const promptsJson = JSON.stringify(GAME_PROMPTS.map((p) => ({ id: p.id, name: p.name, content: p.content })))
 ---
 
-<MainLayout title={`Câu lệnh Prompts Game HTML5 | ${TC_TITLE}`} description="100 prompt AI chi tiết để tạo game HTML5 từ dễ đến khó. Copy và dán vào ChatGPT, Claude để tạo game ngay!" searchable={false}>
-    <!-- Auth skeleton shown while verifying -->
-    <div id="page-skeleton" class="max-w-7xl mx-auto px-4 py-16">
-        <div class="text-center mb-12 space-y-4 animate-pulse">
-            <div class="h-10 w-72 bg-slate-200 rounded-2xl mx-auto"></div>
-            <div class="h-6 w-96 bg-slate-100 rounded-xl mx-auto"></div>
-        </div>
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {
-                [1, 2, 3, 4].map(() => (
-                    <div class="bg-white rounded-3xl h-72 border border-slate-100 p-6 animate-pulse">
-                        <div class="h-8 w-1/2 bg-slate-100 rounded-xl mb-4" />
-                        <div class="grid grid-cols-2 gap-3">
-                            {[1, 2, 3, 4, 5, 6].map(() => (
-                                <div class="h-5 bg-slate-50 rounded-lg" />
-                            ))}
-                        </div>
-                    </div>
-                ))
-            }
-        </div>
-    </div>
-
-    <!-- Main content (hidden until auth passes) -->
-    <div id="auth-guard" class="hidden">
-        <!-- ── Hero ── -->
-        <div
-            class="relative overflow-hidden"
-            style="background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);"
-        >
-            <!-- Decorative blobs -->
-            <div
-                class="absolute top-0 left-1/4 w-96 h-96 rounded-full opacity-20 blur-3xl pointer-events-none"
-                style="background: radial-gradient(circle, #7c3aed, transparent);"
-            ></div>
-            <div
-                class="absolute bottom-0 right-1/4 w-80 h-80 rounded-full opacity-15 blur-3xl pointer-events-none"
-                style="background: radial-gradient(circle, #ec4899, transparent);"
-            ></div>
-
-            <div class="relative max-w-5xl mx-auto px-4 py-16 text-center">
-                <div
-                    class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest mb-6"
-                    style="background: rgba(124,58,237,0.25); border: 1px solid rgba(167,139,250,0.4); color: #c4b5fd;"
-                >
-                    <span>✦</span>
-                    <span>Premium Content</span>
-                    <span>✦</span>
-                </div>
-                <h1 class="text-4xl md:text-6xl font-black text-white mb-4 leading-tight">
-                    100 Prompt AI
-                    <span
-                        style="background: linear-gradient(135deg, #a78bfa, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"
-                    >
-                        Game HTML5
-                    </span>
-                </h1>
-                <p class="text-slate-300 text-base md:text-lg max-w-2xl mx-auto mb-8 leading-relaxed">
-                    Từ trò chơi cơ bản đến cấp độ Pro — copy prompt, dán vào AI, nhận code game hoàn chỉnh ngay lập tức.
-                </p>
-
-                <!-- Stats row -->
-                <div class="flex flex-wrap items-center justify-center gap-6 text-sm">
-                    {
-                        [
-                            ['100', 'Game Ideas'],
-                            ['10', 'Danh Mục'],
-                            ['HTML5', 'Thuần Túy'],
-                        ].map(([num, label]) => (
-                            <div class="flex flex-col items-center">
-                                <span class="text-2xl font-black text-white">{num}</span>
-                                <span class="text-slate-400 text-xs uppercase tracking-wider">{label}</span>
-                            </div>
-                        ))
-                    }
-                </div>
+<MainLayout
+    title={`Câu lệnh Prompts Game HTML5 | ${TC_TITLE}`}
+    description="100 prompt AI chi tiết để tạo game HTML5 từ dễ đến khó. Copy và dán vào ChatGPT, Claude để tạo game ngay!"
+    searchable={false}
+>
+    {/* Khung chờ trong lúc kiểm tra đăng nhập */}
+    <div id="page-skeleton" aria-busy="true" aria-label="Đang tải thư viện prompt">
+        <div class="bg-navy-950">
+            <div class="container-site py-12 md:py-20 animate-pulse">
+                <div class="h-4 w-40 bg-white/10 rounded-full mb-6"></div>
+                <div class="h-7 w-56 bg-white/10 rounded-full mb-6"></div>
+                <div class="h-10 md:h-14 w-full max-w-xl bg-white/15 rounded-2xl mb-4"></div>
+                <div class="h-5 w-full max-w-2xl bg-white/10 rounded-xl mb-2"></div>
+                <div class="h-5 w-4/5 max-w-lg bg-white/10 rounded-xl"></div>
             </div>
         </div>
-
-        <!-- ── Search bar ── -->
-        <div
-            class="sticky top-0 z-40 py-3 px-4"
-            style="background: rgba(255,255,255,0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(167,139,250,0.15); box-shadow: 0 1px 16px rgba(124,58,237,0.06);"
-        >
-            <div class="max-w-xl mx-auto relative">
-                <svg
-                    class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    stroke-width="2"
-                >
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"></path>
-                </svg>
-                <input
-                    id="gameSearch"
-                    type="text"
-                    placeholder="Tìm kiếm game..."
-                    class="w-full pl-10 pr-4 py-2.5 rounded-full border bg-white text-sm text-slate-700 placeholder-slate-400 outline-none transition-all"
-                    style="border-color: rgba(167,139,250,0.3); box-shadow: 0 1px 4px rgba(0,0,0,0.05);"
-                />
-            </div>
-        </div>
-
-        <!-- ── Category grid ── -->
-        <div class="max-w-7xl mx-auto px-4 py-10 pb-20">
-            <div id="categoriesContainer" class="space-y-8">
+        <div class="container-site py-10">
+            <div class="h-11 w-full max-w-xl bg-slate-100 rounded-xl mb-8 animate-pulse"></div>
+            <div class="grid sm:grid-cols-2 xl:grid-cols-5 gap-4 animate-pulse">
                 {
-                    filteredCategories.map((cat) => {
-                        const color = categoryColors[cat.title] || '#334155'
-                        const label = titleTranslate[cat.title] || cat.title
-                        return (
-                            <div class="category-block" data-category={cat.title.toLowerCase()}>
-                                <!-- Category header -->
-                                <div class="flex items-center gap-3 mb-4">
-                                    <div
-                                        class="w-10 h-10 rounded-2xl flex items-center justify-center text-xl shadow-md flex-shrink-0"
-                                        style={`background: ${color};`}
-                                    >
-                                        {cat.icon}
-                                    </div>
-                                    <div>
-                                        <h2 class="font-black text-slate-800 text-base leading-tight">{label}</h2>
-                                        <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">{cat.title}</p>
-                                    </div>
-                                    <div class="ml-auto">
-                                        <span
-                                            class="text-xs font-bold px-2.5 py-1 rounded-full"
-                                            style={`background: ${color}18; color: ${color};`}
-                                        >
-                                            {cat.items.length} games
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <!-- Game cards grid -->
-                                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-                                    {cat.items.map((item) => {
-                                        const gameName = item.text.split(':')[0].trim()
-                                        const gameDesc = item.text.includes(':') ? item.text.split(':').slice(1).join(':').trim() : ''
-                                        return (
-                                            <button
-                                                class="game-card group text-left bg-white rounded-2xl p-4 border border-slate-100 cursor-pointer"
-                                                data-id={item.id}
-                                                data-name={item.text.toLowerCase()}
-                                                style="box-shadow: 0 1px 3px rgba(0,0,0,0.06); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);"
-                                            >
-                                                <div class="flex items-start justify-between mb-2">
-                                                    <span
-                                                        class="text-xs font-black px-2 py-0.5 rounded-lg"
-                                                        style={`background: ${color}15; color: ${color};`}
-                                                    >
-                                                        #{String(item.id).padStart(2, '0')}
-                                                    </span>
-                                                    <svg
-                                                        class="w-4 h-4 text-slate-300 group-hover:text-purple-400 transition-colors flex-shrink-0"
-                                                        fill="none"
-                                                        viewBox="0 0 24 24"
-                                                        stroke="currentColor"
-                                                        stroke-width="2"
-                                                    >
-                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                                    </svg>
-                                                </div>
-                                                <p class="font-bold text-slate-800 text-sm leading-snug mb-1 group-hover:text-purple-700 transition-colors">
-                                                    {gameName}
-                                                </p>
-                                                {gameDesc && (
-                                                    <p class="text-xs text-slate-400 leading-relaxed line-clamp-2">{gameDesc}</p>
-                                                )}
-                                            </button>
-                                        )
-                                    })}
-                                </div>
-                            </div>
-                        )
-                    })
+                    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(() => (
+                        <div class="rounded-2xl border border-slate-200 bg-white p-4 h-36">
+                            <div class="h-5 w-10 bg-slate-100 rounded-lg mb-4" />
+                            <div class="h-4 w-2/3 bg-slate-200 rounded-lg mb-2" />
+                            <div class="h-3 w-full bg-slate-100 rounded-lg mb-1.5" />
+                            <div class="h-3 w-4/5 bg-slate-100 rounded-lg" />
+                        </div>
+                    ))
                 }
             </div>
+        </div>
+    </div>
 
-            <!-- No results -->
-            <div id="noResults" class="hidden text-center py-20">
-                <div class="text-5xl mb-4">🔍</div>
-                <p class="text-slate-500 text-lg font-semibold">Không tìm thấy game nào</p>
-                <p class="text-slate-400 text-sm mt-1">Thử từ khóa khác nhé!</p>
+    {/* Nội dung chính (ẩn cho tới khi xác thực xong) */}
+    <div id="auth-guard" class="hidden">
+        {/* ── HERO ── */}
+        <section class="relative overflow-hidden bg-navy-950 text-white">
+            <div class="absolute inset-0 bg-grid-dark opacity-60 pointer-events-none" aria-hidden="true"></div>
+            <div
+                class="absolute -top-40 -right-32 w-[520px] h-[520px] rounded-full bg-blue-600/30 blur-[130px] pointer-events-none"
+                aria-hidden="true"
+            >
+            </div>
+            <div
+                class="absolute -bottom-48 -left-24 w-[420px] h-[420px] rounded-full bg-sun-400/10 blur-[130px] pointer-events-none"
+                aria-hidden="true"
+            >
+            </div>
+
+            <div class="relative container-site py-12 md:py-20 grid lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+                <div class="lg:col-span-7">
+                    <nav aria-label="Breadcrumb" class="text-sm text-slate-400 mb-6">
+                        <a href="/" class="hover:text-white no-underline">Trang chủ</a>
+                        <span class="mx-2" aria-hidden="true">/</span>
+                        <span class="text-slate-200">Prompt Game HTML5</span>
+                    </nav>
+
+                    <p
+                        class="inline-flex items-center gap-2 bg-white/10 border border-white/15 text-sun-400 text-xs font-bold px-3 py-1.5 rounded-full mb-6 uppercase tracking-wider"
+                    >
+                        <span class="w-1.5 h-1.5 rounded-full bg-sun-400"></span>
+                        Thư viện dành cho thành viên
+                    </p>
+
+                    <h1
+                        class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight leading-[1.15] text-balance"
+                    >
+                        {totalGames} prompt AI để tạo
+                        <span class="text-sun-400">game HTML5</span>
+                    </h1>
+
+                    <p class="mt-5 text-slate-300 text-base md:text-lg leading-relaxed max-w-2xl">
+                        Từ trò chơi cơ bản đến cấp độ Pro — chọn ý tưởng, sao chép prompt, dán vào AI và nhận code game
+                        HTML5 hoàn chỉnh. Cách học vui để hiểu game được làm ra như thế nào.
+                    </p>
+
+                    <div class="mt-8 flex flex-col sm:flex-row sm:flex-wrap gap-3">
+                        <a href="#kho-prompt" class="btn btn-sun btn-lg">
+                            Khám phá ý tưởng game
+                            <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path
+                                    fill-rule="evenodd"
+                                    d="M10 3a.75.75 0 0 1 .75.75v10.638l3.96-4.158a.75.75 0 1 1 1.08 1.04l-5.25 5.5a.75.75 0 0 1-1.08 0l-5.25-5.5a.75.75 0 1 1 1.08-1.04l3.96 4.158V3.75A.75.75 0 0 1 10 3Z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                        </a>
+                        <a
+                            id="heroUnlockCta"
+                            href={ZALO_URL}
+                            target="_blank"
+                            rel="noopener"
+                            class="btn btn-ghost-light btn-lg"
+                        >
+                            <svg
+                                class="w-5 h-5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                                aria-hidden="true"
+                            >
+                                <path stroke-linecap="round" stroke-linejoin="round" d={chatIcon}></path>
+                            </svg>
+                            Mở khóa qua Zalo
+                        </a>
+                    </div>
+
+                    <ul class="mt-10 grid grid-cols-3 gap-3 max-w-lg">
+                        {
+                            [
+                                [String(totalGames), 'ý tưởng game'],
+                                [String(filteredCategories.length), 'chủ đề, dễ → Pro'],
+                                ['1 file', 'HTML là chạy'],
+                            ].map(([num, label]) => (
+                                <li class="rounded-2xl bg-white/5 border border-white/10 px-3 py-3 sm:px-4">
+                                    <span class="block text-xl sm:text-2xl font-extrabold text-white leading-tight">
+                                        {num}
+                                    </span>
+                                    <span class="block text-xs sm:text-sm text-slate-300 mt-0.5">{label}</span>
+                                </li>
+                            ))
+                        }
+                    </ul>
+                </div>
+
+                {/* 3 bước sử dụng */}
+                <div class="lg:col-span-5">
+                    <div
+                        class="rounded-3xl bg-white/[0.06] border border-white/10 p-5 sm:p-7 shadow-[0_30px_80px_rgba(0,0,0,0.35)]"
+                    >
+                        <p class="text-sm font-extrabold uppercase tracking-wider text-sun-400">
+                            Cách dùng trong 3 bước
+                        </p>
+                        <ol class="mt-5 space-y-5">
+                            {
+                                steps.map((step, i) => (
+                                    <li class="flex gap-4">
+                                        <span class="w-10 h-10 shrink-0 rounded-xl bg-sun-400 text-navy-950 font-extrabold text-lg flex items-center justify-center">
+                                            {i + 1}
+                                        </span>
+                                        <div>
+                                            <p class="font-bold text-white text-base">{step.title}</p>
+                                            <p class="text-sm text-slate-300 leading-relaxed mt-0.5">{step.desc}</p>
+                                        </div>
+                                    </li>
+                                ))
+                            }
+                        </ol>
+                        <p
+                            class="mt-6 pt-5 border-t border-white/10 text-sm text-slate-300 leading-relaxed flex items-start gap-2"
+                        >
+                            <span aria-hidden="true">💡</span>
+                            <span>
+                                Mẹo: lưu code AI trả về thành file <strong class="text-white">.html</strong> rồi mở bằng trình
+                                duyệt để chơi thử ngay.
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {/* ── Thanh tìm kiếm + chọn chủ đề (dính dưới thanh điều hướng) ── */}
+        <div
+            id="kho-prompt"
+            class="sticky top-[var(--nav-h)] z-40 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-[0_8px_24px_-18px_rgba(15,23,42,0.35)]"
+        >
+            <div class="container-site py-3 space-y-2.5">
+                <div class="relative max-w-xl">
+                    <svg
+                        class="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        aria-hidden="true"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"></path>
+                    </svg>
+                    <label for="gameSearch" class="sr-only">Tìm kiếm game</label>
+                    <input
+                        id="gameSearch"
+                        type="search"
+                        autocomplete="off"
+                        placeholder="Tìm game, ví dụ: bắn, né, xếp…"
+                        class="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-300 bg-white text-[15px] text-slate-800 placeholder-slate-400 outline-none transition-all"
+                    />
+                </div>
+                <nav aria-label="Chọn chủ đề" class="-mx-4 sm:-mx-6 lg:mx-0">
+                    <ul id="catJumpList" class="cat-jump-list flex gap-2 overflow-x-auto px-4 sm:px-6 lg:px-0 pb-0.5">
+                        {
+                            filteredCategories.map((cat, i) => (
+                                <li class="shrink-0">
+                                    <a
+                                        href={`#chu-de-${i + 1}`}
+                                        class="cat-jump inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 no-underline hover:border-blue-300 hover:text-blue-700 transition-colors whitespace-nowrap"
+                                        data-target={`chu-de-${i + 1}`}
+                                    >
+                                        <span aria-hidden="true">{cat.icon}</span>
+                                        {shortLabels[cat.title] || titleTranslate[cat.title] || cat.title}
+                                    </a>
+                                </li>
+                            ))
+                        }
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+        {/* ── Danh sách chủ đề ── */}
+        <div class="bg-slate-50">
+            <div class="container-site py-10 md:py-14 pb-20">
+                {/* Hướng dẫn mở khóa */}
+                <div
+                    id="unlockCta"
+                    class="card p-5 md:p-6 mb-10 md:mb-12 grid md:grid-cols-[auto_1fr_auto] gap-4 md:gap-6 md:items-center"
+                >
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0"
+                        aria-hidden="true"
+                    >
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"
+                            ></path>
+                        </svg>
+                    </div>
+                    <div class="min-w-0">
+                        <h2 id="unlockTitle" class="text-lg md:text-xl font-extrabold text-slate-900 tracking-tight">
+                            Mở khóa thêm prompt
+                        </h2>
+                        <p id="unlockDesc" class="mt-1 text-slate-600 leading-relaxed">
+                            Bạn đã mở khóa <strong id="unlockCount" class="text-slate-900">—</strong> prompt. Thẻ có nhãn
+                            <span class="whitespace-nowrap font-semibold text-amber-800">🔒 Chưa mở khóa</span> cần được cấp
+                            quyền —
+                            <strong class="text-slate-900">liên hệ Zalo {PHONE_TEXT} để được mở khóa</strong>.
+                        </p>
+                        <div
+                            class="mt-3 h-2 w-full max-w-md rounded-full bg-slate-100 overflow-hidden"
+                            aria-hidden="true"
+                        >
+                            <div id="unlockBar" class="h-full w-0 rounded-full bg-blue-600 transition-all duration-500">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="unlockAction">
+                        <a href={ZALO_URL} target="_blank" rel="noopener" class="btn btn-primary w-full md:w-auto">
+                            <svg
+                                class="w-5 h-5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                                aria-hidden="true"
+                            >
+                                <path stroke-linecap="round" stroke-linejoin="round" d={chatIcon}></path>
+                            </svg>
+                            Nhắn Zalo {PHONE_TEXT}
+                        </a>
+                    </div>
+                </div>
+
+                <div id="categoriesContainer" class="space-y-12 md:space-y-14">
+                    {
+                        filteredCategories.map((cat, i) => {
+                            const color = categoryColors[cat.title] || '#334155'
+                            const label = titleTranslate[cat.title] || cat.title
+                            const note = categoryNotes[cat.title] || ''
+                            const level = (cat.title.match(/^(\d+)\./) || [])[1]
+                            return (
+                                <section
+                                    class="category-block scroll-mt-32"
+                                    id={`chu-de-${i + 1}`}
+                                    data-category={cat.title.toLowerCase()}
+                                    aria-labelledby={`chu-de-${i + 1}-title`}
+                                >
+                                    {/* Tiêu đề chủ đề */}
+                                    <div class="flex flex-wrap items-center gap-x-4 gap-y-3 mb-5">
+                                        <div
+                                            class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-md shrink-0"
+                                            style={`background: ${color};`}
+                                            aria-hidden="true"
+                                        >
+                                            {cat.icon}
+                                        </div>
+                                        <div class="flex-1 min-w-[calc(100%-4rem)] sm:min-w-0">
+                                            {level && (
+                                                <p class="text-xs font-extrabold uppercase tracking-wider text-slate-500">
+                                                    Cấp độ {level}/{filteredCategories.length}
+                                                </p>
+                                            )}
+                                            <h2
+                                                id={`chu-de-${i + 1}-title`}
+                                                class="text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight leading-tight"
+                                            >
+                                                {label}
+                                            </h2>
+                                            {note && <p class="text-sm md:text-base text-slate-600 mt-0.5">{note}</p>}
+                                        </div>
+                                        <span
+                                            class="cat-progress chip bg-white border-slate-200 text-slate-700 text-[13px] ml-16 sm:ml-0"
+                                            data-total={cat.items.length}
+                                        >
+                                            {cat.items.length} ý tưởng
+                                        </span>
+                                    </div>
+
+                                    {/* Lưới thẻ game */}
+                                    <div class="grid sm:grid-cols-2 xl:grid-cols-5 gap-3 md:gap-4">
+                                        {cat.items.map((item) => {
+                                            const gameName = item.text.split(':')[0].trim()
+                                            const gameDesc = item.text.includes(':')
+                                                ? item.text.split(':').slice(1).join(':').trim()
+                                                : ''
+                                            return (
+                                                <button
+                                                    type="button"
+                                                    class="game-card group text-left bg-white rounded-2xl p-4 border border-slate-200 cursor-pointer"
+                                                    data-id={item.id}
+                                                    data-name={item.text.toLowerCase()}
+                                                >
+                                                    <span class="flex items-center justify-between gap-2 mb-3">
+                                                        <span
+                                                            class="text-xs font-extrabold px-2 py-0.5 rounded-lg"
+                                                            style={`background: ${color}17; color: ${color};`}
+                                                        >
+                                                            #{String(item.id).padStart(2, '0')}
+                                                        </span>
+                                                        <span class="state-badge state-locked chip bg-amber-50 text-amber-800 border-amber-200">
+                                                            🔒 Chưa mở khóa
+                                                        </span>
+                                                        <span class="state-badge state-unlocked chip bg-emerald-50 text-emerald-700 border-emerald-200">
+                                                            <svg
+                                                                class="w-3.5 h-3.5"
+                                                                viewBox="0 0 20 20"
+                                                                fill="currentColor"
+                                                                aria-hidden="true"
+                                                            >
+                                                                <path
+                                                                    fill-rule="evenodd"
+                                                                    d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z"
+                                                                    clip-rule="evenodd"
+                                                                />
+                                                            </svg>
+                                                            Đã mở
+                                                        </span>
+                                                    </span>
+                                                    <span class="game-card-name block font-bold text-slate-900 text-[15px] leading-snug">
+                                                        {gameName}
+                                                    </span>
+                                                    {gameDesc && (
+                                                        <span class="game-card-desc mt-1 text-sm text-slate-600 leading-relaxed line-clamp-2">
+                                                            {gameDesc}
+                                                        </span>
+                                                    )}
+                                                    <span class="state-cta-open inline-flex items-center gap-1 text-sm font-bold text-blue-600">
+                                                        Xem prompt
+                                                        <svg
+                                                            class="w-4 h-4 transition-transform group-hover:translate-x-0.5"
+                                                            viewBox="0 0 20 20"
+                                                            fill="currentColor"
+                                                            aria-hidden="true"
+                                                        >
+                                                            <path
+                                                                fill-rule="evenodd"
+                                                                d="M3 10a.75.75 0 0 1 .75-.75h10.638L10.23 5.29a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.158-3.96H3.75A.75.75 0 0 1 3 10Z"
+                                                                clip-rule="evenodd"
+                                                            />
+                                                        </svg>
+                                                    </span>
+                                                </button>
+                                            )
+                                        })}
+                                    </div>
+                                </section>
+                            )
+                        })
+                    }
+                </div>
+
+                {/* Không có kết quả */}
+                <div id="noResults" class="hidden text-center py-16">
+                    <div
+                        class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-3xl"
+                        aria-hidden="true"
+                    >
+                        🔍
+                    </div>
+                    <p class="text-slate-900 text-lg font-bold">Không tìm thấy game nào</p>
+                    <p class="text-slate-600 mt-1">Thử từ khóa khác nhé, ví dụ: “bắn”, “né”, “xếp”.</p>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- ══════════════════════════════════════════
-         PROMPT MODAL
-    ══════════════════════════════════════════ -->
+    {/* ═════════ PROMPT MODAL ═════════ */}
     <div
         id="promptModal"
-        class="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+        class="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4"
         style="display: none !important;"
         aria-modal="true"
         role="dialog"
         aria-labelledby="promptModalTitle"
     >
-        <!-- Backdrop -->
-        <div id="promptModalBackdrop" class="absolute inset-0" style="background: rgba(10,8,30,0.7); backdrop-filter: blur(8px);"></div>
+        {/* Nền mờ */}
+        <div id="promptModalBackdrop" class="absolute inset-0 bg-navy-950/70 backdrop-blur-sm"></div>
 
-        <!-- Panel -->
+        {/* Khung modal */}
         <div
             id="promptModalPanel"
-            class="relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-3xl overflow-hidden shadow-2xl"
-            style="background: #fff;"
+            class="relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-3xl overflow-hidden shadow-2xl bg-white"
         >
-            <!-- Header -->
+            {/* Đầu modal */}
             <div
-                class="flex items-center justify-between px-6 py-5 flex-shrink-0"
-                style="background: linear-gradient(135deg, #4c1d95 0%, #7c3aed 50%, #a855f7 100%); box-shadow: 0 4px 24px rgba(124,58,237,0.35);"
+                class="relative flex items-center justify-between gap-3 px-5 sm:px-6 py-4 sm:py-5 shrink-0 bg-navy-950"
             >
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center text-lg">🎮</div>
-                    <div>
-                        <p class="text-white/60 text-xs font-semibold uppercase tracking-widest">Prompt AI · Game HTML5</p>
-                        <h2 id="promptModalTitle" class="text-white font-black text-base leading-tight"></h2>
+                <div
+                    class="absolute -top-16 -right-10 w-48 h-48 rounded-full bg-blue-600/30 blur-[60px] pointer-events-none"
+                    aria-hidden="true"
+                >
+                </div>
+                <div class="relative flex items-center gap-3 min-w-0">
+                    <div
+                        class="w-10 h-10 shrink-0 rounded-xl bg-sun-400 flex items-center justify-center text-xl"
+                        aria-hidden="true"
+                    >
+                        🎮
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-sun-300 text-xs font-bold uppercase tracking-wider">Prompt AI · Game HTML5</p>
+                        <h2 id="promptModalTitle" class="text-white font-extrabold text-lg leading-tight truncate"></h2>
                     </div>
                 </div>
                 <button
                     id="promptModalClose"
-                    class="w-9 h-9 rounded-xl bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition-colors"
+                    class="relative w-10 h-10 shrink-0 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
                     aria-label="Đóng"
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="w-5 h-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2.2"
+                        aria-hidden="true"
+                    >
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
             </div>
 
-            <!-- Tip banner -->
-            <div class="px-6 pt-5 flex-shrink-0">
-                <div class="flex items-start gap-3 rounded-2xl p-4" style="background: #fdf4ff; border: 1.5px solid #e9d5ff;">
-                    <span class="text-purple-500 text-base flex-shrink-0 mt-0.5">💡</span>
-                    <p class="text-purple-700 text-xs leading-relaxed">
-                        Copy prompt và dán vào <strong>ChatGPT, Claude, Gemini</strong> để nhận code game HTML5 hoàn chỉnh ngay lập tức!
+            {/* Mẹo sử dụng */}
+            <div class="px-5 sm:px-6 pt-5 shrink-0">
+                <div class="flex items-start gap-3 rounded-2xl p-4 bg-blue-50 border border-blue-100">
+                    <span class="text-base shrink-0 mt-0.5" aria-hidden="true">💡</span>
+                    <p class="text-blue-900 text-sm leading-relaxed">
+                        Sao chép prompt và dán vào <strong>ChatGPT, Claude, Gemini</strong> để nhận code game HTML5 hoàn chỉnh.
+                        Lưu thành file <strong>.html</strong> rồi mở bằng trình duyệt để chơi thử!
                     </p>
                 </div>
             </div>
 
-            <!-- Body -->
-            <div class="flex-1 overflow-y-auto px-6 py-4 prompt-scrollbar">
+            {/* Nội dung prompt */}
+            <div class="flex-1 overflow-y-auto px-5 sm:px-6 py-4 prompt-scrollbar">
                 <pre
                     id="promptContent"
-                    class="w-full rounded-2xl p-5 text-sm leading-relaxed whitespace-pre-wrap break-words font-mono"
-                    style="background: #f8f7ff; border: 1.5px solid #ede9fe; color: #3b0764; min-height: 120px;"
-                ></pre>
+                    class="w-full rounded-2xl p-4 sm:p-5 text-[13px] sm:text-sm leading-relaxed whitespace-pre-wrap break-words font-sans bg-slate-50 border border-slate-200 text-slate-800 min-h-[120px]">
+                </pre>
             </div>
 
-            <!-- Footer -->
-            <div
-                class="flex items-center justify-between gap-3 px-6 py-4 flex-shrink-0"
-                style="border-top: 1.5px solid #f3f4f6;"
-            >
-                <p class="text-slate-400 text-xs">Dành riêng cho thành viên 💜</p>
+            {/* Chân modal */}
+            <div class="flex items-center justify-between gap-3 px-5 sm:px-6 py-4 shrink-0 border-t border-slate-100">
+                <p class="hidden sm:block text-slate-500 text-sm">Dành riêng cho thành viên Error404 Labs</p>
                 <button
                     id="promptCopyBtn"
-                    class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-bold transition-all duration-200 hover:opacity-90 hover:scale-[1.02] active:scale-95"
-                    style="background: linear-gradient(135deg, #7c3aed, #ec4899);"
+                    class="ml-auto w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-white text-sm font-bold transition-all duration-200 hover:opacity-95 hover:-translate-y-px active:scale-95 shadow-[0_10px_24px_-8px_rgba(37,99,235,0.55)]"
+                    style="background: linear-gradient(135deg, #2563eb, #1d4ed8);"
                 >
-                    <svg id="copyIcon" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                    <svg
+                        id="copyIcon"
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="w-4 h-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        aria-hidden="true"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                        ></path>
                     </svg>
-                    <svg id="checkIcon" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <svg
+                        id="checkIcon"
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="w-4 h-4 hidden"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                        aria-hidden="true"
+                    >
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
                     </svg>
                     <span id="copyBtnText">Sao chép prompt</span>
@@ -390,6 +685,41 @@ const promptsJson = JSON.stringify(GAME_PROMPTS.map((p) => ({ id: p.id, name: p.
                 }
             }
         })
+
+        // ── Bổ sung (không đổi hành vi cũ): gắn class trạng thái để hiển thị nhãn
+        // "Chưa mở khóa" / "Đã mở" rõ ràng và cập nhật bộ đếm mở khóa
+        let unlocked = 0
+        cards.forEach((card) => {
+            const id = parseInt(card.dataset.id || '0', 10)
+            if (!id) return
+            const ok = hasAccess(id)
+            card.classList.toggle('is-locked', !ok)
+            card.classList.toggle('is-unlocked', ok)
+            if (ok) unlocked++
+        })
+        document.querySelectorAll('.category-block').forEach((block) => {
+            const progress = block.querySelector('.cat-progress')
+            if (!progress) return
+            const total = block.querySelectorAll('.game-card').length
+            const open = block.querySelectorAll('.game-card.is-unlocked').length
+            progress.textContent = `Đã mở ${open}/${total}`
+        })
+        const total = cards.length
+        const countEl = document.getElementById('unlockCount')
+        const barEl = document.getElementById('unlockBar')
+        if (countEl) countEl.textContent = `${unlocked}/${total}`
+        if (barEl) barEl.style.width = total ? `${Math.round((unlocked / total) * 100)}%` : '0%'
+        if (total && unlocked >= total) {
+            const titleEl = document.getElementById('unlockTitle')
+            if (titleEl) titleEl.textContent = 'Bạn đã mở khóa toàn bộ prompt 🎉'
+            document.getElementById('unlockAction')?.classList.add('hidden')
+            // Đã mở hết → thay lời nhắc liên hệ Zalo bằng lời chúc, ẩn nút mở khóa ở hero
+            const descEl = document.getElementById('unlockDesc')
+            if (descEl)
+                descEl.textContent = `Bạn đã có quyền xem cả ${total} prompt. Chọn một ý tưởng và bắt đầu làm game nhé!`
+            const heroCta = document.getElementById('heroUnlockCta')
+            if (heroCta) heroCta.style.display = 'none'
+        }
     }
 
     // ── Search ────────────────────────────────────────────────────────────────
@@ -398,16 +728,24 @@ const promptsJson = JSON.stringify(GAME_PROMPTS.map((p) => ({ id: p.id, name: p.
     const categoryBlocks = document.querySelectorAll('.category-block')
     const gameCards = document.querySelectorAll('.game-card')
 
+    // Bỏ dấu tiếng Việt để tìm "ban" vẫn ra "bắn"
+    const normalizeText = (s) =>
+        (s || '')
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/đ/g, 'd')
+
     if (searchInput) {
         searchInput.addEventListener('input', () => {
-            const q = searchInput.value.toLowerCase().trim()
+            const q = normalizeText(searchInput.value.trim())
             let totalVisible = 0
 
             categoryBlocks.forEach((block) => {
                 const cards = block.querySelectorAll('.game-card')
                 let blockVisible = 0
                 cards.forEach((card) => {
-                    const match = !q || (card.dataset.name || '').includes(q)
+                    const match = !q || normalizeText(card.dataset.name).includes(q)
                     card.style.display = match ? '' : 'none'
                     if (match) blockVisible++
                 })
@@ -418,6 +756,69 @@ const promptsJson = JSON.stringify(GAME_PROMPTS.map((p) => ({ id: p.id, name: p.
             if (noResults) noResults.classList.toggle('hidden', totalVisible > 0)
         })
     }
+
+    // ── Thanh chọn chủ đề: ẩn chủ đề không có kết quả + đánh dấu chủ đề đang xem
+    const jumpLinks = Array.from(document.querySelectorAll('.cat-jump'))
+    const jumpList = document.getElementById('catJumpList')
+
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            jumpLinks.forEach((link) => {
+                const block = document.getElementById(link.dataset.target || '')
+                const item = link.parentElement
+                if (block && item) item.style.display = block.style.display === 'none' ? 'none' : ''
+            })
+            // Nếu đang cuộn sâu, đưa danh sách về đầu để thấy ngay kết quả tìm kiếm
+            const bar = document.getElementById('kho-prompt')
+            const hero = bar && bar.previousElementSibling
+            if (bar && hero) {
+                const navH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nav-h'), 10) || 0
+                const listTop = hero.getBoundingClientRect().bottom + window.scrollY - navH
+                if (window.scrollY > listTop) window.scrollTo({ top: listTop })
+            }
+            updateActiveJump()
+        })
+    }
+
+    let activeTarget = ''
+    function updateActiveJump() {
+        const bar = document.getElementById('kho-prompt')
+        const offset = (bar ? bar.getBoundingClientRect().bottom : 0) + 48
+        let current = ''
+        categoryBlocks.forEach((block) => {
+            if (block.style.display === 'none') return
+            if (block.getBoundingClientRect().top <= offset) current = block.id
+        })
+        if (current === activeTarget) return
+        activeTarget = current
+        // Trở về phía trên chủ đề đầu tiên → cuộn thanh chip về đầu để thấy "Cơ bản"
+        if (current === '' && jumpList) jumpList.scrollTo({ left: 0, behavior: 'smooth' })
+        jumpLinks.forEach((link) => {
+            const active = link.dataset.target === current
+            link.classList.toggle('is-active', active)
+            if (active) link.setAttribute('aria-current', 'true')
+            else link.removeAttribute('aria-current')
+            // Cuộn ngang để chip đang chọn luôn nhìn thấy (không cuộn trang)
+            if (active && jumpList && jumpList.scrollWidth > jumpList.clientWidth) {
+                const left = link.offsetLeft - (jumpList.clientWidth - link.offsetWidth) / 2
+                jumpList.scrollTo({ left: Math.max(0, left), behavior: 'smooth' })
+            }
+        })
+    }
+
+    let jumpTicking = false
+    window.addEventListener(
+        'scroll',
+        () => {
+            if (jumpTicking) return
+            jumpTicking = true
+            requestAnimationFrame(() => {
+                jumpTicking = false
+                updateActiveJump()
+            })
+        },
+        { passive: true },
+    )
 
     // ── Modal ─────────────────────────────────────────────────────────────────
     const modal = document.getElementById('promptModal')
@@ -430,13 +831,15 @@ const promptsJson = JSON.stringify(GAME_PROMPTS.map((p) => ({ id: p.id, name: p.
     const checkIcon = document.getElementById('checkIcon')
     const copyBtnText = document.getElementById('copyBtnText')
 
+    let lastFocused = null
     function openModal(id) {
         // Kiểm tra quyền trước khi mở modal
         if (!hasAccess(id)) {
+            const msg = 'Prompt này chưa được mở khóa. Liên hệ Zalo 0373.306.966 để được mở khóa nhé!'
             if (window.showToast) {
-                window.showToast('Bạn không có quyền xem Prompt này!', 'warning')
+                window.showToast(msg, 'warning')
             } else {
-                alert('Bạn không có quyền xem Prompt này!')
+                alert(msg)
             }
             return
         }
@@ -447,16 +850,23 @@ const promptsJson = JSON.stringify(GAME_PROMPTS.map((p) => ({ id: p.id, name: p.
         if (promptContent) promptContent.textContent = prompt.content
         resetCopy()
         if (modal) {
+            lastFocused = document.activeElement
             modal.style.setProperty('display', 'flex', 'important')
             document.body.style.overflow = 'hidden'
-            setTimeout(() => { if (modalClose) modalClose.focus() }, 50)
+            setTimeout(() => {
+                if (modalClose) modalClose.focus()
+            }, 50)
         }
     }
 
     function closeModal() {
         if (modal) {
+            const wasOpen = modal.style.display !== 'none'
             modal.style.setProperty('display', 'none', 'important')
             document.body.style.overflow = ''
+            // Trả focus về thẻ game đã mở modal
+            if (wasOpen && lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus()
+            lastFocused = null
         }
     }
 
@@ -464,12 +874,31 @@ const promptsJson = JSON.stringify(GAME_PROMPTS.map((p) => ({ id: p.id, name: p.
         if (copyIcon) copyIcon.classList.remove('hidden')
         if (checkIcon) checkIcon.classList.add('hidden')
         if (copyBtnText) copyBtnText.textContent = 'Sao chép prompt'
-        if (copyBtn) copyBtn.style.background = 'linear-gradient(135deg, #7c3aed, #ec4899)'
+        if (copyBtn) copyBtn.style.background = 'linear-gradient(135deg, #2563eb, #1d4ed8)'
     }
 
     if (modalClose) modalClose.addEventListener('click', closeModal)
     if (modalBackdrop) modalBackdrop.addEventListener('click', closeModal)
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal() })
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeModal()
+        // Giữ focus bên trong modal khi bấm Tab
+        if (e.key === 'Tab' && modal && modal.style.display !== 'none') {
+            const focusables = Array.from(modal.querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])'))
+            if (!focusables.length) return
+            const first = focusables[0]
+            const last = focusables[focusables.length - 1]
+            if (!modal.contains(document.activeElement)) {
+                e.preventDefault()
+                first.focus()
+            } else if (e.shiftKey && document.activeElement === first) {
+                e.preventDefault()
+                last.focus()
+            } else if (!e.shiftKey && document.activeElement === last) {
+                e.preventDefault()
+                first.focus()
+            }
+        }
+    })
 
     if (copyBtn) {
         copyBtn.addEventListener('click', async () => {
@@ -513,23 +942,84 @@ const promptsJson = JSON.stringify(GAME_PROMPTS.map((p) => ({ id: p.id, name: p.
         }
     }
 
-    /* Search focus ring */
+    /* Ô tìm kiếm */
     #gameSearch:focus {
-        border-color: #a78bfa !important;
-        box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.25), 0 1px 4px rgba(0,0,0,0.05) !important;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
     }
 
-    /* Game card hover — scale + deep shadow */
+    /* Thanh chip chủ đề: cuộn ngang, ẩn thanh cuộn */
+    .cat-jump-list {
+        scrollbar-width: none;
+    }
+    .cat-jump-list::-webkit-scrollbar {
+        display: none;
+    }
+    .cat-jump.is-active {
+        background: #2563eb;
+        border-color: #2563eb;
+        color: #fff;
+    }
+
+    /* Thẻ game */
+    .game-card {
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        transition:
+            transform 0.25s ease,
+            box-shadow 0.25s ease,
+            border-color 0.25s ease;
+    }
     .game-card:hover {
-        transform: translateY(-3px) scale(1.02);
-        border-color: rgba(167, 139, 250, 0.35) !important;
-        box-shadow:
-            0 12px 32px rgba(124, 58, 237, 0.12),
-            0 4px 12px rgba(0, 0, 0, 0.07) !important;
+        transform: translateY(-3px);
+        border-color: rgba(37, 99, 235, 0.35);
+        box-shadow: 0 16px 32px -16px rgba(15, 23, 42, 0.22);
+    }
+    .game-card:active {
+        transform: translateY(0) scale(0.99);
+    }
+    .game-card .state-cta-open {
+        margin-top: auto;
+        padding-top: 0.75rem;
     }
 
-    .game-card:active {
-        transform: translateY(0) scale(0.98);
+    /* Nhãn trạng thái: chỉ hiện sau khi initPermissions gắn class */
+    .state-badge {
+        display: none;
+    }
+    .game-card.is-unlocked .state-unlocked,
+    .game-card.is-locked .state-locked {
+        display: inline-flex;
+    }
+    .game-card.is-locked .state-cta-open {
+        display: none;
+    }
+
+    /* Thẻ bị khóa: trông "có chủ đích" thay vì mờ như lỗi.
+       initPermissions vẫn đặt opacity/cursor inline — ghi đè phần hiển thị ở đây. */
+    .game-card.is-locked {
+        opacity: 1 !important;
+        background: #f8fafc;
+    }
+    .game-card.is-locked .game-card-name {
+        color: #334155;
+    }
+    .game-card.is-locked .game-card-desc {
+        color: #64748b;
+    }
+    .game-card.is-locked:hover {
+        transform: none;
+        border-color: #fcd34d;
+        box-shadow: none;
+    }
+    .game-card.is-unlocked {
+        border-color: #a7f3d0;
+    }
+    /* Biểu tượng khóa cũ do initPermissions chèn — đã thay bằng nhãn "Chưa mở khóa" */
+    :global(.game-card .lock-badge) {
+        display: none !important;
     }
 
     /* Prompt scrollbar */
@@ -540,11 +1030,11 @@ const promptsJson = JSON.stringify(GAME_PROMPTS.map((p) => ({ id: p.id, name: p.
         background: transparent;
     }
     .prompt-scrollbar::-webkit-scrollbar-thumb {
-        background: #c4b5fd;
+        background: #cbd5e1;
         border-radius: 99px;
     }
     .prompt-scrollbar::-webkit-scrollbar-thumb:hover {
-        background: #a78bfa;
+        background: #94a3b8;
     }
 
     /* Line clamp */

@@ -2,6 +2,10 @@
 import '../styles/global.css'
 import '@fontsource/montserrat/400.css'
 import '@fontsource/montserrat/400-italic.css'
+import '@fontsource/montserrat/500.css'
+import '@fontsource/montserrat/600.css'
+import '@fontsource/montserrat/700.css'
+import '@fontsource/montserrat/800.css'
 
 import MainHead from './MainHead.astro'
 import Nav from '../components/Nav.astro'
@@ -27,7 +31,7 @@ const {
     <MainHead {title} {description} />
     <body class="pxh">
         <Nav />
-        <div class="w-full h-26"></div>
+        <div class="w-full h-[var(--nav-h)]" aria-hidden="true"></div>
         <!-- <div class="max-w-3xl mx-auto">
             <Marquee />
         </div> -->
@@ -65,12 +69,6 @@ const {
 
         // Ctrl + Shift + J (Console)
         if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'j') {
-            e.preventDefault()
-            return false
-        }
-
-        // Tab
-        if (e.key === 'Tab') {
             e.preventDefault()
             return false
         }

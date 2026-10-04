@@ -20,6 +20,15 @@
 
 ## Completed
 
+### Redesign UI/UX toàn site cho học sinh & phụ huynh (2026-10-04)
+
+- ✅ **Nền tảng chung**: token màu/font trong `global.css` (@theme navy/sun, Montserrat 500–800), biến `--nav-h` (64/72px) thay cho mọi offset 104px, class dùng chung `.btn/.card/.chip/.eyebrow/.container-site`; bỏ chặn phím Tab trong MainLayout.
+- ✅ **Nav/Footer mới**: menu gọn có trạng thái active (kể cả trang con), thêm "Khóa học", RSS xuống footer; Esc đóng modal/menu, tự focus ô nhập; footer có CTA cho phụ huynh + liên hệ Zalo/địa chỉ (ẩn CTA ở /khoa-hoc và /hoc-python). Giữ nguyên toàn bộ id mà script dùng.
+- ✅ **Trang**: Trang chủ (landing cho HS/PH), Bài viết (9 bài/trang + redirect URL cũ /bai-viet/9–22), Danh mục (chuỗi bài đánh số cho KH_*), Tác giả (hồ sơ giáo viên, hiện đủ bài), Bài viết chi tiết (mục lục, bài trước/sau, nút chép code, markdown.css mới, sửa link bài liên quan 404), Khóa học, Giới thiệu (`gioi-thieu-v2.md` → `.astro`, `/gioi-thieu` 301), Donate (không iframe), 404, Công cụ, Thử nghiệm (lọc Game/Web), HTML5 Editor (responsive), Vibe Tools & Prompts Game (sửa thanh tìm kiếm bị che, sửa lỗi tìm kiếm), Python cá nhân/bảng xếp hạng (sửa lỗi bục vinh danh), trang cá nhân thành viên; danh hiệu level sang tiếng Việt.
+- ✅ **Tên danh mục thân thiện**: `src/data/categoryMeta.js` (URL không đổi).
+- **Kiểm tra**: `astro build` đạt; Playwright với DB giả ở 360/390/768/1024/1440: không tràn ngang, không PAGEERROR do code mới; review chéo (4 reviewer + critic) — không có blocker.
+- **Vấn đề còn lại**: chưa kiểm tra với Neon/CDN thật; ảnh `/images/me.png` chỉ 200px (nên thay ảnh lớn hơn); prompt 26–50 của vibe-tools viết không dấu; API leaderboard chỉ trả tên đăng nhập (nên trả display_name); /quan-ly và /game-roadmap không redesign.
+
 ### Redesign giao diện Học Python kiểu CodeLearn (2026-10-04)
 
 - ✅ **Thanh điều hướng con** `PyNav` (Tổng quan / Khóa học / Bảng xếp hạng / Cá nhân) dùng chung cho mục `/hoc-python`; nạp thêm Montserrat 500–800 cho các trang này (trước đây chỉ có 400 → chữ đậm bị giả lập).

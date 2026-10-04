@@ -1,233 +1,650 @@
 ---
 import MainLayout from '../../layouts/MainLayout.astro'
 import PyNav from '../../components/python/PyNav.astro'
+import PyIcon from '../../components/python/PyIcon.astro'
+import IconPython from '../../icons/IconPython.astro'
 import { TC_TITLE } from '../../common/TextConst'
+
+// Quyền lợi khi đăng nhập (dựa trên tính năng thật của nền tảng)
+const benefits = [
+    {
+        title: 'XP & cấp độ',
+        desc: 'Mỗi bài hoàn thành được cộng XP. Tích đủ XP để lên level và nhận danh hiệu mới, từ Tập sự đến Huyền thoại.',
+        tile: 'bg-amber-50 text-amber-600',
+        icon: 'M11.983 1.907a.75.75 0 0 0-1.292-.657l-8.5 9.5A.75.75 0 0 0 2.75 12h6.572l-1.305 6.093a.75.75 0 0 0 1.292.657l8.5-9.5A.75.75 0 0 0 17.25 8h-6.572l1.305-6.093Z',
+    },
+    {
+        title: 'Huy hiệu thành tích',
+        desc: 'Mở khóa huy hiệu ở các cột mốc: bài học đầu tiên, 7 ngày học liên tiếp, 1.000 XP…',
+        tile: 'bg-emerald-50 text-emerald-600',
+        icon: 'M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401Z',
+    },
+    {
+        title: 'Bảng xếp hạng tuần',
+        desc: 'So tài cùng các bạn học khác, giữ chuỗi ngày học và leo top mỗi tuần.',
+        tile: 'bg-[#3776AB]/10 text-[#3776AB]',
+        icon: 'M15.5 2A1.5 1.5 0 0 0 14 3.5v13a1.5 1.5 0 0 0 1.5 1.5h1a1.5 1.5 0 0 0 1.5-1.5v-13A1.5 1.5 0 0 0 16.5 2h-1ZM9.5 6A1.5 1.5 0 0 0 8 7.5v9A1.5 1.5 0 0 0 9.5 18h1a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 10.5 6h-1ZM3.5 10A1.5 1.5 0 0 0 2 11.5v5A1.5 1.5 0 0 0 3.5 18h1A1.5 1.5 0 0 0 6 16.5v-5A1.5 1.5 0 0 0 4.5 10h-1Z',
+    },
+]
+
+// Biểu tượng cúp (outline 24px)
+const trophyPath =
+    'M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 0 0 2.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 0 1 2.916.52 6.003 6.003 0 0 1-5.395 4.972m0 0a6.726 6.726 0 0 1-2.749 1.35m0 0a6.772 6.772 0 0 1-3.044 0'
 ---
 
-<MainLayout title={`Cá nhân | Học Python | ${TC_TITLE}`}>
+<MainLayout
+    title={`Cá nhân | Học Python | ${TC_TITLE}`}
+    description="Theo dõi cấp độ, điểm XP, chuỗi ngày học và huy hiệu khi học Python miễn phí trên Error404 Labs."
+>
     <PyNav active="profile" />
-    <section class="min-h-screen bg-gradient-to-b from-slate-50 to-white relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden z-0">
-            <div class="absolute -top-[15%] -right-[10%] w-[40%] h-[40%] bg-[#3776AB]/5 rounded-full blur-[120px]"></div>
-            <div class="absolute -bottom-[15%] -left-[10%] w-[40%] h-[40%] bg-[#FFD43B]/8 rounded-full blur-[120px]"></div>
+
+    <!-- ── HERO ─────────────────────────────────────────────────────── -->
+    <section class="relative overflow-hidden bg-[#0B1E33] text-white">
+        <div class="absolute inset-0 bg-grid-dark opacity-60 pointer-events-none"></div>
+        <div
+            class="absolute -top-32 -right-24 w-[480px] h-[480px] rounded-full bg-[#3776AB]/35 blur-[130px] pointer-events-none"
+        >
         </div>
+        <div
+            class="absolute -bottom-48 -left-24 w-[400px] h-[400px] rounded-full bg-[#FFD43B]/10 blur-[130px] pointer-events-none"
+        >
+        </div>
+        <IconPython
+            class="absolute right-6 md:right-24 top-1/2 -translate-y-1/2 w-48 h-48 md:w-64 md:h-64 text-white/[0.04] pointer-events-none"
+            aria-hidden="true"
+        />
 
-        <div class="relative z-10 max-w-4xl mx-auto px-4 py-12 md:py-16">
-            <!-- Breadcrumb -->
-            <a href="/hoc-python/khoa-hoc/python-co-ban"
-                class="inline-flex items-center gap-2 text-slate-400 hover:text-[#3776AB] font-medium text-sm mb-6 transition-colors group">
-                <span class="group-hover:-translate-x-1 transition-transform">←</span>
-                <span>Quay lại khoá học</span>
-            </a>
+        <div class="relative max-w-7xl mx-auto px-4 pt-10 pb-24 md:pt-14 md:pb-28">
+            <nav class="flex items-center gap-2 text-xs md:text-sm text-slate-400 mb-6" aria-label="Breadcrumb">
+                <a href="/hoc-python" class="hover:text-white transition-colors no-underline">Học Python</a>
+                <span aria-hidden="true">/</span>
+                <span class="text-slate-200" aria-current="page">Cá nhân</span>
+            </nav>
 
-            <!-- Header -->
-            <div class="flex items-center justify-between mb-8 flex-wrap gap-4">
+            <div class="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,30rem)] gap-8 lg:gap-12 items-center">
+                <!-- Lời chào + CTA -->
                 <div>
-                    <div class="inline-flex items-center gap-2 bg-[#3776AB]/10 text-[#3776AB] font-black text-xs md:text-sm px-4 py-2 rounded-full mb-4 uppercase tracking-wider">
-                        👤 Hồ sơ cá nhân
+                    <p
+                        class="inline-flex items-center gap-2 bg-white/10 border border-white/15 text-[#FFD43B] text-xs font-bold px-3 py-1.5 rounded-full mb-5 uppercase tracking-wider"
+                    >
+                        <span class="w-1.5 h-1.5 rounded-full bg-[#FFD43B]"></span>
+                        <span id="heroGreeting">Hồ sơ học tập</span>
+                    </p>
+                    <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight mb-3">Thành tích học tập</h1>
+                    <p class="text-slate-300 text-base md:text-lg max-w-2xl leading-relaxed mb-7">
+                        Theo dõi cấp độ, điểm XP, chuỗi ngày học và bộ sưu tập huy hiệu của bạn. Mỗi bài hoàn thành là
+                        một bước tiến!
+                    </p>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <a href="/hoc-python/khoa-hoc" class="btn btn-sun font-extrabold no-underline">
+                            <span id="heroCtaLabel">Tiếp tục học</span>
+                            <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path
+                                    fill-rule="evenodd"
+                                    d="M3 10a.75.75 0 0 1 .75-.75h10.638L10.23 5.29a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.158-3.96H3.75A.75.75 0 0 1 3 10Z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                        </a>
+                        <a href="/hoc-python/bang-xep-hang" class="btn btn-ghost-light no-underline">
+                            <svg
+                                class="w-5 h-5 text-[#FFD43B]"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke-width="1.8"
+                                stroke="currentColor"
+                                aria-hidden="true"
+                            >
+                                <path stroke-linecap="round" stroke-linejoin="round" d={trophyPath}></path>
+                            </svg>
+                            Bảng xếp hạng
+                        </a>
                     </div>
-                    <h1 class="text-3xl md:text-4xl font-black text-slate-800 tracking-tight">
-                        Thành tích <span class="text-[#3776AB]">học tập</span>
-                    </h1>
                 </div>
-                <a href="/hoc-python/bang-xep-hang"
-                    class="inline-flex items-center gap-2 bg-white border border-slate-200 text-slate-600 font-bold text-sm px-4 py-2.5 rounded-xl hover:border-[#3776AB] hover:text-[#3776AB] transition-colors shadow-sm">
-                    🏆 Bảng xếp hạng
-                </a>
-            </div>
 
-            <!-- Profile not loaded state -->
-            <div id="profileLoading" class="text-center py-20">
-                <div class="text-4xl mb-4 animate-pulse">⏳</div>
-                <p class="text-slate-400">Đang tải thông tin...</p>
-            </div>
-
-            <!-- Profile content (hidden until loaded) -->
-            <div id="profileContent" class="hidden space-y-8">
-                <!-- Level Card -->
-                <div id="levelCard" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 md:p-8 flex flex-col md:flex-row items-center gap-6">
-                    <div id="badgeIcon" class="w-24 h-24 rounded-2xl bg-gradient-to-br flex items-center justify-center text-5xl shadow-lg shrink-0">
-                    </div>
-                    <div class="flex-1 text-center md:text-left">
-                        <p class="text-xs text-slate-400 font-medium uppercase tracking-wider mb-1">Cấp độ</p>
-                        <h2 class="text-3xl font-black text-slate-800 mb-1">
-                            Level <span id="levelNumber"></span>
-                        </h2>
-                        <p id="badgeTitle" class="text-slate-500 font-medium"></p>
-                        <div class="mt-4">
-                            <div class="flex justify-between text-sm text-slate-500 mb-1.5">
-                                <span id="xpCurrent" class="font-semibold text-slate-700"></span>
-                                <span id="xpNext"></span>
+                <!-- Thẻ cấp độ (khung xương khi đang tải) -->
+                <div>
+                    <div
+                        id="levelSkeleton"
+                        class="rounded-3xl border border-white/10 bg-white/[0.06] p-6 md:p-7 animate-pulse"
+                        aria-hidden="true"
+                    >
+                        <div class="flex items-center gap-5">
+                            <div class="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-white/10 shrink-0"></div>
+                            <div class="flex-1 space-y-3">
+                                <div class="h-3 w-24 rounded bg-white/10"></div>
+                                <div class="h-8 w-32 rounded-lg bg-white/15"></div>
+                                <div class="h-4 w-40 max-w-full rounded bg-white/10"></div>
                             </div>
-                            <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
-                                <div id="xpBar" class="h-full bg-gradient-to-r from-[#3776AB] to-[#2B5E8A] rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="mt-7 h-3 w-full rounded-full bg-white/10"></div>
+                        <div class="mt-3 h-3 w-1/2 rounded bg-white/10"></div>
+                    </div>
+
+                    <div id="levelCard" class="hidden">
+                        <div
+                            class="rounded-3xl border border-white/10 bg-white/[0.06] backdrop-blur p-5 sm:p-6 md:p-7 shadow-[0_30px_60px_-30px_rgba(0,0,0,0.6)]"
+                        >
+                            <div class="flex items-center gap-4 sm:gap-5">
+                                <div
+                                    id="badgeIcon"
+                                    class="w-20 h-20 md:w-24 md:h-24 rounded-2xl flex items-center justify-center text-4xl md:text-5xl shadow-lg ring-4 ring-white/10 shrink-0"
+                                >
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">
+                                        Cấp độ hiện tại
+                                    </p>
+                                    <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-none">
+                                        Level <span id="levelNumber"></span>
+                                    </h2>
+                                    <p id="badgeTitle" class="mt-2 text-sm md:text-base font-bold text-[#FFD43B]"></p>
+                                </div>
+                            </div>
+
+                            <div class="mt-6">
+                                <div class="flex items-baseline justify-between gap-3 mb-2">
+                                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400"
+                                        >Tiến độ level</span
+                                    >
+                                    <span id="xpCurrent" class="text-sm font-bold text-white tabular-nums"></span>
+                                </div>
+                                <div
+                                    id="xpProgress"
+                                    class="h-3 rounded-full bg-white/10 overflow-hidden"
+                                    role="progressbar"
+                                    aria-label="Tiến độ lên level tiếp theo"
+                                    aria-valuemin="0"
+                                    aria-valuemax="100"
+                                    aria-valuenow="0"
+                                >
+                                    <div
+                                        id="xpBar"
+                                        class="h-full rounded-full bg-gradient-to-r from-[#FFD43B] to-[#F5C400] transition-all duration-700"
+                                        style="width: 0%"
+                                    >
+                                    </div>
+                                </div>
+                                <p id="xpNext" class="mt-3 text-sm text-slate-300"></p>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </section>
 
-                <!-- Stats Grid -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="bg-white rounded-xl border border-slate-200 p-5 text-center">
-                        <div class="text-2xl mb-1">📝</div>
-                        <div id="lessonsCompleted" class="text-2xl font-black text-slate-800">0</div>
-                        <p class="text-xs text-slate-400 font-medium mt-1">Bài đã học</p>
+    <!-- ── NỘI DUNG ─────────────────────────────────────────────────── -->
+    <section class="bg-slate-50">
+        <div class="relative max-w-7xl mx-auto px-4 pb-16 md:pb-24">
+            <!-- Khung xương khi đang tải -->
+            <div id="profileLoading" class="relative z-10 -mt-14 md:-mt-16" role="status" aria-live="polite">
+                <span class="sr-only">Đang tải thông tin...</span>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5" aria-hidden="true">
+                    {
+                        Array.from({ length: 4 }).map(() => (
+                            <div class="card p-4 md:p-6 shadow-[0_20px_40px_-24px_rgba(15,23,42,0.35)] animate-pulse">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-slate-200 shrink-0" />
+                                    <div class="h-3 w-20 rounded bg-slate-200" />
+                                </div>
+                                <div class="mt-4 h-8 w-16 rounded-lg bg-slate-200" />
+                                <div class="mt-3 h-3 w-24 max-w-full rounded bg-slate-100" />
+                            </div>
+                        ))
+                    }
+                </div>
+                <div class="mt-12 md:mt-16" aria-hidden="true">
+                    <div class="h-3 w-20 rounded bg-slate-200 animate-pulse"></div>
+                    <div class="mt-3 h-8 w-72 max-w-full rounded-lg bg-slate-200 animate-pulse"></div>
+                    <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {
+                            Array.from({ length: 6 }).map(() => (
+                                <div class="card p-5 flex items-start gap-4 animate-pulse">
+                                    <div class="w-14 h-14 rounded-2xl bg-slate-200 shrink-0" />
+                                    <div class="flex-1 space-y-2 pt-1">
+                                        <div class="h-4 w-2/3 rounded bg-slate-200" />
+                                        <div class="h-3 w-full rounded bg-slate-100" />
+                                        <div class="h-3 w-1/2 rounded bg-slate-100" />
+                                    </div>
+                                </div>
+                            ))
+                        }
                     </div>
-                    <div class="bg-white rounded-xl border border-slate-200 p-5 text-center">
-                        <div class="text-2xl mb-1">💯</div>
-                        <div class="text-2xl font-black text-slate-800">
+                </div>
+            </div>
+
+            <!-- Nội dung hồ sơ (ẩn đến khi tải xong) -->
+            <div id="profileContent" class="hidden relative z-10 -mt-14 md:-mt-16">
+                <!-- Thống kê nhanh -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
+                    <div class="card p-4 md:p-6 shadow-[0_20px_40px_-24px_rgba(15,23,42,0.35)]">
+                        <div class="flex items-center gap-3">
+                            <span
+                                class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0"
+                            >
+                                <PyIcon name="check" class="w-5 h-5" />
+                            </span>
+                            <p class="text-xs md:text-sm font-semibold text-slate-600 leading-snug">
+                                Bài đã hoàn thành
+                            </p>
+                        </div>
+                        <p
+                            id="lessonsCompleted"
+                            class="mt-4 text-2xl md:text-3xl font-extrabold text-slate-900 tabular-nums"
+                        >
+                            0
+                        </p>
+                        <p id="lessonsHint" class="mt-1 text-xs md:text-sm text-slate-500"></p>
+                    </div>
+
+                    <div class="card p-4 md:p-6 shadow-[0_20px_40px_-24px_rgba(15,23,42,0.35)]">
+                        <div class="flex items-center gap-3">
+                            <span
+                                class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0"
+                            >
+                                <PyIcon name="bolt" class="w-5 h-5" />
+                            </span>
+                            <p class="text-xs md:text-sm font-semibold text-slate-600 leading-snug">Tổng XP</p>
+                        </div>
+                        <p class="mt-4 text-2xl md:text-3xl font-extrabold text-slate-900 tabular-nums">
                             <span id="xpTotal">0</span>
+                        </p>
+                        <p class="mt-1 text-xs md:text-sm text-slate-500">Điểm kinh nghiệm tích lũy</p>
+                    </div>
+
+                    <div class="card p-4 md:p-6 shadow-[0_20px_40px_-24px_rgba(15,23,42,0.35)]">
+                        <div class="flex items-center gap-3">
+                            <span
+                                id="streakIcon"
+                                class="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-xl shrink-0"
+                                >🔥</span
+                            >
+                            <p class="text-xs md:text-sm font-semibold text-slate-600 leading-snug">Chuỗi ngày học</p>
                         </div>
-                        <p class="text-xs text-slate-400 font-medium mt-1">Tổng XP</p>
+                        <p class="mt-4 text-2xl md:text-3xl font-extrabold text-slate-900 tabular-nums">
+                            <span id="streakCount">0</span>
+                            <span class="text-base md:text-lg font-bold text-slate-500">ngày</span>
+                        </p>
+                        <p id="streakHint" class="mt-1 text-xs md:text-sm text-slate-500"></p>
                     </div>
-                    <div class="bg-white rounded-xl border border-slate-200 p-5 text-center">
-                        <div id="streakIcon" class="text-2xl mb-1">🔥</div>
-                        <div id="streakCount" class="text-2xl font-black text-slate-800">0</div>
-                        <p class="text-xs text-slate-400 font-medium mt-1">Streak hiện tại</p>
-                    </div>
-                    <div class="bg-white rounded-xl border border-slate-200 p-5 text-center">
-                        <div class="text-2xl mb-1">🏆</div>
-                        <div id="achievementCount" class="text-2xl font-black text-slate-800">0</div>
-                        <p class="text-xs text-slate-400 font-medium mt-1">Huy hiệu</p>
+
+                    <div class="card p-4 md:p-6 shadow-[0_20px_40px_-24px_rgba(15,23,42,0.35)]">
+                        <div class="flex items-center gap-3">
+                            <span
+                                class="w-10 h-10 rounded-xl bg-[#3776AB]/10 text-[#3776AB] flex items-center justify-center shrink-0"
+                            >
+                                <svg
+                                    class="w-5 h-5"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke-width="1.8"
+                                    stroke="currentColor"
+                                    aria-hidden="true"
+                                >
+                                    <path stroke-linecap="round" stroke-linejoin="round" d={trophyPath}></path>
+                                </svg>
+                            </span>
+                            <p class="text-xs md:text-sm font-semibold text-slate-600 leading-snug">Huy hiệu</p>
+                        </div>
+                        <p
+                            id="achievementCount"
+                            class="mt-4 text-2xl md:text-3xl font-extrabold text-slate-900 tabular-nums"
+                        >
+                            0
+                        </p>
+                        <p class="mt-1 text-xs md:text-sm text-slate-500">Đã mở khóa</p>
                     </div>
                 </div>
 
-                <!-- Achievements -->
-                <div>
-                    <h2 class="text-xl font-black text-slate-800 mb-4 flex items-center gap-2">
-                        🏅 Huy hiệu
+                <!-- Huy hiệu -->
+                <div class="mt-12 md:mt-16">
+                    <span class="eyebrow text-[#3776AB]">Huy hiệu</span>
+                    <h2 class="mt-2 text-2xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+                        Bộ sưu tập huy hiệu
                     </h2>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="achievementsGrid">
-                        <!-- Filled by JS -->
+                    <p class="mt-3 text-slate-600 max-w-2xl leading-relaxed">
+                        Hoàn thành thử thách để mở khóa huy hiệu mới. Huy hiệu màu xám đang chờ bạn chinh phục!
+                    </p>
+                    <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="achievementsGrid">
+                        <!-- JS sẽ điền các thẻ huy hiệu -->
                     </div>
                 </div>
             </div>
 
-            <!-- Not logged in state -->
-            <div id="loginPrompt" class="hidden text-center py-20">
-                <div class="text-6xl mb-4">🔒</div>
-                <h2 class="text-2xl font-bold text-slate-400 mb-2">Cần đăng nhập</h2>
-                <p class="text-slate-300 mb-6">Vui lòng đăng nhập để xem thành tích học tập của bạn.</p>
-                <button onclick="showLoginModal()"
-                    class="inline-flex items-center gap-2 bg-[#3776AB] text-white font-bold px-6 py-3 rounded-xl hover:bg-[#2B5E8A] transition-colors shadow-md">
-                    Đăng nhập
-                </button>
+            <!-- Lỗi tải dữ liệu -->
+            <div id="profileError" class="hidden relative z-10 -mt-14 md:-mt-16">
+                <div
+                    class="card max-w-2xl mx-auto p-8 md:p-12 text-center shadow-[0_20px_40px_-24px_rgba(15,23,42,0.35)]"
+                    role="alert"
+                >
+                    <span
+                        class="mx-auto w-14 h-14 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center"
+                    >
+                        <svg class="w-7 h-7" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path
+                                fill-rule="evenodd"
+                                d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495ZM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5Zm0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
+                                clip-rule="evenodd"></path>
+                        </svg>
+                    </span>
+                    <h2 class="mt-5 text-xl md:text-2xl font-extrabold text-slate-900">Không thể tải thông tin</h2>
+                    <p class="mt-2 text-slate-600 leading-relaxed">
+                        Đã có lỗi khi tải thành tích của bạn. Hãy kiểm tra kết nối mạng rồi thử lại nhé.
+                    </p>
+                    <button
+                        type="button"
+                        id="profileRetry"
+                        class="btn mt-6 bg-[#3776AB] hover:bg-[#2B5E8A] text-white cursor-pointer"
+                    >
+                        Thử lại
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chưa đăng nhập -->
+            <div id="loginPrompt" class="hidden relative z-10 -mt-14 md:-mt-16">
+                <div class="card overflow-hidden shadow-[0_20px_40px_-24px_rgba(15,23,42,0.35)]">
+                    <div class="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
+                        <div class="p-6 sm:p-8 md:p-10">
+                            <span
+                                class="w-14 h-14 rounded-2xl bg-[#3776AB]/10 text-[#3776AB] flex items-center justify-center"
+                            >
+                                <PyIcon name="lock" class="w-7 h-7" />
+                            </span>
+                            <h2 class="mt-5 text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+                                Đăng nhập để lưu thành tích
+                            </h2>
+                            <p class="mt-3 text-slate-600 leading-relaxed">
+                                Mỗi bài Python bạn hoàn thành đều được ghi lại: điểm XP, cấp độ, chuỗi ngày học và huy
+                                hiệu. Học hoàn toàn miễn phí — <strong class="text-slate-900">0đ học phí</strong>.
+                            </p>
+                            <div class="mt-7 flex flex-wrap items-center gap-3">
+                                <button
+                                    type="button"
+                                    onclick="showLoginModal()"
+                                    class="btn bg-[#3776AB] hover:bg-[#2B5E8A] text-white shadow-[0_10px_24px_-8px_rgba(55,118,171,0.6)] cursor-pointer"
+                                >
+                                    Đăng nhập ngay
+                                </button>
+                                <a href="/hoc-python/khoa-hoc" class="btn btn-outline no-underline">Xem khóa học</a>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 border-t lg:border-t-0 lg:border-l border-slate-200 p-6 sm:p-8 md:p-10">
+                            <p class="text-sm font-bold text-slate-900 mb-5">Khi đăng nhập, bạn sẽ có:</p>
+                            <ul class="space-y-5">
+                                {
+                                    benefits.map((b) => (
+                                        <li class="flex items-start gap-4">
+                                            <span
+                                                class:list={[
+                                                    'w-10 h-10 rounded-xl flex items-center justify-center shrink-0',
+                                                    b.tile,
+                                                ]}
+                                            >
+                                                <svg
+                                                    class="w-5 h-5"
+                                                    viewBox="0 0 20 20"
+                                                    fill="currentColor"
+                                                    aria-hidden="true"
+                                                >
+                                                    <path fill-rule="evenodd" clip-rule="evenodd" d={b.icon} />
+                                                </svg>
+                                            </span>
+                                            <div>
+                                                <p class="font-bold text-slate-900">{b.title}</p>
+                                                <p class="mt-1 text-sm text-slate-600 leading-relaxed">{b.desc}</p>
+                                            </div>
+                                        </li>
+                                    ))
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 </MainLayout>
 
 <script is:inline>
-(function () {
-    var container = document.getElementById('profileContent')
-    var loading = document.getElementById('profileLoading')
-    var loginPrompt = document.getElementById('loginPrompt')
+    ;(function () {
+        var container = document.getElementById('profileContent')
+        var loading = document.getElementById('profileLoading')
+        var loginPrompt = document.getElementById('loginPrompt')
+        var errorBox = document.getElementById('profileError')
+        var levelCard = document.getElementById('levelCard')
+        var levelSkeleton = document.getElementById('levelSkeleton')
 
-    window.showLoginModal = function () {
-        var m = document.getElementById('loginModal')
-        if (m) { m.classList.remove('hidden'); m.classList.add('flex'); document.body.classList.add('overflow-hidden') }
-    }
-
-    // Luôn lắng nghe login/logout — kể cả khi chưa có token
-    window.addEventListener('user-login', function () { location.reload() })
-    window.addEventListener('user-logout', function () { location.reload() })
-
-    var token = localStorage.getItem('auth_token')
-    if (!token) {
-        loading.classList.add('hidden')
-        loginPrompt.classList.remove('hidden')
-        return
-    }
-
-    fetch('/api/hoc-python/profile', {
-        headers: { 'Authorization': 'Bearer ' + token }
-    })
-    .then(function (r) {
-        if (r.status === 401) {
-            localStorage.removeItem('auth_token')
-            loading.classList.add('hidden')
-            loginPrompt.classList.remove('hidden')
-            return null
+        window.showLoginModal = function () {
+            var m = document.getElementById('loginModal')
+            if (m) {
+                m.classList.remove('hidden')
+                m.classList.add('flex')
+                document.body.classList.add('overflow-hidden')
+            }
         }
-        return r.json()
-    })
-    .then(function (data) {
-        if (!data) return
-        loading.classList.add('hidden')
-        container.classList.remove('hidden')
 
-        // Level + XP
-        var badgeIcon = document.getElementById('badgeIcon')
-        badgeIcon.className = badgeIcon.className + ' bg-gradient-to-br ' + (data.badge.color || 'from-slate-400 to-slate-500')
-        badgeIcon.textContent = data.badge.icon || '🥚'
+        // Luôn lắng nghe login/logout — kể cả khi chưa có token
+        window.addEventListener('user-login', function () {
+            location.reload()
+        })
+        window.addEventListener('user-logout', function () {
+            location.reload()
+        })
 
-        document.getElementById('levelNumber').textContent = data.level
-        document.getElementById('badgeTitle').textContent = data.badge.title || ''
+        document.getElementById('profileRetry').addEventListener('click', function () {
+            location.reload()
+        })
 
-        document.getElementById('xpCurrent').textContent =
-            data.xp.currentLevelXp.toLocaleString() + ' XP (hiện tại)'
-        document.getElementById('xpNext').textContent =
-            data.xp.xpForNextLevel.toLocaleString() + ' XP (tiếp theo)'
-        document.getElementById('xpBar').style.width = (data.xp.progress * 100) + '%'
-        document.getElementById('xpTotal').textContent = data.xp.total.toLocaleString()
+        // Định dạng số kiểu Việt Nam (1.250)
+        function fmt(n) {
+            return Number(n || 0).toLocaleString('vi-VN')
+        }
 
-        // Lessons
-        document.getElementById('lessonsCompleted').textContent =
-            data.lessons.completed + '/' + data.lessons.total
+        // Chuyển trạng thái hiển thị: 'content' | 'login' | 'error'
+        function showState(state) {
+            loading.classList.add('hidden')
+            levelSkeleton.classList.add('hidden')
+            if (state === 'content') {
+                container.classList.remove('hidden')
+                levelCard.classList.remove('hidden')
+            } else if (state === 'login') {
+                loginPrompt.classList.remove('hidden')
+                document.getElementById('heroCtaLabel').textContent = 'Bắt đầu học'
+            } else {
+                errorBox.classList.remove('hidden')
+            }
+        }
 
-        // Streak
-        document.getElementById('streakCount').textContent = data.streak.current
-        var streakIcon = document.getElementById('streakIcon')
-        if (data.streak.current >= 30) streakIcon.textContent = '💪'
-        else if (data.streak.current >= 7) streakIcon.textContent = '🔥'
-        else streakIcon.textContent = '✨'
+        // Tiến độ của huy hiệu chưa đạt (theo loại điều kiện)
+        function achievementProgress(ach, data) {
+            var target = Number(ach.criteria_value) || 0
+            var current = null
+            var unit = ''
+            if (ach.criteria_type === 'lessons_completed') {
+                current = data.lessons.completed
+                unit = ' bài'
+            } else if (ach.criteria_type === 'xp_total') {
+                current = data.xp.total
+                unit = ' XP'
+            } else if (ach.criteria_type === 'streak') {
+                current = data.streak.current
+                unit = ' ngày'
+            }
+            if (current === null || target <= 0) return null
+            current = Math.min(Number(current) || 0, target)
+            return { ratio: current / target, remain: target - current, unit: unit }
+        }
 
-        // Achievements
-        var grid = document.getElementById('achievementsGrid')
-        var earned = data.achievements.filter(function (a) { return a.earned })
-        document.getElementById('achievementCount').textContent = earned.length + '/' + data.achievements.length
-
-        data.achievements.forEach(function (ach) {
+        function renderAchievement(ach, data) {
             var card = document.createElement('div')
-            card.className = 'bg-white rounded-xl border ' +
-                (ach.earned ? 'border-slate-200' : 'border-slate-100 bg-slate-50/50') +
-                ' p-4 flex items-start gap-4 transition-all hover:shadow-md'
+            card.className = ach.earned
+                ? 'flex items-start gap-4 rounded-2xl border border-[#FFD43B] bg-white p-4 md:p-5 shadow-[0_12px_30px_-14px_rgba(245,196,0,0.55)]'
+                : 'flex items-start gap-4 rounded-2xl border border-slate-200 bg-slate-100/70 p-4 md:p-5'
 
             var iconDiv = document.createElement('div')
-            iconDiv.className = 'w-12 h-12 rounded-xl ' +
-                (ach.earned ? 'bg-[#FFD43B]/20' : 'bg-slate-100') +
-                ' flex items-center justify-center text-2xl shrink-0'
-            iconDiv.textContent = ach.earned ? ach.icon : '🔒'
+            iconDiv.className = ach.earned
+                ? 'relative w-14 h-14 rounded-2xl bg-gradient-to-br from-[#FFF4C2] to-[#FFD43B] flex items-center justify-center text-3xl shrink-0 shadow-sm'
+                : 'relative w-14 h-14 rounded-2xl bg-slate-200/80 flex items-center justify-center text-3xl shrink-0'
+            var emoji = document.createElement('span')
+            emoji.className = ach.earned ? '' : 'grayscale opacity-50'
+            emoji.textContent = ach.icon || '🏅'
+            iconDiv.appendChild(emoji)
+            if (!ach.earned) {
+                var lock = document.createElement('span')
+                lock.className =
+                    'absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-full bg-white border border-slate-200 text-slate-500 flex items-center justify-center shadow-sm'
+                lock.innerHTML =
+                    '<svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z"></path></svg>'
+                iconDiv.appendChild(lock)
+            }
 
             var info = document.createElement('div')
             info.className = 'flex-1 min-w-0'
 
-            var title = document.createElement('h4')
-            title.className = 'font-bold text-sm ' + (ach.earned ? 'text-slate-800' : 'text-slate-400')
+            var title = document.createElement('h3')
+            title.className = 'font-bold ' + (ach.earned ? 'text-slate-900' : 'text-slate-700')
             title.textContent = ach.title
 
             var desc = document.createElement('p')
-            desc.className = 'text-xs ' + (ach.earned ? 'text-slate-500' : 'text-slate-300') + ' mt-0.5'
-            desc.textContent = ach.description
+            desc.className = 'mt-0.5 text-sm leading-relaxed ' + (ach.earned ? 'text-slate-600' : 'text-slate-500')
+            desc.textContent = ach.description || ''
 
             info.appendChild(title)
             info.appendChild(desc)
 
-            if (ach.earned && ach.earnedAt) {
-                var date = document.createElement('p')
-                date.className = 'text-[10px] text-slate-400 mt-1'
-                date.textContent = 'Đạt được: ' + new Date(ach.earnedAt).toLocaleDateString('vi-VN')
-                info.appendChild(date)
+            if (ach.earned) {
+                var badge = document.createElement('p')
+                badge.className = 'chip mt-2.5 bg-emerald-50 text-emerald-700 border-emerald-200'
+                badge.textContent = ach.earnedAt
+                    ? '✓ Đạt ngày ' + new Date(ach.earnedAt).toLocaleDateString('vi-VN')
+                    : '✓ Đã đạt'
+                info.appendChild(badge)
+            } else {
+                var prog = achievementProgress(ach, data)
+                if (prog) {
+                    var wrap = document.createElement('div')
+                    wrap.className = 'mt-3'
+                    var track = document.createElement('div')
+                    track.className = 'h-1.5 rounded-full bg-slate-200 overflow-hidden'
+                    var fill = document.createElement('div')
+                    fill.className = 'h-full rounded-full bg-[#3776AB]'
+                    fill.style.width = Math.round(prog.ratio * 100) + '%'
+                    track.appendChild(fill)
+                    var hint = document.createElement('p')
+                    hint.className = 'mt-1.5 text-xs font-semibold text-slate-500'
+                    hint.textContent = 'Còn ' + fmt(prog.remain) + prog.unit + ' nữa'
+                    wrap.appendChild(track)
+                    wrap.appendChild(hint)
+                    info.appendChild(wrap)
+                } else {
+                    var locked = document.createElement('p')
+                    locked.className = 'mt-2 text-xs font-semibold text-slate-500'
+                    locked.textContent = 'Chưa mở khóa'
+                    info.appendChild(locked)
+                }
             }
 
             card.appendChild(iconDiv)
             card.appendChild(info)
-            grid.appendChild(card)
-        })
-    })
-    .catch(function () {
-        loading.innerHTML = '<div class="text-4xl mb-4">❌</div><p class="text-slate-400">Không thể tải thông tin.</p>'
-    })
+            return card
+        }
 
-})()
+        function render(data) {
+            var name = localStorage.getItem('user_displayName') || data.member
+            if (name) document.getElementById('heroGreeting').textContent = 'Xin chào, ' + name + ' 👋'
+
+            // Level + XP
+            var badgeIcon = document.getElementById('badgeIcon')
+            badgeIcon.className =
+                badgeIcon.className + ' bg-gradient-to-br ' + (data.badge.color || 'from-slate-400 to-slate-500')
+            badgeIcon.textContent = data.badge.icon || '🥚'
+
+            var level = Number(data.level) || 1
+            document.getElementById('levelNumber').textContent = level
+            document.getElementById('badgeTitle').textContent = data.badge.title || ''
+
+            // currentLevelXp = XP trong level hiện tại; xpForNextLevel = mốc tổng XP của level kế tiếp
+            var total = Number(data.xp.total) || 0
+            var inLevel = Number(data.xp.currentLevelXp) || 0
+            var nextAt = Number(data.xp.xpForNextLevel) || 0
+            var levelSpan = Math.max(nextAt - (total - inLevel), 0)
+            var remain = Math.max(nextAt - total, 0)
+            var progress = Math.max(0, Math.min(Number(data.xp.progress) || 0, 1))
+
+            document.getElementById('xpCurrent').textContent = fmt(inLevel) + ' / ' + fmt(levelSpan) + ' XP'
+            document.getElementById('xpNext').textContent = 'Còn ' + fmt(remain) + ' XP để lên Level ' + (level + 1)
+            document.getElementById('xpBar').style.width = progress * 100 + '%'
+            document.getElementById('xpProgress').setAttribute('aria-valuenow', String(Math.round(progress * 100)))
+            document.getElementById('xpTotal').textContent = fmt(total)
+
+            // Bài học
+            document.getElementById('lessonsCompleted').textContent = fmt(data.lessons.completed)
+            if (!Number(data.lessons.completed)) document.getElementById('heroCtaLabel').textContent = 'Bắt đầu học'
+            // Tổng số bài là của cả thư viện (mọi khóa học), không phải riêng khóa của học viên
+            document.getElementById('lessonsHint').textContent =
+                'Thư viện có ' + fmt(data.lessons.total) + ' bài Python để bạn luyện thêm'
+
+            // Chuỗi ngày học
+            var streak = Number(data.streak.current) || 0
+            document.getElementById('streakCount').textContent = fmt(streak)
+            var streakIcon = document.getElementById('streakIcon')
+            if (streak >= 30) streakIcon.textContent = '💪'
+            else if (streak >= 7) streakIcon.textContent = '🔥'
+            else streakIcon.textContent = '✨'
+            var longest = Number(data.streak.longest) || 0
+            document.getElementById('streakHint').textContent =
+                longest > 0 ? 'Kỷ lục: ' + fmt(longest) + ' ngày' : 'Học mỗi ngày để giữ chuỗi'
+
+            // Huy hiệu: đã đạt hiển thị trước
+            var grid = document.getElementById('achievementsGrid')
+            var list = data.achievements || []
+            var earned = list.filter(function (a) {
+                return a.earned
+            })
+            var locked = list.filter(function (a) {
+                return !a.earned
+            })
+            document.getElementById('achievementCount').textContent = earned.length + '/' + list.length
+
+            grid.innerHTML = ''
+            if (list.length === 0) {
+                var none = document.createElement('p')
+                none.className = 'sm:col-span-2 lg:col-span-3 text-slate-600'
+                none.textContent = 'Chưa có huy hiệu nào. Hãy hoàn thành bài học đầu tiên nhé!'
+                grid.appendChild(none)
+            }
+            earned.concat(locked).forEach(function (ach) {
+                grid.appendChild(renderAchievement(ach, data))
+            })
+        }
+
+        var token = localStorage.getItem('auth_token')
+        if (!token) {
+            showState('login')
+            return
+        }
+
+        fetch('/api/hoc-python/profile', {
+            headers: { Authorization: 'Bearer ' + token },
+        })
+            .then(function (r) {
+                if (r.status === 401) {
+                    localStorage.removeItem('auth_token')
+                    showState('login')
+                    return null
+                }
+                if (!r.ok) throw new Error('HTTP ' + r.status)
+                return r.json()
+            })
+            .then(function (data) {
+                if (!data) return
+                if (!data.badge || !data.xp || !data.lessons || !data.streak) throw new Error('Dữ liệu không hợp lệ')
+                render(data)
+                showState('content')
+            })
+            .catch(function () {
+                showState('error')
+            })
+    })()
 </script>

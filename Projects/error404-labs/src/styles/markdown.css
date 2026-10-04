@@ -1,154 +1,670 @@
+/* ══════════════════════════════════════════════════════════════════════
+   Nội dung bài viết Markdown — áp dụng cho <article class="markdown">
+   (66 bài trong src/pages/bai-viet). File này KHÔNG nằm trong @layer nên
+   ghi đè được utility Tailwind trong HTML thô của bài viết.
+   Giữ nguyên các lớp: .markdown, .markdown-table (public/markdown-table.js),
+   .math-scroll-wrapper (KaTeX), pre.astro-code.github-dark (Shiki).
+   ══════════════════════════════════════════════════════════════════════ */
+
 .markdown {
-    color: #1f2937;
-    font-size: 16px;
-    line-height: 1.75;
+    --md-text: #334155; /* slate-700 */
+    --md-heading: #0f172a; /* slate-900 */
+    --md-muted: #64748b; /* slate-500 */
+    --md-border: #e2e8f0; /* slate-200 */
+    --md-soft: #f8fafc; /* slate-50 */
+    --md-link: #2563eb; /* blue-600 */
+    --md-link-hover: #1d4ed8; /* blue-700 */
+    --md-radius: 14px;
+
+    color: var(--md-text);
+    font-size: 17px;
+    line-height: 1.8;
+    overflow-wrap: break-word;
 }
 
-/* Headings */
-.markdown h1 {
-    font-size: 2.25rem;
+.markdown > :first-child {
+    margin-top: 0;
+}
+
+.markdown > :last-child {
+    margin-bottom: 0;
+}
+
+/* ── Tiêu đề ─────────────────────────────────────────────────────────── */
+.markdown h1,
+.markdown h2,
+.markdown h3,
+.markdown h4,
+.markdown h5,
+.markdown h6 {
+    color: var(--md-heading);
     font-weight: 800;
-    margin: 2rem 0 1.25rem;
-    color: #111827;
-    border-bottom: 3px solid #e5e7eb;
-    padding-bottom: 0.5rem;
+    line-height: 1.3;
+    letter-spacing: -0.015em;
+    /* html đã có scroll-padding-top = var(--nav-h) + 16px (global.css) → chỉ cần thêm khoảng thở nhỏ,
+       cộng thêm --nav-h ở đây sẽ bị lệch gấp đôi */
+    scroll-margin-top: 0.5rem;
 }
 
+/* h1 trong thân bài (21 bài dùng "# ") hiển thị như tiêu đề mục — tiêu đề trang đã ở PostHeader */
+.markdown h1,
 .markdown h2 {
-    font-size: 1.75rem;
-    font-weight: 700;
-    margin: 1.75rem 0 1rem;
-    color: #111827;
+    font-size: 1.45rem;
+    margin: 2.75rem 0 1rem;
 }
 
 .markdown h3 {
-    font-size: 1.35rem;
-    font-weight: 600;
-    margin: 1.5rem 0 0.75rem;
+    font-size: 1.2rem;
+    margin: 2.25rem 0 0.75rem;
 }
 
-/* Paragraph */
+.markdown h4 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin: 1.75rem 0 0.6rem;
+}
+
+.markdown h5,
+.markdown h6 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 1.5rem 0 0.5rem;
+}
+
+/* Bài dùng "# " làm mục lớn thì "## " là mục con → giảm một bậc để giữ thứ bậc */
+.markdown:has(> h1) h2 {
+    font-size: 1.2rem;
+    margin: 2.25rem 0 0.75rem;
+}
+
+.markdown:has(> h1) h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin: 1.75rem 0 0.6rem;
+}
+
+@media (min-width: 768px) {
+    .markdown h1,
+    .markdown h2 {
+        font-size: 1.65rem;
+    }
+
+    .markdown h3,
+    .markdown:has(> h1) h2 {
+        font-size: 1.3rem;
+    }
+
+    .markdown h4,
+    .markdown:has(> h1) h3 {
+        font-size: 1.1rem;
+    }
+}
+
+/* ── Đoạn văn & chữ ─────────────────────────────────────────────────── */
 .markdown p {
-    margin: 0.75rem 0;
+    margin: 0 0 1.15em;
 }
 
-/* Lists */
+.markdown strong,
+.markdown b {
+    color: var(--md-heading);
+    font-weight: 700;
+}
+
+.markdown mark {
+    background: #fff3bf;
+    color: inherit;
+    padding: 0 0.2em;
+    border-radius: 4px;
+}
+
+/* ── Liên kết ───────────────────────────────────────────────────────── */
+.markdown a,
+.markdown .ui-widget-content a {
+    color: var(--md-link);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: rgba(37, 99, 235, 0.35);
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 3px;
+    transition:
+        color 0.15s,
+        text-decoration-color 0.15s;
+}
+
+.markdown a:hover,
+.markdown .ui-widget-content a:hover {
+    color: var(--md-link-hover);
+    text-decoration-color: currentColor;
+}
+
+/* ── Danh sách ──────────────────────────────────────────────────────── */
 .markdown ul,
 .markdown ol {
-    padding-left: 1.5rem;
-    margin: 0.75rem 0;
+    margin: 0 0 1.15em;
+    padding-left: 1.5em;
 }
 
-.markdown ul li {
+.markdown ul {
     list-style: disc;
-    margin: 0.25rem 0;
 }
 
-.markdown ol li {
+.markdown ol {
     list-style: decimal;
 }
 
-/* Inline code */
-.markdown code {
-    /* background: #f1f5f9; */
-    color: #db2777;
-    padding: 0.15rem 0.4rem;
-    border-radius: 6px;
-    font-size: 0.95em;
+.markdown ul ul {
+    list-style: circle;
 }
 
-/* Code block */
-.markdown pre {
-    background: #0f172a;
-    color: #e5e7eb;
-    padding: 1rem 1.25rem;
-    border-radius: 12px;
-    overflow-x: auto;
-    margin: 1.25rem 0;
-    font-size: 0.9rem;
+.markdown li {
+    margin: 0.35em 0;
+    padding-left: 0.2em;
 }
 
-/* Links */
-.markdown a {
-    color: #6366f1;
-    font-weight: 500;
-    text-decoration: underline;
+.markdown li::marker {
+    color: #3b82f6;
 }
 
-.markdown a:hover {
-    text-decoration-thickness: 2px;
+.markdown ol > li::marker {
+    font-weight: 700;
 }
 
-/* Blockquote */
+.markdown li > ul,
+.markdown li > ol {
+    margin: 0.35em 0 0.5em;
+}
+
+.markdown li > p {
+    margin: 0 0 0.5em;
+}
+
+/* ── Trích dẫn → hộp ghi chú thân thiện ─────────────────────────────── */
 .markdown blockquote {
-    border-left: 4px solid #6366f1;
-    background: #eef2ff;
-    padding: 0.75rem 1rem;
-    margin: 1rem 0;
+    margin: 1.75rem 0;
+    padding: 1rem 1.25rem;
+    border: 1px solid #dbeafe;
+    border-left: 4px solid var(--md-link);
+    border-radius: var(--md-radius);
+    background: linear-gradient(135deg, #eff6ff, #f8fbff);
+    color: #1e3a5f;
+}
+
+.markdown blockquote > :first-child {
+    margin-top: 0;
+}
+
+.markdown blockquote > :last-child {
+    margin-bottom: 0;
+}
+
+.markdown blockquote p {
+    margin-bottom: 0.5em;
+}
+
+/* ── Code ───────────────────────────────────────────────────────────── */
+/* Code nằm trong dòng chữ (không áp vào code trong <pre>) */
+.markdown :not(pre) > code {
+    font-family: var(--font-mono, ui-monospace, SFMono-Regular, Consolas, monospace);
+    font-size: 0.86em;
+    font-weight: 600;
+    color: #0f172a;
+    background: #f1f5f9;
+    border: 1px solid var(--md-border);
     border-radius: 6px;
+    padding: 0.1em 0.4em;
+    white-space: break-spaces;
 }
 
-/* Tables */
-.markdown table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 1rem 0;
+.markdown a > code {
+    color: inherit;
 }
 
-.markdown-table {
-    width: 100%;
+/* Khối code — Shiki (pre.astro-code.github-dark) tự tô màu & nền */
+.markdown pre,
+.markdown pre.astro-code.github-dark {
+    margin: 1.5rem 0;
+    padding: 1.1rem 1.25rem;
+    border-radius: var(--md-radius);
     overflow-x: auto;
+    font-family: var(--font-mono, ui-monospace, SFMono-Regular, Consolas, monospace);
+    font-size: 14px;
+    line-height: 1.7;
+    tab-size: 4;
     -webkit-overflow-scrolling: touch;
 }
 
+/* Giữ chỗ trước cho thanh tiêu đề của khung code (JS thêm sau khi tải trang) → không bị nhảy bố cục (CLS).
+   Viền trên tối 45px + viền 1px ≈ đúng chiều cao thanh 44px + viền khung; khi đã bọc trong .code-frame thì bỏ. */
+.markdown pre,
+.markdown pre.astro-code.github-dark {
+    border: 1px solid #1f2328;
+    border-top: 45px solid #1b1f24;
+    padding-top: 1rem;
+}
+
+.markdown pre:not(.astro-code) {
+    background: #24292e;
+    color: #e1e4e8;
+}
+
+.markdown pre code {
+    font-family: inherit;
+    font-size: inherit;
+    background: none;
+    border: 0;
+    padding: 0;
+}
+
+/* Khung code có thanh tiêu đề + nút "Sao chép" (thêm bằng JS trong BlogPostLayout) */
+.markdown .code-frame {
+    margin: 1.5rem 0;
+    border-radius: var(--md-radius);
+    overflow: hidden;
+    background: #24292e;
+    border: 1px solid #1f2328;
+    box-shadow: 0 14px 30px -18px rgba(15, 23, 42, 0.55);
+}
+
+.markdown .code-frame > pre,
+.markdown .code-frame > pre.astro-code.github-dark {
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    padding-top: 1rem;
+}
+
+.markdown .code-frame__bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 44px;
+    padding: 0 0.15rem 0 1rem;
+    background: #1b1f24;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    font-size: 12px;
+    line-height: 1;
+    color: #94a3b8;
+}
+
+.markdown .code-frame__dots {
+    display: inline-flex;
+    gap: 6px;
+}
+
+.markdown .code-frame__dots span {
+    width: 10px;
+    height: 10px;
+    border-radius: 9999px;
+    background: #ff5f57;
+}
+
+.markdown .code-frame__dots span:nth-child(2) {
+    background: #febc2e;
+}
+
+.markdown .code-frame__dots span:nth-child(3) {
+    background: #28c840;
+}
+
+.markdown .code-frame__lang {
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #cbd5e1;
+}
+
+.markdown .code-frame__copy {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 40px;
+    padding: 0 0.85rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.04);
+    color: #e2e8f0;
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background-color 0.15s,
+        border-color 0.15s,
+        color 0.15s;
+}
+
+.markdown .code-frame__copy:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.markdown .code-frame__icon {
+    display: inline-flex;
+}
+
+.markdown .code-frame__copy svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+}
+
+.markdown .code-frame__copy[data-state='done'] {
+    color: #6ee7b7;
+    border-color: rgba(110, 231, 183, 0.45);
+}
+
+.markdown .code-frame__copy[data-state='error'] {
+    color: #fda4af;
+    border-color: rgba(253, 164, 175, 0.45);
+}
+
+/* ── Phím tắt ───────────────────────────────────────────────────────── */
+.markdown kbd {
+    font-family: var(--font-mono, ui-monospace, SFMono-Regular, Consolas, monospace);
+    font-size: 0.82em;
+    font-weight: 600;
+    color: var(--md-heading);
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    border-bottom-width: 3px;
+    border-radius: 7px;
+    padding: 0.1em 0.45em;
+    white-space: nowrap;
+}
+
+/* ── <details><summary>Xem code</summary> → thẻ mở/đóng ─────────────── */
+.markdown details {
+    margin: 1.5rem 0;
+    border: 1px solid var(--md-border);
+    border-radius: var(--md-radius);
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    overflow: hidden;
+}
+
+.markdown details > summary {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 52px;
+    padding: 0.6rem 1rem;
+    list-style: none;
+    font-weight: 700;
+    color: var(--md-heading);
+    background: var(--md-soft);
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.15s;
+}
+
+.markdown details > summary::-webkit-details-marker {
+    display: none;
+}
+
+/* Biểu tượng </> bên trái */
+.markdown details > summary::before {
+    content: '';
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    background: #dbeafe
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='2' stroke='%231d4ed8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5'/%3E%3C/svg%3E")
+        center / 18px no-repeat;
+}
+
+/* Mũi tên bên phải */
+.markdown details > summary::after {
+    content: '';
+    flex-shrink: 0;
+    margin-left: auto;
+    width: 20px;
+    height: 20px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2364748b'%3E%3Cpath fill-rule='evenodd' d='M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z' clip-rule='evenodd'/%3E%3C/svg%3E")
+        center / contain no-repeat;
+    transition: transform 0.2s;
+}
+
+.markdown details > summary:hover {
+    background: #eff6ff;
+}
+
+/* details có overflow: hidden → vòng focus mặc định bị cắt, vẽ vòng focus vào trong */
+.markdown details > summary:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: -3px;
+}
+
+.markdown details[open] > summary {
+    border-bottom: 1px solid var(--md-border);
+}
+
+.markdown details[open] > summary::after {
+    transform: rotate(180deg);
+}
+
+.markdown details > :not(summary) {
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
+
+.markdown details > :not(summary):last-child {
+    margin-bottom: 1rem;
+}
+
+/* Khối code trong thẻ mở/đóng: cách đều 4 cạnh của thẻ */
+.markdown details > pre,
+.markdown details > pre.astro-code.github-dark,
+.markdown details > .code-frame {
+    margin: 1rem;
+}
+
+/* ── Bảng ───────────────────────────────────────────────────────────── */
+.markdown table {
+    width: 100%;
+    margin: 1.5rem 0;
+    border-collapse: collapse;
+    font-size: 0.94em;
+    line-height: 1.6;
+}
+
+/* Bọc bảng (public/markdown-table.js) → cuộn ngang trên màn hình nhỏ */
+.markdown-table {
+    width: 100%;
+    margin: 1.5rem 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--md-border, #e2e8f0);
+    border-radius: var(--md-radius, 14px);
+    background: #fff;
+}
+
 .markdown-table table {
-    min-width: 600px; /* hoặc tùy bảng */
+    margin: 0;
 }
 
 .markdown th,
 .markdown td {
-    border: 1px solid #e5e7eb;
-    padding: 0.5rem 0.75rem;
+    padding: 0.65rem 0.9rem;
+    border: 1px solid var(--md-border);
+    text-align: left;
+    vertical-align: top;
 }
 
 .markdown th {
-    background: #f9fafb;
-    font-weight: 600;
+    background: #f1f5f9;
+    color: var(--md-heading);
+    font-weight: 700;
+    white-space: nowrap;
 }
 
-/* Images */
+.markdown tbody tr:nth-child(even) td {
+    background: var(--md-soft);
+}
+
+/* Bảng nằm trong khung bọc: bỏ viền ngoài để không bị đôi viền */
+.markdown-table tr > :first-child {
+    border-left: 0;
+}
+
+.markdown-table tr > :last-child {
+    border-right: 0;
+}
+
+.markdown-table thead tr:first-child > *,
+.markdown-table tbody:first-child tr:first-child > * {
+    border-top: 0;
+}
+
+.markdown-table tbody tr:last-child > * {
+    border-bottom: 0;
+}
+
+/* ── Hình ảnh, iframe, đường kẻ ─────────────────────────────────────── */
 .markdown img {
+    display: block;
     max-width: 100%;
-    border-radius: 12px;
-    margin: 1rem 0;
+    height: auto;
+    margin: 1.75rem auto;
+    border-radius: var(--md-radius);
+    border: 1px solid var(--md-border);
 }
 
-.markdown a {
-    color: #ec4899;
+/* Ảnh minh họa bọc trong <div class="border"> (các bài HTML) → một khung mềm duy nhất */
+.markdown > div.border {
+    margin: 1.75rem 0;
+    padding: 0.75rem;
+    border: 1px solid var(--md-border);
+    border-radius: var(--md-radius);
+    background: var(--md-soft);
+}
+
+.markdown .border img,
+.markdown .border > p {
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+}
+
+.markdown .border img {
+    margin: 0 auto;
+    border-radius: 8px;
+}
+
+.markdown iframe,
+.markdown video {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    margin: 1.5rem 0;
+    border-radius: var(--md-radius);
+    background: var(--md-soft);
+}
+
+.markdown iframe {
+    height: min(1000px, 80vh);
+}
+
+.markdown hr {
+    height: 0;
+    margin: 2.5rem 0;
+    border: 0;
+    border-top: 1px solid var(--md-border);
+}
+
+/* ── jQuery UI tabs (#tabs trong 5 bài khóa học) ─────────────────────── */
+.markdown .ui-tabs.ui-widget {
+    margin: 1.5rem 0;
+    padding: 0;
+    font-family: inherit;
+    font-size: inherit;
+    border: 1px solid var(--md-border);
+    border-radius: var(--md-radius);
+    background: #fff;
+    overflow: hidden;
+}
+
+.markdown .ui-tabs .ui-tabs-nav.ui-widget-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0.5rem;
+    border: 0;
+    border-bottom: 1px solid var(--md-border);
+    border-radius: 0;
+    background: var(--md-soft);
+}
+
+.markdown .ui-tabs .ui-tabs-nav::before,
+.markdown .ui-tabs .ui-tabs-nav::after {
+    display: none;
+}
+
+.markdown .ui-tabs .ui-tabs-nav li.ui-tabs-tab {
+    float: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    list-style: none;
+}
+
+.markdown .ui-tabs .ui-tabs-nav li.ui-tabs-tab .ui-tabs-anchor {
+    float: none;
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 1rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #475569;
     text-decoration: none;
+    cursor: pointer;
 }
 
-.markdown a:hover {
-    text-decoration: underline;
+.markdown .ui-tabs .ui-tabs-nav li.ui-tabs-tab:not(.ui-tabs-active) .ui-tabs-anchor:hover {
+    background: #e2e8f0;
+    color: var(--md-heading);
 }
 
-.markdown blockquote {
-    background: #fdf2f8;
-    border-left-color: #ec4899;
-}
-.markdown code {
-    color: #7c3aed;
+.markdown .ui-tabs .ui-tabs-nav li.ui-tabs-tab.ui-tabs-active .ui-tabs-anchor {
+    background: var(--md-link);
+    color: #fff;
+    cursor: default;
 }
 
-.markdown pre code > span:first-child {
-    margin-left: -0.4rem;
+.markdown .ui-tabs .ui-tabs-panel.ui-widget-content {
+    padding: 1.1rem 1.25rem 1.25rem;
+    color: var(--md-text);
+}
+
+.markdown .ui-tabs .ui-tabs-panel h4 {
+    margin: 0.5rem 0;
+}
+
+.markdown .ui-tabs .ui-tabs-panel hr {
+    margin: 0.75rem 0;
+}
+
+.markdown .ui-tabs .ui-tabs-panel a.block {
+    padding: 0.3rem 0;
+}
+
+/* ── Công thức toán (KaTeX) ─────────────────────────────────────────── */
+.markdown .katex-display {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0.25rem 0;
 }
 
 .math-scroll-wrapper {
     max-width: 100%;
     overflow-x: auto;
     overflow-y: hidden;
-    /* padding: 12px; */
 }
 
 .math-scroll-wrapper .katex-display {
