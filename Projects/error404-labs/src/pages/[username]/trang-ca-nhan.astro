@@ -14,6 +14,7 @@ const dbUrl = import.meta.env.DATABASE_URL
 
 let member: { id: number; member: string; display_name: string; avatar_url: string | null } | null = null
 let error = ''
+let notFound = false
 
 try {
     if (dbUrl) {
@@ -26,20 +27,26 @@ try {
         if (members.length > 0) {
             member = members[0]
         } else {
+            notFound = true
             error = 'Thành viên không tồn tại'
         }
     } else {
-        error = 'Database not configured'
+        error = 'Chưa cấu hình kết nối cơ sở dữ liệu'
     }
 } catch (e: any) {
     console.error('Member fetch error:', e)
-    error = 'Failed to load data'
+    error = 'Không tải được dữ liệu, vui lòng thử lại sau'
 }
 
-const displayName = member?.display_name || member?.member || username
-
 // Lấy danh sách bài học từ Admin (lessons có author = username)
-let lessons: { id: number; title: string; url: string; description: string; created_at: string; thumbnail_url: string | null }[] = []
+let lessons: {
+    id: number
+    title: string
+    url: string
+    description: string
+    created_at: string
+    thumbnail_url: string | null
+}[] = []
 if (dbUrl && member) {
     try {
         const sql = neon(dbUrl)
@@ -54,119 +61,332 @@ if (dbUrl && member) {
         console.error('Lessons fetch error:', e)
     }
 }
+
+// Thành viên không tồn tại → trả mã 404
+if (notFound) {
+    Astro.response.status = 404
+} else if (error) {
+    // Lỗi kết nối / thiếu cấu hình CSDL → không trả 200 cho trang lỗi
+    Astro.response.status = 503
+}
+
+const displayName = member?.display_name || member?.member || username
+const memberHandle = member?.member || username
+
+const formatDate = (value: string) => {
+    const d = new Date(value)
+    return isNaN(d.getTime()) ? '' : d.toLocaleDateString('vi-VN')
+}
+
+// Biểu tượng cúp (outline 24px)
+const trophyPath =
+    'M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 0 0 2.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 0 1 2.916.52 6.003 6.003 0 0 1-5.395 4.972m0 0a6.726 6.726 0 0 1-2.749 1.35m0 0a6.772 6.772 0 0 1-3.044 0'
+
+// Biểu tượng sách (outline 24px)
+const bookPath =
+    'M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25'
 ---
 
-<MainLayout title={`Trang Cá Nhân - ${displayName} | Error404-Labs`} description={`Trang cá nhân của ${displayName} trên Error404-Labs`}>
-    <div class="max-w-6xl mx-auto px-4 py-8">
-        {error ? (
-            <div class="text-center py-20">
-                <h1 class="text-2xl font-bold text-red-600">{error}</h1>
-                <a href="/" class="inline-block mt-4 text-blue-600 hover:underline">← Về trang chủ</a>
-            </div>
+<MainLayout
+    title={`Trang cá nhân - ${displayName} | Error404-Labs`}
+    description={`Trang cá nhân của ${displayName} trên Error404-Labs`}
+>
+    {
+        error ? (
+            <section class="relative overflow-hidden bg-gradient-to-b from-blue-50/70 via-white to-white min-h-[70vh] flex items-center">
+                <div class="absolute inset-0 bg-dots-light opacity-50 pointer-events-none" aria-hidden="true" />
+                <div
+                    class="absolute -top-40 left-1/2 -translate-x-1/2 w-[640px] h-[420px] rounded-full bg-blue-400/20 blur-[120px] pointer-events-none"
+                    aria-hidden="true"
+                />
+                <div class="container-site relative max-w-3xl py-16 md:py-24 text-center">
+                    <span class="mx-auto w-20 h-20 rounded-full bg-sun-400 text-navy-950 ring-8 ring-white shadow-[0_20px_50px_-12px_rgba(245,196,0,0.7)] flex items-center justify-center">
+                        <svg
+                            class="w-9 h-9"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="1.8"
+                            stroke="currentColor"
+                            aria-hidden="true"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
+                            />
+                        </svg>
+                    </span>
+                    <p class="eyebrow mt-8">{notFound ? 'Lỗi 404' : 'Có lỗi xảy ra'}</p>
+                    <h1 class="mt-3 text-3xl md:text-5xl font-extrabold tracking-tight text-slate-900 text-balance">
+                        {notFound ? 'Không tìm thấy thành viên' : 'Chưa tải được trang cá nhân'}
+                    </h1>
+                    <p class="mt-4 text-slate-600 text-base md:text-lg leading-relaxed">
+                        {notFound ? (
+                            <>
+                                Không có thành viên nào với tên đăng nhập{' '}
+                                <span class="font-semibold text-slate-900 break-all">@{username}</span>. Hãy kiểm tra
+                                lại đường dẫn nhé.
+                            </>
+                        ) : (
+                            `${error}.`
+                        )}
+                    </p>
+                    <div class="mt-8 flex flex-wrap justify-center gap-3">
+                        <a href="/" class="btn btn-primary no-underline">
+                            Về trang chủ
+                        </a>
+                        <a href="/hoc-python" class="btn btn-outline no-underline">
+                            Học Python miễn phí
+                        </a>
+                    </div>
+                </div>
+            </section>
         ) : (
             <>
-                <!-- Header -->
-                <div class="mb-10 text-center">
-                    <div class="inline-flex items-center gap-3 mb-3">
-                        <div class="w-16 h-16 rounded-full overflow-hidden ring-4 ring-indigo-500/30 shadow-lg">
-                            <img id="profile-avatar" src={member?.avatar_url || '/avatar_v2.avif'} alt={displayName} class="w-full h-full object-cover" />
-                        </div>
-                    </div>
-                    <h1 class="text-4xl font-bold text-slate-800">Trang Cá Nhân</h1>
-                    <p class="text-slate-600 mt-2 text-lg">
-                        Lộ trình bài học của <span class="font-semibold text-indigo-600">{displayName}</span>
-                    </p>
-                </div>
+                {/* ── HERO ── */}
+                <section class="relative overflow-hidden bg-navy-950 text-white">
+                    <div class="absolute inset-0 bg-grid-dark opacity-60 pointer-events-none" />
+                    <div class="absolute -top-32 -right-24 w-[480px] h-[480px] rounded-full bg-blue-600/30 blur-[130px] pointer-events-none" />
+                    <div class="absolute -bottom-48 -left-24 w-[400px] h-[400px] rounded-full bg-sun-400/10 blur-[130px] pointer-events-none" />
 
-                <!-- Lộ trình bài học từ Admin -->
-                {lessons.length > 0 ? (
-                    <div>
-                        <div class="flex items-center gap-3 mb-5">
-                            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-md">
-                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <h2 class="text-xl font-bold text-slate-800">Lộ trình bài học</h2>
-                                <p class="text-sm text-slate-500">{lessons.length} bài học được Admin chỉ định</p>
-                            </div>
-                        </div>
+                    <div class="container-site relative py-12 md:py-20">
+                        <nav
+                            class="flex items-center gap-2 text-xs md:text-sm text-slate-400 mb-8"
+                            aria-label="Breadcrumb"
+                        >
+                            <a href="/" class="hover:text-white transition-colors no-underline">
+                                Trang chủ
+                            </a>
+                            <span aria-hidden="true">/</span>
+                            <span class="text-slate-200" aria-current="page">
+                                Trang cá nhân
+                            </span>
+                        </nav>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {lessons.map((lesson) => (
-                                <div class="group relative bg-white/70 backdrop-blur-sm rounded-2xl border border-emerald-100 shadow-sm hover:shadow-xl hover:shadow-emerald-500/15 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
-                                    <!-- Thumbnail -->
-                                    {lesson.thumbnail_url ? (
-                                        <div class="aspect-[16/9] overflow-hidden bg-slate-100">
-                                            <img
-                                                src={lesson.thumbnail_url}
-                                                alt={lesson.title}
-                                                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                                loading="lazy"
-                                            />
-                                        </div>
-                                    ) : (
-                                        <div class="h-1 w-full bg-gradient-to-r from-emerald-400 to-teal-500"></div>
-                                    )}
-                                    <div class="p-5">
-                                        <div class="flex items-start gap-3 mb-3">
-                                            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                                <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                                </svg>
-                                            </div>
-                                            <h3 class="font-bold text-slate-800 text-sm leading-snug group-hover:text-emerald-700 transition-colors line-clamp-2">
-                                                {lesson.title}
-                                            </h3>
-                                        </div>
-
-                                        {lesson.description && (
-                                            <p class="text-xs text-slate-500 line-clamp-2 mb-4 leading-relaxed pl-11">
-                                                {lesson.description}
-                                            </p>
-                                        )}
-
-                                        <div class="flex items-center justify-between pt-3 border-t border-slate-100">
-                                            <span class="text-xs text-slate-400">
-                                                {new Date(lesson.created_at).toLocaleDateString('vi-VN')}
+                        <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
+                            <div class="flex flex-col sm:flex-row sm:items-center gap-6 md:gap-8 min-w-0">
+                                <div class="w-24 h-24 md:w-32 md:h-32 shrink-0 rounded-full overflow-hidden bg-navy-800 ring-4 ring-sun-400 ring-offset-4 ring-offset-navy-950 shadow-2xl">
+                                    <img
+                                        id="profile-avatar"
+                                        src={member?.avatar_url || '/avatar_v2.avif'}
+                                        alt={displayName}
+                                        width="128"
+                                        height="128"
+                                        class="w-full h-full object-cover"
+                                    />
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="eyebrow text-sun-400">Trang cá nhân</p>
+                                    <h1 class="mt-2 text-3xl md:text-5xl font-extrabold tracking-tight break-words">
+                                        {displayName}
+                                    </h1>
+                                    <div class="mt-4 flex flex-wrap items-center gap-2">
+                                        <span class="chip bg-white/10 text-slate-200 border-white/15 max-w-full min-w-0">
+                                            <span class="truncate">@{memberHandle}</span>
+                                        </span>
+                                        {lessons.length > 0 && (
+                                            <span class="chip bg-sun-400/15 text-sun-300 border-sun-400/30">
+                                                {lessons.length} bài học trong lộ trình
                                             </span>
-                                            {lesson.url && (
-                                                <a
-                                                    href={lesson.url}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-xs font-semibold rounded-lg hover:from-emerald-600 hover:to-teal-700 transition-all shadow-sm hover:shadow-md"
-                                                >
-                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                                                    </svg>
-                                                    Xem bài học
-                                                </a>
-                                            )}
-                                        </div>
+                                        )}
                                     </div>
                                 </div>
-                            ))}
+                            </div>
+
+                            <div class="flex flex-wrap gap-3 shrink-0">
+                                {/* Chỉ hiện khi chủ trang đang xem (bật bằng script bên dưới) */}
+                                <a
+                                    id="ownerAchievementsCta"
+                                    href="/hoc-python/ca-nhan"
+                                    class="btn btn-sun no-underline"
+                                    hidden
+                                >
+                                    <svg
+                                        class="w-5 h-5"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke-width="1.8"
+                                        stroke="currentColor"
+                                        aria-hidden="true"
+                                    >
+                                        <path stroke-linecap="round" stroke-linejoin="round" d={trophyPath} />
+                                    </svg>
+                                    Thành tích của tôi
+                                </a>
+                                <a href="/hoc-python/bang-xep-hang" class="btn btn-ghost-light no-underline">
+                                    Bảng xếp hạng tuần
+                                </a>
+                            </div>
                         </div>
                     </div>
-                ) : (
-                    <div class="text-center py-20 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200">
-                        <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-slate-200 flex items-center justify-center">
-                            <svg class="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                            </svg>
-                        </div>
-                        <p class="text-slate-500 text-lg font-medium">Chưa có bài học nào</p>
-                        <p class="text-sm text-slate-400 mt-1">Admin chưa chỉ định bài học cho tài khoản này.</p>
+                </section>
+
+                {/* ── BÀI HỌC ── */}
+                <section class="bg-slate-50 py-12 md:py-20">
+                    <div class="container-site">
+                        <span class="eyebrow">Lộ trình học tập</span>
+                        <h2 class="mt-2 text-2xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+                            Lộ trình bài học của {displayName}
+                        </h2>
+                        {lessons.length > 0 && (
+                            <p class="mt-3 text-slate-600 max-w-2xl leading-relaxed">
+                                {lessons.length} bài học trong lộ trình của {displayName}. Chọn một bài để bắt đầu học
+                                nhé!
+                            </p>
+                        )}
+
+                        {lessons.length > 0 ? (
+                            <div class="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {lessons.map((lesson) => (
+                                    <article
+                                        class:list={[
+                                            'card group relative flex flex-col h-full overflow-hidden',
+                                            { 'card-hover': !!lesson.url },
+                                        ]}
+                                    >
+                                        <div class="relative aspect-[16/9] overflow-hidden bg-slate-100">
+                                            {lesson.thumbnail_url ? (
+                                                <img
+                                                    src={lesson.thumbnail_url}
+                                                    alt={lesson.title}
+                                                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                                    loading="lazy"
+                                                    decoding="async"
+                                                />
+                                            ) : (
+                                                <div class="absolute inset-0 bg-gradient-to-br from-blue-600 via-navy-800 to-navy-950 flex items-center justify-center">
+                                                    <div class="absolute inset-0 bg-grid-dark opacity-60" />
+                                                    <svg
+                                                        class="relative w-12 h-12 text-sun-400 transition-transform duration-500 group-hover:scale-110"
+                                                        fill="none"
+                                                        viewBox="0 0 24 24"
+                                                        stroke-width="1.5"
+                                                        stroke="currentColor"
+                                                        aria-hidden="true"
+                                                    >
+                                                        <path
+                                                            stroke-linecap="round"
+                                                            stroke-linejoin="round"
+                                                            d={bookPath}
+                                                        />
+                                                    </svg>
+                                                    <span class="absolute left-4 bottom-3 text-[11px] font-bold uppercase tracking-wider text-white/70">
+                                                        Error404 Labs
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div class="flex flex-col flex-1 p-5">
+                                            <h3 class="text-lg font-bold text-slate-900 leading-snug line-clamp-2 group-hover:text-blue-700 transition-colors">
+                                                {lesson.title}
+                                            </h3>
+                                            {lesson.description && (
+                                                <p class="mt-2 text-sm text-slate-600 leading-relaxed line-clamp-3">
+                                                    {lesson.description}
+                                                </p>
+                                            )}
+
+                                            <div class="mt-auto pt-5">
+                                                <div class="flex items-center justify-between gap-3 pt-4 border-t border-slate-100">
+                                                    <span class="inline-flex items-center gap-1.5 text-xs text-slate-500">
+                                                        <svg
+                                                            class="w-4 h-4"
+                                                            viewBox="0 0 20 20"
+                                                            fill="currentColor"
+                                                            aria-hidden="true"
+                                                        >
+                                                            <path
+                                                                fill-rule="evenodd"
+                                                                d="M5.75 2a.75.75 0 0 1 .75.75V4h7V2.75a.75.75 0 0 1 1.5 0V4h.25A2.75 2.75 0 0 1 18 6.75v8.5A2.75 2.75 0 0 1 15.25 18H4.75A2.75 2.75 0 0 1 2 15.25v-8.5A2.75 2.75 0 0 1 4.75 4H5V2.75A.75.75 0 0 1 5.75 2Zm-1 5.5c-.69 0-1.25.56-1.25 1.25v6.5c0 .69.56 1.25 1.25 1.25h10.5c.69 0 1.25-.56 1.25-1.25v-6.5c0-.69-.56-1.25-1.25-1.25H4.75Z"
+                                                                clip-rule="evenodd"
+                                                            />
+                                                        </svg>
+                                                        {formatDate(lesson.created_at)}
+                                                    </span>
+                                                    {lesson.url ? (
+                                                        <a
+                                                            href={lesson.url}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            class="shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-blue-600 group-hover:bg-blue-700 px-3.5 py-2 text-sm font-bold text-white shadow-[0_8px_20px_-8px_rgba(37,99,235,0.7)] transition-colors no-underline after:absolute after:inset-0"
+                                                        >
+                                                            Xem bài học
+                                                            <svg
+                                                                class="w-4 h-4"
+                                                                viewBox="0 0 20 20"
+                                                                fill="currentColor"
+                                                                aria-hidden="true"
+                                                            >
+                                                                <path
+                                                                    fill-rule="evenodd"
+                                                                    d="M4.25 5.5a.75.75 0 0 0-.75.75v8.5c0 .414.336.75.75.75h8.5a.75.75 0 0 0 .75-.75v-4a.75.75 0 0 1 1.5 0v4A2.25 2.25 0 0 1 12.75 17h-8.5A2.25 2.25 0 0 1 2 14.75v-8.5A2.25 2.25 0 0 1 4.25 4h5a.75.75 0 0 1 0 1.5h-5Zm7.25-.75a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0V6.56l-5.22 5.22a.75.75 0 1 1-1.06-1.06l5.22-5.22h-1.69a.75.75 0 0 1-.75-.75Z"
+                                                                    clip-rule="evenodd"
+                                                                />
+                                                            </svg>
+                                                            <span class="sr-only">(mở tab mới)</span>
+                                                        </a>
+                                                    ) : (
+                                                        <span class="text-xs font-semibold text-slate-500">
+                                                            Sắp có nội dung
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </article>
+                                ))}
+                            </div>
+                        ) : (
+                            <div class="card mt-10 max-w-2xl p-8 md:p-12 text-center mx-auto">
+                                <span class="mx-auto w-16 h-16 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                                    <svg
+                                        class="w-8 h-8"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke-width="1.8"
+                                        stroke="currentColor"
+                                        aria-hidden="true"
+                                    >
+                                        <path stroke-linecap="round" stroke-linejoin="round" d={bookPath} />
+                                    </svg>
+                                </span>
+                                <h3 class="mt-5 text-xl md:text-2xl font-extrabold text-slate-900">
+                                    Chưa có bài học nào trong lộ trình
+                                </h3>
+                                <p class="mt-2 text-slate-600 leading-relaxed">
+                                    Chưa có bài học nào trong lộ trình của {displayName}. Trong lúc chờ, hãy bắt đầu với
+                                    khóa học Python miễn phí — code và chấm bài ngay trên trình duyệt.
+                                </p>
+                                <a href="/hoc-python/khoa-hoc" class="btn btn-primary mt-7 no-underline">
+                                    Học Python miễn phí
+                                    <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                        <path
+                                            fill-rule="evenodd"
+                                            d="M3 10a.75.75 0 0 1 .75-.75h10.638L10.23 5.29a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.158-3.96H3.75A.75.75 0 0 1 3 10Z"
+                                            clip-rule="evenodd"
+                                        />
+                                    </svg>
+                                </a>
+                            </div>
+                        )}
                     </div>
-                )}
+                </section>
             </>
-        )}
-    </div>
+        )
+    }
 </MainLayout>
 
 <script>
+    // Chủ trang đang xem trang của chính mình → hiện nút "Thành tích của tôi"
+    {
+        const owner = localStorage.getItem('user_session')
+        const pageUser = window.location.pathname.split('/').filter(Boolean)[0]
+        if (owner && pageUser && owner === decodeURIComponent(pageUser)) {
+            document.getElementById('ownerAchievementsCta')?.removeAttribute('hidden')
+        }
+    }
+
     // Cập nhật ảnh đại diện ngay lập tức khi người dùng thay đổi avatar từ Nav
     window.addEventListener('avatar-updated', () => {
         // Chỉ cập nhật nếu đang ở trang cá nhân của chính mình

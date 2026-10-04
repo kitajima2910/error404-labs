@@ -1,35 +1,57 @@
 ---
-import { formatDate, slugify } from '../js/utils'
+// Danh sách bài cùng chủ đề (cột phải trang bài viết): ảnh nhỏ + tiêu đề 2 dòng + ngày.
+// Danh sách được BlogPostLayout sắp sẵn (cùng danh mục, mới nhất trước, bỏ bài hiện tại).
+import { Image } from 'astro:assets'
+import { formatDate } from '../js/utils'
 
 interface Props {
     relatedPosts: any[]
+    /** Tiêu đề khối; mặc định "Cùng chủ đề" */
+    heading?: string
 }
 
-const { relatedPosts } = Astro.props
-
-// console.log('frontmatter: ', relatedPosts)
+const { relatedPosts = [], heading = 'Cùng chủ đề' } = Astro.props
 ---
 
-<div>
-    <h3 class="text-left text-xl font-semibold">Bài Viết Liên Quan</h3>
-    {
-        relatedPosts &&
-            relatedPosts.map((post) => (
-                <div class="my-3 bg-[#fbfbfb] p-2 shadow-[1px_1px_1px_3px_rgba(0,0,0,0.06)]">
-                    <h4 class="font-semibold">
-                        <a href={slugify(post.url)}>
-                            <h4>{post.frontmatter.title}</h4>
-                        </a>
-                    </h4>
-                    <small>
+{
+    relatedPosts.length > 0 && (
+        <div>
+            <h2 class="text-base font-extrabold text-slate-900 mb-3">{heading}</h2>
+            <ul class="space-y-1">
+                {relatedPosts.map((post) => (
+                    <li>
+                        {/* Dùng nguyên post.url (một số bài có chữ hoa, vd. bigdecimal-trong-Java) */}
                         <a
-                            href={`/tac-gia/${slugify(post.frontmatter.author)}`}
+                            href={post.url}
+                            class="group flex items-center gap-3 -mx-2 p-2 rounded-xl hover:bg-slate-50 no-underline transition-colors"
                         >
-                            {post.frontmatter.author}
-                        </a>{' '}
-                        - {formatDate(post.frontmatter.date, 'vi-VN')}
-                    </small>
-                </div>
-            ))
-    }
-</div>
+                            <span class="relative shrink-0 w-24 aspect-video rounded-lg overflow-hidden bg-slate-100 ring-1 ring-slate-200">
+                                {post.frontmatter.image?.src && (
+                                    <Image
+                                        src={post.frontmatter.image.src}
+                                        alt=""
+                                        width={192}
+                                        height={108}
+                                        loading="lazy"
+                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                    />
+                                )}
+                            </span>
+                            <span class="min-w-0 flex flex-col">
+                                <span class="text-sm font-bold leading-snug text-slate-800 line-clamp-2 group-hover:text-blue-700 transition-colors">
+                                    {post.frontmatter.title}
+                                </span>
+                                <time
+                                    datetime={new Date(post.frontmatter.date).toISOString()}
+                                    class="mt-1 text-xs font-medium text-slate-500"
+                                >
+                                    {formatDate(post.frontmatter.date, 'vi-VN')}
+                                </time>
+                            </span>
+                        </a>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    )
+}

@@ -1,33 +1,195 @@
 ---
 import { Image } from 'astro:assets'
 import { formatDate, slugify } from '../js/utils'
+import { getCategoryMeta } from '../data/categoryMeta'
 
-const { title, date, category, author, image } = Astro.props
+interface Props {
+    title: string
+    date: string | Date
+    category: string
+    author: string
+    image?: { src: string; alt?: string }
+    /** Mô tả ngắn (frontmatter description) hiển thị dưới tiêu đề */
+    description?: string
+    /** Số phút đọc ước tính; bỏ trống thì không hiển thị */
+    minutes?: number | null
+    /** Nhãn vị trí trong chuỗi bài, vd "Bài 3 / 14" */
+    seriesLabel?: string
+}
+
+const { title, date, category, author, image, description, minutes, seriesLabel } = Astro.props
+
+const meta = getCategoryMeta(category)
+const categoryHref = `/danh-muc/${slugify(category)}`
+const authorHref = `/tac-gia/${slugify(author)}`
+const isoDate = new Date(date).toISOString()
+
+// Chữ cái đầu của tên tác giả (vd: "Phạm Xuân Hoài" → "PH")
+const authorWords = String(author || '')
+    .trim()
+    .split(/\s+/)
+const authorInitials =
+    (authorWords[0]?.[0] || '') + (authorWords.length > 1 ? authorWords[authorWords.length - 1][0] : '')
+
+const hasCover = Boolean(image?.src)
 ---
 
-<header class="my-15 w-10/12 text-center mx-auto">
-    <div>
-        <a href={`/danh-muc/${slugify(category)}`} class="block mb-5">
-            <span
-                class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 inset-ring inset-ring-blue-700/10"
-                >{category}</span
-            >
-        </a>
-        <h1 class="text-5xl font-semibold mb-5">{title}</h1>
-        <p class="mb-15">
-            bởi <a
-                href={`/tac-gia/${slugify(author)}`}
-                class="underline font-medium">{author}</a
-            > - {formatDate(date, 'vi-VN')}
-        </p>
+<header class="relative overflow-hidden bg-navy-950 text-white">
+    <div class="absolute inset-0 bg-grid-dark opacity-70 pointer-events-none" aria-hidden="true"></div>
+    <div
+        class="absolute -top-40 -right-32 w-[520px] h-[520px] rounded-full bg-blue-600/30 blur-[130px] pointer-events-none"
+        aria-hidden="true"
+    >
     </div>
-    <Image
-        src={image.src}
-        alt={image.alt}
-        width={1200}
-        height={600}
-        densities={[1, 1.5]}
-        quality={65}
-        class="rounded-4xl shadow-xl/30"
-    />
+    <div
+        class="absolute -bottom-56 -left-32 w-[420px] h-[420px] rounded-full bg-sun-400/10 blur-[130px] pointer-events-none"
+        aria-hidden="true"
+    >
+    </div>
+
+    <div
+        class:list={['relative container-site pt-8 md:pt-12', hasCover ? 'pb-36 sm:pb-48 md:pb-60' : 'pb-12 md:pb-16']}
+    >
+        <div class="max-w-4xl mx-auto">
+            <!-- Breadcrumb -->
+            <nav aria-label="Đường dẫn" class="mb-6">
+                <ol class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-400">
+                    <li>
+                        <a href="/" class="hover:text-white transition-colors no-underline">Trang chủ</a>
+                    </li>
+                    <li aria-hidden="true" class="text-slate-600">/</li>
+                    <li>
+                        <a href="/bai-viet" class="hover:text-white transition-colors no-underline">Bài viết</a>
+                    </li>
+                    <li aria-hidden="true" class="text-slate-600">/</li>
+                    <li>
+                        <a href={categoryHref} class="text-slate-300 hover:text-white transition-colors no-underline">
+                            {meta.label}
+                        </a>
+                    </li>
+                </ol>
+            </nav>
+
+            <!-- Danh mục + vị trí trong chuỗi -->
+            <div class="flex flex-wrap items-center gap-2 mb-5">
+                <a
+                    href={categoryHref}
+                    class={`chip hover:brightness-95 no-underline ${meta.chip}`}
+                    title={`Xem danh mục ${meta.label}`}
+                >
+                    <span aria-hidden="true">{meta.icon}</span>
+                    {meta.label}
+                </a>
+                {
+                    seriesLabel && (
+                        <span class="chip bg-white/10 text-slate-200 border-white/15">
+                            <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path d="M10.75 16.82A7.462 7.462 0 0 1 15 15.5c.71 0 1.396.098 2.046.282A.75.75 0 0 0 18 15.06v-11a.75.75 0 0 0-.546-.721A9.006 9.006 0 0 0 15 3a8.963 8.963 0 0 0-4.25 1.065V16.82ZM9.25 4.065A8.963 8.963 0 0 0 5 3c-.85 0-1.673.118-2.454.339A.75.75 0 0 0 2 4.06v11a.75.75 0 0 0 .954.721A7.506 7.506 0 0 1 5 15.5c1.579 0 3.042.487 4.25 1.32V4.065Z" />
+                            </svg>
+                            {seriesLabel}
+                        </span>
+                    )
+                }
+            </div>
+
+            <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight leading-[1.2] md:leading-[1.12] text-balance">
+                {title}
+            </h1>
+
+            {
+                description && (
+                    <p class="mt-5 max-w-3xl text-base md:text-lg text-slate-300 leading-relaxed line-clamp-4 md:line-clamp-none">
+                        {description}
+                    </p>
+                )
+            }
+
+            <!-- Tác giả · ngày · thời gian đọc -->
+            <div class="mt-7 flex flex-wrap items-center gap-x-5 gap-y-3 text-sm text-slate-300">
+                <a href={authorHref} class="group inline-flex items-center gap-2.5 no-underline">
+                    <span
+                        class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 ring-2 ring-white/15 text-white text-sm font-bold flex items-center justify-center"
+                        aria-hidden="true"
+                    >
+                        {authorInitials}
+                    </span>
+                    <span class="leading-tight">
+                        <span class="block text-[11px] uppercase tracking-wider text-slate-400">Tác giả</span>
+                        <span class="block font-bold text-white group-hover:text-sun-300 transition-colors">
+                            {author}
+                        </span>
+                    </span>
+                </a>
+                <span class="hidden sm:block w-px h-8 bg-white/15" aria-hidden="true"></span>
+                <span class="inline-flex flex-wrap items-center gap-x-4 gap-y-2">
+                    <span class="inline-flex items-center gap-1.5">
+                        <svg
+                            class="w-4 h-4 text-slate-400"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="1.8"
+                            stroke="currentColor"
+                            aria-hidden="true"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"
+                            ></path>
+                        </svg>
+                        <time datetime={isoDate}>{formatDate(date, 'vi-VN')}</time>
+                    </span>
+                    {
+                        minutes ? (
+                            <span class="inline-flex items-center gap-1.5">
+                                <svg
+                                    class="w-4 h-4 text-slate-400"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke-width="1.8"
+                                    stroke="currentColor"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                                    />
+                                </svg>
+                                {minutes} phút đọc
+                            </span>
+                        ) : null
+                    }
+                </span>
+            </div>
+        </div>
+    </div>
 </header>
+
+{
+    hasCover && image && (
+        <div class="relative container-site -mt-28 sm:-mt-40 md:-mt-52">
+            {/* Khung 16:9: ảnh hiển thị trọn vẹn (contain) trên nền mờ của chính ảnh — ảnh bìa có nhiều tỉ lệ khác nhau */}
+            <figure class="relative max-w-4xl mx-auto aspect-video overflow-hidden rounded-2xl md:rounded-3xl bg-slate-100 shadow-[0_30px_60px_-25px_rgba(11,30,51,0.55)] ring-1 ring-slate-900/10">
+                <Image
+                    src={image.src}
+                    alt=""
+                    width={1200}
+                    height={675}
+                    loading="eager"
+                    aria-hidden="true"
+                    class="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-60"
+                />
+                <Image
+                    src={image.src}
+                    alt={image.alt || title}
+                    width={1200}
+                    height={675}
+                    loading="eager"
+                    fetchpriority="high"
+                    class="relative w-full h-full object-contain"
+                />
+            </figure>
+        </div>
+    )
+}

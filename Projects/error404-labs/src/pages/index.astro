@@ -1,204 +1,661 @@
 ---
 import { TC_TITLE } from '../common/TextConst'
-import Link from '../components/Link.astro'
 import PostCard from '../components/PostCard.astro'
-import IconAbout from '../icons/IconAbout.astro'
-import IconDonate from '../icons/IconDonate.astro'
-import IconFacebook from '../icons/IconFacebook.astro'
-import IconWeb from '../icons/IconWeb.astro'
-import { formatBlogPost } from '../js/utils'
+import HomeHero from '../components/home/HomeHero.astro'
+import HomeParents from '../components/home/HomeParents.astro'
+import SectionHeading from '../components/home/SectionHeading.astro'
+import { getCategoryMeta } from '../data/categoryMeta'
+import { DATA_DEMO } from '../data/dataTestDemo.js'
+import IconPython from '../icons/IconPython.astro'
+import { formatBlogPost, slugify } from '../js/utils'
 import MainLayout from '../layouts/MainLayout.astro'
 
 const allPosts = Object.values(import.meta.glob<any>('./bai-viet/*.md', { eager: true }))
+const publishedPosts: any[] = allPosts.filter((post: any) => !post.frontmatter?.draft)
 
-const formattedPosts: any[] = formatBlogPost(allPosts, {
-    limit: 3,
+// 6 bài viết mới nhất
+const latestPosts: any[] = formatBlogPost(allPosts, {
+    limit: 6,
     filterOutDrafts: true,
-    sortByDate: false,
+    sortByDate: true,
 })
 
-const length = formattedPosts.length
+// Số bài theo danh mục (tính từ dữ liệu thật), sắp xếp nhiều bài trước
+const categoryCounts = new Map<string, number>()
+for (const post of publishedPosts) {
+    const category = post.frontmatter?.category
+    if (category) categoryCounts.set(category, (categoryCounts.get(category) || 0) + 1)
+}
+const categories = [...categoryCounts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .map(
+        ([
+            key,
+            count,
+        ]) => ({
+            ...getCategoryMeta(key),
+            count,
+            href: `/danh-muc/${slugify(key)}`,
+        }),
+    )
 
-const Facebook = 'https://www.facebook.com/kitajima2910'
+const postCount = publishedPosts.length
+const categoryCount = categories.length
+const demoCount = DATA_DEMO.length
+
+// Ảnh bìa bài viết (ảnh thật trong frontmatter) theo slug
+const findPost = (slug: string) => publishedPosts.find((post: any) => post.url?.endsWith(`/${slug}`))
+const toCover = (post: any) => {
+    if (!post?.frontmatter?.image?.src) return null
+    const meta = getCategoryMeta(post.frontmatter.category)
+    return {
+        src: post.frontmatter.image.src,
+        alt: post.frontmatter.image.alt || post.frontmatter.title,
+        label: meta.label,
+        icon: meta.icon,
+    }
+}
+const pickCovers = (slugs: string[], count: number) => {
+    const picked = slugs.map((slug) => toCover(findPost(slug))).filter(Boolean) as any[]
+    // Dự phòng: nếu bài đã đổi tên thì lấy ảnh bìa của các bài mới nhất
+    for (const post of latestPosts) {
+        if (picked.length >= count) break
+        const cover = toCover(post)
+        if (cover && !picked.some((c) => c.src === cover.src)) picked.push(cover)
+    }
+    return picked.slice(0, count)
+}
+
+const heroCovers = pickCovers(
+    [
+        'kh-oop-c-sharp-2026-01-lap-trinh-huong-doi-tuong',
+        'kh-tt-cb-2026-01-so-nguyen-to',
+    ],
+    2,
+)
+const libraryCovers = pickCovers(
+    [
+        'kh-web-cb-2026-01-khoa-hoc-website-co-ban-xay-dung-ui-html-css',
+        'xu-ly-mang-trong-java-tu-y-tuong-den-hoan-chinh',
+        'dem-tan-so-xuat-hien-tu-trong-chuoi-c',
+        'so-hoan-hao-khi-con-so-du-day-theo-cach-rat-de-thuong',
+    ],
+    4,
+)
+
+// Demo HTML5 thật trên trang /thu-nghiem
+const findDemo = (name: string) => DATA_DEMO.find((demo) => demo.name === name)
+const cleanDemoName = (name: string) => name.replace(/^\d+\.\s*/, '')
+const demoKind = (link: string) => (link.includes('/thu-nghiem/web/') ? 'Web' : 'Game')
+
+const heroDemoItem = findDemo('Cyber Cloud Leap') || DATA_DEMO[0]
+const heroDemo = heroDemoItem
+    ? {
+          src: heroDemoItem.image,
+          alt: `Ảnh chụp game ${cleanDemoName(heroDemoItem.name)} chạy trên trình duyệt`,
+          label: `Game HTML5 · ${cleanDemoName(heroDemoItem.name)}`,
+      }
+    : undefined
+
+const classDemo = findDemo('5. Bắn Vịt') || DATA_DEMO[1]
+
+const showcaseNames = [
+    'Neural-Token-Dash',
+    '5. Bắn Vịt',
+    'Pet404-Labs',
+    'Trượt Tuyết 2D',
+    '10. Nổ Bóng',
+    'Fox Robot Slider',
+    'Tom Mario',
+    'Đua Ốc',
+]
+let showcase = showcaseNames.map(findDemo).filter(Boolean) as typeof DATA_DEMO
+if (showcase.length < 8) {
+    showcase = [
+        ...showcase,
+        ...DATA_DEMO.filter((demo) => !showcase.includes(demo)),
+    ].slice(0, 8)
+}
+
+// Số liệu nổi bật (tính từ dữ liệu)
+const stats = [
+    {
+        value: String(postCount),
+        label: 'Bài viết hướng dẫn',
+        tone: 'bg-blue-50 text-blue-600',
+        icon: 'M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25',
+    },
+    {
+        value: String(categoryCount),
+        label: 'Chủ đề lập trình',
+        tone: 'bg-violet-50 text-violet-600',
+        icon: 'M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z',
+    },
+    {
+        value: String(demoCount),
+        label: 'Game & web demo',
+        tone: 'bg-amber-50 text-amber-600',
+        icon: 'M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 0 1-.657.643 48.39 48.39 0 0 1-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 0 1-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 0 0-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 0 1-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 0 0 .657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 0 1-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.4.604-.4.959v0c0 .333.277.599.61.58a48.1 48.1 0 0 0 5.427-.63 48.05 48.05 0 0 0 .582-4.717.532.532 0 0 0-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.96.401v0a.656.656 0 0 0 .658-.663 48.422 48.422 0 0 0-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 0 1-.61-.58v0Z',
+    },
+    {
+        value: '0đ',
+        label: 'Học phí Python',
+        tone: 'bg-emerald-50 text-emerald-600',
+        icon: 'M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Z',
+    },
+]
+// Đường viền giữa các ô số liệu (2 cột trên mobile, 4 cột trên desktop)
+const statBorders = [
+    '',
+    'border-l border-slate-100',
+    'border-t border-slate-100 lg:border-t-0 lg:border-l',
+    'border-l border-t border-slate-100 lg:border-t-0',
+]
+
+const checkPath =
+    'M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z'
+const arrowPath =
+    'M3 10a.75.75 0 0 1 .75-.75h10.638L10.23 5.29a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.158-3.96H3.75A.75.75 0 0 1 3 10Z'
+
+const classPoints = [
+    'Offline 3 - 5 học sinh / lớp (kèm sát)',
+    'Online 1 kèm 1 trực tiếp (tương tác cao)',
+    'Lịch học 2 buổi / tuần',
+    'Học qua dự án thực tế, không học thuộc lòng',
+]
+const pythonPoints = [
+    'Luyện thi Tin học trẻ Bảng B (THCS) & Bảng C (THPT)',
+    'Viết code, chạy thử và chấm điểm tự động',
+    'XP, level, chuỗi ngày học & bảng xếp hạng tạo động lực',
+    'Lộ trình Cơ bản → Trung cấp → Nâng cao',
+]
+const topCategories = categories.slice(0, 5)
 ---
 
-<MainLayout title=`${TC_TITLE}`>
-    <div class="flex flex-col mt-15">
-        <section
-            aria-label="Giới thiệu"
-            class="mx-auto
-      max-w-5xl
-      px-4
-      pt-0
-      grid
-      grid-cols-1
-      md:grid-cols-[auto_1fr]
-      items-center
-      gap-10"
-        >
-            <img
-                src="/Hoai-An.avif"
-                alt="Me và Cỏ"
-                width="120"
-                class="shadow-xl/30
-    rounded-2xl
-    justify-self-center
-    md:justify-self-start
-    max-w-60
-    md:max-w-none
-    cursor-pointer
-    transition-transform
-    duration-300
-    hover:scale-105"
-                onclick="openLightbox(this)"
-            />
-            <!--
-            <video
-                autoplay
-                loop
-                muted
-                playsinline
-                preload="metadata"
-                width="120"
-                class="shadow-xl/30
-           rounded-4xl
-           justify-self-center
-           md:justify-self-start
-           max-w-60
-           md:max-w-none"
+<MainLayout
+    title={TC_TITLE}
+    description="Error404 Labs – học lập trình từ con số 0 cho học sinh THCS, THPT: lớp Tư duy sáng tạo Web & Game (3–5 học sinh/lớp hoặc online 1 kèm 1), học Python miễn phí và luyện thi Tin học trẻ với chấm bài tự động, cùng thư viện bài viết lập trình dễ hiểu."
+>
+    <!-- ── HERO ─────────────────────────────────────────────────────── -->
+    <HomeHero demo={heroDemo} covers={heroCovers} />
+
+    <!-- ── SỐ LIỆU ──────────────────────────────────────────────────── -->
+    <section class="relative z-10 -mt-14 md:-mt-20" aria-label="Error404 Labs qua các con số">
+        <div class="container-site">
+            <dl
+                class="grid grid-cols-2 lg:grid-cols-4 max-w-6xl mx-auto bg-white rounded-2xl border border-slate-200 shadow-[0_20px_50px_-12px_rgba(15,23,42,0.18)]"
             >
-                <source src="/me_co.webm" type="video/webm" />
-                <source src="/me_co.mp4" type="video/mp4" />
-            </video>
-            -->
+                {
+                    stats.map((stat, i) => (
+                        <div
+                            class:list={[
+                                'p-4 sm:p-6 md:p-7 flex flex-col sm:flex-row items-center sm:items-center gap-2.5 sm:gap-4 text-center sm:text-left',
+                                statBorders[i],
+                            ]}
+                        >
+                            <span
+                                class={`w-11 h-11 md:w-12 md:h-12 rounded-xl flex items-center justify-center shrink-0 ${stat.tone}`}
+                                aria-hidden="true"
+                            >
+                                <svg
+                                    class="w-6 h-6"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke-width="1.8"
+                                    stroke="currentColor"
+                                >
+                                    <path stroke-linecap="round" stroke-linejoin="round" d={stat.icon} />
+                                </svg>
+                            </span>
+                            <div class="flex flex-col-reverse">
+                                <dt class="text-xs md:text-sm font-medium text-slate-500">{stat.label}</dt>
+                                <dd class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight leading-none mb-1">
+                                    {stat.value}
+                                </dd>
+                            </div>
+                        </div>
+                    ))
+                }
+            </dl>
+        </div>
+    </section>
 
-            <div class="text-center md:text-left space-y-6">
-                <h1 class="font-bold text-2xl">Bài Viết Của Tôi</h1>
+    <!-- ── CHỌN HƯỚNG ĐI ────────────────────────────────────────────── -->
+    <section id="lo-trinh" class="bg-white pt-16 pb-16 md:pt-24 md:pb-24" aria-labelledby="lo-trinh-title">
+        <div class="container-site">
+            <SectionHeading
+                id="lo-trinh-title"
+                align="center"
+                eyebrow="Bắt đầu từ đâu?"
+                title="Chọn hướng đi phù hợp"
+                lead="Dù con mới làm quen với máy tính hay đang ôn thi Tin học trẻ, Error404 Labs đều có lối vào rõ ràng."
+            />
 
-                <p class="text-[16px] font-medium max-w-prose mx-auto md:mx-0">
-                    Error404-Labs là nơi chia sẻ kiến thức lập trình C/C++, Web, Game, Mobile & AI, tập trung vào tư duy
-                    R&D, học từ dự án thực tế, code dễ hiểu, áp dụng được ngay cho người mới lẫn dev đang lên trình 🚀
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* 1. Lớp Web & Game */}
+                <a href="/khoa-hoc" class="group card card-hover flex flex-col overflow-hidden no-underline">
+                    <div class="relative aspect-[16/9] overflow-hidden bg-navy-900">
+                        {
+                            classDemo && (
+                                <img
+                                    src={classDemo.image}
+                                    alt={`Ảnh chụp game ${cleanDemoName(classDemo.name)} làm bằng HTML, CSS, JavaScript`}
+                                    width="640"
+                                    height="360"
+                                    loading="lazy"
+                                    decoding="async"
+                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                />
+                            )
+                        }
+                        <span class="absolute left-3 top-3 chip bg-white/95 text-blue-700 border-blue-100 shadow-sm">
+                            🏫 Offline & Online
+                        </span>
+                    </div>
+                    <div class="flex flex-col flex-1 p-6">
+                        <p class="text-xs font-bold uppercase tracking-wider text-blue-600">HTML · CSS · JavaScript</p>
+                        <h3
+                            class="mt-2 text-xl font-extrabold text-slate-900 tracking-tight group-hover:text-blue-700 transition-colors"
+                        >
+                            Lớp Tư duy sáng tạo Web & Game
+                        </h3>
+                        <p class="mt-2 text-sm text-slate-500 leading-relaxed">
+                            Hành trình sáng tạo công nghệ: tự tay xây dựng Website & Game từ con số 0.
+                        </p>
+                        <ul class="mt-5 space-y-2.5 flex-1">
+                            {
+                                classPoints.map((point) => (
+                                    <li class="flex items-start gap-2.5 text-sm text-slate-700">
+                                        <svg
+                                            class="w-4 h-4 mt-0.5 text-blue-600 shrink-0"
+                                            viewBox="0 0 20 20"
+                                            fill="currentColor"
+                                            aria-hidden="true"
+                                        >
+                                            <path fill-rule="evenodd" d={checkPath} clip-rule="evenodd" />
+                                        </svg>
+                                        {point}
+                                    </li>
+                                ))
+                            }
+                        </ul>
+                        <div class="mt-6 pt-5 border-t border-slate-100 flex items-center justify-between gap-3">
+                            <span class="text-xs font-medium text-slate-500">Liên hệ để được tư vấn</span>
+                            <span
+                                class="inline-flex items-center gap-1.5 text-sm font-bold text-blue-600 group-hover:gap-2.5 transition-all"
+                            >
+                                Xem lớp học
+                                <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                    <path fill-rule="evenodd" d={arrowPath} clip-rule="evenodd"></path>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </a>
+
+                {/* 2. Học Python miễn phí */}
+                <a
+                    href="/hoc-python"
+                    class="group card card-hover flex flex-col overflow-hidden no-underline ring-2 ring-sun-400/70 border-sun-300"
+                >
+                    <div class="relative aspect-[16/9] overflow-hidden bg-navy-950">
+                        <div class="absolute inset-0 bg-grid-dark opacity-60" aria-hidden="true"></div>
+                        <div
+                            class="absolute -top-16 -right-10 w-48 h-48 rounded-full bg-blue-600/40 blur-3xl"
+                            aria-hidden="true"
+                        >
+                        </div>
+                        <IconPython
+                            class="absolute -right-6 -bottom-8 w-40 h-40 text-white/[0.05]"
+                            aria-hidden="true"
+                        />
+                        <div class="absolute inset-x-5 top-1/2 -translate-y-1/2" aria-hidden="true">
+                            <div class="rounded-xl bg-[#282c34] border border-white/10 shadow-2xl overflow-hidden">
+                                <div class="flex items-center gap-1.5 px-3 py-2 bg-[#21252b]">
+                                    <span class="w-2 h-2 rounded-full bg-[#ff5f57]"></span>
+                                    <span class="w-2 h-2 rounded-full bg-[#febc2e]"></span>
+                                    <span class="w-2 h-2 rounded-full bg-[#28c840]"></span>
+                                    <span class="ml-2 text-[10px] font-mono text-slate-400">main.py</span>
+                                </div>
+                                <pre
+                                    class="m-0 px-3 py-2.5 text-[11px] sm:text-xs leading-5 font-mono text-[#abb2bf] overflow-hidden"><code><span class="text-[#7f848e] italic"># Tổng từ 1 đến n</span>
+n <span class="text-[#56b6c2]">=</span> <span class="text-[#61afef]">int</span>(<span class="text-[#61afef]">input</span>())
+<span class="text-[#61afef]">print</span>(n <span class="text-[#56b6c2]">*</span> (n <span class="text-[#56b6c2]">+</span> <span class="text-[#d19a66]">1</span>) <span class="text-[#56b6c2]">//</span> <span class="text-[#d19a66]">2</span>)</code></pre>
+                            </div>
+                            <span
+                                class="absolute -bottom-3 right-3 chip bg-emerald-500 text-white border-emerald-400 shadow-lg"
+                            >
+                                ✓ Chấm tự động
+                            </span>
+                        </div>
+                        <span class="absolute left-3 top-3 chip bg-sun-400 text-navy-950 border-sun-300 shadow-sm">
+                            Miễn phí · 0đ
+                        </span>
+                    </div>
+                    <div class="flex flex-col flex-1 p-6">
+                        <p class="text-xs font-bold uppercase tracking-wider text-[#3776AB]">
+                            Python 3 · Trên trình duyệt
+                        </p>
+                        <h3
+                            class="mt-2 text-xl font-extrabold text-slate-900 tracking-tight group-hover:text-blue-700 transition-colors"
+                        >
+                            Học Python & luyện thi Tin học trẻ
+                        </h3>
+                        <p class="mt-2 text-sm text-slate-500 leading-relaxed">
+                            Học và code Python ngay trên trình duyệt, không cần cài đặt gì.
+                        </p>
+                        <ul class="mt-5 space-y-2.5 flex-1">
+                            {
+                                pythonPoints.map((point) => (
+                                    <li class="flex items-start gap-2.5 text-sm text-slate-700">
+                                        <svg
+                                            class="w-4 h-4 mt-0.5 text-emerald-600 shrink-0"
+                                            viewBox="0 0 20 20"
+                                            fill="currentColor"
+                                            aria-hidden="true"
+                                        >
+                                            <path fill-rule="evenodd" d={checkPath} clip-rule="evenodd" />
+                                        </svg>
+                                        {point}
+                                    </li>
+                                ))
+                            }
+                        </ul>
+                        <div class="mt-6 pt-5 border-t border-slate-100 flex items-center justify-between gap-3">
+                            <span class="text-xs font-medium text-slate-500">0đ học phí</span>
+                            <span
+                                class="inline-flex items-center gap-1.5 text-sm font-bold text-blue-600 group-hover:gap-2.5 transition-all"
+                            >
+                                Bắt đầu học miễn phí
+                                <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                    <path fill-rule="evenodd" d={arrowPath} clip-rule="evenodd"></path>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </a>
+
+                {/* 3. Thư viện bài viết */}
+                <a
+                    href="/bai-viet"
+                    class="group card card-hover flex flex-col overflow-hidden no-underline md:col-span-2 lg:col-span-1"
+                >
+                    <div class="relative aspect-[16/9] overflow-hidden bg-slate-100">
+                        <div class="grid grid-cols-2 grid-rows-2 gap-1 h-full">
+                            {
+                                libraryCovers.map((cover) => (
+                                    <img
+                                        src={cover.src}
+                                        alt=""
+                                        width="320"
+                                        height="183"
+                                        loading="lazy"
+                                        decoding="async"
+                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                    />
+                                ))
+                            }
+                        </div>
+                        <span
+                            class="absolute left-3 top-3 chip bg-white/95 text-violet-700 border-violet-100 shadow-sm"
+                        >
+                            📚 {postCount} bài viết
+                        </span>
+                    </div>
+                    <div class="flex flex-col flex-1 p-6">
+                        <p class="text-xs font-bold uppercase tracking-wider text-violet-600">
+                            {categoryCount} chủ đề · Tự học ở nhà
+                        </p>
+                        <h3
+                            class="mt-2 text-xl font-extrabold text-slate-900 tracking-tight group-hover:text-blue-700 transition-colors"
+                        >
+                            Thư viện bài viết theo chủ đề
+                        </h3>
+                        <p class="mt-2 text-sm text-slate-500 leading-relaxed">
+                            Bài hướng dẫn dễ hiểu, có ví dụ minh họa — ôn lại kiến thức theo từng chủ đề.
+                        </p>
+                        <ul class="mt-5 space-y-2.5 flex-1">
+                            {
+                                topCategories.map((cat) => (
+                                    <li class="flex items-center justify-between gap-3 text-sm text-slate-700">
+                                        <span class="flex items-center gap-2.5">
+                                            <span class="w-4 text-center" aria-hidden="true">
+                                                {cat.icon}
+                                            </span>
+                                            {cat.label}
+                                        </span>
+                                        <span class="text-xs font-semibold text-slate-400">{cat.count} bài</span>
+                                    </li>
+                                ))
+                            }
+                        </ul>
+                        <div class="mt-6 pt-5 border-t border-slate-100 flex items-center justify-between gap-3">
+                            <span class="text-xs font-medium text-slate-500">Đọc miễn phí</span>
+                            <span
+                                class="inline-flex items-center gap-1.5 text-sm font-bold text-blue-600 group-hover:gap-2.5 transition-all"
+                            >
+                                Khám phá bài viết
+                                <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                    <path fill-rule="evenodd" d={arrowPath} clip-rule="evenodd"></path>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── DÀNH CHO PHỤ HUYNH ───────────────────────────────────────── -->
+    <HomeParents />
+
+    <!-- ── SẢN PHẨM DEMO ────────────────────────────────────────────── -->
+    <section
+        id="san-pham"
+        class="relative overflow-hidden bg-navy-950 text-white py-16 md:py-24"
+        aria-labelledby="san-pham-title"
+    >
+        <div class="absolute inset-0 bg-grid-dark opacity-60 pointer-events-none" aria-hidden="true"></div>
+        <div
+            class="absolute -top-48 left-1/2 -translate-x-1/2 w-[640px] h-[420px] rounded-full bg-blue-600/25 blur-[130px] pointer-events-none"
+            aria-hidden="true"
+        >
+        </div>
+
+        <div class="relative container-site">
+            <SectionHeading
+                id="san-pham-title"
+                dark
+                eyebrow="Thử nghiệm"
+                title="Sản phẩm có thể tự tay làm"
+                lead="Các game và trang web dưới đây được làm bằng HTML, CSS, JavaScript và đang chạy ngay trên Error404 Labs. Bấm vào để chơi thử — và hình dung những gì có thể tự xây dựng khi học Web & Game."
+            >
+                <a href="/thu-nghiem" slot="action" class="btn btn-ghost-light">
+                    Xem tất cả {demoCount} demo
+                    <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d={arrowPath} clip-rule="evenodd"></path>
+                    </svg>
+                </a>
+            </SectionHeading>
+
+            <ul class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
+                {
+                    showcase.map((demo) => (
+                        <li>
+                            <a
+                                href="/thu-nghiem"
+                                class="group block h-full rounded-2xl overflow-hidden bg-white/[0.04] border border-white/10 hover:border-sun-400/60 hover:-translate-y-1 transition-all duration-300 no-underline"
+                                title={`Chơi thử ${cleanDemoName(demo.name)} tại trang Thử nghiệm`}
+                            >
+                                <div class="relative aspect-[16/10] overflow-hidden bg-navy-900">
+                                    <img
+                                        src={demo.image}
+                                        alt={`Ảnh chụp ${cleanDemoName(demo.name)}`}
+                                        width="480"
+                                        height="300"
+                                        loading="lazy"
+                                        decoding="async"
+                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                    />
+                                    <span class="absolute left-2 top-2 chip bg-navy-950/75 text-white border-white/15 backdrop-blur-sm text-[10px] sm:text-xs">
+                                        {demoKind(demo.link) === 'Web' ? '🌐 Web' : '🎮 Game'}
+                                    </span>
+                                </div>
+                                <div class="px-3 py-3 sm:px-4 flex items-center justify-between gap-2">
+                                    <h3 class="text-sm sm:text-[15px] font-bold text-white truncate">
+                                        {cleanDemoName(demo.name)}
+                                    </h3>
+                                    <span
+                                        class="hidden sm:inline-flex text-xs font-bold text-sun-400 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                                        aria-hidden="true"
+                                    >
+                                        Chơi thử →
+                                    </span>
+                                </div>
+                            </a>
+                        </li>
+                    ))
+                }
+            </ul>
+
+            <div
+                class="mt-10 md:mt-12 rounded-2xl border border-white/10 bg-white/[0.04] p-5 md:p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+            >
+                <p class="text-slate-300 text-sm md:text-base">
+                    <strong class="text-white font-bold">Muốn tự tay làm được như vậy?</strong> Lớp Tư duy sáng tạo Web &
+                    Game hướng dẫn từ cấu trúc web đến logic game và dự án cá nhân.
                 </p>
-
-                <div class="flex justify-center md:justify-start gap-3 flex-wrap">
-                    <Link
-                        text="Donate"
-                        style="primary"
-                        isFilled={false}
-                        borderVisible={true}
-                        href="/donate"
-                        target="_blank"
-                        icon={{
-                            component: IconDonate,
-                            side: 'left',
-                        }}
-                    />
-                    <Link
-                        text="Lý Thuyết Điểm Giao By Cô Cỏ"
-                        style="primary"
-                        isFilled={false}
-                        borderVisible={true}
-                        href="https://cococuatuinho.com"
-                        target="_blank"
-                        icon={{
-                            component: IconWeb,
-                            side: 'left',
-                        }}
-                    />
-                    <Link
-                        text="Liên Hệ"
-                        style="primary"
-                        isFilled={false}
-                        borderVisible={true}
-                        href={Facebook}
-                        target="_blank"
-                        icon={{
-                            component: IconFacebook,
-                            side: 'left',
-                        }}
-                    />
-                </div>
+                <a href="/khoa-hoc" class="btn btn-sun shrink-0">
+                    Tìm hiểu lớp Web & Game
+                    <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d={arrowPath} clip-rule="evenodd"></path>
+                    </svg>
+                </a>
             </div>
-        </section>
-        <section class="my-5 mb-15 w-10/12 mx-auto" aria-label="Bài Viết Dành Cho Bạn">
-            <h2 class="text-5xl font-semibold mb-10 mt-10">Bài Viết Dành Cho Bạn</h2>
-            <div class="custom-grid" style={`max-width: ${length > 1 ? '100%' : '400px'}`}>
-                {formattedPosts.map((post) => <PostCard frontmatter={post.frontmatter} url={post.url} tagType="h3" />)}
-            </div>
-        </section>
-    </div>
+        </div>
+    </section>
 
-    <div id="lightbox" class="lightbox" onclick="closeLightbox(event)" onkeydown="handleLightboxKey(event)" tabindex="-1">
-        <img id="lightbox-img" src="" alt="" />
-    </div>
+    <!-- ── CHỦ ĐỀ NỔI BẬT ───────────────────────────────────────────── -->
+    <section id="chu-de" class="bg-white py-16 md:py-24" aria-labelledby="chu-de-title">
+        <div class="container-site">
+            <SectionHeading
+                id="chu-de-title"
+                eyebrow="Chủ đề nổi bật"
+                title="Học theo chủ đề yêu thích"
+                lead="Chọn một chủ đề để xem các bài viết liên quan — các chuỗi bài học có đánh số giúp học lần lượt từ bài 1."
+            >
+                <a href="/bai-viet" slot="action" class="btn btn-outline">
+                    Tất cả bài viết
+                    <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d={arrowPath} clip-rule="evenodd"></path>
+                    </svg>
+                </a>
+            </SectionHeading>
+
+            <ul class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
+                {
+                    categories.map((cat) => (
+                        <li>
+                            <a
+                                href={cat.href}
+                                class="group card card-hover relative overflow-hidden h-full p-4 sm:p-5 flex flex-col no-underline"
+                            >
+                                <span
+                                    class={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${cat.gradient}`}
+                                    aria-hidden="true"
+                                />
+                                <div class="flex items-start justify-between gap-3">
+                                    <span
+                                        class={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl border flex items-center justify-center text-xl sm:text-2xl ${cat.chip}`}
+                                        aria-hidden="true"
+                                    >
+                                        {cat.icon}
+                                    </span>
+                                    <span class="text-[11px] sm:text-xs font-bold text-slate-500 bg-slate-100 rounded-full px-2 sm:px-2.5 py-1 whitespace-nowrap">
+                                        {cat.count} bài
+                                    </span>
+                                </div>
+                                <h3 class="mt-3 sm:mt-4 text-[15px] sm:text-base font-extrabold text-slate-900 group-hover:text-blue-700 transition-colors">
+                                    {cat.label}
+                                </h3>
+                                <div class="hidden sm:block mt-1.5">
+                                    <p class="text-sm text-slate-500 leading-relaxed line-clamp-2">{cat.description}</p>
+                                </div>
+                                <span class="hidden sm:inline-flex mt-auto pt-4 items-center gap-1.5 text-sm font-bold text-blue-600 group-hover:gap-2.5 transition-all">
+                                    Xem chủ đề <span aria-hidden="true">→</span>
+                                </span>
+                            </a>
+                        </li>
+                    ))
+                }
+                <li>
+                    <a
+                        href="/hoc-python"
+                        class="group relative overflow-hidden h-full rounded-[1.25rem] bg-navy-950 p-4 sm:p-5 flex flex-col text-white no-underline hover:-translate-y-1 transition-transform duration-300"
+                    >
+                        <IconPython
+                            class="absolute -right-6 -bottom-6 w-32 h-32 text-white/[0.06]"
+                            aria-hidden="true"
+                        />
+                        <span
+                            class="relative w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-sun-400 text-navy-950 flex items-center justify-center"
+                            aria-hidden="true"
+                        >
+                            <IconPython class="w-6 h-6 sm:w-7 sm:h-7" />
+                        </span>
+                        <h3 class="relative mt-3 sm:mt-4 text-[15px] sm:text-base font-extrabold">
+                            Python & Tin học trẻ
+                        </h3>
+                        <div class="hidden sm:block relative mt-1.5">
+                            <p class="text-sm text-slate-300 leading-relaxed line-clamp-2">
+                                Học Python miễn phí, code và chấm bài tự động ngay trên trình duyệt.
+                            </p>
+                        </div>
+                        <span
+                            class="relative mt-auto pt-2 sm:pt-4 inline-flex items-center gap-1.5 text-sm font-bold text-sun-400 group-hover:gap-2.5 transition-all"
+                        >
+                            Học miễn phí <span aria-hidden="true">→</span>
+                        </span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- ── BÀI VIẾT MỚI NHẤT ────────────────────────────────────────── -->
+    <section id="bai-moi" class="bg-slate-50 py-16 md:py-24" aria-labelledby="bai-moi-title">
+        <div class="container-site">
+            <SectionHeading
+                id="bai-moi-title"
+                eyebrow="Bài viết mới nhất"
+                title="Vừa cập nhật trên Error404 Labs"
+                lead="Bài hướng dẫn mới, giải thích dễ hiểu kèm code mẫu để học sinh tự thực hành."
+            >
+                <a href="/bai-viet" slot="action" class="btn btn-primary hidden sm:inline-flex">
+                    Xem tất cả bài viết
+                    <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d={arrowPath} clip-rule="evenodd"></path>
+                    </svg>
+                </a>
+            </SectionHeading>
+
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {
+                    latestPosts.map((post, i) => (
+                        <div class:list={['h-full', i >= 3 && 'hidden sm:block']}>
+                            <PostCard frontmatter={post.frontmatter} url={post.url} tagType="h3" />
+                        </div>
+                    ))
+                }
+            </div>
+            <div class="mt-8 sm:hidden">
+                <a href="/bai-viet" class="btn btn-outline w-full">
+                    Xem tất cả {postCount} bài viết
+                    <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d={arrowPath} clip-rule="evenodd"></path>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </section>
 </MainLayout>
-
-<style>
-    .custom-grid {
-        display: grid;
-        gap: 40px;
-        justify-content: center;
-        grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
-        width: 100%;
-    }
-
-    .lightbox {
-        display: none;
-        position: fixed;
-        inset: 0;
-        z-index: 9999;
-        background: rgba(0, 0, 0, 0.95);
-        backdrop-filter: blur(8px);
-        justify-content: center;
-        align-items: center;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-
-    .lightbox.active {
-        display: flex;
-        opacity: 1;
-    }
-
-    .lightbox img {
-        max-width: 90%;
-        max-height: 90vh;
-        object-fit: contain;
-        border-radius: 8px;
-        transform: scale(0.9);
-        transition: transform 0.3s ease;
-    }
-
-    .lightbox.active img {
-        transform: scale(1);
-    }
-
-    body.lightbox-open {
-        overflow: hidden;
-    }
-</style>
-
-<script is:inline>
-    function openLightbox(img) {
-        const lightbox = document.getElementById('lightbox');
-        const lightboxImg = document.getElementById('lightbox-img');
-        lightboxImg.src = img.src;
-        lightboxImg.alt = img.alt;
-        lightbox.classList.add('active');
-        document.body.classList.add('lightbox-open');
-        lightbox.focus();
-    }
-
-    function closeLightbox(event) {
-        if (event && event.target !== event.currentTarget) return;
-        const lightbox = document.getElementById('lightbox');
-        lightbox.classList.remove('active');
-        document.body.classList.remove('lightbox-open');
-    }
-
-    function handleLightboxKey(event) {
-        if (event.key === 'Escape') {
-            closeLightbox(event);
-        }
-    }
-</script>

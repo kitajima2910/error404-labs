@@ -1,309 +1,860 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro'
 import { TC_TITLE } from '../common/TextConst'
+import { DATA_DEMO } from '../data/dataTestDemo.js'
+import InfoIcon from '../components/info/InfoIcon.astro'
+import InfoHeading from '../components/info/InfoHeading.astro'
+
+// Thông tin liên hệ (giữ nguyên số điện thoại / Zalo / địa chỉ thật)
+const ZALO_URL = 'https://zalo.me/0373306966'
+const PHONE_URL = 'tel:0373306966'
+const PHONE_TEXT = '0373.306.966'
+const ADDRESS = '308 Đ. TX 25, Thạnh Xuân, Q.12, TP.HCM'
+const MAPS_URL = 'https://www.google.com/maps/search/?api=1&query=308+Đ.+TX+25,+Thạnh+Xuân,+Q.12,+TP.HCM'
+
+const facts = [
+    { icon: 'users', value: '3 – 5 HS', label: 'mỗi lớp Offline' },
+    { icon: 'desktop', value: '1 kèm 1', label: 'Online trực tiếp' },
+    { icon: 'calendar', value: '2 buổi', label: 'mỗi tuần' },
+    { icon: 'pin', value: 'Q.12', label: 'TP.HCM' },
+] as const
+
+const goals = [
+    {
+        icon: 'bulb',
+        text: 'Hiểu cơ chế hoạt động của Web & Game',
+        tone: 'bg-blue-50 text-blue-600 ring-blue-100',
+    },
+    {
+        icon: 'rocket',
+        text: 'Tự tay xây dựng Website & Game từ con số 0',
+        tone: 'bg-emerald-50 text-emerald-600 ring-emerald-100',
+    },
+    {
+        icon: 'puzzle',
+        text: 'Nâng cao tư duy logic & thiết kế hệ thống',
+        tone: 'bg-violet-50 text-violet-600 ring-violet-100',
+    },
+    {
+        icon: 'beaker',
+        text: 'Học qua dự án thực tế, không học thuộc lòng',
+        tone: 'bg-amber-50 text-amber-600 ring-amber-100',
+    },
+] as const
+
+const techs = [
+    { name: 'HTML', role: 'Cấu trúc & nội dung', tone: 'bg-orange-50 text-orange-700 border-orange-200' },
+    { name: 'CSS', role: 'Giao diện & màu sắc', tone: 'bg-sky-50 text-sky-700 border-sky-200' },
+    { name: 'JavaScript', role: 'Logic & tương tác', tone: 'bg-amber-50 text-amber-800 border-amber-200' },
+]
+
+const roadmap = [
+    {
+        no: '01',
+        title: 'Nền tảng Web sáng tạo',
+        desc: 'Xây dựng cấu trúc web: văn bản, hình ảnh, liên kết',
+        icon: 'document',
+    },
+    {
+        no: '02',
+        title: 'Thiết kế Game tương tác',
+        desc: 'Sáng tạo logic, cơ chế game và trải nghiệm',
+        icon: 'sparkles',
+    },
+    {
+        no: '03',
+        title: 'Dự án Web & Game',
+        desc: 'Hiện thực hóa ý tưởng qua dự án tương tác cá nhân',
+        icon: 'rocket',
+    },
+] as const
+
+// 6 sản phẩm tiêu biểu lấy từ dữ liệu thật của trang Thử nghiệm (ưu tiên game HTML5 thuần + web đơn giản)
+const SHOWCASE_NAMES = [
+    '2. Bắt Quả',
+    '4. Xếp Gạch',
+    '10. Nổ Bóng',
+    '12. Bảo Vệ Tháp',
+    'Pet404-Labs',
+    'Fox Robot Slider',
+]
+const picked = SHOWCASE_NAMES.map((n) => DATA_DEMO.find((d) => d.name === n)).filter(Boolean) as typeof DATA_DEMO
+const showcase = (picked.length === 6 ? picked : DATA_DEMO.slice(0, 6)).map((d) => ({
+    ...d,
+    kind: d.link.startsWith('/thu-nghiem/web/') ? 'Web' : 'Game',
+    // Mở thẳng đúng sản phẩm ở trang Thử nghiệm (trang đó đọc tham số ?demo=)
+    href: `/thu-nghiem?demo=${encodeURIComponent(d.name)}`,
+}))
+const heroDemo = DATA_DEMO.find((d) => d.name === '5. Bắn Vịt') ?? DATA_DEMO[0]
+
+const faqs = [
+    {
+        q: 'Lớp học ở đâu?',
+        a: `Lớp Offline học tại ${ADDRESS}. Nếu ở xa, con có thể chọn hình thức Online 1 kèm 1 trực tiếp.`,
+    },
+    {
+        q: 'Lịch học như thế nào?',
+        a: `Lớp học 2 buổi / tuần. Khung giờ cụ thể vui lòng liên hệ Zalo ${PHONE_TEXT} để được sắp xếp phù hợp.`,
+    },
+    {
+        q: 'Có những hình thức học nào?',
+        a: 'Offline: 3 - 5 học sinh / lớp (kèm sát). Online: 1 kèm 1 trực tiếp (tương tác cao).',
+    },
+    {
+        q: 'Con cần chuẩn bị gì trước khi học?',
+        a: 'Học sinh cần có máy tính riêng (bắt buộc) để tự tay viết code, chạy thử và lưu lại sản phẩm của mình.',
+    },
+    {
+        q: 'Học phí bao nhiêu?',
+        a: `Vui lòng liên hệ Zalo ${PHONE_TEXT} để được tư vấn.`,
+    },
+    {
+        q: 'Đăng ký cho con như thế nào?',
+        a: `Phụ huynh nhắn Zalo hoặc gọi số ${PHONE_TEXT} để đăng ký và được tư vấn hình thức học phù hợp.`,
+    },
+]
 ---
 
-<MainLayout title={`Khóa học | ${TC_TITLE}`}>
-    <section
-        class="min-h-[calc(100vh-168px)] flex flex-col justify-center items-center py-4 md:py-6 px-2 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden"
-    >
-        <!-- Đồ họa chìm (Background decorative) -->
-        <div class="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden z-0">
-            <div class="absolute -top-[20%] -right-[10%] w-[50%] h-[50%] bg-[#185c69]/5 rounded-full blur-[100px]">
-            </div>
-            <div class="absolute -bottom-[20%] -left-[10%] w-[50%] h-[50%] bg-[#ffbd0a]/10 rounded-full blur-[100px]">
-            </div>
+<MainLayout
+    title={`Khóa học | ${TC_TITLE}`}
+    description="Lớp học Tư duy sáng tạo qua lập trình Web & Game (HTML, CSS & JavaScript) cho học sinh: Offline 3 - 5 học sinh / lớp tại Q.12 TP.HCM hoặc Online 1 kèm 1. Đăng ký qua Zalo 0373.306.966."
+>
+    {/* ── HERO ─────────────────────────────────────────────────────── */}
+    <section class="relative overflow-hidden bg-navy-950 text-white">
+        <div class="absolute inset-0 bg-grid-dark opacity-60 pointer-events-none" aria-hidden="true"></div>
+        <div
+            class="absolute -top-40 -right-32 w-[520px] h-[520px] rounded-full bg-blue-600/30 blur-[130px] pointer-events-none"
+            aria-hidden="true"
+        >
+        </div>
+        <div
+            class="absolute -bottom-48 -left-24 w-[420px] h-[420px] rounded-full bg-sun-400/10 blur-[130px] pointer-events-none"
+            aria-hidden="true"
+        >
         </div>
 
         <div
-            class="bg-white p-1 md:p-2 rounded-3xl shadow-2xl shadow-[#185c69]/10 max-w-6xl w-full border border-gray-100 relative z-10 transition-all duration-500 flex flex-col h-full"
+            class="relative container-site pt-10 pb-24 md:pt-16 md:pb-32 grid lg:grid-cols-12 gap-12 lg:gap-10 items-center"
         >
-            <!-- Header Group -->
-            <div
-                class="bg-gradient-to-br from-[#124b56] to-[#185c69] rounded-t-[1.3rem] rounded-b-2xl md:rounded-t-[1.3rem] py-6 md:py-8 px-4 relative overflow-hidden text-center shadow-inner group shrink-0"
-            >
-                <!-- Ánh sáng chìm bên trong header -->
-                <div class="absolute inset-0 pointer-events-none">
-                    <div
-                        class="absolute -top-32 -left-32 w-64 h-64 bg-[#2f92a4] rounded-full mix-blend-screen filter blur-[80px] opacity-40 group-hover:opacity-60 transition-opacity duration-700"
-                    >
-                    </div>
-                    <div
-                        class="absolute bottom-[-100px] right-[-100px] w-80 h-80 bg-[#092930] rounded-full mix-blend-multiply filter blur-[80px] opacity-50"
-                    >
-                    </div>
+            <div class="lg:col-span-7">
+                <nav aria-label="Breadcrumb" class="text-sm text-slate-400 mb-6">
+                    <a href="/" class="hover:text-white no-underline">Trang chủ</a>
+                    <span class="mx-2" aria-hidden="true">/</span>
+                    <span class="text-slate-200">Khóa học</span>
+                </nav>
+
+                <p
+                    class="inline-flex items-center gap-2 bg-white/10 border border-white/15 text-sun-400 text-xs font-bold px-3 py-1.5 rounded-full mb-6 uppercase tracking-wider"
+                >
+                    <span class="w-1.5 h-1.5 rounded-full bg-sun-400"></span>
+                    Lớp học Offline &amp; Online
+                </p>
+
+                <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight leading-[1.15] text-balance">
+                    Tư duy sáng tạo qua lập trình
+                    <span class="text-sun-400">Web &amp; Game</span>
+                </h1>
+
+                <p
+                    class="mt-5 inline-flex flex-wrap items-center gap-x-2 gap-y-1 text-sm md:text-base font-bold text-white"
+                >
+                    <span class="inline-flex gap-1" aria-hidden="true">
+                        <span class="w-2.5 h-2.5 rounded-full bg-orange-400"></span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-sky-400"></span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-sun-400"></span>
+                    </span>
+                    HTML, CSS &amp; JAVASCRIPT – Hành trình sáng tạo công nghệ
+                </p>
+
+                <p class="mt-4 text-slate-300 text-base md:text-lg leading-relaxed max-w-2xl">
+                    Lớp học giúp học sinh tự tay làm ra website và game của riêng mình — học qua dự án thực tế, lớp nhỏ
+                    kèm sát, không học thuộc lòng.
+                </p>
+
+                <div id="courseHeroCta" class="mt-8 flex flex-col sm:flex-row sm:flex-wrap gap-3">
+                    <a href={ZALO_URL} target="_blank" rel="noopener" class="btn btn-sun btn-lg">
+                        <InfoIcon name="chat" class="w-5 h-5" strokeWidth={2} />
+                        Đăng ký qua Zalo
+                    </a>
+                    <a href={PHONE_URL} class="btn btn-ghost-light btn-lg">
+                        <InfoIcon name="phone" class="w-5 h-5" strokeWidth={2} />
+                        Gọi {PHONE_TEXT}
+                    </a>
                 </div>
 
-                <div class="relative z-10 max-w-4xl mx-auto space-y-4">
-                    <h1
-                        class="text-2xl md:text-3xl lg:text-5xl font-black text-white uppercase tracking-wide drop-shadow-lg lg:leading-tight"
-                    >
-                        Tư duy sáng tạo<br class="hidden md:block" /> qua lập trình Web & Game
-                    </h1>
-                    <div
-                        class="inline-block bg-gradient-to-r from-[#ffbd0a] to-[#f4a100] text-[#0b2f36] font-extrabold px-5 py-2 md:px-6 md:py-3 rounded-full text-xs md:text-sm lg:text-base shadow-xl transform transition hover:scale-105 hover:shadow-2xl border border-[#fbca3a]"
-                    >
-                        HTML, CSS & JAVASCRIPT – Hành trình sáng tạo công nghệ
-                    </div>
-                </div>
+                <ul class="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-300">
+                    {
+                        ['Lớp nhỏ, kèm sát', 'Học qua dự án thực tế', 'Học phí: liên hệ để được tư vấn'].map((t) => (
+                            <li class="flex items-center gap-2">
+                                <svg
+                                    class="w-4 h-4 text-emerald-400 shrink-0"
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        fill-rule="evenodd"
+                                        d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z"
+                                        clip-rule="evenodd"
+                                    />
+                                </svg>
+                                {t}
+                            </li>
+                        ))
+                    }
+                </ul>
             </div>
 
-            <!-- Body Area -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6 p-3 md:p-5 flex-1 min-h-0">
-                <!-- Left Column -->
-                <div class="lg:col-span-5 flex flex-col gap-4 justify-between h-full">
-                    <!-- Mục tiêu -->
-                    <div
-                        class="bg-gradient-to-b from-[#f7fbfb] to-white rounded-2xl p-4 md:p-5 border-2 border-dashed border-[#c5e1e5] shadow-sm relative overflow-hidden group hover:border-[#86bcc6] transition-colors duration-300 flex-1"
-                    >
-                        <div
-                            class="absolute top-0 right-0 w-24 h-24 bg-[#e8f3f4] rounded-bl-full -z-10 group-hover:scale-110 transition-transform duration-500"
+            {/* Minh họa: khung trình duyệt với một game làm bằng HTML5 */}
+            <div class="lg:col-span-5 relative max-w-xl w-full mx-auto lg:mx-0">
+                <div
+                    class="rounded-2xl bg-white/5 border border-white/10 shadow-[0_30px_80px_rgba(0,0,0,0.45)] overflow-hidden lg:rotate-1"
+                >
+                    <div class="flex items-center gap-2 px-4 py-3 bg-navy-900 border-b border-white/10">
+                        <span class="w-3 h-3 rounded-full bg-[#ff5f57]"></span>
+                        <span class="w-3 h-3 rounded-full bg-[#febc2e]"></span>
+                        <span class="w-3 h-3 rounded-full bg-[#28c840]"></span>
+                        <span
+                            class="ml-2 flex-1 min-w-0 truncate text-[11px] font-mono text-slate-400 bg-white/5 px-3 py-1 rounded-md"
                         >
-                        </div>
-                        <h3 class="text-lg md:text-xl font-black text-[#185c69] mb-4 flex items-center gap-3 uppercase">
-                            Mục tiêu khóa học <span class="text-xl">🎯</span>
-                        </h3>
-                        <ul class="space-y-3">
-                            <li class="flex items-start gap-3">
-                                <div class="bg-[#fef8e6] p-1.5 rounded-lg shrink-0 mt-0.5 shadow-sm">
-                                    <span class="text-[#f4a100] text-xl leading-none">★</span>
-                                </div>
-                                <span class="font-bold text-gray-700 text-sm md:text-base leading-snug"
-                                    >Hiểu cơ chế hoạt động của Web & Game</span
-                                >
-                            </li>
-                            <li class="flex items-start gap-3">
-                                <div class="bg-[#fef8e6] p-1.5 rounded-lg shrink-0 mt-0.5 shadow-sm">
-                                    <span class="text-[#f4a100] text-xl leading-none">★</span>
-                                </div>
-                                <span class="font-bold text-gray-700 text-sm md:text-base leading-snug"
-                                    >Tự tay xây dựng Website & Game từ con số 0</span
-                                >
-                            </li>
-                            <li class="flex items-start gap-3">
-                                <div class="bg-[#fef8e6] p-1.5 rounded-lg shrink-0 mt-0.5 shadow-sm">
-                                    <span class="text-[#f4a100] text-xl leading-none">★</span>
-                                </div>
-                                <span class="font-bold text-gray-700 text-sm md:text-base leading-snug"
-                                    >Nâng cao tư duy logic & thiết kế hệ thống</span
-                                >
-                            </li>
-                            <li class="flex items-start gap-3">
-                                <div class="bg-[#fef8e6] p-1.5 rounded-lg shrink-0 mt-0.5 shadow-sm">
-                                    <span class="text-[#f4a100] text-xl leading-none">★</span>
-                                </div>
-                                <span class="font-bold text-gray-700 text-sm md:text-base leading-snug"
-                                    >Học qua dự án thực tế, không học thuộc lòng</span
-                                >
-                            </li>
-                        </ul>
+                            error404-labs.info.vn/thu-nghiem
+                        </span>
                     </div>
-
-                    <!-- Quy mô -->
-                    <div
-                        class="bg-white p-4 md:p-5 border-2 border-solid border-[#ecf4f5] rounded-2xl shadow-[0_4px_20px_-4px_rgba(24,92,105,0.05)] hover:shadow-lg hover:-translate-y-1 transition-all duration-300 shrink-0"
-                    >
-                        <h3 class="text-lg md:text-xl font-black text-[#185c69] mb-4 flex items-center gap-3 uppercase">
-                            Quy mô lớp học <span class="text-xl ml-1">👨‍🏫</span>
-                        </h3>
-                        <div class="space-y-3">
-                            <div
-                                class="bg-gradient-to-r from-[#f7fbfb] to-white px-4 py-3 rounded-xl border-l-[4px] border-[#185c69] flex flex-col xl:flex-row xl:items-center text-sm shadow-sm hover:shadow-md transition-shadow"
-                            >
-                                <span class="font-black text-[#185c69] mb-1 xl:mb-0 mr-3 uppercase shrink-0"
-                                    >Offline</span
-                                >
-                                <span class="text-gray-700 font-bold md:text-sm mt-1 xl:mt-0"
-                                    >3 - 5 học sinh / lớp (kèm sát)</span
-                                >
-                            </div>
-                            <div
-                                class="bg-gradient-to-r from-[#fefbf0] to-white px-4 py-3 rounded-xl border-l-[4px] border-[#ffbd0a] flex flex-col xl:flex-row xl:items-center text-sm shadow-sm hover:shadow-md transition-shadow"
-                            >
-                                <span class="font-black text-[#eb9700] mb-1 xl:mb-0 mr-3 uppercase shrink-0"
-                                    >Online</span
-                                >
-                                <span class="text-gray-700 font-bold md:text-sm mt-1 xl:mt-0"
-                                    >1 kèm 1 trực tiếp (tương tác cao)</span
-                                >
-                            </div>
-                        </div>
-                    </div>
+                    <img
+                        src={heroDemo.image}
+                        alt={`Ảnh minh họa game ${heroDemo.name} làm bằng HTML5`}
+                        width="640"
+                        height="360"
+                        class="block w-full aspect-video object-cover"
+                    />
                 </div>
 
-                <!-- Right Column -->
                 <div
-                    class="lg:col-span-7 flex flex-col justify-between h-full bg-[#fcfdfe] rounded-2xl p-4 md:p-5 lg:border border-gray-100"
+                    class="hidden md:block absolute -left-6 -bottom-12 w-[290px] rounded-xl bg-[#1e1e2e] border border-white/10 shadow-2xl p-4 font-mono text-[12px] leading-6 info-float"
                 >
-                    <div class="flex-1 flex flex-col justify-center">
-                        <h3
-                            class="text-lg md:text-xl font-black text-[#185c69] mb-4 flex items-center gap-3 uppercase px-2"
+                    <p class="text-slate-500">// Ví dụ: game Bắn Vịt</p>
+                    <p>
+                        <span class="text-orange-300">&lt;canvas</span>
+                        <span class="text-sky-300">id</span>=<span class="text-emerald-300">"game"</span><span
+                            class="text-orange-300">&gt;</span
                         >
-                            Lộ trình học tập sáng tạo <span class="text-xl">🚀</span>
-                        </h3>
-                        <div class="space-y-3 px-1 md:px-2 flex-1 flex flex-col justify-center">
-                            <!-- Step 1 -->
-                            <div
-                                class="flex flex-row items-center gap-4 bg-white border border-gray-100/80 rounded-xl p-3 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group"
-                            >
-                                <div
-                                    class="bg-gradient-to-br from-[#185c69] to-[#114b56] text-white font-black text-xl md:text-2xl rounded-lg w-12 h-12 md:w-14 md:h-14 flex items-center justify-center shrink-0 shadow-lg group-hover:scale-105 transition-transform duration-300 relative overflow-hidden"
-                                >
-                                    <div
-                                        class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"
-                                    >
-                                    </div>
-                                    01
-                                </div>
-                                <div class="flex-1">
-                                    <h4 class="font-black text-[#124b56] text-base md:text-lg uppercase mb-0.5">
-                                        Nền tảng Web sáng tạo
-                                    </h4>
-                                    <p class="text-gray-500 text-xs md:text-sm font-medium leading-relaxed">
-                                        Xây dựng cấu trúc web: văn bản, hình ảnh, liên kết
-                                    </p>
-                                </div>
-                            </div>
-
-                            <!-- Step 2 -->
-                            <div
-                                class="flex flex-row items-center gap-4 bg-white border border-gray-100/80 rounded-xl p-3 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group"
-                            >
-                                <div
-                                    class="bg-gradient-to-br from-[#185c69] to-[#114b56] text-white font-black text-xl md:text-2xl rounded-lg w-12 h-12 md:w-14 md:h-14 flex items-center justify-center shrink-0 shadow-lg group-hover:scale-105 transition-transform duration-300 relative overflow-hidden"
-                                >
-                                    <div
-                                        class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"
-                                    >
-                                    </div>
-                                    02
-                                </div>
-                                <div class="flex-1">
-                                    <h4 class="font-black text-[#124b56] text-base md:text-lg uppercase mb-0.5">
-                                        Thiết kế Game tương tác
-                                    </h4>
-                                    <p class="text-gray-500 text-xs md:text-sm font-medium leading-relaxed">
-                                        Sáng tạo logic, cơ chế game và trải nghiệm
-                                    </p>
-                                </div>
-                            </div>
-
-                            <!-- Step 3 -->
-                            <div
-                                class="flex flex-row items-center gap-4 bg-white border border-gray-100/80 rounded-xl p-3 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 group"
-                            >
-                                <div
-                                    class="bg-gradient-to-br from-[#185c69] to-[#114b56] text-white font-black text-xl md:text-2xl rounded-lg w-12 h-12 md:w-14 md:h-14 flex items-center justify-center shrink-0 shadow-lg group-hover:scale-105 transition-transform duration-300 relative overflow-hidden"
-                                >
-                                    <div
-                                        class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"
-                                    >
-                                    </div>
-                                    03
-                                </div>
-                                <div class="flex-1">
-                                    <h4 class="font-black text-[#124b56] text-base md:text-lg uppercase mb-0.5">
-                                        Dự án Web & Game
-                                    </h4>
-                                    <p class="text-gray-500 text-xs md:text-sm font-medium leading-relaxed">
-                                        Hiện thực hóa ý tưởng qua dự án tương tác cá nhân
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Info Grid -->
-                    <div
-                        class="flex flex-col md:flex-row justify-between items-center mt-4 p-5 md:p-6 bg-white border-2 border-[#ecf4f5] hover:border-[#c5e1e5] rounded-2xl shadow-[0_4px_20px_-4px_rgba(24,92,105,0.08)] hover:shadow-[0_8px_30px_-4px_rgba(24,92,105,0.15)] transition-all duration-300 gap-6 w-full shrink-0 relative overflow-hidden group"
-                    >
-                        <!-- Ánh sáng mờ trang trí -->
-                        <div
-                            class="absolute -top-10 -right-10 w-32 h-32 bg-orange-50 rounded-full blur-2xl opacity-50 group-hover:opacity-100 transition-opacity duration-500"
-                        >
-                        </div>
-                        <div
-                            class="absolute -bottom-10 -left-10 w-32 h-32 bg-teal-50 rounded-full blur-2xl opacity-50 group-hover:opacity-100 transition-opacity duration-500"
-                        >
-                        </div>
-
-                        <!-- Schedule -->
-                        <div class="flex flex-col text-center md:text-left flex-1 relative z-10 w-full md:w-auto">
-                            <div
-                                class="text-[#e35d2d] text-[11px] font-black uppercase tracking-[0.25em] mb-2 flex justify-center md:justify-start items-center gap-2"
-                            >
-                                <span
-                                    class="w-2 h-2 rounded-full bg-[#e35d2d] shadow-[0_0_8px_rgba(227,93,45,0.6)] animate-pulse"
-                                ></span>
-                                Lịch học
-                            </div>
-                            <div
-                                class="flex flex-col md:flex-row items-center md:items-baseline gap-1 md:gap-2 group-hover:translate-x-1 transition-transform duration-300"
-                            >
-                                <span class="font-black text-[#185c69] text-2xl md:text-3xl leading-none drop-shadow-sm"
-                                    >2 Buổi</span
-                                >
-                                <span class="text-gray-500 font-extrabold text-sm md:text-base uppercase tracking-wider"
-                                    >/ Tuần</span
-                                >
-                            </div>
-                        </div>
-
-                        <!-- Divider -->
-                        <div
-                            class="hidden md:block w-px h-14 bg-gradient-to-b from-transparent via-[#c5e1e5] to-transparent relative z-10"
-                        >
-                        </div>
-                        <div
-                            class="md:hidden h-px w-3/4 bg-gradient-to-r from-transparent via-[#c5e1e5] to-transparent relative z-10"
-                        >
-                        </div>
-
-                        <!-- Contact -->
-                        <div
-                            class="flex flex-col justify-center items-center md:items-end text-center md:text-right flex-1 relative z-10 w-full md:w-auto mt-2 md:mt-0"
-                        >
-                            <div
-                                class="flex items-center gap-2.5 font-black text-[#185c69] text-xl md:text-2xl drop-shadow-sm hover:text-[#e35d2d] transition-colors cursor-pointer group-hover:-translate-x-1 duration-300"
-                            >
-                                <div class="bg-red-50 p-2 rounded-full shadow-inner">
-                                    <span class="text-red-500 text-lg md:text-xl drop-shadow-md">📞</span>
-                                </div>
-                                0373.306.966
-                            </div>
-                            <div
-                                class="text-gray-500 text-xs md:text-sm font-medium mt-3 flex items-start justify-center md:justify-end gap-2 max-w-[220px]"
-                            >
-                                <span class="text-red-500 shrink-0 text-sm mt-0.5 drop-shadow-sm">📍</span>
-                                <span class="text-left md:text-right leading-relaxed"
-                                    >308 Đ. TX 25, Thạnh Xuân, Q.12, TP.HCM</span
-                                >
-                            </div>
-                        </div>
-                    </div>
+                    </p>
+                    <p>
+                        <span class="text-violet-300">if</span> (trungVit) diem<span class="text-sky-300">++</span>
+                    </p>
                 </div>
-            </div>
-
-            <!-- Footer Actions -->
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-3 mt-auto px-4 pb-4">
-                <a
-                    href="https://zalo.me/0373306966"
-                    target="_blank"
-                    class="md:col-span-12 lg:col-span-7 bg-gradient-to-r from-[#185c69] to-[#134954] hover:from-[#134954] hover:to-[#0f3942] transition-all duration-300 text-white font-black text-sm md:text-base py-3 px-6 rounded-xl flex items-center justify-center gap-3 shadow-[0_8px_30px_rgb(24,92,105,0.3)] hover:shadow-[0_8px_30px_rgb(24,92,105,0.5)] hover:-translate-y-1 w-full"
-                >
-                    ĐĂNG KÝ QUA ZALO: 0373.306.966
-                </a>
                 <div
-                    class="md:col-span-12 lg:col-span-5 flex items-center justify-center gap-2 bg-gradient-to-b from-[#fff5f5] to-[#fef2f2] text-[#c53232] font-extrabold text-[11px] md:text-xs px-4 py-3 rounded-xl border border-[#fbd5d5] w-full shadow-sm"
+                    class="hidden md:flex absolute -right-3 -top-5 items-center gap-2 bg-sun-400 text-navy-950 rounded-xl shadow-xl px-4 py-2.5 font-extrabold text-sm info-float [animation-delay:1.2s]"
                 >
-                    <span class="text-xl animate-bounce">⚠️</span>
-                    <span class="tracking-wide"
-                        >HỌC SINH CÓ MÁY TÍNH RIÊNG <span class="text-[10px] md:text-[11px] opacity-80 md:ml-1"
-                            >(BẮT BUỘC)</span
-                        ></span
-                    >
+                    🎮 Game HTML5
                 </div>
             </div>
         </div>
     </section>
+
+    {/* ── KEY FACTS ───────────────────────────────────────────────── */}
+    <section class="relative z-10 -mt-12 container-site" aria-label="Thông tin nhanh về lớp học">
+        <ul
+            class="max-w-6xl mx-auto bg-white rounded-2xl shadow-[0_20px_50px_rgba(15,23,42,0.08)] border border-slate-200 grid grid-cols-2 lg:grid-cols-4 [&>li:nth-child(odd)]:border-r [&>li:nth-child(-n+2)]:border-b lg:[&>li:nth-child(-n+2)]:border-b-0 lg:[&>li:not(:last-child)]:border-r"
+        >
+            {
+                facts.map((f) => (
+                    <li class="p-4 md:p-6 flex flex-col sm:flex-row items-center sm:items-center gap-2 sm:gap-4 text-center sm:text-left border-slate-100">
+                        <span class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                            <InfoIcon name={f.icon} class="w-6 h-6" />
+                        </span>
+                        <span>
+                            <span class="block text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight">
+                                {f.value}
+                            </span>
+                            <span class="block text-xs md:text-sm text-slate-500 font-medium">{f.label}</span>
+                        </span>
+                    </li>
+                ))
+            }
+        </ul>
+    </section>
+
+    {/* ── MỤC TIÊU ────────────────────────────────────────────────── */}
+    <section id="muc-tieu" class="bg-white py-16 md:py-24">
+        <div class="container-site grid lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+            <div class="lg:col-span-5">
+                <InfoHeading
+                    eyebrow="Mục tiêu khóa học"
+                    title="Con sẽ học được gì?"
+                    lead="Từ người dùng máy tính, con trở thành người tạo ra sản phẩm: hiểu Web & Game vận hành thế nào rồi tự tay làm ra chúng với HTML, CSS & JavaScript."
+                />
+                <ul class="grid grid-cols-3 gap-3 -mt-2">
+                    {
+                        techs.map((t) => (
+                            <li class={`rounded-2xl border p-3 md:p-4 ${t.tone}`}>
+                                <span class="block font-extrabold text-sm md:text-base">{t.name}</span>
+                                <span class="block text-[11px] md:text-xs mt-1 opacity-80 leading-snug">{t.role}</span>
+                            </li>
+                        ))
+                    }
+                </ul>
+            </div>
+
+            <ul class="lg:col-span-7 grid sm:grid-cols-2 gap-4 md:gap-5">
+                {
+                    goals.map((g, i) => (
+                        <li class="card p-5 md:p-6 flex gap-4 items-start h-full">
+                            <span
+                                class={`w-12 h-12 rounded-xl ring-4 flex items-center justify-center shrink-0 ${g.tone}`}
+                            >
+                                <InfoIcon name={g.icon} class="w-6 h-6" />
+                            </span>
+                            <span>
+                                <span class="block text-xs font-bold text-slate-500 mb-1">Mục tiêu {i + 1}</span>
+                                <span class="block text-base md:text-lg font-bold text-slate-800 leading-snug">
+                                    {g.text}
+                                </span>
+                            </span>
+                        </li>
+                    ))
+                }
+            </ul>
+        </div>
+    </section>
+
+    {/* ── LỘ TRÌNH ────────────────────────────────────────────────── */}
+    <section id="lo-trinh" class="bg-slate-50 py-16 md:py-24">
+        <div class="container-site">
+            <InfoHeading
+                eyebrow="Lộ trình học"
+                title="Lộ trình 3 giai đoạn"
+                lead="Đi từng bước vững chắc: từ nền tảng web đến game tương tác và dự án của riêng con."
+                align="center"
+            />
+
+            <div class="relative max-w-6xl mx-auto">
+                <div
+                    class="md:hidden absolute left-7 top-6 bottom-6 w-0.5 -translate-x-1/2 bg-gradient-to-b from-blue-200 via-blue-300 to-sun-300"
+                    aria-hidden="true"
+                >
+                </div>
+                <div
+                    class="hidden md:block absolute top-7 left-[16.6%] right-[16.6%] h-0.5 bg-gradient-to-r from-blue-200 via-blue-300 to-sun-300"
+                    aria-hidden="true"
+                >
+                </div>
+                <ol class="relative grid md:grid-cols-3 gap-6 md:gap-8">
+                    {
+                        roadmap.map((s, i) => (
+                            <li class="relative flex md:flex-col md:items-center gap-4 md:gap-6">
+                                <span
+                                    class:list={[
+                                        'relative z-10 w-14 h-14 rounded-2xl text-lg font-extrabold flex items-center justify-center shrink-0 shadow-lg ring-8 ring-slate-50',
+                                        i === 2
+                                            ? 'bg-sun-400 text-navy-950 shadow-sun-500/30'
+                                            : 'bg-gradient-to-br from-blue-600 to-navy-800 text-white shadow-blue-600/30',
+                                    ]}
+                                >
+                                    {s.no}
+                                </span>
+                                <div class="card p-5 md:p-6 flex-1 w-full md:text-center">
+                                    <span class="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 uppercase tracking-wider">
+                                        <InfoIcon name={s.icon} class="w-4 h-4" strokeWidth={2} />
+                                        Giai đoạn {i + 1}
+                                    </span>
+                                    <h3 class="mt-2 text-lg md:text-xl font-extrabold text-slate-900">{s.title}</h3>
+                                    <p class="mt-2 text-sm md:text-base text-slate-500 leading-relaxed">{s.desc}</p>
+                                </div>
+                            </li>
+                        ))
+                    }
+                </ol>
+            </div>
+        </div>
+    </section>
+
+    {/* ── HÌNH THỨC HỌC ───────────────────────────────────────────── */}
+    <section id="hinh-thuc" class="bg-white py-16 md:py-24">
+        <div class="container-site">
+            <InfoHeading
+                eyebrow="Hình thức học"
+                title="Chọn cách học phù hợp với con"
+                lead="Học trực tiếp tại lớp cùng các bạn hoặc học Online 1 kèm 1 ngay tại nhà."
+                align="center"
+            />
+
+            <div class="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+                {/* Offline */}
+                <article class="card overflow-hidden flex flex-col">
+                    <div class="h-1.5 bg-gradient-to-r from-blue-500 to-blue-700"></div>
+                    <div class="p-6 md:p-8 flex flex-col flex-1">
+                        <div class="flex items-center justify-between gap-3">
+                            <span
+                                class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center"
+                            >
+                                <InfoIcon name="users" class="w-6 h-6" />
+                            </span>
+                            <span class="chip bg-blue-50 text-blue-700 border-blue-200">Tại lớp · Q.12</span>
+                        </div>
+                        <h3 class="mt-5 text-sm font-extrabold uppercase tracking-wider text-blue-600">Offline</h3>
+                        <p class="mt-1 text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+                            3 - 5 học sinh / lớp
+                        </p>
+                        <p class="mt-1 text-slate-500 font-semibold">(kèm sát)</p>
+                        <ul class="mt-6 space-y-3 text-sm md:text-base text-slate-600 flex-1">
+                            <li class="flex gap-3">
+                                <InfoIcon name="check" class="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+                                <span>Lớp nhỏ, giáo viên theo sát từng bạn</span>
+                            </li>
+                            <li class="flex gap-3">
+                                <InfoIcon name="check" class="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+                                <span>Học trực tiếp tại {ADDRESS}</span>
+                            </li>
+                            <li class="flex gap-3">
+                                <InfoIcon name="check" class="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+                                <span>Học sinh có máy tính riêng để thực hành</span>
+                            </li>
+                        </ul>
+                        <a href={ZALO_URL} target="_blank" rel="noopener" class="btn btn-primary mt-8 w-full">
+                            Hỏi lịch lớp Offline
+                        </a>
+                    </div>
+                </article>
+
+                {/* Online */}
+                <article class="card overflow-hidden flex flex-col">
+                    <div class="h-1.5 bg-gradient-to-r from-sun-400 to-amber-500"></div>
+                    <div class="p-6 md:p-8 flex flex-col flex-1">
+                        <div class="flex items-center justify-between gap-3">
+                            <span
+                                class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center"
+                            >
+                                <InfoIcon name="desktop" class="w-6 h-6" />
+                            </span>
+                            <span class="chip bg-amber-50 text-amber-800 border-amber-200">Học tại nhà</span>
+                        </div>
+                        <h3 class="mt-5 text-sm font-extrabold uppercase tracking-wider text-amber-700">Online</h3>
+                        <p class="mt-1 text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+                            1 kèm 1 trực tiếp
+                        </p>
+                        <p class="mt-1 text-slate-500 font-semibold">(tương tác cao)</p>
+                        <ul class="mt-6 space-y-3 text-sm md:text-base text-slate-600 flex-1">
+                            <li class="flex gap-3">
+                                <InfoIcon name="check" class="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                                <span>Giáo viên hướng dẫn riêng, trao đổi trực tiếp</span>
+                            </li>
+                            <li class="flex gap-3">
+                                <InfoIcon name="check" class="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                                <span>Không cần di chuyển, phù hợp khi ở xa</span>
+                            </li>
+                            <li class="flex gap-3">
+                                <InfoIcon name="check" class="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                                <span>Học sinh có máy tính riêng để thực hành</span>
+                            </li>
+                        </ul>
+                        <a href={ZALO_URL} target="_blank" rel="noopener" class="btn btn-outline mt-8 w-full">
+                            Hỏi lịch học Online
+                        </a>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    {/* ── LỊCH HỌC & ĐỊA ĐIỂM ─────────────────────────────────────── */}
+    <section id="lich-hoc" class="bg-slate-50 py-16 md:py-24">
+        <div class="container-site">
+            <InfoHeading
+                eyebrow="Lịch học & địa điểm"
+                title="Học ở đâu, học khi nào?"
+                lead="Lớp Offline đặt tại Thạnh Xuân, Quận 12. Liên hệ để chọn khung giờ phù hợp với lịch học ở trường của con."
+            />
+
+            <div class="grid lg:grid-cols-2 gap-6">
+                <ul class="card divide-y divide-slate-100">
+                    <li class="p-5 md:p-6 flex gap-4">
+                        <span
+                            class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0"
+                        >
+                            <InfoIcon name="calendar" class="w-6 h-6" />
+                        </span>
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Lịch học</p>
+                            <p class="mt-1 text-xl font-extrabold text-slate-900">2 buổi / tuần</p>
+                            <p class="mt-1 text-sm text-slate-500">
+                                Khung giờ cụ thể: liên hệ để được sắp xếp phù hợp.
+                            </p>
+                        </div>
+                    </li>
+                    <li class="p-5 md:p-6 flex gap-4">
+                        <span
+                            class="w-11 h-11 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center shrink-0"
+                        >
+                            <InfoIcon name="pin" class="w-6 h-6" />
+                        </span>
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-wider text-slate-500">
+                                Địa điểm lớp Offline
+                            </p>
+                            <p class="mt-1 text-base md:text-lg font-bold text-slate-900">{ADDRESS}</p>
+                            <a
+                                href={MAPS_URL}
+                                target="_blank"
+                                rel="noopener"
+                                class="mt-1 inline-flex items-center gap-1.5 text-sm font-bold text-blue-600 hover:text-blue-700 no-underline"
+                            >
+                                Xem trên Google Maps
+                                <InfoIcon name="external" class="w-4 h-4" strokeWidth={2} />
+                            </a>
+                        </div>
+                    </li>
+                    <li class="p-5 md:p-6 flex gap-4">
+                        <span
+                            class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0"
+                        >
+                            <InfoIcon name="phone" class="w-6 h-6" />
+                        </span>
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Điện thoại / Zalo</p>
+                            <a
+                                href={PHONE_URL}
+                                class="mt-1 inline-block text-xl font-extrabold text-slate-900 hover:text-blue-700 no-underline"
+                                >{PHONE_TEXT}</a
+                            >
+                            <div class="mt-3 flex flex-wrap gap-2">
+                                <a href={ZALO_URL} target="_blank" rel="noopener" class="btn btn-primary btn-sm">
+                                    <InfoIcon name="chat" class="w-4 h-4" strokeWidth={2} />
+                                    Nhắn Zalo
+                                </a>
+                                <a href={PHONE_URL} class="btn btn-outline btn-sm">
+                                    <InfoIcon name="phone" class="w-4 h-4" strokeWidth={2} />
+                                    Gọi ngay
+                                </a>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+
+                {/* Bản đồ minh họa (không nhúng bản đồ ngoài) */}
+                <a
+                    href={MAPS_URL}
+                    target="_blank"
+                    rel="noopener"
+                    class="group relative block min-h-[240px] sm:min-h-[280px] rounded-[1.25rem] overflow-hidden border border-slate-200 bg-[#e8eef5] info-map no-underline"
+                    aria-label={`Mở Google Maps: ${ADDRESS}`}
+                >
+                    <div class="absolute inset-0 flex items-center justify-center pb-16" aria-hidden="true">
+                        <span class="relative flex items-center justify-center">
+                            <span class="absolute w-20 h-20 rounded-full bg-rose-500/20 animate-ping"></span>
+                            <span
+                                class="relative w-14 h-14 rounded-full bg-rose-500 text-white flex items-center justify-center shadow-xl ring-4 ring-white"
+                            >
+                                <InfoIcon name="pin" class="w-7 h-7" strokeWidth={2} />
+                            </span>
+                        </span>
+                    </div>
+                    <div
+                        class="absolute left-4 right-4 bottom-4 bg-white/95 backdrop-blur rounded-xl shadow-lg p-4 flex items-center justify-between gap-3"
+                    >
+                        <span class="min-w-0">
+                            <span class="block text-sm font-extrabold text-slate-900">Error404 Labs · Lớp Offline</span>
+                            <span class="block text-xs text-slate-500 truncate">{ADDRESS}</span>
+                        </span>
+                        <span
+                            class="shrink-0 inline-flex items-center gap-1.5 text-sm font-bold text-blue-600 group-hover:text-blue-700"
+                        >
+                            Chỉ đường
+                            <InfoIcon name="arrow" class="w-4 h-4" strokeWidth={2} />
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+            {/* Chuẩn bị trước khi học */}
+            <div
+                class="mt-6 rounded-[1.25rem] border border-amber-200 bg-gradient-to-r from-amber-50 to-sun-300/20 p-5 md:p-6 flex flex-col sm:flex-row sm:items-center gap-4 md:gap-6"
+            >
+                <span
+                    class="w-14 h-14 rounded-2xl bg-sun-400 text-navy-950 flex items-center justify-center shrink-0 shadow-md shadow-sun-500/30"
+                >
+                    <InfoIcon name="desktop" class="w-7 h-7" />
+                </span>
+                <div class="flex-1">
+                    <h3 class="text-lg font-extrabold text-slate-900">Chuẩn bị trước khi học</h3>
+                    <p class="mt-1 text-slate-600 leading-relaxed">
+                        Học sinh có <strong class="text-slate-900">máy tính riêng (bắt buộc)</strong> để tự tay viết code,
+                        chạy thử và lưu lại sản phẩm của mình. Chưa chắc máy của con dùng được? Cứ nhắn Zalo để được tư vấn
+                        nhé!
+                    </p>
+                </div>
+                <a
+                    href={ZALO_URL}
+                    target="_blank"
+                    rel="noopener"
+                    class="btn btn-outline shrink-0 self-start sm:self-auto"
+                >
+                    Hỏi về máy tính
+                </a>
+            </div>
+        </div>
+    </section>
+
+    {/* ── SẢN PHẨM ────────────────────────────────────────────────── */}
+    <section id="san-pham" class="bg-white py-16 md:py-24">
+        <div class="container-site">
+            <InfoHeading
+                eyebrow="Sản phẩm thực tế"
+                title="Các sản phẩm web/game làm bằng HTML, CSS, JavaScript"
+                lead="Ví dụ game và trang web làm bằng HTML, CSS, JavaScript — chơi thử ngay trên trình duyệt."
+            >
+                <a
+                    slot="action"
+                    href="/thu-nghiem"
+                    class="inline-flex items-center gap-2 font-bold text-blue-600 hover:text-blue-700 hover:gap-3 transition-all no-underline"
+                >
+                    Xem tất cả {DATA_DEMO.length} sản phẩm <span aria-hidden="true">→</span>
+                </a>
+            </InfoHeading>
+
+            <ul class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
+                {
+                    showcase.map((d) => (
+                        <li>
+                            <a
+                                href={d.href}
+                                class="group card card-hover overflow-hidden flex flex-col h-full no-underline"
+                            >
+                                <div class="relative aspect-video bg-slate-100 overflow-hidden">
+                                    <img
+                                        src={d.image}
+                                        alt=""
+                                        width="640"
+                                        height="360"
+                                        loading="lazy"
+                                        decoding="async"
+                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                    />
+                                    <span
+                                        class:list={[
+                                            'chip absolute top-2 left-2 sm:top-3 sm:left-3 shadow-sm',
+                                            d.kind === 'Game'
+                                                ? 'bg-violet-50 text-violet-700 border-violet-200'
+                                                : 'bg-cyan-50 text-cyan-700 border-cyan-200',
+                                        ]}
+                                    >
+                                        {d.kind === 'Game' ? '🎮 Game' : '🌐 Web'}
+                                    </span>
+                                </div>
+                                <div class="p-3 sm:p-5 flex flex-1 items-center justify-between gap-3">
+                                    <h3 class="text-sm sm:text-base font-extrabold text-slate-900 group-hover:text-blue-700 transition-colors">
+                                        {d.name}
+                                    </h3>
+                                    <span class="hidden sm:inline text-sm font-bold text-blue-600 shrink-0">
+                                        Xem thử →
+                                    </span>
+                                </div>
+                            </a>
+                        </li>
+                    ))
+                }
+            </ul>
+        </div>
+    </section>
+
+    {/* ── GIÁO VIÊN ───────────────────────────────────────────────── */}
+    <section id="giao-vien" class="bg-white pb-16 md:pb-24">
+        <div class="container-site">
+            <div class="relative overflow-hidden rounded-3xl bg-navy-950 text-white px-6 py-10 md:px-12 md:py-14">
+                <div class="absolute inset-0 bg-grid-dark opacity-40 pointer-events-none" aria-hidden="true"></div>
+                <div
+                    class="absolute -top-32 -right-24 w-[420px] h-[420px] rounded-full bg-blue-600/30 blur-[120px] pointer-events-none"
+                    aria-hidden="true"
+                >
+                </div>
+                <div class="relative grid md:grid-cols-12 gap-8 md:gap-12 items-center">
+                    <div class="md:col-span-4 flex justify-center">
+                        <div class="relative">
+                            <div class="absolute -inset-3 rounded-[2rem] bg-sun-400/20 blur-xl" aria-hidden="true">
+                            </div>
+                            <img
+                                src="/images/me.png"
+                                alt="Phạm Xuân Hoài"
+                                width="200"
+                                height="200"
+                                loading="lazy"
+                                class="relative w-40 h-40 md:w-52 md:h-52 rounded-[1.75rem] object-cover ring-4 ring-white/15 shadow-2xl"
+                            />
+                            <span
+                                class="absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap bg-sun-400 text-navy-950 text-xs font-extrabold px-3 py-1.5 rounded-full shadow-lg"
+                            >
+                                R&amp;D Developer
+                            </span>
+                        </div>
+                    </div>
+                    <div class="md:col-span-8">
+                        <p class="eyebrow text-sun-400 mb-3">Người hướng dẫn</p>
+                        <h2 class="text-2xl md:text-4xl font-extrabold tracking-tight">Phạm Xuân Hoài</h2>
+                        <p class="mt-1 text-slate-400 font-semibold">Research &amp; Developer · Error404 Labs</p>
+                        <p class="mt-5 text-slate-300 leading-relaxed max-w-[70ch]">
+                            Xin chào 👋 Mình là một lập trình viên theo hướng Research &amp; Development, thích đào sâu
+                            vấn đề và biến ý tưởng thành sản phẩm chạy được thật. Tại Error404-Labs, mình chia sẻ kiến
+                            thức về C/C++, Web, Game, Mobile và AI, kèm kinh nghiệm thực chiến để giúp bạn học lập trình
+                            bớt mơ hồ và đỡ “lạc lối” hơn 🚀
+                        </p>
+                        <div class="mt-7 flex flex-wrap gap-3">
+                            <a href="/gioi-thieu-v2" class="btn btn-sun">
+                                <InfoIcon name="user" class="w-5 h-5" strokeWidth={2} />
+                                Xem giới thiệu
+                            </a>
+                            <a
+                                href="https://www.facebook.com/kitajima2910"
+                                target="_blank"
+                                rel="noopener"
+                                class="btn btn-ghost-light"
+                            >
+                                <InfoIcon name="facebook" class="w-5 h-5" />
+                                Facebook
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {/* ── HỎI ĐÁP ─────────────────────────────────────────────────── */}
+    <section id="hoi-dap" class="bg-slate-50 pt-16 pb-28 md:pt-24 lg:pb-24">
+        <div class="container-site grid lg:grid-cols-12 gap-10 lg:gap-12 items-start">
+            <div class="lg:col-span-7">
+                <InfoHeading eyebrow="Hỏi đáp" title="Câu hỏi phụ huynh hay hỏi" />
+                <div class="space-y-3">
+                    {
+                        faqs.map((f, i) => (
+                            <details class="group card overflow-hidden" open={i === 0}>
+                                <summary class="list-none [&::-webkit-details-marker]:hidden flex items-center justify-between gap-4 px-5 py-4 md:px-6 md:py-5 font-bold text-slate-900 hover:text-blue-700 transition-colors">
+                                    <span>{f.q}</span>
+                                    <span class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center shrink-0 group-open:rotate-180 group-open:bg-blue-50 group-open:text-blue-600 transition-transform">
+                                        <InfoIcon name="chevron" class="w-4 h-4" strokeWidth={2.2} />
+                                    </span>
+                                </summary>
+                                <p class="px-5 pb-5 md:px-6 -mt-1 text-slate-600 leading-relaxed">{f.a}</p>
+                            </details>
+                        ))
+                    }
+                </div>
+            </div>
+
+            <aside class="lg:col-span-5 lg:sticky lg:top-[calc(var(--nav-h)+24px)]">
+                <div class="card p-6 md:p-8 shadow-[0_20px_50px_rgba(15,23,42,0.08)]">
+                    <span class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                        <InfoIcon name="chat" class="w-6 h-6" />
+                    </span>
+                    <h3 class="mt-5 text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight">
+                        Cần tư vấn thêm?
+                    </h3>
+                    <p class="mt-2 text-slate-500 leading-relaxed">
+                        Nhắn Zalo hoặc gọi trực tiếp để hỏi lịch học, học phí và chọn hình thức phù hợp cho con.
+                    </p>
+                    <div class="mt-6 grid gap-3">
+                        <a href={ZALO_URL} target="_blank" rel="noopener" class="btn btn-primary btn-lg w-full">
+                            <InfoIcon name="chat" class="w-5 h-5" strokeWidth={2} />
+                            Đăng ký qua Zalo
+                        </a>
+                        <a href={PHONE_URL} class="btn btn-outline btn-lg w-full">
+                            <InfoIcon name="phone" class="w-5 h-5" strokeWidth={2} />
+                            Gọi {PHONE_TEXT}
+                        </a>
+                    </div>
+                    <p class="mt-5 pt-5 border-t border-slate-100 text-sm text-slate-500 flex gap-2">
+                        <InfoIcon name="pin" class="w-5 h-5 text-slate-400 shrink-0" />
+                        <span>{ADDRESS}</span>
+                    </p>
+                </div>
+            </aside>
+        </div>
+    </section>
+
+    {/* ── THANH CTA CỐ ĐỊNH (mobile) ──────────────────────────────── */}
+    <div
+        id="courseCtaBar"
+        class="lg:hidden fixed inset-x-0 bottom-0 z-40 bg-white/95 backdrop-blur border-t border-slate-200 shadow-[0_-10px_30px_rgba(15,23,42,0.08)] px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] transition-all duration-300 translate-y-full opacity-0 invisible"
+        data-pagefind-ignore
+    >
+        <div class="flex gap-3 max-w-xl mx-auto">
+            <a href={ZALO_URL} target="_blank" rel="noopener" class="btn btn-primary flex-1">
+                <InfoIcon name="chat" class="w-5 h-5" strokeWidth={2} />
+                Đăng ký Zalo
+            </a>
+            <a href={PHONE_URL} class="btn btn-sun flex-1">
+                <InfoIcon name="phone" class="w-5 h-5" strokeWidth={2} />
+                Gọi ngay
+            </a>
+        </div>
+    </div>
 </MainLayout>
+
+<style>
+    /* Nền "bản đồ" trang trí: đường phố bằng gradient, không tải bản đồ ngoài */
+    .info-map {
+        background-image:
+            linear-gradient(90deg, transparent 47%, #ffffff 47%, #ffffff 53%, transparent 53%),
+            linear-gradient(0deg, transparent 47%, #ffffff 47%, #ffffff 53%, transparent 53%),
+            linear-gradient(32deg, transparent 48.5%, #fde68a 48.5%, #fde68a 51.5%, transparent 51.5%),
+            linear-gradient(90deg, rgba(148, 163, 184, 0.18) 1px, transparent 1px),
+            linear-gradient(0deg, rgba(148, 163, 184, 0.18) 1px, transparent 1px);
+        background-size:
+            180px 180px,
+            180px 180px,
+            100% 100%,
+            30px 30px,
+            30px 30px;
+    }
+    .info-float {
+        animation: info-float 4s ease-in-out infinite;
+    }
+    @keyframes info-float {
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-8px);
+        }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .info-float {
+            animation: none;
+        }
+    }
+</style>
+
+<script>
+    // Thanh CTA dưới cùng (mobile): hiện khi nút CTA ở hero đã cuộn qua, ẩn khi tới footer
+    const bar = document.getElementById('courseCtaBar')
+    const heroCta = document.getElementById('courseHeroCta')
+    const footer = document.querySelector('footer')
+
+    if (bar && heroCta && 'IntersectionObserver' in window) {
+        let heroVisible = true
+        let footerVisible = false
+        const HIDDEN = [
+            'translate-y-full',
+            'opacity-0',
+            'invisible',
+        ]
+
+        const update = () => {
+            const show = !heroVisible && !footerVisible
+            HIDDEN.forEach((c) => bar.classList.toggle(c, !show))
+        }
+
+        new IntersectionObserver(([entry]) => {
+            // Chỉ coi là "đã qua" khi CTA nằm phía trên màn hình
+            heroVisible = entry.isIntersecting || entry.boundingClientRect.top > 0
+            update()
+        }).observe(heroCta)
+
+        if (footer) {
+            new IntersectionObserver(([entry]) => {
+                footerVisible = entry.isIntersecting
+                update()
+            }).observe(footer)
+        }
+    }
+</script>

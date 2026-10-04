@@ -1,0 +1,128 @@
+---
+// Mục lục bài viết, tạo từ Astro.props.headings của layout Markdown.
+// - variant "sidebar": danh sách dính (sticky) ở cột trái trên màn hình rộng.
+// - variant "collapsible": khối <details> "Mục lục" thu gọn phía trên nội dung (điện thoại / máy tính bảng).
+// Liên kết mang data-toc-link={slug} để script trong BlogPostLayout tô sáng mục đang đọc.
+
+interface TocItem {
+    slug: string
+    text: string
+    /** 0 = mục chính, 1 = mục con */
+    level: number
+}
+
+interface Props {
+    items: TocItem[]
+    variant?: 'sidebar' | 'collapsible'
+}
+
+const { items = [], variant = 'sidebar' } = Astro.props
+
+const linkBase =
+    'block -ml-px border-l-2 border-transparent pr-2 leading-snug no-underline transition-colors hover:text-slate-900 hover:border-slate-300 data-[active]:border-blue-600 data-[active]:text-blue-700 data-[active]:font-bold focus-visible:outline-offset-[-2px] focus-visible:rounded'
+---
+
+{
+    variant === 'sidebar' ? (
+        <nav aria-label="Mục lục bài viết" class="flex flex-col max-h-[calc(100dvh-var(--nav-h)-3rem)]" data-toc-nav>
+            <p class="shrink-0 flex items-center gap-2 mb-3 text-xs font-extrabold uppercase tracking-[0.12em] text-slate-500">
+                <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.8"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
+                    />
+                </svg>
+                Mục lục
+            </p>
+            <div class="min-h-0 overflow-y-auto overscroll-contain pr-1 [scrollbar-width:thin]" data-toc-scroll>
+                <ol class="border-l border-slate-200">
+                    {items.map((item) => (
+                        <li>
+                            <a
+                                href={`#${item.slug}`}
+                                data-toc-link={item.slug}
+                                class:list={[
+                                    linkBase,
+                                    'py-1.5',
+                                    item.level === 0
+                                        ? 'pl-4 text-[13.5px] font-semibold text-slate-600'
+                                        : 'pl-7 text-[13px] text-slate-500',
+                                ]}
+                            >
+                                {item.text}
+                            </a>
+                        </li>
+                    ))}
+                </ol>
+            </div>
+        </nav>
+    ) : (
+        <details class="group/toc card overflow-hidden" data-toc-details>
+            <summary class="flex items-center gap-3 min-h-14 px-4 py-2.5 list-none cursor-pointer select-none hover:bg-slate-50 transition-colors [&::-webkit-details-marker]:hidden">
+                <span class="w-9 h-9 shrink-0 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center">
+                    <svg
+                        class="w-5 h-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke-width="1.8"
+                        stroke="currentColor"
+                        aria-hidden="true"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
+                        />
+                    </svg>
+                </span>
+                <span class="flex-1 min-w-0">
+                    <span class="block font-extrabold text-slate-900">Mục lục</span>
+                    <span class="block text-xs font-medium text-slate-500">
+                        {items.length} mục<span class="group-open/toc:hidden"> · nhấn để mở</span>
+                    </span>
+                </span>
+                <svg
+                    class="w-5 h-5 shrink-0 text-slate-400 transition-transform group-open/toc:rotate-180"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                >
+                    <path
+                        fill-rule="evenodd"
+                        d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
+                        clip-rule="evenodd"
+                    />
+                </svg>
+            </summary>
+            <nav aria-label="Mục lục bài viết" class="border-t border-slate-100 px-4 py-3 max-h-[60vh] overflow-y-auto">
+                <ol class="border-l border-slate-200">
+                    {items.map((item) => (
+                        <li>
+                            <a
+                                href={`#${item.slug}`}
+                                data-toc-link={item.slug}
+                                class:list={[
+                                    linkBase,
+                                    'py-2',
+                                    item.level === 0
+                                        ? 'pl-4 text-sm font-semibold text-slate-700'
+                                        : 'pl-7 text-[13.5px] text-slate-500',
+                                ]}
+                            >
+                                {item.text}
+                            </a>
+                        </li>
+                    ))}
+                </ol>
+            </nav>
+        </details>
+    )
+}

@@ -87,6 +87,7 @@ summary {
         font-weight: 700;
         font-size: 0.95rem;
         line-height: 1.25;
+        border: 1px solid transparent;
         text-decoration: none;
         white-space: nowrap;
         transition:
@@ -223,4 +224,29 @@ summary {
 :focus-visible {
     outline: 2px solid #2563eb;
     outline-offset: 2px;
+}
+
+/* Nút về đầu trang (public/pxh-ui.css, z-index 9999) không được nổi lên trên menu và modal */
+body.pxh .pxhBackToTop {
+    z-index: 50;
+}
+
+/* Viền focus màu vàng trên nền tối để vẫn nhìn rõ */
+.bg-navy-950 :focus-visible,
+.btn-sun:focus-visible,
+.btn-ghost-light:focus-visible {
+    outline-color: #ffd43b;
+}
+
+/* Giao diện ô tìm kiếm Pagefind theo màu thương hiệu */
+#search {
+    --pagefind-ui-font: inherit;
+    --pagefind-ui-primary: #2563eb;
+    --pagefind-ui-text: #0f172a;
+    --pagefind-ui-border: #e2e8f0;
+    --pagefind-ui-border-radius: 12px;
+    --pagefind-ui-tag: #eff6ff;
+}
+#search mark {
+    background: #fff3bf;
 }

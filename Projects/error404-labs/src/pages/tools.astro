@@ -1,104 +1,655 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro'
 import { TC_TITLE } from '../common/TextConst'
-import { TOOLS_DATA as DATA } from '../data/toolsData.js'
+import { TOOLS_DATA as DATA, HUB_TOOLS as HUB_TOOLS_RAW } from '../data/toolsData.js'
+import { VIBE_PROMPTS } from '../data/vibe-tools/prompts.js'
+import { GAME_PROMPTS } from '../data/prompts/prompts.js'
+
+// Số lượng tính từ dữ liệu thật (chỉ dùng phía server, không gửi xuống trình duyệt)
+const HUB_COUNTS: Record<string, number> = {
+    'vibe-tools': VIBE_PROMPTS.length,
+    'prompts-game': GAME_PROMPTS.length,
+}
+const fillCount = (text: string, key: string) =>
+    key in HUB_COUNTS ? text.replaceAll('{count}', String(HUB_COUNTS[key])) : text
+const HUB_TOOLS = HUB_TOOLS_RAW.map((tool) => ({
+    ...tool,
+    tagline: fillCount(tool.tagline, tool.key),
+    description: fillCount(tool.description, tool.key),
+}))
+
+// Icon nét 24px (Heroicons / Lucide) cho các công cụ
+const ICONS: Record<string, string> = {
+    'fa-scissors':
+        'M9 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm0 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM8.12 8.12 12 12m8-8L8.12 15.88M14.8 14.8 20 20',
+    'fa-wrench':
+        'M21.75 6.75a4.5 4.5 0 0 1-4.884 4.484c-1.076-.091-2.264.071-2.95.904l-7.152 8.684a2.548 2.548 0 1 1-3.586-3.586l8.684-7.152c.833-.686.995-1.874.904-2.95a4.5 4.5 0 0 1 6.336-4.486l-3.276 3.276a3.004 3.004 0 0 0 2.25 2.25l3.276-3.276c.256.565.398 1.192.398 1.852Z',
+    code: 'M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5',
+    sparkles:
+        'M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z',
+    gamepad:
+        'M6 11h4M8 9v4m7-1h.01M18 10h.01M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5Z',
+    map: 'M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z',
+    lock: 'M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z',
+    external:
+        'M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25',
+    eye: 'M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z',
+}
+const iconPath = (name?: string) => ICONS[name || ''] || ICONS['fa-wrench']
+
+const arrowPath =
+    'M3 10a.75.75 0 0 1 .75-.75h10.638L10.23 5.29a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.158-3.96H3.75A.75.75 0 0 1 3 10Z'
+const checkPath =
+    'M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z'
+
+// Số liệu tính từ dữ liệu thật
+const editorTool = HUB_TOOLS.find((tool) => tool.key === 'html5-editor')
+const memberTools = HUB_TOOLS.filter((tool) => tool.access === 'member')
+const publicCount = DATA.length + HUB_TOOLS.filter((tool) => tool.access === 'public').length
+const totalCount = DATA.length + HUB_TOOLS.length
+const featured = DATA[0]
 ---
 
-<MainLayout title={`Công cụ | ${TC_TITLE}`}>
+<MainLayout
+    title={`Công cụ học tập & sáng tạo | ${TC_TITLE}`}
+    description="Công cụ học lập trình miễn cài đặt của Error404 Labs: HTML5 Editor viết HTML/CSS/JS xem kết quả ngay, SliceSprite cắt sprite sheet cho game 2D và thư viện prompt AI cho thành viên."
+>
     <div id="tools-container">
-        <section class="min-h-screen bg-slate-50 py-8 px-4 md:px-8">
-            <div class="max-w-[1600px] mx-auto h-[85vh]">
-                <div class="flex flex-col md:flex-row gap-6 h-full">
-                    <!-- Sidebar: Tools List -->
-                    <aside class="w-full md:w-[450px] flex flex-col gap-4">
-                        <div class="flex items-center justify-between px-2">
-                            <h2 class="text-2xl font-black text-slate-800 tracking-tight text-gradient uppercase">CÔNG CỤ</h2>
-                            <span
-                                class="px-4 py-1.5 bg-indigo-600 text-white rounded-full text-xs font-bold uppercase shadow-lg shadow-indigo-200"
-                            >
-                                 {DATA.length} Công cụ
+        <!-- ── HERO ─────────────────────────────────────────────────── -->
+        <section class="relative overflow-hidden bg-navy-950 text-white">
+            <div class="absolute inset-0 bg-grid-dark opacity-60 pointer-events-none" aria-hidden="true"></div>
+            <div
+                class="absolute -top-40 -right-24 w-[520px] h-[520px] rounded-full bg-blue-600/30 blur-[130px] pointer-events-none"
+                aria-hidden="true"
+            >
+            </div>
+            <div
+                class="absolute -bottom-48 -left-24 w-[420px] h-[420px] rounded-full bg-sun-400/10 blur-[130px] pointer-events-none"
+                aria-hidden="true"
+            >
+            </div>
+
+            <div class="relative container-site py-12 md:py-20 grid lg:grid-cols-[1.1fr_1fr] gap-12 items-center">
+                <div>
+                    <nav aria-label="Đường dẫn" class="mb-6 text-sm text-slate-400">
+                        <ol class="flex items-center gap-2">
+                            <li><a href="/" class="hover:text-white transition-colors no-underline">Trang chủ</a></li>
+                            <li aria-hidden="true">/</li>
+                            <li class="text-slate-200 font-semibold" aria-current="page">Công cụ</li>
+                        </ol>
+                    </nav>
+
+                    <span class="chip bg-white/10 border-white/15 text-sun-400 uppercase tracking-wider mb-5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-sun-400 animate-pulse" aria-hidden="true"></span>
+                        Dùng ngay trên trình duyệt
+                    </span>
+
+                    <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight mb-5">
+                        Công cụ học tập <span class="text-sun-400 whitespace-nowrap">&amp; sáng tạo</span>
+                    </h1>
+
+                    <p class="text-slate-300 text-base md:text-lg leading-relaxed max-w-2xl mb-8">
+                        Vừa học vừa làm với những công cụ nhỏ của Error404 Labs: viết HTML, CSS, JavaScript và xem kết
+                        quả ngay, cắt sprite sheet cho game 2D, hay dùng prompt AI để tạo game của riêng mình.
+                    </p>
+
+                    <div class="flex flex-wrap items-center gap-3 mb-8">
+                        <a href="#danh-sach" class="btn btn-sun btn-lg">
+                            Khám phá {totalCount} công cụ
+                            <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d={arrowPath} clip-rule="evenodd"></path>
+                            </svg>
+                        </a>
+                        <a href="/html5-editor" class="btn btn-ghost-light btn-lg">Mở HTML5 Editor</a>
+                    </div>
+
+                    <ul class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-300">
+                        {
+                            [
+                                'Không cần cài đặt',
+                                `${publicCount} công cụ mở tự do`,
+                                `${memberTools.length} công cụ cho thành viên`,
+                            ].map((text) => (
+                                <li class="flex items-center gap-2">
+                                    <svg
+                                        class="w-4 h-4 text-emerald-400"
+                                        viewBox="0 0 20 20"
+                                        fill="currentColor"
+                                        aria-hidden="true"
+                                    >
+                                        <path fill-rule="evenodd" d={checkPath} clip-rule="evenodd" />
+                                    </svg>
+                                    {text}
+                                </li>
+                            ))
+                        }
+                    </ul>
+                </div>
+
+                <!-- Minh hoạ: ảnh SliceSprite thật + khung code HTML5 Editor -->
+                <div class="relative hidden lg:block" aria-hidden="true">
+                    <div
+                        class="relative rounded-2xl overflow-hidden border border-white/10 bg-navy-900 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)] rotate-[1.5deg]"
+                    >
+                        <div class="h-9 flex items-center gap-2 px-4 bg-white/5 border-b border-white/10">
+                            <span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                            <span class="ml-3 text-[11px] font-mono text-slate-400 truncate">
+                                error404-labs.info.vn/tools
                             </span>
                         </div>
+                        <img
+                            src={featured.image}
+                            alt=""
+                            width="960"
+                            height="540"
+                            class="w-full aspect-[16/10] object-cover object-top"
+                        />
+                    </div>
 
-                        <div
-                            class="tool-list-container flex-1 overflow-y-auto pr-2 custom-scrollbar flex flex-col gap-3"
-                            style="scrollbar-gutter: stable;"
-                        >
-                            {
-                                DATA.map((item, index) => (
-                                    <div
-                                        class={`tool-card group relative overflow-hidden rounded-2xl bg-white border border-slate-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer flex-shrink-0 ${index === 0 ? 'ring-2 ring-indigo-500 active-card' : ''}`}
-                                        data-link={item.link}
-                                        title="Click to view. Ctrl + Click to open in new tab."
-                                    >
-                                        <div class="aspect-video overflow-hidden bg-slate-100 flex items-center justify-center">
-                                             <img
-                                                src={item.image}
-                                                alt={item.name}
-                                                class="w-full h-full object-cover transform [transition:transform_0.8s_cubic-bezier(0.4,0,0.2,1)] group-hover:scale-105"
-                                            />
-                                            <div class="absolute inset-0 bg-indigo-900/10 group-hover:bg-transparent transition-colors"></div>
-                                        </div>
-                                        <div class="p-4 bg-white/95 backdrop-blur-md absolute bottom-0 left-0 right-0 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300 border-t border-slate-100 z-10">
-                                            <h3 class="font-bold text-slate-800 text-sm truncate">{item.name}</h3>
-                                            <p class="text-[10px] text-indigo-600 font-semibold mt-1 uppercase">
-                                                NHẤN ĐỂ SỬ DỤNG • CTRL+CLICK MỞ TAB MỚI
-                                            </p>
-                                        </div>
-                                        <div class="absolute top-2 left-2 p-1.5 bg-white/90 backdrop-blur shadow-sm rounded-lg z-10 opacity-100 group-hover:opacity-0 transition-opacity flex items-center gap-2">
-                                            <i class={`fa ${item.icon || 'fa-wrench'} text-indigo-600`}></i>
-                                            <h3 class="font-bold text-slate-800 text-xs px-1">{item.name}</h3>
+                    <div
+                        class="absolute -left-10 -bottom-10 w-[300px] rounded-2xl border border-white/10 bg-navy-950/95 backdrop-blur shadow-2xl p-4 -rotate-[2deg]"
+                    >
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-[11px] font-bold text-slate-400 font-mono">index.html</span>
+                            <span class="chip bg-emerald-400/15 text-emerald-300 border-emerald-400/20 text-[10px]"
+                                >▶ Chạy</span
+                            >
+                        </div>
+                        <pre
+                            class="font-mono text-[12px] leading-relaxed text-slate-300 whitespace-pre"><span class="text-pink-400">&lt;h1&gt;</span><span class="font-sans">Chào thế giới!</span><span class="text-pink-400">&lt;/h1&gt;</span>
+<span class="text-pink-400">&lt;p&gt;</span><span class="font-sans">Mình đang học code</span><span class="text-pink-400">&lt;/p&gt;</span></pre>
+                    </div>
+
+                    <div
+                        class="absolute -top-5 -right-3 inline-flex items-center gap-2 rounded-xl bg-sun-400 text-navy-950 px-3.5 py-2 text-sm font-extrabold shadow-lg rotate-[3deg]"
+                    >
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d={iconPath(featured.icon)}></path>
+                        </svg>
+                        {featured.name}
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ── DANH SÁCH CÔNG CỤ ─────────────────────────────────────── -->
+        <section id="danh-sach" class="bg-slate-50 py-16 md:py-24" aria-labelledby="danh-sach-title">
+            <div class="container-site">
+                <div class="max-w-2xl mb-10 md:mb-12">
+                    <span class="eyebrow mb-3">Danh sách công cụ</span>
+                    <h2
+                        id="danh-sach-title"
+                        class="text-2xl md:text-4xl font-extrabold text-slate-900 tracking-tight mb-3"
+                    >
+                        Chọn công cụ phù hợp với bạn
+                    </h2>
+                    <p class="text-slate-600 text-base md:text-lg leading-relaxed">
+                        Công cụ <strong class="text-slate-800">mở tự do</strong> dùng được ngay, không cần tài khoản. Công
+                        cụ có nhãn <strong class="text-slate-800">Thành viên</strong> cần đăng nhập để sử dụng.
+                    </p>
+                </div>
+
+                <!-- Nhóm 1: mở tự do -->
+                <h3 class="flex items-center gap-2 text-sm font-extrabold uppercase tracking-wider text-slate-500 mb-4">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500" aria-hidden="true"></span>
+                    Mở tự do · {publicCount} công cụ
+                </h3>
+
+                <div class="grid md:grid-cols-2 gap-6 mb-14">
+                    <!-- SliceSprite (từ TOOLS_DATA) -->
+                    {
+                        DATA.map((item) => (
+                            <article class="card group flex flex-col overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                                <div class="relative aspect-[16/9] overflow-hidden bg-slate-100 border-b border-slate-200">
+                                    <img
+                                        src={item.image}
+                                        alt={`Giao diện công cụ ${item.name}`}
+                                        width="960"
+                                        height="540"
+                                        loading="lazy"
+                                        decoding="async"
+                                        class="w-full h-full object-cover object-top group-hover:scale-[1.03] transition-transform duration-500"
+                                    />
+                                    <span class="absolute left-3 bottom-3 chip bg-white/95 text-slate-700 border-slate-200 shadow-sm">
+                                        🎮 {item.topic || 'Game'}
+                                    </span>
+                                    <span class="absolute right-3 top-3 chip bg-emerald-50 text-emerald-700 border-emerald-200 shadow-sm">
+                                        Mở tự do
+                                    </span>
+                                </div>
+                                <div class="flex flex-col flex-1 p-5 sm:p-6">
+                                    <div class="flex items-start gap-4 mb-4">
+                                        <span class="shrink-0 w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-500 to-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-600/20">
+                                            <svg
+                                                class="w-6 h-6"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke-width="1.8"
+                                                stroke="currentColor"
+                                                aria-hidden="true"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    d={iconPath(item.icon)}
+                                                />
+                                            </svg>
+                                        </span>
+                                        <div class="min-w-0">
+                                            <h4 class="text-xl font-extrabold text-slate-900 tracking-tight">
+                                                {item.name}
+                                            </h4>
+                                            <p class="text-sm font-semibold text-blue-700">{item.tagline}</p>
                                         </div>
                                     </div>
-                                ))
-                            }
+                                    <p class="text-slate-700 font-medium leading-relaxed">{item.description}</p>
+                                    {item.summary && (
+                                        <p class="mt-2 text-sm text-slate-500 leading-relaxed">{item.summary}</p>
+                                    )}
+                                    <div class="mt-auto pt-6 flex flex-wrap gap-2 sm:gap-3">
+                                        <a href={item.link} target="_blank" rel="noopener" class="btn btn-primary">
+                                            Mở công cụ
+                                            <svg
+                                                class="w-4 h-4"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke-width="2"
+                                                stroke="currentColor"
+                                                aria-hidden="true"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    d={ICONS.external}
+                                                />
+                                            </svg>
+                                        </a>
+                                        <a href="#xem-nhanh" class="btn btn-outline">
+                                            <svg
+                                                class="w-4 h-4"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke-width="2"
+                                                stroke="currentColor"
+                                                aria-hidden="true"
+                                            >
+                                                <path stroke-linecap="round" stroke-linejoin="round" d={ICONS.eye} />
+                                            </svg>
+                                            Xem nhanh
+                                        </a>
+                                    </div>
+                                </div>
+                            </article>
+                        ))
+                    }
+
+                    <!-- HTML5 Editor -->
+                    {
+                        editorTool && (
+                            <article class="card group flex flex-col overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                                <div
+                                    class="relative aspect-[16/9] overflow-hidden bg-navy-950 border-b border-slate-200 grid grid-cols-[1.15fr_1fr]"
+                                    aria-hidden="true"
+                                >
+                                    <div class="p-4 sm:p-5 font-mono text-[10px] sm:text-[12px] leading-relaxed text-slate-300 overflow-hidden">
+                                        <div class="flex gap-1.5 mb-3">
+                                            <span class="px-2 py-0.5 rounded-md bg-white/10 text-white">
+                                                index.html
+                                            </span>
+                                            <span class="px-2 py-0.5 rounded-md text-slate-500">style.css</span>
+                                            <span class="hidden sm:inline px-2 py-0.5 rounded-md text-slate-500">
+                                                script.js
+                                            </span>
+                                        </div>
+                                        <p class="whitespace-nowrap">
+                                            <span class="text-pink-400">&lt;body&gt;</span>
+                                        </p>
+                                        <p class="whitespace-nowrap pl-4">
+                                            <>
+                                                <span class="text-pink-400">&lt;h1&gt;</span>
+                                                <span class="font-sans">Chào thế giới!</span>
+                                            </>
+                                            <span class="text-pink-400">&lt;/h1&gt;</span>
+                                        </p>
+                                        <p class="whitespace-nowrap pl-4">
+                                            <>
+                                                <span class="text-pink-400">&lt;button&gt;</span>
+                                                <span class="font-sans">Bấm thử</span>
+                                            </>
+                                            <span class="text-pink-400">&lt;/button&gt;</span>
+                                        </p>
+                                        <p class="whitespace-nowrap">
+                                            <span class="text-pink-400">&lt;/body&gt;</span>
+                                        </p>
+                                        <p class="mt-2 whitespace-nowrap text-slate-500">/* style.css */</p>
+                                        <p class="whitespace-nowrap">
+                                            <span class="text-sky-300">h1</span> {'{'}{' '}
+                                            <span class="text-amber-300">color</span>: #2563eb; {'}'}
+                                        </p>
+                                    </div>
+                                    <span class="absolute right-3 top-3 chip bg-emerald-50 text-emerald-700 border-emerald-200 shadow-sm">
+                                        Mở tự do
+                                    </span>
+                                    <div class="m-3 sm:m-4 ml-0 sm:ml-0 mt-12 sm:mt-12 rounded-xl bg-white flex flex-col overflow-hidden">
+                                        <div class="h-6 sm:h-7 bg-slate-100 border-b border-slate-200 flex items-center px-3 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                                            Kết quả
+                                        </div>
+                                        <div class="flex-1 p-3 sm:p-4">
+                                            <p class="text-blue-600 font-extrabold text-sm sm:text-xl leading-tight">
+                                                Chào thế giới!
+                                            </p>
+                                            <span class="mt-2 sm:mt-3 inline-block rounded-md bg-slate-200 px-2 py-1 text-[9px] sm:text-xs font-semibold text-slate-700">
+                                                Bấm thử
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col flex-1 p-5 sm:p-6">
+                                    <div class="flex items-start gap-4 mb-4">
+                                        <span
+                                            class={`shrink-0 w-12 h-12 rounded-2xl bg-gradient-to-br ${editorTool.accent} text-white flex items-center justify-center shadow-md shadow-blue-600/20`}
+                                        >
+                                            <svg
+                                                class="w-6 h-6"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke-width="1.8"
+                                                stroke="currentColor"
+                                                aria-hidden="true"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    d={iconPath(editorTool.icon)}
+                                                />
+                                            </svg>
+                                        </span>
+                                        <div class="min-w-0">
+                                            <h4 class="text-xl font-extrabold text-slate-900 tracking-tight">
+                                                {editorTool.name}
+                                            </h4>
+                                            <p class="text-sm font-semibold text-blue-700">{editorTool.tagline}</p>
+                                        </div>
+                                    </div>
+                                    <p class="text-slate-700 font-medium leading-relaxed">{editorTool.description}</p>
+                                    <p class="mt-2 text-sm text-slate-500 leading-relaxed">
+                                        Phù hợp để luyện tập bài học Web cơ bản: thử thẻ HTML, đổi màu bằng CSS, thêm
+                                        tương tác bằng JavaScript.
+                                    </p>
+                                    <div class="mt-auto pt-6 flex flex-wrap gap-2 sm:gap-3">
+                                        <a href={editorTool.link} class="btn btn-primary">
+                                            Mở HTML5 Editor
+                                            <svg
+                                                class="w-4 h-4"
+                                                viewBox="0 0 20 20"
+                                                fill="currentColor"
+                                                aria-hidden="true"
+                                            >
+                                                <path fill-rule="evenodd" d={arrowPath} clip-rule="evenodd" />
+                                            </svg>
+                                        </a>
+                                    </div>
+                                </div>
+                            </article>
+                        )
+                    }
+                </div>
+
+                <!-- Nhóm 2: dành cho thành viên -->
+                <h3 class="flex items-center gap-2 text-sm font-extrabold uppercase tracking-wider text-slate-500 mb-4">
+                    <svg
+                        class="w-4 h-4 text-amber-500"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke-width="2"
+                        stroke="currentColor"
+                        aria-hidden="true"
+                    >
+                        <path stroke-linecap="round" stroke-linejoin="round" d={ICONS.lock}></path>
+                    </svg>
+                    Dành cho thành viên · {memberTools.length} công cụ
+                </h3>
+
+                <ul class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {
+                        memberTools.map((tool) => (
+                            <li>
+                                <a
+                                    href={tool.link}
+                                    data-member-link
+                                    class="card card-hover group relative flex flex-col h-full p-5 sm:p-6 no-underline"
+                                >
+                                    <div class="flex items-start justify-between gap-3 mb-5">
+                                        <span
+                                            class={`w-12 h-12 rounded-2xl bg-gradient-to-br ${tool.accent} text-white flex items-center justify-center shadow-md`}
+                                        >
+                                            <svg
+                                                class="w-6 h-6"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke-width="1.8"
+                                                stroke="currentColor"
+                                                aria-hidden="true"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    d={iconPath(tool.icon)}
+                                                />
+                                            </svg>
+                                        </span>
+                                        <span class="chip bg-amber-50 text-amber-800 border-amber-200">
+                                            <svg
+                                                class="w-3.5 h-3.5"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke-width="2.2"
+                                                stroke="currentColor"
+                                                aria-hidden="true"
+                                            >
+                                                <path stroke-linecap="round" stroke-linejoin="round" d={ICONS.lock} />
+                                            </svg>
+                                            Thành viên
+                                        </span>
+                                    </div>
+                                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">
+                                        {tool.topic}
+                                    </span>
+                                    <h4 class="text-lg font-extrabold text-slate-900 tracking-tight group-hover:text-blue-700 transition-colors">
+                                        {tool.name}
+                                    </h4>
+                                    <p class="text-sm font-semibold text-slate-600 mb-2">{tool.tagline}</p>
+                                    <p class="text-sm text-slate-500 leading-relaxed">{tool.description}</p>
+                                    <span class="mt-auto pt-5 inline-flex items-center gap-1.5 text-sm font-bold text-blue-600 group-hover:gap-2.5 transition-all">
+                                        Mở công cụ
+                                        <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                            <path fill-rule="evenodd" d={arrowPath} clip-rule="evenodd" />
+                                        </svg>
+                                    </span>
+                                </a>
+                            </li>
+                        ))
+                    }
+                </ul>
+
+                <p
+                    class="mt-6 flex items-start gap-3 text-sm text-slate-500 leading-relaxed rounded-2xl border border-dashed border-slate-300 bg-white px-5 py-4"
+                >
+                    <span aria-hidden="true">💡</span>
+                    <span>
+                        Chưa đăng nhập? Bấm vào công cụ để mở khung đăng nhập. Cần hỗ trợ tài khoản, nhắn Zalo
+                        <a
+                            href="https://zalo.me/0373306966"
+                            target="_blank"
+                            rel="noopener"
+                            class="font-bold text-blue-700 hover:text-blue-800 whitespace-nowrap">0373.306.966</a
+                        >.
+                    </span>
+                </p>
+            </div>
+        </section>
+
+        <!-- ── XEM NHANH (iframe) ────────────────────────────────────── -->
+        <section id="xem-nhanh" class="bg-white py-16 md:py-24" aria-labelledby="xem-nhanh-title">
+            <div class="container-site">
+                <div class="max-w-2xl mb-10">
+                    <span class="eyebrow mb-3">Xem nhanh</span>
+                    <h2
+                        id="xem-nhanh-title"
+                        class="text-2xl md:text-4xl font-extrabold text-slate-900 tracking-tight mb-3"
+                    >
+                        Dùng thử {featured.name} ngay tại đây
+                    </h2>
+                    <p class="text-slate-600 text-base md:text-lg leading-relaxed">
+                        Công cụ chạy trực tiếp trong khung bên dưới. Muốn rộng rãi hơn, bấm
+                        <strong class="text-slate-800">Mở toàn màn hình</strong> để dùng trong tab mới.
+                    </p>
+                </div>
+
+                <div
+                    class="grid lg:grid-cols-[300px_minmax(0,1fr)] xl:grid-cols-[340px_minmax(0,1fr)] gap-6 lg:gap-8 items-start"
+                >
+                    <!-- Danh sách công cụ xem nhanh -->
+                    <aside class="flex flex-col gap-5 lg:sticky lg:top-[calc(var(--nav-h)+1.5rem)]">
+                        <div>
+                            <p class="text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-3">
+                                Chọn công cụ để xem
+                            </p>
+                            <div class="flex flex-col gap-3">
+                                {
+                                    DATA.map((item, index) => (
+                                        <button
+                                            type="button"
+                                            class={`tool-card group w-full text-left flex items-center gap-3 p-2.5 pr-4 rounded-2xl bg-white border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all cursor-pointer ${index === 0 ? 'ring-2 ring-blue-500 active-card' : ''}`}
+                                            data-link={item.link}
+                                            aria-pressed={index === 0 ? 'true' : 'false'}
+                                            title="Nhấn để xem nhanh • Ctrl + Click để mở tab mới"
+                                        >
+                                            <span class="shrink-0 w-20 aspect-[16/10] rounded-xl overflow-hidden bg-slate-100 border border-slate-200">
+                                                <img
+                                                    src={item.image}
+                                                    alt=""
+                                                    width="160"
+                                                    height="100"
+                                                    loading="lazy"
+                                                    class="w-full h-full object-cover object-top"
+                                                />
+                                            </span>
+                                            <span class="min-w-0 flex-1">
+                                                <span class="flex items-center gap-1.5 font-bold text-slate-900 truncate">
+                                                    <svg
+                                                        class="w-4 h-4 text-blue-600 shrink-0"
+                                                        fill="none"
+                                                        viewBox="0 0 24 24"
+                                                        stroke-width="2"
+                                                        stroke="currentColor"
+                                                        aria-hidden="true"
+                                                    >
+                                                        <path
+                                                            stroke-linecap="round"
+                                                            stroke-linejoin="round"
+                                                            d={iconPath(item.icon)}
+                                                        />
+                                                    </svg>
+                                                    {item.name}
+                                                </span>
+                                                <span class="block text-xs text-slate-500 truncate">
+                                                    {item.tagline || item.description}
+                                                </span>
+                                            </span>
+                                        </button>
+                                    ))
+                                }
+                            </div>
                         </div>
+
+                        {
+                            featured.steps && (
+                                <div class="rounded-2xl bg-slate-50 border border-slate-200 p-5">
+                                    <p class="font-extrabold text-slate-900 mb-4">Cách dùng {featured.name}</p>
+                                    <ol class="space-y-3">
+                                        {featured.steps.map((step, i) => (
+                                            <li class="flex gap-3 text-sm text-slate-600 leading-relaxed">
+                                                <span class="shrink-0 w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-extrabold flex items-center justify-center">
+                                                    {i + 1}
+                                                </span>
+                                                <span>{step}</span>
+                                            </li>
+                                        ))}
+                                    </ol>
+                                </div>
+                            )
+                        }
+
+                        <p class="hidden lg:block text-xs text-slate-400 leading-relaxed">
+                            Mẹo: giữ <kbd class="font-mono font-semibold text-slate-500">Ctrl</kbd> (hoặc
+                            <kbd class="font-mono font-semibold text-slate-500">⌘</kbd>) khi nhấn vào thẻ công cụ để mở
+                            trong tab mới.
+                        </p>
                     </aside>
 
-                    <!-- Main: Tool Iframe -->
-                    <main
-                        class="flex-1 flex flex-col bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200 relative"
+                    <!-- Khung trình duyệt mô phỏng -->
+                    <div
+                        class="flex flex-col bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-[0_24px_60px_-24px_rgba(15,23,42,0.35)]"
                     >
-                        <!-- Browser Header Mockup -->
-                        <div class="h-12 bg-slate-100 border-b border-slate-200 flex items-center px-4 gap-4">
-                            <div class="flex gap-2">
-                                <div class="w-3 h-3 rounded-full bg-red-400"></div>
-                                <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
-                                <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                        <div class="h-12 bg-slate-100 border-b border-slate-200 flex items-center px-3 sm:px-4 gap-3">
+                            <div class="hidden sm:flex gap-1.5" aria-hidden="true">
+                                <span class="w-3 h-3 rounded-full bg-rose-400"></span>
+                                <span class="w-3 h-3 rounded-full bg-amber-400"></span>
+                                <span class="w-3 h-3 rounded-full bg-emerald-400"></span>
                             </div>
                             <div
-                                class="flex-1 bg-white rounded-md h-7 flex items-center px-4 border border-slate-200 shadow-sm overflow-hidden"
+                                class="flex-1 min-w-0 bg-white rounded-lg h-8 flex items-center px-3 border border-slate-200 overflow-hidden text-xs font-mono"
                             >
-                                <span class="text-xs text-slate-400 font-mono truncate current-url-display">
-                                    {DATA[0].link}
-                                </span>
+                                <span class="hidden md:inline text-slate-500 shrink-0">error404-labs.info.vn</span>
+                                <span class="text-slate-400 truncate current-url-display">{DATA[0].link}</span>
                             </div>
-                            <div class="flex gap-2">
-                                <div class="w-2 h-2 rounded-full bg-slate-300"></div>
-                                <div class="w-2 h-2 rounded-full bg-slate-300"></div>
-                                <div class="w-2 h-2 rounded-full bg-slate-300"></div>
-                            </div>
+                            <a
+                                id="tool-open-link"
+                                href={DATA[0].link}
+                                target="_blank"
+                                rel="noopener"
+                                class="btn btn-sm btn-primary shrink-0"
+                                title="Mở công cụ trong tab mới"
+                            >
+                                <svg
+                                    class="w-4 h-4"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke-width="2"
+                                    stroke="currentColor"
+                                    aria-hidden="true"
+                                >
+                                    <path stroke-linecap="round" stroke-linejoin="round" d={ICONS.external}></path>
+                                </svg>
+                                <span>Mở toàn màn hình</span>
+                            </a>
                         </div>
 
-                        <!-- Loading Spinner Overlay -->
-                        <div
-                            id="iframe-loader"
-                            class="absolute inset-0 top-12 bg-white flex items-center justify-center z-10 hidden"
-                        >
-                            <div class="animate-spin rounded-full h-12 w-12 border-4 border-indigo-500 border-t-transparent">
+                        <div class="relative">
+                            <!-- Lớp chờ tải (script bật/tắt class 'hidden') -->
+                            <div id="iframe-loader" class="absolute inset-0 z-10 bg-white/90 hidden">
+                                <div class="w-full h-full flex flex-col items-center justify-center gap-3">
+                                    <div
+                                        class="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"
+                                    >
+                                    </div>
+                                    <p class="text-sm font-semibold text-slate-500">Đang tải công cụ…</p>
+                                </div>
                             </div>
-                        </div>
 
-                        <iframe
-                            src={DATA[0].link}
-                            frameborder="0"
-                            class="flex-1 w-full bg-slate-50"
-                            allow="fullscreen; autoplay; clipboard-read; clipboard-write;"
-                            title="Tool Preview"
-                            id="tool-iframe"
-                        >
-                        </iframe>
-                    </main>
+                            <iframe
+                                src={DATA[0].link}
+                                frameborder="0"
+                                class="block w-full h-[70dvh] min-h-[480px] lg:h-[calc(100dvh-var(--nav-h)-6rem)] lg:min-h-[600px] bg-slate-50"
+                                allow="fullscreen; autoplay; clipboard-read; clipboard-write;"
+                                loading="lazy"
+                                title={`Xem nhanh công cụ ${DATA[0].name}`}
+                                id="tool-iframe"></iframe>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -106,16 +657,18 @@ import { TOOLS_DATA as DATA } from '../data/toolsData.js'
 </MainLayout>
 
 <script is:inline>
-    // Run Initial Logic
-    initToolLogic();
+    // Khởi chạy
+    initToolLogic()
+    initMemberLinks()
 
     function initToolLogic() {
         const iframe = document.getElementById('tool-iframe')
         const cards = document.querySelectorAll('.tool-card')
         const urlDisplay = document.querySelector('.current-url-display')
         const loader = document.getElementById('iframe-loader')
+        const openLink = document.getElementById('tool-open-link')
 
-        if (!iframe || !cards) return;
+        if (!iframe || !cards) return
 
         cards.forEach((card) => {
             // Tránh gán sự kiện nhiều lần
@@ -127,20 +680,23 @@ import { TOOLS_DATA as DATA } from '../data/toolsData.js'
                     return
                 }
 
-                // Show loader
+                // Hiện lớp chờ tải
                 if (loader) loader.classList.remove('hidden')
 
-                // Update Active State
+                // Cập nhật trạng thái đang chọn
                 cards.forEach((c) => {
-                    c.classList.remove('ring-2', 'ring-indigo-500', 'active-card')
+                    c.classList.remove('ring-2', 'ring-blue-500', 'active-card')
+                    c.setAttribute('aria-pressed', 'false')
                 })
-                card.classList.add('ring-2', 'ring-indigo-500', 'active-card')
+                card.classList.add('ring-2', 'ring-blue-500', 'active-card')
+                card.setAttribute('aria-pressed', 'true')
 
-                // Update Iframe & UI
+                // Cập nhật iframe & giao diện
                 iframe.src = link
                 if (urlDisplay) urlDisplay.textContent = link
+                if (openLink) openLink.href = link
 
-                // Wait for load to hide loader
+                // Chờ tải xong thì ẩn lớp chờ
                 iframe.onload = () => {
                     if (loader) loader.classList.add('hidden')
                 }
@@ -151,38 +707,33 @@ import { TOOLS_DATA as DATA } from '../data/toolsData.js'
             if (loader) loader.classList.add('hidden')
         }
     }
+
+    // Công cụ dành cho thành viên: chưa đăng nhập thì mở khung đăng nhập thay vì chuyển trang
+    function initMemberLinks() {
+        document.querySelectorAll('[data-member-link]').forEach((link) => {
+            link.addEventListener('click', (e) => {
+                let token = null
+                try {
+                    token = localStorage.getItem('auth_token')
+                } catch (err) {}
+                if (token) return
+
+                e.preventDefault()
+                if (window.showToast) {
+                    window.showToast('Vui lòng đăng nhập để sử dụng công cụ dành cho thành viên!', 'warning')
+                }
+                const loginBtn = document.getElementById('openLoginModal')
+                if (loginBtn) loginBtn.click()
+                else window.location.href = link.getAttribute('href')
+            })
+        })
+    }
 </script>
 
 <style>
-    .custom-scrollbar::-webkit-scrollbar {
-        width: 6px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-track {
-        background: transparent;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 10px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8;
-    }
-
-    .tool-list-container {
-        flex-basis: 0;
-        min-height: 0;
-        mask-image: linear-gradient(to bottom, black calc(100% - 40px), transparent);
-    }
-
-    .text-gradient {
-        background: linear-gradient(to right, #1e293b, #4f46e5);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
     .active-card {
-        background-color: #f8fafc;
-        border-color: #6366f1;
-        box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.2);
+        background-color: #eff6ff;
+        border-color: #3b82f6;
+        box-shadow: 0 10px 20px -8px rgba(37, 99, 235, 0.3);
     }
 </style>

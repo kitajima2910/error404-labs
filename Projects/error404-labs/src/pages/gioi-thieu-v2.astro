@@ -1,0 +1,480 @@
+---
+import MainLayout from '../layouts/MainLayout.astro'
+import { TC_TITLE } from '../common/TextConst'
+import { DATA_DEMO } from '../data/dataTestDemo.js'
+import { TOOLS_DATA } from '../data/toolsData.js'
+import { getCategoryMeta } from '../data/categoryMeta.js'
+import InfoIcon from '../components/info/InfoIcon.astro'
+import InfoHeading from '../components/info/InfoHeading.astro'
+
+// Số liệu thật, tính từ dữ liệu của site (không gõ tay)
+const posts = Object.values(import.meta.glob('./bai-viet/*.md', { eager: true })) as any[]
+const publishedPosts = posts.filter((p) => !p.frontmatter?.draft)
+const postCount = publishedPosts.length
+const categoryCounts = publishedPosts.reduce<Record<string, number>>((acc, p) => {
+    const c = p.frontmatter?.category
+    if (c) acc[c] = (acc[c] || 0) + 1
+    return acc
+}, {})
+const topCategories = Object.entries(categoryCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 4)
+    .map(([key]) => getCategoryMeta(key).label)
+const categoryCount = Object.keys(categoryCounts).length
+const demoCount = DATA_DEMO.length
+const toolNames = TOOLS_DATA.map((t) => t.name).join(', ')
+
+const ZALO_URL = 'https://zalo.me/0373306966'
+
+const stats = [
+    { value: String(postCount), label: 'bài viết hướng dẫn' },
+    { value: String(categoryCount), label: 'chủ đề lập trình' },
+    { value: String(demoCount), label: 'game & web demo' },
+    { value: '0đ', label: 'học Python trên web' },
+]
+
+const projects = [
+    {
+        href: '/khoa-hoc',
+        title: 'Lớp Web & Game',
+        desc: 'Lớp Offline 3 - 5 học sinh tại Q.12, TP.HCM hoặc Online 1 kèm 1 — tự tay làm website & game với HTML, CSS & JavaScript.',
+        cta: 'Xem khóa học',
+        icon: 'academic',
+        featured: true,
+    },
+    {
+        href: '/hoc-python',
+        title: 'Học Python',
+        desc: 'Python 3 miễn phí, code và chấm điểm tự động ngay trên trình duyệt. Luyện thi Tin học trẻ Bảng B (THCS) & Bảng C (THPT).',
+        cta: 'Học miễn phí',
+        icon: 'code',
+        tone: 'bg-sky-50 text-sky-600',
+    },
+    {
+        href: '/bai-viet',
+        title: 'Bài viết',
+        desc: `${postCount} bài viết dễ hiểu về ${topCategories.join(', ')}…`,
+        cta: 'Đọc bài viết',
+        icon: 'book',
+        tone: 'bg-violet-50 text-violet-600',
+    },
+    {
+        href: '/thu-nghiem',
+        title: 'Thử nghiệm',
+        desc: `${demoCount} game & web demo làm bằng HTML5 — chơi thử ngay trên trình duyệt.`,
+        cta: 'Chơi thử',
+        icon: 'beaker',
+        tone: 'bg-emerald-50 text-emerald-600',
+    },
+    {
+        href: '/tools',
+        title: 'Công cụ',
+        desc: `${toolNames} và HTML5 Editor — công cụ nhỏ cho người làm web & game.`,
+        cta: 'Xem công cụ',
+        icon: 'wrench',
+        tone: 'bg-amber-50 text-amber-600',
+    },
+] as const
+
+const stack = [
+    { name: 'Java', dot: 'bg-orange-500' },
+    { name: 'C#', dot: 'bg-violet-500' },
+    { name: 'C/C++', dot: 'bg-blue-500' },
+    { name: 'HTML5', dot: 'bg-orange-600' },
+    { name: 'CSS3', dot: 'bg-sky-500' },
+    { name: 'JavaScript', dot: 'bg-yellow-400' },
+    { name: 'Python', dot: 'bg-[#3776AB]' },
+    { name: 'Android', dot: 'bg-emerald-500' },
+    { name: 'Git', dot: 'bg-red-500' },
+    { name: 'GitHub', dot: 'bg-slate-800' },
+]
+
+const slogans = [
+    { emoji: '💡', text: 'Code is Poetry, Logic is Art.', vi: 'Code là thơ, logic là nghệ thuật.' },
+    {
+        emoji: '🔧',
+        text: "Tools don't build great devs, habits do.",
+        vi: 'Công cụ không tạo nên lập trình viên giỏi, thói quen mới làm được điều đó.',
+    },
+    { emoji: '🧩', text: 'Fixing a bug is unlocking a story.', vi: 'Sửa một lỗi là mở khóa một câu chuyện.' },
+    {
+        emoji: '⏳',
+        text: 'Keep coding until magic feels normal.',
+        vi: 'Cứ code mãi cho đến khi phép màu trở thành điều bình thường.',
+    },
+]
+
+const contacts = [
+    {
+        href: 'https://www.facebook.com/kitajima2910',
+        label: 'Facebook',
+        handle: 'kitajima2910',
+        icon: 'facebook',
+        tone: 'bg-blue-600 text-white',
+    },
+    {
+        href: 'https://www.facebook.com/error404labs',
+        label: 'Fanpage',
+        handle: 'Error404 Labs',
+        icon: 'facebook',
+        tone: 'bg-navy-950 text-white',
+    },
+    {
+        href: 'https://github.com/kitajima2910',
+        label: 'GitHub',
+        handle: 'kitajima2910',
+        icon: 'github',
+        tone: 'bg-slate-900 text-white',
+    },
+    {
+        href: ZALO_URL,
+        label: 'Zalo',
+        handle: '0373.306.966',
+        icon: 'chat',
+        tone: 'bg-sky-500 text-white',
+    },
+] as const
+---
+
+<MainLayout
+    title={`Giới thiệu | ${TC_TITLE}`}
+    description="Phạm Xuân Hoài (kitajima2910) — Research & Developer, người làm Error404 Labs: lớp Web & Game cho học sinh, Học Python miễn phí, bài viết và game HTML5."
+>
+    {/* ── HERO ─────────────────────────────────────────────────────── */}
+    <section class="relative overflow-hidden bg-navy-950 text-white">
+        <div class="absolute inset-0 bg-grid-dark opacity-60 pointer-events-none" aria-hidden="true"></div>
+        <div
+            class="absolute -top-40 -left-32 w-[520px] h-[520px] rounded-full bg-blue-600/30 blur-[130px] pointer-events-none"
+            aria-hidden="true"
+        >
+        </div>
+        <div
+            class="absolute -bottom-48 right-0 w-[420px] h-[420px] rounded-full bg-sun-400/10 blur-[130px] pointer-events-none"
+            aria-hidden="true"
+        >
+        </div>
+
+        <div class="relative container-site pt-8 md:pt-12">
+            <nav aria-label="Breadcrumb" class="text-sm text-slate-400">
+                <a href="/" class="hover:text-white no-underline">Trang chủ</a>
+                <span class="mx-2" aria-hidden="true">/</span>
+                <span class="text-slate-200">Giới thiệu</span>
+            </nav>
+        </div>
+        <div
+            class="relative container-site pt-10 pb-24 md:pt-10 md:pb-32 grid lg:grid-cols-12 gap-12 lg:gap-14 items-center"
+        >
+            {/* Ảnh chân dung */}
+            <div class="lg:col-span-5 flex justify-center lg:order-first">
+                <div class="relative">
+                    <div
+                        class="absolute -inset-6 rounded-[2.5rem] bg-gradient-to-br from-sun-400/30 to-blue-600/30 blur-2xl"
+                        aria-hidden="true"
+                    >
+                    </div>
+                    <div
+                        class="absolute inset-0 rounded-[2.25rem] border-2 border-dashed border-white/15 rotate-6 scale-110"
+                        aria-hidden="true"
+                    >
+                    </div>
+                    <div
+                        class="relative p-1.5 rounded-[2.25rem] bg-gradient-to-br from-sun-400 via-sun-300 to-blue-500 shadow-[0_30px_80px_rgba(0,0,0,0.45)]"
+                    >
+                        <img
+                            src="/images/me.png"
+                            alt="Phạm Xuân Hoài (kitajima2910)"
+                            width="200"
+                            height="200"
+                            class="block w-44 h-44 sm:w-52 sm:h-52 lg:w-60 lg:h-60 rounded-[2rem] object-cover bg-navy-900"
+                        />
+                    </div>
+                    <span
+                        class="absolute -bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap bg-white text-navy-950 text-xs font-extrabold px-3.5 py-1.5 rounded-full shadow-lg"
+                    >
+                        🔬 R&amp;D Developer
+                    </span>
+                    <span
+                        class="hidden sm:inline-flex absolute -left-16 top-6 items-center gap-1.5 bg-white text-navy-950 text-sm font-extrabold px-3 py-1.5 rounded-xl shadow-lg info-float"
+                    >
+                        <span class="w-2 h-2 rounded-full bg-blue-500"></span> C/C++
+                    </span>
+                    <span
+                        class="hidden sm:inline-flex absolute -right-14 top-16 items-center gap-1.5 bg-sun-400 text-navy-950 text-sm font-extrabold px-3 py-1.5 rounded-xl shadow-lg info-float [animation-delay:1s]"
+                    >
+                        🎮 Game
+                    </span>
+                    <span
+                        class="hidden sm:inline-flex absolute -right-12 bottom-10 items-center gap-1.5 bg-navy-800 text-white border border-white/20 text-sm font-extrabold px-3 py-1.5 rounded-xl shadow-lg info-float [animation-delay:2s]"
+                    >
+                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Web &amp; AI
+                    </span>
+                </div>
+            </div>
+
+            <div class="lg:col-span-7 text-center lg:text-left">
+                <p
+                    class="mt-2 lg:mt-0 inline-flex items-center gap-2 font-mono text-xs sm:text-sm text-sun-300 bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg"
+                >
+                    👋 Xin chào, mình là Kitajima2910
+                </p>
+
+                <h1 class="mt-5 text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight">Phạm Xuân Hoài</h1>
+                <p class="mt-2 text-base md:text-lg font-semibold text-slate-300">
+                    <span class="text-sun-400">Research &amp; Developer</span> · Error404 Labs
+                </p>
+
+                <p class="mt-6 text-slate-300 text-base md:text-lg leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                    Xin chào 👋 Mình là một lập trình viên theo hướng Research &amp; Development, thích đào sâu vấn đề
+                    và biến ý tưởng thành sản phẩm chạy được thật. Tại Error404-Labs, mình chia sẻ kiến thức về C/C++,
+                    Web, Game, Mobile và AI, kèm kinh nghiệm thực chiến để giúp bạn học lập trình bớt mơ hồ và đỡ “lạc
+                    lối” hơn 🚀
+                </p>
+
+                <div class="mt-8 flex flex-col sm:flex-row sm:flex-wrap gap-3 justify-center lg:justify-start">
+                    <a href="/khoa-hoc" class="btn btn-sun btn-lg">
+                        <InfoIcon name="academic" class="w-5 h-5" strokeWidth={2} />
+                        Xem lớp Web &amp; Game
+                    </a>
+                    <a href="/hoc-python" class="btn btn-ghost-light btn-lg">
+                        <InfoIcon name="code" class="w-5 h-5" strokeWidth={2} />
+                        Học Python miễn phí
+                    </a>
+                </div>
+
+                <ul class="mt-8 flex justify-center lg:justify-start gap-2.5" aria-label="Kênh liên hệ">
+                    {/* Fanpage dùng chung biểu tượng Facebook nên chỉ liệt kê ở mục "Kết nối với mình" (có nhãn) */}
+                    {
+                        contacts
+                            .filter((c) => c.label !== 'Fanpage')
+                            .map((c) => (
+                                <li>
+                                    <a
+                                        href={c.href}
+                                        target="_blank"
+                                        rel="noopener"
+                                        class="w-11 h-11 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 flex items-center justify-center text-slate-200 hover:text-white transition-colors"
+                                        aria-label={`${c.label}: ${c.handle}`}
+                                        title={`${c.label}: ${c.handle}`}
+                                    >
+                                        <InfoIcon name={c.icon} class="w-5 h-5" />
+                                    </a>
+                                </li>
+                            ))
+                    }
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    {/* ── SỐ LIỆU ─────────────────────────────────────────────────── */}
+    <section class="relative z-10 -mt-12 container-site" aria-label="Error404 Labs qua các con số">
+        <ul
+            class="max-w-6xl mx-auto bg-white rounded-2xl shadow-[0_20px_50px_rgba(15,23,42,0.08)] border border-slate-200 grid grid-cols-2 lg:grid-cols-4 [&>li:nth-child(odd)]:border-r [&>li:nth-child(-n+2)]:border-b lg:[&>li:nth-child(-n+2)]:border-b-0 lg:[&>li:not(:last-child)]:border-r"
+        >
+            {
+                stats.map((s) => (
+                    <li class="p-5 md:p-7 text-center border-slate-100">
+                        <span class="block text-2xl md:text-3xl font-extrabold text-blue-600 tracking-tight">
+                            {s.value}
+                        </span>
+                        <span class="block text-xs md:text-sm text-slate-500 mt-1 font-medium">{s.label}</span>
+                    </li>
+                ))
+            }
+        </ul>
+    </section>
+
+    {/* ── MÌNH ĐANG LÀM GÌ ───────────────────────────────────────── */}
+    <section class="bg-white py-16 md:py-24">
+        <div class="container-site">
+            <InfoHeading
+                eyebrow="Mình đang làm gì"
+                title="Những dự án tại Error404 Labs"
+                lead="Mọi thứ đều hướng tới một mục tiêu: giúp học sinh và người mới học lập trình bớt mơ hồ, học qua sản phẩm thật."
+            />
+
+            <ul class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
+                {
+                    projects.map((p) =>
+                        'featured' in p && p.featured ? (
+                            <li class="sm:col-span-2">
+                                <a
+                                    href={p.href}
+                                    class="group relative overflow-hidden flex flex-col h-full rounded-[1.25rem] bg-gradient-to-br from-blue-600 to-navy-900 text-white p-6 md:p-8 no-underline shadow-[0_20px_40px_-16px_rgba(37,99,235,0.6)] hover:-translate-y-1 transition-transform duration-300"
+                                >
+                                    <div
+                                        class="absolute inset-0 bg-grid-dark opacity-40 pointer-events-none"
+                                        aria-hidden="true"
+                                    />
+                                    <div
+                                        class="absolute -right-10 -bottom-16 w-64 h-64 rounded-full bg-sun-400/20 blur-3xl pointer-events-none"
+                                        aria-hidden="true"
+                                    />
+                                    <div class="relative flex items-center justify-between gap-3">
+                                        <span class="w-12 h-12 rounded-xl bg-white/15 flex items-center justify-center">
+                                            <InfoIcon name={p.icon} class="w-6 h-6" />
+                                        </span>
+                                        <span class="chip bg-sun-400 text-navy-950">Offline &amp; Online</span>
+                                    </div>
+                                    <h3 class="relative mt-6 text-2xl md:text-3xl font-extrabold tracking-tight">
+                                        {p.title}
+                                    </h3>
+                                    <p class="relative mt-3 text-blue-100 leading-relaxed max-w-xl flex-1">{p.desc}</p>
+                                    <span class="relative mt-6 inline-flex items-center gap-2 font-bold text-sun-400 group-hover:gap-3 transition-all">
+                                        {p.cta} <span aria-hidden="true">→</span>
+                                    </span>
+                                </a>
+                            </li>
+                        ) : (
+                            <li>
+                                <a
+                                    href={p.href}
+                                    class="group card card-hover flex flex-col h-full p-6 md:p-7 no-underline"
+                                >
+                                    <span
+                                        class={`w-12 h-12 rounded-xl flex items-center justify-center ${'tone' in p ? p.tone : ''}`}
+                                    >
+                                        <InfoIcon name={p.icon} class="w-6 h-6" />
+                                    </span>
+                                    <h3 class="mt-5 text-lg md:text-xl font-extrabold text-slate-900 group-hover:text-blue-700 transition-colors">
+                                        {p.title}
+                                    </h3>
+                                    <p class="mt-2 text-sm md:text-base text-slate-500 leading-relaxed flex-1">
+                                        {p.desc}
+                                    </p>
+                                    <span class="mt-5 inline-flex items-center gap-2 text-sm font-bold text-blue-600 group-hover:gap-3 transition-all">
+                                        {p.cta} <span aria-hidden="true">→</span>
+                                    </span>
+                                </a>
+                            </li>
+                        ),
+                    )
+                }
+            </ul>
+        </div>
+    </section>
+
+    {/* ── TECH STACK & CHÂM NGÔN ──────────────────────────────────── */}
+    <section class="bg-slate-50 py-16 md:py-24">
+        <div class="container-site grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+            <div>
+                <InfoHeading
+                    eyebrow="Công nghệ"
+                    title="Ngôn ngữ & công cụ mình dùng"
+                    lead="Từ lập trình C/C++, Java, C# đến web, game và mobile — đây là bộ công cụ quen thuộc mỗi ngày."
+                />
+                <ul class="flex flex-wrap gap-2.5 md:gap-3">
+                    {
+                        stack.map((t) => (
+                            <li class="inline-flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3.5 py-2 md:px-4 md:py-2.5 text-sm md:text-base font-bold text-slate-700 shadow-sm">
+                                <span class={`w-2.5 h-2.5 rounded-full ${t.dot}`} aria-hidden="true" />
+                                {t.name}
+                            </li>
+                        ))
+                    }
+                </ul>
+            </div>
+
+            <div>
+                <InfoHeading eyebrow="Châm ngôn" title="Những câu mình hay tự nhắc" />
+                <ul class="grid sm:grid-cols-2 gap-4">
+                    {
+                        slogans.map((s, i) => (
+                            <li
+                                class:list={[
+                                    'relative rounded-[1.25rem] p-5 md:p-6 overflow-hidden',
+                                    i === 0 || i === 3
+                                        ? 'bg-navy-950 text-white'
+                                        : 'bg-white border border-slate-200 text-slate-800',
+                                ]}
+                            >
+                                <span
+                                    class:list={[
+                                        'absolute top-3 right-4 text-6xl font-extrabold leading-[0.8] select-none',
+                                        i === 0 || i === 3 ? 'text-white/10' : 'text-slate-100',
+                                    ]}
+                                    aria-hidden="true"
+                                >
+                                    “
+                                </span>
+                                <span class="relative text-2xl" aria-hidden="true">
+                                    {s.emoji}
+                                </span>
+                                <blockquote class="relative mt-3">
+                                    <p lang="en" class="font-mono text-sm md:text-[15px] font-semibold leading-relaxed">
+                                        {s.text}
+                                    </p>
+                                    <p
+                                        class:list={[
+                                            'mt-2 text-sm leading-relaxed',
+                                            i === 0 || i === 3 ? 'text-slate-300' : 'text-slate-600',
+                                        ]}
+                                    >
+                                        {s.vi}
+                                    </p>
+                                </blockquote>
+                            </li>
+                        ))
+                    }
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    {/* ── LIÊN HỆ ─────────────────────────────────────────────────── */}
+    <section class="bg-white py-16 md:py-24">
+        <div class="container-site">
+            <InfoHeading
+                eyebrow="Liên hệ"
+                title="Kết nối với mình"
+                lead="Phụ huynh và các bạn học sinh có thể liên hệ với mình qua những kênh dưới đây."
+                align="center"
+            />
+            <ul class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 max-w-5xl mx-auto">
+                {
+                    contacts.map((c) => (
+                        <li>
+                            <a
+                                href={c.href}
+                                target="_blank"
+                                rel="noopener"
+                                class="group card card-hover h-full flex flex-col items-center text-center p-4 sm:p-6 no-underline"
+                            >
+                                <span
+                                    class={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shadow-md ${c.tone}`}
+                                >
+                                    <InfoIcon name={c.icon} class="w-6 h-6 sm:w-7 sm:h-7" />
+                                </span>
+                                <span class="mt-4 text-base font-extrabold text-slate-900">{c.label}</span>
+                                <span class="mt-0.5 text-xs sm:text-sm text-slate-500 break-all">{c.handle}</span>
+                                <span class="mt-3 inline-flex items-center gap-1 text-xs sm:text-sm font-bold text-blue-600">
+                                    Mở <InfoIcon name="external" class="w-3.5 h-3.5" strokeWidth={2} />
+                                </span>
+                            </a>
+                        </li>
+                    ))
+                }
+            </ul>
+        </div>
+    </section>
+</MainLayout>
+
+<style>
+    .info-float {
+        animation: info-float 4s ease-in-out infinite;
+    }
+    @keyframes info-float {
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-8px);
+        }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .info-float {
+            animation: none;
+        }
+    }
+</style>

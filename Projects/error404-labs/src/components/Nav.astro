@@ -13,11 +13,13 @@ const ICONS: Record<string, string> = {
 }
 
 const pathname = Astro.url.pathname
-const isPost = pathname.startsWith('/bai-viet/')
+// Thanh tiến độ đọc chỉ hiện ở trang bài viết, không hiện ở trang danh sách /bai-viet/N
+const isPost = pathname.startsWith('/bai-viet/') && !/^\/bai-viet\/\d+\/?$/.test(pathname)
 const googleClientId = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID
 
 // Mục menu đang active (khớp đường dẫn hoặc trang con)
-const isActive = (path: string) => pathname === path || pathname.startsWith(path + '/')
+const isActive = (path: string, match: string[] = []) =>
+    [path, ...match].some((p) => pathname === p || pathname.startsWith(p + '/'))
 ---
 
 <nav
@@ -37,7 +39,7 @@ const isActive = (path: string) => pathname === path || pathname.startsWith(path
                 height="40"
                 class="w-9 h-9 lg:w-10 lg:h-10 rounded-full ring-2 ring-blue-100 group-hover:ring-blue-300 transition"
             />
-            <span class="leading-tight whitespace-nowrap lg:hidden xl:block">
+            <span class="leading-tight whitespace-nowrap max-[379px]:hidden lg:hidden xl:block">
                 <span class="block font-extrabold text-slate-900 text-[15px] tracking-tight">Error404 Labs</span>
                 <span class="hidden sm:block text-[11px] text-slate-500 font-medium">Học lập trình từ con số 0</span>
             </span>
@@ -47,7 +49,7 @@ const isActive = (path: string) => pathname === path || pathname.startsWith(path
         <ul class="hidden lg:flex items-center gap-0.5 ml-2 xl:ml-6 shrink-0">
             {
                 navData.map((item) => {
-                    const active = isActive(item.path)
+                    const active = isActive(item.path, item.match)
                     return (
                         <li>
                             <a
@@ -116,6 +118,7 @@ const isActive = (path: string) => pathname === path || pathname.startsWith(path
                         class="flex items-center gap-2 cursor-pointer group h-10 pl-1 pr-2.5 rounded-full border border-slate-200 bg-white hover:border-blue-300 transition-colors"
                         id="userProfileTrigger"
                         role="button"
+                        tabindex="0"
                         aria-label="Thông tin tài khoản"
                     >
                         <span
@@ -283,7 +286,7 @@ const isActive = (path: string) => pathname === path || pathname.startsWith(path
         <ul class="container-site py-3 grid gap-1">
             {
                 navData.map((item) => {
-                    const active = isActive(item.path)
+                    const active = isActive(item.path, item.match)
                     return (
                         <li>
                             <a
@@ -438,7 +441,7 @@ const isActive = (path: string) => pathname === path || pathname.startsWith(path
                     <button
                         id="submitLoginBtn"
                         type="submit"
-                        class="cursor-pointer w-full rounded-xl bg-indigo-600 px-4 py-3 text-white hover:bg-indigo-700 font-bold transition-colors"
+                        class="cursor-pointer w-full rounded-xl bg-blue-600 px-4 py-3 text-white hover:bg-blue-700 font-bold transition-colors"
                         >Đăng nhập ngay</button
                     >
                 </div>
@@ -899,7 +902,7 @@ const isActive = (path: string) => pathname === path || pathname.startsWith(path
                     submitBtn.disabled = true
                     submitBtn.textContent = 'Đang xử lý...'
                     submitBtn.classList.add('opacity-50', 'cursor-not-allowed')
-                    submitBtn.classList.remove('hover:bg-indigo-700', 'cursor-pointer')
+                    submitBtn.classList.remove('hover:bg-blue-700', 'cursor-pointer')
                 }
 
                 try {
@@ -956,7 +959,7 @@ const isActive = (path: string) => pathname === path || pathname.startsWith(path
                         submitBtn.disabled = false
                         submitBtn.textContent = 'Đăng nhập ngay'
                         submitBtn.classList.remove('opacity-50', 'cursor-not-allowed')
-                        submitBtn.classList.add('hover:bg-indigo-700', 'cursor-pointer')
+                        submitBtn.classList.add('hover:bg-blue-700', 'cursor-pointer')
                     }
                 }
             }
@@ -1147,4 +1150,33 @@ const isActive = (path: string) => pathname === path || pathname.startsWith(path
     } catch (error) {
         console.error(error)
     }
+</script>
+
+<script is:inline>
+    // Bổ sung bàn phím: Esc đóng modal/menu, tự focus ô tìm kiếm, Enter/Space mở popover tài khoản
+    ;(function () {
+        var searchModal = document.getElementById('modal')
+        var loginModal = document.getElementById('loginModal')
+        var mobileMenu = document.getElementById('mobileMenu')
+        var menuBtn = document.getElementById('menuBtn')
+        var trigger = document.getElementById('userProfileTrigger')
+        var isOpen = function (el) { return el && !el.classList.contains('hidden') }
+
+        document.getElementById('openModal')?.addEventListener('click', function () {
+            setTimeout(function () { document.querySelector('.pagefind-ui__search-input')?.focus() }, 50)
+        })
+        document.getElementById('openLoginModal')?.addEventListener('click', function () {
+            setTimeout(function () { document.getElementById('username')?.focus() }, 50)
+        })
+        trigger?.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); trigger.click() }
+        })
+        document.addEventListener('keydown', function (e) {
+            if (e.key !== 'Escape') return
+            if (isOpen(searchModal)) document.getElementById('closeModal')?.click()
+            if (isOpen(loginModal)) document.getElementById('closeLoginModal')?.click()
+            if (isOpen(mobileMenu)) menuBtn?.click()
+            document.getElementById('userInfoPopover')?.classList.add('hidden')
+        })
+    })()
 </script>

@@ -1,0 +1,131 @@
+---
+// "Bài trước / Bài tiếp theo" trong cùng danh mục (sắp xếp theo ngày tăng dần)
+// Với danh mục khóa học (KH_*): kèm thanh tiến độ "Bài X / N" để học sinh biết mình đang ở đâu trong chuỗi bài.
+// Danh mục chủ đề thường (C, Java, HTML…) là các bài độc lập → chỉ hiện "Bài trước / Bài sau", không đánh số.
+import { slugify } from '../../js/utils'
+import { getCategoryMeta } from '../../data/categoryMeta'
+
+interface PostLink {
+    url: string
+    frontmatter: { title: string }
+}
+
+interface Props {
+    category: string
+    position: number
+    total: number
+    prevPost?: PostLink | null
+    nextPost?: PostLink | null
+    /** true = chuỗi bài của một khóa học (có thứ tự học) */
+    isCourse?: boolean
+}
+
+const { category, position, total, prevPost, nextPost, isCourse = false } = Astro.props
+
+const meta = getCategoryMeta(category)
+const categoryHref = `/danh-muc/${slugify(category)}`
+const percent = total > 0 ? Math.round((position / total) * 100) : 0
+const showProgress = isCourse && position > 0
+---
+
+<nav
+    aria-label={isCourse ? 'Điều hướng chuỗi bài' : 'Điều hướng bài viết'}
+    class="mt-14 pt-8 border-t border-slate-200"
+    data-pagefind-ignore
+>
+    <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <p class="flex flex-wrap items-center gap-2 text-sm font-semibold text-slate-600">
+            <span class={`chip ${meta.chip}`}>
+                <span aria-hidden="true">{meta.icon}</span>
+                {meta.label}
+            </span>
+            {
+                showProgress && (
+                    <span>
+                        Bài <strong class="text-slate-900">{position}</strong> / {total}
+                    </span>
+                )
+            }
+        </p>
+        <a
+            href={categoryHref}
+            class="inline-flex items-center gap-1 min-h-10 text-sm font-bold text-blue-600 hover:text-blue-700 no-underline"
+        >
+            {isCourse ? 'Xem cả chuỗi bài' : `Xem thêm bài ${meta.label}`}
+            <span aria-hidden="true">→</span>
+        </a>
+    </div>
+
+    {
+        showProgress && (
+            <div
+                class="mt-3 h-2 rounded-full bg-slate-100 overflow-hidden"
+                role="progressbar"
+                aria-label="Tiến độ trong chuỗi bài"
+                aria-valuemin="0"
+                aria-valuemax={total}
+                aria-valuenow={position}
+            >
+                <div
+                    class="h-full rounded-full bg-gradient-to-r from-blue-600 via-blue-500 to-sun-400"
+                    style={`width: ${percent}%`}
+                />
+            </div>
+        )
+    }
+
+    <div class="mt-6 grid sm:grid-cols-2 gap-4">
+        {
+            prevPost ? (
+                <a href={prevPost.url} rel="prev" class="group card card-hover flex flex-col gap-1.5 p-5 no-underline">
+                    <span class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-slate-500 group-hover:text-blue-600">
+                        <span aria-hidden="true" class="transition-transform group-hover:-translate-x-0.5">
+                            ←
+                        </span>
+                        Bài trước
+                    </span>
+                    <span class="font-bold leading-snug text-slate-900 line-clamp-2 group-hover:text-blue-700">
+                        {prevPost.frontmatter.title}
+                    </span>
+                </a>
+            ) : (
+                <div class="flex items-center gap-3 rounded-[1.25rem] border border-dashed border-slate-200 bg-slate-50 p-5 text-sm text-slate-500">
+                    <span class="text-xl" aria-hidden="true">
+                        🚀
+                    </span>
+                    {isCourse
+                        ? 'Đây là bài đầu tiên của chuỗi — khởi đầu thật tốt nhé!'
+                        : 'Đây là bài cũ nhất trong chủ đề này.'}
+                </div>
+            )
+        }
+        {
+            nextPost ? (
+                <a
+                    href={nextPost.url}
+                    rel="next"
+                    class="group card card-hover flex flex-col gap-1.5 p-5 no-underline sm:text-right sm:items-end"
+                >
+                    <span class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-blue-600">
+                        {isCourse ? 'Bài tiếp theo' : 'Bài sau'}
+                        <span aria-hidden="true" class="transition-transform group-hover:translate-x-0.5">
+                            →
+                        </span>
+                    </span>
+                    <span class="font-bold leading-snug text-slate-900 line-clamp-2 group-hover:text-blue-700">
+                        {nextPost.frontmatter.title}
+                    </span>
+                </a>
+            ) : (
+                <div class="flex items-center gap-3 rounded-[1.25rem] border border-dashed border-slate-200 bg-slate-50 p-5 text-sm text-slate-500">
+                    <span class="text-xl" aria-hidden="true">
+                        🏁
+                    </span>
+                    {isCourse
+                        ? 'Bạn đã đọc đến bài mới nhất của chuỗi này.'
+                        : 'Bạn đã đọc đến bài mới nhất của chủ đề này.'}
+                </div>
+            )
+        }
+    </div>
+</nav>

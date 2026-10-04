@@ -1,0 +1,55 @@
+---
+// Tiêu đề section cho các trang khóa học / giới thiệu: eyebrow + h2 + đoạn dẫn (tùy chọn) + slot "action"
+interface Props {
+    eyebrow: string
+    title: string
+    lead?: string
+    align?: 'left' | 'center'
+    dark?: boolean
+    id?: string
+}
+
+const { eyebrow, title, lead, align = 'left', dark = false, id } = Astro.props
+const hasAction = Astro.slots.has('action')
+const centered = align === 'center' && !hasAction
+---
+
+<div
+    class:list={[
+        'mb-10 md:mb-12',
+        hasAction && 'flex flex-col md:flex-row md:items-end md:justify-between gap-5 md:gap-8',
+        centered && 'text-center',
+    ]}
+>
+    <div class:list={['max-w-2xl', centered && 'mx-auto']}>
+        <p class:list={['eyebrow mb-3', dark && 'text-sun-400']}>{eyebrow}</p>
+        <h2
+            id={id}
+            class:list={[
+                'text-2xl md:text-4xl font-extrabold tracking-tight text-balance',
+                dark ? 'text-white' : 'text-slate-900',
+            ]}
+        >
+            {title}
+        </h2>
+        {
+            lead && (
+                <p
+                    class:list={[
+                        'mt-4 text-base md:text-lg leading-relaxed text-pretty',
+                        dark ? 'text-slate-300' : 'text-slate-500',
+                    ]}
+                >
+                    {lead}
+                </p>
+            )
+        }
+    </div>
+    {
+        hasAction && (
+            <div class="shrink-0">
+                <slot name="action" />
+            </div>
+        )
+    }
+</div>

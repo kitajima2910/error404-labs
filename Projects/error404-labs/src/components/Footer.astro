@@ -15,6 +15,10 @@ const titles_and_urls = blog.map((post: any) => ({
     url: post.url,
 }))
 
+// Các trang đã có lời kêu gọi riêng thì không lặp lại dải CTA ở footer
+const pathname = Astro.url.pathname
+const showCta = !(pathname.startsWith('/khoa-hoc') || pathname.startsWith('/hoc-python'))
+
 const columns = [
     {
         title: 'Học tập',
@@ -44,26 +48,30 @@ const columns = [
     </div>
 
     <!-- Dải CTA -->
-    <div class="relative border-b border-white/10">
-        <div class="container-site py-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-            <div>
-                <p class="text-xl md:text-2xl font-extrabold text-white tracking-tight">
-                    Cho con bắt đầu học lập trình ngay hôm nay
-                </p>
-                <p class="text-slate-400 mt-1">
-                    Học Python miễn phí trên web, hoặc liên hệ để được tư vấn lớp học phù hợp.
-                </p>
+    {
+        showCta && (
+            <div class="relative border-b border-white/10">
+                <div class="container-site py-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                    <div>
+                        <p class="text-xl md:text-2xl font-extrabold text-white tracking-tight">
+                            Cho con bắt đầu học lập trình ngay hôm nay
+                        </p>
+                        <p class="text-slate-400 mt-1">
+                            Học Python miễn phí trên web, hoặc liên hệ để được tư vấn lớp học phù hợp.
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3 shrink-0">
+                        <a href="/hoc-python" class="btn btn-sun">
+                            <IconPython class="w-5 h-5" /> Học Python miễn phí
+                        </a>
+                        <a href="https://zalo.me/0373306966" target="_blank" rel="noopener" class="btn btn-ghost-light">
+                            💬 Tư vấn qua Zalo
+                        </a>
+                    </div>
+                </div>
             </div>
-            <div class="flex flex-wrap gap-3 shrink-0">
-                <a href="/hoc-python" class="btn btn-sun">
-                    <IconPython class="w-5 h-5" /> Học Python miễn phí
-                </a>
-                <a href="https://zalo.me/0373306966" target="_blank" rel="noopener" class="btn btn-ghost-light">
-                    💬 Tư vấn qua Zalo
-                </a>
-            </div>
-        </div>
-    </div>
+        )
+    }
 
     <div class="relative container-site py-14">
         <div class="grid grid-cols-2 lg:grid-cols-12 gap-x-6 gap-y-10">

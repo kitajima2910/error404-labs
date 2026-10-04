@@ -1,0 +1,221 @@
+---
+import SectionHeading from './SectionHeading.astro'
+
+// Lý do phụ huynh có thể yên tâm (chỉ dùng thông tin thật của lớp học & nền tảng Python)
+const reasons = [
+    {
+        title: 'Lớp nhỏ, kèm sát từng bạn',
+        desc: 'Offline 3 - 5 học sinh / lớp, hoặc Online 1 kèm 1 trực tiếp (tương tác cao) — giáo viên kèm sát từng em.',
+        icon: 'M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z',
+        tone: 'bg-blue-50 text-blue-600',
+    },
+    {
+        title: 'Học qua dự án thực tế',
+        desc: 'Không học thuộc lòng: con tự tay xây dựng Website & Game từ con số 0, hiểu cơ chế hoạt động của Web & Game.',
+        icon: 'M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 0 1-.657.643 48.39 48.39 0 0 1-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 0 1-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 0 0-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 0 1-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 0 0 .657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 0 1-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.4.604-.4.959v0c0 .333.277.599.61.58a48.1 48.1 0 0 0 5.427-.63 48.05 48.05 0 0 0 .582-4.717.532.532 0 0 0-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.96.401v0a.656.656 0 0 0 .658-.663 48.422 48.422 0 0 0-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 0 1-.61-.58v0Z',
+        tone: 'bg-violet-50 text-violet-600',
+    },
+    {
+        title: 'Theo dõi tiến độ rõ ràng',
+        desc: 'Trên nền tảng Học Python, mỗi bài nộp được chấm tự động; điểm XP, level, chuỗi ngày học và bảng xếp hạng cho thấy con đang học đến đâu.',
+        icon: 'M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z',
+        tone: 'bg-amber-50 text-amber-600',
+    },
+    {
+        title: 'Trao đổi trực tiếp với giáo viên',
+        desc: 'Phụ huynh liên hệ thầy Hoài qua Zalo hoặc điện thoại 0373.306.966 để được tư vấn lớp học phù hợp cho con.',
+        icon: 'M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z',
+        tone: 'bg-emerald-50 text-emerald-600',
+    },
+]
+
+const bio =
+    'Xin chào 👋 Mình là một lập trình viên theo hướng Research & Development, thích đào sâu vấn đề và biến ý tưởng thành sản phẩm chạy được thật. Tại Error404-Labs, mình chia sẻ kiến thức về C/C++, Web, Game, Mobile và AI, kèm kinh nghiệm thực chiến để giúp bạn học lập trình bớt mơ hồ và đỡ “lạc lối” hơn 🚀'
+---
+
+<section id="phu-huynh" class="relative overflow-hidden bg-slate-50 py-16 md:py-24" aria-labelledby="phu-huynh-title">
+    <div class="absolute inset-0 bg-dots-light opacity-50 pointer-events-none" aria-hidden="true"></div>
+
+    <div class="relative container-site">
+        <SectionHeading
+            id="phu-huynh-title"
+            eyebrow="Dành cho phụ huynh"
+            title="Vì sao phụ huynh yên tâm cho con học lập trình tại đây?"
+            lead="Thông tin lớp học minh bạch, cách học rõ ràng — và phụ huynh luôn có thể trao đổi trực tiếp với giáo viên."
+        />
+
+        <div class="grid lg:grid-cols-[1.25fr_1fr] gap-6 lg:gap-8 items-stretch">
+            {/* Lý do tin tưởng */}
+            <ul class="grid sm:grid-cols-2 gap-4 md:gap-5">
+                {
+                    reasons.map((reason) => (
+                        <li class="card p-5 md:p-6 flex items-start gap-4 sm:block">
+                            <span
+                                class={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${reason.tone}`}
+                                aria-hidden="true"
+                            >
+                                <svg
+                                    class="w-6 h-6"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke-width="1.8"
+                                    stroke="currentColor"
+                                >
+                                    <path stroke-linecap="round" stroke-linejoin="round" d={reason.icon} />
+                                </svg>
+                            </span>
+                            <div>
+                                <h3 class="sm:mt-4 text-base md:text-lg font-extrabold text-slate-900">
+                                    {reason.title}
+                                </h3>
+                                <p class="mt-1.5 sm:mt-2 text-sm text-slate-500 leading-relaxed">{reason.desc}</p>
+                            </div>
+                        </li>
+                    ))
+                }
+            </ul>
+
+            {/* Hồ sơ giáo viên */}
+            <aside
+                class="card relative overflow-hidden p-6 md:p-8 flex flex-col shadow-[0_24px_60px_-24px_rgba(15,23,42,0.25)]"
+                aria-label="Giáo viên"
+            >
+                <div
+                    class="absolute -top-24 -right-24 w-56 h-56 rounded-full bg-blue-100/70 blur-3xl pointer-events-none"
+                    aria-hidden="true"
+                >
+                </div>
+
+                <div class="relative flex items-center gap-4">
+                    <img
+                        src="/images/me.png"
+                        alt="Thầy Phạm Xuân Hoài"
+                        width="88"
+                        height="88"
+                        loading="lazy"
+                        class="w-20 h-20 md:w-22 md:h-22 rounded-2xl object-cover ring-4 ring-blue-50 shrink-0"
+                    />
+                    <div>
+                        <p class="eyebrow text-[0.7rem]">Giáo viên đứng lớp</p>
+                        <p class="text-xl font-extrabold text-slate-900 tracking-tight">Phạm Xuân Hoài</p>
+                        <p class="text-sm font-medium text-slate-500">Research & Developer · Error404 Labs</p>
+                    </div>
+                </div>
+
+                <blockquote
+                    class="relative mt-6 text-[15px] text-slate-600 leading-relaxed border-l-4 border-sun-400 pl-4"
+                >
+                    {bio}
+                </blockquote>
+
+                <ul class="relative mt-6 space-y-3 text-sm">
+                    <li class="flex items-start gap-3">
+                        <span
+                            class="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center shrink-0"
+                            aria-hidden="true">📞</span
+                        >
+                        <span>
+                            <span class="block text-xs text-slate-500">Điện thoại / Zalo</span>
+                            <a href="tel:0373306966" class="font-bold text-slate-900 hover:text-blue-700 no-underline"
+                                >0373.306.966</a
+                            >
+                        </span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span
+                            class="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center shrink-0"
+                            aria-hidden="true">📍</span
+                        >
+                        <span>
+                            <span class="block text-xs text-slate-500">Địa chỉ lớp học</span>
+                            <span class="font-semibold text-slate-800">308 Đ. TX 25, Thạnh Xuân, Q.12, TP.HCM</span>
+                        </span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span
+                            class="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center shrink-0"
+                            aria-hidden="true">💻</span
+                        >
+                        <span>
+                            <span class="block text-xs text-slate-500">Lịch học & chuẩn bị</span>
+                            <span class="font-semibold text-slate-800"
+                                >2 buổi / tuần · Học sinh có máy tính riêng (bắt buộc)</span
+                            >
+                        </span>
+                    </li>
+                </ul>
+
+                <div class="relative mt-6 mb-6 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    <a href="https://zalo.me/0373306966" target="_blank" rel="noopener" class="btn btn-primary">
+                        <svg
+                            class="w-5 h-5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="1.8"
+                            stroke="currentColor"
+                            aria-hidden="true"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z"
+                            ></path>
+                        </svg>
+                        Nhắn Zalo
+                    </a>
+                    <a href="tel:0373306966" class="btn btn-outline">
+                        <svg
+                            class="w-5 h-5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="1.8"
+                            stroke="currentColor"
+                            aria-hidden="true"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z"
+                            ></path>
+                        </svg>
+                        Gọi điện
+                    </a>
+                    <a
+                        href="https://www.facebook.com/kitajima2910"
+                        target="_blank"
+                        rel="noopener"
+                        class="btn btn-outline"
+                    >
+                        <svg class="w-5 h-5 text-[#1877f2]" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path
+                                d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
+                            ></path>
+                        </svg>
+                        Facebook
+                    </a>
+                </div>
+
+                {/* Liên kết ngoài giữ lại từ trang chủ cũ */}
+                <div
+                    class="relative mt-auto pt-5 border-t border-slate-100 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold"
+                >
+                    <a
+                        href="https://cococuatuinho.com"
+                        target="_blank"
+                        rel="noopener"
+                        class="inline-flex items-center gap-1.5 text-slate-600 hover:text-blue-700 no-underline"
+                    >
+                        <span aria-hidden="true">🌿</span> Lý Thuyết Điểm Giao By Cô Cỏ
+                    </a>
+                    <a
+                        href="/donate"
+                        target="_blank"
+                        class="inline-flex items-center gap-1.5 text-slate-600 hover:text-rose-600 no-underline"
+                    >
+                        <span aria-hidden="true">💝</span> Donate ủng hộ Error404 Labs
+                    </a>
+                </div>
+            </aside>
+        </div>
+    </div>
+</section>

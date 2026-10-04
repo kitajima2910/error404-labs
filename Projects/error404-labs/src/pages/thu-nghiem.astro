@@ -2,100 +2,418 @@
 import MainLayout from '../layouts/MainLayout.astro'
 import { TC_TITLE } from '../common/TextConst'
 import { DATA_DEMO as DATA } from '../data/dataTestDemo.js'
+
+// Phân loại theo đường dẫn: /thu-nghiem/web/* là trang web, còn lại là game
+const kindOf = (link: string) => (link.includes('/thu-nghiem/web/') ? 'web' : 'game')
+const KIND_LABEL: Record<string, string> = { game: '🎮 Game', web: '🌐 Web' }
+
+const gameCount = DATA.filter((item) => kindOf(item.link) === 'game').length
+const webCount = DATA.length - gameCount
+
+const filters = [
+    { key: 'all', label: 'Tất cả', count: DATA.length },
+    { key: 'game', label: '🎮 Game', count: gameCount },
+    { key: 'web', label: '🌐 Web', count: webCount },
+]
+
+// Ảnh minh hoạ cho hero (lấy từ dữ liệu demo thật)
+const pick = (name: string, fallback: number) => DATA.find((item) => item.name === name) || DATA[fallback]
+const heroShots = [
+    pick('Neural-Token-Dash', 0),
+    pick('Tom Mario', 1),
+    pick('Pet404-Labs', 2),
+].filter(Boolean)
+
+const ZALO_URL = 'https://zalo.me/0373306966'
+
+const arrowPath =
+    'M3 10a.75.75 0 0 1 .75-.75h10.638L10.23 5.29a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.158-3.96H3.75A.75.75 0 0 1 3 10Z'
+const checkPath =
+    'M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z'
+const playPath =
+    'M6.3 2.84A1.5 1.5 0 0 0 4 4.11v11.78a1.5 1.5 0 0 0 2.3 1.27l9.344-5.891a1.5 1.5 0 0 0 0-2.538L6.3 2.841Z'
+const externalPath =
+    'M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25'
+const expandPath =
+    'M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15'
 ---
 
-<MainLayout title={`Thử nghiệm | ${TC_TITLE}`}>
-    <section class="min-h-screen bg-slate-50 py-8 px-4 md:px-8">
-        <div class="max-w-[1600px] mx-auto h-[85vh]">
-            <div class="flex flex-col md:flex-row gap-6 h-full">
-                <!-- Sidebar: Demo List -->
-                <aside class="w-full md:w-[450px] flex flex-col gap-4">
-                    <div class="flex items-center justify-between px-2">
-                        <h2 class="text-2xl font-black text-slate-800 tracking-tight text-gradient">THỬ NGHIỆM</h2>
-                        <span
-                            class="px-4 py-1.5 bg-blue-600 text-white rounded-full text-xs font-bold uppercase shadow-lg shadow-blue-200"
+<MainLayout
+    title={`Thử nghiệm: game & web HTML5 | ${TC_TITLE}`}
+    description={`${DATA.length} game HTML5 và trang web nhỏ chạy ngay trên trình duyệt. Chơi thử miễn phí, không cần cài đặt — và học cách tự làm tại lớp Web & Game của Error404 Labs.`}
+>
+    <!-- ── HERO ─────────────────────────────────────────────────────── -->
+    <section class="relative overflow-hidden bg-navy-950 text-white">
+        <div class="absolute inset-0 bg-grid-dark opacity-60 pointer-events-none" aria-hidden="true"></div>
+        <div
+            class="absolute -top-40 -right-24 w-[520px] h-[520px] rounded-full bg-blue-600/30 blur-[130px] pointer-events-none"
+            aria-hidden="true"
+        >
+        </div>
+        <div
+            class="absolute -bottom-48 -left-24 w-[420px] h-[420px] rounded-full bg-sun-400/10 blur-[130px] pointer-events-none"
+            aria-hidden="true"
+        >
+        </div>
+
+        <div class="relative container-site py-12 md:py-16 grid lg:grid-cols-[1.1fr_1fr] gap-12 items-center">
+            <div>
+                <nav aria-label="Đường dẫn" class="mb-6 text-sm text-slate-400">
+                    <ol class="flex items-center gap-2">
+                        <li><a href="/" class="hover:text-white transition-colors no-underline">Trang chủ</a></li>
+                        <li aria-hidden="true">/</li>
+                        <li class="text-slate-200 font-semibold" aria-current="page">Thử nghiệm</li>
+                    </ol>
+                </nav>
+
+                <span class="chip bg-white/10 border-white/15 text-sun-400 uppercase tracking-wider mb-5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-sun-400 animate-pulse" aria-hidden="true"></span>
+                    {DATA.length} sản phẩm chạy trên trình duyệt
+                </span>
+
+                <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight mb-5">
+                    Phòng thử nghiệm <span class="text-sun-400 whitespace-nowrap">Game &amp; Web</span>
+                </h1>
+
+                <p class="text-slate-300 text-base md:text-lg leading-relaxed max-w-2xl mb-8">
+                    Game HTML5 và trang web nhỏ làm bằng HTML, CSS, JavaScript — bấm vào là chơi được ngay, không cần
+                    cài đặt. Xem thử để hình dung những gì có thể tự tay làm khi học lập trình.
+                </p>
+
+                <div class="flex flex-wrap items-center gap-3 mb-8">
+                    <a href="#bo-suu-tap" class="btn btn-sun btn-lg">
+                        <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path d={playPath}></path>
+                        </svg>
+                        Chơi thử ngay
+                    </a>
+                    <a href="/khoa-hoc" class="btn btn-ghost-light btn-lg">Lớp Web &amp; Game</a>
+                </div>
+
+                <ul class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-300">
+                    {
+                        [`${gameCount} game`, `${webCount} trang web`, 'Không cần cài đặt'].map((text) => (
+                            <li class="flex items-center gap-2">
+                                <svg
+                                    class="w-4 h-4 text-emerald-400"
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                                    aria-hidden="true"
+                                >
+                                    <path fill-rule="evenodd" d={checkPath} clip-rule="evenodd" />
+                                </svg>
+                                {text}
+                            </li>
+                        ))
+                    }
+                </ul>
+            </div>
+
+            <!-- Minh hoạ: ảnh chụp demo thật -->
+            <div class="relative hidden lg:block h-[340px]" aria-hidden="true">
+                {
+                    heroShots[0] && (
+                        <div class="absolute right-0 top-0 w-[78%] rounded-2xl overflow-hidden border border-white/10 bg-navy-900 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)] rotate-[2deg]">
+                            <div class="h-8 flex items-center gap-1.5 px-3 bg-white/5 border-b border-white/10">
+                                <span class="w-2.5 h-2.5 rounded-full bg-rose-400" />
+                                <span class="w-2.5 h-2.5 rounded-full bg-amber-400" />
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400" />
+                            </div>
+                            <img
+                                src={heroShots[0].image}
+                                alt=""
+                                width="640"
+                                height="400"
+                                loading="lazy"
+                                decoding="async"
+                                class="w-full aspect-[16/10] object-cover"
+                            />
+                        </div>
+                    )
+                }
+                {
+                    heroShots[1] && (
+                        <div class="absolute left-0 bottom-0 w-[46%] rounded-2xl overflow-hidden border-4 border-white bg-white shadow-2xl -rotate-[4deg]">
+                            <img
+                                src={heroShots[1].image}
+                                alt=""
+                                width="320"
+                                height="200"
+                                loading="lazy"
+                                decoding="async"
+                                class="w-full aspect-[16/10] object-cover"
+                            />
+                            <p class="px-3 py-2 text-xs font-bold text-slate-800">🎮 {heroShots[1].name}</p>
+                        </div>
+                    )
+                }
+                {
+                    heroShots[2] && (
+                        <div class="absolute right-6 -bottom-6 w-[40%] rounded-2xl overflow-hidden border-4 border-white bg-white shadow-2xl rotate-[3deg]">
+                            <img
+                                src={heroShots[2].image}
+                                alt=""
+                                width="320"
+                                height="200"
+                                loading="lazy"
+                                decoding="async"
+                                class="w-full aspect-[16/10] object-cover"
+                            />
+                            <p class="px-3 py-2 text-xs font-bold text-slate-800">🌐 {heroShots[2].name}</p>
+                        </div>
+                    )
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- ── BỘ SƯU TẬP + KHUNG CHƠI THỬ ──────────────────────────────── -->
+    <section id="bo-suu-tap" class="bg-slate-50 py-10 md:py-14" aria-labelledby="bo-suu-tap-title">
+        <div class="container-site">
+            <div
+                class="grid lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)] xl:grid-cols-[minmax(0,420px)_minmax(0,1fr)] gap-6 xl:gap-8 items-start"
+            >
+                <!-- Danh sách demo -->
+                <div>
+                    <div class="mb-5">
+                        <span class="eyebrow mb-2">Bộ sưu tập</span>
+                        <h2
+                            id="bo-suu-tap-title"
+                            class="text-2xl md:text-3xl lg:text-2xl font-extrabold text-slate-900 tracking-tight mb-2"
                         >
-                            {DATA.length} Dự án
-                        </span>
+                            Chọn sản phẩm để chơi thử
+                        </h2>
+                        <p class="text-sm text-slate-500 leading-relaxed">
+                            <span class="lg:hidden">Nhấn vào thẻ để mở trong tab mới và chơi toàn màn hình.</span>
+                            <span class="hidden lg:inline">
+                                Nhấn vào thẻ để chơi ở khung bên cạnh. Giữ <kbd
+                                    class="font-mono font-semibold text-slate-600">Ctrl</kbd
+                                > (hoặc <kbd class="font-mono font-semibold text-slate-600">⌘</kbd>) khi nhấn để mở tab
+                                mới.
+                            </span>
+                        </p>
                     </div>
 
-                    <div
-                        class="demo-list-container flex-1 overflow-y-auto pr-2 custom-scrollbar flex flex-col gap-3"
-                        style="scrollbar-gutter: stable;"
-                    >
+                    <div class="flex flex-wrap gap-2 mb-5" role="group" aria-label="Lọc theo loại sản phẩm">
                         {
-                            DATA.map((item, index) => (
-                                <div
-                                    class={`demo-card group relative overflow-hidden rounded-2xl bg-white border border-slate-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer flex-shrink-0 ${index === 0 ? 'ring-2 ring-blue-500 active-card' : ''}`}
-                                    data-link={item.link}
-                                    title="Click to view. Ctrl + Click to open in new tab."
+                            filters.map((filter, index) => (
+                                <button
+                                    type="button"
+                                    data-filter={filter.key}
+                                    aria-pressed={index === 0 ? 'true' : 'false'}
+                                    class="inline-flex items-center gap-2 h-10 px-4 rounded-full border text-sm font-bold transition-colors bg-white text-slate-700 border-slate-200 hover:border-blue-300 hover:text-blue-700 aria-pressed:bg-blue-600 aria-pressed:text-white aria-pressed:border-blue-600 aria-pressed:shadow-md aria-pressed:shadow-blue-600/20"
                                 >
-                                    <div class="aspect-video overflow-hidden bg-slate-100">
-                                        <img
-                                            src={item.image}
-                                            alt={item.name}
-                                            class="w-full h-full object-cover transform [transition:transform_0.8s_cubic-bezier(0.4,0,0.2,1)] group-hover:scale-105"
-                                        />
-                                    </div>
-                                    <div class="p-4 bg-white/95 backdrop-blur-md absolute bottom-0 left-0 right-0 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300 border-t border-slate-100 z-10">
-                                        <h3 class="font-bold text-slate-800 text-sm truncate">{item.name}</h3>
-                                        <p class="text-[10px] text-blue-600 font-semibold mt-1">
-                                            NHẤN ĐỂ XEM • CTRL+CLICK MỞ TAB MỚI
-                                        </p>
-                                    </div>
-                                    <div class="absolute top-2 left-2 p-1.5 bg-white/90 backdrop-blur shadow-sm rounded-lg z-10 opacity-100 group-hover:opacity-0 transition-opacity">
-                                        <h3 class="font-bold text-slate-800 text-xs px-1">{item.name}</h3>
-                                    </div>
-                                </div>
+                                    {filter.label}
+                                    <span class="text-xs font-semibold opacity-70">{filter.count}</span>
+                                </button>
                             ))
                         }
                     </div>
-                </aside>
 
-                <!-- Main: Browser Mockup Iframe -->
-                <main
-                    class="flex-1 flex flex-col bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200 relative"
+                    <ul class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 gap-3 sm:gap-4" id="demo-grid">
+                        {
+                            DATA.map((item, index) => (
+                                <li data-kind={kindOf(item.link)}>
+                                    <button
+                                        type="button"
+                                        class={`demo-card group w-full h-full text-left flex flex-col rounded-2xl bg-white border border-slate-200 overflow-hidden shadow-sm hover:shadow-lg hover:border-blue-300 hover:-translate-y-0.5 transition-all duration-300 cursor-pointer ${index === 0 ? 'lg:ring-2 lg:ring-blue-500 active-card' : ''}`}
+                                        data-link={item.link}
+                                        data-name={item.name}
+                                        aria-pressed={index === 0 ? 'true' : 'false'}
+                                        aria-label={`Chơi thử ${item.name}`}
+                                        title="Nhấn để chơi thử • Ctrl + Click để mở tab mới"
+                                    >
+                                        <span class="relative block aspect-[16/10] overflow-hidden bg-slate-100">
+                                            <img
+                                                src={item.image}
+                                                alt=""
+                                                width="480"
+                                                height="300"
+                                                loading={index < 6 ? 'eager' : 'lazy'}
+                                                decoding="async"
+                                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                            />
+                                            <span class="absolute left-2 top-2 chip bg-white/90 text-slate-700 border-white/70 shadow-sm text-[10px] sm:text-xs">
+                                                {KIND_LABEL[kindOf(item.link)]}
+                                            </span>
+                                            <span class="now-playing absolute right-2 top-2 chip bg-blue-600 text-white border-blue-600 shadow-sm text-[10px] sm:text-xs">
+                                                Đang chơi
+                                            </span>
+                                        </span>
+                                        <span class="flex flex-col flex-1 gap-2 p-3">
+                                            <span class="font-bold text-sm sm:text-[15px] leading-snug text-slate-900 line-clamp-2">
+                                                {item.name}
+                                            </span>
+                                            <span class="mt-auto inline-flex items-center gap-1.5 text-sm font-bold text-blue-600">
+                                                <span class="w-6 h-6 rounded-full bg-blue-50 group-hover:bg-blue-600 group-hover:text-white flex items-center justify-center transition-colors">
+                                                    <svg
+                                                        class="w-3 h-3 ml-0.5"
+                                                        viewBox="0 0 20 20"
+                                                        fill="currentColor"
+                                                        aria-hidden="true"
+                                                    >
+                                                        <path d={playPath} />
+                                                    </svg>
+                                                </span>
+                                                Chơi thử
+                                            </span>
+                                        </span>
+                                    </button>
+                                </li>
+                            ))
+                        }
+                    </ul>
+                </div>
+
+                <!-- Khung chơi thử (chỉ hiện trên màn hình lớn) -->
+                <div
+                    class="hidden lg:flex lg:flex-col lg:sticky lg:top-[calc(var(--nav-h)+1rem)] lg:h-[calc(100dvh-var(--nav-h)-2rem)] lg:min-h-[520px]"
                 >
-                    <!-- Browser Header -->
-                    <div class="h-12 bg-slate-100 border-b border-slate-200 flex items-center px-4 gap-4">
-                        <div class="flex gap-2">
-                            <div class="w-3 h-3 rounded-full bg-red-400"></div>
-                            <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
-                            <div class="w-3 h-3 rounded-full bg-green-400"></div>
-                        </div>
-                        <div
-                            class="flex-1 bg-white rounded-md h-7 flex items-center px-4 border border-slate-200 shadow-sm overflow-hidden"
-                        >
-                            <span class="text-xs text-slate-400 font-mono truncate current-url-display">
-                                {DATA[0].link}
-                            </span>
-                        </div>
-                        <div class="flex gap-2">
-                            <div class="w-2 h-2 rounded-full bg-slate-300"></div>
-                            <div class="w-2 h-2 rounded-full bg-slate-300"></div>
-                            <div class="w-2 h-2 rounded-full bg-slate-300"></div>
+                    <div class="flex items-center justify-between gap-4 mb-3">
+                        <p class="min-w-0 text-sm text-slate-500 truncate">
+                            Đang chơi:
+                            <strong id="demo-current-name" class="text-slate-900 font-extrabold">{DATA[0].name}</strong>
+                        </p>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <button type="button" id="demo-fullscreen-btn" class="btn btn-sm btn-outline">
+                                <svg
+                                    class="w-4 h-4"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke-width="2"
+                                    stroke="currentColor"
+                                    aria-hidden="true"
+                                >
+                                    <path stroke-linecap="round" stroke-linejoin="round" d={expandPath}></path>
+                                </svg>
+                                Toàn màn hình
+                            </button>
+                            <a
+                                id="demo-open-link"
+                                href={DATA[0].link}
+                                target="_blank"
+                                rel="noopener"
+                                class="btn btn-sm btn-primary"
+                            >
+                                <svg
+                                    class="w-4 h-4"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke-width="2"
+                                    stroke="currentColor"
+                                    aria-hidden="true"
+                                >
+                                    <path stroke-linecap="round" stroke-linejoin="round" d={externalPath}></path>
+                                </svg>
+                                Mở tab mới
+                            </a>
                         </div>
                     </div>
 
-                    <!-- Loading Spinner Overlay -->
                     <div
-                        id="iframe-loader"
-                        class="absolute inset-0 top-12 bg-white flex items-center justify-center z-10 hidden"
+                        class="flex-1 min-h-0 flex flex-col bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-[0_24px_60px_-24px_rgba(15,23,42,0.35)]"
                     >
-                        <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent">
+                        <!-- Thanh địa chỉ mô phỏng -->
+                        <div class="h-11 shrink-0 bg-slate-100 border-b border-slate-200 flex items-center px-4 gap-3">
+                            <div class="flex gap-1.5" aria-hidden="true">
+                                <span class="w-3 h-3 rounded-full bg-rose-400"></span>
+                                <span class="w-3 h-3 rounded-full bg-amber-400"></span>
+                                <span class="w-3 h-3 rounded-full bg-emerald-400"></span>
+                            </div>
+                            <div
+                                class="flex-1 min-w-0 bg-white rounded-lg h-7 flex items-center px-3 border border-slate-200 overflow-hidden text-xs font-mono"
+                            >
+                                <span class="text-slate-500 shrink-0">error404-labs.info.vn</span>
+                                <span class="text-slate-400 truncate current-url-display">{DATA[0].link}</span>
+                            </div>
+                        </div>
+
+                        <div class="relative flex-1 min-h-0">
+                            <!-- Lớp chờ tải (script bật/tắt class 'hidden') -->
+                            <div id="iframe-loader" class="absolute inset-0 z-10 bg-white hidden">
+                                <div class="w-full h-full flex flex-col items-center justify-center gap-3">
+                                    <div
+                                        class="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"
+                                    >
+                                    </div>
+                                    <p class="text-sm font-semibold text-slate-500">Đang tải trò chơi…</p>
+                                </div>
+                            </div>
+
+                            <!-- src được gán bằng script khi màn hình đủ rộng (mobile mở demo ở tab mới) -->
+                            <iframe
+                                data-src={DATA[0].link}
+                                frameborder="0"
+                                class="absolute inset-0 w-full h-full bg-slate-50"
+                                allow="fullscreen; autoplay"
+                                allowfullscreen
+                                title="Khung chơi thử sản phẩm"
+                                id="demo-iframe"></iframe>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-                    <iframe
-                        src={DATA[0].link}
-                        frameborder="0"
-                        class="flex-1 w-full bg-slate-50"
-                        allow="fullscreen; autoplay"
-                        title="Experiment Preview"
-                        id="demo-iframe"
-                    >
-                    </iframe>
-                </main>
+    <!-- ── KÊU GỌI THAM GIA LỚP ─────────────────────────────────────── -->
+    <section class="bg-white py-14 md:py-20" aria-labelledby="lop-hoc-title">
+        <div class="container-site">
+            <div
+                class="relative overflow-hidden rounded-3xl bg-navy-950 text-white px-6 py-10 sm:px-10 md:px-14 md:py-14"
+            >
+                <div class="absolute inset-0 bg-grid-dark opacity-60 pointer-events-none" aria-hidden="true"></div>
+                <div
+                    class="absolute -top-32 -right-20 w-[420px] h-[420px] rounded-full bg-blue-600/30 blur-[120px] pointer-events-none"
+                    aria-hidden="true"
+                >
+                </div>
+
+                <div class="relative grid md:grid-cols-[minmax(0,1fr)_auto] gap-8 md:gap-12 items-center">
+                    <div>
+                        <span class="chip bg-white/10 border-white/15 text-sun-400 mb-4">🎮 Lớp Web &amp; Game</span>
+                        <h2 id="lop-hoc-title" class="text-2xl md:text-4xl font-extrabold tracking-tight mb-3">
+                            Muốn tự tay làm game như thế này?
+                        </h2>
+                        <p class="text-slate-300 text-base md:text-lg leading-relaxed max-w-2xl mb-6">
+                            Tham gia lớp <strong class="text-white">Tư duy sáng tạo qua lập trình Web &amp; Game</strong
+                            >: học HTML, CSS &amp; JavaScript qua dự án thực tế, tự tay xây dựng Website &amp; Game từ
+                            con số 0.
+                        </p>
+                        <ul class="flex flex-col sm:flex-row sm:flex-wrap gap-x-6 gap-y-2 text-sm text-slate-300">
+                            {
+                                [
+                                    'Offline 3 - 5 học sinh / lớp (kèm sát)',
+                                    'Online 1 kèm 1 trực tiếp',
+                                    '2 buổi / tuần',
+                                ].map((text) => (
+                                    <li class="flex items-center gap-2">
+                                        <svg
+                                            class="w-4 h-4 text-emerald-400 shrink-0"
+                                            viewBox="0 0 20 20"
+                                            fill="currentColor"
+                                            aria-hidden="true"
+                                        >
+                                            <path fill-rule="evenodd" d={checkPath} clip-rule="evenodd" />
+                                        </svg>
+                                        {text}
+                                    </li>
+                                ))
+                            }
+                        </ul>
+                    </div>
+                    <div class="flex flex-col sm:flex-row md:flex-col gap-3">
+                        <a href="/khoa-hoc" class="btn btn-sun btn-lg">
+                            Tham gia lớp Web &amp; Game
+                            <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d={arrowPath} clip-rule="evenodd"></path>
+                            </svg>
+                        </a>
+                        <a href={ZALO_URL} target="_blank" rel="noopener" class="btn btn-ghost-light btn-lg">
+                            Nhắn Zalo tư vấn
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -106,74 +424,116 @@ import { DATA_DEMO as DATA } from '../data/dataTestDemo.js'
     const cards = document.querySelectorAll('.demo-card')
     const urlDisplay = document.querySelector('.current-url-display')
     const loader = document.getElementById('iframe-loader')
+    const openLink = document.getElementById('demo-open-link')
+    const currentName = document.getElementById('demo-current-name')
+    const fullscreenBtn = document.getElementById('demo-fullscreen-btn')
+    const desktopQuery = window.matchMedia('(min-width: 1024px)')
 
     cards.forEach((card) => {
         card.addEventListener('click', (e) => {
             const link = card.dataset.link
 
-            if (e.ctrlKey || e.metaKey) {
+            // Ctrl/⌘ + Click, hoặc màn hình nhỏ (không có khung chơi thử) → mở tab mới
+            if (e.ctrlKey || e.metaKey || !desktopQuery.matches) {
                 window.open(link, '_blank')
                 return
             }
 
-            // Show loader
+            // Hiện lớp chờ tải
             loader.classList.remove('hidden')
 
-            // Update Active State
+            // Cập nhật trạng thái đang chọn
             cards.forEach((c) => {
-                c.classList.remove('ring-2', 'ring-blue-500', 'active-card')
+                c.classList.remove('lg:ring-2', 'lg:ring-blue-500', 'active-card')
+                c.setAttribute('aria-pressed', 'false')
                 c.style.transform = ''
             })
-            card.classList.add('ring-2', 'ring-blue-500', 'active-card')
+            card.classList.add('lg:ring-2', 'lg:ring-blue-500', 'active-card')
+            card.setAttribute('aria-pressed', 'true')
 
-            // Update Iframe & UI
+            // Cập nhật iframe & giao diện
             iframe.src = link
             urlDisplay.textContent = link
+            if (openLink) openLink.href = link
+            if (currentName) currentName.textContent = card.dataset.name || ''
 
-            // Wait for load to hide loader
+            // Chờ tải xong thì ẩn lớp chờ
             iframe.onload = () => {
                 loader.classList.add('hidden')
             }
         })
     })
 
-    // Auto-hide loader even if iframe doesn't fire onload (some external links might block)
+    // Ẩn lớp chờ khi iframe tải xong (kể cả khi trang demo chặn sự kiện khác)
     iframe.onload = () => {
         loader.classList.add('hidden')
     }
+
+    // Liên kết sâu: /thu-nghiem?demo=<tên sản phẩm> → mở / đưa đúng thẻ đó vào tầm nhìn
+    function openDeepLinkedDemo() {
+        let wanted = ''
+        try {
+            wanted = new URLSearchParams(window.location.search).get('demo') || ''
+        } catch (err) {
+            return
+        }
+        if (!wanted) return
+        const target = Array.from(cards).find((c) => c.dataset.name === wanted)
+        if (!target) return
+        if (desktopQuery.matches) {
+            // Màn hình lớn: chọn thẻ → nạp vào khung chơi thử
+            target.click()
+        } else {
+            // Màn hình nhỏ: không tự mở tab mới (trình duyệt sẽ chặn), chỉ cuộn tới và làm nổi bật thẻ
+            target.classList.add('ring-2', 'ring-blue-500')
+        }
+        target.scrollIntoView({ block: 'center' })
+    }
+    openDeepLinkedDemo()
+
+    // Chỉ nhúng demo đầu tiên khi màn hình đủ rộng — trên mobile không tải ngầm game
+    function loadInitialDemo() {
+        if (!desktopQuery.matches || iframe.getAttribute('src')) return
+        loader.classList.remove('hidden')
+        iframe.src = iframe.dataset.src
+    }
+    loadInitialDemo()
+    if (desktopQuery.addEventListener) desktopQuery.addEventListener('change', loadInitialDemo)
+
+    // Xem khung chơi thử toàn màn hình
+    if (fullscreenBtn) {
+        fullscreenBtn.addEventListener('click', () => {
+            if (iframe.requestFullscreen) iframe.requestFullscreen()
+            else if (iframe.webkitRequestFullscreen) iframe.webkitRequestFullscreen()
+        })
+    }
+
+    // Bộ lọc Tất cả / Game / Web
+    const filterButtons = document.querySelectorAll('[data-filter]')
+    const demoItems = document.querySelectorAll('#demo-grid > li[data-kind]')
+    filterButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const filter = btn.dataset.filter
+            filterButtons.forEach((b) => b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'))
+            demoItems.forEach((item) => {
+                item.hidden = filter !== 'all' && item.dataset.kind !== filter
+            })
+        })
+    })
 </script>
 
 <style>
-    .custom-scrollbar::-webkit-scrollbar {
-        width: 6px;
+    /* Nhãn "Đang chơi" chỉ hiện trên thẻ đang mở ở khung chơi thử (màn hình lớn) */
+    .now-playing {
+        display: none;
     }
-    .custom-scrollbar::-webkit-scrollbar-track {
-        background: transparent;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 10px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8;
-    }
-
-    .demo-list-container {
-        /* Đảm bảo container không bị dãn quá mức, sử dụng flex để thẻ con không bị bóp */
-        flex-basis: 0;
-        min-height: 0;
-        mask-image: linear-gradient(to bottom, black calc(100% - 40px), transparent);
-    }
-
-    .text-gradient {
-        background: linear-gradient(to right, #1e293b, #3b82f6);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    .active-card {
-        background-color: #f1f5f9;
-        border-color: #3b82f6;
-        box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.2);
+    /* Viền nổi bật thẻ đang chơi — chỉ có ý nghĩa khi có khung chơi thử (màn hình lớn) */
+    @media (min-width: 1024px) {
+        .active-card .now-playing {
+            display: inline-flex;
+        }
+        .active-card {
+            border-color: #3b82f6;
+        }
     }
 </style>

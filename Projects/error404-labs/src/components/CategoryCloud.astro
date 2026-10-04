@@ -1,9 +1,23 @@
 ---
-import { formatBlogPost, slugify } from '../js/utils'
+import { formatBlogPost, slugify, countPostsByCategory } from '../js/utils'
+import { getCategoryMeta } from '../data/categoryMeta'
 
-const allPosts = Object.values(
-    import.meta.glob<any>('../pages/bai-viet/*.md', { eager: true }),
-)
+interface Props {
+    /** true (mặc định): căn trái; false: căn giữa cả tiêu đề lẫn các chip */
+    styleLeft?: boolean
+    /** Hiện số bài viết của từng danh mục */
+    showCount?: boolean
+    /** Hiển thị một hàng chip cuộn ngang (đầu trang danh sách) thay vì xuống dòng */
+    scroll?: boolean
+    /** Thêm chip "Tất cả" trỏ về /bai-viet */
+    showAll?: boolean
+    /** Danh mục đang xem (giá trị category gốc, hoặc 'all' cho chip "Tất cả") */
+    active?: string
+    /** Tiêu đề phía trên danh sách; truyền chuỗi rỗng để ẩn */
+    heading?: string
+}
+
+const allPosts = Object.values(import.meta.glob<any>('../pages/bai-viet/*.md', { eager: true }))
 
 const formattedPosts: any[] = formatBlogPost(allPosts, {
     limit: allPosts.length,
@@ -11,37 +25,111 @@ const formattedPosts: any[] = formatBlogPost(allPosts, {
     sortByDate: true,
 })
 
-const allCategories = [
-    ...new Set(formattedPosts.map((p) => p.frontmatter.category).flat()),
-]
+// Thứ tự chip: danh mục có bài mới nhất đứng trước
+const counts = countPostsByCategory(formattedPosts).map((item) => ({
+    ...item,
+    meta: getCategoryMeta(item.name),
+    href: `/danh-muc/${slugify(item.name)}`,
+}))
 
-const counts = allCategories.map((category) => {
-    const count = formattedPosts.filter(
-        (post) =>
-            post.frontmatter.category.toLowerCase() === category.toLowerCase(),
-    ).length
-    return { name: category, count }
-})
+const {
+    styleLeft = true,
+    showCount = false,
+    scroll = false,
+    showAll = false,
+    active,
+    heading = 'Danh mục',
+} = Astro.props as Props
 
-const { styleLeft = !false, showCount } = Astro.props
+const isActive = (name: string) => !!active && active.toLowerCase() === name.toLowerCase()
 
-// console.log('counts: ', counts)
+const chipBase =
+    'group relative inline-flex items-center gap-2 min-h-10 pl-3 pr-3.5 rounded-full border text-sm font-semibold whitespace-nowrap no-underline transition-colors'
+const chipIdle = 'bg-white border-slate-200 text-slate-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700'
+const chipActive = 'bg-navy-950 border-navy-950 text-white shadow-sm'
+const countBase = 'inline-flex items-center justify-center min-w-6 h-6 px-1.5 rounded-full text-xs font-bold'
+const countIdle = 'bg-slate-100 text-slate-500 group-hover:bg-blue-100 group-hover:text-blue-700'
+const countActive = 'bg-white/15 text-white'
+// Hàng cuộn ngang trên màn hình rộng: chip gọn hơn để vừa một hàng
+const chipCompact = scroll ? 'lg:min-h-9 lg:gap-1.5 lg:pl-2 lg:pr-2.5 lg:text-[13px]' : ''
+const iconCompact = scroll ? 'lg:text-sm' : ''
+const countCompact = scroll ? 'lg:min-w-5 lg:h-5 lg:text-[11px]' : ''
 ---
 
-<div class={!styleLeft ? 'text-center' : 'text-left'}>
-    <h3 class="text-xl font-semibold mb-2">Danh Mục</h3>
+<div class:list={[styleLeft ? 'text-left' : 'text-center', scroll && 'min-w-0']} data-category-cloud>
+    {heading && <h3 class="text-base font-extrabold text-slate-900 mb-3">{heading}</h3>}
 
-    <ul class="flex gap-3 flex-wrap">
+    <ul
+        class:list={[
+            'flex gap-2',
+            scroll
+                ? "lg:gap-1.5 overflow-x-auto overscroll-x-contain -mx-4 px-4 sm:-mx-6 sm:px-6 py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [mask-image:linear-gradient(to_right,transparent,#000_16px,#000_calc(100%-24px),transparent)] after:content-[''] after:shrink-0 after:w-px"
+                : 'flex-wrap',
+            !scroll && !styleLeft && 'justify-center',
+        ]}
+        data-category-scroll={scroll ? '' : undefined}
+    >
+        {
+            showAll && (
+                <li class="shrink-0">
+                    <a
+                        href="/bai-viet"
+                        aria-current={active === 'all' ? 'page' : undefined}
+                        class:list={[chipBase, chipCompact, active === 'all' ? chipActive : chipIdle]}
+                    >
+                        <span aria-hidden="true" class:list={['text-base leading-none', iconCompact]}>
+                            📚
+                        </span>
+                        Tất cả
+                        {showCount && (
+                            <span class:list={[countBase, countCompact, active === 'all' ? countActive : countIdle]}>
+                                {formattedPosts.length}
+                                <span class="sr-only">bài viết</span>
+                            </span>
+                        )}
+                    </a>
+                </li>
+            )
+        }
         {
             counts.map((category) => (
-                <li>
-                    <a href={`/danh-muc/${slugify(category.name)}`}>
-                        <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 inset-ring inset-ring-blue-700/10">
-                            {category.name} {showCount && `(${category.count})`}
+                <li class="shrink-0">
+                    <a
+                        href={category.href}
+                        title={category.meta.description}
+                        aria-current={isActive(category.name) ? 'page' : undefined}
+                        class:list={[chipBase, chipCompact, isActive(category.name) ? chipActive : chipIdle]}
+                    >
+                        <span aria-hidden="true" class:list={['text-base leading-none', iconCompact]}>
+                            {category.meta.icon}
                         </span>
+                        {category.meta.label}
+                        {showCount && (
+                            <span
+                                class:list={[
+                                    countBase,
+                                    countCompact,
+                                    isActive(category.name) ? countActive : countIdle,
+                                ]}
+                            >
+                                {category.count}
+                                <span class="sr-only">bài viết</span>
+                            </span>
+                        )}
                     </a>
                 </li>
             ))
         }
     </ul>
 </div>
+
+<script>
+    // Hàng chip cuộn ngang: tự cuộn để chip đang chọn nằm trong tầm nhìn (hữu ích trên điện thoại)
+    document.querySelectorAll<HTMLElement>('[data-category-scroll]').forEach((list) => {
+        const current = list.querySelector<HTMLElement>('[aria-current="page"]')
+        if (!current || list.scrollWidth <= list.clientWidth) return
+        const listRect = list.getBoundingClientRect()
+        const rect = current.getBoundingClientRect()
+        list.scrollLeft += rect.left - listRect.left - (listRect.width - rect.width) / 2
+    })
+</script>

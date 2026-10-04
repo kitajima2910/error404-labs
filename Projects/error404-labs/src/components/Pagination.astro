@@ -1,41 +1,164 @@
 ---
-import IconPrevious from '../icons/IconPrevious.astro'
-import IconNext from '../icons/IconNext.astro'
-import Link from './Link.astro'
+interface Props {
+    /** URL trang trước (không có → nút "Trước" bị mờ) */
+    prevURL?: string
+    /** URL trang sau (không có → nút "Sau" bị mờ) */
+    nextURL?: string
+    /** Trang hiện tại (bắt đầu từ 1) — truyền cùng lastPage + baseUrl để hiện dải số trang */
+    currentPage?: number
+    /** Tổng số trang */
+    lastPage?: number
+    /** URL trang 1; các trang sau là `${baseUrl}/${n}` (vd: '/bai-viet' → '/bai-viet/2') */
+    baseUrl?: string
+}
 
-const { prevURL, nextURL } = Astro.props
+const { prevURL, nextURL, currentPage, lastPage, baseUrl } = Astro.props as Props
+
+const hasNumbers = !!currentPage && !!lastPage && lastPage > 1 && typeof baseUrl === 'string'
+
+const pageUrl = (n: number) => (n <= 1 ? baseUrl || '/' : `${baseUrl}/${n}`)
+
+// Dải số trang rút gọn: luôn có trang đầu, trang cuối và `siblings` trang quanh trang hiện tại.
+// Khoảng trống chỉ thiếu đúng 1 trang thì hiện luôn số trang đó thay cho dấu "…".
+const buildRange = (current: number, last: number, siblings: number) => {
+    const pages = new Set<number>()
+    pages.add(1)
+    pages.add(last)
+    for (let i = current - siblings; i <= current + siblings; i++) {
+        if (i >= 1 && i <= last) pages.add(i)
+    }
+    const sorted = Array.from(pages).sort((a, b) => a - b)
+    const items: (number | 'gap')[] = []
+    sorted.forEach((n, index) => {
+        const before = sorted[index - 1]
+        if (before !== undefined && n - before === 2) items.push(before + 1)
+        else if (before !== undefined && n - before > 2) items.push('gap')
+        items.push(n)
+    })
+    return items
+}
+
+const desktopItems = hasNumbers ? buildRange(currentPage!, lastPage!, 1) : []
+// Điện thoại: chỉ trang hiện tại (thêm 1 trang kề khi đang ở trang đầu/cuối) để vừa một hàng
+const mobileSiblings = currentPage === 1 || currentPage === lastPage ? 1 : 0
+const mobileItems = hasNumbers ? buildRange(currentPage!, lastPage!, mobileSiblings) : []
+
+const arrowBase =
+    'inline-flex items-center justify-center gap-2 h-10 min-w-10 rounded-xl border text-sm font-bold no-underline transition-colors'
+const arrowIdle = 'bg-white border-slate-200 text-slate-700 hover:border-blue-300 hover:text-blue-700 hover:bg-blue-50'
+const arrowDisabled = 'bg-slate-50 border-slate-200 text-slate-300 cursor-not-allowed'
+const numBase =
+    'inline-flex items-center justify-center h-10 min-w-10 px-2 rounded-xl border text-sm font-bold no-underline transition-colors'
+const numIdle = 'bg-white border-slate-200 text-slate-600 hover:border-blue-300 hover:text-blue-700 hover:bg-blue-50'
+const numCurrent = 'bg-blue-600 border-blue-600 text-white shadow-[0_8px_20px_-8px_rgba(37,99,235,0.7)]'
+// Nút mũi tên: chỉ hiện chữ trên màn hình rộng khi có dải số; luôn hiện chữ khi không có dải số
+const arrowPad = hasNumbers ? 'px-2.5 sm:px-4' : 'px-4'
+const arrowText = hasNumbers ? 'hidden sm:inline' : ''
 ---
 
-<nav arial-label="Pagination" class="flex gap-5">
+<nav aria-label="Phân trang" class="flex items-center justify-center gap-1.5 sm:gap-2">
     {
-        prevURL && (
-            <Link
-                href={prevURL}
-                text="Trang Trước"
-                style="primary"
-                isFilled={false}
-                borderVisible={true}
-                icon={{
-                    component: IconPrevious,
-                    side: 'left',
-                }}
-            />
+        prevURL ? (
+            <a href={prevURL} rel="prev" aria-label="Trang trước" class:list={[arrowBase, arrowPad, arrowIdle]}>
+                <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path
+                        fill-rule="evenodd"
+                        d="M11.78 5.22a.75.75 0 0 1 0 1.06L8.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06l-4.25-4.25a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z"
+                        clip-rule="evenodd"
+                    />
+                </svg>
+                <span class={arrowText}>Trước</span>
+            </a>
+        ) : (
+            hasNumbers && (
+                <span aria-hidden="true" class:list={[arrowBase, arrowPad, arrowDisabled]}>
+                    <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path
+                            fill-rule="evenodd"
+                            d="M11.78 5.22a.75.75 0 0 1 0 1.06L8.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06l-4.25-4.25a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z"
+                            clip-rule="evenodd"
+                        />
+                    </svg>
+                    <span class={arrowText}>Trước</span>
+                </span>
+            )
         )
     }
 
     {
-        nextURL && (
-            <Link
-                href={nextURL}
-                text="Trang Sau"
-                style="primary"
-                isFilled={false}
-                borderVisible={true}
-                icon={{
-                    component: IconNext,
-                    side: 'right',
-                }}
-            />
+        hasNumbers && (
+            <>
+                {/* Màn hình rộng: trang đầu, cuối và 1 trang mỗi bên trang hiện tại */}
+                <ol class="hidden sm:flex items-center gap-1.5">
+                    {desktopItems.map((item) =>
+                        item === 'gap' ? (
+                            <li aria-hidden="true" class="w-6 text-center text-slate-400 font-bold">
+                                …
+                            </li>
+                        ) : (
+                            <li>
+                                <a
+                                    href={pageUrl(item)}
+                                    aria-label={`Trang ${item}`}
+                                    aria-current={item === currentPage ? 'page' : undefined}
+                                    class:list={[numBase, item === currentPage ? numCurrent : numIdle]}
+                                >
+                                    {item}
+                                </a>
+                            </li>
+                        ),
+                    )}
+                </ol>
+                {/* Điện thoại: rút gọn còn trang đầu, trang hiện tại, trang cuối */}
+                <ol class="flex sm:hidden items-center gap-1.5">
+                    {mobileItems.map((item) =>
+                        item === 'gap' ? (
+                            <li aria-hidden="true" class="w-5 text-center text-slate-400 font-bold">
+                                …
+                            </li>
+                        ) : (
+                            <li>
+                                <a
+                                    href={pageUrl(item)}
+                                    aria-label={`Trang ${item}`}
+                                    aria-current={item === currentPage ? 'page' : undefined}
+                                    class:list={[numBase, item === currentPage ? numCurrent : numIdle]}
+                                >
+                                    {item}
+                                </a>
+                            </li>
+                        ),
+                    )}
+                </ol>
+            </>
+        )
+    }
+
+    {
+        nextURL ? (
+            <a href={nextURL} rel="next" aria-label="Trang sau" class:list={[arrowBase, arrowPad, arrowIdle]}>
+                <span class={arrowText}>Sau</span>
+                <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path
+                        fill-rule="evenodd"
+                        d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z"
+                        clip-rule="evenodd"
+                    />
+                </svg>
+            </a>
+        ) : (
+            hasNumbers && (
+                <span aria-hidden="true" class:list={[arrowBase, arrowPad, arrowDisabled]}>
+                    <span class={arrowText}>Sau</span>
+                    <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path
+                            fill-rule="evenodd"
+                            d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z"
+                            clip-rule="evenodd"
+                        />
+                    </svg>
+                </span>
+            )
         )
     }
 </nav>
