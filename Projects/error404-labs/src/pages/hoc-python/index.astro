@@ -1,111 +1,509 @@
 ---
 import MainLayout from '../../layouts/MainLayout.astro'
+import PyNav from '../../components/python/PyNav.astro'
+import IconPython from '../../icons/IconPython.astro'
 import { TC_TITLE } from '../../common/TextConst'
 
 export const prerender = true
+
+const steps = [
+    {
+        title: 'Đọc lý thuyết',
+        desc: 'Bài giảng ngắn gọn, ví dụ minh họa rõ ràng, có câu hỏi trắc nghiệm kiểm tra nhanh.',
+    },
+    {
+        title: 'Viết & chạy code',
+        desc: 'Code Python ngay trên trình duyệt, xem kết quả tức thì — không cần cài đặt gì.',
+    },
+    {
+        title: 'Nộp bài, nhận XP',
+        desc: 'Hệ thống chấm bằng test case (kể cả test ẩn), cộng XP và mở khóa thành tích.',
+    },
+]
+
+const roadmap = [
+    {
+        level: 'Cơ bản',
+        title: 'Nền tảng Python',
+        color: 'from-emerald-500 to-teal-600',
+        chip: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+        topics: [
+            'Biến & kiểu dữ liệu',
+            'Nhập / xuất dữ liệu',
+            'Câu lệnh điều kiện',
+            'Vòng lặp for, while',
+        ],
+    },
+    {
+        level: 'Trung cấp',
+        title: 'Tư duy giải bài',
+        color: 'from-amber-500 to-orange-600',
+        chip: 'bg-amber-50 text-amber-700 border-amber-200',
+        topics: [
+            'Hàm & module',
+            'List, dict, set',
+            'Xử lý chuỗi',
+            'Xử lý lỗi (try / except)',
+        ],
+    },
+    {
+        level: 'Nâng cao',
+        title: 'Luyện thi Tin học trẻ',
+        color: 'from-rose-500 to-red-600',
+        chip: 'bg-rose-50 text-rose-700 border-rose-200',
+        topics: [
+            'Sắp xếp & tìm kiếm',
+            'Đệ quy, số học',
+            'Hai con trỏ, mảng cộng dồn',
+            'Luyện đề Bảng B & C',
+        ],
+    },
+]
+
+const features = [
+    {
+        title: 'Trình soạn thảo chuyên nghiệp',
+        desc: 'Tô màu cú pháp, tự thụt lề, gợi ý đóng ngoặc, phím tắt Ctrl + Enter để chạy.',
+        icon: 'M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5',
+    },
+    {
+        title: 'Chấm điểm tự động',
+        desc: 'Mỗi bài có bộ test case công khai và ẩn, so sánh output chính xác như đề thi thật.',
+        icon: 'M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z',
+    },
+    {
+        title: 'Input tùy chỉnh',
+        desc: 'Tự nhập dữ liệu để thử nghiệm, xem chi tiết output mong muốn và output của bạn.',
+        icon: 'M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0 0 21 18V6a2.25 2.25 0 0 0-2.25-2.25H5.25A2.25 2.25 0 0 0 3 6v12a2.25 2.25 0 0 0 2.25 2.25Z',
+    },
+    {
+        title: 'Lộ trình theo chương',
+        desc: 'Bài học sắp xếp từ dễ đến khó, mở khóa dần theo tiến độ để học chắc từng bước.',
+        icon: 'M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z',
+    },
+    {
+        title: 'XP, Level & Streak',
+        desc: 'Tích điểm kinh nghiệm, lên cấp, giữ chuỗi ngày học liên tiếp để có động lực mỗi ngày.',
+        icon: 'M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z M12 18a3.75 3.75 0 0 0 .495-7.468 5.99 5.99 0 0 0-1.925 3.547 5.975 5.975 0 0 1-2.133-1.001A3.75 3.75 0 0 0 12 18Z',
+    },
+    {
+        title: 'Bảng xếp hạng',
+        desc: 'So tài cùng các bạn học khác, săn huy hiệu thành tích và leo top mỗi tuần.',
+        icon: 'M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 0 0 2.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 0 1 2.916.52 6.003 6.003 0 0 1-5.395 4.972m0 0a6.726 6.726 0 0 1-2.749 1.35m0 0a6.772 6.772 0 0 1-3.044 0',
+    },
+]
 ---
 
-<MainLayout title={`Học Python 3 | ${TC_TITLE}`}>
-    <section class="min-h-screen bg-gradient-to-b from-slate-50 to-white relative overflow-hidden">
-        <!-- Decorative blobs -->
-        <div class="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden z-0">
-            <div class="absolute -top-[15%] -right-[10%] w-[45%] h-[45%] bg-[#3776AB]/5 rounded-full blur-[120px]"></div>
-            <div class="absolute -bottom-[15%] -left-[10%] w-[45%] h-[45%] bg-[#FFD43B]/10 rounded-full blur-[120px]"></div>
+<MainLayout
+    title={`Học Python 3 | ${TC_TITLE}`}
+    description="Học lập trình Python 3 miễn phí, code và chấm bài tự động ngay trên trình duyệt. Luyện thi Tin học trẻ Bảng B (THCS) & Bảng C (THPT)."
+>
+    <PyNav active="home" />
+
+    <!-- ── HERO ─────────────────────────────────────────────────────── -->
+    <section class="relative overflow-hidden bg-[#0B1E33] text-white">
+        <div class="absolute inset-0 py-hero-grid opacity-40 pointer-events-none"></div>
+        <div
+            class="absolute -top-40 -right-32 w-[520px] h-[520px] rounded-full bg-[#3776AB]/40 blur-[140px] pointer-events-none"
+        >
+        </div>
+        <div
+            class="absolute -bottom-48 -left-24 w-[420px] h-[420px] rounded-full bg-[#FFD43B]/15 blur-[140px] pointer-events-none"
+        >
         </div>
 
-        <div class="relative z-10 max-w-6xl mx-auto px-4 pt-16 md:pt-24 pb-16">
-            <!-- Hero -->
-            <div class="text-center mb-16">
-                <div class="inline-flex items-center gap-2 bg-[#3776AB]/10 text-[#3776AB] font-black text-xs md:text-sm px-4 py-2 rounded-full mb-6 uppercase tracking-wider">
-                    <span class="w-2 h-2 rounded-full bg-[#3776AB] animate-pulse"></span>
-                    Python 3 - Tin học trẻ
+        <div
+            class="relative max-w-7xl mx-auto px-4 pt-14 pb-24 md:pt-20 md:pb-32 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center"
+        >
+            <!-- Copy -->
+            <div>
+                <div
+                    class="inline-flex items-center gap-2 bg-white/10 border border-white/15 text-[#FFD43B] text-xs font-bold px-3 py-1.5 rounded-full mb-6 uppercase tracking-wider"
+                >
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#FFD43B] animate-pulse"></span>
+                    Python 3 · Luyện thi Tin học trẻ
                 </div>
 
-                <h1 class="text-4xl md:text-5xl lg:text-7xl font-black text-slate-800 tracking-tight leading-tight mb-6">
-                    Học <span class="text-[#3776AB]">Python 3</span><br />
-                    <span class="text-[#FFD43B] drop-shadow-sm">Luyện thi</span> Tin học trẻ
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.1] tracking-tight mb-6">
+                    Học lập trình
+                    <span class="relative inline-block text-[#FFD43B]">
+                        Python
+                        <svg
+                            class="absolute left-0 -bottom-2 w-full"
+                            viewBox="0 0 200 12"
+                            fill="none"
+                            aria-hidden="true"
+                        >
+                            <path
+                                d="M2 9C50 3 150 3 198 9"
+                                stroke="#FFD43B"
+                                stroke-width="4"
+                                stroke-linecap="round"
+                                opacity=".55"></path>
+                        </svg>
+                    </span>
+                    <br class="hidden sm:block" />
+                    từ con số 0
                 </h1>
 
-                <p class="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto mb-8 leading-relaxed font-medium">
-                    Khóa học Python Cơ Bản từ A-Z, luyện thi <strong>Tin học trẻ Bảng B (THCS)</strong> &amp;
-                    <strong>Bảng C (THPT)</strong>. Học qua dự án thực tế, chấm điểm tự động.
+                <p class="text-base md:text-lg text-slate-300 leading-relaxed max-w-xl mb-8">
+                    Lộ trình bài bản từ cơ bản đến nâng cao, luyện thi <strong class="text-white"
+                        >Tin học trẻ Bảng B (THCS)</strong
+                    >
+                    &amp; <strong class="text-white">Bảng C (THPT)</strong>. Viết code, chạy thử và chấm điểm tự động
+                    ngay trên trình duyệt.
                 </p>
 
+                <div class="flex flex-wrap items-center gap-3 mb-8">
+                    <a
+                        href="/hoc-python/khoa-hoc"
+                        class="inline-flex items-center gap-2 bg-[#FFD43B] hover:bg-[#ffdf6b] text-[#0B1E33] font-extrabold px-6 py-3.5 rounded-xl shadow-[0_10px_30px_rgba(255,212,59,0.25)] hover:-translate-y-0.5 transition-all no-underline"
+                    >
+                        Bắt đầu học miễn phí
+                        <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path
+                                fill-rule="evenodd"
+                                d="M3 10a.75.75 0 0 1 .75-.75h10.638L10.23 5.29a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.158-3.96H3.75A.75.75 0 0 1 3 10Z"
+                                clip-rule="evenodd"></path>
+                        </svg>
+                    </a>
+                    <a
+                        href="#lo-trinh"
+                        class="inline-flex items-center gap-2 border border-white/25 hover:border-white/60 hover:bg-white/5 text-white font-bold px-6 py-3.5 rounded-xl transition-all no-underline"
+                    >
+                        Xem lộ trình
+                    </a>
+                </div>
+
+                <ul class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-300">
+                    {
+                        ['Miễn phí 100%', 'Không cần cài đặt', 'Chấm bài tức thì'].map((t) => (
+                            <li class="flex items-center gap-2">
+                                <svg
+                                    class="w-4 h-4 text-emerald-400"
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        fill-rule="evenodd"
+                                        d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z"
+                                        clip-rule="evenodd"
+                                    />
+                                </svg>
+                                {t}
+                            </li>
+                        ))
+                    }
+                </ul>
+            </div>
+
+            <!-- IDE mockup -->
+            <div class="relative">
+                <div
+                    class="rounded-2xl bg-[#282c34] border border-white/10 shadow-[0_30px_80px_rgba(0,0,0,0.5)] overflow-hidden"
+                >
+                    <div class="flex items-center gap-2 px-4 py-3 bg-[#21252b] border-b border-black/30">
+                        <span class="w-3 h-3 rounded-full bg-[#ff5f57]"></span>
+                        <span class="w-3 h-3 rounded-full bg-[#febc2e]"></span>
+                        <span class="w-3 h-3 rounded-full bg-[#28c840]"></span>
+                        <span
+                            class="ml-3 inline-flex items-center gap-1.5 text-xs font-mono text-slate-300 bg-[#282c34] px-3 py-1 rounded-md"
+                        >
+                            <IconPython class="w-3.5 h-3.5 text-[#FFD43B]" /> main.py
+                        </span>
+                        <span class="ml-auto text-[11px] font-bold text-[#0B1E33] bg-[#98c379] px-2.5 py-1 rounded-md"
+                            >▶ Chạy thử</span
+                        >
+                    </div>
+                    <pre
+                        class="m-0 px-0 py-4 text-[13px] sm:text-sm leading-7 font-mono text-[#abb2bf] overflow-x-auto"><code><span class="py-ln">1</span><span class="text-[#7f848e] italic"># Tổng các số chẵn từ 1 đến n</span>
+<span class="py-ln">2</span>n <span class="text-[#56b6c2]">=</span> <span class="text-[#61afef]">int</span>(<span class="text-[#61afef]">input</span>())
+<span class="py-ln">3</span>tong <span class="text-[#56b6c2]">=</span> <span class="text-[#d19a66]">0</span>
+<span class="py-ln">4</span><span class="text-[#c678dd]">for</span> i <span class="text-[#c678dd]">in</span> <span class="text-[#61afef]">range</span>(<span class="text-[#d19a66]">1</span>, n <span class="text-[#56b6c2]">+</span> <span class="text-[#d19a66]">1</span>):
+<span class="py-ln">5</span>    <span class="text-[#c678dd]">if</span> i <span class="text-[#56b6c2]">%</span> <span class="text-[#d19a66]">2</span> <span class="text-[#56b6c2]">==</span> <span class="text-[#d19a66]">0</span>:
+<span class="py-ln">6</span>        tong <span class="text-[#56b6c2]">+=</span> i
+<span class="py-ln">7</span><span class="text-[#61afef]">print</span>(<span class="text-[#98c379]">f"Tổng = {'{'}tong{'}'}"</span>)<span class="py-caret" /></code></pre>
+                    <div class="border-t border-black/30 bg-[#21252b] px-4 py-3">
+                        <div class="flex items-center gap-4 text-[11px] font-bold uppercase tracking-wider mb-2">
+                            <span class="text-white border-b-2 border-[#98c379] pb-1">Test case</span>
+                            <span class="text-slate-500 pb-1">Console</span>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            {
+                                ['Test 1', 'Test 2', 'Test 3 (ẩn)'].map((t) => (
+                                    <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-[#98c379] bg-[#98c379]/10 border border-[#98c379]/20 px-2.5 py-1 rounded-md">
+                                        ✓ {t}
+                                    </span>
+                                ))
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Floating badges -->
+                <div
+                    class="hidden sm:flex absolute -left-6 -bottom-14 items-center gap-3 bg-white text-slate-800 rounded-xl shadow-xl px-4 py-3 py-float"
+                >
+                    <span class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                        <svg class="w-6 h-6" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path
+                                fill-rule="evenodd"
+                                d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z"
+                                clip-rule="evenodd"></path>
+                        </svg>
+                    </span>
+                    <div>
+                        <p class="text-sm font-extrabold leading-tight">Chính xác 3/3 test</p>
+                        <p class="text-xs text-slate-500">Bài đã được chấm tự động</p>
+                    </div>
+                </div>
+                <div
+                    class="hidden sm:flex absolute -right-5 top-[42%] items-center gap-2 bg-[#FFD43B] text-[#0B1E33] rounded-xl shadow-xl px-4 py-2.5 font-extrabold text-sm py-float [animation-delay:1.2s]"
+                >
+                    ⚡ +20 XP
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── HIGHLIGHTS ───────────────────────────────────────────────── -->
+    <section class="relative z-10 -mt-12 px-4">
+        <div
+            class="max-w-6xl mx-auto bg-white rounded-2xl shadow-[0_20px_50px_rgba(15,23,42,0.08)] border border-slate-200 grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-slate-100"
+        >
+            {
+                [
+                    ['Python 3', 'Chạy thật bằng Pyodide'],
+                    ['0đ', 'Học phí trọn đời'],
+                    ['Test ẩn', 'Chấm như đề thi thật'],
+                    ['24/7', 'Học mọi lúc, mọi nơi'],
+                ].map(([value, label]) => (
+                    <div class="p-5 md:p-7 text-center">
+                        <p class="text-2xl md:text-3xl font-extrabold text-[#3776AB] tracking-tight">{value}</p>
+                        <p class="text-xs md:text-sm text-slate-500 mt-1 font-medium">{label}</p>
+                    </div>
+                ))
+            }
+        </div>
+    </section>
+
+    <!-- ── HOW IT WORKS ─────────────────────────────────────────────── -->
+    <section class="bg-white py-20 md:py-24 px-4">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center max-w-2xl mx-auto mb-14">
+                <p class="text-sm font-bold text-[#3776AB] uppercase tracking-wider mb-3">Cách học</p>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+                    Học — Code — Chấm điểm
+                </h2>
+                <p class="text-slate-500 mt-4 leading-relaxed">
+                    Mỗi bài học là một vòng lặp ngắn giúp bạn hiểu lý thuyết và luyện tay ngay lập tức.
+                </p>
+            </div>
+
+            <div class="relative">
+                <div
+                    class="hidden md:block absolute top-7 left-[16%] right-[16%] h-0.5 bg-gradient-to-r from-[#3776AB]/20 via-[#3776AB]/40 to-[#3776AB]/20"
+                >
+                </div>
+                <ol class="relative grid md:grid-cols-3 gap-6 md:gap-8">
+                    {
+                        steps.map((step, i) => (
+                            <li class="relative text-center px-4">
+                                <div class="relative z-10 w-14 h-14 mx-auto mb-5 rounded-2xl bg-gradient-to-br from-[#3776AB] to-[#1E4D73] text-white text-xl font-extrabold flex items-center justify-center shadow-lg shadow-[#3776AB]/30 ring-8 ring-white">
+                                    {i + 1}
+                                </div>
+                                <h3 class="text-lg font-extrabold text-slate-800 mb-2">{step.title}</h3>
+                                <p class="text-sm text-slate-500 leading-relaxed">{step.desc}</p>
+                            </li>
+                        ))
+                    }
+                </ol>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── ROADMAP ──────────────────────────────────────────────────── -->
+    <section id="lo-trinh" class="bg-slate-50 py-20 md:py-24 px-4 scroll-mt-44">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
+                <div class="max-w-2xl">
+                    <p class="text-sm font-bold text-[#3776AB] uppercase tracking-wider mb-3">Lộ trình</p>
+                    <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+                        Từ người mới đến thí sinh Tin học trẻ
+                    </h2>
+                </div>
                 <a
                     href="/hoc-python/khoa-hoc"
-                    class="inline-flex items-center gap-3 bg-gradient-to-r from-[#3776AB] to-[#2B5E8A] hover:from-[#2B5E8A] hover:to-[#1E4D73] text-white font-black text-lg px-8 py-4 rounded-2xl shadow-[0_8px_30px_rgba(55,118,171,0.35)] hover:shadow-[0_8px_40px_rgba(55,118,171,0.5)] hover:-translate-y-1 transition-all duration-300"
+                    class="inline-flex items-center gap-2 text-[#3776AB] font-bold hover:gap-3 transition-all no-underline shrink-0"
                 >
-                    Bắt đầu học ngay
-                    <span class="text-2xl">→</span>
+                    Xem tất cả khóa học <span aria-hidden="true">→</span>
                 </a>
             </div>
 
-            <!-- Features Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
-                <!-- Card 1 -->
-                <div class="group bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                    <div class="w-14 h-14 bg-[#3776AB]/10 rounded-xl flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform duration-300">
-                        📚
-                    </div>
-                    <h3 class="font-black text-slate-800 text-lg mb-2">Học theo chương</h3>
-                    <p class="text-slate-500 text-sm leading-relaxed">
-                        Lộ trình bài bản từ cơ bản đến nâng cao, chia theo chương và bài học cụ thể.
-                    </p>
-                </div>
+            <div class="grid md:grid-cols-3 gap-6">
+                {
+                    roadmap.map((stage, i) => (
+                        <a
+                            href="/hoc-python/khoa-hoc"
+                            class="group bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 no-underline flex flex-col"
+                        >
+                            <div class={`h-1.5 bg-gradient-to-r ${stage.color}`} />
+                            <div class="p-6 flex flex-col flex-1">
+                                <div class="flex items-center justify-between mb-4">
+                                    <span class={`text-xs font-bold px-2.5 py-1 rounded-full border ${stage.chip}`}>
+                                        {stage.level}
+                                    </span>
+                                    <span class="text-4xl font-extrabold text-slate-100 group-hover:text-slate-200 transition-colors">
+                                        0{i + 1}
+                                    </span>
+                                </div>
+                                <h3 class="text-xl font-extrabold text-slate-800 mb-4 group-hover:text-[#3776AB] transition-colors">
+                                    {stage.title}
+                                </h3>
+                                <ul class="space-y-2.5 flex-1">
+                                    {stage.topics.map((topic) => (
+                                        <li class="flex items-center gap-2.5 text-sm text-slate-600">
+                                            <svg
+                                                class="w-4 h-4 text-[#3776AB] shrink-0"
+                                                viewBox="0 0 20 20"
+                                                fill="currentColor"
+                                                aria-hidden="true"
+                                            >
+                                                <path
+                                                    fill-rule="evenodd"
+                                                    d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z"
+                                                    clip-rule="evenodd"
+                                                />
+                                            </svg>
+                                            {topic}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </a>
+                    ))
+                }
+            </div>
+        </div>
+    </section>
 
-                <!-- Card 2 -->
-                <div class="group bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                    <div class="w-14 h-14 bg-[#FFD43B]/10 rounded-xl flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform duration-300">
-                        💻
-                    </div>
-                    <h3 class="font-black text-slate-800 text-lg mb-2">Code trực tiếp</h3>
-                    <p class="text-slate-500 text-sm leading-relaxed">
-                        Viết và chạy Python ngay trên trình duyệt với CodeMirror 6 + Pyodide.
-                    </p>
-                </div>
-
-                <!-- Card 3 -->
-                <div class="group bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                    <div class="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform duration-300">
-                        ✅
-                    </div>
-                    <h3 class="font-black text-slate-800 text-lg mb-2">Chấm điểm tự động</h3>
-                    <p class="text-slate-500 text-sm leading-relaxed">
-                        Hệ thống test case tự động chấm bài, phản hồi kết quả tức thì.
-                    </p>
-                </div>
-
-                <!-- Card 4 -->
-                <div class="group bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-                    <div class="w-14 h-14 bg-purple-100 rounded-xl flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform duration-300">
-                        📊
-                    </div>
-                    <h3 class="font-black text-slate-800 text-lg mb-2">Theo dõi tiến độ</h3>
-                    <p class="text-slate-500 text-sm leading-relaxed">
-                        Lưu lịch sử học tập, điểm XP, và tiến trình từng bài học.
-                    </p>
-                </div>
+    <!-- ── FEATURES ─────────────────────────────────────────────────── -->
+    <section class="bg-white py-20 md:py-24 px-4">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center max-w-2xl mx-auto mb-14">
+                <p class="text-sm font-bold text-[#3776AB] uppercase tracking-wider mb-3">Tính năng</p>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+                    Mọi thứ bạn cần để học code hiệu quả
+                </h2>
             </div>
 
-            <!-- Bottom CTA -->
-            <div class="text-center mt-16">
-                <p class="text-slate-400 text-sm font-medium mb-4">Bắt đầu hành trình Python của bạn ngay hôm nay</p>
-                <div class="flex items-center justify-center gap-4 flex-wrap">
-                    <a href="/hoc-python/ca-nhan"
-                        class="inline-flex items-center gap-2 bg-white border border-slate-200 text-slate-600 font-bold text-sm px-5 py-2.5 rounded-xl hover:border-[#3776AB] hover:text-[#3776AB] transition-colors shadow-sm">
-                        👤 Thành tích
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {
+                    features.map((f) => (
+                        <div class="group p-6 rounded-2xl border border-slate-200 hover:border-[#3776AB]/30 hover:shadow-lg transition-all duration-300">
+                            <div class="w-12 h-12 rounded-xl bg-[#3776AB]/10 text-[#3776AB] flex items-center justify-center mb-5 group-hover:bg-[#3776AB] group-hover:text-white transition-colors">
+                                <svg
+                                    class="w-6 h-6"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke-width="1.6"
+                                    stroke="currentColor"
+                                    aria-hidden="true"
+                                >
+                                    <path stroke-linecap="round" stroke-linejoin="round" d={f.icon} />
+                                </svg>
+                            </div>
+                            <h3 class="text-base font-extrabold text-slate-800 mb-2">{f.title}</h3>
+                            <p class="text-sm text-slate-500 leading-relaxed">{f.desc}</p>
+                        </div>
+                    ))
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- ── CTA ──────────────────────────────────────────────────────── -->
+    <section class="px-4 pb-20 md:pb-24 bg-white">
+        <div
+            class="max-w-6xl mx-auto relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#3776AB] to-[#1E4D73] px-6 py-12 md:px-14 md:py-16 text-white"
+        >
+            <div class="absolute inset-0 py-hero-grid opacity-25 pointer-events-none"></div>
+            <IconPython class="absolute -right-10 -bottom-16 w-72 h-72 text-white/5 pointer-events-none" />
+            <div class="relative flex flex-col md:flex-row md:items-center md:justify-between gap-8">
+                <div class="max-w-xl">
+                    <h2 class="text-2xl md:text-4xl font-extrabold tracking-tight mb-3">
+                        Sẵn sàng viết dòng code Python đầu tiên?
+                    </h2>
+                    <p class="text-blue-100 leading-relaxed">
+                        Đăng nhập, chọn khóa học và bắt đầu ngay — tiến độ, XP và thành tích được lưu tự động.
+                    </p>
+                </div>
+                <div class="flex flex-wrap gap-3 shrink-0">
+                    <a
+                        href="/hoc-python/khoa-hoc"
+                        class="inline-flex items-center gap-2 bg-[#FFD43B] hover:bg-[#ffdf6b] text-[#0B1E33] font-extrabold px-6 py-3.5 rounded-xl transition-colors no-underline"
+                    >
+                        Chọn khóa học →
                     </a>
-                    <a href="/hoc-python/bang-xep-hang"
-                        class="inline-flex items-center gap-2 bg-white border border-slate-200 text-slate-600 font-bold text-sm px-5 py-2.5 rounded-xl hover:border-[#3776AB] hover:text-[#3776AB] transition-colors shadow-sm">
+                    <a
+                        href="/hoc-python/bang-xep-hang"
+                        class="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold px-6 py-3.5 rounded-xl transition-colors no-underline"
+                    >
                         🏆 Bảng xếp hạng
                     </a>
-                </div>
-                <div class="flex items-center justify-center gap-2 text-slate-300 text-xs mt-8">
-                    <span class="w-20 h-px bg-slate-200"></span>
-                    <span>Error404-Labs</span>
-                    <span class="w-20 h-px bg-slate-200"></span>
                 </div>
             </div>
         </div>
     </section>
 </MainLayout>
+
+<style>
+    .py-hero-grid {
+        background-image:
+            linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+        background-size: 40px 40px;
+        mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+    }
+    .py-ln {
+        display: inline-block;
+        width: 2.75rem;
+        padding-right: 1rem;
+        text-align: right;
+        color: #495162;
+        user-select: none;
+    }
+    .py-caret {
+        display: inline-block;
+        width: 2px;
+        height: 1.1em;
+        margin-left: 2px;
+        vertical-align: -0.2em;
+        background: #528bff;
+        animation: py-blink 1s steps(1) infinite;
+    }
+    .py-float {
+        animation: py-float 4s ease-in-out infinite;
+    }
+    @keyframes py-blink {
+        50% {
+            opacity: 0;
+        }
+    }
+    @keyframes py-float {
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-8px);
+        }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .py-float,
+        .py-caret {
+            animation: none;
+        }
+    }
+</style>

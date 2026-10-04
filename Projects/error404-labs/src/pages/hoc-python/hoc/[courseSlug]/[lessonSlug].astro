@@ -1,7 +1,14 @@
 ---
 import MainLayout from '../../../../layouts/MainLayout.astro'
+import PyIcon from '../../../../components/python/PyIcon.astro'
+import IconPython from '../../../../icons/IconPython.astro'
 import { TC_TITLE } from '../../../../common/TextConst'
-import { marked } from 'marked'
+import { Marked, type Tokens } from 'marked'
+import { highlightPython, escapeHtml } from '../../../../utils/python-highlight'
+import '@fontsource/montserrat/500.css'
+import '@fontsource/montserrat/600.css'
+import '@fontsource/montserrat/700.css'
+import '@fontsource/montserrat/800.css'
 
 // ── Neon DB ───────────────────────────────────────────────────────────
 const { neon } = await import('@neondatabase/serverless')
@@ -44,6 +51,16 @@ interface QuizQuestion {
     order_index: number
 }
 
+interface CourseLesson {
+    id: string
+    slug: string
+    title: string
+    lesson_type: string
+    order_index: number
+    chapter_order: number
+    chapter_title: string
+}
+
 // Fetch lesson
 const [lesson]: (Lesson | undefined)[] = await sql`
     SELECT
@@ -72,16 +89,20 @@ const testCases: TestCase[] = await sql`
 `
 
 // Fetch quiz questions (chỉ cho theory lessons)
-const quizQuestions: QuizQuestion[] = lesson.lesson_type === 'theory' ? await sql`
+const quizQuestions: QuizQuestion[] =
+    lesson.lesson_type === 'theory'
+        ? await sql`
     SELECT id, question_text, options, correct_index, explanation, order_index
     FROM error404labs.py_quiz_questions
     WHERE lesson_id = ${lesson.id}
     ORDER BY order_index ASC
-` : []
+`
+        : []
 
-// Fetch tất cả lessons trong course để biết bài trước/sau
-const allLessons: { id: string; slug: string; title: string; order_index: number; chapter_order: number }[] = await sql`
-    SELECT l.id, l.slug, l.title, l.order_index, ch.order_index AS chapter_order
+// Fetch tất cả lessons trong course để biết bài trước/sau + danh sách bài học
+const allLessons: CourseLesson[] = await sql`
+    SELECT l.id, l.slug, l.title, l.lesson_type, l.order_index,
+        ch.order_index AS chapter_order, ch.title AS chapter_title
     FROM error404labs.py_lessons l
     JOIN error404labs.py_chapters ch ON ch.id = l.chapter_id
     JOIN error404labs.py_courses c ON c.id = ch.course_id
@@ -89,293 +110,625 @@ const allLessons: { id: string; slug: string; title: string; order_index: number
     ORDER BY ch.order_index ASC, l.order_index ASC
 `
 
-const currentIdx = allLessons.findIndex(l => l.slug === lessonSlug)
+const currentIdx = allLessons.findIndex((l) => l.slug === lessonSlug)
 const prevLesson = currentIdx > 0 ? allLessons[currentIdx - 1] : null
 const nextLesson = currentIdx >= 0 && currentIdx < allLessons.length - 1 ? allLessons[currentIdx + 1] : null
 
-// Render markdown → HTML trên server
-const contentHtml = await marked.parse(lesson.content_markdown || '')
+// Nhóm bài học theo chương cho drawer "Danh sách bài học"
+const chapterGroups: { title: string; order: number; lessons: CourseLesson[] }[] = []
+for (const l of allLessons) {
+    const last = chapterGroups[chapterGroups.length - 1]
+    if (last && last.order === l.chapter_order) last.lessons.push(l)
+    else chapterGroups.push({ title: l.chapter_title, order: l.chapter_order, lessons: [l] })
+}
+const currentChapterIdx = chapterGroups.findIndex((g) => g.lessons.some((l) => l.slug === lessonSlug))
+const currentLessonInChapter =
+    currentChapterIdx >= 0 ? chapterGroups[currentChapterIdx].lessons.findIndex((l) => l.slug === lessonSlug) : -1
+
+// Render markdown → HTML trên server (tô màu code Python, thêm thanh công cụ cho khối code)
+const markdown = new Marked({
+    renderer: {
+        code({ text, lang }: Tokens.Code) {
+            const language = (lang || '').trim().toLowerCase()
+            const isPython = language === 'python' || language === 'py' || language === 'python3'
+            if (isPython) {
+                return (
+                    '<div class="code-block code-block--python">' +
+                    '<div class="code-head"><span class="code-lang">Python</span><span class="code-actions">' +
+                    '<button type="button" class="code-btn code-copy" title="Sao chép code">Sao chép</button>' +
+                    '<button type="button" class="code-btn code-try" title="Đưa code này vào trình soạn thảo">▶ Thử ngay</button>' +
+                    '</span></div>' +
+                    '<pre><code class="language-python">' +
+                    highlightPython(text) +
+                    '</code></pre></div>'
+                )
+            }
+            return (
+                '<div class="code-block code-block--plain">' +
+                '<button type="button" class="code-btn code-copy" title="Sao chép">Sao chép</button>' +
+                '<pre><code>' +
+                escapeHtml(text) +
+                '</code></pre></div>'
+            )
+        },
+    },
+})
+
+// Bỏ tiêu đề H1 đầu tiên (đã hiển thị ở phần đầu bài học)
+const mdTokens = markdown.lexer(lesson.content_markdown || '')
+const firstContentIdx = mdTokens.findIndex((t) => t.type !== 'space')
+if (firstContentIdx >= 0) {
+    const first = mdTokens[firstContentIdx]
+    if (first.type === 'heading' && (first as Tokens.Heading).depth === 1) mdTokens.splice(firstContentIdx, 1)
+}
+const contentHtml = markdown.parser(mdTokens)
 
 // Badge helpers
 const typeLabel: Record<string, string> = {
-    theory: 'Lý thuyết', practice: 'Thực hành', quiz: 'Quiz', project: 'Dự án',
+    theory: 'Lý thuyết',
+    practice: 'Thực hành',
+    quiz: 'Quiz',
+    project: 'Dự án',
 }
 const typeColor: Record<string, string> = {
-    theory: 'bg-blue-100 text-blue-700 border-blue-200',
-    practice: 'bg-green-100 text-green-700 border-green-200',
-    quiz: 'bg-purple-100 text-purple-700 border-purple-200',
-    project: 'bg-orange-100 text-orange-700 border-orange-200',
+    theory: 'bg-sky-50 text-sky-700 border-sky-200',
+    practice: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    quiz: 'bg-violet-50 text-violet-700 border-violet-200',
+    project: 'bg-orange-50 text-orange-700 border-orange-200',
 }
 const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình', hard: 'Khó' }
+const diffColor: Record<string, string> = {
+    easy: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    medium: 'bg-amber-50 text-amber-700 border-amber-200',
+    hard: 'bg-rose-50 text-rose-700 border-rose-200',
+}
+const lessonIconName = (type: string) =>
+    (type in typeLabel ? type : 'practice') as 'theory' | 'practice' | 'quiz' | 'project'
 
 // Serialize dữ liệu cho client (dùng JSON để giữ newline)
 // Hidden test: chỉ gửi stdin để client chạy, KHÔNG gửi expected_output — tránh lộ đáp án hidden
-    const clientTestCases = testCases.map((tc) =>
-        tc.is_hidden
-            ? { id: tc.id, stdin: tc.stdin, is_hidden: true, order_index: tc.order_index }
-            : tc,
-    )
-    const testCasesJson = JSON.stringify(clientTestCases)
-    const lessonIdJson = JSON.stringify(lesson.id)
-    const starterCodeJson = JSON.stringify(lesson.starter_code || '# Viết code Python của bạn ở đây\n')
-    const xpReward = lesson.xp_reward
-    const comparisonMode = lesson.comparison_mode
-    const floatEpsilon = lesson.float_epsilon
-    const isTheory = lesson.lesson_type === 'theory'
-    const hasTests = testCases.length > 0
-    const prevLessonJson = JSON.stringify(prevLesson)
-    const nextLessonJson = JSON.stringify(nextLesson)
-    const quizQuestionsJson = JSON.stringify(quizQuestions)
+const clientTestCases = testCases.map((tc) =>
+    tc.is_hidden ? { id: tc.id, stdin: tc.stdin, is_hidden: true, order_index: tc.order_index } : tc,
+)
+const testCasesJson = JSON.stringify(clientTestCases)
+const lessonIdJson = JSON.stringify(lesson.id)
+const starterCodeJson = JSON.stringify(lesson.starter_code || '# Viết code Python của bạn ở đây\n')
+const xpReward = lesson.xp_reward
+const comparisonMode = lesson.comparison_mode
+const floatEpsilon = lesson.float_epsilon
+const isTheory = lesson.lesson_type === 'theory'
+const hasTests = testCases.length > 0
+const prevLessonJson = JSON.stringify(prevLesson)
+const nextLessonJson = JSON.stringify(nextLesson)
+const quizQuestionsJson = JSON.stringify(quizQuestions)
 ---
 
 <MainLayout title={`${lesson.title} | Python | ${TC_TITLE}`}>
-    <!-- Top bar -->
-    <div class="sticky top-26 z-50 bg-white border-b border-slate-200 shadow-sm">
-        <div class="max-w-full mx-auto px-4 py-3 flex items-center gap-3">
-            <a
-                href={`/hoc-python/khoa-hoc/${courseSlug}`}
-                class="flex items-center gap-1.5 text-slate-500 hover:text-[#3776AB] font-medium text-sm transition-colors shrink-0"
+    <div id="py-ide" class="flex flex-col bg-slate-100">
+        <!-- ── Header bài học ─────────────────────────────────────── -->
+        <header class="h-14 shrink-0 bg-white border-b border-slate-200 flex items-center gap-2 sm:gap-3 px-2 sm:px-4">
+            <button
+                id="lessonListBtn"
+                type="button"
+                class="inline-flex items-center gap-2 h-9 px-2.5 rounded-lg text-slate-600 hover:text-[#3776AB] hover:bg-slate-100 font-semibold text-sm transition-colors shrink-0"
+                title="Danh sách bài học"
+                aria-controls="lessonDrawer"
             >
-                <span>←</span>
-                <span class="hidden sm:inline">Quay lại</span>
-            </a>
+                <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path
+                        fill-rule="evenodd"
+                        d="M2 4.75A.75.75 0 0 1 2.75 4h14.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 4.75Zm0 10.5a.75.75 0 0 1 .75-.75h7.5a.75.75 0 0 1 0 1.5h-7.5a.75.75 0 0 1-.75-.75ZM2 10a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 10Z"
+                        clip-rule="evenodd"></path>
+                </svg>
+                <span class="hidden lg:inline">Danh sách bài</span>
+            </button>
 
-            <div class="w-px h-6 bg-slate-200 shrink-0"></div>
+            <span class="w-px h-6 bg-slate-200 shrink-0"></span>
 
-            <div class="flex-1 min-w-0 flex items-center gap-2">
-                <span class="text-xs text-slate-400 font-medium truncate hidden md:inline">{lesson.course_title}</span>
-                <span class="text-xs text-slate-300 hidden md:inline">/</span>
-                <h1 class="font-bold text-slate-800 text-sm truncate">{lesson.title}</h1>
+            <div class="flex-1 min-w-0">
+                <a
+                    href={`/hoc-python/khoa-hoc/${courseSlug}`}
+                    class="hidden sm:block text-[11px] font-semibold text-slate-400 hover:text-[#3776AB] truncate no-underline leading-tight"
+                >
+                    {lesson.course_title}
+                    {currentChapterIdx >= 0 && <span> · Chương {currentChapterIdx + 1}</span>}
+                </a>
+                <h1 class="font-bold text-slate-800 text-sm truncate leading-tight">{lesson.title}</h1>
             </div>
 
-            <!-- Nav bài trước/sau -->
-            <div class="hidden md:flex items-center gap-1 shrink-0" id="lessonNav">
-                {prevLesson && (
-                    <a href={`/hoc-python/hoc/${courseSlug}/${prevLesson.slug}`}
-                       class="text-xs font-medium text-slate-400 hover:text-[#3776AB] px-2 py-1.5 rounded-lg hover:bg-blue-50 transition-colors"
-                       title={prevLesson.title}>← Bài trước</a>
-                )}
-                {nextLesson && (
-                    <a href={`/hoc-python/hoc/${courseSlug}/${nextLesson.slug}`}
-                       id="nextLessonLink"
-                       class="text-xs font-medium text-slate-400 hover:text-[#3776AB] px-2 py-1.5 rounded-lg hover:bg-blue-50 transition-colors"
-                       title={nextLesson.title}>Bài tiếp →</a>
-                )}
+            <!-- Tiến độ khóa học (JS cập nhật) -->
+            <div id="headerProgress" class="hidden lg:flex items-center gap-3 shrink-0 invisible">
+                <div class="w-36 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div
+                        id="headerProgressBar"
+                        class="h-full bg-gradient-to-r from-[#3776AB] to-emerald-500 rounded-full transition-all duration-700"
+                        style="width: 0%"
+                    >
+                    </div>
+                </div>
+                <span id="headerProgressText" class="text-xs font-semibold text-slate-500 whitespace-nowrap"></span>
             </div>
 
-            <div class="flex items-center gap-2 shrink-0">
-                <span class={`text-[10px] font-bold px-2 py-1 rounded-full border ${typeColor[lesson.lesson_type] || typeColor.practice}`}>
-                    {typeLabel[lesson.lesson_type] || 'Thực hành'}
-                </span>
-                <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded-full">
-                    {diffLabel[lesson.difficulty] || 'Dễ'}
-                </span>
-                <span class="text-[10px] font-bold text-yellow-600 bg-yellow-50 px-2 py-1 rounded-full flex items-center gap-1">
-                    ⭐ +{lesson.xp_reward}
-                </span>
-                <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded-full hidden sm:flex items-center gap-1">
-                    ⏱ {lesson.estimated_minutes}p
-                </span>
+            <div class="flex items-center gap-1.5 shrink-0" id="lessonNav">
+                {
+                    prevLesson ? (
+                        <a
+                            href={`/hoc-python/hoc/${courseSlug}/${prevLesson.slug}`}
+                            class="inline-flex items-center justify-center h-9 w-9 md:w-auto md:px-3 gap-1.5 rounded-lg border border-slate-200 text-slate-600 hover:border-[#3776AB] hover:text-[#3776AB] text-sm font-semibold transition-colors no-underline"
+                            title={`Bài trước: ${prevLesson.title}`}
+                        >
+                            <span aria-hidden="true">←</span>
+                            <span class="hidden md:inline">Bài trước</span>
+                        </a>
+                    ) : (
+                        <span class="inline-flex items-center justify-center h-9 w-9 md:w-auto md:px-3 gap-1.5 rounded-lg border border-slate-100 text-slate-300 text-sm font-semibold cursor-not-allowed">
+                            <span aria-hidden="true">←</span>
+                            <span class="hidden md:inline">Bài trước</span>
+                        </span>
+                    )
+                }
+                <button
+                    id="nextLessonBtn"
+                    type="button"
+                    class:list={['py-next-btn', nextLesson ? 'py-next-btn--pending' : 'hidden']}
+                    data-next-slug={nextLesson?.slug || ''}
+                    title={nextLesson ? `Bài tiếp: ${nextLesson.title}` : ''}
+                >
+                    <span class="hidden md:inline">Bài tiếp</span>
+                    <span aria-hidden="true">→</span>
+                </button>
             </div>
+        </header>
+
+        <!-- Tabs cho mobile -->
+        <div class="md:hidden shrink-0 grid grid-cols-2 bg-white border-b border-slate-200" role="tablist">
+            <button type="button" data-mobile-tab="lesson" class="mobile-tab is-active">📖 Đề bài</button>
+            <button type="button" data-mobile-tab="code" class="mobile-tab">⌨️ Code &amp; Kết quả</button>
         </div>
-    </div>
 
-    <!-- Mobile sidebar toggle -->
-    <button id="sidebarToggle" class="md:hidden fixed bottom-4 left-4 z-50 bg-[#3776AB] text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-xl font-bold hover:bg-[#2B5E8A] transition-colors active:scale-95">
-        📖
-    </button>
-
-    <!-- Split screen -->
-    <div id="workspace" class="flex flex-col md:flex-row" style="height: calc(100vh - 168px);">
-        <!-- LEFT: Lesson content — nâng cấp giao diện -->
-        <div id="lesson-panel" class="w-full md:w-[40%] overflow-y-auto bg-gradient-to-b from-slate-50 to-white lesson-content-panel transition-all duration-200">
-            <!-- Accent bar -->
-            <div class="h-1.5 bg-gradient-to-r from-[#3776AB] via-[#2B5E8A] to-[#FFD43B]"></div>
-
-            <!-- Lesson header card -->
-            <div class="p-5 pb-0">
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 mb-4">
-                    <div class="flex items-start justify-between gap-3 mb-3">
-                        <h2 class="text-xl font-black text-slate-800 leading-tight flex-1">{lesson.title}</h2>
-                        <span class="shrink-0 bg-gradient-to-br from-[#3776AB] to-[#2B5E8A] text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm">
-                            Python 3
-                        </span>
-                    </div>
-
-                    {lesson.description && (
-                        <p class="text-slate-500 text-sm leading-relaxed">{lesson.description}</p>
-                    )}
-
-                    <!-- Meta badges -->
-                    <div class="flex flex-wrap items-center gap-2 mt-4 pt-3 border-t border-slate-100">
-                        <span class={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${lesson.lesson_type === 'theory' ? 'bg-blue-50 text-blue-600 border-blue-200' : lesson.lesson_type === 'practice' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : lesson.lesson_type === 'quiz' ? 'bg-purple-50 text-purple-600 border-purple-200' : 'bg-orange-50 text-orange-600 border-orange-200'}`}>
-                            {lesson.lesson_type === 'theory' ? '📖 Lý thuyết' : lesson.lesson_type === 'practice' ? '⌨️ Thực hành' : lesson.lesson_type === 'quiz' ? '❓ Quiz' : '📦 Dự án'}
-                        </span>
-                        <span class="text-[10px] font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200 flex items-center gap-1">
-                            {lesson.difficulty === 'easy' ? '⭐ Dễ' : lesson.difficulty === 'medium' ? '⭐⭐ Trung bình' : '⭐⭐⭐ Khó'}
-                        </span>
-                        <span class="text-[10px] font-bold text-yellow-600 bg-yellow-50 px-2.5 py-1 rounded-full border border-yellow-200 flex items-center gap-1">
-                            🏆 +{lesson.xp_reward} XP
-                        </span>
-                        <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full border border-slate-200 flex items-center gap-1">
-                            ⏱ {lesson.estimated_minutes} phút
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Lesson content với styling đẹp -->
-            <div class="px-5 pb-8">
-                <div class="prose prose-sm max-w-none
-                    prose-headings:font-black prose-headings:text-slate-800 prose-headings:tracking-tight
-                    prose-h2:text-lg prose-h2:border-b prose-h2:border-slate-100 prose-h2:pb-2 prose-h2:mb-4
-                    prose-h3:text-base prose-h3:text-slate-700
-                    prose-p:text-slate-600 prose-p:leading-relaxed prose-p:my-2
-                    prose-strong:text-slate-800 prose-strong:font-bold
-                    prose-a:text-[#3776AB] prose-a:font-medium prose-a:no-underline hover:prose-a:underline
-                    prose-code:text-[#3776AB] prose-code:bg-[#3776AB]/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:text-[13px] prose-code:font-mono prose-code:font-semibold
-                    prose-pre:bg-[#1e1e2e] prose-pre:text-[#cdd6f4] prose-pre:rounded-xl prose-pre:p-4 prose-pre:border prose-pre:border-[#313244] prose-pre:shadow-lg
-                    prose-pre:my-4
-                    prose-ul:my-2 prose-li:text-slate-600 prose-li:marker:text-[#3776AB]
-                    prose-img:rounded-xl prose-img:shadow-md
-                    prose-blockquote:border-l-[3px] prose-blockquote:border-[#3776AB] prose-blockquote:bg-[#3776AB]/5 prose-blockquote:py-2 prose-blockquote:px-4 prose-blockquote:rounded-r-lg prose-blockquote:not-italic prose-blockquote:text-slate-600
-                    prose-hr:border-slate-100">
-                    <div set:html={contentHtml} />
-                </div>
-            </div>
-
-            <!-- Quiz questions (chỉ cho theory) -->
-            {quizQuestions.length > 0 && (
-                <div id="quiz-section" class="px-5 pb-8">
-                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                        <div class="bg-gradient-to-r from-[#3776AB] to-[#2B5E8A] px-5 py-3">
-                            <h3 class="text-white font-black text-sm flex items-center gap-2">
-                                <span>📝</span> Kiểm tra nhanh
-                            </h3>
-                            <p id="quiz-header-title" class="text-blue-200 text-xs mt-0.5">📝 Đây là bài tự kiểm tra — nhấn "Nộp bài" để hoàn thành</p>
+        <!-- ── Workspace ──────────────────────────────────────────── -->
+        <div id="workspace" class="flex-1 min-h-0 flex">
+            <!-- LEFT: Nội dung bài học -->
+            <section
+                id="lesson-panel"
+                class="w-full md:w-[42%] md:min-w-[300px] overflow-y-auto bg-white lesson-content-panel"
+            >
+                <div class="max-w-3xl mx-auto px-5 md:px-8 py-6 md:py-8">
+                    <!-- Lesson header -->
+                    <div class="mb-6 pb-6 border-b border-slate-100">
+                        <p class="text-xs font-bold text-[#3776AB] uppercase tracking-wider mb-2">
+                            {
+                                currentChapterIdx >= 0
+                                    ? `Chương ${currentChapterIdx + 1} · Bài ${currentLessonInChapter + 1}`
+                                    : 'Bài học'
+                            }
+                        </p>
+                        <h2
+                            class="text-2xl md:text-[28px] font-extrabold text-slate-900 leading-tight tracking-tight mb-3"
+                        >
+                            {lesson.title}
+                        </h2>
+                        {lesson.description && <p class="text-slate-500 leading-relaxed mb-4">{lesson.description}</p>}
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span
+                                class={`inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-md border ${typeColor[lesson.lesson_type] || typeColor.practice}`}
+                            >
+                                <PyIcon name={lessonIconName(lesson.lesson_type)} class="w-3.5 h-3.5" />
+                                {typeLabel[lesson.lesson_type] || 'Thực hành'}
+                            </span>
+                            <span
+                                class={`text-xs font-bold px-2.5 py-1 rounded-md border ${diffColor[lesson.difficulty] || diffColor.easy}`}
+                            >
+                                {diffLabel[lesson.difficulty] || 'Dễ'}
+                            </span>
+                            <span
+                                class="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-md border bg-amber-50 text-amber-700 border-amber-200"
+                            >
+                                <PyIcon name="bolt" class="w-3.5 h-3.5" /> +{lesson.xp_reward} XP
+                            </span>
+                            <span
+                                class="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-md border bg-slate-50 text-slate-600 border-slate-200"
+                            >
+                                <PyIcon name="clock" class="w-3.5 h-3.5" />
+                                {lesson.estimated_minutes} phút
+                            </span>
+                            {
+                                hasTests && (
+                                    <span class="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-md border bg-slate-50 text-slate-600 border-slate-200">
+                                        <PyIcon name="check" class="w-3.5 h-3.5" /> {testCases.length} test case
+                                    </span>
+                                )
+                            }
                         </div>
-                        <div class="p-5 space-y-6" id="quiz-container">
-                            {quizQuestions.map((q, qi) => (
-                                <div class="quiz-question" data-qindex={qi} data-correct={q.correct_index}>
-                                    <p class="text-sm font-bold text-slate-800 mb-3 flex items-start gap-2">
-                                        <span class="shrink-0 w-6 h-6 rounded-full bg-[#3776AB]/10 text-[#3776AB] text-xs font-bold flex items-center justify-center mt-0.5">
-                                            {qi + 1}
-                                        </span>
-                                        <span>{q.question_text}</span>
-                                    </p>
-                                    <div class="space-y-2 ml-8">
-                                        {q.options.map((opt, oi) => (
-                                            <label class="quiz-option flex items-start gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer transition-all duration-150 hover:border-[#3776AB]/40 hover:bg-blue-50/30" data-optindex={oi}>
-                                                <input type="radio" name={`quiz-q-${qi}`} value={oi} class="mt-0.5 accent-[#3776AB] shrink-0" />
-                                                <span class="text-sm text-slate-700 leading-relaxed">{opt}</span>
-                                            </label>
+                    </div>
+
+                    <!-- Nội dung markdown -->
+                    <article class="lesson-prose">
+                        <div set:html={contentHtml} />
+                    </article>
+
+                    <!-- Quiz questions (chỉ cho theory) -->
+                    {
+                        quizQuestions.length > 0 && (
+                            <div id="quiz-section" class="mt-10">
+                                <div class="rounded-2xl border border-slate-200 overflow-hidden">
+                                    <div class="bg-gradient-to-r from-[#3776AB] to-[#1E4D73] px-5 py-4">
+                                        <h3 class="text-white font-extrabold text-base flex items-center gap-2">
+                                            <PyIcon name="quiz" class="w-5 h-5 text-[#FFD43B]" /> Kiểm tra nhanh
+                                        </h3>
+                                        <p id="quiz-header-title" class="text-blue-100 text-xs mt-1">
+                                            📝 Đây là bài tự kiểm tra — nhấn "Hoàn thành bài" để hoàn thành
+                                        </p>
+                                    </div>
+                                    <div class="p-5 space-y-6 bg-white" id="quiz-container">
+                                        {quizQuestions.map((q, qi) => (
+                                            <div class="quiz-question" data-qindex={qi} data-correct={q.correct_index}>
+                                                <p class="text-sm font-bold text-slate-800 mb-3 flex items-start gap-2.5">
+                                                    <span class="shrink-0 w-6 h-6 rounded-full bg-[#3776AB] text-white text-xs font-bold flex items-center justify-center">
+                                                        {qi + 1}
+                                                    </span>
+                                                    <span class="pt-0.5">{q.question_text}</span>
+                                                </p>
+                                                <div class="space-y-2 ml-8">
+                                                    {q.options.map((opt, oi) => (
+                                                        <label
+                                                            class="quiz-option flex items-start gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer transition-all duration-150 hover:border-[#3776AB]/40 hover:bg-blue-50/30"
+                                                            data-optindex={oi}
+                                                        >
+                                                            <input
+                                                                type="radio"
+                                                                name={`quiz-q-${qi}`}
+                                                                value={oi}
+                                                                class="mt-0.5 accent-[#3776AB] shrink-0"
+                                                            />
+                                                            <span class="text-sm text-slate-700 leading-relaxed">
+                                                                {opt}
+                                                            </span>
+                                                        </label>
+                                                    ))}
+                                                </div>
+                                                <div class="quiz-feedback hidden ml-8 mt-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200" />
+                                            </div>
                                         ))}
                                     </div>
-                                    <div class="quiz-feedback hidden ml-8 mt-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200"></div>
                                 </div>
-                            ))}
+                            </div>
+                        )
+                    }
+
+                    <!-- Điều hướng cuối bài -->
+                    <div class="mt-10 pt-6 border-t border-slate-100 grid sm:grid-cols-2 gap-3">
+                        {
+                            prevLesson ? (
+                                <a
+                                    href={`/hoc-python/hoc/${courseSlug}/${prevLesson.slug}`}
+                                    class="group p-4 rounded-xl border border-slate-200 hover:border-[#3776AB] transition-colors no-underline"
+                                >
+                                    <p class="text-xs font-semibold text-slate-400 mb-1">← Bài trước</p>
+                                    <p class="text-sm font-bold text-slate-700 group-hover:text-[#3776AB] truncate">
+                                        {prevLesson.title}
+                                    </p>
+                                </a>
+                            ) : (
+                                <div class="hidden sm:block" />
+                            )
+                        }
+                        {
+                            nextLesson ? (
+                                <a
+                                    id="nextLessonLink"
+                                    href={`/hoc-python/hoc/${courseSlug}/${nextLesson.slug}`}
+                                    class="group p-4 rounded-xl border border-slate-200 hover:border-[#3776AB] transition-colors text-right no-underline"
+                                >
+                                    <p class="text-xs font-semibold text-slate-400 mb-1">Bài tiếp theo →</p>
+                                    <p class="text-sm font-bold text-slate-700 group-hover:text-[#3776AB] truncate">
+                                        {nextLesson.title}
+                                    </p>
+                                </a>
+                            ) : (
+                                <a
+                                    href={`/hoc-python/khoa-hoc/${courseSlug}`}
+                                    class="group p-4 rounded-xl border border-slate-200 hover:border-[#3776AB] transition-colors text-right no-underline"
+                                >
+                                    <p class="text-xs font-semibold text-slate-400 mb-1">Bài cuối cùng 🎓</p>
+                                    <p class="text-sm font-bold text-slate-700 group-hover:text-[#3776AB] truncate">
+                                        Về trang khóa học
+                                    </p>
+                                </a>
+                            )
+                        }
+                    </div>
+                </div>
+            </section>
+
+            <!-- Split pane resize handle -->
+            <div
+                id="split-handle"
+                class="hidden md:flex w-1.5 bg-slate-200 hover:bg-[#3776AB] cursor-col-resize items-center justify-center group transition-colors duration-150 shrink-0 relative"
+                title="Kéo để thay đổi kích thước"
+            >
+                <div class="w-0.5 h-8 rounded-full bg-slate-400 group-hover:bg-white transition-colors"></div>
+                <div class="absolute inset-y-0 -left-1.5 -right-1.5"></div>
+            </div>
+
+            <!-- RIGHT: Editor + Console -->
+            <section id="editor-panel" class="flex-1 flex flex-col bg-[#282c34] min-w-0 relative max-md:hidden">
+                <!-- Toolbar -->
+                <div
+                    class="flex items-center justify-between gap-2 h-11 pl-0 pr-2 bg-[#21252b] border-b border-black/30 shrink-0"
+                >
+                    <div class="flex items-center h-full min-w-0">
+                        <span
+                            class="h-full inline-flex items-center gap-2 px-4 bg-[#282c34] border-t-2 border-[#FFD43B] text-[13px] text-slate-200 font-mono"
+                        >
+                            <IconPython class="w-4 h-4 text-[#FFD43B]" /> main.py
+                        </span>
+                        <span
+                            id="pyodide-loading"
+                            class="hidden ml-3 items-center gap-2 text-xs text-slate-400 whitespace-nowrap"
+                        >
+                            <span
+                                class="w-3.5 h-3.5 rounded-full border-2 border-[#61afef] border-t-transparent animate-spin"
+                            ></span>
+                            <span class="hidden sm:inline">Đang tải Python...</span>
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-1.5 shrink-0">
+                        <button
+                            id="resetBtn"
+                            type="button"
+                            class="ide-btn ide-btn--ghost"
+                            title="Khôi phục code ban đầu"
+                        >
+                            <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path
+                                    fill-rule="evenodd"
+                                    d="M15.312 11.424a5.5 5.5 0 0 1-9.201 2.466l-.312-.311h2.433a.75.75 0 0 0 0-1.5H3.989a.75.75 0 0 0-.75.75v4.242a.75.75 0 0 0 1.5 0v-2.43l.31.31a7 7 0 0 0 11.712-3.138.75.75 0 0 0-1.449-.39Zm1.23-3.723a.75.75 0 0 0 .219-.53V2.929a.75.75 0 0 0-1.5 0V5.36l-.31-.31A7 7 0 0 0 3.239 8.188a.75.75 0 1 0 1.448.389A5.5 5.5 0 0 1 13.89 6.11l.311.31h-2.432a.75.75 0 0 0 0 1.5h4.243a.75.75 0 0 0 .53-.219Z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="hidden xl:inline">Làm lại</span>
+                        </button>
+                        <button id="runBtn" type="button" class="ide-btn ide-btn--run" title="Chạy thử (Ctrl + Enter)">
+                            <PyIcon name="play" class="w-3.5 h-3.5" />
+                            Chạy thử
+                        </button>
+                        <button
+                            id="submitBtn"
+                            type="button"
+                            class="ide-btn ide-btn--submit"
+                            title={hasTests ? 'Nộp bài để chấm điểm' : 'Đánh dấu hoàn thành bài học'}
+                        >
+                            <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path
+                                    d="M3.105 2.288a.75.75 0 0 0-.826.95l1.414 4.926A1.5 1.5 0 0 0 5.135 9.25h6.115a.75.75 0 0 1 0 1.5H5.135a1.5 1.5 0 0 0-1.442 1.086l-1.414 4.926a.75.75 0 0 0 .826.95 28.897 28.897 0 0 0 15.293-7.155.75.75 0 0 0 0-1.114A28.897 28.897 0 0 0 3.105 2.288Z"
+                                ></path>
+                            </svg>
+                            {hasTests ? 'Nộp bài' : 'Hoàn thành bài'}
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CodeMirror container -->
+                <div id="cm-editor" class="flex-1 min-h-0 overflow-hidden"></div>
+
+                <!-- Bottom: Test case + Console -->
+                <div
+                    id="console-panel"
+                    class="shrink-0 flex flex-col border-t border-black/40 bg-[#21252b]"
+                    style="height: 240px;"
+                >
+                    <div
+                        id="console-resize-handle"
+                        class="h-1.5 bg-[#181a1f] hover:bg-[#3776AB] cursor-row-resize group transition-colors flex items-center justify-center shrink-0"
+                        title="Kéo để thay đổi kích thước"
+                    >
+                        <div class="w-8 h-0.5 rounded-full bg-slate-600 group-hover:bg-white transition-colors"></div>
+                    </div>
+                    <!-- Tab bar -->
+                    <div
+                        id="console-tabbar"
+                        class="flex items-center justify-between gap-2 px-2 border-b border-black/30 shrink-0"
+                    >
+                        <div class="flex items-center">
+                            <button type="button" class="result-tab" data-tab="test-results">
+                                <span id="test-tab-label">Test case</span>
+                            </button>
+                            <button type="button" class="result-tab" data-tab="console">Console</button>
+                        </div>
+                        <button
+                            id="customInputBtn"
+                            type="button"
+                            class="text-[11px] font-semibold text-slate-400 hover:text-white px-2.5 py-1 rounded-md hover:bg-white/10 transition-colors"
+                            title="Thử chạy với input tùy chỉnh"
+                        >
+                            ⌨ Input tùy chỉnh
+                        </button>
+                    </div>
+
+                    <div class="flex-1 min-h-0 relative">
+                        <!-- Test results -->
+                        <div
+                            id="tab-test-results"
+                            class="result-pane absolute inset-0 p-3 overflow-y-auto text-sm leading-relaxed"
+                        >
+                        </div>
+                        <!-- Console output -->
+                        <div
+                            id="tab-console"
+                            class="result-pane absolute inset-0 p-3 overflow-y-auto font-mono text-[13px] leading-relaxed hidden"
+                        >
+                            <div class="text-slate-500 italic">Nhấn "▶ Chạy thử" để thực thi code Python...</div>
                         </div>
                     </div>
                 </div>
-            )}
+
+                <!-- Status bar -->
+                <div
+                    class="h-6 shrink-0 flex items-center justify-between gap-3 px-3 bg-[#3776AB] text-white/90 text-[11px] font-medium"
+                >
+                    <span id="runtimeStatus" class="inline-flex items-center gap-1.5 whitespace-nowrap">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-300"></span> Python 3 · đang khởi tạo
+                    </span>
+                    <span class="flex items-center gap-4 whitespace-nowrap overflow-hidden">
+                        <span id="cursorPos">Dòng 1, Cột 1</span>
+                        <span class="hidden sm:inline">UTF-8</span>
+                        <span class="hidden lg:inline">Ctrl + Enter: Chạy thử</span>
+                    </span>
+                </div>
+            </section>
         </div>
+    </div>
 
-        <!-- Split pane resize handle -->
-        <div id="split-handle" class="hidden md:flex w-[6px] bg-[#313244] hover:bg-[#3776AB] cursor-col-resize items-center justify-center group transition-colors duration-150 shrink-0 relative">
-            <div class="w-[2px] h-8 rounded-full bg-slate-500 group-hover:bg-white transition-colors"></div>
-            <div class="absolute inset-y-0 -left-1 -right-1"></div>
-        </div>
-
-        <!-- RIGHT: Editor + Console -->
-        <div id="editor-panel" class="flex-1 flex flex-col bg-[#1e1e2e] min-w-0">
-            <!-- Toolbar -->
-            <div class="flex items-center justify-between px-4 py-2 bg-[#181825] border-b border-[#313244] shrink-0">
-                <div class="flex items-center gap-2">
-                    <span class="text-xs text-slate-500 font-mono font-bold">main.py</span>
+    <!-- ── Drawer: Danh sách bài học ──────────────────────────────── -->
+    <div id="lessonDrawerBackdrop" class="hidden fixed inset-0 top-26 z-[55] bg-slate-900/40 backdrop-blur-[1px]"></div>
+    <aside
+        id="lessonDrawer"
+        class="fixed top-26 bottom-0 left-0 z-[56] w-[340px] max-w-[88vw] bg-white shadow-2xl border-r border-slate-200 flex flex-col -translate-x-full transition-transform duration-300 invisible"
+        aria-label="Danh sách bài học"
+    >
+        <div class="px-5 py-4 border-b border-slate-100 shrink-0">
+            <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                    <p class="text-[11px] font-bold text-[#3776AB] uppercase tracking-wider">Nội dung khóa học</p>
+                    <a
+                        href={`/hoc-python/khoa-hoc/${courseSlug}`}
+                        class="block font-extrabold text-slate-800 truncate hover:text-[#3776AB] no-underline"
+                        >{lesson.course_title}</a
+                    >
                 </div>
-                <div class="flex items-center gap-2">
-                    <button
-                        id="resetBtn"
-                        class="text-xs text-slate-400 hover:text-white bg-[#313244] hover:bg-[#45475a] px-3 py-1.5 rounded-lg font-medium transition-colors"
-                    >
-                        ↺ Reset
-                    </button>
-                    <button
-                        id="runBtn"
-                        class="text-xs font-bold text-[#1e1e2e] bg-[#a6e3a1] hover:bg-[#94e2d5] px-4 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
-                    >
-                        ▶ Chạy
-                    </button>
-                    <button
-                        id="submitBtn"
-                        class:list={['text-xs font-bold text-white bg-[#3776AB] hover:bg-[#2B5E8A] px-4 py-1.5 rounded-lg transition-colors flex items-center gap-1.5']}
-                    >
-                        📤 Nộp bài
-                    </button>
-                    <button
-                        id="nextLessonBtn"
-                        class:list={['text-xs font-bold px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5', nextLesson ? 'text-white bg-[#585b70] hover:bg-[#6c7086]' : 'hidden']}
-                        data-next-slug={nextLesson?.slug || ''}
-                    >
-                        → Bài tiếp
-                    </button>
-                </div>
+                <button
+                    id="lessonDrawerClose"
+                    type="button"
+                    class="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-500 flex items-center justify-center shrink-0"
+                    title="Đóng">✕</button
+                >
             </div>
-
-            <!-- CodeMirror container -->
-            <div id="cm-editor" class="flex-1 overflow-hidden"></div>
-
-            <!-- Loading overlay cho Pyodide -->
-            <div id="pyodide-loading" class="absolute inset-0 bg-[#1e1e2e]/90 flex items-center justify-center z-10 hidden">
-                <div class="text-center">
-                    <div class="animate-spin rounded-full h-10 w-10 border-3 border-[#3776AB] border-t-transparent mx-auto mb-4"></div>
-                    <p class="text-slate-400 text-sm font-medium">Đang tải Python runtime...</p>
-                    <p class="text-slate-600 text-xs mt-1">Lần đầu có thể mất vài giây</p>
+            <div id="drawerProgress" class="mt-3 hidden">
+                <div class="flex justify-between text-xs mb-1">
+                    <span class="text-slate-500">Tiến độ</span>
+                    <span id="drawerProgressText" class="font-bold text-[#3776AB]"></span>
                 </div>
-            </div>
-
-            <!-- Bottom: Console + Test Results tabs -->
-            <div id="console-panel" class="shrink-0 border-t border-[#313244] bg-[#1e1e2e]" style="height: 200px;">
-                <!-- Console resize handle -->
-                <div id="console-resize-handle" class="h-[5px] bg-[#313244] hover:bg-[#3776AB] cursor-row-resize group transition-colors flex items-center justify-center">
-                    <div class="w-8 h-[2px] rounded-full bg-slate-600 group-hover:bg-white transition-colors"></div>
-                </div>
-                <!-- Tab bar -->
-                <div class="flex items-center justify-between gap-0 px-2 bg-[#181825] border-b border-[#313244]">
-                    <div class="flex items-center gap-0">
-                        <button class="result-tab active px-4 py-2 text-xs font-bold text-[#a6e3a1] border-b-2 border-[#a6e3a1] bg-transparent transition-colors" data-tab="console">
-                            ► Console
-                        </button>
-                        <button class="result-tab px-4 py-2 text-xs font-bold text-slate-500 border-b-2 border-transparent hover:text-slate-300 bg-transparent transition-colors" data-tab="test-results">
-                            <span id="test-tab-label">✓ Kết quả</span>
-                        </button>
+                <div class="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div
+                        id="drawerProgressBar"
+                        class="h-full bg-gradient-to-r from-[#3776AB] to-emerald-500 rounded-full transition-all duration-700"
+                        style="width: 0%"
+                    >
                     </div>
-                    <button id="customInputBtn" class="text-[10px] text-slate-500 hover:text-slate-300 px-2 py-1 rounded hover:bg-[#313244] transition-colors font-medium hidden" title="Thử chạy với input tùy chỉnh">
-                        ⌨ Input tùy chỉnh
-                    </button>
                 </div>
+            </div>
+        </div>
+        <div class="flex-1 overflow-y-auto py-2 lesson-content-panel">
+            {
+                chapterGroups.map((group, gi) => (
+                    <div class="mb-1">
+                        <p class="px-5 pt-3 pb-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                            Chương {gi + 1} · {group.title}
+                        </p>
+                        <ul>
+                            {group.lessons.map((l, li) => (
+                                <li>
+                                    <a
+                                        href={`/hoc-python/hoc/${courseSlug}/${l.slug}`}
+                                        data-drawer-slug={l.slug}
+                                        class:list={[
+                                            'flex items-center gap-3 px-5 py-2.5 text-sm no-underline transition-colors border-l-[3px]',
+                                            l.slug === lessonSlug
+                                                ? 'bg-[#3776AB]/[0.07] border-[#3776AB] text-[#3776AB] font-bold'
+                                                : 'border-transparent text-slate-600 hover:bg-slate-50 hover:text-slate-900',
+                                        ]}
+                                        aria-current={l.slug === lessonSlug ? 'page' : undefined}
+                                    >
+                                        <span class="drawer-status w-6 h-6 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center shrink-0">
+                                            <PyIcon name={lessonIconName(l.lesson_type)} class="w-3.5 h-3.5" />
+                                        </span>
+                                        <span class="flex-1 min-w-0 truncate">
+                                            <span class="text-slate-400 font-medium">
+                                                {gi + 1}.{li + 1}
+                                            </span>{' '}
+                                            {l.title}
+                                        </span>
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                ))
+            }
+        </div>
+    </aside>
 
-                <!-- Console output -->
-                <div id="tab-console" class="result-pane active p-3 overflow-y-auto font-mono text-sm leading-relaxed" style="height: calc(200px - 56px);">
-                    <div class="text-slate-500 italic">Nhấn "▶ Chạy" để thực thi code Python...</div>
-                </div>
-
-                <!-- Test results -->
-                <div id="tab-test-results" class="result-pane p-3 overflow-y-auto text-sm leading-relaxed hidden" style="height: calc(200px - 56px);">
-                    <div class="text-slate-500 italic">Nhấn "📤 Nộp bài" để chạy test case...</div>
-                </div>
+    <!-- Custom input overlay (hidden by default) -->
+    <div id="custom-input-overlay" class="hidden fixed inset-0 bg-slate-900/60 z-[70] items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-md shadow-2xl w-full">
+            <h3 class="text-slate-900 font-extrabold text-lg mb-1">Chạy với input tùy chỉnh</h3>
+            <p class="text-sm text-slate-500 mb-4">
+                Nhập dữ liệu đầu vào (stdin), mỗi giá trị <code class="text-[#3776AB] font-mono">input()</code> trên một dòng.
+            </p>
+            <textarea
+                id="custom-input-text"
+                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-800 font-mono text-sm resize-none focus:outline-none focus:border-[#3776AB] focus:ring-4 focus:ring-[#3776AB]/10 transition"
+                rows="5"
+                placeholder="Ví dụ:
+3
+5"></textarea>
+            <div class="flex justify-end gap-3 mt-4">
+                <button
+                    id="custom-input-cancel"
+                    type="button"
+                    class="text-sm font-semibold text-slate-600 hover:text-slate-900 px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors"
+                    >Hủy</button
+                >
+                <button
+                    id="custom-input-run"
+                    type="button"
+                    class="text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-lg transition-colors"
+                    >▶ Chạy</button
+                >
             </div>
         </div>
     </div>
 
-    <!-- Custom input overlay (hidden by default) -->
-    <div id="custom-input-overlay" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
-        <div class="bg-[#1e1e2e] border border-[#313244] rounded-2xl p-6 max-w-md mx-4 shadow-2xl w-full">
-            <h3 class="text-white font-bold text-base mb-3">Thử chạy với input tùy chỉnh</h3>
-            <textarea id="custom-input-text" class="w-full bg-[#181825] border border-[#313244] rounded-xl px-4 py-3 text-slate-200 font-mono text-sm resize-none focus:outline-none focus:border-[#3776AB] transition-colors" rows="4" placeholder="Nhập dữ liệu đầu vào (stdin)..."></textarea>
-            <div class="flex justify-end gap-3 mt-4">
-                <button id="custom-input-cancel" class="text-sm font-medium text-slate-400 hover:text-white px-4 py-2 rounded-lg bg-[#313244] hover:bg-[#45475a] transition-colors">Hủy</button>
-                <button id="custom-input-run" class="text-sm font-bold text-[#1e1e2e] bg-[#a6e3a1] hover:bg-[#94e2d5] px-4 py-2 rounded-lg transition-colors">▶ Chạy</button>
+    <!-- Modal hoàn thành bài học -->
+    <div id="successModal" class="hidden fixed inset-0 bg-slate-900/60 z-[70] items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full shadow-2xl overflow-hidden text-center py-success-pop">
+            <div class="relative bg-gradient-to-br from-emerald-500 to-teal-600 px-6 pt-8 pb-10">
+                <div
+                    class="w-20 h-20 mx-auto rounded-full bg-white/20 flex items-center justify-center ring-8 ring-white/10"
+                >
+                    <PyIcon name="check" class="w-11 h-11 text-white" />
+                </div>
+            </div>
+            <div class="relative px-6 pb-6 -mt-5">
+                <span
+                    id="successXp"
+                    class="inline-flex items-center gap-1.5 bg-[#FFD43B] text-[#0B1E33] font-extrabold text-sm px-4 py-1.5 rounded-full shadow-md"
+                    >⚡ +0 XP</span
+                >
+                <h3 class="text-xl font-extrabold text-slate-900 mt-4">Chúc mừng! 🎉</h3>
+                <p id="successText" class="text-sm text-slate-500 mt-1.5">Bạn đã hoàn thành bài học này.</p>
+                <p
+                    id="successAchievements"
+                    class="hidden text-sm font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 mt-3"
+                >
+                </p>
+                <div class="flex gap-3 mt-6">
+                    <button
+                        id="successStay"
+                        type="button"
+                        class="flex-1 text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 px-4 py-3 rounded-xl transition-colors"
+                        >Ở lại</button
+                    >
+                    <a
+                        id="successNext"
+                        href={nextLesson
+                            ? `/hoc-python/hoc/${courseSlug}/${nextLesson.slug}`
+                            : `/hoc-python/khoa-hoc/${courseSlug}`}
+                        class="flex-1 text-sm font-bold text-white bg-[#3776AB] hover:bg-[#2B5E8A] px-4 py-3 rounded-xl transition-colors no-underline"
+                    >
+                        {nextLesson ? 'Bài tiếp theo →' : 'Về khóa học'}
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -395,10 +748,15 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
         data-prev-lesson={prevLessonJson}
         data-next-lesson={nextLessonJson}
         data-quiz-questions={quizQuestionsJson}
-    ></div>
+    >
+    </div>
 </MainLayout>
 
-<script>if(!localStorage.getItem('auth_token')){window.location.href='/?login=true'}</script>
+<script>
+    if (!localStorage.getItem('auth_token')) {
+        window.location.href = '/?login=true'
+    }
+</script>
 <script>
     // ─────────────────────────────────────────────────────────────────────
     // Client-side logic: CodeMirror 6 + Pyodide + Run/Submit
@@ -408,8 +766,12 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
     const lessonData = document.getElementById('lesson-data')
     const starterCode = JSON.parse(lessonData?.dataset.starterCode || '"# Viết code Python của bạn ở đây\\n"')
     const testCases = JSON.parse(lessonData?.dataset.testCases || '[]')
-    const publicTests = testCases.filter(function (tc) { return !tc.is_hidden })
-    const hiddenTests = testCases.filter(function (tc) { return tc.is_hidden })
+    const publicTests = testCases.filter(function (tc) {
+        return !tc.is_hidden
+    })
+    const hiddenTests = testCases.filter(function (tc) {
+        return tc.is_hidden
+    })
     const lessonId = JSON.parse(lessonData?.dataset.lessonId || '""')
     const courseSlug = lessonData?.dataset.courseSlug || ''
     const prevLesson = JSON.parse(lessonData?.dataset.prevLesson || 'null')
@@ -424,18 +786,24 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
     const resetBtn = document.getElementById('resetBtn')
     const nextLessonBtn = document.getElementById('nextLessonBtn')
     const customInputBtn = document.getElementById('customInputBtn')
+    const runtimeStatusEl = document.getElementById('runtimeStatus')
+    const cursorPosEl = document.getElementById('cursorPos')
+    const draftKey = 'py_draft_' + lessonId
 
     // State
     let editorView = null
     let pyodide = null
     let lessonCompleted = false
+    let isBusy = false
+    let selectedTestIdx = -1
+    let draftTimer = null
 
     // ── Helper: normalize output (match server-side) ────────────────
     function normalizeOutput(str) {
         return (str || '')
             .replace(/\r\n/g, '\n')
             .split('\n')
-            .map(line => line.replace(/\s+$/, ''))
+            .map((line) => line.replace(/\s+$/, ''))
             .join('\n')
             .trim()
             .replace(/\n{3,}/g, '\n\n')
@@ -478,39 +846,39 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
         if (lessonCompleted) return true
         try {
             var completed = JSON.parse(localStorage.getItem('py_completed') || '{}')
-            if (completed[lessonId]) { lessonCompleted = true; return true }
+            if (completed[lessonId]) {
+                lessonCompleted = true
+                return true
+            }
         } catch {}
         return false
     }
 
     function updateNextButtonState() {
         if (!nextLessonBtn || !nextLesson) return
-        if (isLessonCompleted()) {
-            nextLessonBtn.className = 'text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
-            nextLessonBtn.innerHTML = '🎉 Bài tiếp →'
-        } else {
-            nextLessonBtn.className = 'text-xs font-bold text-white bg-[#585b70] hover:bg-[#6c7086] px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5'
-            nextLessonBtn.innerHTML = '→ Bài tiếp'
-        }
+        nextLessonBtn.className = 'py-next-btn ' + (isLessonCompleted() ? 'py-next-btn--ready' : 'py-next-btn--pending')
     }
 
     // ── Skip Warning Modal ───────────────────────────────────────────
     function showSkipWarning() {
         var overlay = document.createElement('div')
         overlay.id = 'skipModal'
-        overlay.className = 'fixed inset-0 bg-black/60 z-50 flex items-center justify-center'
-        overlay.innerHTML = '<div class="bg-[#1e1e2e] border border-[#313244] rounded-2xl p-6 max-w-sm mx-4 shadow-2xl">' +
-            '<div class="text-amber-400 text-3xl mb-3">⚠️</div>' +
-            '<h3 class="text-white font-bold text-lg mb-2">Chưa hoàn thành!</h3>' +
-            '<p class="text-slate-400 text-sm mb-5">Bạn chưa hoàn thành bài học này. ' +
+        overlay.className = 'fixed inset-0 bg-slate-900/60 z-[70] flex items-center justify-center p-4'
+        overlay.innerHTML =
+            '<div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl">' +
+            '<div class="w-12 h-12 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-2xl mb-4">⚠️</div>' +
+            '<h3 class="text-slate-900 font-extrabold text-lg mb-2">Chưa hoàn thành!</h3>' +
+            '<p class="text-slate-500 text-sm leading-relaxed mb-6">Bạn chưa hoàn thành bài học này. ' +
             'Có thể bạn sẽ bỏ lỡ kiến thức quan trọng nếu bỏ qua. Vẫn muốn tiếp tục?</p>' +
             '<div class="flex gap-3 justify-end">' +
-            '<button class="skip-cancel text-sm font-medium text-slate-400 hover:text-white px-4 py-2 rounded-lg bg-[#313244] hover:bg-[#45475a] transition-colors">Ở lại</button>' +
-            '<button class="skip-confirm text-sm font-bold text-white bg-amber-600 hover:bg-amber-500 px-4 py-2 rounded-lg transition-colors">Bỏ qua</button>' +
+            '<button class="skip-cancel text-sm font-semibold text-slate-600 hover:text-slate-900 px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 transition-colors">Ở lại học tiếp</button>' +
+            '<button class="skip-confirm text-sm font-bold text-white bg-amber-500 hover:bg-amber-600 px-4 py-2.5 rounded-xl transition-colors">Bỏ qua</button>' +
             '</div></div>'
         document.body.appendChild(overlay)
 
-        overlay.querySelector('.skip-cancel').addEventListener('click', function () { overlay.remove() })
+        overlay.querySelector('.skip-cancel').addEventListener('click', function () {
+            overlay.remove()
+        })
         overlay.querySelector('.skip-confirm').addEventListener('click', function () {
             if (nextLesson) window.location.href = '/hoc-python/hoc/' + courseSlug + '/' + nextLesson.slug
         })
@@ -528,6 +896,70 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
         }
     }
 
+    // ── Success modal ────────────────────────────────────────────────
+    function showSuccessModal(xpAwarded, achievements, detail) {
+        var modal = document.getElementById('successModal')
+        if (!modal) return
+        var xpEl = document.getElementById('successXp')
+        var textEl = document.getElementById('successText')
+        var achEl = document.getElementById('successAchievements')
+        if (xpEl) xpEl.textContent = xpAwarded > 0 ? '⚡ +' + xpAwarded + ' XP' : '✓ Đã hoàn thành'
+        if (textEl) textEl.textContent = detail || 'Bạn đã hoàn thành bài học này.'
+        if (achEl) {
+            if (achievements && achievements.length > 0) {
+                achEl.textContent = '🏅 Mở khoá thành tích: ' + achievements.join(', ')
+                achEl.classList.remove('hidden')
+            } else {
+                achEl.classList.add('hidden')
+            }
+        }
+        modal.classList.remove('hidden')
+        modal.classList.add('flex')
+    }
+
+    function hideSuccessModal() {
+        var modal = document.getElementById('successModal')
+        if (!modal) return
+        modal.classList.add('hidden')
+        modal.classList.remove('flex')
+    }
+
+    // ── Runtime status (status bar) ──────────────────────────────────
+    function setRuntimeStatus(state, text) {
+        if (!runtimeStatusEl) return
+        var color = state === 'ready' ? 'bg-emerald-300' : state === 'error' ? 'bg-rose-300' : 'bg-amber-300'
+        runtimeStatusEl.innerHTML = '<span class="w-1.5 h-1.5 rounded-full ' + color + '"></span> ' + escapeHtml(text)
+    }
+
+    function setBusy(busy) {
+        isBusy = busy
+        ;[
+            runBtn,
+            submitBtn,
+        ].forEach(function (btn) {
+            if (!btn) return
+            btn.disabled = busy
+            btn.classList.toggle('opacity-60', busy)
+            btn.classList.toggle('cursor-wait', busy)
+        })
+    }
+
+    // ── Draft (tự lưu code vào localStorage) ─────────────────────────
+    function loadDraft() {
+        try {
+            return localStorage.getItem(draftKey)
+        } catch {
+            return null
+        }
+    }
+
+    function saveDraft(code) {
+        try {
+            if (code === starterCode) localStorage.removeItem(draftKey)
+            else localStorage.setItem(draftKey, code)
+        } catch {}
+    }
+
     // ── CodeMirror 6 (singleton cache) ──────────────────────────────
     async function initEditor() {
         if (editorView) return
@@ -537,11 +969,20 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
         if (window.__cmModules) {
             cmModules = window.__cmModules
         } else {
-            var [cm, state, lang, theme] = await Promise.all([
+            var [
+                cm,
+                state,
+                lang,
+                theme,
+                view,
+                commands,
+            ] = await Promise.all([
                 import('codemirror'),
                 import('@codemirror/state'),
                 import('@codemirror/lang-python'),
                 import('@codemirror/theme-one-dark'),
+                import('@codemirror/view'),
+                import('@codemirror/commands'),
             ])
             cmModules = {
                 EditorView: cm.EditorView,
@@ -549,14 +990,18 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
                 EditorState: state.EditorState,
                 python: lang.python,
                 oneDark: theme.oneDark,
+                keymap: view.keymap,
+                indentWithTab: commands.indentWithTab,
             }
             window.__cmModules = cmModules
         }
 
+        var draft = loadDraft()
         var state = cmModules.EditorState.create({
-            doc: starterCode,
+            doc: draft !== null ? draft : starterCode,
             extensions: [
                 cmModules.basicSetup,
+                cmModules.keymap.of([cmModules.indentWithTab]),
                 cmModules.python(),
                 cmModules.oneDark,
                 cmModules.EditorView.theme({
@@ -564,11 +1009,28 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
                     '.cm-scroller': { overflow: 'auto' },
                 }),
                 cmModules.EditorView.lineWrapping,
+                cmModules.EditorView.updateListener.of(function (update) {
+                    if (update.selectionSet || update.docChanged) {
+                        var pos = update.state.selection.main.head
+                        var line = update.state.doc.lineAt(pos)
+                        if (cursorPosEl)
+                            cursorPosEl.textContent = 'Dòng ' + line.number + ', Cột ' + (pos - line.from + 1)
+                    }
+                    if (update.docChanged) {
+                        clearTimeout(draftTimer)
+                        draftTimer = setTimeout(function () {
+                            saveDraft(update.state.doc.toString())
+                        }, 400)
+                    }
+                }),
             ],
         })
 
         if (cmContainer) {
             editorView = new cmModules.EditorView({ state, parent: cmContainer })
+        }
+        if (draft !== null && draft !== starterCode) {
+            appendConsole('💾 Đã khôi phục bản nháp lần trước. Nhấn "Làm lại" để về code ban đầu.')
         }
     }
 
@@ -577,7 +1039,11 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
     async function initPyodide() {
         if (pyodide) return true
         if (pyodideInitPromise) return pyodideInitPromise
-        if (loadingEl) loadingEl.classList.remove('hidden')
+        if (loadingEl) {
+            loadingEl.classList.remove('hidden')
+            loadingEl.classList.add('inline-flex')
+        }
+        setRuntimeStatus('loading', 'Python 3 · đang tải runtime...')
 
         pyodideInitPromise = (async function () {
             try {
@@ -586,7 +1052,9 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
                     script.src = 'https://cdn.jsdelivr.net/npm/pyodide@0.27.3/pyodide.js'
                     await new Promise(function (resolve, reject) {
                         script.onload = resolve
-                        script.onerror = function () { reject(new Error('Không thể tải Pyodide từ CDN')) }
+                        script.onerror = function () {
+                            reject(new Error('Không thể tải Pyodide từ CDN'))
+                        }
                         document.head.appendChild(script)
                     })
                     window.__pyodide = await globalThis.loadPyodide({
@@ -594,17 +1062,25 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
                     })
                 }
                 pyodide = window.__pyodide
-                if (loadingEl) loadingEl.classList.add('hidden')
+                if (loadingEl) {
+                    loadingEl.classList.add('hidden')
+                    loadingEl.classList.remove('inline-flex')
+                }
+                setRuntimeStatus('ready', 'Python ' + pyodide.version + ' · sẵn sàng')
                 appendConsole('✅ Python runtime đã sẵn sàng! (Python ' + pyodide.version + ')')
                 return true
             } catch (err) {
-                if (loadingEl) loadingEl.classList.add('hidden')
-                appendConsole('❌ Lỗi tải Pyodide: ' + err.message)
+                if (loadingEl) {
+                    loadingEl.classList.add('hidden')
+                    loadingEl.classList.remove('inline-flex')
+                }
+                setRuntimeStatus('error', 'Không tải được Python runtime')
+                appendConsole('❌ Lỗi tải Pyodide: ' + err.message, 'error')
                 console.error('Pyodide init error:', err)
                 pyodideInitPromise = null
                 return false
             }
-        }())
+        })()
         return pyodideInitPromise
     }
 
@@ -612,12 +1088,15 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
     function appendConsole(text, type) {
         if (!consoleEl) return
         var line = document.createElement('div')
-        line.className = 'py-0.5 ' + (
-            type === 'error' ? 'text-red-400' :
-            type === 'success' ? 'text-green-400' :
-            type === 'output' ? 'text-slate-100' :
-            'text-slate-400'
-        )
+        line.className =
+            'py-0.5 whitespace-pre-wrap break-words ' +
+            (type === 'error'
+                ? 'text-[#e06c75]'
+                : type === 'success'
+                  ? 'text-[#98c379]'
+                  : type === 'output'
+                    ? 'text-slate-100'
+                    : 'text-slate-400')
         line.textContent = text
         consoleEl.appendChild(line)
         consoleEl.scrollTop = consoleEl.scrollHeight
@@ -631,117 +1110,185 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
     async function runPythonWithStdin(code, stdin) {
         return await pyodide.runPythonAsync(
             'import sys\nfrom io import StringIO\n' +
-            'sys.stdin = StringIO(' + JSON.stringify(stdin || '') + ')\n' +
-            '_out = StringIO()\nsys.stdout = _out\n' +
-            'try:\n    _ = 0\n' +
-            code.split('\n').map(function (line) { return '    ' + line }).join('\n') + '\n' +
-            'except Exception:\n    import traceback\n    traceback.print_exc()\n' +
-            'sys.stdout = sys.__stdout__\n_out.getvalue()'
+                'sys.stdin = StringIO(' +
+                JSON.stringify(stdin || '') +
+                ')\n' +
+                '_out = StringIO()\nsys.stdout = _out\n' +
+                'try:\n    _ = 0\n' +
+                code
+                    .split('\n')
+                    .map(function (line) {
+                        return '    ' + line
+                    })
+                    .join('\n') +
+                '\n' +
+                'except Exception:\n    import traceback\n    traceback.print_exc()\n' +
+                'sys.stdout = sys.__stdout__\n_out.getvalue()',
         )
+    }
+
+    async function ensureReady() {
+        if (!pyodide || !editorView) {
+            appendConsole('⚠️ Python runtime chưa sẵn sàng. Vui lòng đợi...', 'error')
+            if (!pyodide) await initPyodide()
+            if (!pyodide || !editorView) return false
+        }
+        return true
     }
 
     // ── Run code — chạy public test cases ────────────────────────────
     async function runCode() {
-        if (!pyodide || !editorView) {
-            appendConsole('⚠️ Python runtime chưa sẵn sàng. Vui lòng đợi...', 'error')
-            if (!pyodide) await initPyodide()
-            if (!pyodide) return
-        }
+        if (isBusy) return
+        showCodeOnMobile()
+        if (!(await ensureReady())) return
+        setBusy(true)
+        try {
+            var code = editorView.state.doc.toString()
 
-        var code = editorView.state.doc.toString()
+            if (publicTests.length === 0) {
+                clearConsole()
+                switchTab('console')
+                appendConsole('▶ Đang chạy...')
+                try {
+                    var result = await runPythonWithStdin(code, '')
+                    var output = (result || '').trim()
+                    if (output) {
+                        output.split('\n').forEach(function (line) {
+                            appendConsole(line, 'output')
+                        })
+                    } else {
+                        appendConsole('✅ Code chạy thành công (không có output)', 'success')
+                    }
+                } catch (err) {
+                    appendConsole('❌ Lỗi: ' + (err.message || String(err)), 'error')
+                }
+                return
+            }
 
-        if (publicTests.length === 0) {
             clearConsole()
-            appendConsole('▶ Đang chạy...')
-            try {
-                var result = await runPythonWithStdin(code, '')
-                var output = (result || '').trim()
-                if (output) {
-                    output.split('\n').forEach(function (line) { appendConsole(line, 'output') })
-                } else {
-                    appendConsole('✅ Code chạy thành công (không có output)', 'success')
+            appendConsole('▶ Đang chạy ' + publicTests.length + ' test case mẫu...')
+            switchTab('test-results')
+            selectedTestIdx = -1
+            showTestResults([], 0, publicTests.length, true)
+
+            var passed = 0
+            var results = []
+
+            for (var i = 0; i < publicTests.length; i++) {
+                var tc = publicTests[i]
+                var testLabel = 'Test ' + (i + 1)
+
+                try {
+                    var output = await runPythonWithStdin(code, tc.stdin)
+                    var actualOutput = (output || '').trim()
+                    var expected = tc.expected_output.trim()
+                    var compMode = lessonData?.dataset.comparisonMode || 'exact'
+                    var epsilon = parseFloat(lessonData?.dataset.floatEpsilon || '0.001')
+                    var match = compareClientOutputs(actualOutput, expected, compMode, epsilon)
+
+                    if (match) {
+                        passed++
+                        results.push({
+                            index: i,
+                            passed: true,
+                            label: testLabel,
+                            stdin: tc.stdin,
+                            expected: expected,
+                            actual: actualOutput,
+                        })
+                    } else {
+                        results.push({
+                            index: i,
+                            passed: false,
+                            label: testLabel,
+                            stdin: tc.stdin,
+                            expected: expected,
+                            actual: actualOutput,
+                        })
+                    }
+                } catch (err) {
+                    results.push({
+                        index: i,
+                        passed: false,
+                        label: testLabel,
+                        stdin: tc.stdin,
+                        expected: tc.expected_output,
+                        error: err.message || String(err),
+                    })
                 }
-            } catch (err) {
-                appendConsole('❌ Lỗi: ' + (err.message || String(err)), 'error')
+                showTestResults(results, passed, publicTests.length)
             }
-            return
-        }
 
-        clearConsole()
-        appendConsole('▶ Đang chạy ' + publicTests.length + ' test cases...')
-        switchTab('test-results')
-        showTestResults([], 0, publicTests.length, true)
-
-        var passed = 0
-        var results = []
-
-        for (var i = 0; i < publicTests.length; i++) {
-            var tc = publicTests[i]
-            var testLabel = 'Test: ' + (tc.stdin || '(empty input)')
-
-            try {
-                var output = await runPythonWithStdin(code, tc.stdin)
-                var actualOutput = (output || '').trim()
-                var expected = tc.expected_output.trim()
-                var compMode = lessonData?.dataset.comparisonMode || 'exact'
-                var epsilon = parseFloat(lessonData?.dataset.floatEpsilon || '0.001')
-                var match = compareClientOutputs(actualOutput, expected, compMode, epsilon)
-
-                if (match) {
-                    passed++
-                    results.push({ index: i, passed: true, label: testLabel })
-                } else {
-                    results.push({ index: i, passed: false, label: testLabel, expected: expected, actual: actualOutput })
-                }
-            } catch (err) {
-                results.push({ index: i, passed: false, label: testLabel, error: err.message || String(err) })
-            }
             showTestResults(results, passed, publicTests.length)
-        }
 
-        showTestResults(results, passed, publicTests.length)
-
-        if (passed === publicTests.length) {
-            appendConsole('✅ ' + passed + '/' + publicTests.length + ' test case đúng! Hãy nhấn "Nộp bài" để chạy ẩn test.', 'success')
-        } else {
-            appendConsole('📊 ' + passed + '/' + publicTests.length + ' test case đúng — sửa code rồi chạy lại.', 'info')
+            if (passed === publicTests.length) {
+                appendConsole(
+                    '✅ ' +
+                        passed +
+                        '/' +
+                        publicTests.length +
+                        ' test case mẫu đúng! Hãy nhấn "Nộp bài" để chấm cả test ẩn.',
+                    'success',
+                )
+            } else {
+                appendConsole(
+                    '📊 ' + passed + '/' + publicTests.length + ' test case đúng — sửa code rồi chạy lại.',
+                    'info',
+                )
+            }
+        } finally {
+            setBusy(false)
         }
     }
 
     // ── Run with custom input ───────────────────────────────────────
     async function runWithCustomInput(stdin) {
-        if (!pyodide || !editorView) {
-            appendConsole('⚠️ Python runtime chưa sẵn sàng.', 'error')
-            return
-        }
+        if (isBusy) return
+        if (!(await ensureReady())) return
+        setBusy(true)
         var code = editorView.state.doc.toString()
         clearConsole()
-        appendConsole('▶ Đang chạy với input tùy chỉnh...')
         switchTab('console')
+        appendConsole('▶ Đang chạy với input tùy chỉnh...')
         try {
             var result = await runPythonWithStdin(code, stdin)
             var output = (result || '').trim()
             if (output) {
-                output.split('\n').forEach(function (line) { appendConsole(line, 'output') })
+                output.split('\n').forEach(function (line) {
+                    appendConsole(line, 'output')
+                })
             } else {
                 appendConsole('✅ Code chạy thành công (không có output)', 'success')
             }
         } catch (err) {
             appendConsole('❌ Lỗi: ' + (err.message || String(err)), 'error')
+        } finally {
+            setBusy(false)
         }
     }
 
     // ── Submit (chạy test cases) ─────────────────────────────────────
     async function submitCode() {
-        if (!pyodide || !editorView) {
-            appendConsole('⚠️ Python runtime chưa sẵn sàng.', 'error')
+        if (isBusy) return
+        showCodeOnMobile()
+        if (!(await ensureReady())) {
+            switchTab('console')
             return
         }
+        setBusy(true)
+        try {
+            await submitCodeInner()
+        } finally {
+            setBusy(false)
+        }
+    }
 
+    async function submitCodeInner() {
         var code = editorView.state.doc.toString()
 
         if (testCases.length === 0) {
             clearConsole()
+            switchTab('console')
             appendConsole('📤 Đang đánh dấu bài học...')
             try {
                 var token = localStorage.getItem('auth_token')
@@ -751,7 +1298,7 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
                 }
                 var res = await fetch('/api/hoc-python/submit', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
                     body: JSON.stringify({ lessonId: lessonId, sourceCode: code, outputs: [] }),
                 })
                 var data = await res.json()
@@ -759,6 +1306,7 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
                     appendConsole('✅ Đã đánh dấu bài học là hoàn thành! +' + (data.xpAwarded || 0) + ' XP', 'success')
                     var quizCorrect = 0
                     var quizTotal = quizQuestions.length
+                    var quizText = ''
                     if (quizTotal > 0) {
                         document.querySelectorAll('.quiz-question').forEach(function (qEl) {
                             var correctIdx = parseInt(qEl.dataset.correct || '0')
@@ -766,15 +1314,25 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
                             if (correctRadio && correctRadio.checked) quizCorrect++
                         })
                         if (quizCorrect === quizTotal) {
-                            appendConsole('🎯 Trắc nghiệm: ' + quizCorrect + '/' + quizTotal + ' — xuất sắc!', 'success')
+                            appendConsole(
+                                '🎯 Trắc nghiệm: ' + quizCorrect + '/' + quizTotal + ' — xuất sắc!',
+                                'success',
+                            )
                         } else {
                             appendConsole('📊 Trắc nghiệm: ' + quizCorrect + '/' + quizTotal + ' câu đúng', 'info')
                         }
+                        quizText = 'Trắc nghiệm: ' + quizCorrect + '/' + quizTotal + ' câu đúng.'
                     }
                     if (data.newAchievements && data.newAchievements.length > 0) {
                         appendConsole('🏅 Mở khoá thành tích: ' + data.newAchievements.join(', '), 'success')
                     }
                     markLessonCompleted()
+                    loadCourseProgress()
+                    showSuccessModal(
+                        data.xpAwarded || 0,
+                        data.newAchievements,
+                        quizText || 'Bạn đã hoàn thành bài học lý thuyết này.',
+                    )
                 } else {
                     appendConsole('⚠️ ' + (data.error || 'Lỗi không xác định'), 'error')
                 }
@@ -787,9 +1345,10 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
         clearConsole()
         var totalTests = testCases.length
         var hiddenCount = hiddenTests.length
-        appendConsole('📤 Đang nộp bài và chạy ' + totalTests + ' test cases (trong đó ' + hiddenCount + ' ẩn)...')
+        appendConsole('📤 Đang nộp bài và chạy ' + totalTests + ' test case (trong đó ' + hiddenCount + ' ẩn)...')
 
         switchTab('test-results')
+        selectedTestIdx = -1
         showTestResults([], 0, totalTests, true)
 
         var passed = 0
@@ -798,7 +1357,7 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
 
         for (var i = 0; i < testCases.length; i++) {
             var tc = testCases[i]
-            var testLabel = tc.is_hidden ? 'Test #' + (i + 1) + ' (ẩn)' : 'Test: ' + (tc.stdin || '(empty input)')
+            var testLabel = 'Test ' + (i + 1)
 
             try {
                 var output = await runPythonWithStdin(code, tc.stdin)
@@ -807,7 +1366,7 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
 
                 if (tc.is_hidden) {
                     // Hidden test: chỉ chạy để lấy output, KHÔNG chấm trên client (không có đáp án) — server chấm
-                    results.push({ index: i, pending: true, label: testLabel })
+                    results.push({ index: i, pending: true, hidden: true, label: testLabel })
                 } else {
                     var expected = tc.expected_output.trim()
                     var compMode = lessonData?.dataset.comparisonMode || 'exact'
@@ -816,14 +1375,35 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
 
                     if (match) {
                         passed++
-                        results.push({ index: i, passed: true, label: testLabel })
+                        results.push({
+                            index: i,
+                            passed: true,
+                            label: testLabel,
+                            stdin: tc.stdin,
+                            expected: expected,
+                            actual: actualOutput,
+                        })
                     } else {
-                        results.push({ index: i, passed: false, label: testLabel, expected: expected, actual: actualOutput })
+                        results.push({
+                            index: i,
+                            passed: false,
+                            label: testLabel,
+                            stdin: tc.stdin,
+                            expected: expected,
+                            actual: actualOutput,
+                        })
                     }
                 }
             } catch (err) {
                 outputs.push('')
-                results.push({ index: i, passed: false, label: testLabel, error: err.message || String(err) })
+                results.push({
+                    index: i,
+                    passed: false,
+                    hidden: !!tc.is_hidden,
+                    label: testLabel,
+                    stdin: tc.is_hidden ? undefined : tc.stdin,
+                    error: err.message || String(err),
+                })
             }
             showTestResults(results, passed, testCases.length)
         }
@@ -855,21 +1435,35 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
             // Hiển thị kết quả chính thức — hidden test không lộ expected/actual
             var serverResults = data.results.map(function (r, idx) {
                 var tc = testCases[idx]
-                var label = tc ? (tc.is_hidden ? 'Test #' + (idx + 1) + ' (ẩn)' : 'Test: ' + (tc.stdin || '(empty input)')) : 'Test #' + (idx + 1)
-                var obj = { index: idx, passed: !!r.passed, label: label }
+                var label = 'Test ' + (idx + 1)
+                var obj = { index: idx, passed: !!r.passed, label: label, hidden: !!(tc && tc.is_hidden) }
                 if (r.error) obj.error = r.error
                 if (!tc || !tc.is_hidden) {
+                    if (tc) obj.stdin = tc.stdin
                     if (r.expected !== undefined) obj.expected = r.expected
                     if (r.actual !== undefined) obj.actual = r.actual
                 }
                 return obj
             })
-            var serverPassed = serverResults.filter(function (r) { return r.passed }).length
+            var serverPassed = serverResults.filter(function (r) {
+                return r.passed
+            }).length
+            selectedTestIdx = -1
             showTestResults(serverResults, serverPassed, testCases.length)
 
             if (data.passed) {
-                appendConsole('🎉 Hoàn thành ' + serverPassed + '/' + testCases.length + ' test case (gồm ' + hiddenCount + ' ẩn)!', 'success')
+                appendConsole(
+                    '🎉 Hoàn thành ' +
+                        serverPassed +
+                        '/' +
+                        testCases.length +
+                        ' test case (gồm ' +
+                        hiddenCount +
+                        ' ẩn)!',
+                    'success',
+                )
                 markLessonCompleted()
+                loadCourseProgress()
             } else {
                 appendConsole('📊 Kết quả: ' + serverPassed + '/' + testCases.length + ' test case đúng', 'info')
             }
@@ -877,98 +1471,230 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
             if (data.newAchievements && data.newAchievements.length > 0)
                 appendConsole('🏅 Mở khoá thành tích: ' + data.newAchievements.join(', '), 'success')
             if (data.error) appendConsole('⚠️ ' + data.error, 'error')
+            if (data.passed) {
+                showSuccessModal(
+                    data.xpAwarded || 0,
+                    data.newAchievements,
+                    'Bài làm đúng ' +
+                        serverPassed +
+                        '/' +
+                        testCases.length +
+                        ' test case' +
+                        (hiddenCount ? ' (gồm ' + hiddenCount + ' test ẩn).' : '.'),
+                )
+            }
         } else if (data && data.error) {
             appendConsole('⚠️ ' + data.error, 'error')
+            switchTab('console')
         }
     }
 
-    // ── Test results UI (enhanced with diff view) ───────────────────
+    // ── Test results UI (kiểu CodeLearn: danh sách test + chi tiết) ─
+    var lastTestView = { results: [], passed: 0, total: 0 }
+
+    function testPreviewItems() {
+        // Trạng thái ban đầu: liệt kê test case, chưa chạy
+        return testCases.map(function (tc, idx) {
+            return tc.is_hidden
+                ? { index: idx, notRun: true, hidden: true, label: 'Test ' + (idx + 1) }
+                : {
+                      index: idx,
+                      notRun: true,
+                      label: 'Test ' + (idx + 1),
+                      stdin: tc.stdin,
+                      expected: (tc.expected_output || '').trim(),
+                  }
+        })
+    }
+
+    function ioBlock(title, value, tone) {
+        var empty = value === undefined || value === null || value === ''
+        return (
+            '<div class="min-w-0">' +
+            '<p class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">' +
+            title +
+            '</p>' +
+            '<pre class="io-box io-box--' +
+            (tone || 'plain') +
+            '">' +
+            (empty ? '<span class="text-slate-600 italic">(trống)</span>' : escapeHtml(value)) +
+            '</pre></div>'
+        )
+    }
+
+    function renderTestDetail(r) {
+        if (!r) return ''
+        if (r.hidden) {
+            var status = r.notRun ? 'Chưa chạy' : r.pending ? 'Đang chờ server chấm...' : r.passed ? 'Đúng' : 'Sai'
+            return (
+                '<div class="flex items-start gap-3 rounded-lg bg-white/5 border border-white/10 p-3">' +
+                '<span class="text-lg">🔒</span><div><p class="text-slate-200 text-sm font-semibold">Test case ẩn — ' +
+                status +
+                '</p>' +
+                '<p class="text-slate-500 text-xs mt-0.5">Input và output của test ẩn được giấu để đảm bảo tính công bằng khi chấm bài.</p>' +
+                (r.error && !r.passed
+                    ? '<p class="text-[#e06c75] text-xs mt-1 font-mono">Lỗi: ' + escapeHtml(r.error) + '</p>'
+                    : '') +
+                '</div></div>'
+            )
+        }
+        var html =
+            '<div class="grid gap-3 ' +
+            (r.notRun ? 'sm:grid-cols-2' : 'sm:grid-cols-3') +
+            '">' +
+            ioBlock('Input', r.stdin, 'plain') +
+            ioBlock('Output mong muốn', r.expected, 'plain')
+        if (!r.notRun) {
+            html += ioBlock('Output của bạn', r.error ? '' : r.actual, r.passed ? 'pass' : 'fail')
+        }
+        html += '</div>'
+        if (r.error) {
+            html += '<pre class="io-box io-box--fail mt-3">Lỗi: ' + escapeHtml(r.error) + '</pre>'
+        }
+        if (!r.notRun && !r.passed && r.expected !== undefined && r.actual !== undefined && !r.error) {
+            var linesExpected = String(r.expected).split('\n')
+            var linesActual = String(r.actual).split('\n')
+            var diffHtml = ''
+            var maxLines = Math.max(linesExpected.length, linesActual.length)
+            for (var d = 0; d < Math.min(maxLines, 8); d++) {
+                var eLine = linesExpected[d] || ''
+                var aLine = linesActual[d] || ''
+                if (eLine !== aLine) {
+                    diffHtml +=
+                        '<div class="text-[#e06c75]">- ' +
+                        escapeHtml(eLine || '(trống)') +
+                        '</div>' +
+                        '<div class="text-[#98c379]">+ ' +
+                        escapeHtml(aLine || '(trống)') +
+                        '</div>'
+                } else {
+                    diffHtml += '<div class="text-slate-500">  ' + escapeHtml(eLine) + '</div>'
+                }
+            }
+            if (diffHtml) {
+                html +=
+                    '<details class="mt-3"><summary class="text-slate-400 hover:text-slate-200 cursor-pointer text-xs font-semibold">So sánh từng dòng (- mong muốn, + của bạn)</summary>' +
+                    '<pre class="io-box io-box--plain mt-2">' +
+                    diffHtml +
+                    '</pre></details>'
+            }
+        }
+        return html
+    }
+
     function showTestResults(results, passed, total, loading) {
         if (!testResultsEl) return
 
         var label = document.getElementById('test-tab-label')
-        if (label) label.textContent = '✓ ' + passed + '/' + total
 
         if (loading) {
+            if (label) label.innerHTML = 'Test case <span class="tab-badge">…</span>'
             testResultsEl.innerHTML =
-                '<div class="text-slate-400 text-center py-4">' +
-                '<div class="animate-spin rounded-full h-6 w-6 border-2 border-[#3776AB] border-t-transparent mx-auto mb-2"></div>' +
-                'Đang chạy test cases...</div>'
+                '<div class="flex items-center gap-3 text-slate-400 py-6 justify-center">' +
+                '<span class="w-5 h-5 rounded-full border-2 border-[#61afef] border-t-transparent animate-spin"></span>' +
+                'Đang chạy test case...</div>'
             return
         }
 
-        var allPassed = total > 0 && passed === total
-        var html = '<div class="mb-3 flex items-center gap-2 text-sm font-bold">' +
-            '<span class="' + (allPassed ? 'text-green-400' : total > 0 ? 'text-yellow-400' : 'text-slate-400') + '">' +
-            (allPassed ? '✅' : total > 0 ? '⚠️' : '—') + '</span>' +
-            '<span class="text-slate-200">' + passed + '/' + total + '</span>' +
-            '<span class="text-slate-400 font-normal">test case đúng</span></div>'
+        lastTestView = { results: results, passed: passed, total: total }
+        var notRun =
+            results.length > 0 &&
+            results.every(function (r) {
+                return r.notRun
+            })
+        var anyPending = results.some(function (r) {
+            return r.pending
+        })
+        var allPassed = total > 0 && passed === total && !anyPending
 
-        if (results.length === 0) {
-            html += '<div class="text-slate-500 italic">Không có test case nào.</div>'
+        if (label) {
+            label.innerHTML =
+                notRun || results.length === 0
+                    ? 'Test case'
+                    : 'Test case <span class="tab-badge ' +
+                      (allPassed ? 'tab-badge--pass' : 'tab-badge--fail') +
+                      '">' +
+                      passed +
+                      '/' +
+                      total +
+                      '</span>'
         }
 
+        if (results.length === 0) {
+            testResultsEl.innerHTML =
+                '<div class="text-slate-500 italic py-2">Bài học này không có test case. Nhấn "▶ Chạy thử" để chạy code.</div>'
+            return
+        }
+
+        // Chọn test hiển thị chi tiết: giữ lựa chọn cũ, mặc định test sai đầu tiên
+        if (selectedTestIdx < 0 || selectedTestIdx >= results.length) {
+            var firstFail = results.findIndex(function (r) {
+                return !r.notRun && !r.pending && !r.passed
+            })
+            selectedTestIdx = firstFail >= 0 ? firstFail : 0
+        }
+
+        var html = ''
+        if (notRun) {
+            html +=
+                '<div class="flex items-center gap-2 mb-3 text-sm"><span class="font-bold text-slate-200">' +
+                total +
+                ' test case</span>' +
+                '<span class="hidden sm:inline text-slate-500">· ' +
+                (publicTests.length
+                    ? 'nhấn "▶ Chạy thử" để kiểm tra với test mẫu, "Nộp bài" để chấm toàn bộ'
+                    : 'nhấn "Nộp bài" để chấm') +
+                '</span></div>'
+        } else {
+            var pct = total > 0 ? Math.round((passed / total) * 100) : 0
+            html +=
+                '<div class="flex items-center gap-3 mb-3">' +
+                '<span class="text-sm font-extrabold ' +
+                (allPassed ? 'text-[#98c379]' : anyPending ? 'text-slate-300' : 'text-[#e5c07b]') +
+                '">' +
+                (allPassed ? '✓ Chính xác' : anyPending ? 'Đang chấm...' : '✗ Chưa đúng') +
+                '</span>' +
+                '<span class="text-sm text-slate-300">' +
+                passed +
+                '/' +
+                total +
+                ' test case</span>' +
+                '<div class="flex-1 max-w-48 h-1.5 bg-white/10 rounded-full overflow-hidden"><div class="h-full rounded-full ' +
+                (allPassed ? 'bg-[#98c379]' : 'bg-[#e5c07b]') +
+                '" style="width:' +
+                pct +
+                '%"></div></div></div>'
+        }
+
+        html += '<div class="flex flex-wrap gap-1.5 mb-3">'
         results.forEach(function (r, idx) {
-            if (r.pending) {
-                html += '<div class="flex items-center gap-2 py-1.5 text-slate-400">' +
-                    '<span class="shrink-0 w-5 h-5 rounded-full bg-slate-500/10 flex items-center justify-center text-xs">⏳</span>' +
-                    '<span class="text-xs">' + escapeHtml(r.label) + ' — đang chờ kết quả server</span></div>'
-                return
-            }
-            if (r.passed) {
-                html += '<div class="flex items-center gap-2 py-1.5 text-green-400">' +
-                    '<span class="shrink-0 w-5 h-5 rounded-full bg-green-500/10 flex items-center justify-center text-xs">✓</span>' +
-                    '<span class="text-xs">' + escapeHtml(r.label) + '</span></div>'
-            } else {
-                html += '<div class="py-1.5 border-b border-[#313244] last:border-b-0">' +
-                    '<div class="flex items-center gap-2 text-red-400">' +
-                    '<span class="shrink-0 w-5 h-5 rounded-full bg-red-500/10 flex items-center justify-center text-xs">✗</span>' +
-                    '<span class="text-xs font-medium">' + escapeHtml(r.label) + '</span></div>' +
-                    '<div class="ml-7 text-xs space-y-1 mt-1.5">'
-
-                if (r.error) {
-                    html += '<div class="text-red-400 bg-red-500/5 px-2 py-1 rounded font-mono text-[11px]">Lỗi: ' + escapeHtml(r.error) + '</div>'
-                }
-                if (r.expected !== undefined) {
-                    html += '<div class="flex items-start gap-2"><span class="text-slate-500 shrink-0 mt-0.5">Kỳ vọng:</span>' +
-                        '<span class="text-slate-200 bg-slate-800/50 px-2 py-0.5 rounded font-mono text-[11px] whitespace-pre-wrap">' + escapeHtml(r.expected) + '</span></div>'
-                }
-                if (r.actual !== undefined) {
-                    html += '<div class="flex items-start gap-2"><span class="text-slate-500 shrink-0 mt-0.5">Nhận được:</span>' +
-                        '<span class="text-yellow-300 bg-yellow-500/5 px-2 py-0.5 rounded font-mono text-[11px] whitespace-pre-wrap">' + escapeHtml(r.actual) + '</span></div>'
-                }
-
-                if (r.expected !== undefined && r.actual !== undefined && !r.error) {
-                    var linesExpected = r.expected.split('\n')
-                    var linesActual = r.actual.split('\n')
-                    var diffHtml = ''
-                    var maxLines = Math.max(linesExpected.length, linesActual.length)
-                    for (var d = 0; d < Math.min(maxLines, 5); d++) {
-                        var eLine = linesExpected[d] || ''
-                        var aLine = linesActual[d] || ''
-                        if (eLine !== aLine) {
-                            diffHtml += '<div class="flex gap-2">' +
-                                '<span class="text-red-400/70">- ' + escapeHtml(eLine || '(trống)') + '</span></div>' +
-                                '<div class="flex gap-2">' +
-                                '<span class="text-green-400/70">+ ' + escapeHtml(aLine || '(trống)') + '</span></div>'
-                        } else {
-                            diffHtml += '<div class="text-slate-600">  ' + escapeHtml(eLine) + '</div>'
-                        }
-                    }
-                    if (diffHtml) {
-                        html += '<details class="mt-1"><summary class="text-slate-500 hover:text-slate-300 cursor-pointer text-[11px]">Xem diff chi tiết</summary>' +
-                            '<pre class="bg-[#11111b] rounded-lg p-2 mt-1 text-[11px] font-mono leading-relaxed border border-[#313244]">' + diffHtml + '</pre></details>'
-                    }
-                }
-
-                html += '</div></div>'
-            }
+            var state = r.notRun ? 'idle' : r.pending ? 'pending' : r.passed ? 'pass' : 'fail'
+            var icon = state === 'pass' ? '✓' : state === 'fail' ? '✗' : state === 'pending' ? '…' : '•'
+            html +=
+                '<button type="button" class="tc-chip tc-chip--' +
+                state +
+                (idx === selectedTestIdx ? ' is-selected' : '') +
+                '" data-test-idx="' +
+                idx +
+                '">' +
+                '<span>' +
+                icon +
+                '</span>' +
+                escapeHtml(r.label) +
+                (r.hidden ? ' 🔒' : '') +
+                '</button>'
         })
+        html += '</div>'
+
+        html += '<div class="tc-detail">' + renderTestDetail(results[selectedTestIdx]) + '</div>'
 
         if (allPassed && !nextLesson) {
-            html += '<div class="mt-5 pt-4 border-t border-[#313244]">' +
-                '<div class="text-sm text-green-400 font-semibold">🎉 Chúc mừng! Bạn đã hoàn thành khóa học!</div>' +
-                '<a href="/hoc-python/khoa-hoc/' + courseSlug + '" class="mt-2 inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-white transition-colors">← Về trang khóa học</a></div>'
+            html +=
+                '<div class="mt-4 pt-3 border-t border-white/10">' +
+                '<div class="text-sm text-[#98c379] font-semibold">🎉 Chúc mừng! Bạn đã hoàn thành khóa học!</div>' +
+                '<a href="/hoc-python/khoa-hoc/' +
+                courseSlug +
+                '" class="mt-1 inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-white transition-colors">← Về trang khóa học</a></div>'
         }
 
         testResultsEl.innerHTML = html
@@ -977,26 +1703,64 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
     // ── Tab switching ────────────────────────────────────────────────
     function switchTab(tabId) {
         document.querySelectorAll('.result-tab').forEach(function (t) {
-            t.classList.remove('active', 'text-[#a6e3a1]', 'border-[#a6e3a1]')
-            t.classList.add('text-slate-500', 'border-transparent')
+            t.classList.toggle('active', t.dataset.tab === tabId)
         })
-        document.querySelectorAll('.result-pane').forEach(function (p) { p.classList.add('hidden') })
-
-        var tabBtn = document.querySelector('.result-tab[data-tab="' + tabId + '"]')
-        if (tabBtn) {
-            tabBtn.classList.remove('text-slate-500', 'border-transparent')
-            tabBtn.classList.add('text-[#a6e3a1]', 'border-[#a6e3a1]')
-        }
-
+        document.querySelectorAll('.result-pane').forEach(function (p) {
+            p.classList.add('hidden')
+        })
         var pane = document.getElementById('tab-' + tabId)
         if (pane) pane.classList.remove('hidden')
     }
 
     // ── Reset code ────────────────────────────────────────────────────
     function resetCode() {
-        if (editorView) {
-            editorView.dispatch({ changes: { from: 0, to: editorView.state.doc.length, insert: starterCode } })
-        }
+        if (!editorView) return
+        if (
+            editorView.state.doc.toString() !== starterCode &&
+            !window.confirm('Khôi phục code ban đầu? Code hiện tại của bạn sẽ bị xóa.')
+        )
+            return
+        editorView.dispatch({ changes: { from: 0, to: editorView.state.doc.length, insert: starterCode } })
+        try {
+            localStorage.removeItem(draftKey)
+        } catch {}
+        editorView.focus()
+    }
+
+    // ── Đưa code mẫu trong bài giảng vào editor ──────────────────────
+    function initCodeBlocks() {
+        document.querySelectorAll('.lesson-prose .code-block').forEach(function (block) {
+            var pre = block.querySelector('pre')
+            var copyBtn = block.querySelector('.code-copy')
+            var tryBtn = block.querySelector('.code-try')
+            var code = pre ? pre.textContent || '' : ''
+            copyBtn?.addEventListener('click', function () {
+                navigator.clipboard
+                    ?.writeText(code)
+                    .then(function () {
+                        copyBtn.textContent = '✓ Đã chép'
+                        setTimeout(function () {
+                            copyBtn.textContent = 'Sao chép'
+                        }, 1500)
+                    })
+                    .catch(function () {})
+            })
+            tryBtn?.addEventListener('click', function () {
+                if (!editorView) return
+                var current = editorView.state.doc.toString()
+                if (
+                    current.trim() &&
+                    current !== starterCode &&
+                    !window.confirm('Thay code trong trình soạn thảo bằng đoạn code mẫu này?')
+                )
+                    return
+                editorView.dispatch({
+                    changes: { from: 0, to: editorView.state.doc.length, insert: code.replace(/\n$/, '') + '\n' },
+                })
+                showCodeOnMobile()
+                editorView.focus()
+            })
+        })
     }
 
     // ── Split Pane Resize ────────────────────────────────────────────
@@ -1011,6 +1775,16 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
         var startX = 0
         var startWidth = 0
 
+        function applyWidth(clientX) {
+            var dx = clientX - startX
+            var totalWidth = workspace.getBoundingClientRect().width
+            var newWidth = Math.max(280, Math.min(totalWidth - 360, startWidth + dx))
+            var pct = ((newWidth / totalWidth) * 100).toFixed(1)
+            lessonPanel.style.width = pct + '%'
+            lessonPanel.style.flexShrink = '0'
+            editorPanel.style.flex = '1'
+        }
+
         handle.addEventListener('mousedown', function (e) {
             e.preventDefault()
             dragging = true
@@ -1021,14 +1795,7 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
         })
 
         document.addEventListener('mousemove', function (e) {
-            if (!dragging) return
-            var dx = e.clientX - startX
-            var totalWidth = workspace.getBoundingClientRect().width
-            var newWidth = Math.max(280, Math.min(totalWidth - 300, startWidth + dx))
-            var pct = (newWidth / totalWidth * 100).toFixed(1)
-            lessonPanel.style.width = pct + '%'
-            lessonPanel.style.flexShrink = '0'
-            editorPanel.style.flex = '1'
+            if (dragging) applyWidth(e.clientX)
         })
 
         document.addEventListener('mouseup', function () {
@@ -1040,35 +1807,46 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
         })
 
         // Touch support
-        handle.addEventListener('touchstart', function (e) {
-            dragging = true
-            startX = e.touches[0].clientX
-            startWidth = lessonPanel.getBoundingClientRect().width
-        }, { passive: true })
+        handle.addEventListener(
+            'touchstart',
+            function (e) {
+                dragging = true
+                startX = e.touches[0].clientX
+                startWidth = lessonPanel.getBoundingClientRect().width
+            },
+            { passive: true },
+        )
 
-        document.addEventListener('touchmove', function (e) {
-            if (!dragging) return
-            var dx = e.touches[0].clientX - startX
-            var totalWidth = workspace.getBoundingClientRect().width
-            var newWidth = Math.max(280, Math.min(totalWidth - 300, startWidth + dx))
-            var pct = (newWidth / totalWidth * 100).toFixed(1)
-            lessonPanel.style.width = pct + '%'
-            lessonPanel.style.flexShrink = '0'
-            editorPanel.style.flex = '1'
-        }, { passive: true })
+        document.addEventListener(
+            'touchmove',
+            function (e) {
+                if (dragging) applyWidth(e.touches[0].clientX)
+            },
+            { passive: true },
+        )
 
-        document.addEventListener('touchend', function () { dragging = false })
+        document.addEventListener('touchend', function () {
+            dragging = false
+        })
     }
 
     // ── Console Resize ──────────────────────────────────────────────
     function initConsoleResize() {
         var handle = document.getElementById('console-resize-handle')
         var consolePanel = document.getElementById('console-panel')
-        if (!handle || !consolePanel) return
+        var editorPanel = document.getElementById('editor-panel')
+        if (!handle || !consolePanel || !editorPanel) return
 
         var dragging = false
         var startY = 0
         var startHeight = 0
+
+        function applyHeight(clientY) {
+            var dy = startY - clientY
+            var maxHeight = Math.max(160, editorPanel.getBoundingClientRect().height - 140)
+            var newHeight = Math.max(110, Math.min(maxHeight, startHeight + dy))
+            consolePanel.style.height = newHeight + 'px'
+        }
 
         handle.addEventListener('mousedown', function (e) {
             e.preventDefault()
@@ -1080,14 +1858,7 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
         })
 
         document.addEventListener('mousemove', function (e) {
-            if (!dragging) return
-            var dy = startY - e.clientY
-            var newHeight = Math.max(100, Math.min(500, startHeight + dy))
-            consolePanel.style.height = newHeight + 'px'
-            var panes = consolePanel.querySelectorAll('.result-pane')
-            var tabHeight = consolePanel.querySelector('.bg-\\[\\#181825\\]')
-            var reserved = tabHeight ? tabHeight.getBoundingClientRect().height + 5 : 56
-            panes.forEach(function (p) { p.style.height = 'calc(' + newHeight + 'px - ' + reserved + 'px)' })
+            if (dragging) applyHeight(e.clientY)
         })
 
         document.addEventListener('mouseup', function () {
@@ -1097,29 +1868,150 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
                 document.body.style.userSelect = ''
             }
         })
+
+        handle.addEventListener(
+            'touchstart',
+            function (e) {
+                dragging = true
+                startY = e.touches[0].clientY
+                startHeight = consolePanel.getBoundingClientRect().height
+            },
+            { passive: true },
+        )
+
+        document.addEventListener(
+            'touchmove',
+            function (e) {
+                if (dragging) applyHeight(e.touches[0].clientY)
+            },
+            { passive: true },
+        )
+
+        document.addEventListener('touchend', function () {
+            dragging = false
+        })
     }
 
-    // ── Mobile sidebar toggle ───────────────────────────────────────
-    function initMobileSidebar() {
-        var toggle = document.getElementById('sidebarToggle')
+    // ── Mobile tabs (Đề bài / Code) ─────────────────────────────────
+    function setMobileTab(tab) {
         var lessonPanel = document.getElementById('lesson-panel')
         var editorPanel = document.getElementById('editor-panel')
-        if (!toggle || !lessonPanel || !editorPanel) return
+        if (!lessonPanel || !editorPanel) return
+        lessonPanel.classList.toggle('max-md:hidden', tab !== 'lesson')
+        editorPanel.classList.toggle('max-md:hidden', tab !== 'code')
+        document.querySelectorAll('[data-mobile-tab]').forEach(function (btn) {
+            btn.classList.toggle('is-active', btn.getAttribute('data-mobile-tab') === tab)
+        })
+        if (tab === 'code' && editorView) editorView.requestMeasure()
+    }
 
-        var showingLesson = true
+    function showCodeOnMobile() {
+        if (window.matchMedia('(max-width: 767px)').matches) setMobileTab('code')
+    }
 
-        toggle.addEventListener('click', function () {
-            showingLesson = !showingLesson
-            if (showingLesson) {
-                lessonPanel.style.display = ''
-                editorPanel.style.height = ''
-                toggle.textContent = '💻'
-            } else {
-                lessonPanel.style.display = 'none'
-                editorPanel.style.height = '100%'
-                toggle.textContent = '📖'
+    function initMobileTabs() {
+        document.querySelectorAll('[data-mobile-tab]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                setMobileTab(btn.getAttribute('data-mobile-tab'))
+            })
+        })
+    }
+
+    // ── Drawer danh sách bài học ────────────────────────────────────
+    function initLessonDrawer() {
+        var drawer = document.getElementById('lessonDrawer')
+        var backdrop = document.getElementById('lessonDrawerBackdrop')
+        var openBtn = document.getElementById('lessonListBtn')
+        var closeBtn = document.getElementById('lessonDrawerClose')
+        if (!drawer || !backdrop) return
+
+        function open() {
+            drawer.classList.remove('invisible', '-translate-x-full')
+            backdrop.classList.remove('hidden')
+            var current = drawer.querySelector('[aria-current="page"]')
+            if (current) current.scrollIntoView({ block: 'center' })
+        }
+        function close() {
+            drawer.classList.add('-translate-x-full')
+            backdrop.classList.add('hidden')
+            setTimeout(function () {
+                if (drawer.classList.contains('-translate-x-full')) drawer.classList.add('invisible')
+            }, 300)
+        }
+        openBtn?.addEventListener('click', open)
+        closeBtn?.addEventListener('click', close)
+        backdrop.addEventListener('click', close)
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                close()
+                hideSuccessModal()
             }
         })
+    }
+
+    // ── Tiến độ khóa học (header + drawer) ──────────────────────────
+    var ICON_CHECK =
+        '<svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd"/></svg>'
+    var ICON_LOCK =
+        '<svg class="w-3 h-3" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z" clip-rule="evenodd"/></svg>'
+
+    function loadCourseProgress() {
+        var token = localStorage.getItem('auth_token')
+        if (!token || !courseSlug) return
+        fetch('/api/hoc-python/progress?courseSlug=' + encodeURIComponent(courseSlug), {
+            headers: { Authorization: 'Bearer ' + token },
+        })
+            .then(function (r) {
+                return r.ok ? r.json() : null
+            })
+            .then(function (data) {
+                if (!data || !data.progress) return
+                var slugs = Object.keys(data.progress)
+                var total = slugs.length
+                var done = slugs.filter(function (s) {
+                    return data.progress[s] === 'completed'
+                }).length
+                if (!total) return
+                var pct = Math.round((done / total) * 100)
+                var text = done + '/' + total + ' bài · ' + pct + '%'
+
+                var hp = document.getElementById('headerProgress')
+                var hpBar = document.getElementById('headerProgressBar')
+                var hpText = document.getElementById('headerProgressText')
+                if (hp) hp.classList.remove('invisible')
+                if (hpBar) hpBar.style.width = pct + '%'
+                if (hpText) hpText.textContent = text
+
+                var dp = document.getElementById('drawerProgress')
+                var dpBar = document.getElementById('drawerProgressBar')
+                var dpText = document.getElementById('drawerProgressText')
+                if (dp) dp.classList.remove('hidden')
+                if (dpBar) dpBar.style.width = pct + '%'
+                if (dpText) dpText.textContent = text
+
+                document.querySelectorAll('[data-drawer-slug]').forEach(function (link) {
+                    var status = data.progress[link.getAttribute('data-drawer-slug')]
+                    var icon = link.querySelector('.drawer-status')
+                    if (!icon) return
+                    if (status === 'completed') {
+                        icon.innerHTML = ICON_CHECK
+                        icon.className =
+                            'drawer-status w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0'
+                    } else if (status === 'locked' || status === 'level_locked') {
+                        icon.innerHTML = ICON_LOCK
+                        icon.className =
+                            'drawer-status w-6 h-6 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center shrink-0'
+                    }
+                })
+
+                if (
+                    data.progress[window.location.pathname.split('/').pop() || ''] === 'completed' &&
+                    !isLessonCompleted()
+                ) {
+                    markLessonCompleted()
+                }
+            })
+            .catch(function () {})
     }
 
     // ── Custom Input Modal ──────────────────────────────────────────
@@ -1131,21 +2023,24 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
 
         if (!overlay || !cancelBtn || !runBtnCustom || !inputField) return
 
-        if (publicTests.length === 0 && customInputBtn) {
-            customInputBtn.classList.remove('hidden')
+        function hide() {
+            overlay.classList.add('hidden')
+            overlay.classList.remove('flex')
         }
 
         customInputBtn?.addEventListener('click', function () {
+            if (!inputField.value && publicTests.length > 0) inputField.value = publicTests[0].stdin || ''
             overlay.classList.remove('hidden')
+            overlay.classList.add('flex')
             inputField.focus()
         })
 
-        cancelBtn.addEventListener('click', function () { overlay.classList.add('hidden') })
+        cancelBtn.addEventListener('click', hide)
         overlay.addEventListener('click', function (e) {
-            if (e.target === overlay) overlay.classList.add('hidden')
+            if (e.target === overlay) hide()
         })
         runBtnCustom.addEventListener('click', function () {
-            overlay.classList.add('hidden')
+            hide()
             runWithCustomInput(inputField.value)
         })
     }
@@ -1153,36 +2048,71 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
     // ── Event Listeners ──────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', async function () {
         document.querySelectorAll('.result-tab').forEach(function (tab) {
-            tab.addEventListener('click', function () { switchTab(tab.dataset.tab) })
+            tab.addEventListener('click', function () {
+                switchTab(tab.dataset.tab)
+            })
         })
+
+        // Tab mặc định: bài có test → "Test case", bài lý thuyết → "Console"
+        if (testCases.length > 0) {
+            switchTab('test-results')
+            showTestResults(testPreviewItems(), 0, testCases.length)
+        } else {
+            switchTab('console')
+            showTestResults([], 0, 0)
+        }
+
+        initMobileTabs()
+        initLessonDrawer()
+        initSplitPane()
+        initConsoleResize()
+        initCustomInput()
+        loadCourseProgress()
 
         await initEditor()
         initPyodide()
-        initSplitPane()
-        initConsoleResize()
-        initMobileSidebar()
-        initCustomInput()
+        initCodeBlocks()
 
         if (lessonData?.dataset.isTheory === 'true') {
-            appendConsole('📖 Đây là bài học lý thuyết. Đọc nội dung bên trái và thử chạy code mẫu bằng nút "▶ Chạy"!', 'info')
+            appendConsole(
+                '📖 Đây là bài học lý thuyết. Đọc nội dung bên trái và thử chạy code mẫu bằng nút "▶ Chạy thử"!',
+                'info',
+            )
         }
 
         runBtn?.addEventListener('click', runCode)
         submitBtn?.addEventListener('click', submitCode)
         resetBtn?.addEventListener('click', resetCode)
         nextLessonBtn?.addEventListener('click', goToNextLesson)
+        document.getElementById('successStay')?.addEventListener('click', hideSuccessModal)
+        document.getElementById('successModal')?.addEventListener('click', function (e) {
+            if (e.target === e.currentTarget) hideSuccessModal()
+        })
+
+        testResultsEl?.addEventListener('click', function (e) {
+            var chip = e.target.closest('[data-test-idx]')
+            if (!chip) return
+            selectedTestIdx = parseInt(chip.getAttribute('data-test-idx') || '0')
+            showTestResults(lastTestView.results, lastTestView.passed, lastTestView.total)
+        })
 
         var nextLink = document.getElementById('nextLessonLink')
         if (nextLink) {
             nextLink.addEventListener('click', function (e) {
-                if (!isLessonCompleted()) { e.preventDefault(); showSkipWarning() }
+                if (!isLessonCompleted()) {
+                    e.preventDefault()
+                    showSkipWarning()
+                }
             })
         }
 
         updateNextButtonState()
 
         document.addEventListener('keydown', function (e) {
-            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); runCode() }
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault()
+                runCode()
+            }
         })
 
         // ── Quiz interaction ──────────────────────────────────────────
@@ -1206,7 +2136,8 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
                         var isCorrect = selectedIdx === correctIdx
 
                         qEl.querySelectorAll('.quiz-option').forEach(function (optEl) {
-                            optEl.className = 'quiz-option flex items-start gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer transition-all duration-150 hover:border-[#3776AB]/40 hover:bg-blue-50/30'
+                            optEl.className =
+                                'quiz-option flex items-start gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer transition-all duration-150 hover:border-[#3776AB]/40 hover:bg-blue-50/30'
                             var radioInput = /** @type {HTMLInputElement|null} */ (optEl.querySelector('input'))
                             if (radioInput) radioInput.disabled = false
                         })
@@ -1217,18 +2148,21 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
                                 var lbl = /** @type {HTMLLabelElement} */ (optEl)
                                 var optIdx = parseInt(lbl.dataset.optindex || '0')
                                 if (optIdx === correctIdx) {
-                                    lbl.className = 'quiz-option flex items-start gap-3 p-3 rounded-xl border-2 border-emerald-400 bg-emerald-50'
+                                    lbl.className =
+                                        'quiz-option flex items-start gap-3 p-3 rounded-xl border-2 border-emerald-400 bg-emerald-50'
                                 } else {
-                                    lbl.className = 'quiz-option flex items-start gap-3 p-3 rounded-xl border border-slate-100 bg-slate-50/50 opacity-60'
+                                    lbl.className =
+                                        'quiz-option flex items-start gap-3 p-3 rounded-xl border border-slate-100 bg-slate-50/50 opacity-60'
                                 }
-                                /** @type {HTMLInputElement} */ (lbl.querySelector('input')).disabled = true
+                                /** @type {HTMLInputElement} */ lbl.querySelector('input').disabled = true
                             })
                             correctCount++
                         } else {
                             qEl.querySelectorAll('.quiz-option').forEach(function (optEl) {
                                 var optIdx = parseInt(/** @type {HTMLElement} */ (optEl).dataset.optindex || '0')
                                 if (optIdx === selectedIdx) {
-                                    /** @type {HTMLLabelElement} */ (optEl).className = 'quiz-option flex items-start gap-3 p-3 rounded-xl border-2 border-red-300 bg-red-50'
+                                    /** @type {HTMLLabelElement} */ optEl.className =
+                                        'quiz-option flex items-start gap-3 p-3 rounded-xl border-2 border-red-300 bg-red-50'
                                 }
                             })
                         }
@@ -1236,11 +2170,17 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
                         if (feedbackEl) {
                             var q = quizQuestions[qIndex]
                             if (isCorrect) {
-                                feedbackEl.className = 'quiz-feedback ml-8 mt-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 bg-emerald-50 border border-emerald-200 text-emerald-700'
+                                feedbackEl.className =
+                                    'quiz-feedback ml-8 mt-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 bg-emerald-50 border border-emerald-200 text-emerald-700'
                                 feedbackEl.innerHTML = '✅ <strong>Đúng!</strong> ' + escapeHtml(q.explanation)
                             } else {
-                                feedbackEl.className = 'quiz-feedback ml-8 mt-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 bg-red-50 border border-red-200 text-red-700'
-                                feedbackEl.innerHTML = '❌ <strong>Sai!</strong> Đáp án đúng là <strong>' + escapeHtml(q.options[correctIdx]) + '</strong>. ' + escapeHtml(q.explanation)
+                                feedbackEl.className =
+                                    'quiz-feedback ml-8 mt-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 bg-red-50 border border-red-200 text-red-700'
+                                feedbackEl.innerHTML =
+                                    '❌ <strong>Sai!</strong> Đáp án đúng là <strong>' +
+                                    escapeHtml(q.options[correctIdx]) +
+                                    '</strong>. ' +
+                                    escapeHtml(q.explanation)
                             }
                             feedbackEl.classList.remove('hidden')
                         }
@@ -1249,12 +2189,18 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
                         if (headerEl) {
                             var remaining = totalQuestions - correctCount
                             if (remaining === 0) {
-                                headerEl.textContent = '🎉 Hoàn thành! Bạn đã trả lời đúng ' + correctCount + '/' + totalQuestions + ' câu.'
-                                headerEl.className = 'text-emerald-200 text-xs mt-0.5'
+                                headerEl.textContent =
+                                    '🎉 Hoàn thành! Bạn đã trả lời đúng ' +
+                                    correctCount +
+                                    '/' +
+                                    totalQuestions +
+                                    ' câu.'
+                                headerEl.className = 'text-emerald-200 text-xs mt-1'
                             } else if (correctCount > 0) {
-                                headerEl.textContent = '✅ Đã đúng ' + correctCount + '/' + totalQuestions + ' — còn ' + remaining + ' câu'
+                                headerEl.textContent =
+                                    '✅ Đã đúng ' + correctCount + '/' + totalQuestions + ' — còn ' + remaining + ' câu'
                             } else {
-                                headerEl.textContent = '📝 Đây là bài tự kiểm tra — nhấn "Nộp bài" để hoàn thành'
+                                headerEl.textContent = '📝 Đây là bài tự kiểm tra — nhấn "Hoàn thành bài" để hoàn thành'
                             }
                         }
                     })
@@ -1265,205 +2211,543 @@ const diffLabel: Record<string, string> = { easy: 'Dễ', medium: 'Trung bình',
 </script>
 
 <style is:global>
-    /* Lesson content panel styles */
+    /* ── Khung IDE: chiếm trọn màn hình dưới thanh điều hướng ───── */
+    #py-ide {
+        height: calc(100dvh - 6.5rem);
+        min-height: 560px;
+    }
+
+    /* Thanh cuộn mảnh cho panel nội dung */
     .lesson-content-panel {
         scrollbar-width: thin;
         scrollbar-color: #cbd5e1 transparent;
     }
     .lesson-content-panel::-webkit-scrollbar {
-        width: 6px;
-    }
-    .lesson-content-panel::-webkit-scrollbar-track {
-        background: transparent;
+        width: 8px;
     }
     .lesson-content-panel::-webkit-scrollbar-thumb {
         background: #cbd5e1;
         border-radius: 10px;
     }
 
-    /* Prose overrides for lesson content */
-    .prose pre {
-        overflow-x: auto;
+    /* ── Nội dung bài học (markdown) ──────────────────────────────── */
+    .lesson-prose {
+        color: #334155;
+        font-size: 15px;
+        line-height: 1.75;
     }
-    .prose pre code {
-        background: transparent !important;
-        padding: 0 !important;
-        color: inherit !important;
-    }
-    .prose img {
-        max-width: 100%;
-        border-radius: 0.75rem;
-    }
-
-    /* Code block language label */
-    .prose pre {
-        position: relative;
-    }
-    .prose pre::before {
-        content: '▼ Python';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        padding: 6px 16px;
-        font-size: 11px;
-        font-weight: 700;
-        color: #6c7086;
-        background: #181825;
-        border-bottom: 1px solid #313244;
-        border-radius: 12px 12px 0 0;
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
-    }
-    .prose pre {
-        padding-top: 42px !important;
-    }
-
-    /* Callout box styling cho markdown */
-    .prose blockquote p:first-child {
+    .lesson-prose > div > :first-child {
         margin-top: 0;
     }
-    .prose blockquote p:last-child {
-        margin-bottom: 0;
-    }
-
-    /* Smooth heading anchors */
-    .prose h2, .prose h3 {
+    .lesson-prose h1,
+    .lesson-prose h2,
+    .lesson-prose h3,
+    .lesson-prose h4 {
+        color: #0f172a;
+        font-weight: 800;
+        letter-spacing: -0.01em;
+        line-height: 1.3;
         scroll-margin-top: 20px;
     }
-
-    /* List styling */
-    .prose ul {
-        list-style-type: none;
+    .lesson-prose h1 {
+        font-size: 1.5rem;
+        margin: 2rem 0 1rem;
+    }
+    .lesson-prose h2 {
+        font-size: 1.2rem;
+        margin: 2rem 0 0.75rem;
+        padding-left: 0.75rem;
+        border-left: 4px solid #3776ab;
+    }
+    .lesson-prose h3 {
+        font-size: 1.05rem;
+        margin: 1.5rem 0 0.5rem;
+    }
+    .lesson-prose p {
+        margin: 0.75rem 0;
+    }
+    .lesson-prose strong {
+        color: #0f172a;
+        font-weight: 700;
+    }
+    .lesson-prose a {
+        color: #3776ab;
+        font-weight: 600;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+    }
+    .lesson-prose ul,
+    .lesson-prose ol {
+        margin: 0.75rem 0;
         padding-left: 0;
     }
-    .prose ul li {
+    .lesson-prose ul {
+        list-style: none;
+    }
+    .lesson-prose ul > li {
         position: relative;
         padding-left: 1.5rem;
-        margin-bottom: 0.25rem;
+        margin: 0.35rem 0;
     }
-    .prose ul li::before {
-        content: '▸';
+    .lesson-prose ul > li::before {
+        content: '';
+        position: absolute;
+        left: 0.4rem;
+        top: 0.7em;
+        width: 6px;
+        height: 6px;
+        border-radius: 9999px;
+        background: #3776ab;
+    }
+    .lesson-prose ol {
+        list-style: none;
+        counter-reset: py-ol;
+    }
+    .lesson-prose ol > li {
+        position: relative;
+        padding-left: 2rem;
+        margin: 0.5rem 0;
+        counter-increment: py-ol;
+    }
+    .lesson-prose ol > li::before {
+        content: counter(py-ol);
         position: absolute;
         left: 0;
-        color: #3776AB;
-        font-weight: bold;
+        top: 0.15em;
+        width: 1.35rem;
+        height: 1.35rem;
+        border-radius: 9999px;
+        background: rgba(55, 118, 171, 0.12);
+        color: #3776ab;
+        font-size: 0.75rem;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
-    .prose ol li {
-        margin-bottom: 0.25rem;
+    .lesson-prose :not(pre) > code {
+        font-family: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', Consolas, monospace;
+        font-size: 0.85em;
+        font-weight: 600;
+        color: #c0392b;
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        padding: 0.1em 0.4em;
+        border-radius: 6px;
     }
-    .prose ol li::marker {
-        color: #3776AB;
-        font-weight: bold;
+    .lesson-prose blockquote {
+        margin: 1rem 0;
+        padding: 0.75rem 1rem;
+        border-left: 4px solid #ffd43b;
+        background: #fffbeb;
+        border-radius: 0 10px 10px 0;
+        color: #475569;
     }
-
-    /* Inline code trong prose */
-    .prose p code, .prose li code, .prose h2 code, .prose h3 code {
-        font-size: 13px !important;
+    .lesson-prose blockquote p {
+        margin: 0.25rem 0;
     }
-
-    /* Table styling */
-    .prose table {
+    .lesson-prose hr {
+        border: 0;
+        border-top: 1px solid #e2e8f0;
+        margin: 1.5rem 0;
+    }
+    .lesson-prose img {
+        max-width: 100%;
+        border-radius: 12px;
+        margin: 1rem 0;
+    }
+    .lesson-prose table {
+        width: 100%;
+        margin: 1rem 0;
         border-collapse: separate;
         border-spacing: 0;
-        width: 100%;
+        border: 1px solid #e2e8f0;
         border-radius: 10px;
         overflow: hidden;
-        border: 1px solid #e2e8f0;
+        font-size: 14px;
     }
-    .prose table th {
-        background: #f1f5f9;
-        font-weight: 700;
-        font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+    .lesson-prose th {
+        background: #f8fafc;
         color: #475569;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        text-align: left;
         padding: 10px 14px;
-        border-bottom: 2px solid #e2e8f0;
+        border-bottom: 1px solid #e2e8f0;
     }
-    .prose table td {
-        padding: 8px 14px;
+    .lesson-prose td {
+        padding: 9px 14px;
         border-bottom: 1px solid #f1f5f9;
-        font-size: 13px;
     }
-    .prose table tr:last-child td {
-        border-bottom: none;
+    .lesson-prose tr:last-child td {
+        border-bottom: 0;
     }
 
-    /* CodeMirror container fill */
+    /* ── Khối code trong bài giảng ────────────────────────────────── */
+    .lesson-prose .code-block {
+        position: relative;
+        margin: 1rem 0;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    .lesson-prose .code-block pre {
+        margin: 0;
+        padding: 14px 16px;
+        overflow-x: auto;
+        font-family: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', Consolas, monospace;
+        font-size: 13.5px;
+        line-height: 1.65;
+        tab-size: 4;
+    }
+    .lesson-prose .code-block--python {
+        background: #282c34;
+        border: 1px solid #181a1f;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+    }
+    .lesson-prose .code-block--python pre {
+        color: #abb2bf;
+    }
+    .lesson-prose .code-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 6px 8px 6px 14px;
+        background: #21252b;
+        border-bottom: 1px solid #181a1f;
+    }
+    .lesson-prose .code-lang {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #e5c07b;
+    }
+    .lesson-prose .code-actions {
+        display: flex;
+        gap: 6px;
+    }
+    .lesson-prose .code-btn {
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 9px;
+        border-radius: 6px;
+        color: #abb2bf;
+        background: rgba(255, 255, 255, 0.06);
+        transition:
+            background-color 0.15s,
+            color 0.15s;
+    }
+    .lesson-prose .code-btn:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.14);
+    }
+    .lesson-prose .code-try {
+        color: #282c34;
+        background: #98c379;
+    }
+    .lesson-prose .code-try:hover {
+        color: #282c34;
+        background: #b5d99c;
+    }
+    .lesson-prose .code-block--plain {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+    }
+    .lesson-prose .code-block--plain pre {
+        color: #0f172a;
+        padding-right: 80px;
+    }
+    .lesson-prose .code-block--plain .code-btn {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        color: #64748b;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        opacity: 0;
+    }
+    .lesson-prose .code-block--plain:hover .code-btn,
+    .lesson-prose .code-block--plain .code-btn:focus {
+        opacity: 1;
+    }
+
+    /* Màu token Python (One Dark) */
+    .tok-kw {
+        color: #c678dd;
+    }
+    .tok-const {
+        color: #d19a66;
+    }
+    .tok-str {
+        color: #98c379;
+    }
+    .tok-com {
+        color: #7f848e;
+        font-style: italic;
+    }
+    .tok-num {
+        color: #d19a66;
+    }
+    .tok-fn {
+        color: #61afef;
+    }
+    .tok-bi {
+        color: #56b6c2;
+    }
+    .tok-def {
+        color: #61afef;
+        font-weight: 600;
+    }
+    .tok-op {
+        color: #56b6c2;
+    }
+    .tok-dec {
+        color: #e5c07b;
+    }
+    .tok-self {
+        color: #e06c75;
+        font-style: italic;
+    }
+
+    /* ── Header: nút Bài tiếp ─────────────────────────────────────── */
+    .py-next-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.375rem;
+        height: 2.25rem;
+        min-width: 2.25rem;
+        padding: 0 0.75rem;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 700;
+        transition: all 0.2s;
+    }
+    .py-next-btn.hidden {
+        display: none;
+    }
+    .py-next-btn--pending {
+        color: #475569;
+        border: 1px solid #e2e8f0;
+        background: #fff;
+    }
+    .py-next-btn--pending:hover {
+        color: #3776ab;
+        border-color: #3776ab;
+    }
+    .py-next-btn--ready {
+        color: #fff;
+        background: #059669;
+        box-shadow: 0 6px 16px rgba(5, 150, 105, 0.3);
+    }
+    .py-next-btn--ready:hover {
+        background: #047857;
+    }
+
+    /* ── Tabs mobile ──────────────────────────────────────────────── */
+    .mobile-tab {
+        padding: 0.65rem 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: #64748b;
+        border-bottom: 2px solid transparent;
+    }
+    .mobile-tab.is-active {
+        color: #3776ab;
+        border-bottom-color: #3776ab;
+    }
+
+    /* ── Toolbar IDE ──────────────────────────────────────────────── */
+    .ide-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        height: 1.875rem;
+        padding: 0 0.75rem;
+        border-radius: 0.4rem;
+        font-size: 0.8rem;
+        font-weight: 700;
+        white-space: nowrap;
+        transition:
+            background-color 0.15s,
+            color 0.15s;
+    }
+    .ide-btn--ghost {
+        color: #9da5b4;
+        background: rgba(255, 255, 255, 0.05);
+    }
+    .ide-btn--ghost:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.12);
+    }
+    .ide-btn--run {
+        color: #1f2329;
+        background: #98c379;
+    }
+    .ide-btn--run:hover {
+        background: #b5d99c;
+    }
+    .ide-btn--submit {
+        color: #0b1e33;
+        background: #ffd43b;
+    }
+    .ide-btn--submit:hover {
+        background: #ffe073;
+    }
+
+    /* CodeMirror */
     .cm-editor {
         height: 100%;
     }
     .cm-editor .cm-scroller {
-        font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace !important;
+        font-family: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', Consolas, monospace !important;
         font-size: 14px !important;
+        line-height: 1.6 !important;
     }
 
-    /* Result pane scrollbar */
+    /* ── Console / Test case ──────────────────────────────────────── */
+    .result-tab {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.6rem 0.85rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #7f848e;
+        transition: color 0.15s;
+    }
+    .result-tab:hover {
+        color: #d7dae0;
+    }
+    .result-tab.active {
+        color: #fff;
+    }
+    .result-tab.active::after {
+        content: '';
+        position: absolute;
+        left: 0.85rem;
+        right: 0.85rem;
+        bottom: -1px;
+        height: 2px;
+        border-radius: 2px;
+        background: #ffd43b;
+    }
+    .tab-badge {
+        font-size: 10px;
+        padding: 1px 6px;
+        border-radius: 9999px;
+        background: rgba(255, 255, 255, 0.1);
+        color: #d7dae0;
+        letter-spacing: 0;
+    }
+    .tab-badge--pass {
+        background: rgba(152, 195, 121, 0.18);
+        color: #98c379;
+    }
+    .tab-badge--fail {
+        background: rgba(224, 108, 117, 0.18);
+        color: #e06c75;
+    }
     .result-pane {
         scrollbar-width: thin;
-        scrollbar-color: #45475a transparent;
+        scrollbar-color: #4b5263 transparent;
     }
-    .result-pane::-webkit-scrollbar {
-        width: 5px;
+    .tc-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 0.3rem 0.65rem;
+        border-radius: 0.4rem;
+        border: 1px solid transparent;
+        transition: all 0.15s;
     }
-    .result-pane::-webkit-scrollbar-track {
-        background: transparent;
+    .tc-chip--idle {
+        color: #9da5b4;
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.08);
     }
-    .result-pane::-webkit-scrollbar-thumb {
-        background: #45475a;
-        border-radius: 10px;
+    .tc-chip--pending {
+        color: #d7dae0;
+        background: rgba(97, 175, 239, 0.12);
+        border-color: rgba(97, 175, 239, 0.25);
     }
-
-    /* Tab active state */
-    .result-tab.active {
-        color: #a6e3a1 !important;
-        border-bottom-color: #a6e3a1 !important;
+    .tc-chip--pass {
+        color: #98c379;
+        background: rgba(152, 195, 121, 0.1);
+        border-color: rgba(152, 195, 121, 0.25);
     }
-
-    /* Quiz option cursor */
-    .quiz-option {
-        cursor: pointer;
+    .tc-chip--fail {
+        color: #e06c75;
+        background: rgba(224, 108, 117, 0.1);
+        border-color: rgba(224, 108, 117, 0.3);
     }
-    .quiz-option input[type="radio"] {
-        cursor: pointer;
+    .tc-chip.is-selected {
+        box-shadow: 0 0 0 2px #ffd43b;
     }
-
-    /* Split pane handle animations */
-    #split-handle:hover,
-    #console-resize-handle:hover {
-        transform: scale(1);
+    .io-box {
+        margin: 0;
+        padding: 0.5rem 0.65rem;
+        border-radius: 0.5rem;
+        font-family: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', Consolas, monospace;
+        font-size: 12.5px;
+        line-height: 1.55;
+        white-space: pre-wrap;
+        word-break: break-word;
+        max-height: 9rem;
+        overflow: auto;
+        background: #1b1f24;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        color: #d7dae0;
     }
-
-    /* Mobile sidebar overlay */
-    @media (max-width: 767px) {
-        #lesson-panel:not(.max-md\:hidden) {
-            animation: slideIn 0.2s ease-out;
-        }
+    .io-box--pass {
+        border-color: rgba(152, 195, 121, 0.35);
+        color: #b5d99c;
     }
-    @keyframes slideIn {
-        from { opacity: 0; transform: translateX(-20px); }
-        to { opacity: 1; transform: translateX(0); }
+    .io-box--fail {
+        border-color: rgba(224, 108, 117, 0.4);
+        color: #f2a7ad;
     }
-
-    /* Test result transitions */
-    #tab-test-results > div {
-        animation: fadeUp 0.15s ease-out;
-    }
-    @keyframes fadeUp {
-        from { opacity: 0; transform: translateY(4px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Details/summary for diff */
     #tab-test-results details summary {
         list-style: none;
-        cursor: pointer;
     }
     #tab-test-results details summary::before {
         content: '▸ ';
     }
     #tab-test-results details[open] summary::before {
         content: '▾ ';
+    }
+
+    /* Bỏ gạch chân mặc định (global.css) cho bài đang học trong drawer */
+    #lessonDrawer a[aria-current='page'] {
+        text-decoration: none;
+    }
+
+    /* Quiz option cursor */
+    .quiz-option,
+    .quiz-option input[type='radio'] {
+        cursor: pointer;
+    }
+
+    /* Modal hoàn thành */
+    .py-success-pop {
+        animation: py-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes py-pop {
+        from {
+            opacity: 0;
+            transform: scale(0.9) translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
     }
 </style>

@@ -1,5 +1,7 @@
 ---
 import MainLayout from '../../layouts/MainLayout.astro'
+import PyNav from '../../components/python/PyNav.astro'
+import IconPython from '../../icons/IconPython.astro'
 import { TC_TITLE } from '../../common/TextConst'
 
 // ── Neon DB ───────────────────────────────────────────────────────────
@@ -16,6 +18,8 @@ interface Course {
     published: boolean
     total_chapters: number
     total_lessons: number
+    total_xp: number
+    total_minutes: number
 }
 
 const courses: Course[] = await sql`
@@ -30,7 +34,13 @@ const courses: Course[] = await sql`
         (SELECT COUNT(*) FROM error404labs.py_chapters ch WHERE ch.course_id = c.id)::int AS total_chapters,
         (SELECT COUNT(*) FROM error404labs.py_chapters ch
             JOIN error404labs.py_lessons l ON l.chapter_id = ch.id AND l.published = true
-            WHERE ch.course_id = c.id)::int AS total_lessons
+            WHERE ch.course_id = c.id)::int AS total_lessons,
+        (SELECT COALESCE(SUM(l.xp_reward), 0) FROM error404labs.py_chapters ch
+            JOIN error404labs.py_lessons l ON l.chapter_id = ch.id AND l.published = true
+            WHERE ch.course_id = c.id)::int AS total_xp,
+        (SELECT COALESCE(SUM(l.estimated_minutes), 0) FROM error404labs.py_chapters ch
+            JOIN error404labs.py_lessons l ON l.chapter_id = ch.id AND l.published = true
+            WHERE ch.course_id = c.id)::int AS total_minutes
     FROM error404labs.py_courses c
     WHERE c.published = true
     ORDER BY c.created_at ASC
@@ -42,98 +52,321 @@ const diffLabel: Record<string, string> = {
     advanced: 'Nâng cao',
 }
 
-const diffColor: Record<string, string> = {
-    beginner: 'bg-green-100 text-green-700 border-green-200',
-    intermediate: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-    advanced: 'bg-red-100 text-red-700 border-red-200',
+const diffChip: Record<string, string> = {
+    beginner: 'bg-emerald-500/15 text-emerald-100 border-emerald-300/30',
+    intermediate: 'bg-amber-500/15 text-amber-100 border-amber-300/30',
+    advanced: 'bg-rose-500/15 text-rose-100 border-rose-300/30',
 }
+
+// Ảnh bìa tự sinh theo cấp độ khi khóa học chưa có thumbnail
+const coverGradient: Record<string, string> = {
+    beginner: 'from-[#3776AB] via-[#2B5E8A] to-[#1E4D73]',
+    intermediate: 'from-[#2B5E8A] via-[#1E4D73] to-[#0B1E33]',
+    advanced: 'from-[#1E4D73] via-[#13304d] to-[#0B1E33]',
+}
+
+const formatDuration = (minutes: number) => {
+    if (!minutes) return '—'
+    const h = Math.floor(minutes / 60)
+    const m = minutes % 60
+    return h > 0 ? `${h} giờ${m ? ` ${m} phút` : ''}` : `${m} phút`
+}
+
+const filters = [
+    { key: 'all', label: 'Tất cả' },
+    { key: 'beginner', label: 'Cơ bản' },
+    { key: 'intermediate', label: 'Trung cấp' },
+    { key: 'advanced', label: 'Nâng cao' },
+]
+
+const totalLessonsAll = courses.reduce((sum, c) => sum + c.total_lessons, 0)
 ---
 
 <MainLayout title={`Khóa học Python | ${TC_TITLE}`}>
-    <section class="min-h-screen bg-gradient-to-b from-slate-50 to-white relative overflow-hidden">
-        <!-- Decorative -->
-        <div class="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden z-0">
-            <div class="absolute -top-[20%] -right-[10%] w-[50%] h-[50%] bg-[#3776AB]/5 rounded-full blur-[120px]"></div>
-            <div class="absolute -bottom-[20%] -left-[10%] w-[50%] h-[50%] bg-[#FFD43B]/8 rounded-full blur-[120px]"></div>
-        </div>
+    <PyNav active="courses" />
 
-        <div class="relative z-10 max-w-6xl mx-auto px-4 py-12 md:py-16">
-            <!-- Header -->
-            <div class="text-center mb-12">
-                <div class="inline-flex items-center gap-2 bg-[#3776AB]/10 text-[#3776AB] font-black text-xs md:text-sm px-4 py-2 rounded-full mb-4 uppercase tracking-wider">
-                    📖 Danh sách khóa học
+    <!-- Header -->
+    <section class="relative overflow-hidden bg-[#0B1E33] text-white">
+        <div
+            class="absolute -top-32 right-0 w-[480px] h-[480px] rounded-full bg-[#3776AB]/35 blur-[130px] pointer-events-none"
+        >
+        </div>
+        <IconPython
+            class="absolute right-6 md:right-24 top-1/2 -translate-y-1/2 w-48 h-48 md:w-64 md:h-64 text-white/[0.04] pointer-events-none"
+        />
+        <div class="relative max-w-7xl mx-auto px-4 py-10 md:py-14">
+            <nav class="flex items-center gap-2 text-xs md:text-sm text-slate-400 mb-4" aria-label="Breadcrumb">
+                <a href="/hoc-python" class="hover:text-white transition-colors no-underline">Học Python</a>
+                <span>/</span>
+                <span class="text-slate-200">Khóa học</span>
+            </nav>
+            <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight mb-3">Khóa học Python</h1>
+            <p class="text-slate-300 text-base md:text-lg max-w-2xl leading-relaxed">
+                {courses.length} khóa học · {totalLessonsAll} bài học — chọn lộ trình phù hợp và bắt đầu chinh phục Python
+                3.
+            </p>
+        </div>
+    </section>
+
+    <section class="bg-slate-50 min-h-[60vh]">
+        <div class="max-w-7xl mx-auto px-4 py-8 md:py-10">
+            <!-- Toolbar: filter + search -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                <div
+                    class="flex items-center gap-2 overflow-x-auto pb-1 -mb-1"
+                    role="tablist"
+                    aria-label="Lọc theo cấp độ"
+                >
+                    {
+                        filters.map((f, i) => (
+                            <button
+                                type="button"
+                                data-filter={f.key}
+                                class:list={[
+                                    'course-filter shrink-0 text-sm font-semibold px-4 py-2 rounded-full border transition-colors',
+                                    i === 0
+                                        ? 'bg-[#3776AB] border-[#3776AB] text-white'
+                                        : 'bg-white border-slate-200 text-slate-600 hover:border-[#3776AB] hover:text-[#3776AB]',
+                                ]}
+                            >
+                                {f.label}
+                            </button>
+                        ))
+                    }
                 </div>
-                <h1 class="text-3xl md:text-5xl font-black text-slate-800 tracking-tight">
-                    Khóa học <span class="text-[#3776AB]">Python</span>
-                </h1>
-                <p class="text-slate-500 mt-3 text-base md:text-lg max-w-2xl mx-auto">
-                    Chọn khóa học phù hợp và bắt đầu hành trình chinh phục Python 3.
-                </p>
+                <label class="relative md:w-80">
+                    <span class="sr-only">Tìm khóa học</span>
+                    <svg
+                        class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        aria-hidden="true"
+                    >
+                        <path
+                            fill-rule="evenodd"
+                            d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                    <input
+                        id="courseSearch"
+                        type="search"
+                        placeholder="Tìm khóa học..."
+                        class="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-[#3776AB] focus:ring-4 focus:ring-[#3776AB]/10 transition"
+                    />
+                </label>
             </div>
 
             <!-- Empty state -->
-            {courses.length === 0 && (
-                <div class="text-center py-20">
-                    <div class="text-6xl mb-4">📭</div>
-                    <h2 class="text-2xl font-bold text-slate-400">Chưa có khóa học nào</h2>
-                    <p class="text-slate-300 mt-2">Các khóa học Python đang được xây dựng. Quay lại sau nhé!</p>
-                </div>
-            )}
+            {
+                courses.length === 0 && (
+                    <div class="text-center py-20 bg-white rounded-2xl border border-dashed border-slate-300">
+                        <div class="text-5xl mb-4">📭</div>
+                        <h2 class="text-xl font-bold text-slate-600">Chưa có khóa học nào</h2>
+                        <p class="text-slate-400 mt-2">Các khóa học Python đang được xây dựng. Quay lại sau nhé!</p>
+                    </div>
+                )
+            }
 
             <!-- Course Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {courses.map((course) => (
-                    <a
-                        href={`/hoc-python/khoa-hoc/${course.slug}`}
-                        class="group bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col"
-                    >
-                        <!-- Thumbnail placeholder -->
-                        <div class="aspect-video bg-gradient-to-br from-[#3776AB]/20 to-[#FFD43B]/20 flex items-center justify-center overflow-hidden">
-                            {course.thumbnail_url
-                                ? <img src={course.thumbnail_url} alt={course.title} class="w-full h-full object-cover" />
-                                : (
-                                    <div class="text-6xl opacity-40 group-hover:scale-110 transition-transform duration-500">
-                                        🐍
+            <div id="courseGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {
+                    courses.map((course) => (
+                        <a
+                            href={`/hoc-python/khoa-hoc/${course.slug}`}
+                            data-course-card
+                            data-course-slug={course.slug}
+                            data-difficulty={course.difficulty}
+                            data-search={`${course.title} ${course.description || ''}`.toLowerCase()}
+                            data-total-lessons={course.total_lessons}
+                            class="group bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-[#3776AB]/30 transition-all duration-300 flex flex-col no-underline"
+                        >
+                            {/* Cover */}
+                            <div class="relative aspect-[16/9] overflow-hidden">
+                                {course.thumbnail_url ? (
+                                    <img
+                                        src={course.thumbnail_url}
+                                        alt={course.title}
+                                        loading="lazy"
+                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                    />
+                                ) : (
+                                    <div
+                                        class={`w-full h-full bg-gradient-to-br ${coverGradient[course.difficulty] || coverGradient.beginner} relative flex items-center justify-center`}
+                                    >
+                                        <div class="absolute inset-0 py-cover-grid opacity-30" />
+                                        <div class="absolute w-40 h-40 rounded-full bg-[#FFD43B]/20 blur-3xl" />
+                                        <div class="relative w-20 h-20 rounded-2xl bg-white/10 border border-white/15 backdrop-blur flex items-center justify-center shadow-2xl group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-500">
+                                            <IconPython class="w-12 h-12 text-[#FFD43B]" />
+                                        </div>
+                                        <p class="absolute bottom-3 right-4 text-[11px] font-bold tracking-[0.2em] uppercase text-white/50">
+                                            Python 3
+                                        </p>
                                     </div>
-                                )
-                            }
-                        </div>
-
-                        <div class="p-5 flex flex-col flex-1">
-                            <div class="flex items-center gap-2 mb-3">
+                                )}
                                 <span
-                                    class={`text-xs font-bold px-2.5 py-1 rounded-full border ${diffColor[course.difficulty] || diffColor.beginner}`}
+                                    class={`absolute top-3 left-3 text-[11px] font-bold px-2.5 py-1 rounded-full border backdrop-blur ${diffChip[course.difficulty] || diffChip.beginner}`}
                                 >
                                     {diffLabel[course.difficulty] || 'Cơ bản'}
                                 </span>
-                                <span class="text-xs text-slate-400 font-medium">
-                                    {course.total_lessons} bài học
-                                </span>
                             </div>
 
-                            <h3 class="font-black text-slate-800 text-lg mb-2 group-hover:text-[#3776AB] transition-colors">
-                                {course.title}
-                            </h3>
+                            {/* Body */}
+                            <div class="p-5 flex flex-col flex-1">
+                                <h2 class="font-extrabold text-slate-800 text-lg leading-snug mb-2 group-hover:text-[#3776AB] transition-colors">
+                                    {course.title}
+                                </h2>
+                                <p class="text-slate-500 text-sm leading-relaxed line-clamp-2 mb-4">
+                                    {course.description || 'Không có mô tả'}
+                                </p>
 
-                            <p class="text-slate-500 text-sm leading-relaxed line-clamp-2 flex-1">
-                                {course.description || 'Không có mô tả'}
-                            </p>
+                                <div class="grid grid-cols-3 gap-2 text-center mt-auto">
+                                    <div class="bg-slate-50 rounded-lg py-2">
+                                        <p class="text-sm font-extrabold text-slate-800">{course.total_chapters}</p>
+                                        <p class="text-[11px] text-slate-500">chương</p>
+                                    </div>
+                                    <div class="bg-slate-50 rounded-lg py-2">
+                                        <p class="text-sm font-extrabold text-slate-800">{course.total_lessons}</p>
+                                        <p class="text-[11px] text-slate-500">bài học</p>
+                                    </div>
+                                    <div class="bg-slate-50 rounded-lg py-2">
+                                        <p class="text-sm font-extrabold text-slate-800">
+                                            {formatDuration(course.total_minutes)}
+                                        </p>
+                                        <p class="text-[11px] text-slate-500">thời lượng</p>
+                                    </div>
+                                </div>
 
-                            <div class="flex items-center gap-4 mt-4 pt-4 border-t border-slate-100 text-xs text-slate-400 font-medium">
-                                <span class="flex items-center gap-1">
-                                    <span>📂</span> {course.total_chapters} chương
-                                </span>
-                                <span class="flex items-center gap-1">
-                                    <span>📝</span> {course.total_lessons} bài
-                                </span>
+                                {/* Tiến độ (hiện khi đã đăng nhập và có bài hoàn thành) */}
+                                <div class="course-progress hidden mt-4">
+                                    <div class="flex items-center justify-between text-xs mb-1.5">
+                                        <span class="font-semibold text-slate-600">Tiến độ</span>
+                                        <span class="course-progress-text font-bold text-[#3776AB]" />
+                                    </div>
+                                    <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
+                                        <div
+                                            class="course-progress-bar h-full bg-gradient-to-r from-[#3776AB] to-emerald-500 rounded-full transition-all duration-700"
+                                            style="width: 0%"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-between mt-4 pt-4 border-t border-slate-100">
+                                    <span class="inline-flex items-center gap-1.5 text-sm font-bold text-amber-600">
+                                        <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                            <path d="M11.983 1.907a.75.75 0 0 0-1.292-.657l-8.5 9.5A.75.75 0 0 0 2.75 12h6.572l-1.305 6.093a.75.75 0 0 0 1.292.657l8.5-9.5A.75.75 0 0 0 17.25 8h-6.572l1.305-6.093Z" />
+                                        </svg>
+                                        {course.total_xp} XP
+                                    </span>
+                                    <span class="course-cta inline-flex items-center gap-1.5 text-sm font-bold text-[#3776AB] group-hover:gap-2.5 transition-all">
+                                        Xem khóa học <span aria-hidden="true">→</span>
+                                    </span>
+                                </div>
                             </div>
-                        </div>
-                    </a>
-                ))}
+                        </a>
+                    ))
+                }
+            </div>
+
+            <!-- No result -->
+            <div
+                id="noResult"
+                class="hidden text-center py-16 bg-white rounded-2xl border border-dashed border-slate-300"
+            >
+                <div class="text-4xl mb-3">🔍</div>
+                <p class="font-bold text-slate-600">Không tìm thấy khóa học phù hợp</p>
+                <p class="text-sm text-slate-400 mt-1">Thử từ khóa khác hoặc chọn cấp độ “Tất cả”.</p>
             </div>
         </div>
     </section>
 </MainLayout>
 
+<script is:inline>
+    ;(function () {
+        var cards = Array.prototype.slice.call(document.querySelectorAll('[data-course-card]'))
+        var filterBtns = document.querySelectorAll('.course-filter')
+        var searchInput = document.getElementById('courseSearch')
+        var noResult = document.getElementById('noResult')
+        var activeFilter = 'all'
 
+        // ── Lọc theo cấp độ + tìm kiếm ───────────────────────────────
+        function applyFilter() {
+            var q = ((searchInput && searchInput.value) || '').trim().toLowerCase()
+            var visible = 0
+            cards.forEach(function (card) {
+                var okLevel = activeFilter === 'all' || card.getAttribute('data-difficulty') === activeFilter
+                var okSearch = !q || (card.getAttribute('data-search') || '').indexOf(q) !== -1
+                var show = okLevel && okSearch
+                card.classList.toggle('hidden', !show)
+                if (show) visible++
+            })
+            if (noResult) noResult.classList.toggle('hidden', visible > 0 || cards.length === 0)
+        }
 
+        filterBtns.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                activeFilter = btn.getAttribute('data-filter') || 'all'
+                filterBtns.forEach(function (b) {
+                    var on = b === btn
+                    b.classList.toggle('bg-[#3776AB]', on)
+                    b.classList.toggle('border-[#3776AB]', on)
+                    b.classList.toggle('text-white', on)
+                    b.classList.toggle('bg-white', !on)
+                    b.classList.toggle('border-slate-200', !on)
+                    b.classList.toggle('text-slate-600', !on)
+                })
+                applyFilter()
+            })
+        })
+        if (searchInput) searchInput.addEventListener('input', applyFilter)
+
+        // ── Tiến độ từng khóa (chỉ khi đã đăng nhập) ─────────────────
+        function loadProgress() {
+            var token = localStorage.getItem('auth_token')
+            if (!token) return
+            cards.forEach(function (card) {
+                var slug = card.getAttribute('data-course-slug')
+                fetch('/api/hoc-python/progress?courseSlug=' + encodeURIComponent(slug), {
+                    headers: { Authorization: 'Bearer ' + token },
+                })
+                    .then(function (r) {
+                        return r.ok ? r.json() : null
+                    })
+                    .then(function (data) {
+                        if (!data || !data.progress) return
+                        var statuses = Object.keys(data.progress).map(function (k) {
+                            return data.progress[k]
+                        })
+                        var total = statuses.length
+                        var done = statuses.filter(function (s) {
+                            return s === 'completed'
+                        }).length
+                        if (!total || !done) return
+                        var pct = Math.round((done / total) * 100)
+                        var wrap = card.querySelector('.course-progress')
+                        var text = card.querySelector('.course-progress-text')
+                        var bar = card.querySelector('.course-progress-bar')
+                        var cta = card.querySelector('.course-cta')
+                        if (wrap) wrap.classList.remove('hidden')
+                        if (text) text.textContent = done + '/' + total + ' bài · ' + pct + '%'
+                        if (bar) bar.style.width = pct + '%'
+                        if (cta)
+                            cta.innerHTML =
+                                done === total ? '✓ Đã hoàn thành' : 'Học tiếp <span aria-hidden="true">→</span>'
+                    })
+                    .catch(function () {})
+            })
+        }
+
+        loadProgress()
+        window.addEventListener('user-login', loadProgress)
+    })()
+</script>
+
+<style>
+    .py-cover-grid {
+        background-image:
+            linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+        background-size: 24px 24px;
+    }
+</style>

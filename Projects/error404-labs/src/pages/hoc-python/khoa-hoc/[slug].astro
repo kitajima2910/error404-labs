@@ -1,5 +1,8 @@
 ---
 import MainLayout from '../../../layouts/MainLayout.astro'
+import PyNav from '../../../components/python/PyNav.astro'
+import PyIcon from '../../../components/python/PyIcon.astro'
+import IconPython from '../../../icons/IconPython.astro'
 import { TC_TITLE } from '../../../common/TextConst'
 
 // ── Neon DB ───────────────────────────────────────────────────────────
@@ -87,10 +90,10 @@ const diffLabel: Record<string, string> = {
     advanced: 'Nâng cao',
 }
 
-const diffColor: Record<string, string> = {
-    beginner: 'bg-green-100 text-green-700 border-green-200',
-    intermediate: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-    advanced: 'bg-red-100 text-red-700 border-red-200',
+const diffChip: Record<string, string> = {
+    beginner: 'bg-emerald-500/15 text-emerald-200 border-emerald-300/30',
+    intermediate: 'bg-amber-500/15 text-amber-200 border-amber-300/30',
+    advanced: 'bg-rose-500/15 text-rose-200 border-rose-300/30',
 }
 
 const typeLabel: Record<string, string> = {
@@ -101,10 +104,17 @@ const typeLabel: Record<string, string> = {
 }
 
 const typeColor: Record<string, string> = {
-    theory: 'bg-blue-100 text-blue-700',
-    practice: 'bg-green-100 text-green-700',
-    quiz: 'bg-purple-100 text-purple-700',
-    project: 'bg-orange-100 text-orange-700',
+    theory: 'bg-sky-50 text-sky-700 border-sky-200',
+    practice: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    quiz: 'bg-violet-50 text-violet-700 border-violet-200',
+    project: 'bg-orange-50 text-orange-700 border-orange-200',
+}
+
+const typeIconColor: Record<string, string> = {
+    theory: 'bg-sky-50 text-sky-600',
+    practice: 'bg-emerald-50 text-emerald-600',
+    quiz: 'bg-violet-50 text-violet-600',
+    project: 'bg-orange-50 text-orange-600',
 }
 
 const diffLessonLabel: Record<string, string> = {
@@ -114,285 +124,513 @@ const diffLessonLabel: Record<string, string> = {
 }
 
 const diffLessonColor: Record<string, string> = {
-    easy: 'text-green-600',
-    medium: 'text-yellow-600',
-    hard: 'text-red-600',
+    easy: 'text-emerald-600',
+    medium: 'text-amber-600',
+    hard: 'text-rose-600',
 }
 
 const totalLessons = chapters.reduce((sum, ch) => sum + ch.lessons.length, 0)
 const totalXP = chapters.reduce((sum, ch) => sum + ch.lessons.reduce((s, l) => s + l.xp_reward, 0), 0)
+const totalMinutes = chapters.reduce(
+    (sum, ch) => sum + ch.lessons.reduce((s, l) => s + (l.estimated_minutes || 0), 0),
+    0,
+)
 const firstLessonSlug = chapters[0]?.lessons?.[0]?.slug ?? null
+
+// Đếm số bài theo loại để hiển thị "Khóa học bao gồm"
+const typeCounts = chapters
+    .flatMap((ch) => ch.lessons)
+    .reduce<Record<string, number>>((acc, l) => {
+        acc[l.lesson_type] = (acc[l.lesson_type] || 0) + 1
+        return acc
+    }, {})
+
+const formatDuration = (minutes: number) => {
+    if (!minutes) return '—'
+    const h = Math.floor(minutes / 60)
+    const m = minutes % 60
+    return h > 0 ? `${h} giờ${m ? ` ${m} phút` : ''}` : `${m} phút`
+}
 ---
 
-<MainLayout title={`${course.title} | ${TC_TITLE}`}>
-    <section class="min-h-screen bg-gradient-to-b from-slate-50 to-white relative overflow-hidden">
-        <!-- Decorative -->
-        <div class="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden z-0">
-            <div class="absolute -top-[15%] -right-[10%] w-[40%] h-[40%] bg-[#3776AB]/5 rounded-full blur-[120px]"></div>
-            <div class="absolute -bottom-[15%] -left-[10%] w-[40%] h-[40%] bg-[#FFD43B]/8 rounded-full blur-[120px]"></div>
+<MainLayout title={`${course.title} | ${TC_TITLE}`} description={course.description || undefined}>
+    <PyNav active="courses" />
+
+    <!-- ── HERO ─────────────────────────────────────────────────────── -->
+    <section class="relative overflow-hidden bg-[#0B1E33] text-white">
+        <div
+            class="absolute -top-32 -left-24 w-[420px] h-[420px] rounded-full bg-[#3776AB]/35 blur-[130px] pointer-events-none"
+        >
         </div>
+        <div class="relative max-w-7xl mx-auto px-4 py-10 md:py-14">
+            <div class="lg:w-2/3 lg:pr-10">
+                <nav
+                    class="flex items-center gap-2 text-xs md:text-sm text-slate-400 mb-5 flex-wrap"
+                    aria-label="Breadcrumb"
+                >
+                    <a href="/hoc-python" class="hover:text-white transition-colors no-underline">Học Python</a>
+                    <span>/</span>
+                    <a href="/hoc-python/khoa-hoc" class="hover:text-white transition-colors no-underline">Khóa học</a>
+                    <span>/</span>
+                    <span class="text-slate-200 truncate">{course.title}</span>
+                </nav>
 
-        <div class="relative z-10 max-w-4xl mx-auto px-4 py-12 md:py-16">
-            <!-- Back navigation -->
-            <a
-                href="/hoc-python/khoa-hoc"
-                class="inline-flex items-center gap-2 text-slate-400 hover:text-[#3776AB] font-medium text-sm mb-6 transition-colors group"
-            >
-                <span class="group-hover:-translate-x-1 transition-transform">←</span>
-                <span>Quay lại danh sách</span>
-            </a>
+                <span
+                    class={`inline-flex text-xs font-bold px-3 py-1 rounded-full border mb-4 ${diffChip[course.difficulty] || diffChip.beginner}`}
+                >
+                    {diffLabel[course.difficulty] || 'Cơ bản'}
+                </span>
 
-            <!-- Course Header -->
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 md:p-8 mb-8">
-                <div class="flex items-center gap-3 mb-4 flex-wrap">
-                    <span
-                        class={`text-xs font-bold px-3 py-1.5 rounded-full border ${diffColor[course.difficulty] || diffColor.beginner}`}
-                    >
-                        {diffLabel[course.difficulty] || 'Cơ bản'}
-                    </span>
-                    <span class="text-xs text-slate-400 font-medium bg-slate-100 px-3 py-1.5 rounded-full">
-                        {totalLessons} bài học
-                    </span>
-                    <span class="text-xs text-slate-400 font-medium bg-slate-100 px-3 py-1.5 rounded-full">
-                        +{totalXP} XP
-                    </span>
-                </div>
+                <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight mb-4">{course.title}</h1>
 
-                <h1 class="text-2xl md:text-4xl font-black text-slate-800 tracking-tight mb-4">
-                    {course.title}
-                </h1>
-
-                <p class="text-slate-500 text-base md:text-lg leading-relaxed">
+                <p class="text-slate-300 text-base md:text-lg leading-relaxed mb-6">
                     {course.description || 'Không có mô tả'}
                 </p>
-            </div>
 
-            <!-- Progress Summary -->
-            <div class="bg-gradient-to-r from-[#3776AB]/5 to-[#FFD43B]/5 rounded-2xl border border-slate-200 p-5 mb-8 flex items-center justify-between flex-wrap gap-4">
-                <div class="flex items-center gap-4">
-                    <div class="flex items-center gap-2 text-sm text-slate-600 font-medium">
-                        <span class="text-lg">📂</span>
-                        <span><strong class="text-slate-800">{chapters.length}</strong> chương</span>
-                    </div>
-                    <div class="flex items-center gap-2 text-sm text-slate-600 font-medium">
-                        <span class="text-lg">📝</span>
-                        <span><strong class="text-slate-800">{totalLessons}</strong> bài học</span>
-                    </div>
-                    <div class="flex items-center gap-2 text-sm text-slate-600 font-medium">
-                        <span class="text-lg">⭐</span>
-                        <span><strong class="text-slate-800">{totalXP}</strong> XP</span>
-                    </div>
-                </div>
-                <div class="flex items-center gap-3">
-                    {chapters.length > 0 && firstLessonSlug && (
-                        <a
-                            id="ctaBtn"
-                            href="#"
-                            data-course-slug={course.slug}
-                            data-auth-href={`/hoc-python/hoc/${course.slug}/${firstLessonSlug}`}
-                            class="inline-flex items-center gap-2 bg-[#3776AB] text-white font-bold text-sm px-5 py-2.5 rounded-xl hover:bg-[#2B5E8A] transition-colors shadow-md"
-                        >
-                            Đăng ký miễn phí
-                        </a>
-                    )}
-                    <a href="/hoc-python/ca-nhan" class="inline-flex items-center gap-1.5 bg-white border border-slate-200 text-slate-500 hover:text-[#3776AB] hover:border-[#3776AB] font-bold text-xs px-3 py-2.5 rounded-xl transition-colors shadow-sm" title="Thành tích cá nhân">
-                        👤
-                    </a>
-                    <a href="/hoc-python/bang-xep-hang" class="inline-flex items-center gap-1.5 bg-white border border-slate-200 text-slate-500 hover:text-[#3776AB] hover:border-[#3776AB] font-bold text-xs px-3 py-2.5 rounded-xl transition-colors shadow-sm" title="Bảng xếp hạng">
-                        🏆
-                    </a>
-                </div>
-            </div>
-
-            <!-- Chapter List -->
-            <div class="space-y-4">
-                {chapters.map((chapter, idx) => (
-                    <details
-                        class="group bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden [&[open]]:shadow-md transition-shadow duration-300"
-                        open={idx === 0}
+                <div class="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-slate-300">
+                    <span class="inline-flex items-center gap-2"
+                        ><PyIcon name="stack" class="w-4 h-4 text-[#FFD43B]" /> {chapters.length} chương</span
                     >
-                        <summary class="flex items-center justify-between p-5 cursor-pointer hover:bg-slate-50 transition-colors list-none">
-                            <div class="flex items-center gap-3">
-                                <span class="w-8 h-8 bg-[#3776AB]/10 rounded-lg flex items-center justify-center text-[#3776AB] font-black text-sm shrink-0">
-                                    {idx + 1}
-                                </span>
-                                <div>
-                                    <h3 class="font-bold text-slate-800 text-base">{chapter.title}</h3>
-                                    {chapter.description && (
-                                        <p class="text-slate-400 text-xs mt-0.5 line-clamp-1">{chapter.description}</p>
-                                    )}
-                                </div>
-                                {chapter.min_level > 1 && (
-                                    <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-amber-50 text-amber-600 border border-amber-200 shrink-0 ml-2" title="Yêu cầu cấp độ">
-                                        🔒 Level {chapter.min_level}+
-                                    </span>
-                                )}
-                            </div>
-                            <div class="flex items-center gap-3 text-xs text-slate-400 font-medium shrink-0">
-                                <span>{chapter.lessons.length} bài</span>
-                                <span class="text-lg transition-transform duration-300 group-open:rotate-180">▾</span>
-                            </div>
-                        </summary>
-
-                        <div class="border-t border-slate-100">
-                            {chapter.lessons.length === 0 && (
-                                <p class="p-5 text-sm text-slate-400 text-center">Chưa có bài học nào trong chương này.</p>
-                            )}
-
-                            {chapter.lessons.map((lesson) => (
-                                <a
-                                    href={`/hoc-python/hoc/${course.slug}/${lesson.slug}`}
-                                    data-lesson-slug={lesson.slug}
-                                    class="flex items-center gap-4 px-5 py-4 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-b-0 group/lesson"
-                                >
-                                    {/* Status icon */}
-                                    <span class="lesson-icon w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-xs shrink-0 group-hover/lesson:bg-[#3776AB]/10 group-hover/lesson:text-[#3776AB] transition-colors">
-                                        {lesson.lesson_type === 'theory' ? '📖' : lesson.lesson_type === 'practice' ? '💻' : lesson.lesson_type === 'quiz' ? '❓' : '🚀'}
-                                    </span>
-
-                                    <div class="flex-1 min-w-0">
-                                        <h4 class="font-semibold text-slate-700 text-sm group-hover/lesson:text-[#3776AB] transition-colors truncate">
-                                            {lesson.title}
-                                        </h4>
-                                        <div class="flex items-center gap-2 mt-1 flex-wrap">
-                                            <span class={`text-[10px] font-bold px-2 py-0.5 rounded-full ${typeColor[lesson.lesson_type] || typeColor.practice}`}>
-                                                {typeLabel[lesson.lesson_type] || 'Thực hành'}
-                                            </span>
-                                            <span class={`text-[10px] font-semibold ${diffLessonColor[lesson.difficulty] || diffLessonColor.easy}`}>
-                                                {diffLessonLabel[lesson.difficulty] || 'Dễ'}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <div class="flex items-center gap-3 text-xs text-slate-400 font-medium shrink-0">
-                                        <span class="flex items-center gap-1">
-                                            <span>⭐</span>         +{lesson.xp_reward ?? 0}
-                                        </span>
-                                        <span class="flex items-center gap-1">
-                                            <span>⏱</span> {lesson.estimated_minutes ?? '?'}p
-                                        </span>
-                                        <span class="text-[#3776AB] group-hover/lesson:translate-x-1 transition-transform">→</span>
-                                    </div>
-                                </a>
-                            ))}
-                        </div>
-                    </details>
-                ))}
-            </div>
-
-            {chapters.length === 0 && (
-                <div class="text-center py-20">
-                    <div class="text-6xl mb-4">📭</div>
-                    <h2 class="text-2xl font-bold text-slate-400">Chương trình đang được xây dựng</h2>
-                    <p class="text-slate-300 mt-2">Nội dung khóa học sẽ sớm được cập nhật.</p>
+                    <span class="inline-flex items-center gap-2"
+                        ><PyIcon name="theory" class="w-4 h-4 text-[#FFD43B]" /> {totalLessons} bài học</span
+                    >
+                    <span class="inline-flex items-center gap-2"
+                        ><PyIcon name="clock" class="w-4 h-4 text-[#FFD43B]" /> {formatDuration(totalMinutes)}</span
+                    >
+                    <span class="inline-flex items-center gap-2"
+                        ><PyIcon name="bolt" class="w-4 h-4 text-[#FFD43B]" /> {totalXP} XP</span
+                    >
                 </div>
-            )}
+            </div>
+        </div>
+    </section>
+
+    <section class="bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4 py-8 md:py-10 grid lg:grid-cols-3 gap-8 items-start">
+            <!-- ── SIDEBAR CARD ─────────────────────────────────────── -->
+            <aside class="lg:col-start-3 lg:row-start-1 lg:-mt-56 lg:sticky lg:top-44 relative z-10">
+                <div
+                    class="bg-white rounded-2xl border border-slate-200 shadow-[0_20px_50px_rgba(15,23,42,0.12)] overflow-hidden"
+                >
+                    <div
+                        class="relative aspect-[16/9] bg-gradient-to-br from-[#3776AB] via-[#2B5E8A] to-[#1E4D73] flex items-center justify-center overflow-hidden"
+                    >
+                        <div class="absolute inset-0 py-cover-grid opacity-30"></div>
+                        <div class="absolute w-40 h-40 rounded-full bg-[#FFD43B]/20 blur-3xl"></div>
+                        <div
+                            class="relative w-20 h-20 rounded-2xl bg-white/10 border border-white/15 backdrop-blur flex items-center justify-center shadow-2xl"
+                        >
+                            <IconPython class="w-12 h-12 text-[#FFD43B]" />
+                        </div>
+                    </div>
+
+                    <div class="p-5 md:p-6">
+                        <!-- Tiến độ (JS hiển thị khi đã đăng nhập) -->
+                        <div id="courseProgress" class="hidden mb-5">
+                            <div class="flex items-end justify-between mb-2">
+                                <div>
+                                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                        Tiến độ của bạn
+                                    </p>
+                                    <p class="text-sm text-slate-700 mt-0.5">
+                                        <strong id="progressDone" class="text-slate-900">0</strong>/{totalLessons} bài hoàn
+                                        thành
+                                    </p>
+                                </div>
+                                <span id="progressPct" class="text-2xl font-extrabold text-[#3776AB]">0%</span>
+                            </div>
+                            <div class="h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                                <div
+                                    id="progressBar"
+                                    class="h-full bg-gradient-to-r from-[#3776AB] to-emerald-500 rounded-full transition-all duration-700"
+                                    style="width: 0%"
+                                >
+                                </div>
+                            </div>
+                        </div>
+
+                        {
+                            chapters.length > 0 && firstLessonSlug && (
+                                <a
+                                    id="ctaBtn"
+                                    href="#"
+                                    data-course-slug={course.slug}
+                                    data-auth-href={`/hoc-python/hoc/${course.slug}/${firstLessonSlug}`}
+                                    class="py-cta py-cta-primary"
+                                >
+                                    Đăng ký miễn phí
+                                </a>
+                            )
+                        }
+
+                        <div class="grid grid-cols-2 gap-2 mt-3">
+                            <a
+                                href="/hoc-python/ca-nhan"
+                                class="flex items-center justify-center gap-1.5 text-sm font-semibold text-slate-600 border border-slate-200 rounded-xl py-2.5 hover:border-[#3776AB] hover:text-[#3776AB] transition-colors no-underline"
+                            >
+                                👤 Thành tích
+                            </a>
+                            <a
+                                href="/hoc-python/bang-xep-hang"
+                                class="flex items-center justify-center gap-1.5 text-sm font-semibold text-slate-600 border border-slate-200 rounded-xl py-2.5 hover:border-[#3776AB] hover:text-[#3776AB] transition-colors no-underline"
+                            >
+                                🏆 Xếp hạng
+                            </a>
+                        </div>
+
+                        <div class="mt-6 pt-5 border-t border-slate-100">
+                            <p class="text-sm font-extrabold text-slate-800 mb-3">Khóa học bao gồm</p>
+                            <ul class="space-y-2.5 text-sm text-slate-600">
+                                <li class="flex items-start gap-2.5">
+                                    <PyIcon name="theory" class="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
+                                    <span>
+                                        {totalLessons} bài học
+                                        {
+                                            Object.keys(typeCounts).length > 1 && (
+                                                <span class="text-slate-400">
+                                                    (
+                                                    {Object.entries(typeCounts)
+                                                        .map(([t, n]) => `${n} ${(typeLabel[t] || t).toLowerCase()}`)
+                                                        .join(' · ')}
+                                                    )
+                                                </span>
+                                            )
+                                        }
+                                    </span>
+                                </li>
+                                <li class="flex items-center gap-2.5">
+                                    <PyIcon name="clock" class="w-4 h-4 text-slate-400 shrink-0" /> Thời lượng khoảng {
+                                        formatDuration(totalMinutes)
+                                    }
+                                </li>
+                                <li class="flex items-center gap-2.5">
+                                    <PyIcon name="bolt" class="w-4 h-4 text-slate-400 shrink-0" /> Tổng cộng {totalXP} XP
+                                </li>
+                                <li class="flex items-center gap-2.5">
+                                    <PyIcon name="check" class="w-4 h-4 text-slate-400 shrink-0" /> Chấm điểm tự động bằng
+                                    test case
+                                </li>
+                                <li class="flex items-center gap-2.5">
+                                    <PyIcon name="practice" class="w-4 h-4 text-slate-400 shrink-0" /> Code trực tiếp trên
+                                    trình duyệt
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- ── MAIN ─────────────────────────────────────────────── -->
+            <div class="lg:col-span-2 lg:row-start-1 space-y-8 min-w-0">
+                {
+                    chapters.length > 0 && (
+                        <div class="bg-white rounded-2xl border border-slate-200 p-5 md:p-7">
+                            <h2 class="text-xl font-extrabold text-slate-900 mb-5">Bạn sẽ học được gì?</h2>
+                            <ul class="grid sm:grid-cols-2 gap-x-6 gap-y-4">
+                                {chapters.map((chapter) => (
+                                    <li class="flex items-start gap-3">
+                                        <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+                                            <PyIcon name="check" class="w-3.5 h-3.5" />
+                                        </span>
+                                        <div>
+                                            <p class="text-sm font-bold text-slate-800">{chapter.title}</p>
+                                            {chapter.description && (
+                                                <p class="text-sm text-slate-500 leading-relaxed mt-0.5">
+                                                    {chapter.description}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )
+                }
+
+                <div>
+                    <div class="flex items-end justify-between gap-4 mb-4">
+                        <div>
+                            <h2 class="text-xl font-extrabold text-slate-900">Nội dung khóa học</h2>
+                            <p class="text-sm text-slate-500 mt-1">
+                                {chapters.length} chương · {totalLessons} bài học · {formatDuration(totalMinutes)}
+                            </p>
+                        </div>
+                        {
+                            chapters.length > 1 && (
+                                <button
+                                    id="toggleAllChapters"
+                                    type="button"
+                                    class="text-sm font-bold text-[#3776AB] hover:underline shrink-0"
+                                >
+                                    Mở rộng tất cả
+                                </button>
+                            )
+                        }
+                    </div>
+
+                    <!-- Chapter List -->
+                    <div class="space-y-3">
+                        {
+                            chapters.map((chapter, idx) => (
+                                <details
+                                    class="chapter-item group bg-white rounded-2xl border border-slate-200 overflow-hidden open:shadow-md transition-shadow duration-300"
+                                    open={idx === 0}
+                                >
+                                    <summary class="flex items-center gap-4 px-5 py-4 cursor-pointer hover:bg-slate-50 transition-colors list-none [&::-webkit-details-marker]:hidden">
+                                        <span class="w-10 h-10 rounded-xl bg-[#3776AB]/10 text-[#3776AB] font-extrabold text-sm flex items-center justify-center shrink-0">
+                                            {String(idx + 1).padStart(2, '0')}
+                                        </span>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center gap-2 flex-wrap">
+                                                <h3 class="font-bold text-slate-800 text-base">{chapter.title}</h3>
+                                                {chapter.min_level > 1 && (
+                                                    <span
+                                                        class="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200"
+                                                        title="Yêu cầu cấp độ"
+                                                    >
+                                                        <PyIcon name="lock" class="w-3 h-3" /> Level {chapter.min_level}
+                                                        +
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <p class="text-xs text-slate-500 mt-0.5">
+                                                {chapter.lessons.length} bài học
+                                                <span class="chapter-progress" data-chapter-id={chapter.id} />
+                                            </p>
+                                        </div>
+                                        <PyIcon
+                                            name="chevron"
+                                            class="w-5 h-5 text-slate-400 shrink-0 transition-transform duration-300 group-open:rotate-180"
+                                        />
+                                    </summary>
+
+                                    <div class="border-t border-slate-100">
+                                        {chapter.lessons.length === 0 && (
+                                            <p class="p-5 text-sm text-slate-400 text-center">
+                                                Chưa có bài học nào trong chương này.
+                                            </p>
+                                        )}
+
+                                        <ol>
+                                            {chapter.lessons.map((lesson, li) => (
+                                                <li class="border-b border-slate-100 last:border-b-0">
+                                                    <a
+                                                        href={`/hoc-python/hoc/${course.slug}/${lesson.slug}`}
+                                                        data-lesson-slug={lesson.slug}
+                                                        data-chapter-id={chapter.id}
+                                                        class="lesson-row flex items-center gap-4 px-5 py-3.5 hover:bg-[#3776AB]/[0.04] transition-colors group/lesson no-underline"
+                                                    >
+                                                        <span
+                                                            class={`lesson-icon w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-colors ${typeIconColor[lesson.lesson_type] || typeIconColor.practice}`}
+                                                        >
+                                                            <PyIcon
+                                                                name={
+                                                                    (lesson.lesson_type in typeLabel
+                                                                        ? lesson.lesson_type
+                                                                        : 'practice') as 'theory'
+                                                                }
+                                                                class="w-4 h-4"
+                                                            />
+                                                        </span>
+
+                                                        <div class="flex-1 min-w-0">
+                                                            <p class="font-semibold text-slate-700 text-sm group-hover/lesson:text-[#3776AB] transition-colors truncate">
+                                                                <span class="text-slate-400 font-medium mr-1">
+                                                                    {idx + 1}.{li + 1}
+                                                                </span>
+                                                                {lesson.title}
+                                                            </p>
+                                                            <div class="flex items-center gap-2 mt-1 flex-wrap">
+                                                                <span
+                                                                    class={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${typeColor[lesson.lesson_type] || typeColor.practice}`}
+                                                                >
+                                                                    {typeLabel[lesson.lesson_type] || 'Thực hành'}
+                                                                </span>
+                                                                <span
+                                                                    class={`text-[11px] font-semibold ${diffLessonColor[lesson.difficulty] || diffLessonColor.easy}`}
+                                                                >
+                                                                    {diffLessonLabel[lesson.difficulty] || 'Dễ'}
+                                                                </span>
+                                                                <span class="lesson-status text-[11px] font-semibold" />
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="hidden sm:flex items-center gap-4 text-xs text-slate-500 font-medium shrink-0">
+                                                            <span class="inline-flex items-center gap-1 text-amber-600">
+                                                                <PyIcon name="bolt" class="w-3.5 h-3.5" /> +
+                                                                {lesson.xp_reward ?? 0}
+                                                            </span>
+                                                            <span class="inline-flex items-center gap-1 w-16 whitespace-nowrap">
+                                                                <PyIcon
+                                                                    name="clock"
+                                                                    class="w-3.5 h-3.5 text-slate-400"
+                                                                />{' '}
+                                                                {lesson.estimated_minutes ?? '?'} phút
+                                                            </span>
+                                                        </div>
+                                                        <span
+                                                            class="text-slate-300 group-hover/lesson:text-[#3776AB] group-hover/lesson:translate-x-0.5 transition-all shrink-0"
+                                                            aria-hidden="true"
+                                                        >
+                                                            <PyIcon name="play" class="w-4 h-4" />
+                                                        </span>
+                                                    </a>
+                                                </li>
+                                            ))}
+                                        </ol>
+                                    </div>
+                                </details>
+                            ))
+                        }
+                    </div>
+
+                    {
+                        chapters.length === 0 && (
+                            <div class="text-center py-16 bg-white rounded-2xl border border-dashed border-slate-300">
+                                <div class="text-5xl mb-4">📭</div>
+                                <h2 class="text-xl font-bold text-slate-600">Chương trình đang được xây dựng</h2>
+                                <p class="text-slate-400 mt-2">Nội dung khóa học sẽ sớm được cập nhật.</p>
+                            </div>
+                        )
+                    }
+                </div>
+            </div>
         </div>
     </section>
 </MainLayout>
 
 <script is:inline>
-    (function () {
+    ;(function () {
         var courseSlug = document.getElementById('ctaBtn')?.getAttribute('data-course-slug') || ''
 
+        // Icon SVG dùng khi cập nhật trạng thái bài học
+        var ICON_CHECK =
+            '<svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd"/></svg>'
+        var ICON_LOCK =
+            '<svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z" clip-rule="evenodd"/></svg>'
+
+        // Trạng thái nút CTA
+        var CTA_BASE = 'py-cta '
+        function setCta(btn, variant, text) {
+            btn.className = CTA_BASE + variant
+            btn.textContent = text
+        }
+
         function setGuestMode(btn) {
-            btn.textContent = 'Đăng ký miễn phí'
-            btn.className = btn.className.replace(/cursor-default/g, '') + ' cursor-pointer'
+            setCta(btn, 'py-cta-primary', 'Đăng ký miễn phí')
             btn.href = '#'
             btn.onclick = function (e) {
                 e.preventDefault()
                 var m = document.getElementById('loginModal')
-                if (m) { m.classList.remove('hidden'); m.classList.add('flex'); document.body.classList.add('overflow-hidden') }
+                if (m) {
+                    m.classList.remove('hidden')
+                    m.classList.add('flex')
+                    document.body.classList.add('overflow-hidden')
+                }
             }
         }
 
         function setContinueMode(btn, token) {
             // Fetch progress để tìm bài chưa hoàn thành đầu tiên
             fetch('/api/hoc-python/progress?courseSlug=' + encodeURIComponent(courseSlug), {
-                headers: { 'Authorization': 'Bearer ' + token }
+                headers: { Authorization: 'Bearer ' + token },
             })
-            .then(function (r) { return r.json() })
-            .then(function (data) {
-                if (data.progress) {
-                    var lessons = Object.entries(data.progress)
-                    var firstIncomplete = lessons.find(function (e) { return e[1] !== 'completed' })
-                    if (firstIncomplete) {
-                        btn.textContent = 'Tiếp tục học →'
-                        btn.href = '/hoc-python/hoc/' + courseSlug + '/' + firstIncomplete[0]
-                        btn.onclick = null
+                .then(function (r) {
+                    return r.json()
+                })
+                .then(function (data) {
+                    if (data.progress) {
+                        var lessons = Object.entries(data.progress)
+                        var firstIncomplete = lessons.find(function (e) {
+                            return e[1] !== 'completed'
+                        })
+                        if (firstIncomplete) {
+                            var started = lessons.some(function (e) {
+                                return e[1] === 'completed'
+                            })
+                            setCta(btn, 'py-cta-primary', started ? 'Tiếp tục học →' : 'Bắt đầu học →')
+                            btn.href = '/hoc-python/hoc/' + courseSlug + '/' + firstIncomplete[0]
+                            btn.onclick = null
+                        } else {
+                            setCompletedMode(btn)
+                        }
                     } else {
-                        setCompletedMode(btn)
+                        setEnrolledStatic(btn)
                     }
-                } else {
+                })
+                .catch(function () {
                     setEnrolledStatic(btn)
-                }
-            })
-            .catch(function () { setEnrolledStatic(btn) })
+                })
         }
 
         function setCompletedMode(btn) {
-            btn.textContent = '✅ Hoàn thành'
-            btn.className = btn.className.replace(/cursor-pointer/g, '') + ' cursor-default'
+            setCta(btn, 'py-cta-success', '✓ Đã hoàn thành khóa học')
             btn.href = '#'
-            btn.onclick = function (e) { e.preventDefault() }
+            btn.onclick = function (e) {
+                e.preventDefault()
+            }
         }
 
         function setEnrolledStatic(btn) {
-            btn.textContent = 'Đã đăng ký ✓'
-            btn.className = btn.className.replace(/cursor-pointer/g, '') + ' cursor-default bg-green-600 hover:bg-green-600'
+            setCta(btn, 'py-cta-success', 'Đã đăng ký ✓')
             btn.href = '#'
-            btn.onclick = function (e) { e.preventDefault() }
+            btn.onclick = function (e) {
+                e.preventDefault()
+            }
         }
 
         function setNotEnrolledMode(btn, token) {
             var self = function (e) {
                 e.preventDefault()
-                btn.textContent = 'Đang đăng ký...'
+                setCta(btn, 'py-cta-primary', 'Đang đăng ký...')
                 btn.onclick = null
                 fetch('/api/hoc-python/enroll', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
                     body: JSON.stringify({ courseSlug: courseSlug }),
                 })
-                .then(function (r) { return r.json() })
-                .then(function (data) {
-                    if (data.success) {
-                        setContinueMode(btn, token)
-                    } else {
-                        btn.textContent = 'Đăng ký miễn phí'
+                    .then(function (r) {
+                        return r.json()
+                    })
+                    .then(function (data) {
+                        if (data.success) {
+                            setContinueMode(btn, token)
+                            updateLessonStatus()
+                        } else {
+                            setCta(btn, 'py-cta-primary', 'Đăng ký miễn phí')
+                            btn.onclick = self
+                        }
+                    })
+                    .catch(function () {
+                        setCta(btn, 'py-cta-primary', 'Đăng ký miễn phí')
                         btn.onclick = self
-                    }
-                })
-                .catch(function () {
-                    btn.textContent = 'Đăng ký miễn phí'
-                    btn.onclick = self
-                })
+                    })
             }
-            btn.textContent = 'Đăng ký miễn phí'
+            setCta(btn, 'py-cta-primary', 'Đăng ký miễn phí')
             btn.onclick = self
         }
 
         function checkEnrollmentAndUpdate(btn, token) {
             fetch('/api/hoc-python/enrollment?courseSlug=' + encodeURIComponent(courseSlug), {
-                headers: { 'Authorization': 'Bearer ' + token }
+                headers: { Authorization: 'Bearer ' + token },
             })
-            .then(function (r) {
-                if (r.status === 401) {
+                .then(function (r) {
+                    if (r.status === 401) {
+                        localStorage.removeItem('auth_token')
+                        setGuestMode(btn)
+                        return null
+                    }
+                    return r.json()
+                })
+                .then(function (data) {
+                    if (data === null) return
+                    if (data.enrolled) setContinueMode(btn, token)
+                    else setNotEnrolledMode(btn, token)
+                })
+                .catch(function () {
                     localStorage.removeItem('auth_token')
                     setGuestMode(btn)
-                    return null
-                }
-                return r.json()
-            })
-            .then(function (data) {
-                if (data === null) return
-                if (data.enrolled) setContinueMode(btn, token)
-                else setNotEnrolledMode(btn, token)
-            })
-            .catch(function () {
-                localStorage.removeItem('auth_token')
-                setGuestMode(btn)
-            })
+                })
         }
 
         function updateCta() {
@@ -408,35 +646,111 @@ const firstLessonSlug = chapters[0]?.lessons?.[0]?.slug ?? null
 
         updateCta()
 
-        // ── Cập nhật trạng thái bài học ──────────────────────────────
+        // ── Cập nhật trạng thái bài học + tiến độ ─────────────────────
         function updateLessonStatus() {
             var token = localStorage.getItem('auth_token')
             if (!token) return
             fetch('/api/hoc-python/progress?courseSlug=' + encodeURIComponent(courseSlug), {
-                headers: { 'Authorization': 'Bearer ' + token }
+                headers: { Authorization: 'Bearer ' + token },
             })
-            .then(function (r) { return r.json() })
-            .then(function (data) {
-                if (!data.progress) return
-                document.querySelectorAll('a[data-lesson-slug]').forEach(function (link) {
-                    var slug = link.getAttribute('data-lesson-slug')
-                    var status = data.progress[slug]
-                    if (status === 'completed') {
+                .then(function (r) {
+                    return r.json()
+                })
+                .then(function (data) {
+                    if (!data.progress) return
+                    var chapterDone = {}
+                    var done = 0
+                    var total = 0
+                    var currentMarked = false
+                    document.querySelectorAll('a[data-lesson-slug]').forEach(function (link) {
+                        var slug = link.getAttribute('data-lesson-slug')
+                        var chapterId = link.getAttribute('data-chapter-id')
+                        var status = data.progress[slug]
                         var icon = link.querySelector('.lesson-icon')
-                        if (icon) {
-                            icon.textContent = '✅'
-                            icon.className = 'lesson-icon w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center text-xs shrink-0'
+                        var statusEl = link.querySelector('.lesson-status')
+                        total++
+                        if (!(chapterId in chapterDone)) chapterDone[chapterId] = 0
+                        if (status === 'completed') {
+                            done++
+                            chapterDone[chapterId]++
+                            if (icon) {
+                                icon.innerHTML = ICON_CHECK
+                                icon.className =
+                                    'lesson-icon w-9 h-9 rounded-lg flex items-center justify-center shrink-0 bg-emerald-500 text-white'
+                            }
+                            if (statusEl) {
+                                statusEl.textContent = '· Đã hoàn thành'
+                                statusEl.className = 'lesson-status text-[11px] font-semibold text-emerald-600'
+                            }
+                        } else if (status === 'locked' || status === 'level_locked') {
+                            if (icon) {
+                                icon.innerHTML = ICON_LOCK
+                                icon.className =
+                                    'lesson-icon w-9 h-9 rounded-lg flex items-center justify-center shrink-0 bg-slate-100 text-slate-400'
+                            }
+                            if (statusEl) {
+                                statusEl.textContent = status === 'level_locked' ? '· Cần lên cấp' : '· Chưa mở khóa'
+                                statusEl.className = 'lesson-status text-[11px] font-semibold text-slate-400'
+                            }
+                        } else if (!currentMarked) {
+                            currentMarked = true
+                            link.classList.add('bg-[#3776AB]/[0.06]')
+                            if (icon) icon.className += ' ring-2 ring-[#3776AB] ring-offset-2'
+                            if (statusEl) {
+                                statusEl.textContent = '· Đang học'
+                                statusEl.className = 'lesson-status text-[11px] font-bold text-[#3776AB]'
+                            }
                         }
-                        link.classList.add('bg-emerald-50/40')
+                    })
+
+                    document.querySelectorAll('.chapter-progress').forEach(function (el) {
+                        var id = el.getAttribute('data-chapter-id')
+                        var count = document.querySelectorAll('a[data-chapter-id="' + id + '"]').length
+                        if (count && chapterDone[id] !== undefined) {
+                            el.textContent = ' · ' + chapterDone[id] + '/' + count + ' hoàn thành'
+                            if (chapterDone[id] === count)
+                                el.className = 'chapter-progress text-emerald-600 font-semibold'
+                        }
+                    })
+
+                    var wrap = document.getElementById('courseProgress')
+                    if (wrap && total > 0) {
+                        var pct = Math.round((done / total) * 100)
+                        wrap.classList.remove('hidden')
+                        var doneEl = document.getElementById('progressDone')
+                        var pctEl = document.getElementById('progressPct')
+                        var bar = document.getElementById('progressBar')
+                        if (doneEl) doneEl.textContent = String(done)
+                        if (pctEl) pctEl.textContent = pct + '%'
+                        if (bar) bar.style.width = pct + '%'
                     }
                 })
-            })
-            .catch(function () {})
+                .catch(function () {})
         }
 
         updateLessonStatus()
-        window.addEventListener('user-login', function () { updateCta(); updateLessonStatus() })
-        window.addEventListener('user-logout', function () { location.reload() })
+        window.addEventListener('user-login', function () {
+            updateCta()
+            updateLessonStatus()
+        })
+        window.addEventListener('user-logout', function () {
+            location.reload()
+        })
+
+        // ── Mở rộng / thu gọn tất cả chương ──────────────────────────
+        var toggleAll = document.getElementById('toggleAllChapters')
+        if (toggleAll) {
+            toggleAll.addEventListener('click', function () {
+                var items = document.querySelectorAll('.chapter-item')
+                var anyClosed = Array.prototype.some.call(items, function (d) {
+                    return !d.open
+                })
+                items.forEach(function (d) {
+                    d.open = anyClosed
+                })
+                toggleAll.textContent = anyClosed ? 'Thu gọn tất cả' : 'Mở rộng tất cả'
+            })
+        }
 
         // Lesson links
         document.addEventListener('click', function (e) {
@@ -455,9 +769,52 @@ const firstLessonSlug = chapters[0]?.lessons?.[0]?.slug ?? null
                     title.textContent = 'Cần đăng ký!'
                     msg.textContent = 'Vui lòng đăng ký miễn phí để học bài này.'
                     toast.classList.remove('translate-x-full', 'opacity-0')
-                    setTimeout(function () { toast.classList.add('translate-x-full', 'opacity-0') }, 3000)
+                    setTimeout(function () {
+                        toast.classList.add('translate-x-full', 'opacity-0')
+                    }, 3000)
                 }
             }
         })
     })()
 </script>
+
+<style is:global>
+    .py-cta {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 0.875rem 1.25rem;
+        border-radius: 0.75rem;
+        font-weight: 800;
+        font-size: 0.95rem;
+        text-decoration: none;
+        transition:
+            background-color 0.2s,
+            transform 0.2s,
+            box-shadow 0.2s;
+    }
+    .py-cta-primary {
+        background: #3776ab;
+        color: #fff;
+        box-shadow: 0 10px 24px rgba(55, 118, 171, 0.3);
+        cursor: pointer;
+    }
+    .py-cta-primary:hover {
+        background: #2b5e8a;
+        transform: translateY(-1px);
+    }
+    .py-cta-success {
+        background: #ecfdf5;
+        color: #047857;
+        border: 1px solid #a7f3d0;
+        cursor: default;
+    }
+    .py-cover-grid {
+        background-image:
+            linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+        background-size: 24px 24px;
+    }
+</style>

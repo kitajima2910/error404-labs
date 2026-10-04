@@ -20,6 +20,19 @@
 
 ## Completed
 
+### Redesign giao diện Học Python kiểu CodeLearn (2026-10-04)
+
+- ✅ **Thanh điều hướng con** `PyNav` (Tổng quan / Khóa học / Bảng xếp hạng / Cá nhân) dùng chung cho mục `/hoc-python`; nạp thêm Montserrat 500–800 cho các trang này (trước đây chỉ có 400 → chữ đậm bị giả lập).
+- ✅ **Trang tổng quan** `/hoc-python`: hero nền navy + mockup IDE, dải điểm nổi bật, "Học — Code — Chấm điểm", lộ trình 3 cấp, lưới tính năng, CTA. Vẫn `prerender = true`.
+- ✅ **Danh sách khóa học**: banner, lọc theo cấp độ + tìm kiếm (client), thẻ khóa học có ảnh bìa tự sinh, số chương/bài/thời lượng/XP, thanh tiến độ khi đã đăng nhập. SQL thêm `total_xp`, `total_minutes`.
+- ✅ **Chi tiết khóa học**: hero + thẻ đăng ký nổi (sticky) có tiến độ %, "Bạn sẽ học được gì", syllabus dạng accordion có trạng thái từng bài (hoàn thành / đang học / khóa) và tiến độ từng chương, nút mở rộng tất cả. Logic CTA đăng ký/tiếp tục học giữ nguyên.
+- ✅ **Trang học bài (IDE)**: full-height, header có drawer "Danh sách bài học" + tiến độ khóa học, tab Đề bài/Code trên mobile, toolbar One Dark (Làm lại / Chạy thử / Nộp bài), status bar (trạng thái Python runtime, dòng/cột), panel Test case kiểu CodeLearn (chip từng test + Input / Output mong muốn / Output của bạn + so sánh dòng), modal chúc mừng khi qua bài.
+- ✅ **Markdown bài giảng có style thật** (project không cài `@tailwindcss/typography` nên class `prose` trước đây không có tác dụng): tô màu cú pháp Python phía server (`src/utils/python-highlight.ts`), khối code có nút Sao chép / ▶ Thử ngay; bỏ H1 trùng tiêu đề; bỏ nhãn "▼ Python" hardcode (B7).
+- ✅ **Editor**: phím Tab thụt lề (`indentWithTab` — trước đây Tab bị chặn global nên không thụt lề được), tự lưu bản nháp theo bài (`localStorage` `py_draft_<lessonId>`), "Làm lại" có xác nhận, Input tùy chỉnh luôn hiển thị.
+- **File đã sửa**: `src/pages/hoc-python/index.astro`, `khoa-hoc.astro`, `khoa-hoc/[slug].astro`, `hoc/[courseSlug]/[lessonSlug].astro`, `ca-nhan.astro`, `bang-xep-hang.astro` (chỉ thêm `PyNav`); **mới**: `src/components/python/PyNav.astro`, `src/components/python/PyIcon.astro`, `src/utils/python-highlight.ts`.
+- **Kết quả kiểm tra**: `astro build` đạt; Prettier đạt cho các file mới/viết lại; kiểm tra bằng Playwright với DB giả: chạy thử (test sai/đúng), nộp bài (outputs gửi server đúng, test ẩn không lộ đáp án), Tab indent, khôi phục bản nháp, input tùy chỉnh, drawer, mobile không tràn ngang.
+- **Vấn đề còn lại**: Chưa kiểm tra với Neon thật/CDN Pyodide thật trong môi trường này (CDN bị chặn — đã thử bằng gói `pyodide` local). `astro check` toàn project bị OOM (pre-existing, do file lớn ngoài phạm vi).
+
 ### Security hardening ưu tiên cao
 
 - ✅ Login mật khẩu tạo session token bằng `randomBytes(32)` thay cho `Math.random()`.
