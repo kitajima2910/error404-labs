@@ -1,5 +1,6 @@
 ---
 import { formatBlogPost } from '../js/utils'
+import IconPython from '../icons/IconPython.astro'
 
 const allPosts = Object.values(import.meta.glob('../pages/bai-viet/*.md', { eager: true }))
 
@@ -13,68 +14,217 @@ const titles_and_urls = blog.map((post: any) => ({
     title: post.frontmatter.title,
     url: post.url,
 }))
+
+const columns = [
+    {
+        title: 'Học tập',
+        links: [
+            { label: 'Lớp Web & Game sáng tạo', href: '/khoa-hoc' },
+            { label: 'Học Python miễn phí', href: '/hoc-python' },
+            { label: 'Bảng xếp hạng Python', href: '/hoc-python/bang-xep-hang' },
+            { label: 'Bài viết', href: '/bai-viet' },
+        ],
+    },
+    {
+        title: 'Công cụ',
+        links: [
+            { label: 'Công cụ', href: '/tools' },
+            { label: 'HTML5 Editor', href: '/html5-editor' },
+            { label: 'Thử nghiệm', href: '/thu-nghiem' },
+            { label: 'Prompts Game H5', href: '/cau-lenh-prompts-game' },
+        ],
+    },
+]
 ---
 
-<footer class="bg-gradient-to-b from-slate-900 to-slate-950 text-slate-300">
-    <div class="max-w-7xl mx-auto px-4 py-16">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-            <!-- About -->
-            <div class="lg:col-span-2">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
-                        <span class="text-white text-xl">🚀</span>
-                    </div>
-                    <span class="text-xl font-black text-white tracking-tight">Error404 Labs</span>
-                </div>
-                <p class="text-slate-400 text-sm leading-relaxed mb-6 max-w-md">
-                    Nền tảng học lập trình miễn phí dành cho người Việt. Học qua dự án thực tế, 
-                    phát triển kỹ năng từ cơ bản đến nâng cao cùng cộng đồng.
+<footer class="relative overflow-hidden bg-navy-950 text-slate-300">
+    <div
+        class="absolute -top-40 -right-40 w-[480px] h-[480px] rounded-full bg-blue-600/20 blur-[140px] pointer-events-none"
+    >
+    </div>
+
+    <!-- Dải CTA -->
+    <div class="relative border-b border-white/10">
+        <div class="container-site py-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div>
+                <p class="text-xl md:text-2xl font-extrabold text-white tracking-tight">
+                    Cho con bắt đầu học lập trình ngay hôm nay
                 </p>
-                <div class="flex gap-4">
-                    <a href="https://www.facebook.com/kitajima2910" target="_blank" class="w-9 h-9 bg-slate-800 hover:bg-slate-700 rounded-lg flex items-center justify-center transition-all hover:scale-110">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                <p class="text-slate-400 mt-1">
+                    Học Python miễn phí trên web, hoặc liên hệ để được tư vấn lớp học phù hợp.
+                </p>
+            </div>
+            <div class="flex flex-wrap gap-3 shrink-0">
+                <a href="/hoc-python" class="btn btn-sun">
+                    <IconPython class="w-5 h-5" /> Học Python miễn phí
+                </a>
+                <a href="https://zalo.me/0373306966" target="_blank" rel="noopener" class="btn btn-ghost-light">
+                    💬 Tư vấn qua Zalo
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="relative container-site py-14">
+        <div class="grid grid-cols-2 lg:grid-cols-12 gap-x-6 gap-y-10">
+            <!-- About -->
+            <div class="col-span-2 lg:col-span-4">
+                <a href="/" class="flex items-center gap-3 mb-4 no-underline">
+                    <img
+                        src="/avatar_v2.avif"
+                        alt="Error404 Labs"
+                        width="44"
+                        height="44"
+                        class="w-11 h-11 rounded-full ring-2 ring-white/15"
+                    />
+                    <span>
+                        <span class="block text-lg font-extrabold text-white tracking-tight">Error404 Labs</span>
+                        <span class="block text-xs text-slate-400">Học lập trình từ con số 0</span>
+                    </span>
+                </a>
+                <p class="text-slate-400 text-sm leading-relaxed mb-6 max-w-sm">
+                    Nơi học lập trình dành cho học sinh và người mới: học qua dự án thực tế, code dễ hiểu, áp dụng được
+                    ngay — từ Web, Game đến Python, C, Java.
+                </p>
+                <div class="flex gap-2.5">
+                    <a
+                        href="https://www.facebook.com/kitajima2910"
+                        target="_blank"
+                        rel="noopener"
+                        class="w-10 h-10 bg-white/5 hover:bg-white/15 border border-white/10 rounded-xl flex items-center justify-center transition-colors"
+                        aria-label="Facebook Phạm Xuân Hoài"
+                        title="Facebook Phạm Xuân Hoài"
+                    >
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"
+                            ><path
+                                d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
+                            ></path></svg
+                        >
                     </a>
-                    <a href="https://www.facebook.com/error404labs" target="_blank" class="w-9 h-9 bg-slate-800 hover:bg-slate-700 rounded-lg flex items-center justify-center transition-all hover:scale-110">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.77,7.46H14.5v-1.9c0-.9.6-1.1,1-1.1h3V.5h-4.33C10.24.5,9.5,3.44,9.5,5.32v2.15h-3v4h3v12h5v-12h3.85l.42-4Z"/></svg>
+                    <a
+                        href="https://www.facebook.com/error404labs"
+                        target="_blank"
+                        rel="noopener"
+                        class="w-10 h-10 bg-white/5 hover:bg-white/15 border border-white/10 rounded-xl flex items-center justify-center transition-colors"
+                        aria-label="Fanpage Error404 Labs"
+                        title="Fanpage Error404 Labs"
+                    >
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"
+                            ><path
+                                d="M18.77,7.46H14.5v-1.9c0-.9.6-1.1,1-1.1h3V.5h-4.33C10.24.5,9.5,3.44,9.5,5.32v2.15h-3v4h3v12h5v-12h3.85l.42-4Z"
+                            ></path></svg
+                        >
+                    </a>
+                    <a
+                        href="https://zalo.me/0373306966"
+                        target="_blank"
+                        rel="noopener"
+                        class="h-10 px-3 bg-white/5 hover:bg-white/15 border border-white/10 rounded-xl flex items-center justify-center text-sm font-bold transition-colors no-underline"
+                        aria-label="Zalo"
+                        title="Zalo"
+                    >
+                        Zalo
+                    </a>
+                    <a
+                        href="/rss.xml"
+                        target="_blank"
+                        class="w-10 h-10 bg-white/5 hover:bg-white/15 border border-white/10 rounded-xl flex items-center justify-center transition-colors"
+                        aria-label="RSS"
+                        title="RSS"
+                    >
+                        <svg
+                            class="w-5 h-5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="2"
+                            stroke="currentColor"
+                            aria-hidden="true"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M12.75 19.5v-.75a7.5 7.5 0 0 0-7.5-7.5H4.5m0-6.75h.75c7.87 0 14.25 6.38 14.25 14.25v.75M6 18.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"
+                            ></path>
+                        </svg>
                     </a>
                 </div>
             </div>
 
-            <!-- Quick Links -->
-            <div>
-                <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4">Liên kết nhanh</h4>
-                <ul class="space-y-3">
-                    <li><a href="/" class="text-slate-400 hover:text-indigo-400 transition-colors text-sm">Trang chủ</a></li>
-                    <li><a href="/bai-viet" class="text-slate-400 hover:text-indigo-400 transition-colors text-sm">Bài viết</a></li>
-                    <li><a href="/khoa-hoc" class="text-slate-400 hover:text-indigo-400 transition-colors text-sm">Khóa học</a></li>
-                    <li><a href="/thu-nghiem" class="text-slate-400 hover:text-indigo-400 transition-colors text-sm">Thử nghiệm</a></li>
-                    <li><a href="/cau-lenh-prompts-game" class="text-slate-400 hover:text-indigo-400 transition-colors text-sm">Prompts</a></li>
-                </ul>
-            </div>
+            {
+                columns.map((col) => (
+                    <div class="lg:col-span-2">
+                        <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4">{col.title}</h4>
+                        <ul class="space-y-3">
+                            {col.links.map((link) => (
+                                <li>
+                                    <a
+                                        href={link.href}
+                                        class="text-slate-400 hover:text-sun-400 transition-colors text-sm no-underline"
+                                    >
+                                        {link.label}
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                ))
+            }
 
-            <!-- Recent Posts -->
-            <div>
-                <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4">Bài viết mới</h4>
-                <ul class="space-y-3">
-                    {titles_and_urls.slice(0, 5).map((item: any) => (
-                        <li>
-                            <a href={item.url} class="text-slate-400 hover:text-indigo-400 transition-colors text-sm line-clamp-1">
-                                {item.title}
-                            </a>
-                        </li>
-                    ))}
+            <!-- Liên hệ -->
+            <div class="col-span-2 lg:col-span-4">
+                <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4">Liên hệ</h4>
+                <ul class="space-y-3 text-sm">
+                    <li class="flex items-start gap-3">
+                        <span
+                            class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0"
+                            aria-hidden="true">📞</span
+                        >
+                        <span>
+                            <span class="block text-slate-500 text-xs">Điện thoại / Zalo</span>
+                            <a href="tel:0373306966" class="text-white font-bold hover:text-sun-400 no-underline"
+                                >0373.306.966</a
+                            >
+                        </span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span
+                            class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0"
+                            aria-hidden="true">📍</span
+                        >
+                        <span>
+                            <span class="block text-slate-500 text-xs">Địa chỉ lớp học</span>
+                            <span class="text-slate-300">308 Đ. TX 25, Thạnh Xuân, Q.12, TP.HCM</span>
+                        </span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span
+                            class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0"
+                            aria-hidden="true">💝</span
+                        >
+                        <span>
+                            <span class="block text-slate-500 text-xs">Ủng hộ dự án</span>
+                            <a href="/donate" class="text-slate-300 hover:text-sun-400 no-underline"
+                                >Donate cho Error404 Labs</a
+                            >
+                        </span>
+                    </li>
                 </ul>
             </div>
         </div>
 
         <!-- Bottom -->
-        <div class="border-t border-slate-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p class="text-slate-500 text-sm">
-                © {new Date().getFullYear()} <span class="text-white font-bold">Phạm Xuân Hoài</span>. All rights reserved.
+        <div class="border-t border-white/10 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p class="text-slate-500 text-sm text-center md:text-left">
+                © {new Date().getFullYear()}
+                <span class="text-white font-bold">Phạm Xuân Hoài</span> · Error404 Labs.
             </p>
-            <div class="flex items-center gap-2 text-slate-500 text-sm">
-                <span class="text-emerald-500">●</span>
-                <span>Hệ thống đang hoạt động</span>
+            <div class="flex items-center gap-5 text-sm">
+                <a href="/gioi-thieu-v2" class="text-slate-500 hover:text-white no-underline">Giới thiệu</a>
+                <a href="/bai-viet" class="text-slate-500 hover:text-white no-underline">Bài viết</a>
+                <span class="flex items-center gap-2 text-slate-500">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Hệ thống hoạt động
+                </span>
             </div>
         </div>
     </div>
@@ -184,27 +334,125 @@ const titles_and_urls = blog.map((post: any) => ({
 
 <script define:vars={{ titles_and_urls }}>
     const names = [
-        'Minh', 'Lan', 'Hải', 'Tuấn', 'Thảo', 'Phúc', 'Quang', 'Linh', 'Hùng', 'Nam',
-        'Đức', 'Dũng', 'Tú', 'Hiếu', 'Khang', 'Khánh', 'Long', 'Phương', 'Trang', 'Vy',
-        'Ngọc', 'Hương', 'Tâm', 'Tùng', 'Bảo', 'Sơn', 'Hà', 'Yến', 'Thành', 'Tiến',
-        'Quỳnh', 'Mai', 'Thu', 'Giang', 'Kiên', 'Trung', 'An', 'Nhung', 'Vân', 'Lộc',
-        'Phú', 'Hòa', 'Bình', 'Tấn', 'Nghĩa', 'Thanh', 'Trí', 'Thiện', 'Duy',
+        'Minh',
+        'Lan',
+        'Hải',
+        'Tuấn',
+        'Thảo',
+        'Phúc',
+        'Quang',
+        'Linh',
+        'Hùng',
+        'Nam',
+        'Đức',
+        'Dũng',
+        'Tú',
+        'Hiếu',
+        'Khang',
+        'Khánh',
+        'Long',
+        'Phương',
+        'Trang',
+        'Vy',
+        'Ngọc',
+        'Hương',
+        'Tâm',
+        'Tùng',
+        'Bảo',
+        'Sơn',
+        'Hà',
+        'Yến',
+        'Thành',
+        'Tiến',
+        'Quỳnh',
+        'Mai',
+        'Thu',
+        'Giang',
+        'Kiên',
+        'Trung',
+        'An',
+        'Nhung',
+        'Vân',
+        'Lộc',
+        'Phú',
+        'Hòa',
+        'Bình',
+        'Tấn',
+        'Nghĩa',
+        'Thanh',
+        'Trí',
+        'Thiện',
+        'Duy',
     ]
 
     const cities = [
-        'Hà Nội', 'TP.HCM', 'Đà Nẵng', 'Cần Thơ', 'Huế', 'Hải Phòng', 'Quảng Ninh',
-        'Bắc Ninh', 'Bắc Giang', 'Thái Nguyên', 'Nam Định', 'Ninh Bình', 'Thanh Hóa',
-        'Nghệ An', 'Hà Tĩnh', 'Quảng Bình', 'Quảng Trị', 'Quảng Nam', 'Quảng Ngãi',
-        'Bình Định', 'Phú Yên', 'Khánh Hòa', 'Ninh Thuận', 'Bình Thuận', 'Kon Tum',
-        'Gia Lai', 'Đắk Lắk', 'Đắk Nông', 'Lâm Đồng', 'Bình Phước', 'Bình Dương',
-        'Đồng Nai', 'Tây Ninh', 'Bà Rịa - Vũng Tàu', 'Long An', 'Tiền Giang', 'Bến Tre',
-        'Trà Vinh', 'Vĩnh Long', 'Đồng Tháp', 'An Giang', 'Kiên Giang', 'Hậu Giang',
-        'Sóc Trăng', 'Bạc Liêu', 'Cà Mau',
+        'Hà Nội',
+        'TP.HCM',
+        'Đà Nẵng',
+        'Cần Thơ',
+        'Huế',
+        'Hải Phòng',
+        'Quảng Ninh',
+        'Bắc Ninh',
+        'Bắc Giang',
+        'Thái Nguyên',
+        'Nam Định',
+        'Ninh Bình',
+        'Thanh Hóa',
+        'Nghệ An',
+        'Hà Tĩnh',
+        'Quảng Bình',
+        'Quảng Trị',
+        'Quảng Nam',
+        'Quảng Ngãi',
+        'Bình Định',
+        'Phú Yên',
+        'Khánh Hòa',
+        'Ninh Thuận',
+        'Bình Thuận',
+        'Kon Tum',
+        'Gia Lai',
+        'Đắk Lắk',
+        'Đắk Nông',
+        'Lâm Đồng',
+        'Bình Phước',
+        'Bình Dương',
+        'Đồng Nai',
+        'Tây Ninh',
+        'Bà Rịa - Vũng Tàu',
+        'Long An',
+        'Tiền Giang',
+        'Bến Tre',
+        'Trà Vinh',
+        'Vĩnh Long',
+        'Đồng Tháp',
+        'An Giang',
+        'Kiên Giang',
+        'Hậu Giang',
+        'Sóc Trăng',
+        'Bạc Liêu',
+        'Cà Mau',
     ]
 
-    const icons = ['👨‍💻', '🧑‍💻', '👩‍💻', '📚', '💻', '🧠']
-    const actions = ['đang học', 'đang đọc', 'vừa xem', 'vừa truy cập', 'đang tìm hiểu']
-    const devices = ['💻', '📱']
+    const icons = [
+        '👨‍💻',
+        '🧑‍💻',
+        '👩‍💻',
+        '📚',
+        '💻',
+        '🧠',
+    ]
+    const actions = [
+        'đang học',
+        'đang đọc',
+        'vừa xem',
+        'vừa truy cập',
+        'đang tìm hiểu',
+    ]
+    const devices = [
+        '💻',
+        '📱',
+    ]
 
     let lastTitle = null
     let disabled = false
